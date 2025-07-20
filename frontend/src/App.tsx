@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import MetricsChart from './Chart'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   CellValueChangedEvent,
@@ -8,121 +7,49 @@ import type {
   ValueFormatterParams,
   ValueParserParams,
 } from 'ag-grid-community'
+import MetricsChart from './Chart'
+import useFinancialRows from './hooks/useFinancialRows'
+import useSnapshots from './hooks/useSnapshots'
+import useFxRates from './hooks/useFxRates'
+import useMetrics from './hooks/useMetrics'
+import { currencyOptions } from './types'
+import type { Currency, Row } from './types'
+import { parseCsv, rowsToCsv } from './utils/csv'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import './App.css'
 
-interface Row {
-  id: string
-  account: string
-  amount: number
-  currency: Currency
-}
-
-const currencyOptions = ['USD', 'EUR', 'GBP'] as const
-type Currency = (typeof currencyOptions)[number]
-
 function App() {
   const [baseCurrency, setBaseCurrency] = useState<Currency>('USD')
-  const createRow = useCallback(
-    (account: string, amount: number, currency: Currency): Row => ({
-      id: crypto.randomUUID(),
-      account,
-      amount,
-      currency,
-    }),
-    [],
-  )
-
-  const [rowData, setRowData] = useState<Row[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const {
+    rows: rowData,
+    setRows: setRowData,
+    addRow,
+    deleteRow,
+    updateRow,
+    createRow,
+  } = useFinancialRows(baseCurrency)
+  const { snapshots, saveSnapshot } = useSnapshots()
+  const fxRates = useFxRates(baseCurrency)
 
   interface Snapshot {
     id: string
     timestamp: string
     rows: Row[]
   }
-  const [snapshots, setSnapshots] = useState<Snapshot[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem('snapshots')
-    if (stored) {
-      try {
-        setSnapshots(JSON.parse(stored) as Snapshot[])
-      } catch {
-        setSnapshots([])
-      }
-    }
-  }, [])
-
-  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
-  type Scenario = (typeof scenarioOptions)[number]
-  const scenarioMultipliers: Record<Scenario, number> = {
-    Base: 1,
-    Optimistic: 1.1,
-    Pessimistic: 0.9,
-  }
   const [scenario, setScenario] = useState<Scenario>('Base')
 
-  const [fxRates, setFxRates] = useState<Record<string, number>>({
-    [baseCurrency]: 1,
-  })
 
-  useEffect(() => {
-    const fetchRates = async () => {
-      try {
-        const res = await fetch(
-          `https://api.exchangerate.host/latest?base=${baseCurrency}`,
-        )
-        const data = await res.json()
-        setFxRates({ [baseCurrency]: 1, ...data.rates })
-      } catch {
-        setFxRates({ USD: 1, EUR: 0.92, GBP: 0.8 })
-      }
-    }
-    fetchRates()
-  }, [baseCurrency])
+  // row state is managed by useFinancialRows
 
 
-  useEffect(() => {
-    const stored = localStorage.getItem('rows')
-    if (stored) {
-      try {
-        const parsed = (JSON.parse(stored) as unknown[]).map((r) => {
-          const row = r as Partial<Row>
-          return {
-            id: row.id ?? crypto.randomUUID(),
-            account: row.account ?? '',
-            amount: row.amount ?? 0,
-            currency: row.currency ?? baseCurrency,
-          }
-        })
-        setRowData(parsed)
-      } catch {
-        setRowData([
-          createRow('Revenue', 1000, baseCurrency),
-          createRow('Cost of Goods Sold', -300, baseCurrency),
-          createRow('Operating Expenses', -200, baseCurrency),
-        ])
-      }
-    } else {
-      setRowData([
-        createRow('Revenue', 1000, baseCurrency),
-        createRow('Cost of Goods Sold', -300, baseCurrency),
-        createRow('Operating Expenses', -200, baseCurrency),
-      ])
-    }
-  }, [createRow, baseCurrency])
-
-  useEffect(() => {
-    if (rowData.length) {
-      localStorage.setItem('rows', JSON.stringify(rowData))
-    }
-  }, [rowData])
-
-  const handleDeleteRow = useCallback((id: string) => {
-    setRowData((prev) => prev.filter((row) => row.id !== id))
-  }, [])
+  const handleDeleteRow = useCallback(
+    (id: string) => {
+      deleteRow(id)
+    },
+    [deleteRow],
+  )
 
   const handleScenarioChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -131,11 +58,7 @@ function App() {
     [],
   )
   const handleExport = useCallback(() => {
-    const lines = [
-      ['account', 'amount', 'currency'],
-      ...rowData.map((r) => [r.account, r.amount, r.currency]),
-    ]
-    const csv = lines.map((line) => line.join(',')).join('\n')
+    const csv = rowsToCsv(rowData)
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -155,31 +78,20 @@ function App() {
       if (!file) return
       const reader = new FileReader()
       reader.onload = () => {
-        const text = (reader.result as string).trim()
-        const lines = text.split('\n').slice(1)
-        const rows = lines.map((line) => {
-          const [account = '', amountStr = '0', currency = baseCurrency] =
-            line.split(',')
-          return createRow(account, Number(amountStr), currency as Currency)
-        })
+
+        const text = (reader.result as string)
+        const rows = parseCsv(text, createRow, baseCurrency)
         setRowData(rows)
       }
       reader.readAsText(file)
       e.target.value = ''
     },
-    [createRow, baseCurrency],
+    [createRow, baseCurrency, setRowData],
   )
 
-  const saveSnapshot = useCallback(() => {
-    const snap: Snapshot = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-      rows: rowData,
-    }
-    const updated = [...snapshots, snap]
-    setSnapshots(updated)
-    localStorage.setItem('snapshots', JSON.stringify(updated))
-  }, [rowData, snapshots])
+  const handleSaveSnapshot = useCallback(() => {
+    saveSnapshot(rowData)
+  }, [saveSnapshot, rowData])
 
   const handleLoadSnapshot = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -190,7 +102,7 @@ function App() {
       }
       e.target.selectedIndex = 0
     },
-    [snapshots],
+    [snapshots, setRowData],
   )
 
   const handleSync = useCallback(async () => {
@@ -271,72 +183,10 @@ function App() {
   )
 
   const multiplier = scenarioMultipliers[scenario]
-
-  const convertedAmounts = useMemo(
-    () => rowData.map((row) => row.amount / (fxRates[row.currency] ?? 1)),
-    [rowData, fxRates],
-  )
-
-  const scaledAmounts = useMemo(
-    () => convertedAmounts.map((val) => val * multiplier),
-    [convertedAmounts, multiplier],
-  )
-
-  const total = useMemo(
-    () => scaledAmounts.reduce((sum, amount) => sum + amount, 0),
-    [scaledAmounts],
-  )
-
-
-  const average = useMemo(
-    () => (rowData.length ? total / rowData.length : 0),
-    [rowData.length, total],
-  )
-
-  const max = useMemo(
-    () => (rowData.length ? Math.max(...scaledAmounts) : 0),
-    [rowData.length, scaledAmounts],
-  )
-
-  const min = useMemo(
-    () => (rowData.length ? Math.min(...scaledAmounts) : 0),
-    [rowData.length, scaledAmounts],
-  )
-
-  const income = useMemo(
-    () => scaledAmounts.filter((v) => v > 0).reduce((sum, v) => sum + v, 0),
-    [scaledAmounts],
-  )
-
-  const expenses = useMemo(
-    () => scaledAmounts.filter((v) => v < 0).reduce((sum, v) => sum + v, 0),
-    [scaledAmounts],
-  )
-
-  const grossMargin = useMemo(() => income + expenses, [income, expenses])
-
-  const ebitda = useMemo(() => grossMargin, [grossMargin])
-
-  const cashFlow = useMemo(() => total, [total])
-
-  const roi = useMemo(() => {
-    const base = Math.abs(expenses)
-    return base ? (cashFlow / base) * 100 : 0
-  }, [cashFlow, expenses])
-
-  const pinnedBottomRowData = useMemo(
-    () => [
-      { account: 'Total', amount: total },
-      { account: 'Average', amount: average },
-      { account: 'Max', amount: max },
-      { account: 'Min', amount: min },
-      { account: 'Gross Margin', amount: grossMargin },
-      { account: 'EBITDA', amount: ebitda },
-      { account: 'ROI', amount: roi },
-      { account: 'Cash Flow', amount: cashFlow },
-    ],
-    [total, average, max, min, grossMargin, ebitda, roi, cashFlow],
-
+  const { pinnedBottomRowData, chartData } = useMetrics(
+    rowData,
+    fxRates,
+    multiplier,
   )
 
   const chartData = useMemo(
@@ -350,18 +200,14 @@ function App() {
 
   const onCellValueChanged = useCallback(
     (params: CellValueChangedEvent) => {
-      const updated = (params.data as Row)
-      setRowData((prev) =>
-        prev.map((row) => (row.id === updated.id ? updated : row)),
-      )
+      updateRow(params.data as Row)
     },
-    [],
+    [updateRow],
   )
 
   const handleAddRow = useCallback(() => {
-    setRowData([...rowData, createRow('', 0, baseCurrency)])
-  }, [rowData, createRow, baseCurrency])
-
+    addRow()
+  }, [addRow])
   return (
     <div className="container">
       <h1>Financial Model</h1>
@@ -400,7 +246,7 @@ function App() {
       <button type="button" onClick={handleImportClick} className="add-button">
         Import CSV
       </button>
-      <button type="button" onClick={saveSnapshot} className="add-button">
+      <button type="button" onClick={handleSaveSnapshot} className="add-button">
         Save Snapshot
       </button>
       <select onChange={handleLoadSnapshot} className="scenario-select">

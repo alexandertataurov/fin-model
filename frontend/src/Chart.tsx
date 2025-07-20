@@ -1,8 +1,5 @@
 
-interface Metric {
-  label: string
-  value: number
-}
+import type { Metric } from './types'
 
 interface Props {
   data: Metric[]
