@@ -13,18 +13,6 @@
 - [x] **React + TypeScript setup with Vite**
 - [x] **Scenario Analysis** _(P1)_
 - [x] **Support deleting rows**
-
----
-
-## 🛠 In Progress
-- _None_
----
-
-## 📋 Backlog
-- [x] **Backend sync** _(P3)_
-- [x] **Versioning & Snapshots** _(P3)_
-
-## 🚀 Future Enhancements
 - [x] Add currency column + live FX conversion
 - [x] **Backend sync** _(P3)_
   - Integrate REST/GraphQL API for saving models remotely
@@ -36,7 +24,23 @@
 - [x] **Versioning & Snapshots** _(P3)_
   - Save different versions of the model (local snapshots)
   - Compare two snapshots side-by-side
+- [x] **Backend sync** _(P3)_
+- [x] **Versioning & Snapshots** _(P3)_
+
+---
+
+## 🛠 In Progress
+
+---
+
+## 📋 Backlog
+
+---
+
+## 🚀 Future Enhancements
 
 ---
 
 ## 🗂 Project Structure (planned)
+
+---

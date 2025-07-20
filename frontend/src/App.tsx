@@ -33,17 +33,16 @@ function App() {
   const { snapshots, saveSnapshot } = useSnapshots()
   const fxRates = useFxRates(baseCurrency)
 
-  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
-  type Scenario = (typeof scenarioOptions)[number]
-  const scenarioMultipliers: Record<Scenario, number> = {
-    Base: 1,
-    Optimistic: 1.1,
-    Pessimistic: 0.9,
+  interface Snapshot {
+    id: string
+    timestamp: string
+    rows: Row[]
   }
   const [scenario, setScenario] = useState<Scenario>('Base')
 
 
   // row state is managed by useFinancialRows
+
 
   const handleDeleteRow = useCallback(
     (id: string) => {
@@ -79,6 +78,7 @@ function App() {
       if (!file) return
       const reader = new FileReader()
       reader.onload = () => {
+
         const text = (reader.result as string)
         const rows = parseCsv(text, createRow, baseCurrency)
         setRowData(rows)
@@ -183,11 +183,19 @@ function App() {
   )
 
   const multiplier = scenarioMultipliers[scenario]
-
   const { pinnedBottomRowData, chartData } = useMetrics(
     rowData,
     fxRates,
     multiplier,
+  )
+
+  const chartData = useMemo(
+    () => [
+      { label: 'Revenue', value: income },
+      { label: 'Profit', value: grossMargin },
+      { label: 'Cash Flow', value: cashFlow },
+    ],
+    [income, grossMargin, cashFlow],
   )
 
   const onCellValueChanged = useCallback(
@@ -200,7 +208,6 @@ function App() {
   const handleAddRow = useCallback(() => {
     addRow()
   }, [addRow])
-
   return (
     <div className="container">
       <h1>Financial Model</h1>
