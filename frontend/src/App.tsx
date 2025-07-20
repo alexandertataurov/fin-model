@@ -15,14 +15,19 @@ interface Row {
   id: string
   account: string
   amount: number
+  currency: string
 }
+
+const baseCurrency = 'USD'
+const currencyOptions = ['USD', 'EUR', 'GBP'] as const
 
 function App() {
   const createRow = useCallback(
-    (account: string, amount: number): Row => ({
+    (account: string, amount: number, currency = 'USD'): Row => ({
       id: crypto.randomUUID(),
       account,
       amount,
+      currency,
     }),
     [],
   )
@@ -38,23 +43,51 @@ function App() {
   }
   const [scenario, setScenario] = useState<Scenario>('Base')
 
+const [fxRates, setFxRates] = useState<Record<string, number>>({
+    [baseCurrency]: 1,
+  })
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch(
+          `https://api.exchangerate.host/latest?base=${baseCurrency}`,
+        )
+        const data = await res.json()
+        setFxRates({ [baseCurrency]: 1, ...data.rates })
+      } catch {
+        setFxRates({ USD: 1, EUR: 0.92, GBP: 0.8 })
+      }
+    }
+    fetchRates()
+  }, [])
+
   useEffect(() => {
     const stored = localStorage.getItem('rows')
     if (stored) {
       try {
-        setRowData(JSON.parse(stored))
+        const parsed = (JSON.parse(stored) as unknown[]).map((r) => {
+          const row = r as Partial<Row>
+          return {
+            id: row.id ?? crypto.randomUUID(),
+            account: row.account ?? '',
+            amount: row.amount ?? 0,
+            currency: row.currency ?? baseCurrency,
+          }
+        })
+        setRowData(parsed)
       } catch {
         setRowData([
-          createRow('Revenue', 1000),
-          createRow('Cost of Goods Sold', -300),
-          createRow('Operating Expenses', -200),
+          createRow('Revenue', 1000, baseCurrency),
+          createRow('Cost of Goods Sold', -300, baseCurrency),
+          createRow('Operating Expenses', -200, baseCurrency),
         ])
       }
     } else {
       setRowData([
-        createRow('Revenue', 1000),
-        createRow('Cost of Goods Sold', -300),
-        createRow('Operating Expenses', -200),
+        createRow('Revenue', 1000, baseCurrency),
+        createRow('Cost of Goods Sold', -300, baseCurrency),
+        createRow('Operating Expenses', -200, baseCurrency),
       ])
     }
   }, [createRow])
@@ -80,16 +113,24 @@ function App() {
     () => [
       { field: 'account', headerName: 'Account' },
       {
+        field: 'currency',
+        headerName: 'Currency',
+        cellEditor: 'agSelectCellEditor',
+        cellEditorParams: { values: currencyOptions as readonly string[] },
+        width: 110,
+      },
+      {
         field: 'amount',
         headerName: 'Amount',
         type: 'numericColumn',
         valueParser: (params: ValueParserParams) => Number(params.newValue),
-        valueFormatter: (params: ValueFormatterParams) =>
-
-        Number(params.value).toLocaleString(undefined, {
+        valueFormatter: (params: ValueFormatterParams) => {
+          const c = (params.data as Row | undefined)?.currency ?? baseCurrency
+          return Number(params.value).toLocaleString(undefined, {
             style: 'currency',
-            currency: 'USD',
-          }),
+            currency: c,
+          })
+        },
       },
       {
         headerName: '',
@@ -115,9 +156,15 @@ function App() {
 
   const multiplier = scenarioMultipliers[scenario]
 
+  const convertedAmounts = useMemo(
+    () => rowData.map((row) => row.amount * (fxRates[row.currency] ?? 1)),
+    [rowData, fxRates],
+  )
+
   const scaledAmounts = useMemo(
-    () => rowData.map((row) => row.amount * multiplier),
-    [rowData, multiplier],
+    () => convertedAmounts.map((val) => val * multiplier),
+    [convertedAmounts, multiplier],
+
   )
 
   const total = useMemo(
@@ -188,7 +235,7 @@ function App() {
   )
 
   const handleAddRow = useCallback(() => {
-    setRowData([...rowData, createRow('', 0)])
+    setRowData([...rowData, createRow('', 0, baseCurrency)])
   }, [rowData, createRow])
 
   return (
