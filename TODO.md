@@ -17,7 +17,7 @@
 ---
 
 ## 🛠 In Progress
-- [ ] **Charts & Visualization** _(P2)_
+- [x] **Charts & Visualization** _(P2)_
 
 ---
 
@@ -30,8 +30,8 @@
 - [ ] **Export / Import** _(P2)_
   - Export grid to CSV/Excel
   - Import back into the grid
-- [ ] **Charts & Visualization** _(P2)_
-  - Add revenue/profit/cashflow charts with `recharts` or `chart.js`
+- [x] **Charts & Visualization** _(P2)_
+  - Add revenue/profit/cashflow charts
 - [ ] **Versioning & Snapshots** _(P3)_
   - Save different versions of the model (local snapshots)
   - Compare two snapshots side-by-side

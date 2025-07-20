@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import MetricsChart from './Chart'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   CellValueChangedEvent,
@@ -63,33 +64,6 @@ function App() {
     fetchRates()
   }, [])
 
-  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
-  type Scenario = (typeof scenarioOptions)[number]
-  const scenarioMultipliers: Record<Scenario, number> = {
-    Base: 1,
-    Optimistic: 1.1,
-    Pessimistic: 0.9,
-  }
-  const [scenario, setScenario] = useState<Scenario>('Base')
-
-const [fxRates, setFxRates] = useState<Record<string, number>>({
-    [baseCurrency]: 1,
-  })
-
-  useEffect(() => {
-    const fetchRates = async () => {
-      try {
-        const res = await fetch(
-          `https://api.exchangerate.host/latest?base=${baseCurrency}`,
-        )
-        const data = await res.json()
-        setFxRates({ [baseCurrency]: 1, ...data.rates })
-      } catch {
-        setFxRates({ USD: 1, EUR: 0.92, GBP: 0.8 })
-      }
-    }
-    fetchRates()
-  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem('rows')
@@ -291,6 +265,15 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
 
   )
 
+  const chartData = useMemo(
+    () => [
+      { label: 'Revenue', value: income },
+      { label: 'Profit', value: grossMargin },
+      { label: 'Cash Flow', value: cashFlow },
+    ],
+    [income, grossMargin, cashFlow],
+  )
+
   const onCellValueChanged = useCallback(
     (params: CellValueChangedEvent) => {
       const updated = (params.data as Row)
@@ -346,6 +329,7 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
           onCellValueChanged={onCellValueChanged}
         />
       </div>
+      <MetricsChart data={chartData} />
     </div>
   )
 }
