@@ -4,43 +4,56 @@ import type { Currency, Row } from '../types';
 const STORAGE_KEY = 'rows';
 
 export default function useFinancialRows(baseCurrency: Currency) {
-  const createRow = useCallback(
-    (account: string, amount: number, currency: Currency): Row => ({
+  function createRowData(
+    account: string,
+    amount: number,
+    currency: Currency,
+  ): Row {
+    return {
       id: crypto.randomUUID(),
       account,
       amount,
       currency,
-    }),
-    [],
-  );
+    };
+  }
 
-  const [rows, setRows] = useState<Row[]>([]);
+  const [rows, setRows] = useState<Row[]>(() => {
+    if (typeof window === 'undefined') {
+      return [
+        createRowData('Revenue', 1000, baseCurrency),
+        createRowData('Cost of Goods Sold', -300, baseCurrency),
+        createRowData('Operating Expenses', -200, baseCurrency),
+      ]
+    }
 
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       try {
-        const parsed = (JSON.parse(stored) as unknown[]).map((r) => {
-          const row = r as Partial<Row>;
-          return {
-            id: row.id ?? crypto.randomUUID(),
-            account: row.account ?? '',
-            amount: row.amount ?? 0,
-            currency: row.currency ?? baseCurrency,
-          };
-        });
-        setRows(parsed);
-        return;
+        const raw = JSON.parse(stored)
+        if (Array.isArray(raw) && raw.length) {
+          return raw.map((r) => {
+            const row = r as Partial<Row>
+            return {
+              id: row.id ?? crypto.randomUUID(),
+              account: row.account ?? '',
+              amount: row.amount ?? 0,
+              currency: row.currency ?? baseCurrency,
+            }
+          })
+        }
       } catch {
         // ignore and fall through to default
       }
     }
-    setRows([
-      createRow('Revenue', 1000, baseCurrency),
-      createRow('Cost of Goods Sold', -300, baseCurrency),
-      createRow('Operating Expenses', -200, baseCurrency),
-    ]);
-  }, [createRow, baseCurrency]);
+
+    return [
+      createRowData('Revenue', 1000, baseCurrency),
+      createRowData('Cost of Goods Sold', -300, baseCurrency),
+      createRowData('Operating Expenses', -200, baseCurrency),
+    ]
+  })
+
+  const createRow = useCallback(createRowData, []);
 
   useEffect(() => {
     if (rows.length) {
@@ -49,8 +62,8 @@ export default function useFinancialRows(baseCurrency: Currency) {
   }, [rows]);
 
   const addRow = useCallback(() => {
-    setRows((prev) => [...prev, createRow('', 0, baseCurrency)]);
-  }, [createRow, baseCurrency]);
+    setRows((prev) => [...prev, createRowData('', 0, baseCurrency)]);
+  }, [baseCurrency]);
 
   const deleteRow = useCallback((id: string) => {
     setRows((prev) => prev.filter((row) => row.id !== id));

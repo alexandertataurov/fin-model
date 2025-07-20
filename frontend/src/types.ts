@@ -11,6 +11,7 @@ export interface Row {
 export interface Snapshot {
   id: string;
   timestamp: string;
+  name: string;
   rows: Row[];
 }
 

@@ -1,8 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap');
+
 :root {
-  font-family: 'Roboto Mono', Menlo, Monaco, 'Courier New', monospace;
-  line-height: 1.4;
+  font-family: 'Inter', Arial, sans-serif;
+  line-height: 1.6;
   color: #222;
   background-color: #ffffff;
+}
+
+body.dark {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
