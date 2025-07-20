@@ -1,0 +1,10 @@
+:root {
+  font-family: 'Roboto Mono', Menlo, Monaco, 'Courier New', monospace;
+  line-height: 1.4;
+  color: #222;
+  background-color: #ffffff;
+}
+
+body {
+  margin: 0;
+}
