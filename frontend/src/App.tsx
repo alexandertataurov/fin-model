@@ -204,14 +204,14 @@ function App() {
         headerName: '',
         field: 'delete',
         width: 90,
-        cellRenderer: (params: ICellRendererParams<Row>) => {
-          const handleClick = () => handleDeleteRow((params.data as Row).id)
-          return (
-            <button type="button" onClick={handleClick} className="delete-button">
-              Delete
-            </button>
-          )
-        },
+          cellRenderer: (params: ICellRendererParams<Row>) => {
+            const handleClick = () => handleDeleteRow((params.data as Row).id)
+            return (
+              <button type="button" onClick={handleClick} className="btn delete-button">
+                Delete
+              </button>
+            )
+          },
       },
     ],
     [handleDeleteRow, baseCurrency, fxRates, errors],
@@ -302,7 +302,7 @@ function App() {
           id="scenario"
           value={scenario}
           onChange={handleScenarioChange}
-          className="scenario-select"
+          className="field scenario-select"
         >
           {scenarioOptions.map((opt) => (
             <option key={opt} value={opt}>
@@ -323,7 +323,7 @@ function App() {
           id="baseCurrency"
           value={baseCurrency}
           onChange={(e) => setBaseCurrency(e.target.value as Currency)}
-          className="scenario-select"
+          className="field scenario-select"
         >
           {currencyOptions.map((opt) => (
             <option key={opt} value={opt}>
@@ -331,19 +331,19 @@ function App() {
             </option>
           ))}
         </select>
-        <button type="button" onClick={handleAddRow} className="add-button">
+        <button type="button" onClick={handleAddRow} className="btn add-button">
           Add Row
         </button>
-        <button type="button" onClick={handleExport} className="add-button">
+        <button type="button" onClick={handleExport} className="btn add-button">
           Export CSV
         </button>
-        <button type="button" onClick={handleImportClick} className="add-button">
+        <button type="button" onClick={handleImportClick} className="btn add-button">
           Import CSV
         </button>
-        <button type="button" onClick={handleSaveSnapshot} className="add-button">
+        <button type="button" onClick={handleSaveSnapshot} className="btn add-button">
           Save Snapshot
         </button>
-        <select onChange={handleLoadSnapshot} className="scenario-select">
+        <select onChange={handleLoadSnapshot} className="field scenario-select">
           <option value="">Snapshots...</option>
           <optgroup label="Load">
             {snapshots.map((s) => (
@@ -367,13 +367,13 @@ function App() {
             ))}
           </optgroup>
         </select>
-        <button type="button" onClick={handleSync} className="add-button">
+        <button type="button" onClick={handleSync} className="btn add-button">
           Sync to Cloud
         </button>
         <button
           type="button"
           onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          className="add-button"
+          className="btn add-button"
         >
           {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
         </button>
