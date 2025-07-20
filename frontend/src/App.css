@@ -48,6 +48,7 @@ h1 {
   margin-bottom: 1rem;
   border: 1px solid #000;
   font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
 }
 
 body.dark .grid {
@@ -136,18 +137,27 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
   border-collapse: collapse;
 }
 
-.pl-table td {
+.pl-table td,
+.pl-table th {
   padding: 0.25rem 0.5rem;
+  min-height: 40px;
+  font-weight: 400;
+  text-align: left;
 }
 
 .pl-table .val {
   text-align: right;
   font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
 }
 
-.pl-table .total td:first-child,
+.pl-table .total td:first-child {
+  font-weight: 500;
+  padding-top: 0.5rem;
+}
 .pl-table .final td:first-child {
-  font-weight: 600;
+  font-weight: 700;
+  padding-top: 0.75rem;
 }
 
 .pl-table .total .val {
@@ -155,8 +165,13 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
 }
 
 .pl-table .final .val {
-  border-top: 1px solid currentColor;
-  border-bottom: 2px double currentColor;
+  border-top: 2px solid currentColor;
+  border-bottom: 3px double currentColor;
+  background-color: #f9fafb;
+}
+
+body.dark .pl-table .final .val {
+  background-color: #2b2b2b;
 }
 
 body.dark .pl-table {
@@ -216,6 +231,8 @@ body.dark .pl-table {
 
 .kpi-value {
   font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 body.dark .kpi-card {

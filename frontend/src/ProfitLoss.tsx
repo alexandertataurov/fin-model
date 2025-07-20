@@ -43,23 +43,30 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
   }, [rows, fxRates])
 
   const fmt = (v: number) => {
-    const abs = Math.abs(v).toLocaleString('en-US', {
-      style: 'currency',
-      currency: baseCurrency,
+    const scaled = v / 1_000_000
+    const abs = Math.abs(scaled).toLocaleString('en-US', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
     })
     return v < 0 ? `(${abs})` : abs
   }
 
   return (
     <table className="pl-table">
+      <thead>
+        <tr>
+          <th>Line Item</th>
+          <th className="val">Amount ({baseCurrency} M)</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
           <td>Revenue</td>
-          <td className="val">{fmt(data.revenue)}</td>
+          <td className={`val ${data.revenue < 0 ? 'negative' : ''}`}>{fmt(data.revenue)}</td>
         </tr>
         <tr>
           <td>COGS</td>
-          <td className="val">{fmt(data.cogs)}</td>
+          <td className={`val ${data.cogs < 0 ? 'negative' : ''}`}>{fmt(data.cogs)}</td>
         </tr>
         <tr className="total">
           <td>Gross Profit</td>
@@ -67,11 +74,11 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
         </tr>
         <tr>
           <td>OPEX</td>
-          <td className="val">{fmt(data.opex)}</td>
+          <td className={`val ${data.opex < 0 ? 'negative' : ''}`}>{fmt(data.opex)}</td>
         </tr>
         <tr>
           <td>Administrative expenses</td>
-          <td className="val">{fmt(data.admin)}</td>
+          <td className={`val ${data.admin < 0 ? 'negative' : ''}`}>{fmt(data.admin)}</td>
         </tr>
         <tr className="total">
           <td>Operational profit</td>
@@ -79,11 +86,11 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
         </tr>
         <tr>
           <td>Other expenses</td>
-          <td className="val">{fmt(data.otherExpenses)}</td>
+          <td className={`val ${data.otherExpenses < 0 ? 'negative' : ''}`}>{fmt(data.otherExpenses)}</td>
         </tr>
         <tr>
           <td>Other Income</td>
-          <td className="val">{fmt(data.otherIncome)}</td>
+          <td className={`val ${data.otherIncome < 0 ? 'negative' : ''}`}>{fmt(data.otherIncome)}</td>
         </tr>
         <tr className="total">
           <td>EBT</td>
@@ -91,7 +98,7 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
         </tr>
         <tr>
           <td>Taxes</td>
-          <td className="val">{fmt(data.taxes)}</td>
+          <td className={`val ${data.taxes < 0 ? 'negative' : ''}`}>{fmt(data.taxes)}</td>
         </tr>
         <tr className="final">
           <td>Net Profit</td>
