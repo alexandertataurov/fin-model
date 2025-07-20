@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   CellValueChangedEvent,
@@ -33,6 +33,35 @@ function App() {
   )
 
   const [rowData, setRowData] = useState<Row[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
+  type Scenario = (typeof scenarioOptions)[number]
+  const scenarioMultipliers: Record<Scenario, number> = {
+    Base: 1,
+    Optimistic: 1.1,
+    Pessimistic: 0.9,
+  }
+  const [scenario, setScenario] = useState<Scenario>('Base')
+
+  const [fxRates, setFxRates] = useState<Record<string, number>>({
+    [baseCurrency]: 1,
+  })
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch(
+          `https://api.exchangerate.host/latest?base=${baseCurrency}`,
+        )
+        const data = await res.json()
+        setFxRates({ [baseCurrency]: 1, ...data.rates })
+      } catch {
+        setFxRates({ USD: 1, EUR: 0.92, GBP: 0.8 })
+      }
+    }
+    fetchRates()
+  }, [])
 
   const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
   type Scenario = (typeof scenarioOptions)[number]
@@ -108,6 +137,45 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
     },
     [],
   )
+  const handleExport = useCallback(() => {
+    const lines = [
+      ['account', 'amount', 'currency'],
+      ...rowData.map((r) => [r.account, r.amount, r.currency]),
+    ]
+    const csv = lines.map((line) => line.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'financial-model.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [rowData])
+
+  const handleImportClick = useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = () => {
+        const text = (reader.result as string).trim()
+        const lines = text.split('\n').slice(1)
+        const rows = lines.map((line) => {
+          const [account = '', amountStr = '0', currency = baseCurrency] =
+            line.split(',')
+          return createRow(account, Number(amountStr), currency)
+        })
+        setRowData(rows)
+      }
+      reader.readAsText(file)
+      e.target.value = ''
+    },
+    [createRow],
+  )
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
@@ -164,7 +232,6 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
   const scaledAmounts = useMemo(
     () => convertedAmounts.map((val) => val * multiplier),
     [convertedAmounts, multiplier],
-
   )
 
   const total = useMemo(
@@ -257,6 +324,19 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
       <button type="button" onClick={handleAddRow} className="add-button">
         Add Row
       </button>
+      <button type="button" onClick={handleExport} className="add-button">
+        Export CSV
+      </button>
+      <button type="button" onClick={handleImportClick} className="add-button">
+        Import CSV
+      </button>
+      <input
+        type="file"
+        accept=".csv"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
       <div className="ag-theme-alpine grid">
         <AgGridReact
           rowData={rowData}
