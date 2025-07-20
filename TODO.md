@@ -32,6 +32,7 @@
   - Dropdown to switch between Base / Optimistic / Pessimistic cases
   - Apply multipliers (growth rate, FX impact)
 - [x] **Multi-currency support** _(P1)_
+
   - Add currency column + live FX conversion
 - [ ] **Export / Import** _(P2)_
   - Export grid to CSV/Excel

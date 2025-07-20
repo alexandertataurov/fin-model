@@ -43,7 +43,7 @@ function App() {
   }
   const [scenario, setScenario] = useState<Scenario>('Base')
 
-  const [fxRates, setFxRates] = useState<Record<string, number>>({
+const [fxRates, setFxRates] = useState<Record<string, number>>({
     [baseCurrency]: 1,
   })
 
@@ -164,6 +164,7 @@ function App() {
   const scaledAmounts = useMemo(
     () => convertedAmounts.map((val) => val * multiplier),
     [convertedAmounts, multiplier],
+
   )
 
   const total = useMemo(
