@@ -274,3 +274,63 @@ body.dark .topbar {
   gap: 0.5rem;
   align-items: center;
 }
+
+.statement-table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+.statement-table td,
+.statement-table th {
+  padding: 0.25rem 0.5rem;
+  min-height: 40px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.statement-table .val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.statement-table .diff.positive {
+  color: #067d06;
+}
+
+.statement-table .diff.negative {
+  color: #ba1b1d;
+}
+
+.statement-table .diff.zero {
+  color: #6b7280;
+}
+
+.statement-table .total td:first-child {
+  font-weight: 500;
+  padding-top: 0.5rem;
+}
+
+.statement-table .final td:first-child {
+  font-weight: 700;
+  padding-top: 0.75rem;
+}
+
+.statement-table .total .val {
+  border-bottom: 1px solid currentColor;
+}
+
+.statement-table .final .val {
+  border-top: 2px solid currentColor;
+  border-bottom: 3px double currentColor;
+  background-color: #f9fafb;
+}
+
+body.dark .statement-table .final .val {
+  background-color: #2b2b2b;
+}
+
+body.dark .statement-table {
+  color: #f0f0f0;
+}

@@ -35,14 +35,21 @@
 
 - [x] **Implement core layout components (TopBar, Sidebar, PageContainer)** _(P1)_
 
+## 📌 PRD Milestones
+
+---
+
+- [x] Core layout components _(P1)_
+- [x] Dashboard view with KPI cards _(P1)_
+- [ ] Statement viewer with GAAP/IFRS columns _(P1)_
+- [ ] Forecast editor with scenario slider _(P2)_
+- [ ] Printable 10-K style report generator _(P2)_
+- [ ] UX refinements (color coding, tooltips, theme toggle, shortcuts) _(P3)_
+
 ## 📋 Backlog
 
 ---
 
-- [x] Dashboard view with KPI cards and trend charts _(P2)_
-- [ ] Financial statement viewer with GAAP/IFRS columns _(P2)_
-- [ ] Forecast editor with scenario toggle and sliders _(P2)_
-- [ ] 10-K style printable report generator _(P3)_
 - [ ] Component library using TailwindCSS _(P3)_
 
 ## 🚀 Future Enhancements

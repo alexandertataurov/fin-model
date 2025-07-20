@@ -12,6 +12,7 @@ import type {
 } from 'ag-grid-community'
 import MetricsChart from './Chart'
 import ProfitLoss from './ProfitLoss'
+import ProfitLossCompare from './components/Statements/ProfitLossCompare'
 import Dashboard from './Dashboard'
 import PageContainer from './components/Layout/PageContainer'
 import TopBar from './components/Layout/TopBar'
@@ -420,6 +421,11 @@ function App() {
         />
       </div>
       <ProfitLoss
+        rows={rowData}
+        fxRates={fxRates}
+        baseCurrency={baseCurrency}
+      />
+      <ProfitLossCompare
         rows={rowData}
         fxRates={fxRates}
         baseCurrency={baseCurrency}
