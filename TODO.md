@@ -33,13 +33,13 @@
 
 ---
 
-- [ ] **Implement core layout components (TopBar, Sidebar, PageContainer)** _(P1)_
+- [x] **Implement core layout components (TopBar, Sidebar, PageContainer)** _(P1)_
 
 ## 📋 Backlog
 
 ---
 
-- [ ] Dashboard view with KPI cards and trend charts _(P2)_
+- [x] Dashboard view with KPI cards and trend charts _(P2)_
 - [ ] Financial statement viewer with GAAP/IFRS columns _(P2)_
 - [ ] Forecast editor with scenario toggle and sliders _(P2)_
 - [ ] 10-K style printable report generator _(P3)_

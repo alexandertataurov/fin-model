@@ -12,6 +12,7 @@ import type {
 } from 'ag-grid-community'
 import MetricsChart from './Chart'
 import ProfitLoss from './ProfitLoss'
+import Dashboard from './Dashboard'
 import PageContainer from './components/Layout/PageContainer'
 import TopBar from './components/Layout/TopBar'
 import Sidebar from './components/Layout/Sidebar'
@@ -54,6 +55,7 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
   )
+  const [view, setView] = useState<'model' | 'dashboard'>('model')
 
   useEffect(() => {
     document.body.classList.toggle('dark', theme === 'dark')
@@ -296,10 +298,17 @@ function App() {
         onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       />
       <div className="content">
-        <Sidebar />
+        <Sidebar active={view} onSelect={(v) => setView(v)} />
         <PageContainer>
-          <div className="container">
-            <h1>Financial Model</h1>
+          {view === 'dashboard' ? (
+            <Dashboard
+              rows={rowData}
+              fxRates={fxRates}
+              baseCurrency={baseCurrency}
+            />
+          ) : (
+            <div className="container">
+              <h1>Financial Model</h1>
       <div className="controls">
         <label htmlFor="scenario">
           Scenario{' '}
@@ -416,7 +425,8 @@ function App() {
         baseCurrency={baseCurrency}
       />
       <MetricsChart data={chartData} />
-          </div>
+            </div>
+          )}
         </PageContainer>
       </div>
     </div>

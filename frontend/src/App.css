@@ -181,6 +181,48 @@ body.dark .pl-table {
   border-right: 1px solid #ccc;
 }
 
+.sidebar button {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sidebar button.active {
+  font-weight: 600;
+}
+
+.kpi-cards {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kpi-card {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background-color: #f7f7f7;
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-value {
+  font-weight: 600;
+}
+
+body.dark .kpi-card {
+  background-color: #333;
+  border-color: #666;
+}
+
 body.dark .sidebar {
   border-color: #666;
 }
