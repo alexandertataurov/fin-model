@@ -18,7 +18,7 @@
 
 :global(body.dark) .table td,
 :global(body.dark) .table th {
-  border-bottom-color: #666;
+  border-bottom-color: #444;
 }
 
 .deleteButton {
@@ -31,7 +31,7 @@
 }
 
 :global(body.dark) .inputError {
-  background-color: #663333;
+  background-color: #4a2a2a;
 }
 .positive {
   color: #067d06;

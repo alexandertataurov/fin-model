@@ -9,6 +9,7 @@ It features:
 - Base currency selection with live FX conversion
 - Save and load snapshots of the model
 - Sync models to a serverless function
+- Reusable UI components styled with TailwindCSS
 
 ## Netlify Deployment
 Netlify installs dependencies in `frontend`, runs `npm run build`, and publishes

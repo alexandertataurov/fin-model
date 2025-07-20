@@ -1,5 +1,6 @@
 import type { Currency, Row } from '../types';
 import styles from './ModelTable.module.css';
+import Button from './ui/Button';
 
 interface PinnedRow {
   account: string;
@@ -82,13 +83,12 @@ function ModelTable({
               {fmt(row.amount / (fxRates[row.currency] ?? 1), baseCurrency)}
             </td>
             <td>
-              <button
-                type="button"
+              <Button
+                className={styles.deleteButton}
                 onClick={() => onDeleteRow(row.id)}
-                className={`btn ${styles.deleteButton}`}
               >
                 Delete
-              </button>
+              </Button>
             </td>
           </tr>
         );
