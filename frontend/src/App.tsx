@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import MetricsChart from './Chart'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   CellValueChangedEvent,
@@ -15,15 +16,16 @@ interface Row {
   id: string
   account: string
   amount: number
-  currency: string
+  currency: Currency
 }
 
-const baseCurrency = 'USD'
 const currencyOptions = ['USD', 'EUR', 'GBP'] as const
+type Currency = (typeof currencyOptions)[number]
 
 function App() {
+  const [baseCurrency, setBaseCurrency] = useState<Currency>('USD')
   const createRow = useCallback(
-    (account: string, amount: number, currency = 'USD'): Row => ({
+    (account: string, amount: number, currency: Currency): Row => ({
       id: crypto.randomUUID(),
       account,
       amount,
@@ -34,6 +36,24 @@ function App() {
 
   const [rowData, setRowData] = useState<Row[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  interface Snapshot {
+    id: string
+    timestamp: string
+    rows: Row[]
+  }
+  const [snapshots, setSnapshots] = useState<Snapshot[]>([])
+
+  useEffect(() => {
+    const stored = localStorage.getItem('snapshots')
+    if (stored) {
+      try {
+        setSnapshots(JSON.parse(stored) as Snapshot[])
+      } catch {
+        setSnapshots([])
+      }
+    }
+  }, [])
 
   const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
   type Scenario = (typeof scenarioOptions)[number]
@@ -61,35 +81,8 @@ function App() {
       }
     }
     fetchRates()
-  }, [])
+  }, [baseCurrency])
 
-  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
-  type Scenario = (typeof scenarioOptions)[number]
-  const scenarioMultipliers: Record<Scenario, number> = {
-    Base: 1,
-    Optimistic: 1.1,
-    Pessimistic: 0.9,
-  }
-  const [scenario, setScenario] = useState<Scenario>('Base')
-
-const [fxRates, setFxRates] = useState<Record<string, number>>({
-    [baseCurrency]: 1,
-  })
-
-  useEffect(() => {
-    const fetchRates = async () => {
-      try {
-        const res = await fetch(
-          `https://api.exchangerate.host/latest?base=${baseCurrency}`,
-        )
-        const data = await res.json()
-        setFxRates({ [baseCurrency]: 1, ...data.rates })
-      } catch {
-        setFxRates({ USD: 1, EUR: 0.92, GBP: 0.8 })
-      }
-    }
-    fetchRates()
-  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem('rows')
@@ -119,7 +112,7 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
         createRow('Operating Expenses', -200, baseCurrency),
       ])
     }
-  }, [createRow])
+  }, [createRow, baseCurrency])
 
   useEffect(() => {
     if (rowData.length) {
@@ -167,15 +160,55 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
         const rows = lines.map((line) => {
           const [account = '', amountStr = '0', currency = baseCurrency] =
             line.split(',')
-          return createRow(account, Number(amountStr), currency)
+          return createRow(account, Number(amountStr), currency as Currency)
         })
         setRowData(rows)
       }
       reader.readAsText(file)
       e.target.value = ''
     },
-    [createRow],
+    [createRow, baseCurrency],
   )
+
+  const saveSnapshot = useCallback(() => {
+    const snap: Snapshot = {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      rows: rowData,
+    }
+    const updated = [...snapshots, snap]
+    setSnapshots(updated)
+    localStorage.setItem('snapshots', JSON.stringify(updated))
+  }, [rowData, snapshots])
+
+  const handleLoadSnapshot = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const id = e.target.value
+      const snap = snapshots.find((s) => s.id === id)
+      if (snap) {
+        setRowData(snap.rows)
+      }
+      e.target.selectedIndex = 0
+    },
+    [snapshots],
+  )
+
+  const handleSync = useCallback(async () => {
+    try {
+      const res = await fetch('/.netlify/functions/save-model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rows: rowData, timestamp: new Date().toISOString() }),
+      })
+      if (res.ok) {
+        alert('Synced')
+      } else {
+        alert('Sync failed')
+      }
+    } catch {
+      alert('Sync failed')
+    }
+  }, [rowData])
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
@@ -201,6 +234,21 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
         },
       },
       {
+        headerName: `Amount (${baseCurrency})`,
+        field: 'baseAmount',
+        valueGetter: (params) => {
+          const row = params.data as Row
+          const rate = fxRates[row.currency] ?? 1
+          return row.amount / rate
+        },
+        valueFormatter: (params: ValueFormatterParams) =>
+          Number(params.value).toLocaleString(undefined, {
+            style: 'currency',
+            currency: baseCurrency,
+          }),
+        editable: false,
+      },
+      {
         headerName: '',
         field: 'delete',
         width: 90,
@@ -214,7 +262,7 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
         },
       },
     ],
-    [handleDeleteRow],
+    [handleDeleteRow, baseCurrency, fxRates],
   )
 
   const defaultColDef = useMemo<ColDef>(
@@ -225,7 +273,7 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
   const multiplier = scenarioMultipliers[scenario]
 
   const convertedAmounts = useMemo(
-    () => rowData.map((row) => row.amount * (fxRates[row.currency] ?? 1)),
+    () => rowData.map((row) => row.amount / (fxRates[row.currency] ?? 1)),
     [rowData, fxRates],
   )
 
@@ -291,6 +339,15 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
 
   )
 
+  const chartData = useMemo(
+    () => [
+      { label: 'Revenue', value: income },
+      { label: 'Profit', value: grossMargin },
+      { label: 'Cash Flow', value: cashFlow },
+    ],
+    [income, grossMargin, cashFlow],
+  )
+
   const onCellValueChanged = useCallback(
     (params: CellValueChangedEvent) => {
       const updated = (params.data as Row)
@@ -303,7 +360,7 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
 
   const handleAddRow = useCallback(() => {
     setRowData([...rowData, createRow('', 0, baseCurrency)])
-  }, [rowData, createRow])
+  }, [rowData, createRow, baseCurrency])
 
   return (
     <div className="container">
@@ -321,6 +378,19 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
           </option>
         ))}
       </select>
+      <label htmlFor="baseCurrency">Base:</label>
+      <select
+        id="baseCurrency"
+        value={baseCurrency}
+        onChange={(e) => setBaseCurrency(e.target.value as Currency)}
+        className="scenario-select"
+      >
+        {currencyOptions.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
       <button type="button" onClick={handleAddRow} className="add-button">
         Add Row
       </button>
@@ -329,6 +399,20 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
       </button>
       <button type="button" onClick={handleImportClick} className="add-button">
         Import CSV
+      </button>
+      <button type="button" onClick={saveSnapshot} className="add-button">
+        Save Snapshot
+      </button>
+      <select onChange={handleLoadSnapshot} className="scenario-select">
+        <option value="">Load Snapshot...</option>
+        {snapshots.map((s) => (
+          <option key={s.id} value={s.id}>
+            {new Date(s.timestamp).toLocaleString()}
+          </option>
+        ))}
+      </select>
+      <button type="button" onClick={handleSync} className="add-button">
+        Sync to Cloud
       </button>
       <input
         type="file"
@@ -346,6 +430,7 @@ const [fxRates, setFxRates] = useState<Record<string, number>>({
           onCellValueChanged={onCellValueChanged}
         />
       </div>
+      <MetricsChart data={chartData} />
     </div>
   )
 }

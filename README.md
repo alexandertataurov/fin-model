@@ -5,6 +5,10 @@ It features:
 - Monospaced fonts
 - Clean financial report style layout
 - Excel-like grid built with `ag-grid-react`
+- Lightweight SVG chart visualizing revenue, profit, and cash flow
+- Base currency selection with live FX conversion
+- Save and load snapshots of the model
+- Sync models to a serverless function
 
 ## Netlify Deployment
 Netlify installs dependencies in `frontend`, runs `npm run build`, and publishes
