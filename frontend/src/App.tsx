@@ -33,11 +33,6 @@ function App() {
   const { snapshots, saveSnapshot } = useSnapshots()
   const fxRates = useFxRates(baseCurrency)
 
-  interface Snapshot {
-    id: string
-    timestamp: string
-    rows: Row[]
-  }
   const [scenario, setScenario] = useState<Scenario>('Base')
 
 

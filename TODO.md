@@ -44,3 +44,15 @@
 ## 🗂 Project Structure (planned)
 
 ---
+
+## 🎨 UI/UX TODO (Prioritized)
+
+- [ ] **Color code positive vs negative amounts in the grid** _(P1)_
+- [ ] **Validate numeric input and show inline error messages** _(P1)_
+- [ ] **Responsive layout for smaller screens** _(P1)_
+- [ ] **Drag-and-drop row reordering** _(P2)_
+- [ ] **Manage snapshots (rename/delete) from the dropdown** _(P2)_
+- [ ] **Add tooltips and labels to the chart for better readability** _(P2)_
+- [ ] **Keyboard shortcuts for common actions (add row, save snapshot, export)** _(P3)_
+- [ ] **Theme toggle (light/dark)** _(P3)_
+- [ ] **Field-level help tooltips for scenario and currency selections** _(P3)_
