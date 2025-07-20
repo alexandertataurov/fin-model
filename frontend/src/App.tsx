@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import MetricsChart from './Chart'
-import ProfitLoss from './ProfitLoss'
 import Dashboard from './Dashboard'
 import Forecast from './Forecast'
 import Report from './Report'
@@ -151,7 +149,7 @@ function App() {
   const fmt = useCallback(formatCurrency, [])
 
   const multiplier = scenarioMultipliers[scenario]
-  const { pinnedBottomRowData, chartData } = useMetrics(
+  const { pinnedBottomRowData } = useMetrics(
     rowData,
     fxRates,
     multiplier,
@@ -285,12 +283,6 @@ function App() {
                 onDeleteRow={handleDeleteRow}
                 fmt={fmt}
               />
-              <ProfitLoss
-                rows={rowData}
-                fxRates={fxRates}
-                baseCurrency={baseCurrency}
-              />
-              <MetricsChart data={chartData} />
             </div>
           )}
         </PageContainer>
