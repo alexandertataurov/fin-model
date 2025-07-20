@@ -1,0 +1,28 @@
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  background-color: #ececec;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+}
+
+:global(body.dark) .controls {
+  background-color: #333;
+  border-color: #666;
+}
+
+.help {
+  cursor: help;
+  border-bottom: 1px dotted currentColor;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
