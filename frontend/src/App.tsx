@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   CellValueChangedEvent,
@@ -256,6 +256,25 @@ function App() {
   const handleAddRow = useCallback(() => {
     addRow()
   }, [addRow])
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!e.ctrlKey) return
+      const key = e.key.toLowerCase()
+      if (key === 'n') {
+        e.preventDefault()
+        addRow()
+      } else if (key === 's') {
+        e.preventDefault()
+        handleSaveSnapshot()
+      } else if (key === 'e') {
+        e.preventDefault()
+        handleExport()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [addRow, handleSaveSnapshot, handleExport])
   return (
     <div className="container">
       <h1>Financial Model</h1>
