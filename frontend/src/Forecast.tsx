@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import useMetrics from './hooks/useMetrics'
 import type { Currency, Row } from './types'
+import tableStyles from './components/ModelTable.module.css'
 
 interface Props {
   rows: Row[]
@@ -39,12 +40,12 @@ function Forecast({ rows, fxRates, baseCurrency }: Props) {
         onChange={(e) => setMultiplier(Number(e.target.value))}
         className="slider"
       />
-      <table className="model-table">
+      <table className={tableStyles.table}>
         <thead>
           <tr>
             <th>Account</th>
             <th>Currency</th>
-            <th className="val">Amount ({baseCurrency})</th>
+            <th className={tableStyles.val}>Amount ({baseCurrency})</th>
           </tr>
         </thead>
         <tbody>
@@ -52,7 +53,7 @@ function Forecast({ rows, fxRates, baseCurrency }: Props) {
             <tr key={r.id}>
               <td>{r.account}</td>
               <td>{r.currency}</td>
-              <td className="val">{fmt(r.amount)}</td>
+              <td className={tableStyles.val}>{fmt(r.amount)}</td>
             </tr>
           ))}
         </tbody>
@@ -60,7 +61,7 @@ function Forecast({ rows, fxRates, baseCurrency }: Props) {
           {pinnedBottomRowData.map((row) => (
             <tr key={row.account} className="total">
               <td colSpan={2}>{row.account}</td>
-              <td className="val">{fmt(row.amount)}</td>
+              <td className={tableStyles.val}>{fmt(row.amount)}</td>
             </tr>
           ))}
         </tfoot>

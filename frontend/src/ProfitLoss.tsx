@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 import type { Currency, Row } from './types'
+import { calculateProfitLoss } from './utils/profitLoss'
+import { formatMillions } from './utils/format'
 
 interface Props {
   rows: Row[]
@@ -8,48 +10,12 @@ interface Props {
 }
 
 function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
-  const data = useMemo(() => {
-    const convert = (acc: string) =>
-      rows
-        .filter((r) => r.account.toLowerCase().includes(acc.toLowerCase()))
-        .reduce((sum, r) => sum + r.amount / (fxRates[r.currency] ?? 1), 0)
+  const data = useMemo(
+    () => calculateProfitLoss(rows, fxRates),
+    [rows, fxRates],
+  )
 
-    const revenue = convert('revenue')
-    const cogs = convert('cogs') + convert('cost of goods sold')
-    const opex = convert('opex') + convert('operating expenses')
-    const admin = convert('administrative')
-    const otherExpenses = convert('other expenses')
-    const otherIncome = convert('other income')
-    const taxes = convert('tax')
-
-    const grossProfit = revenue + cogs
-    const operationalProfit = grossProfit + opex + admin
-    const ebt = operationalProfit + otherIncome + otherExpenses
-    const netProfit = ebt + taxes
-
-    return {
-      revenue,
-      cogs,
-      grossProfit,
-      opex,
-      admin,
-      operationalProfit,
-      otherExpenses,
-      otherIncome,
-      ebt,
-      taxes,
-      netProfit,
-    }
-  }, [rows, fxRates])
-
-  const fmt = (v: number) => {
-    const scaled = v / 1_000_000
-    const abs = Math.abs(scaled).toLocaleString('en-US', {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    })
-    return v < 0 ? `(${abs})` : abs
-  }
+  const fmt = formatMillions
 
   return (
     <table className="pl-table">

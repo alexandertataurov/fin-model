@@ -1,0 +1,35 @@
+.table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.table td,
+.table th {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.val {
+  text-align: right;
+}
+
+:global(body.dark) .table td,
+:global(body.dark) .table th {
+  border-bottom-color: #666;
+}
+
+.deleteButton {
+  padding: 0.125rem 0.5rem;
+}
+
+.inputError {
+  border: 1px solid red !important;
+  background-color: #ffe6e6;
+}
+
+:global(body.dark) .inputError {
+  background-color: #663333;
+}
