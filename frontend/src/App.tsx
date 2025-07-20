@@ -33,7 +33,8 @@ function App() {
     updateRow,
     createRow,
   } = useFinancialRows(baseCurrency)
-  const { snapshots, saveSnapshot } = useSnapshots()
+  const { snapshots, saveSnapshot, renameSnapshot, deleteSnapshot } =
+    useSnapshots()
   const fxRates = useFxRates(baseCurrency)
 
   const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
@@ -97,19 +98,30 @@ function App() {
   )
 
   const handleSaveSnapshot = useCallback(() => {
-    saveSnapshot(rowData)
+    const name = prompt('Snapshot name?', new Date().toLocaleString())
+    if (name) {
+      saveSnapshot(rowData, name)
+    }
   }, [saveSnapshot, rowData])
 
   const handleLoadSnapshot = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const id = e.target.value
-      const snap = snapshots.find((s) => s.id === id)
-      if (snap) {
-        setRowData(snap.rows)
+      const value = e.target.value
+      if (!value) return
+      const [action, id] = value.split(':')
+      if (!id) return
+      if (action === 'load') {
+        const snap = snapshots.find((s) => s.id === id)
+        if (snap) setRowData(snap.rows)
+      } else if (action === 'rename') {
+        const name = prompt('Snapshot name?')
+        if (name) renameSnapshot(id, name)
+      } else if (action === 'delete') {
+        if (confirm('Delete snapshot?')) deleteSnapshot(id)
       }
       e.target.selectedIndex = 0
     },
-    [snapshots, setRowData],
+    [snapshots, setRowData, renameSnapshot, deleteSnapshot],
   )
 
   const handleSync = useCallback(async () => {
@@ -287,12 +299,28 @@ function App() {
           Save Snapshot
         </button>
         <select onChange={handleLoadSnapshot} className="scenario-select">
-          <option value="">Load Snapshot...</option>
-          {snapshots.map((s) => (
-            <option key={s.id} value={s.id}>
-              {new Date(s.timestamp).toLocaleString()}
-            </option>
-          ))}
+          <option value="">Snapshots...</option>
+          <optgroup label="Load">
+            {snapshots.map((s) => (
+              <option key={`load-${s.id}`} value={`load:${s.id}`}>
+                {s.name}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Rename">
+            {snapshots.map((s) => (
+              <option key={`rename-${s.id}`} value={`rename:${s.id}`}>
+                {s.name}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Delete">
+            {snapshots.map((s) => (
+              <option key={`delete-${s.id}`} value={`delete:${s.id}`}>
+                {s.name}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <button type="button" onClick={handleSync} className="add-button">
           Sync to Cloud

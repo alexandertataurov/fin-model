@@ -10,7 +10,13 @@ export default function useSnapshots() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        setSnapshots(JSON.parse(stored) as Snapshot[]);
+        const parsed = JSON.parse(stored) as Snapshot[];
+        parsed.forEach((s) => {
+          if (!s.name) {
+            s.name = new Date(s.timestamp).toLocaleString();
+          }
+        });
+        setSnapshots(parsed);
       } catch {
         setSnapshots([]);
       }
@@ -18,10 +24,12 @@ export default function useSnapshots() {
   }, []);
 
   const saveSnapshot = useCallback(
-    (rows: Row[]) => {
+    (rows: Row[], name: string) => {
+      const timestamp = new Date().toISOString();
       const snap: Snapshot = {
         id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
+        timestamp,
+        name,
         rows,
       };
       const updated = [...snapshots, snap];
@@ -31,5 +39,25 @@ export default function useSnapshots() {
     [snapshots],
   );
 
-  return { snapshots, saveSnapshot } as const;
+  const renameSnapshot = useCallback(
+    (id: string, name: string) => {
+      const updated = snapshots.map((s) =>
+        s.id === id ? { ...s, name } : s,
+      );
+      setSnapshots(updated);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    },
+    [snapshots],
+  );
+
+  const deleteSnapshot = useCallback(
+    (id: string) => {
+      const updated = snapshots.filter((s) => s.id !== id);
+      setSnapshots(updated);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    },
+    [snapshots],
+  );
+
+  return { snapshots, saveSnapshot, renameSnapshot, deleteSnapshot } as const;
 }
