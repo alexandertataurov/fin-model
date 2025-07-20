@@ -5,8 +5,8 @@
 
 .tip {
   visibility: hidden;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -20,8 +20,4 @@
 
 .wrapper:hover .tip {
   visibility: visible;
-}
-
-:global(body.dark) .tip {
-  background-color: #222;
 }
