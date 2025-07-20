@@ -33,6 +33,14 @@ function App() {
   const { snapshots, saveSnapshot } = useSnapshots()
   const fxRates = useFxRates(baseCurrency)
 
+  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
+  type Scenario = (typeof scenarioOptions)[number]
+  const scenarioMultipliers: Record<Scenario, number> = {
+    Base: 1,
+    Optimistic: 1.1,
+    Pessimistic: 0.9,
+  }
+
   const [scenario, setScenario] = useState<Scenario>('Base')
 
 
@@ -182,15 +190,6 @@ function App() {
     rowData,
     fxRates,
     multiplier,
-  )
-
-  const chartData = useMemo(
-    () => [
-      { label: 'Revenue', value: income },
-      { label: 'Profit', value: grossMargin },
-      { label: 'Cash Flow', value: cashFlow },
-    ],
-    [income, grossMargin, cashFlow],
   )
 
   const onCellValueChanged = useCallback(
