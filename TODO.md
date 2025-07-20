@@ -47,9 +47,9 @@
 
 ## 🎨 UI/UX TODO (Prioritized)
 
-- [ ] **Color code positive vs negative amounts in the grid** _(P1)_
-- [ ] **Validate numeric input and show inline error messages** _(P1)_
-- [ ] **Responsive layout for smaller screens** _(P1)_
+- [x] **Color code positive vs negative amounts in the grid** _(P1)_
+- [x] **Validate numeric input and show inline error messages** _(P1)_
+- [x] **Responsive layout for smaller screens** _(P1)_
 - [ ] **Drag-and-drop row reordering** _(P2)_
 - [ ] **Manage snapshots (rename/delete) from the dropdown** _(P2)_
 - [ ] **Add tooltips and labels to the chart for better readability** _(P2)_

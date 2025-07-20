@@ -3,6 +3,8 @@ import { AgGridReact } from 'ag-grid-react'
 import type {
   CellValueChangedEvent,
   ColDef,
+  CellClassParams,
+  CellClassRules,
   ICellRendererParams,
   ValueFormatterParams,
   ValueParserParams,
@@ -42,6 +44,7 @@ function App() {
   }
 
   const [scenario, setScenario] = useState<Scenario>('Base')
+  const [errors, setErrors] = useState<Record<string, boolean>>({})
 
 
   // row state is managed by useFinancialRows
@@ -147,6 +150,12 @@ function App() {
             currency: c,
           })
         },
+        cellClassRules: {
+          positive: (p: CellClassParams<Row>) => Number(p.value) > 0,
+          negative: (p: CellClassParams<Row>) => Number(p.value) < 0,
+          'input-error': (p: CellClassParams<Row>) =>
+            Boolean(p.data && errors[p.data.id]),
+        } as CellClassRules<Row>,
       },
       {
         headerName: `Amount (${baseCurrency})`,
@@ -162,6 +171,10 @@ function App() {
             currency: baseCurrency,
           }),
         editable: false,
+        cellClassRules: {
+          positive: (p: CellClassParams<Row>) => Number(p.value) > 0,
+          negative: (p: CellClassParams<Row>) => Number(p.value) < 0,
+        } as CellClassRules<Row>,
       },
       {
         headerName: '',
@@ -177,7 +190,7 @@ function App() {
         },
       },
     ],
-    [handleDeleteRow, baseCurrency, fxRates],
+    [handleDeleteRow, baseCurrency, fxRates, errors],
   )
 
   const defaultColDef = useMemo<ColDef>(
@@ -194,6 +207,19 @@ function App() {
 
   const onCellValueChanged = useCallback(
     (params: CellValueChangedEvent) => {
+      if (params.colDef.field === 'amount') {
+        const val = Number(params.newValue)
+        if (Number.isNaN(val)) {
+          setErrors((prev) => ({ ...prev, [(params.data as Row).id]: true }))
+          params.node.setDataValue('amount', params.oldValue)
+          return
+        }
+        setErrors((prev) => {
+          const copy = { ...prev }
+          delete copy[(params.data as Row).id]
+          return copy
+        })
+      }
       updateRow(params.data as Row)
     },
     [updateRow],
@@ -205,55 +231,57 @@ function App() {
   return (
     <div className="container">
       <h1>Financial Model</h1>
-      <label htmlFor="scenario">Scenario:</label>
-      <select
-        id="scenario"
-        value={scenario}
-        onChange={handleScenarioChange}
-        className="scenario-select"
-      >
-        {scenarioOptions.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-      <label htmlFor="baseCurrency">Base:</label>
-      <select
-        id="baseCurrency"
-        value={baseCurrency}
-        onChange={(e) => setBaseCurrency(e.target.value as Currency)}
-        className="scenario-select"
-      >
-        {currencyOptions.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-      <button type="button" onClick={handleAddRow} className="add-button">
-        Add Row
-      </button>
-      <button type="button" onClick={handleExport} className="add-button">
-        Export CSV
-      </button>
-      <button type="button" onClick={handleImportClick} className="add-button">
-        Import CSV
-      </button>
-      <button type="button" onClick={handleSaveSnapshot} className="add-button">
-        Save Snapshot
-      </button>
-      <select onChange={handleLoadSnapshot} className="scenario-select">
-        <option value="">Load Snapshot...</option>
-        {snapshots.map((s) => (
-          <option key={s.id} value={s.id}>
-            {new Date(s.timestamp).toLocaleString()}
-          </option>
-        ))}
-      </select>
-      <button type="button" onClick={handleSync} className="add-button">
-        Sync to Cloud
-      </button>
+      <div className="controls">
+        <label htmlFor="scenario">Scenario:</label>
+        <select
+          id="scenario"
+          value={scenario}
+          onChange={handleScenarioChange}
+          className="scenario-select"
+        >
+          {scenarioOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+        <label htmlFor="baseCurrency">Base:</label>
+        <select
+          id="baseCurrency"
+          value={baseCurrency}
+          onChange={(e) => setBaseCurrency(e.target.value as Currency)}
+          className="scenario-select"
+        >
+          {currencyOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+        <button type="button" onClick={handleAddRow} className="add-button">
+          Add Row
+        </button>
+        <button type="button" onClick={handleExport} className="add-button">
+          Export CSV
+        </button>
+        <button type="button" onClick={handleImportClick} className="add-button">
+          Import CSV
+        </button>
+        <button type="button" onClick={handleSaveSnapshot} className="add-button">
+          Save Snapshot
+        </button>
+        <select onChange={handleLoadSnapshot} className="scenario-select">
+          <option value="">Load Snapshot...</option>
+          {snapshots.map((s) => (
+            <option key={s.id} value={s.id}>
+              {new Date(s.timestamp).toLocaleString()}
+            </option>
+          ))}
+        </select>
+        <button type="button" onClick={handleSync} className="add-button">
+          Sync to Cloud
+        </button>
+      </div>
       <input
         type="file"
         accept=".csv"

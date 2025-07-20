@@ -36,3 +36,30 @@ h1 {
 .chart {
   margin-top: 1rem;
 }
+
+.positive {
+  color: green;
+}
+
+.negative {
+  color: red;
+}
+
+.input-error {
+  border: 1px solid red !important;
+  background-color: #ffe6e6;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
