@@ -10,8 +10,8 @@
 }
 
 :global(body.dark) .controls {
-  background-color: #333;
-  border-color: #666;
+  background-color: #1f1f1f;
+  border-color: #444;
 }
 
 .help {

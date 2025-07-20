@@ -44,13 +44,13 @@
 - [x] Statement viewer with GAAP columns _(P1)_
 - [x] Forecast editor with scenario slider using Ag-Grid _(P2)_
 - [x] Printable 10-K style report generator _(P2)_
-- [ ] UX refinements (color coding, tooltips, theme toggle, shortcuts) _(P3)_
+- [x] UX refinements (color coding, tooltips, theme toggle, shortcuts) _(P3)_
 
 ## 📋 Backlog
 
 ---
 
-- [ ] Component library using TailwindCSS _(P3)_
+- [x] Component library using TailwindCSS _(P3)_
 
 ## 🚀 Future Enhancements
 

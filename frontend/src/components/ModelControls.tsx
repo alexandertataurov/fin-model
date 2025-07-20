@@ -1,6 +1,8 @@
-import type { ChangeEvent } from 'react';
-import type { Currency, Snapshot } from '../types';
-import styles from './ModelControls.module.css';
+import type { ChangeEvent } from 'react'
+import type { Currency, Snapshot } from '../types'
+import Tooltip from './Tooltip'
+import Button from './ui/Button'
+import styles from './ModelControls.module.css'
 
 interface Props {
   baseCurrency: Currency;
@@ -39,12 +41,9 @@ function ModelControls({
     <div className={styles.controls}>
       <label htmlFor="scenario">
         Scenario{' '}
-        <span
-          className={styles.help}
-          title="Select a scenario multiplier for projections"
-        >
-          ?
-        </span>
+        <Tooltip text="Select a scenario multiplier for projections">
+          <span className={styles.help}>?</span>
+        </Tooltip>
       </label>
       <select
         id="scenario"
@@ -60,12 +59,9 @@ function ModelControls({
       </select>
       <label htmlFor="baseCurrency">
         Base{' '}
-        <span
-          className={styles.help}
-          title="Choose the currency for aggregated amounts"
-        >
-          ?
-        </span>
+        <Tooltip text="Choose the currency for aggregated amounts">
+          <span className={styles.help}>?</span>
+        </Tooltip>
       </label>
       <select
         id="baseCurrency"
@@ -79,18 +75,10 @@ function ModelControls({
           </option>
         ))}
       </select>
-      <button type="button" onClick={onAddRow} className="btn">
-        Add Row
-      </button>
-      <button type="button" onClick={onExport} className="btn">
-        Export CSV
-      </button>
-      <button type="button" onClick={onImport} className="btn">
-        Import CSV
-      </button>
-      <button type="button" onClick={onSaveSnapshot} className="btn">
-        Save Snapshot
-      </button>
+      <Button onClick={onAddRow}>Add Row</Button>
+      <Button onClick={onExport}>Export CSV</Button>
+      <Button onClick={onImport}>Import CSV</Button>
+      <Button onClick={onSaveSnapshot}>Save Snapshot</Button>
       <select onChange={onLoadSnapshot} className="field">
         <option value="">Snapshots...</option>
         <optgroup label="Load">
@@ -115,12 +103,10 @@ function ModelControls({
           ))}
         </optgroup>
       </select>
-      <button type="button" onClick={onSync} className="btn">
-        Sync to Cloud
-      </button>
-      <button type="button" onClick={onToggleTheme} className="btn">
+      <Button onClick={onSync}>Sync to Cloud</Button>
+      <Button onClick={onToggleTheme}>
         {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-      </button>
+      </Button>
     </div>
   );
 }
