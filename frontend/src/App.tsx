@@ -6,6 +6,7 @@ import type {
   CellClassParams,
   CellClassRules,
   ICellRendererParams,
+  RowDragEndEvent,
   ValueFormatterParams,
   ValueParserParams,
 } from 'ag-grid-community'
@@ -130,6 +131,7 @@ function App() {
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
+      { headerName: '', field: 'drag', rowDrag: true, width: 40 },
       { field: 'account', headerName: 'Account' },
       {
         field: 'currency',
@@ -203,6 +205,20 @@ function App() {
     rowData,
     fxRates,
     multiplier,
+  )
+
+  const handleRowDragEnd = useCallback(
+    (e: RowDragEndEvent) => {
+      const from = e.node.rowIndex ?? 0
+      const to = e.overIndex
+      if (to == null || from === to) return
+      const updated = [...rowData]
+      const [moved] = updated.splice(from, 1)
+      const insertAt = from < to ? to - 1 : to
+      updated.splice(insertAt, 0, moved as Row)
+      setRowData(updated)
+    },
+    [rowData, setRowData],
   )
 
   const onCellValueChanged = useCallback(
@@ -294,8 +310,12 @@ function App() {
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          rowDragManaged
+          animateRows
+          getRowId={(p) => (p.data as Row).id}
           pinnedBottomRowData={pinnedBottomRowData}
           onCellValueChanged={onCellValueChanged}
+          onRowDragEnd={handleRowDragEnd}
         />
       </div>
       <MetricsChart data={chartData} />
