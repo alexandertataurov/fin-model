@@ -1,13 +1,15 @@
 import type { ChangeEvent } from 'react'
-import type { Currency, Snapshot } from '../types'
+import type { Currency, Scenario, Snapshot } from '../types'
+import { currencyOptions } from '../types'
 import Tooltip from './Tooltip'
 import Button from './ui/Button'
+import ThemeToggle from './ui/ThemeToggle'
 import styles from './ModelControls.module.css'
 
 interface Props {
   baseCurrency: Currency;
-  scenario: string;
-  scenarioOptions: readonly string[];
+  scenario: Scenario;
+  scenarioOptions: readonly Scenario[];
   snapshots: Snapshot[];
   theme: 'light' | 'dark';
   onChangeBaseCurrency: (currency: Currency) => void;
@@ -69,7 +71,7 @@ function ModelControls({
         onChange={(e) => onChangeBaseCurrency(e.target.value as Currency)}
         className="field"
       >
-        {['USD', 'EUR', 'GBP'].map((opt) => (
+        {currencyOptions.map((opt) => (
           <option key={opt} value={opt}>
             {opt}
           </option>
@@ -104,9 +106,7 @@ function ModelControls({
         </optgroup>
       </select>
       <Button onClick={onSync}>Sync to Cloud</Button>
-      <Button onClick={onToggleTheme}>
-        {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-      </Button>
+      <ThemeToggle theme={theme} onToggle={onToggleTheme} />
     </div>
   );
 }
