@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import type {
   CellValueChangedEvent,
   ColDef,
+  ICellRendererParams,
   ValueFormatterParams,
   ValueParserParams,
 } from 'ag-grid-community'
@@ -26,11 +27,38 @@ function App() {
     [],
   )
 
-  const [rowData, setRowData] = useState<Row[]>([
-    createRow('Revenue', 1000),
-    createRow('Cost of Goods Sold', -300),
-    createRow('Operating Expenses', -200),
-  ])
+  const [rowData, setRowData] = useState<Row[]>([])
+
+  useEffect(() => {
+    const stored = localStorage.getItem('rows')
+    if (stored) {
+      try {
+        setRowData(JSON.parse(stored))
+      } catch {
+        setRowData([
+          createRow('Revenue', 1000),
+          createRow('Cost of Goods Sold', -300),
+          createRow('Operating Expenses', -200),
+        ])
+      }
+    } else {
+      setRowData([
+        createRow('Revenue', 1000),
+        createRow('Cost of Goods Sold', -300),
+        createRow('Operating Expenses', -200),
+      ])
+    }
+  }, [createRow])
+
+  useEffect(() => {
+    if (rowData.length) {
+      localStorage.setItem('rows', JSON.stringify(rowData))
+    }
+  }, [rowData])
+
+  const handleDeleteRow = useCallback((id: string) => {
+    setRowData((prev) => prev.filter((row) => row.id !== id))
+  }, [])
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
@@ -41,10 +69,27 @@ function App() {
         type: 'numericColumn',
         valueParser: (params: ValueParserParams) => Number(params.newValue),
         valueFormatter: (params: ValueFormatterParams) =>
-          Number(params.value).toFixed(2),
+
+        Number(params.value).toLocaleString(undefined, {
+            style: 'currency',
+            currency: 'USD',
+          }),
+      },
+      {
+        headerName: '',
+        field: 'delete',
+        width: 90,
+        cellRenderer: (params: ICellRendererParams<Row>) => {
+          const handleClick = () => handleDeleteRow((params.data as Row).id)
+          return (
+            <button type="button" onClick={handleClick} className="delete-button">
+              Delete
+            </button>
+          )
+        },
       },
     ],
-    [],
+    [handleDeleteRow],
   )
 
   const defaultColDef = useMemo<ColDef>(
@@ -57,9 +102,31 @@ function App() {
     [rowData],
   )
 
+
+  const average = useMemo(
+    () => (rowData.length ? total / rowData.length : 0),
+    [rowData.length, total],
+  )
+
+  const max = useMemo(
+    () => (rowData.length ? Math.max(...rowData.map((r) => r.amount)) : 0),
+    [rowData],
+  )
+
+  const min = useMemo(
+    () => (rowData.length ? Math.min(...rowData.map((r) => r.amount)) : 0),
+    [rowData],
+  )
+
   const pinnedBottomRowData = useMemo(
-    () => [{ account: 'Total', amount: total }],
-    [total],
+    () => [
+      { account: 'Total', amount: total },
+      { account: 'Average', amount: average },
+      { account: 'Max', amount: max },
+      { account: 'Min', amount: min },
+    ],
+    [total, average, max, min],
+
   )
 
   const onCellValueChanged = useCallback(
