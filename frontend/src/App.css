@@ -9,8 +9,8 @@
 }
 
 body.dark .container {
-  background-color: #2b2b2b;
-  border-color: #888;
+  background-color: #1a1a1a;
+  border-color: #444;
 }
 
 h1 {
@@ -29,12 +29,16 @@ h1 {
   font-family: inherit;
 }
 
-
+body.dark .field {
+  background-color: #2a2a2a;
+  border: 1px solid #555;
+  color: #e0e0e0;
+}
 
 
 body.dark {
-  background-color: #1e1e1e;
-  color: #f0f0f0;
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
 
@@ -50,8 +54,8 @@ body.dark {
 }
 
 body.dark .topbar {
-  background-color: #2b2b2b;
-  border-color: #888;
+  background-color: #1a1a1a;
+  border-color: #444;
 }
 
 .topbar-title {

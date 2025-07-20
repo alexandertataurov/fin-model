@@ -44,7 +44,6 @@
 - [x] **Theme toggle (light/dark)** _(P3)_
 - [x] **Field-level help tooltips for scenario and currency selections** _(P3)_
 
-
 ---
 
 ## 🛠 In Progress
