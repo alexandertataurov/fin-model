@@ -1,10 +1,6 @@
 import { useMemo, useState } from 'react'
-import { AgGridReact } from 'ag-grid-react'
-import type { ColDef, ValueFormatterParams } from 'ag-grid-community'
 import useMetrics from './hooks/useMetrics'
 import type { Currency, Row } from './types'
-import 'ag-grid-community/styles/ag-grid.css'
-import 'ag-grid-community/styles/ag-theme-alpine.css'
 
 interface Props {
   rows: Row[]
@@ -21,24 +17,11 @@ function Forecast({ rows, fxRates, baseCurrency }: Props) {
 
   const { pinnedBottomRowData } = useMetrics(rows, fxRates, multiplier)
 
-  const columnDefs = useMemo<ColDef[]>(
-    () => [
-      { field: 'account', headerName: 'Account', flex: 1 },
-      { field: 'currency', headerName: 'Currency', width: 100 },
-      {
-        field: 'amount',
-        headerName: `Amount (${baseCurrency})`,
-        type: 'numericColumn',
-        valueFormatter: (p: ValueFormatterParams) =>
-          Number(p.value).toLocaleString('en-US', {
-            style: 'currency',
-            currency: baseCurrency,
-          }),
-        cellStyle: { textAlign: 'right' },
-      },
-    ],
-    [baseCurrency],
-  )
+  const fmt = (val: number) =>
+    Number(val).toLocaleString('en-US', {
+      style: 'currency',
+      currency: baseCurrency,
+    })
 
   return (
     <div className="container">
@@ -56,14 +39,32 @@ function Forecast({ rows, fxRates, baseCurrency }: Props) {
         onChange={(e) => setMultiplier(Number(e.target.value))}
         className="slider"
       />
-      <div className="ag-theme-alpine grid">
-        <AgGridReact
-          rowData={forecastRows}
-          columnDefs={columnDefs}
-          defaultColDef={{ flex: 1, editable: false, resizable: true }}
-          pinnedBottomRowData={pinnedBottomRowData}
-        />
-      </div>
+      <table className="model-table">
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Currency</th>
+            <th className="val">Amount ({baseCurrency})</th>
+          </tr>
+        </thead>
+        <tbody>
+          {forecastRows.map((r) => (
+            <tr key={r.id}>
+              <td>{r.account}</td>
+              <td>{r.currency}</td>
+              <td className="val">{fmt(r.amount)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          {pinnedBottomRowData.map((row) => (
+            <tr key={row.account} className="total">
+              <td colSpan={2}>{row.account}</td>
+              <td className="val">{fmt(row.amount)}</td>
+            </tr>
+          ))}
+        </tfoot>
+      </table>
     </div>
   )
 }

@@ -1,15 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AgGridReact } from 'ag-grid-react'
-import type {
-  CellValueChangedEvent,
-  ColDef,
-  CellClassParams,
-  CellClassRules,
-  ICellRendererParams,
-  RowDragEndEvent,
-  ValueFormatterParams,
-  ValueParserParams,
-} from 'ag-grid-community'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
 import MetricsChart from './Chart'
 import ProfitLoss from './ProfitLoss'
 import Dashboard from './Dashboard'
@@ -23,10 +13,8 @@ import useSnapshots from './hooks/useSnapshots'
 import useFxRates from './hooks/useFxRates'
 import useMetrics from './hooks/useMetrics'
 import { currencyOptions } from './types'
-import type { Currency, Row } from './types'
+import type { Currency } from './types'
 import { parseCsv, rowsToCsv } from './utils/csv'
-import 'ag-grid-community/styles/ag-grid.css'
-import 'ag-grid-community/styles/ag-theme-alpine.css'
 import './App.css'
 
 function App() {
@@ -158,76 +146,12 @@ function App() {
     }
   }, [rowData])
 
-  const columnDefs = useMemo<ColDef[]>(
-    () => [
-      { headerName: '', field: 'drag', rowDrag: true, width: 40 },
-      { field: 'account', headerName: 'Account' },
-      {
-        field: 'currency',
-        headerName: 'Currency',
-        cellEditor: 'agSelectCellEditor',
-        cellEditorParams: { values: currencyOptions as readonly string[] },
-        width: 110,
-      },
-      {
-        field: 'amount',
-        headerName: 'Amount',
-        type: 'numericColumn',
-        cellStyle: { textAlign: 'right' },
-        valueParser: (params: ValueParserParams) => Number(params.newValue),
-        valueFormatter: (params: ValueFormatterParams) => {
-          const c = (params.data as Row | undefined)?.currency ?? baseCurrency
-          return Number(params.value).toLocaleString(undefined, {
-            style: 'currency',
-            currency: c,
-          })
-        },
-        cellClassRules: {
-          positive: (p: CellClassParams<Row>) => Number(p.value) > 0,
-          negative: (p: CellClassParams<Row>) => Number(p.value) < 0,
-          'input-error': (p: CellClassParams<Row>) =>
-            Boolean(p.data && errors[p.data.id]),
-        } as CellClassRules<Row>,
-      },
-      {
-        headerName: `Amount (${baseCurrency})`,
-        field: 'baseAmount',
-        valueGetter: (params) => {
-          const row = params.data as Row
-          const rate = fxRates[row.currency] ?? 1
-          return row.amount / rate
-        },
-        valueFormatter: (params: ValueFormatterParams) =>
-          Number(params.value).toLocaleString(undefined, {
-            style: 'currency',
-            currency: baseCurrency,
-          }),
-        editable: false,
-        cellStyle: { textAlign: 'right' },
-        cellClassRules: {
-          positive: (p: CellClassParams<Row>) => Number(p.value) > 0,
-          negative: (p: CellClassParams<Row>) => Number(p.value) < 0,
-        } as CellClassRules<Row>,
-      },
-      {
-        headerName: '',
-        field: 'delete',
-        width: 90,
-          cellRenderer: (params: ICellRendererParams<Row>) => {
-            const handleClick = () => handleDeleteRow((params.data as Row).id)
-            return (
-              <button type="button" onClick={handleClick} className="btn delete-button">
-                Delete
-              </button>
-            )
-          },
-      },
-    ],
-    [handleDeleteRow, baseCurrency, fxRates, errors],
-  )
-
-  const defaultColDef = useMemo<ColDef>(
-    () => ({ flex: 1, editable: true, resizable: true }),
+  const fmt = useCallback(
+    (value: number, currency: Currency) =>
+      Number(value).toLocaleString(undefined, {
+        style: 'currency',
+        currency,
+      }),
     [],
   )
 
@@ -238,39 +162,40 @@ function App() {
     multiplier,
   )
 
-  const handleRowDragEnd = useCallback(
-    (e: RowDragEndEvent) => {
-      const from = e.node.rowIndex ?? 0
-      const to = e.overIndex
-      if (to == null || from === to) return
-      const updated = [...rowData]
-      const [moved] = updated.splice(from, 1)
-      const insertAt = from < to ? to - 1 : to
-      updated.splice(insertAt, 0, moved as Row)
-      setRowData(updated)
+  const handleAccountChange = useCallback(
+    (id: string, account: string) => {
+      const row = rowData.find((r) => r.id === id)
+      if (row) updateRow({ ...row, account })
     },
-    [rowData, setRowData],
+    [rowData, updateRow],
   )
 
-  const onCellValueChanged = useCallback(
-    (params: CellValueChangedEvent) => {
-      if (params.colDef.field === 'amount') {
-        const val = Number(params.newValue)
-        if (Number.isNaN(val)) {
-          setErrors((prev) => ({ ...prev, [(params.data as Row).id]: true }))
-          params.node.setDataValue('amount', params.oldValue)
-          return
-        }
-        setErrors((prev) => {
-          const copy = { ...prev }
-          delete copy[(params.data as Row).id]
-          return copy
-        })
-      }
-      updateRow(params.data as Row)
+  const handleCurrencyChange = useCallback(
+    (id: string, currency: Currency) => {
+      const row = rowData.find((r) => r.id === id)
+      if (row) updateRow({ ...row, currency })
     },
-    [updateRow],
+    [rowData, updateRow],
   )
+
+  const handleAmountChange = useCallback(
+    (id: string, value: string) => {
+      const num = Number(value)
+      if (Number.isNaN(num)) {
+        setErrors((prev) => ({ ...prev, [id]: true }))
+        return
+      }
+      setErrors((prev) => {
+        const copy = { ...prev }
+        delete copy[id]
+        return copy
+      })
+      const row = rowData.find((r) => r.id === id)
+      if (row) updateRow({ ...row, amount: num })
+    },
+    [rowData, updateRow],
+  )
+
 
   const handleAddRow = useCallback(() => {
     addRow()
@@ -427,19 +352,76 @@ function App() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      <div className={`ag-theme-alpine grid${theme === 'dark' ? ' dark' : ''}`}>
-        <AgGridReact
-          rowData={rowData}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          rowDragManaged
-          animateRows
-          getRowId={(p) => (p.data as Row).id}
-          pinnedBottomRowData={pinnedBottomRowData}
-          onCellValueChanged={onCellValueChanged}
-          onRowDragEnd={handleRowDragEnd}
-        />
-      </div>
+      <table className="model-table">
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Currency</th>
+            <th className="val">Amount</th>
+            <th className="val">Amount ({baseCurrency})</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {rowData.map((row) => (
+            <tr key={row.id}>
+              <td>
+                <input
+                  className="field"
+                  value={row.account}
+                  onChange={(e) => handleAccountChange(row.id, e.target.value)}
+                />
+              </td>
+              <td>
+                <select
+                  className="field"
+                  value={row.currency}
+                  onChange={(e) =>
+                    handleCurrencyChange(row.id, e.target.value as Currency)
+                  }
+                >
+                  {currencyOptions.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td>
+                <input
+                  type="number"
+                  className={`field ${errors[row.id] ? 'input-error' : ''}`}
+                  value={row.amount}
+                  onChange={(e) => handleAmountChange(row.id, e.target.value)}
+                />
+              </td>
+              <td className="val">
+                {fmt(row.amount / (fxRates[row.currency] ?? 1), baseCurrency)}
+              </td>
+              <td>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteRow(row.id)}
+                  className="btn delete-button"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          {pinnedBottomRowData.map((r) => (
+            <tr key={r.account} className="total">
+              <td colSpan={3}>{r.account}</td>
+              <td className="val">
+                {fmt(r.amount, baseCurrency)}
+              </td>
+              <td />
+            </tr>
+          ))}
+        </tfoot>
+      </table>
       <ProfitLoss
         rows={rowData}
         fxRates={fxRates}

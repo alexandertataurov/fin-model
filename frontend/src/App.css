@@ -43,16 +43,27 @@ h1 {
 
 .scenario-select {
 }
-.grid {
-  height: 45vh;
-  margin-bottom: 1rem;
-  border: 1px solid #000;
+.model-table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
   font-variant-numeric: tabular-nums;
   font-family: 'Roboto Mono', monospace;
 }
 
-body.dark .grid {
-  border-color: #666;
+.model-table td,
+.model-table th {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.model-table .val {
+  text-align: right;
+}
+
+body.dark .model-table td,
+body.dark .model-table th {
+  border-bottom-color: #666;
 }
 
 .chart {
@@ -110,26 +121,6 @@ body.dark {
   color: #f0f0f0;
 }
 
-body.dark .ag-theme-alpine {
-  --ag-background-color: #2d2d2d;
-  --ag-foreground-color: #f0f0f0;
-  --ag-header-background-color: #3d3d3d;
-  --ag-header-foreground-color: #f0f0f0;
-  --ag-border-color: #555;
-}
-
-.ag-theme-alpine .ag-row-pinned .ag-cell {
-  font-weight: 600;
-  background-color: #f0f0f0;
-  border-top: 2px solid #000;
-  border-bottom: 3px double #000;
-}
-
-body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
-  background-color: #333;
-  border-top-color: #888;
-  border-bottom-color: #888;
-}
 
 .pl-table {
   width: 100%;
@@ -153,7 +144,8 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
 
 .pl-table .total td:first-child {
   font-weight: 500;
-  padding-top: 0.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.25rem;
 }
 .pl-table .final td:first-child {
   font-weight: 700;
@@ -161,12 +153,12 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
 }
 
 .pl-table .total .val {
-  border-bottom: 1px solid currentColor;
+  border-bottom: 2px solid currentColor;
 }
 
 .pl-table .final .val {
   border-top: 2px solid currentColor;
-  border-bottom: 3px double currentColor;
+  border-bottom: 4px double currentColor;
   background-color: #f9fafb;
 }
 
@@ -343,39 +335,47 @@ body.dark .statement-table {
   background-color: #fff;
 }
 
-.report-grid {
+.report-table {
+  width: 100%;
   margin-top: 1rem;
+  border-collapse: collapse;
   font-variant-numeric: tabular-nums;
   font-family: 'Roboto Mono', monospace;
 }
 
-.report-grid .val {
+.report-table td,
+.report-table th {
+  padding: 0.25rem 0.5rem;
+}
+
+.report-table .val {
   text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-family: 'Roboto Mono', monospace;
+  width: 8rem;
+  min-width: 6rem;
 }
 
-.report-grid .ag-row.total-row .ag-cell:first-child {
+.report-table .total td:first-child {
   font-weight: 500;
-  padding-top: 0.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.25rem;
 }
 
-.report-grid .ag-row.final-row .ag-cell:first-child {
+.report-table .final td:first-child {
   font-weight: 700;
   padding-top: 0.75rem;
 }
 
-.report-grid .ag-row.total-row .ag-cell:last-child {
-  border-bottom: 1px solid currentColor;
+.report-table .total .val {
+  border-bottom: 2px solid currentColor;
 }
 
-.report-grid .ag-row.final-row .ag-cell:last-child {
+.report-table .final .val {
   border-top: 2px solid currentColor;
-  border-bottom: 3px double currentColor;
+  border-bottom: 4px double currentColor;
   background-color: #f9fafb;
 }
 
-body.dark .report-grid .ag-row.final-row .ag-cell:last-child {
+body.dark .report-table .final .val {
   background-color: #2b2b2b;
 }
 

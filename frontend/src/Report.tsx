@@ -1,6 +1,4 @@
-import { AgGridReact } from 'ag-grid-react'
 import { useMemo, useCallback } from 'react'
-import type { ColDef, RowClassParams } from 'ag-grid-community'
 import type { Currency, Row } from './types'
 
 interface Props {
@@ -74,47 +72,39 @@ function Report({ rows, fxRates, baseCurrency }: Props) {
     [data],
   )
 
-  const columnDefs = useMemo<ColDef[]>(
-    () => [
-      { field: 'label', headerName: 'Line Item', flex: 1 },
-      {
-        field: 'value',
-        headerName: `Amount (${baseCurrency} M)`,
-        flex: 1,
-        type: 'numericColumn',
-        valueFormatter: (p) => fmt(p.value as number),
-        cellClass: 'val',
-      },
-    ],
-    [baseCurrency, fmt],
-  )
-
-  const defaultColDef = useMemo<ColDef>(
-    () => ({ editable: false, sortable: false, resizable: false }),
-    [],
-  )
-
-  const getRowClass = useCallback((p: RowClassParams) => {
-    if (p.data?.type === 'final') return 'final-row'
-    if (p.data?.type === 'total') return 'total-row'
+  const getRowClass = useCallback((row: { type?: string }) => {
+    if (row.type === 'final') return 'final'
+    if (row.type === 'total') return 'total'
     return ''
   }, [])
 
   return (
     <div className="report-container">
       <h1>Form 10-K Report</h1>
-      <div className="ag-theme-alpine report-grid">
-        <AgGridReact
-          rowData={rowData}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          domLayout="autoHeight"
-          headerHeight={40}
-          rowHeight={40}
-          pinnedBottomRowData={pinnedBottomRowData}
-          getRowClass={getRowClass}
-        />
-      </div>
+      <table className="report-table">
+        <thead>
+          <tr>
+            <th>Line Item</th>
+            <th className="val">Amount ({baseCurrency} M)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rowData.map((r) => (
+            <tr key={r.label} className={getRowClass(r)}>
+              <td>{r.label}</td>
+              <td className="val">{fmt(r.value)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          {pinnedBottomRowData.map((r) => (
+            <tr key={r.label} className={getRowClass(r)}>
+              <td>{r.label}</td>
+              <td className="val">{fmt(r.value)}</td>
+            </tr>
+          ))}
+        </tfoot>
+      </table>
     </div>
   )
 }
