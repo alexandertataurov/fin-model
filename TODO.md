@@ -25,6 +25,19 @@
 - [ ] **Versioning & Snapshots** _(P3)_
 - [ ] **Backend sync** _(P3)_
 
+## 🚀 Future Enhancements
+- [ ] Add currency column + live FX conversion
+- [ ] **Export / Import** _(P2)_
+  - Export grid to CSV/Excel
+  - Import back into the grid
+- [ ] **Charts & Visualization** _(P2)_
+  - Add revenue/profit/cashflow charts with `recharts` or `chart.js`
+- [ ] **Versioning & Snapshots** _(P3)_
+  - Save different versions of the model (local snapshots)
+  - Compare two snapshots side-by-side
+- [ ] **Backend sync** _(P3)_
+  - Integrate REST/GraphQL API for saving models remotely
+
 ---
 
 ## 🗂 Project Structure (planned)

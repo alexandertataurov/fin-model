@@ -63,6 +63,34 @@ function App() {
     fetchRates()
   }, [])
 
+  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
+  type Scenario = (typeof scenarioOptions)[number]
+  const scenarioMultipliers: Record<Scenario, number> = {
+    Base: 1,
+    Optimistic: 1.1,
+    Pessimistic: 0.9,
+  }
+  const [scenario, setScenario] = useState<Scenario>('Base')
+
+const [fxRates, setFxRates] = useState<Record<string, number>>({
+    [baseCurrency]: 1,
+  })
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch(
+          `https://api.exchangerate.host/latest?base=${baseCurrency}`,
+        )
+        const data = await res.json()
+        setFxRates({ [baseCurrency]: 1, ...data.rates })
+      } catch {
+        setFxRates({ USD: 1, EUR: 0.92, GBP: 0.8 })
+      }
+    }
+    fetchRates()
+  }, [])
+
   useEffect(() => {
     const stored = localStorage.getItem('rows')
     if (stored) {
@@ -109,7 +137,6 @@ function App() {
     },
     [],
   )
-
   const handleExport = useCallback(() => {
     const lines = [
       ['account', 'amount', 'currency'],
