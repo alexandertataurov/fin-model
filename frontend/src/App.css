@@ -1,7 +1,9 @@
 .container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 1rem;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 1rem 2rem;
+  box-sizing: border-box;
   background-color: #fafafa;
   border: 1px solid #ccc;
 }
@@ -38,9 +40,10 @@ h1 {
 .scenario-select {
 }
 .grid {
-  height: 300px;
+  height: 45vh;
   margin-bottom: 1rem;
   border: 1px solid #d0d0d0;
+  font-variant-numeric: tabular-nums;
 }
 
 .chart {
@@ -48,11 +51,11 @@ h1 {
 }
 
 .positive {
-  color: green;
+  color: #067d06;
 }
 
 .negative {
-  color: red;
+  color: #ba1b1d;
 }
 
 .input-error {
@@ -68,6 +71,7 @@ body.dark .input-error {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: flex-start;
   margin-bottom: 1rem;
   background-color: #ececec;
   padding: 0.5rem;
@@ -107,12 +111,14 @@ body.dark .ag-theme-alpine {
 
 .ag-theme-alpine .ag-row-pinned .ag-cell {
   font-weight: 600;
+  text-decoration: underline;
   background-color: #f0f0f0;
   border-top: 2px solid #999;
 }
 
 body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
   background-color: #333;
+  text-decoration: underline;
   border-top-color: #888;
 }
 
@@ -120,6 +126,11 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
   width: 100%;
   margin-top: 1rem;
   border-collapse: collapse;
+}
+
+.pl-table td:first-child {
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 body.dark .pl-table {
@@ -132,4 +143,5 @@ body.dark .pl-table {
 
 .pl-table .val {
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }

@@ -42,8 +42,13 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
     }
   }, [rows, fxRates])
 
-  const fmt = (v: number) =>
-    v.toLocaleString(undefined, { style: 'currency', currency: baseCurrency })
+  const fmt = (v: number) => {
+    const abs = Math.abs(v).toLocaleString('en-US', {
+      style: 'currency',
+      currency: baseCurrency,
+    })
+    return v < 0 ? `(${abs})` : abs
+  }
 
   return (
     <table className="pl-table">
