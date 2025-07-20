@@ -24,14 +24,9 @@ h1 {
 }
 
 /* shared styles for form controls */
-.btn,
 .field {
   padding: 0.25rem 0.5rem;
   font-family: inherit;
-}
-
-.btn {
-  cursor: pointer;
 }
 
 
