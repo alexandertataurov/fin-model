@@ -343,6 +343,42 @@ body.dark .statement-table {
   background-color: #fff;
 }
 
+.report-grid {
+  margin-top: 1rem;
+  font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.report-grid .val {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.report-grid .ag-row.total-row .ag-cell:first-child {
+  font-weight: 500;
+  padding-top: 0.5rem;
+}
+
+.report-grid .ag-row.final-row .ag-cell:first-child {
+  font-weight: 700;
+  padding-top: 0.75rem;
+}
+
+.report-grid .ag-row.total-row .ag-cell:last-child {
+  border-bottom: 1px solid currentColor;
+}
+
+.report-grid .ag-row.final-row .ag-cell:last-child {
+  border-top: 2px solid currentColor;
+  border-bottom: 3px double currentColor;
+  background-color: #f9fafb;
+}
+
+body.dark .report-grid .ag-row.final-row .ag-cell:last-child {
+  background-color: #2b2b2b;
+}
+
 body.dark .report-container {
   background-color: #2b2b2b;
   border-color: #888;

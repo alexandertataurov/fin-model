@@ -4,13 +4,13 @@
 Provide a modern yet familiar tool for building, analyzing, and sharing financial models. The UI mimics Excel and Form 10-K reports so analysts feel comfortable, while giving the advantages of a web-based platform.
 
 ## 2. Target Users
-- **CFOs and Financial Analysts** – create models, compare IFRS/GAAP, and share results with the board.
+ - **CFOs and Financial Analysts** – create GAAP-compliant models and share results with the board.
 - **Auditors** – review reconciliations between accounting standards.
 - **Investors and Executives** – view dashboards and printable reports.
 
 ## 3. Key Features
 1. **Dashboard** with KPI cards and trend charts.
-2. **Financial Statements** (Profit & Loss, Balance Sheet, Cash Flow) side-by-side for GAAP and IFRS.
+2. **Financial Statements** (Profit & Loss, Balance Sheet, Cash Flow) in GAAP format.
 3. **Forecast & Scenario Analysis** with editable assumptions.
 4. **Printable 10‑K Style Reports** for investors and auditors.
 5. **Versioning & Snapshots** to track changes over time.
@@ -27,7 +27,7 @@ Provide a modern yet familiar tool for building, analyzing, and sharing financia
 ## 5. Milestones
 1. Core layout components (TopBar, Sidebar, PageContainer).
 2. Dashboard view with KPIs.
-3. Statement viewer with GAAP/IFRS columns.
+3. Statement viewer with GAAP columns.
 4. Forecast editor and scenario slider.
 5. Printable report generator.
 6. UX refinements: color coding, tooltips, theme toggle, shortcuts.
