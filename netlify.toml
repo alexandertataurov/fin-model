@@ -4,4 +4,5 @@
   publish = "dist"
 
 [functions]
-  directory = "netlify/functions"
+  # Directory for Netlify Functions is outside the frontend base
+  directory = "../netlify/functions"
