@@ -43,8 +43,11 @@ function ModelTable({
         </tr>
       </thead>
       <tbody>
-        {rows.map((row) => (
-          <tr key={row.id}>
+        {rows.map((row) => {
+          const amountClass =
+            row.amount >= 0 ? styles.positive : styles.negative
+          return (
+            <tr key={row.id}>
             <td>
               <input
                 className="field"
@@ -68,12 +71,14 @@ function ModelTable({
             <td>
               <input
                 type="number"
-                className={`field ${errors[row.id] ? styles.inputError : ''}`}
+                className={`field ${
+                  errors[row.id] ? styles.inputError : amountClass
+                }`}
                 value={row.amount}
                 onChange={(e) => onAmountChange(row.id, e.target.value)}
               />
             </td>
-            <td className={styles.val}>
+            <td className={`${styles.val} ${amountClass}`}>
               {fmt(row.amount / (fxRates[row.currency] ?? 1), baseCurrency)}
             </td>
             <td>
@@ -86,16 +91,20 @@ function ModelTable({
               </button>
             </td>
           </tr>
-        ))}
+        );
+      })}
       </tbody>
       <tfoot>
-        {pinnedBottomRowData.map((r) => (
-          <tr key={r.account} className="total">
-            <td colSpan={3}>{r.account}</td>
-            <td className={styles.val}>{fmt(r.amount, baseCurrency)}</td>
-            <td />
-          </tr>
-        ))}
+        {pinnedBottomRowData.map((r) => {
+          const cls = r.amount >= 0 ? styles.positive : styles.negative
+          return (
+            <tr key={r.account} className="total">
+              <td colSpan={3}>{r.account}</td>
+              <td className={`${styles.val} ${cls}`}>{fmt(r.amount, baseCurrency)}</td>
+              <td />
+            </tr>
+          )
+        })}
       </tfoot>
     </table>
   );

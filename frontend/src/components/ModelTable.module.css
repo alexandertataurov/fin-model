@@ -33,3 +33,18 @@
 :global(body.dark) .inputError {
   background-color: #663333;
 }
+.positive {
+  color: #067d06;
+}
+
+.negative {
+  color: #ba1b1d;
+}
+
+:global(body.dark) .positive {
+  color: #30ff70;
+}
+
+:global(body.dark) .negative {
+  color: #ff6768;
+}
