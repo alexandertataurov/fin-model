@@ -8,10 +8,17 @@ import useFinancialRows from './hooks/useFinancialRows'
 import useSnapshots from './hooks/useSnapshots'
 import useFxRates from './hooks/useFxRates'
 import useMetrics from './hooks/useMetrics'
-import type { Currency } from './types'
+import type { Currency, Scenario } from './types'
+import { scenarioOptions } from './types'
 import { formatCurrency } from './utils/format'
 import { parseCsv, rowsToCsv } from './utils/csv'
 import './App.css'
+
+const scenarioMultipliers: Record<Scenario, number> = {
+  Base: 1,
+  Optimistic: 1.1,
+  Pessimistic: 0.9,
+}
 
 function App() {
   const [baseCurrency, setBaseCurrency] = useState<Currency>('USD')
@@ -27,14 +34,6 @@ function App() {
   const { snapshots, saveSnapshot, renameSnapshot, deleteSnapshot } =
     useSnapshots()
   const fxRates = useFxRates(baseCurrency)
-
-  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
-  type Scenario = (typeof scenarioOptions)[number]
-  const scenarioMultipliers: Record<Scenario, number> = {
-    Base: 1,
-    Optimistic: 1.1,
-    Pessimistic: 0.9,
-  }
 
   const [scenario, setScenario] = useState<Scenario>('Base')
   const [errors, setErrors] = useState<Record<string, boolean>>({})

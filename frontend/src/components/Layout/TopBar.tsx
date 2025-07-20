@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import Button from '../ui/Button'
+import ThemeToggle from '../ui/ThemeToggle'
 import styles from './TopBar.module.css'
 
 interface Props {
@@ -14,9 +14,7 @@ function TopBar({ children, theme, onToggleTheme }: Props) {
       <div className={styles.title}>Fin Model</div>
       <nav className={styles.actions}>
         {children}
-        <Button onClick={onToggleTheme}>
-          {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-        </Button>
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
       </nav>
     </header>
   )

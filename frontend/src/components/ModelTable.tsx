@@ -1,4 +1,5 @@
 import type { Currency, Row } from '../types';
+import { currencyOptions } from '../types';
 import styles from './ModelTable.module.css';
 import Button from './ui/Button';
 
@@ -62,7 +63,7 @@ function ModelTable({
                 value={row.currency}
                 onChange={(e) => onCurrencyChange(row.id, e.target.value as Currency)}
               >
-                {['USD', 'EUR', 'GBP'].map((opt) => (
+                {currencyOptions.map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}
                   </option>

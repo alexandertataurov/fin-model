@@ -1,6 +1,9 @@
 export const currencyOptions = ['USD', 'EUR', 'GBP'] as const;
 export type Currency = (typeof currencyOptions)[number];
 
+export const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const;
+export type Scenario = (typeof scenarioOptions)[number];
+
 export interface Row {
   id: string;
   account: string;
