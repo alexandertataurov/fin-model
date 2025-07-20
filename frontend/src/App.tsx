@@ -69,7 +69,8 @@ function App() {
         type: 'numericColumn',
         valueParser: (params: ValueParserParams) => Number(params.newValue),
         valueFormatter: (params: ValueFormatterParams) =>
-          Number(params.value).toLocaleString(undefined, {
+
+        Number(params.value).toLocaleString(undefined, {
             style: 'currency',
             currency: 'USD',
           }),
@@ -101,6 +102,7 @@ function App() {
     [rowData],
   )
 
+
   const average = useMemo(
     () => (rowData.length ? total / rowData.length : 0),
     [rowData.length, total],
@@ -124,6 +126,7 @@ function App() {
       { account: 'Min', amount: min },
     ],
     [total, average, max, min],
+
   )
 
   const onCellValueChanged = useCallback(
