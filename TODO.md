@@ -28,10 +28,11 @@
 ---
 
 ## 🚀 Future Enhancements
-- [ ] **Scenario Analysis** _(P1)_
+- [x] **Scenario Analysis** _(P1)_
   - Dropdown to switch between Base / Optimistic / Pessimistic cases
   - Apply multipliers (growth rate, FX impact)
-- [ ] **Multi-currency support** _(P1)_
+- [x] **Multi-currency support** _(P1)_
+
   - Add currency column + live FX conversion
 - [ ] **Export / Import** _(P2)_
   - Export grid to CSV/Excel
