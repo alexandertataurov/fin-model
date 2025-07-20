@@ -10,6 +10,13 @@ h1 {
   font-weight: 600;
 }
 
+.add-button {
+  margin-bottom: 1rem;
+  padding: 0.25rem 0.5rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .grid {
   height: 400px;
   width: 100%;
