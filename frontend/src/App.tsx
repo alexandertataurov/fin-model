@@ -11,6 +11,7 @@ import type {
   ValueParserParams,
 } from 'ag-grid-community'
 import MetricsChart from './Chart'
+import ProfitLoss from './ProfitLoss'
 import useFinancialRows from './hooks/useFinancialRows'
 import useSnapshots from './hooks/useSnapshots'
 import useFxRates from './hooks/useFxRates'
@@ -398,6 +399,11 @@ function App() {
           onRowDragEnd={handleRowDragEnd}
         />
       </div>
+      <ProfitLoss
+        rows={rowData}
+        fxRates={fxRates}
+        baseCurrency={baseCurrency}
+      />
       <MetricsChart data={chartData} />
     </div>
   )

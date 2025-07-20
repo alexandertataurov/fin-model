@@ -101,3 +101,17 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
   background-color: #333;
   border-top-color: #888;
 }
+
+.pl-table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+.pl-table td {
+  padding: 0.25rem 0.5rem;
+}
+
+.pl-table .val {
+  text-align: right;
+}
