@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import TopBar from './components/Layout/TopBar'
 import ModelControls from './components/ModelControls'
 import ModelTable from './components/ModelTable'
+import Card from './components/ui/Card'
 import useFinancialRows from './hooks/useFinancialRows'
 import useSnapshots from './hooks/useSnapshots'
 import useFxRates from './hooks/useFxRates'
@@ -238,18 +239,20 @@ function App() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      <ModelTable
-        rows={rowData}
-        errors={errors}
-        baseCurrency={baseCurrency}
-        fxRates={fxRates}
-        pinnedBottomRowData={pinnedBottomRowData}
-        onAccountChange={handleAccountChange}
-        onCurrencyChange={handleCurrencyChange}
-        onAmountChange={handleAmountChange}
-        onDeleteRow={handleDeleteRow}
-        fmt={fmt}
-      />
+      <Card className="mt-4">
+        <ModelTable
+          rows={rowData}
+          errors={errors}
+          baseCurrency={baseCurrency}
+          fxRates={fxRates}
+          pinnedBottomRowData={pinnedBottomRowData}
+          onAccountChange={handleAccountChange}
+          onCurrencyChange={handleCurrencyChange}
+          onAmountChange={handleAmountChange}
+          onDeleteRow={handleDeleteRow}
+          fmt={fmt}
+        />
+      </Card>
     </div>
   )
 }

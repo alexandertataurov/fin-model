@@ -50,7 +50,7 @@
 
 ---
 
-- [ ] Component library using TailwindCSS _(P3)_
+- [x] Component library using TailwindCSS _(P3)_
 
 ## 🚀 Future Enhancements
 
