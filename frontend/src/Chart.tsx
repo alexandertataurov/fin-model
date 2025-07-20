@@ -19,10 +19,10 @@ function MetricsChart({ data }: Props) {
           <g key={d.label} transform={`translate(100, ${y})`}>
             <title>{`${d.label}: ${d.value.toFixed(2)}`}</title>
             <rect width={width} height="12" fill="#5c6bc0" />
-            <text x={-5} y={10} fontSize="10" textAnchor="end">
+            <text x={-5} y={10} fontSize="10" textAnchor="end" fill="currentColor">
               {d.label}
             </text>
-            <text x={width + 5} y={10} fontSize="10">
+            <text x={width + 5} y={10} fontSize="10" fill="currentColor">
               {d.value.toFixed(2)}
             </text>
           </g>
@@ -33,6 +33,7 @@ function MetricsChart({ data }: Props) {
         y={height + 15}
         fontSize="10"
         textAnchor="middle"
+        fill="currentColor"
       >
         Value
       </text>

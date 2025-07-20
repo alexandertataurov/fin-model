@@ -6,6 +6,11 @@
   border: 1px solid #ccc;
 }
 
+body.dark .container {
+  background-color: #2b2b2b;
+  border-color: #555;
+}
+
 h1 {
   margin-bottom: 1rem;
   font-size: 1.25rem;
@@ -55,6 +60,10 @@ h1 {
   background-color: #ffe6e6;
 }
 
+body.dark .input-error {
+  background-color: #663333;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -63,6 +72,11 @@ h1 {
   background-color: #ececec;
   padding: 0.5rem;
   border: 1px solid #ccc;
+}
+
+body.dark .controls {
+  background-color: #333;
+  border-color: #666;
 }
 
 .help {
@@ -106,6 +120,10 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
   width: 100%;
   margin-top: 1rem;
   border-collapse: collapse;
+}
+
+body.dark .pl-table {
+  color: #f0f0f0;
 }
 
 .pl-table td {
