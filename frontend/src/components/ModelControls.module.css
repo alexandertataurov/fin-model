@@ -4,14 +4,9 @@
   gap: 0.5rem;
   justify-content: flex-start;
   margin-bottom: 1rem;
-  background-color: #ececec;
+  background-color: var(--bg-alt-color);
   padding: 0.5rem;
-  border: 1px solid #ccc;
-}
-
-:global(body.dark) .controls {
-  background-color: #1f1f1f;
-  border-color: #444;
+  border: 1px solid var(--border-color);
 }
 
 .help {
