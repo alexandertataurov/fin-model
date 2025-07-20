@@ -4,19 +4,23 @@
   margin: 0;
   padding: 1rem 2rem;
   box-sizing: border-box;
-  background-color: #fafafa;
-  border: 1px solid #ccc;
+  background-color: #fff;
+  border: 2px solid #000;
 }
 
 body.dark .container {
   background-color: #2b2b2b;
-  border-color: #555;
+  border-color: #888;
 }
 
 h1 {
   margin-bottom: 1rem;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid currentColor;
 }
 
 /* shared styles for form controls */
@@ -42,8 +46,12 @@ h1 {
 .grid {
   height: 45vh;
   margin-bottom: 1rem;
-  border: 1px solid #d0d0d0;
+  border: 1px solid #000;
   font-variant-numeric: tabular-nums;
+}
+
+body.dark .grid {
+  border-color: #666;
 }
 
 .chart {
@@ -113,19 +121,22 @@ body.dark .ag-theme-alpine {
   font-weight: 600;
   text-decoration: underline;
   background-color: #f0f0f0;
-  border-top: 2px solid #999;
+  border-top: 2px solid #000;
+  border-bottom: 3px double #000;
 }
 
 body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
   background-color: #333;
   text-decoration: underline;
   border-top-color: #888;
+  border-bottom-color: #888;
 }
 
 .pl-table {
   width: 100%;
   margin-top: 1rem;
   border-collapse: collapse;
+  border-top: 2px solid #000;
 }
 
 .pl-table td:first-child {
@@ -135,10 +146,26 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
 
 body.dark .pl-table {
   color: #f0f0f0;
+  border-color: #888;
+}
+
+body.dark .pl-table td {
+  border-bottom-color: #555;
+}
+
+body.dark .pl-table tr:last-child td {
+  border-top-color: #888;
+  border-bottom-color: #888;
 }
 
 .pl-table td {
   padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #888;
+}
+
+.pl-table tr:last-child td {
+  border-top: 2px solid #000;
+  border-bottom: 3px double #000;
 }
 
 .pl-table .val {
