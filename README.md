@@ -10,3 +10,6 @@ It features:
 Netlify installs dependencies in `frontend`, runs `npm run build`, and publishes
 the `frontend/dist` directory. Because this is a React single-page app, all
 routes redirect to `index.html`.
+
+An example function is provided in `netlify/functions/hello.js`. Security
+headers are configured via the `_headers` file in `frontend/public`.
