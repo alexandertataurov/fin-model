@@ -200,11 +200,14 @@ function App() {
       } else if (key === 'e') {
         e.preventDefault()
         handleExport()
+      } else if (key === 't') {
+        e.preventDefault()
+        setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [addRow, handleSaveSnapshot, handleExport])
+  }, [addRow, handleSaveSnapshot, handleExport, setTheme])
   return (
     <div className="container">
       <TopBar

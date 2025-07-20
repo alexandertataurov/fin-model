@@ -1,6 +1,7 @@
-import type { ChangeEvent } from 'react';
-import type { Currency, Snapshot } from '../types';
-import styles from './ModelControls.module.css';
+import type { ChangeEvent } from 'react'
+import type { Currency, Snapshot } from '../types'
+import Tooltip from './Tooltip'
+import styles from './ModelControls.module.css'
 
 interface Props {
   baseCurrency: Currency;
@@ -39,12 +40,9 @@ function ModelControls({
     <div className={styles.controls}>
       <label htmlFor="scenario">
         Scenario{' '}
-        <span
-          className={styles.help}
-          title="Select a scenario multiplier for projections"
-        >
-          ?
-        </span>
+        <Tooltip text="Select a scenario multiplier for projections">
+          <span className={styles.help}>?</span>
+        </Tooltip>
       </label>
       <select
         id="scenario"
@@ -60,12 +58,9 @@ function ModelControls({
       </select>
       <label htmlFor="baseCurrency">
         Base{' '}
-        <span
-          className={styles.help}
-          title="Choose the currency for aggregated amounts"
-        >
-          ?
-        </span>
+        <Tooltip text="Choose the currency for aggregated amounts">
+          <span className={styles.help}>?</span>
+        </Tooltip>
       </label>
       <select
         id="baseCurrency"

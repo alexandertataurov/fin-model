@@ -1,0 +1,27 @@
+.wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tip {
+  visibility: hidden;
+  background-color: #000;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.wrapper:hover .tip {
+  visibility: visible;
+}
+
+:global(body.dark) .tip {
+  background-color: #444;
+}
