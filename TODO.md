@@ -10,16 +10,16 @@
 ---
 
 ## 🔜 Next
-- [ ] **Persist grid data to Local Storage**
+- [x] **Persist grid data to Local Storage**
   - Load saved data on mount
   - Save changes on each edit
-- [ ] **Support deleting rows**
+- [x] **Support deleting rows**
   - Add “Delete” action column
   - Update totals dynamically after delete
-- [ ] **Format amounts as currency**
+- [x] **Format amounts as currency**
   - Use `Intl.NumberFormat` for USD/EUR/… display
   - Maybe custom CurrencyCellRenderer
-- [ ] **Add additional financial metrics**
+- [x] **Add additional financial metrics**
   - Gross Margin
   - EBITDA
   - ROI

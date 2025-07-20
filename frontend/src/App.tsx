@@ -118,14 +118,39 @@ function App() {
     [rowData],
   )
 
+  const income = useMemo(
+    () => rowData.filter((r) => r.amount > 0).reduce((sum, r) => sum + r.amount, 0),
+    [rowData],
+  )
+
+  const expenses = useMemo(
+    () => rowData.filter((r) => r.amount < 0).reduce((sum, r) => sum + r.amount, 0),
+    [rowData],
+  )
+
+  const grossMargin = useMemo(() => income + expenses, [income, expenses])
+
+  const ebitda = useMemo(() => grossMargin, [grossMargin])
+
+  const cashFlow = useMemo(() => total, [total])
+
+  const roi = useMemo(() => {
+    const base = Math.abs(expenses)
+    return base ? (cashFlow / base) * 100 : 0
+  }, [cashFlow, expenses])
+
   const pinnedBottomRowData = useMemo(
     () => [
       { account: 'Total', amount: total },
       { account: 'Average', amount: average },
       { account: 'Max', amount: max },
       { account: 'Min', amount: min },
+      { account: 'Gross Margin', amount: grossMargin },
+      { account: 'EBITDA', amount: ebitda },
+      { account: 'ROI', amount: roi },
+      { account: 'Cash Flow', amount: cashFlow },
     ],
-    [total, average, max, min],
+    [total, average, max, min, grossMargin, ebitda, roi, cashFlow],
 
   )
 
