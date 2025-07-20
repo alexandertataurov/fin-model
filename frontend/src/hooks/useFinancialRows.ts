@@ -18,29 +18,40 @@ export default function useFinancialRows(baseCurrency: Currency) {
   }
 
   const [rows, setRows] = useState<Row[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    if (typeof window === 'undefined') {
+      return [
+        createRowData('Revenue', 1000, baseCurrency),
+        createRowData('Cost of Goods Sold', -300, baseCurrency),
+        createRowData('Operating Expenses', -200, baseCurrency),
+      ]
+    }
+
+    const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       try {
-        const parsed = (JSON.parse(stored) as unknown[]).map((r) => {
-          const row = r as Partial<Row>;
-          return {
-            id: row.id ?? crypto.randomUUID(),
-            account: row.account ?? '',
-            amount: row.amount ?? 0,
-            currency: row.currency ?? baseCurrency,
-          };
-        });
-        return parsed;
+        const raw = JSON.parse(stored)
+        if (Array.isArray(raw) && raw.length) {
+          return raw.map((r) => {
+            const row = r as Partial<Row>
+            return {
+              id: row.id ?? crypto.randomUUID(),
+              account: row.account ?? '',
+              amount: row.amount ?? 0,
+              currency: row.currency ?? baseCurrency,
+            }
+          })
+        }
       } catch {
         // ignore and fall through to default
       }
     }
+
     return [
       createRowData('Revenue', 1000, baseCurrency),
       createRowData('Cost of Goods Sold', -300, baseCurrency),
       createRowData('Operating Expenses', -200, baseCurrency),
-    ];
-  });
+    ]
+  })
 
   const createRow = useCallback(createRowData, []);
 
