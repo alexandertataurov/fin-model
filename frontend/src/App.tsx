@@ -14,6 +14,7 @@ import MetricsChart from './Chart'
 import ProfitLoss from './ProfitLoss'
 import ProfitLossCompare from './components/Statements/ProfitLossCompare'
 import Dashboard from './Dashboard'
+import Forecast from './Forecast'
 import PageContainer from './components/Layout/PageContainer'
 import TopBar from './components/Layout/TopBar'
 import Sidebar from './components/Layout/Sidebar'
@@ -56,7 +57,7 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
   )
-  const [view, setView] = useState<'model' | 'dashboard'>('model')
+  const [view, setView] = useState<'model' | 'dashboard' | 'forecast'>('model')
 
   useEffect(() => {
     document.body.classList.toggle('dark', theme === 'dark')
@@ -303,6 +304,12 @@ function App() {
         <PageContainer>
           {view === 'dashboard' ? (
             <Dashboard
+              rows={rowData}
+              fxRates={fxRates}
+              baseCurrency={baseCurrency}
+            />
+          ) : view === 'forecast' ? (
+            <Forecast
               rows={rowData}
               fxRates={fxRates}
               baseCurrency={baseCurrency}

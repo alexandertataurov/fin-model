@@ -1,4 +1,4 @@
-type View = 'dashboard' | 'model'
+type View = 'dashboard' | 'model' | 'forecast'
 
 interface Props {
   active: View
@@ -6,7 +6,7 @@ interface Props {
 }
 
 function Sidebar({ active, onSelect }: Props) {
-  const items = ['Dashboard', 'Model'] as const
+  const items = ['Dashboard', 'Model', 'Forecast'] as const
   return (
     <aside className="sidebar">
       <ul>
