@@ -15,3 +15,4 @@ An example function is provided in `netlify/functions/hello.js`. The functions
 directory lives outside the frontend base, so `netlify.toml` sets
 `[functions] directory = "../netlify/functions"`. Security headers are
 configured via the `_headers` file in `frontend/public`.
+

@@ -10,16 +10,16 @@
 ---
 
 ## 🔜 Next
-- [ ] **Persist grid data to Local Storage**
+- [x] **Persist grid data to Local Storage**
   - Load saved data on mount
   - Save changes on each edit
-- [ ] **Support deleting rows**
+- [x] **Support deleting rows**
   - Add “Delete” action column
   - Update totals dynamically after delete
-- [ ] **Format amounts as currency**
+- [x] **Format amounts as currency**
   - Use `Intl.NumberFormat` for USD/EUR/… display
   - Maybe custom CurrencyCellRenderer
-- [ ] **Add additional financial metrics**
+- [x] **Add additional financial metrics**
   - Gross Margin
   - EBITDA
   - ROI
@@ -28,20 +28,20 @@
 ---
 
 ## 🚀 Future Enhancements
-- [ ] **Scenario Analysis**
+- [ ] **Scenario Analysis** _(P1)_
   - Dropdown to switch between Base / Optimistic / Pessimistic cases
   - Apply multipliers (growth rate, FX impact)
-- [ ] **Versioning & Snapshots**
-  - Save different versions of the model (local snapshots)
-  - Compare two snapshots side-by-side
-- [ ] **Charts & Visualization**
-  - Add revenue/profit/cashflow charts with `recharts` or `chart.js`
-- [ ] **Export / Import**
+- [ ] **Multi-currency support** _(P1)_
+  - Add currency column + live FX conversion
+- [ ] **Export / Import** _(P2)_
   - Export grid to CSV/Excel
   - Import back into the grid
-- [ ] **Multi-currency support**
-  - Add currency column + live FX conversion
-- [ ] **Backend sync**
+- [ ] **Charts & Visualization** _(P2)_
+  - Add revenue/profit/cashflow charts with `recharts` or `chart.js`
+- [ ] **Versioning & Snapshots** _(P3)_
+  - Save different versions of the model (local snapshots)
+  - Compare two snapshots side-by-side
+- [ ] **Backend sync** _(P3)_
   - Integrate REST/GraphQL API for saving models remotely
 
 ---
