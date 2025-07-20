@@ -22,20 +22,20 @@
 ---
 
 ## 📋 Backlog
-- [ ] **Versioning & Snapshots** _(P3)_
-- [ ] **Backend sync** _(P3)_
+- [x] **Versioning & Snapshots** _(P3)_
+- [x] **Backend sync** _(P3)_
 
 ## 🚀 Future Enhancements
-- [ ] Add currency column + live FX conversion
+- [x] Add currency column + live FX conversion
 - [ ] **Export / Import** _(P2)_
   - Export grid to CSV/Excel
   - Import back into the grid
 - [x] **Charts & Visualization** _(P2)_
   - Add revenue/profit/cashflow charts
-- [ ] **Versioning & Snapshots** _(P3)_
+- [x] **Versioning & Snapshots** _(P3)_
   - Save different versions of the model (local snapshots)
   - Compare two snapshots side-by-side
-- [ ] **Backend sync** _(P3)_
+- [x] **Backend sync** _(P3)_
   - Integrate REST/GraphQL API for saving models remotely
 
 ---
