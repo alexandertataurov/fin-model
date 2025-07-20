@@ -162,3 +162,56 @@ body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
 body.dark .pl-table {
   color: #f0f0f0;
 }
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 180px;
+  padding: 1rem;
+  border-right: 1px solid #ccc;
+}
+
+body.dark .sidebar {
+  border-color: #666;
+}
+
+.page-container {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem 2rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid #000;
+  background-color: #fff;
+}
+
+body.dark .topbar {
+  background-color: #2b2b2b;
+  border-color: #888;
+}
+
+.topbar-title {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}

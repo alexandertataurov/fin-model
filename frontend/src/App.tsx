@@ -12,6 +12,9 @@ import type {
 } from 'ag-grid-community'
 import MetricsChart from './Chart'
 import ProfitLoss from './ProfitLoss'
+import PageContainer from './components/Layout/PageContainer'
+import TopBar from './components/Layout/TopBar'
+import Sidebar from './components/Layout/Sidebar'
 import useFinancialRows from './hooks/useFinancialRows'
 import useSnapshots from './hooks/useSnapshots'
 import useFxRates from './hooks/useFxRates'
@@ -287,8 +290,16 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [addRow, handleSaveSnapshot, handleExport])
   return (
-    <div className="container">
-      <h1>Financial Model</h1>
+    <div className="layout">
+      <TopBar
+        theme={theme}
+        onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      />
+      <div className="content">
+        <Sidebar />
+        <PageContainer>
+          <div className="container">
+            <h1>Financial Model</h1>
       <div className="controls">
         <label htmlFor="scenario">
           Scenario{' '}
@@ -405,6 +416,9 @@ function App() {
         baseCurrency={baseCurrency}
       />
       <MetricsChart data={chartData} />
+          </div>
+        </PageContainer>
+      </div>
     </div>
   )
 }
