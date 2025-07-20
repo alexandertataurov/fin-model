@@ -164,6 +164,7 @@ function App() {
         field: 'amount',
         headerName: 'Amount',
         type: 'numericColumn',
+        cellStyle: { textAlign: 'right' },
         valueParser: (params: ValueParserParams) => Number(params.newValue),
         valueFormatter: (params: ValueFormatterParams) => {
           const c = (params.data as Row | undefined)?.currency ?? baseCurrency
@@ -193,6 +194,7 @@ function App() {
             currency: baseCurrency,
           }),
         editable: false,
+        cellStyle: { textAlign: 'right' },
         cellClassRules: {
           positive: (p: CellClassParams<Row>) => Number(p.value) > 0,
           negative: (p: CellClassParams<Row>) => Number(p.value) < 0,

@@ -2,6 +2,8 @@
   max-width: 900px;
   margin: 2rem auto;
   padding: 1rem;
+  background-color: #fafafa;
+  border: 1px solid #ccc;
 }
 
 h1 {
@@ -31,6 +33,7 @@ h1 {
 .grid {
   height: 300px;
   margin-bottom: 1rem;
+  border: 1px solid #d0d0d0;
 }
 
 .chart {
@@ -55,6 +58,9 @@ h1 {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  background-color: #ececec;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
 }
 
 .help {
@@ -81,4 +87,15 @@ body.dark .ag-theme-alpine {
   --ag-header-background-color: #3d3d3d;
   --ag-header-foreground-color: #f0f0f0;
   --ag-border-color: #555;
+}
+
+.ag-theme-alpine .ag-row-pinned .ag-cell {
+  font-weight: 600;
+  background-color: #f0f0f0;
+  border-top: 2px solid #999;
+}
+
+body.dark .ag-theme-alpine .ag-row-pinned .ag-cell {
+  background-color: #333;
+  border-top-color: #888;
 }
