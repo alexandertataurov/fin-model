@@ -43,7 +43,7 @@
 - [x] Dashboard view with KPI cards _(P1)_
 - [x] Statement viewer with GAAP/IFRS columns _(P1)_
 - [x] Forecast editor with scenario slider using Ag-Grid _(P2)_
-- [ ] Printable 10-K style report generator _(P2)_
+- [x] Printable 10-K style report generator _(P2)_
 - [ ] UX refinements (color coding, tooltips, theme toggle, shortcuts) _(P3)_
 
 ## 📋 Backlog

@@ -15,6 +15,7 @@ import ProfitLoss from './ProfitLoss'
 import ProfitLossCompare from './components/Statements/ProfitLossCompare'
 import Dashboard from './Dashboard'
 import Forecast from './Forecast'
+import Report from './Report'
 import PageContainer from './components/Layout/PageContainer'
 import TopBar from './components/Layout/TopBar'
 import Sidebar from './components/Layout/Sidebar'
@@ -57,7 +58,8 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
   )
-  const [view, setView] = useState<'model' | 'dashboard' | 'forecast'>('model')
+  const [view, setView] =
+    useState<'model' | 'dashboard' | 'forecast' | 'report'>('model')
 
   useEffect(() => {
     document.body.classList.toggle('dark', theme === 'dark')
@@ -298,7 +300,13 @@ function App() {
       <TopBar
         theme={theme}
         onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      />
+      >
+        {view === 'report' && (
+          <button type="button" onClick={() => window.print()} className="btn">
+            Print
+          </button>
+        )}
+      </TopBar>
       <div className="content">
         <Sidebar active={view} onSelect={(v) => setView(v)} />
         <PageContainer>
@@ -310,6 +318,12 @@ function App() {
             />
           ) : view === 'forecast' ? (
             <Forecast
+              rows={rowData}
+              fxRates={fxRates}
+              baseCurrency={baseCurrency}
+            />
+          ) : view === 'report' ? (
+            <Report
               rows={rowData}
               fxRates={fxRates}
               baseCurrency={baseCurrency}
