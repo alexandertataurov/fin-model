@@ -29,6 +29,15 @@ function App() {
 
   const [rowData, setRowData] = useState<Row[]>([])
 
+  const scenarioOptions = ['Base', 'Optimistic', 'Pessimistic'] as const
+  type Scenario = (typeof scenarioOptions)[number]
+  const scenarioMultipliers: Record<Scenario, number> = {
+    Base: 1,
+    Optimistic: 1.1,
+    Pessimistic: 0.9,
+  }
+  const [scenario, setScenario] = useState<Scenario>('Base')
+
   useEffect(() => {
     const stored = localStorage.getItem('rows')
     if (stored) {
@@ -59,6 +68,13 @@ function App() {
   const handleDeleteRow = useCallback((id: string) => {
     setRowData((prev) => prev.filter((row) => row.id !== id))
   }, [])
+
+  const handleScenarioChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setScenario(e.target.value as Scenario)
+    },
+    [],
+  )
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
@@ -97,9 +113,16 @@ function App() {
     [],
   )
 
+  const multiplier = scenarioMultipliers[scenario]
+
+  const scaledAmounts = useMemo(
+    () => rowData.map((row) => row.amount * multiplier),
+    [rowData, multiplier],
+  )
+
   const total = useMemo(
-    () => rowData.reduce((sum, row) => sum + row.amount, 0),
-    [rowData],
+    () => scaledAmounts.reduce((sum, amount) => sum + amount, 0),
+    [scaledAmounts],
   )
 
 
@@ -109,23 +132,23 @@ function App() {
   )
 
   const max = useMemo(
-    () => (rowData.length ? Math.max(...rowData.map((r) => r.amount)) : 0),
-    [rowData],
+    () => (rowData.length ? Math.max(...scaledAmounts) : 0),
+    [rowData.length, scaledAmounts],
   )
 
   const min = useMemo(
-    () => (rowData.length ? Math.min(...rowData.map((r) => r.amount)) : 0),
-    [rowData],
+    () => (rowData.length ? Math.min(...scaledAmounts) : 0),
+    [rowData.length, scaledAmounts],
   )
 
   const income = useMemo(
-    () => rowData.filter((r) => r.amount > 0).reduce((sum, r) => sum + r.amount, 0),
-    [rowData],
+    () => scaledAmounts.filter((v) => v > 0).reduce((sum, v) => sum + v, 0),
+    [scaledAmounts],
   )
 
   const expenses = useMemo(
-    () => rowData.filter((r) => r.amount < 0).reduce((sum, r) => sum + r.amount, 0),
-    [rowData],
+    () => scaledAmounts.filter((v) => v < 0).reduce((sum, v) => sum + v, 0),
+    [scaledAmounts],
   )
 
   const grossMargin = useMemo(() => income + expenses, [income, expenses])
@@ -171,6 +194,19 @@ function App() {
   return (
     <div className="container">
       <h1>Financial Model</h1>
+      <label htmlFor="scenario">Scenario:</label>
+      <select
+        id="scenario"
+        value={scenario}
+        onChange={handleScenarioChange}
+        className="scenario-select"
+      >
+        {scenarioOptions.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
       <button type="button" onClick={handleAddRow} className="add-button">
         Add Row
       </button>
