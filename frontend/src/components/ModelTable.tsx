@@ -1,3 +1,8 @@
+import { useMemo } from 'react';
+import { AgGridReact } from 'ag-grid-react';
+import type { CellValueChangedEvent, ColDef } from 'ag-grid-community';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 import type { Currency, Row } from '../types';
 import { currencyOptions } from '../types';
 import styles from './ModelTable.module.css';
@@ -21,7 +26,7 @@ interface Props {
   fmt: (value: number, currency: Currency) => string;
 }
 
-function ModelTable({
+export default function ModelTable({
   rows,
   errors,
   baseCurrency,
@@ -33,82 +38,69 @@ function ModelTable({
   onDeleteRow,
   fmt,
 }: Props) {
+  const columnDefs = useMemo<ColDef<Row>[]>(
+    () => [
+      {
+        headerName: 'Account',
+        field: 'account',
+        editable: true,
+      },
+      {
+        headerName: 'Currency',
+        field: 'currency',
+        editable: true,
+        cellEditor: 'agSelectCellEditor',
+        cellEditorParams: { values: currencyOptions },
+      },
+      {
+        headerName: 'Amount',
+        field: 'amount',
+        editable: true,
+        type: 'numericColumn',
+        cellClass: (params) =>
+          params.data.amount >= 0 ? styles.positive : styles.negative,
+      },
+      {
+        headerName: `Amount (${baseCurrency})`,
+        valueGetter: (p) => p.data.amount / (fxRates[p.data.currency] ?? 1),
+        valueFormatter: (p) => fmt(p.value as number, baseCurrency),
+        cellClass: (params) =>
+          params.data.amount >= 0 ? styles.positive : styles.negative,
+      },
+      {
+        headerName: '',
+        field: 'id',
+        cellRenderer: (p) =>
+          `<button class="${styles.deleteButton}">Delete</button>`,
+        editable: false,
+        width: 90,
+      },
+    ],
+    [baseCurrency, fxRates, fmt],
+  );
+
+  const onCellValueChanged = (e: CellValueChangedEvent<Row>) => {
+    const { data, colDef } = e;
+    if (colDef.field === 'account') onAccountChange(data.id, data.account);
+    else if (colDef.field === 'currency')
+      onCurrencyChange(data.id, data.currency as Currency);
+    else if (colDef.field === 'amount') onAmountChange(data.id, String(data.amount));
+  };
+
+  const onCellClicked = (e: any) => {
+    if (e.colDef.field === 'id') onDeleteRow(e.data.id);
+  };
+
   return (
-    <table className={styles.table}>
-      <thead>
-        <tr>
-          <th>Account</th>
-          <th>Currency</th>
-          <th className={styles.val}>Amount</th>
-          <th className={styles.val}>Amount ({baseCurrency})</th>
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => {
-          const amountClass =
-            row.amount >= 0 ? styles.positive : styles.negative
-          return (
-            <tr key={row.id}>
-            <td>
-              <input
-                className="field"
-                value={row.account}
-                onChange={(e) => onAccountChange(row.id, e.target.value)}
-              />
-            </td>
-            <td>
-              <select
-                className="field"
-                value={row.currency}
-                onChange={(e) => onCurrencyChange(row.id, e.target.value as Currency)}
-              >
-                {currencyOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </td>
-            <td>
-              <input
-                type="number"
-                className={`field ${
-                  errors[row.id] ? styles.inputError : amountClass
-                }`}
-                value={row.amount}
-                onChange={(e) => onAmountChange(row.id, e.target.value)}
-              />
-            </td>
-            <td className={`${styles.val} ${amountClass}`}>
-              {fmt(row.amount / (fxRates[row.currency] ?? 1), baseCurrency)}
-            </td>
-            <td>
-              <Button
-                className={styles.deleteButton}
-                onClick={() => onDeleteRow(row.id)}
-              >
-                Delete
-              </Button>
-            </td>
-          </tr>
-        );
-      })}
-      </tbody>
-      <tfoot>
-        {pinnedBottomRowData.map((r) => {
-          const cls = r.amount >= 0 ? styles.positive : styles.negative
-          return (
-            <tr key={r.account} className="total">
-              <td colSpan={3}>{r.account}</td>
-              <td className={`${styles.val} ${cls}`}>{fmt(r.amount, baseCurrency)}</td>
-              <td />
-            </tr>
-          )
-        })}
-      </tfoot>
-    </table>
+    <div className={`ag-theme-alpine ${styles.grid}`} role="grid">
+      <AgGridReact
+        rowData={rows}
+        columnDefs={columnDefs}
+        onCellValueChanged={onCellValueChanged}
+        onCellClicked={onCellClicked}
+        suppressMovableColumns
+        stopEditingWhenCellsLoseFocus
+      />
+    </div>
   );
 }
-
-export default ModelTable;

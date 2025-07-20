@@ -5,6 +5,8 @@ import ModelControls from './components/ModelControls'
 import ModelTable from './components/ModelTable'
 import Card from './components/ui/Card'
 import useFinancialRows from './hooks/useFinancialRows'
+import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts"
+import useTheme, { ThemeProvider } from "./hooks/useTheme"
 import useSnapshots from './hooks/useSnapshots'
 import useFxRates from './hooks/useFxRates'
 import useMetrics from './hooks/useMetrics'
@@ -37,15 +39,7 @@ function App() {
 
   const [scenario, setScenario] = useState<Scenario>('Base')
   const [errors, setErrors] = useState<Record<string, boolean>>({})
-  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
-    localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
-  )
-
-  useEffect(() => {
-    document.body.classList.toggle('dark', theme === 'dark')
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
+  const { theme, toggle } = useTheme();
 
   // row state is managed by useFinancialRows
 
@@ -187,32 +181,12 @@ function App() {
     addRow()
   }, [addRow])
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (!e.ctrlKey) return
-      const key = e.key.toLowerCase()
-      if (key === 'n') {
-        e.preventDefault()
-        addRow()
-      } else if (key === 's') {
-        e.preventDefault()
-        handleSaveSnapshot()
-      } else if (key === 'e') {
-        e.preventDefault()
-        handleExport()
-      } else if (key === 't') {
-        e.preventDefault()
-        setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [addRow, handleSaveSnapshot, handleExport, setTheme])
+   useKeyboardShortcuts({ addRow, saveSnapshot: handleSaveSnapshot, exportCsv: handleExport, toggleTheme: toggle });
   return (
     <div className="container">
       <TopBar
         theme={theme}
-        onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+        onToggleTheme={() => toggle()}
       />
       <h1>Financial Model</h1>
       <ModelControls
@@ -229,7 +203,7 @@ function App() {
         onSaveSnapshot={handleSaveSnapshot}
         onLoadSnapshot={handleLoadSnapshot}
         onSync={handleSync}
-        onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+        onToggleTheme={() => toggle()}
       />
       <input
         type="file"

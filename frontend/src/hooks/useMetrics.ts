@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { Row } from '../types';
+import useChartData from './useChartData';
 
 export default function useMetrics(
   rows: Row[],
@@ -71,14 +72,7 @@ export default function useMetrics(
     [total, average, max, min, grossMargin, ebitda, roi, cashFlow],
   );
 
-  const chartData = useMemo(
-    () => [
-      { label: 'Revenue', value: income },
-      { label: 'Profit', value: grossMargin },
-      { label: 'Cash Flow', value: cashFlow },
-    ],
-    [income, grossMargin, cashFlow],
-  );
+  const chartData = useChartData(income, grossMargin, cashFlow);
 
   return {
     pinnedBottomRowData,

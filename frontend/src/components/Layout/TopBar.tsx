@@ -12,7 +12,7 @@ function TopBar({ children, theme, onToggleTheme }: Props) {
   return (
     <header className={styles.topbar}>
       <div className={styles.title}>Fin Model</div>
-      <nav className={styles.actions}>
+      <nav aria-label="Main" className={styles.actions}>
         {children}
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
       </nav>

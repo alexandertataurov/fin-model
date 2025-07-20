@@ -1,27 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import type { Row, Snapshot } from '../types';
+import useLocalStorage from './useLocalStorage';
 
 const STORAGE_KEY = 'snapshots';
 
 export default function useSnapshots() {
-  const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Snapshot[];
-        parsed.forEach((s) => {
-          if (!s.name) {
-            s.name = new Date(s.timestamp).toLocaleString();
-          }
-        });
-        setSnapshots(parsed);
-      } catch {
-        setSnapshots([]);
-      }
-    }
-  }, []);
+  const [snapshots, setSnapshots] = useLocalStorage<Snapshot[]>(STORAGE_KEY, []);
 
   const saveSnapshot = useCallback(
     (rows: Row[], name: string) => {
@@ -34,7 +18,6 @@ export default function useSnapshots() {
       };
       const updated = [...snapshots, snap];
       setSnapshots(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     },
     [snapshots],
   );
@@ -45,7 +28,6 @@ export default function useSnapshots() {
         s.id === id ? { ...s, name } : s,
       );
       setSnapshots(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     },
     [snapshots],
   );
@@ -54,7 +36,6 @@ export default function useSnapshots() {
     (id: string) => {
       const updated = snapshots.filter((s) => s.id !== id);
       setSnapshots(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     },
     [snapshots],
   );
