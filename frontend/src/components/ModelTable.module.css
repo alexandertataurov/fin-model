@@ -69,17 +69,9 @@
   background-color: #4a2a2a;
 }
 .positive {
-  color: #067d06;
+  color: var(--positive-color);
 }
 
 .negative {
-  color: #ba1b1d;
-}
-
-:global(body.dark) .positive {
-  color: #30ff70;
-}
-
-:global(body.dark) .negative {
-  color: #ff6768;
+  color: var(--negative-color);
 }
