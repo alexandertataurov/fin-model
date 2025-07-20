@@ -47,6 +47,14 @@ function App() {
 
   const [scenario, setScenario] = useState<Scenario>('Base')
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
+  )
+
+  useEffect(() => {
+    document.body.classList.toggle('dark', theme === 'dark')
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
 
   // row state is managed by useFinancialRows
@@ -279,7 +287,15 @@ function App() {
     <div className="container">
       <h1>Financial Model</h1>
       <div className="controls">
-        <label htmlFor="scenario">Scenario:</label>
+        <label htmlFor="scenario">
+          Scenario{' '}
+          <span
+            className="help"
+            title="Select a scenario multiplier for projections"
+          >
+            ?
+          </span>
+        </label>
         <select
           id="scenario"
           value={scenario}
@@ -292,7 +308,15 @@ function App() {
             </option>
           ))}
         </select>
-        <label htmlFor="baseCurrency">Base:</label>
+        <label htmlFor="baseCurrency">
+          Base{' '}
+          <span
+            className="help"
+            title="Choose the currency for aggregated amounts"
+          >
+            ?
+          </span>
+        </label>
         <select
           id="baseCurrency"
           value={baseCurrency}
@@ -344,6 +368,13 @@ function App() {
         <button type="button" onClick={handleSync} className="add-button">
           Sync to Cloud
         </button>
+        <button
+          type="button"
+          onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+          className="add-button"
+        >
+          {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+        </button>
       </div>
       <input
         type="file"
@@ -352,7 +383,7 @@ function App() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      <div className="ag-theme-alpine grid">
+      <div className={`ag-theme-alpine grid${theme === 'dark' ? ' dark' : ''}`}>
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}

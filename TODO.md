@@ -54,5 +54,5 @@
 - [x] **Manage snapshots (rename/delete) from the dropdown** _(P2)_
 - [x] **Add tooltips and labels to the chart for better readability** _(P2)_
 - [x] **Keyboard shortcuts for common actions (add row, save snapshot, export)** _(P3)_
-- [ ] **Theme toggle (light/dark)** _(P3)_
-- [ ] **Field-level help tooltips for scenario and currency selections** _(P3)_
+- [x] **Theme toggle (light/dark)** _(P3)_
+- [x] **Field-level help tooltips for scenario and currency selections** _(P3)_
