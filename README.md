@@ -7,5 +7,6 @@ It features:
 - Excel-like grid built with `ag-grid-react`
 
 ## Netlify Deployment
-Netlify runs `cd frontend && npm run build` and publishes the `frontend/dist` directory.
-Because this is a React single-page app, all routes redirect to `index.html`.
+Netlify installs dependencies in `frontend`, runs `npm run build`, and publishes
+the `frontend/dist` directory. Because this is a React single-page app, all
+routes redirect to `index.html`.
