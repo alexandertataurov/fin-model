@@ -61,7 +61,7 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
           <td>COGS</td>
           <td className="val">{fmt(data.cogs)}</td>
         </tr>
-        <tr>
+        <tr className="total">
           <td>Gross Profit</td>
           <td className="val">{fmt(data.grossProfit)}</td>
         </tr>
@@ -73,7 +73,7 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
           <td>Administrative expenses</td>
           <td className="val">{fmt(data.admin)}</td>
         </tr>
-        <tr>
+        <tr className="total">
           <td>Operational profit</td>
           <td className="val">{fmt(data.operationalProfit)}</td>
         </tr>
@@ -85,7 +85,7 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
           <td>Other Income</td>
           <td className="val">{fmt(data.otherIncome)}</td>
         </tr>
-        <tr>
+        <tr className="total">
           <td>EBT</td>
           <td className="val">{fmt(data.ebt)}</td>
         </tr>
@@ -93,7 +93,7 @@ function ProfitLoss({ rows, fxRates, baseCurrency }: Props) {
           <td>Taxes</td>
           <td className="val">{fmt(data.taxes)}</td>
         </tr>
-        <tr>
+        <tr className="final">
           <td>Net Profit</td>
           <td className="val">{fmt(data.netProfit)}</td>
         </tr>
