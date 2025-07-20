@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import Dashboard from './Dashboard'
-import Forecast from './Forecast'
-import Report from './Report'
-import PageContainer from './components/Layout/PageContainer'
 import TopBar from './components/Layout/TopBar'
-import Sidebar from './components/Layout/Sidebar'
 import ModelControls from './components/ModelControls'
 import ModelTable from './components/ModelTable'
 import useFinancialRows from './hooks/useFinancialRows'
@@ -45,8 +40,6 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
   )
-  const [view, setView] =
-    useState<'model' | 'dashboard' | 'forecast' | 'report'>('model')
 
   useEffect(() => {
     document.body.classList.toggle('dark', theme === 'dark')
@@ -213,80 +206,47 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [addRow, handleSaveSnapshot, handleExport])
   return (
-    <div className="layout">
+    <div className="container">
       <TopBar
         theme={theme}
         onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      >
-        {view === 'report' && (
-          <button type="button" onClick={() => window.print()} className="btn">
-            Print
-          </button>
-        )}
-      </TopBar>
-      <div className="content">
-        <Sidebar active={view} onSelect={(v) => setView(v)} />
-        <PageContainer>
-          {view === 'dashboard' ? (
-            <Dashboard
-              rows={rowData}
-              fxRates={fxRates}
-              baseCurrency={baseCurrency}
-            />
-          ) : view === 'forecast' ? (
-            <Forecast
-              rows={rowData}
-              fxRates={fxRates}
-              baseCurrency={baseCurrency}
-            />
-          ) : view === 'report' ? (
-            <Report
-              rows={rowData}
-              fxRates={fxRates}
-              baseCurrency={baseCurrency}
-            />
-          ) : (
-            <div className="container">
-              <h1>Financial Model</h1>
-              <ModelControls
-                baseCurrency={baseCurrency}
-                scenario={scenario}
-                scenarioOptions={scenarioOptions}
-                snapshots={snapshots}
-                theme={theme}
-                onChangeBaseCurrency={setBaseCurrency}
-                onChangeScenario={handleScenarioChange}
-                onAddRow={handleAddRow}
-                onExport={handleExport}
-                onImport={handleImportClick}
-                onSaveSnapshot={handleSaveSnapshot}
-                onLoadSnapshot={handleLoadSnapshot}
-                onSync={handleSync}
-                onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              />
-              <input
-                type="file"
-                accept=".csv"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-              <ModelTable
-                rows={rowData}
-                errors={errors}
-                baseCurrency={baseCurrency}
-                fxRates={fxRates}
-                pinnedBottomRowData={pinnedBottomRowData}
-                onAccountChange={handleAccountChange}
-                onCurrencyChange={handleCurrencyChange}
-                onAmountChange={handleAmountChange}
-                onDeleteRow={handleDeleteRow}
-                fmt={fmt}
-              />
-            </div>
-          )}
-        </PageContainer>
-      </div>
+      />
+      <h1>Financial Model</h1>
+      <ModelControls
+        baseCurrency={baseCurrency}
+        scenario={scenario}
+        scenarioOptions={scenarioOptions}
+        snapshots={snapshots}
+        theme={theme}
+        onChangeBaseCurrency={setBaseCurrency}
+        onChangeScenario={handleScenarioChange}
+        onAddRow={handleAddRow}
+        onExport={handleExport}
+        onImport={handleImportClick}
+        onSaveSnapshot={handleSaveSnapshot}
+        onLoadSnapshot={handleLoadSnapshot}
+        onSync={handleSync}
+        onToggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      />
+      <input
+        type="file"
+        accept=".csv"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      <ModelTable
+        rows={rowData}
+        errors={errors}
+        baseCurrency={baseCurrency}
+        fxRates={fxRates}
+        pinnedBottomRowData={pinnedBottomRowData}
+        onAccountChange={handleAccountChange}
+        onCurrencyChange={handleCurrencyChange}
+        onAmountChange={handleAmountChange}
+        onDeleteRow={handleDeleteRow}
+        fmt={fmt}
+      />
     </div>
   )
 }
