@@ -1,21 +1,48 @@
 import { useCallback, useMemo, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
-import type { CellValueChangedEvent, ColDef } from 'ag-grid-community'
+import type {
+  CellValueChangedEvent,
+  ColDef,
+  ValueFormatterParams,
+  ValueParserParams,
+} from 'ag-grid-community'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import './App.css'
 
+interface Row {
+  id: string
+  account: string
+  amount: number
+}
+
 function App() {
-  const [rowData, setRowData] = useState([
-    { account: 'Revenue', amount: 1000 },
-    { account: 'Cost of Goods Sold', amount: -300 },
-    { account: 'Operating Expenses', amount: -200 },
+  const createRow = useCallback(
+    (account: string, amount: number): Row => ({
+      id: crypto.randomUUID(),
+      account,
+      amount,
+    }),
+    [],
+  )
+
+  const [rowData, setRowData] = useState<Row[]>([
+    createRow('Revenue', 1000),
+    createRow('Cost of Goods Sold', -300),
+    createRow('Operating Expenses', -200),
   ])
 
   const columnDefs = useMemo<ColDef[]>(
     () => [
       { field: 'account', headerName: 'Account' },
-      { field: 'amount', headerName: 'Amount', type: 'numericColumn' },
+      {
+        field: 'amount',
+        headerName: 'Amount',
+        type: 'numericColumn',
+        valueParser: (params: ValueParserParams) => Number(params.newValue),
+        valueFormatter: (params: ValueFormatterParams) =>
+          Number(params.value).toFixed(2),
+      },
     ],
     [],
   )
@@ -26,7 +53,7 @@ function App() {
   )
 
   const total = useMemo(
-    () => rowData.reduce((sum, row) => sum + Number(row.amount), 0),
+    () => rowData.reduce((sum, row) => sum + row.amount, 0),
     [rowData],
   )
 
@@ -37,17 +64,17 @@ function App() {
 
   const onCellValueChanged = useCallback(
     (params: CellValueChangedEvent) => {
-      if (params.rowIndex == null) return
-      const data = [...rowData]
-      data[params.rowIndex] = params.data
-      setRowData(data)
+      const updated = (params.data as Row)
+      setRowData((prev) =>
+        prev.map((row) => (row.id === updated.id ? updated : row)),
+      )
     },
-    [rowData],
+    [],
   )
 
   const handleAddRow = useCallback(() => {
-    setRowData([...rowData, { account: '', amount: 0 }])
-  }, [rowData])
+    setRowData([...rowData, createRow('', 0)])
+  }, [rowData, createRow])
 
   return (
     <div className="container">
