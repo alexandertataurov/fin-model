@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import TopBar from './components/Layout/TopBar'
 import ModelControls from './components/ModelControls'
@@ -6,7 +6,7 @@ import ModelTable from './components/ModelTable'
 import Card from './components/ui/Card'
 import useFinancialRows from './hooks/useFinancialRows'
 import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts"
-import useTheme, { ThemeProvider } from "./hooks/useTheme"
+import useTheme from "./hooks/useTheme"
 import useSnapshots from './hooks/useSnapshots'
 import useFxRates from './hooks/useFxRates'
 import useMetrics from './hooks/useMetrics'

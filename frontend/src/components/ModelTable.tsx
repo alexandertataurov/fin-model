@@ -6,7 +6,6 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import type { Currency, Row } from '../types';
 import { currencyOptions } from '../types';
 import styles from './ModelTable.module.css';
-import Button from './ui/Button';
 
 interface PinnedRow {
   account: string;
@@ -57,21 +56,26 @@ export default function ModelTable({
         field: 'amount',
         editable: true,
         type: 'numericColumn',
-        cellClass: (params) =>
-          params.data.amount >= 0 ? styles.positive : styles.negative,
+        cellClass: (params) => {
+          const baseClass =
+            (params.data?.amount ?? 0) >= 0 ? styles.positive : styles.negative
+          return errors[params.data?.id ?? '']
+            ? `${baseClass} ${styles.inputError}`
+            : baseClass
+        },
       },
       {
         headerName: `Amount (${baseCurrency})`,
-        valueGetter: (p) => p.data.amount / (fxRates[p.data.currency] ?? 1),
+        valueGetter: (p) =>
+          (p.data?.amount ?? 0) / (fxRates[p.data?.currency ?? baseCurrency] ?? 1),
         valueFormatter: (p) => fmt(p.value as number, baseCurrency),
         cellClass: (params) =>
-          params.data.amount >= 0 ? styles.positive : styles.negative,
+          (params.data?.amount ?? 0) >= 0 ? styles.positive : styles.negative,
       },
       {
         headerName: '',
         field: 'id',
-        cellRenderer: (p) =>
-          `<button class="${styles.deleteButton}">Delete</button>`,
+        cellRenderer: () => `<button class="${styles.deleteButton}">Delete</button>`,
         editable: false,
         width: 90,
       },
@@ -80,16 +84,17 @@ export default function ModelTable({
   );
 
   const onCellValueChanged = (e: CellValueChangedEvent<Row>) => {
-    const { data, colDef } = e;
-    if (colDef.field === 'account') onAccountChange(data.id, data.account);
+    const { data, colDef } = e
+    if (!data) return
+    if (colDef.field === 'account') onAccountChange(data.id, data.account)
     else if (colDef.field === 'currency')
-      onCurrencyChange(data.id, data.currency as Currency);
-    else if (colDef.field === 'amount') onAmountChange(data.id, String(data.amount));
-  };
+      onCurrencyChange(data.id, data.currency as Currency)
+    else if (colDef.field === 'amount') onAmountChange(data.id, String(data.amount))
+  }
 
   const onCellClicked = (e: any) => {
-    if (e.colDef.field === 'id') onDeleteRow(e.data.id);
-  };
+    if (e.colDef.field === 'id' && e.data) onDeleteRow(e.data.id)
+  }
 
   return (
     <div className={`ag-theme-alpine ${styles.grid}`} role="grid">
@@ -98,6 +103,7 @@ export default function ModelTable({
         columnDefs={columnDefs}
         onCellValueChanged={onCellValueChanged}
         onCellClicked={onCellClicked}
+        pinnedBottomRowData={pinnedBottomRowData}
         suppressMovableColumns
         stopEditingWhenCellsLoseFocus
       />
