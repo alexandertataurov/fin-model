@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { CellValueChangedEvent, ColDef } from "ag-grid-community";
 import {
@@ -13,7 +13,6 @@ const gridTheme = themeAlpine.withParams({
 });
 import type { Currency, Row } from "../types";
 import { currencyOptions } from "../types";
-import styles from "./ModelTable.module.css";
 
 interface PinnedRow {
   account: string;
@@ -66,9 +65,11 @@ export default function ModelTable({
         type: "numericColumn",
         cellClass: (params) => {
           const baseClass =
-            (params.data?.amount ?? 0) >= 0 ? styles.positive : styles.negative;
+            (params.data?.amount ?? 0) >= 0
+              ? 'text-[var(--positive-color)]'
+              : 'text-[var(--negative-color)]';
           return errors[params.data?.id ?? ""]
-            ? `${baseClass} ${styles.inputError}`
+            ? `${baseClass} border border-red-500 bg-red-50 dark:bg-red-900`
             : baseClass;
         },
       },
@@ -79,13 +80,15 @@ export default function ModelTable({
           (fxRates[p.data?.currency ?? baseCurrency] ?? 1),
         valueFormatter: (p) => fmt(p.value as number, baseCurrency),
         cellClass: (params) =>
-          (params.data?.amount ?? 0) >= 0 ? styles.positive : styles.negative,
+          (params.data?.amount ?? 0) >= 0
+            ? 'text-[var(--positive-color)]'
+            : 'text-[var(--negative-color)]',
       },
       {
         headerName: "",
         field: "id",
         cellRenderer: () =>
-          `<button class="${styles.deleteButton}">Delete</button>`,
+          `<button class="px-2 py-0.5 text-xs text-white rounded bg-[var(--negative-color)] hover:brightness-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--negative-color)]">Delete</button>`,
         editable: false,
         width: 90,
       },
@@ -108,7 +111,7 @@ export default function ModelTable({
   };
 
   return (
-    <div className={styles.grid} role="grid">
+    <div className="h-[300px] w-full" role="grid" style={{ '--ag-font-family': 'Roboto Mono, monospace' } as CSSProperties}>
       <AgGridReact
         theme={gridTheme}
         rowData={rows}

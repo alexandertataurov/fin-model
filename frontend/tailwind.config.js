@@ -1,5 +1,11 @@
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
-  theme: { extend: {} },
+  theme: {
+    extend: {
+      fontFamily: {
+        mono: ['Roboto Mono', 'monospace'],
+      },
+    },
+  },
   plugins: [],
 };

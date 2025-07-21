@@ -14,7 +14,6 @@ import type { Currency, Scenario } from './types'
 import { scenarioOptions } from './types'
 import { formatCurrency } from './utils/format'
 import { parseCsv, rowsToCsv } from './utils/csv'
-import './App.css'
 
 const scenarioMultipliers: Record<Scenario, number> = {
   Base: 1,
@@ -183,12 +182,12 @@ function App() {
 
    useKeyboardShortcuts({ addRow, saveSnapshot: handleSaveSnapshot, exportCsv: handleExport, toggleTheme: toggle });
   return (
-    <div className="container">
+    <div className="min-h-screen w-full box-border border-2 border-[var(--border-color)] bg-[var(--bg-color)] p-4 md:p-8">
       <TopBar
         theme={theme}
         onToggleTheme={() => toggle()}
       />
-      <h1>Financial Model</h1>
+      <h1 className="mb-4 border-b-2 pb-1 text-xl font-semibold uppercase tracking-wider">Financial Model</h1>
       <ModelControls
         baseCurrency={baseCurrency}
         scenario={scenario}
