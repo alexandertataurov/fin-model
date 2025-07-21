@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { CellValueChangedEvent, ColDef } from 'ag-grid-community';
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+
+// Ensure the grid has access to all community features
+ModuleRegistry.registerModules([AllCommunityModule]);
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import type { Currency, Row } from '../types';
@@ -108,6 +112,7 @@ export default function ModelTable({
         pinnedBottomRowData={pinnedBottomRowData}
         suppressMovableColumns
         stopEditingWhenCellsLoseFocus
+        theme="legacy"
       />
     </div>
   );
