@@ -1,9 +1,16 @@
 import { useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { CellValueChangedEvent, ColDef } from "ag-grid-community";
-import { ModuleRegistry, AllCommunityModule, themeAlpine } from "ag-grid-community";
+import {
+  ModuleRegistry,
+  AllCommunityModule,
+  themeAlpine,
+} from "ag-grid-community";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+const gridTheme = themeAlpine.withParams({
+  fontFamily: ['Roboto Mono', 'monospace'],
+});
 import type { Currency, Row } from "../types";
 import { currencyOptions } from "../types";
 import styles from "./ModelTable.module.css";
@@ -103,7 +110,7 @@ export default function ModelTable({
   return (
     <div className={styles.grid} role="grid">
       <AgGridReact
-        theme={themeAlpine}
+        theme={gridTheme}
         rowData={rows}
         columnDefs={columnDefs}
         onCellValueChanged={onCellValueChanged}

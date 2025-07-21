@@ -1,4 +1,8 @@
-.grid { height: 300px; width: 100%; }
+.grid {
+  height: 300px;
+  width: 100%;
+  --ag-font-family: 'Roboto Mono', monospace;
+}
 .table {
   width: 100%;
   margin: 1rem 0;
@@ -59,6 +63,12 @@
 
 .deleteButton {
   padding: 0.125rem 0.5rem;
+  background-color: var(--negative-color);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  font-family: 'Roboto Mono', monospace;
+  cursor: pointer;
 }
 
 .inputError {
