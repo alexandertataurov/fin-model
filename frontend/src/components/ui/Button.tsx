@@ -7,6 +7,8 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 const Button = forwardRef<HTMLButtonElement, Props>(
   ({ children, variant = 'primary', className = '', ...rest }, ref) => {
+    const baseClass =
+      'rounded px-2 py-1 text-sm font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed'
     const variantClass =
       variant === 'secondary'
         ? 'border border-gray-400 bg-transparent text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-700'
@@ -16,7 +18,7 @@ const Button = forwardRef<HTMLButtonElement, Props>(
       <button
         ref={ref}
         type="button"
-        className={`rounded px-2 py-1 text-sm font-mono ${variantClass} ${className}`.trim()}
+        className={`${baseClass} ${variantClass} ${className}`.trim()}
         {...rest}
       >
         {children}
