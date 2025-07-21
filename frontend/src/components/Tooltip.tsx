@@ -3,14 +3,17 @@ import styles from './Tooltip.module.css'
 
 interface Props {
   text: string
+  id?: string
   children: ReactNode
 }
 
-function Tooltip({ text, children }: Props) {
+function Tooltip({ text, id, children }: Props) {
   return (
     <span className={styles.wrapper}>
       {children}
-      <span className={styles.tip}>{text}</span>
+      <span id={id} role="tooltip" className={styles.tip}>
+        {text}
+      </span>
     </span>
   )
 }
