@@ -6,6 +6,7 @@ import Button from './ui/Button'
 import ThemeToggle from './ui/ThemeToggle'
 import { Select } from './ui/Field'
 import SnapshotDropdown from './SnapshotDropdown'
+import styles from './ModelControls.module.css'
 
 interface Props {
   baseCurrency: Currency;
@@ -41,11 +42,11 @@ function ModelControls({
   onToggleTheme,
 }: Props) {
   return (
-    <div className="mb-4 flex flex-col gap-2 border border-[var(--border-color)] bg-[var(--bg-alt-color)] p-2 sm:flex-row sm:flex-wrap sm:items-center">
+    <div className={styles.controls}>
       <fieldset>
         <legend>Scenario</legend>
         <Tooltip text="Select a scenario multiplier for projections">
-          <span className="cursor-help border-b border-dotted text-xs">?</span>
+          <span className={styles.help}>?</span>
         </Tooltip>
         <Select id="scenario" value={scenario} onChange={onChangeScenario}>
           {scenarioOptions.map((opt) => (
@@ -58,7 +59,7 @@ function ModelControls({
       <fieldset>
         <legend>Base</legend>
         <Tooltip text="Choose the currency for aggregated amounts">
-          <span className="cursor-help border-b border-dotted text-xs">?</span>
+          <span className={styles.help}>?</span>
         </Tooltip>
         <Select
           id="baseCurrency"

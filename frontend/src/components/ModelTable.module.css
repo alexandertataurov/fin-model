@@ -1,0 +1,81 @@
+.grid { height: 300px; width: 100%; }
+.table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.table th {
+  text-align: left;
+  background-color: var(--bg-alt-color);
+}
+
+.table td,
+.table th {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+  background-color: var(--bg-color);
+}
+
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  width: 33%;
+  text-align: left;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2),
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  width: 22%;
+}
+
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 8%;
+  text-align: center;
+}
+
+.val {
+  text-align: right;
+}
+
+:global(body.dark) .table td,
+:global(body.dark) .table th {
+  border-bottom-color: var(--border-color);
+}
+
+:global(body.dark) .table td {
+  background-color: var(--bg-color);
+}
+
+.deleteButton {
+  padding: 0.125rem 0.5rem;
+}
+
+.inputError {
+  border: 1px solid red !important;
+  background-color: #ffe6e6;
+}
+
+:global(body.dark) .inputError {
+  background-color: #4a2a2a;
+}
+.positive {
+  color: var(--positive-color);
+}
+
+.negative {
+  color: var(--negative-color);
+}
+@media (max-width: 600px) {
+  .table th, .table td { font-size: 0.8rem; }
+}

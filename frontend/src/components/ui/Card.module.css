@@ -1,0 +1,10 @@
+.card {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.secondary {
+  background-color: var(--bg-alt-color);
+}
