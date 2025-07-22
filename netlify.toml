@@ -39,7 +39,7 @@
 # API proxy to Railway backend
 [[redirects]]
   from = "/api/*"
-  to = "https://your-railway-app.railway.app/api/:splat"
+  to = "https://fin-model-production.up.railway.app/api/:splat"
   status = 200
   force = false
   headers = {X-From = "Netlify"}
@@ -47,7 +47,7 @@
 # Health check proxy
 [[redirects]]
   from = "/health"
-  to = "https://your-railway-app.railway.app/health"
+  to = "https://fin-model-production.up.railway.app/health"
   status = 200
   force = false
 
@@ -98,19 +98,19 @@
   command = "npm run build"
   [context.production.environment]
     NODE_ENV = "production"
-    VITE_API_URL = "https://your-railway-app.railway.app"
+    VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.deploy-preview]
   command = "npm run build"
   [context.deploy-preview.environment]
     NODE_ENV = "development"
-    VITE_API_URL = "https://your-railway-app.railway.app"
+    VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.branch-deploy]
   command = "npm run build"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
-    VITE_API_URL = "https://your-railway-app.railway.app"
+    VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 # Functions (if you plan to use Netlify Functions for serverless API)
 [functions]
