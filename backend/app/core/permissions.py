@@ -10,12 +10,12 @@ class Permission(PyEnum):
     USER_UPDATE = "user:update"
     USER_DELETE = "user:delete"
     USER_LIST = "user:list"
-    
+
     # Role Management
     ROLE_ASSIGN = "role:assign"
     ROLE_REMOVE = "role:remove"
     ROLE_READ = "role:read"
-    
+
     # Financial Models
     MODEL_CREATE = "model:create"
     MODEL_READ = "model:read"
@@ -23,29 +23,30 @@ class Permission(PyEnum):
     MODEL_DELETE = "model:delete"
     MODEL_LIST = "model:list"
     MODEL_EXECUTE = "model:execute"
-    
+
     # Data Management
     DATA_UPLOAD = "data:upload"
     DATA_READ = "data:read"
     DATA_UPDATE = "data:update"
     DATA_DELETE = "data:delete"
     DATA_EXPORT = "data:export"
-    
+
     # Reports
     REPORT_CREATE = "report:create"
     REPORT_READ = "report:read"
     REPORT_UPDATE = "report:update"
     REPORT_DELETE = "report:delete"
     REPORT_EXPORT = "report:export"
-    
+
     # Dashboard
     DASHBOARD_READ = "dashboard:read"
     DASHBOARD_CUSTOMIZE = "dashboard:customize"
-    
+
     # System Administration
     SYSTEM_SETTINGS = "system:settings"
     AUDIT_LOGS = "audit:logs"
     SYSTEM_HEALTH = "system:health"
+    ADMIN_ACCESS = "admin:access"
 
 
 # Role-based permission mapping
@@ -81,6 +82,7 @@ ROLE_PERMISSIONS: Dict[RoleType, Set[Permission]] = {
         Permission.SYSTEM_SETTINGS,
         Permission.AUDIT_LOGS,
         Permission.SYSTEM_HEALTH,
+        Permission.ADMIN_ACCESS,
     },
     RoleType.ANALYST: {
         # Can work with models, data, and reports but limited user management
@@ -116,13 +118,13 @@ ROLE_PERMISSIONS: Dict[RoleType, Set[Permission]] = {
         Permission.REPORT_READ,
         Permission.REPORT_EXPORT,
         Permission.DASHBOARD_READ,
-    }
+    },
 }
 
 
 class PermissionChecker:
     """Helper class for checking permissions."""
-    
+
     @staticmethod
     def has_permission(user_roles: List[str], required_permission: Permission) -> bool:
         """Check if user roles have the required permission."""
@@ -134,23 +136,27 @@ class PermissionChecker:
             except ValueError:
                 continue
         return False
-    
+
     @staticmethod
-    def has_any_permission(user_roles: List[str], required_permissions: List[Permission]) -> bool:
+    def has_any_permission(
+        user_roles: List[str], required_permissions: List[Permission]
+    ) -> bool:
         """Check if user roles have any of the required permissions."""
         return any(
             PermissionChecker.has_permission(user_roles, perm)
             for perm in required_permissions
         )
-    
+
     @staticmethod
-    def has_all_permissions(user_roles: List[str], required_permissions: List[Permission]) -> bool:
+    def has_all_permissions(
+        user_roles: List[str], required_permissions: List[Permission]
+    ) -> bool:
         """Check if user roles have all required permissions."""
         return all(
             PermissionChecker.has_permission(user_roles, perm)
             for perm in required_permissions
         )
-    
+
     @staticmethod
     def get_user_permissions(user_roles: List[str]) -> Set[Permission]:
         """Get all permissions for user roles."""
@@ -162,23 +168,34 @@ class PermissionChecker:
             except ValueError:
                 continue
         return permissions
-    
+
     @staticmethod
-    def can_access_resource(user_roles: List[str], resource_owner_id: int, current_user_id: int, required_permission: Permission) -> bool:
+    def can_access_resource(
+        user_roles: List[str],
+        resource_owner_id: int,
+        current_user_id: int,
+        required_permission: Permission,
+    ) -> bool:
         """Check if user can access a resource, considering ownership."""
         # Admins can access everything
-        if PermissionChecker.has_permission(user_roles, Permission.USER_DELETE):  # Admin indicator
+        if PermissionChecker.has_permission(
+            user_roles, Permission.USER_DELETE
+        ):  # Admin indicator
             return True
-        
+
         # Users can access their own resources
         if resource_owner_id == current_user_id:
             return PermissionChecker.has_permission(user_roles, required_permission)
-        
+
         # For other users' resources, need explicit permission
         # Analysts can read others' work, but viewers cannot
-        if required_permission in [Permission.MODEL_READ, Permission.REPORT_READ, Permission.DATA_READ]:
+        if required_permission in [
+            Permission.MODEL_READ,
+            Permission.REPORT_READ,
+            Permission.DATA_READ,
+        ]:
             return PermissionChecker.has_permission(user_roles, required_permission)
-        
+
         return False
 
 
@@ -214,5 +231,6 @@ def get_permission_description(permission: Permission) -> str:
         Permission.SYSTEM_SETTINGS: "Modify system settings",
         Permission.AUDIT_LOGS: "View system audit logs",
         Permission.SYSTEM_HEALTH: "View system health and metrics",
+        Permission.ADMIN_ACCESS: "Access administrative functions",
     }
-    return descriptions.get(permission, "Unknown permission") 
+    return descriptions.get(permission, "Unknown permission")
