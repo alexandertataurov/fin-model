@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional, Union, Tuple
 from datetime import datetime
 from pydantic import BaseModel, Field, validator
 from enum import Enum

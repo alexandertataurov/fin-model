@@ -204,8 +204,8 @@ async def clone_scenario(
 @router.post("/{scenario_id}/calculate")
 async def calculate_scenario(
     scenario_id: int,
-    force_recalculation: bool = Query(False, description="Force recalculation even if up to date"),
     background_tasks: BackgroundTasks,
+    force_recalculation: bool = Query(False, description="Force recalculation even if up to date"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
