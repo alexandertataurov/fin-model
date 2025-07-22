@@ -20,7 +20,6 @@ import {
   TableRow,
   TablePagination,
   Chip,
-  Tooltip,
   Menu,
   ListItemIcon,
   ListItemText,
@@ -43,13 +42,9 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   ContentCopy as CopyIcon,
-  GetApp as ExportIcon,
-  Add as AddIcon,
   Refresh as RefreshIcon,
   ExpandMore as ExpandMoreIcon,
-  Settings as SettingsIcon,
 } from '@mui/icons-material';
-import { SelectChangeEvent } from '@mui/material/Select';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ParameterEditor from './ParameterEditor';
 
@@ -102,7 +97,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
   readonly = false,
   allowBulkEdit = true,
   showGrouping = true,
-  compact = false,
+  _compact = false,
   onParameterSelect,
   onBulkUpdate,
 }) => {
@@ -120,8 +115,8 @@ const ParameterList: React.FC<ParameterListProps> = ({
   const [selectedParams, setSelectedParams] = useState<Set<number>>(new Set());
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [groupBy, setGroupBy] = useState<'category' | 'type' | 'sensitivity' | 'none'>('category');
-  const [sortBy, setSortBy] = useState<'name' | 'created_at' | 'updated_at' | 'sensitivity_level'>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortBy] = useState<'name' | 'created_at' | 'updated_at' | 'sensitivity_level'>('name');
+  const [sortOrder] = useState<'asc' | 'desc'>('asc');
   const [showFilters, setShowFilters] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
@@ -224,11 +219,12 @@ const ParameterList: React.FC<ParameterListProps> = ({
           aVal = new Date(a.updated_at).getTime();
           bVal = new Date(b.updated_at).getTime();
           break;
-        case 'sensitivity_level':
+        case 'sensitivity_level': {
           const sensOrder = { low: 1, medium: 2, high: 3, critical: 4 };
           aVal = sensOrder[a.sensitivity_level];
           bVal = sensOrder[b.sensitivity_level];
           break;
+        }
         default:
           aVal = a.name;
           bVal = b.name;
@@ -395,7 +391,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
         <Chip
           size="small"
           label={parameter.sensitivity_level}
-          color={getSensitivityColor(parameter.sensitivity_level) as any}
+                      color={getSensitivityColor(parameter.sensitivity_level) as "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"}
         />
       </TableCell>
       
@@ -592,7 +588,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
                   <InputLabel>Group By</InputLabel>
                   <Select
                     value={groupBy}
-                    onChange={(e) => setGroupBy(e.target.value as any)}
+                    onChange={(e) => setGroupBy(e.target.value as 'category' | 'type' | 'sensitivity' | 'none')}
                     label="Group By"
                   >
                     <MenuItem value="none">No Grouping</MenuItem>
@@ -708,14 +704,14 @@ const ParameterList: React.FC<ParameterListProps> = ({
             : undefined
         }
       >
-        <MenuItem onClick={() => onParameterSelect?.(contextMenu!.parameter)}>
+        <MenuItem onClick={() => contextMenu && onParameterSelect?.(contextMenu.parameter)}>
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Edit Parameter</ListItemText>
         </MenuItem>
         
-        <MenuItem onClick={() => console.log('Copy parameter')}>
+        <MenuItem onClick={() => {/* TODO: Implement copy parameter */}}>
           <ListItemIcon>
             <CopyIcon fontSize="small" />
           </ListItemIcon>
@@ -725,7 +721,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
         <Divider />
         
         <MenuItem
-          onClick={() => deleteParameterMutation.mutate(contextMenu!.parameter.id)}
+          onClick={() => contextMenu && deleteParameterMutation.mutate(contextMenu.parameter.id)}
           sx={{ color: 'error.main' }}
         >
           <ListItemIcon>

@@ -1,17 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Card,
   CardContent,
   Typography,
   TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Slider,
-  Switch,
-  FormControlLabel,
   Button,
   IconButton,
   Chip,
@@ -21,7 +15,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Divider,
   InputAdornment,
 } from '@mui/material';
 import {
@@ -32,9 +25,7 @@ import {
   Info as InfoIcon,
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
-  Warning as WarningIcon,
 } from '@mui/icons-material';
-import { SelectChangeEvent } from '@mui/material/Select';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Types
@@ -70,7 +61,7 @@ interface ParameterValidation {
 
 interface ParameterEditorProps {
   parameter: Parameter;
-  scenarioId?: number;
+  _scenarioId?: number;
   onValueChange?: (parameterId: number, newValue: number, changeReason?: string) => void;
   readonly?: boolean;
   showDependencies?: boolean;
@@ -79,7 +70,7 @@ interface ParameterEditorProps {
 
 const ParameterEditor: React.FC<ParameterEditorProps> = ({
   parameter,
-  scenarioId,
+  _scenarioId,
   onValueChange,
   readonly = false,
   showDependencies = true,
@@ -385,10 +376,10 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                     Cancel
                   </Button>
                   
-                  {validation && validation.suggested_value && (
+                  {validation && validation.suggested_value !== undefined && (
                     <Button
                       variant="text"
-                      onClick={() => handleValueChange(validation.suggested_value!)}
+                      onClick={() => handleValueChange(validation.suggested_value)}
                     >
                       Use Suggested: {formatValue(validation.suggested_value)}
                     </Button>

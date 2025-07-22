@@ -24,29 +24,22 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
-  Divider,
-  Paper,
   LinearProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
   ContentCopy as CopyIcon,
-  Delete as DeleteIcon,
   PlayArrow as PlayIcon,
-  Timeline as TimelineIcon,
   Compare as CompareIcon,
   Analytics as AnalyticsIcon,
-  Settings as SettingsIcon,
   Refresh as RefreshIcon,
   GetApp as ExportIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import ParameterList from '../components/Parameters/ParameterList';
-import ParameterEditor from '../components/Parameters/ParameterEditor';
-import { LineChart, BarChart, WaterfallChart } from '../components/Charts';
+import { BarChart } from '../components/Charts';
 
 // Types
 interface Scenario {
@@ -61,7 +54,7 @@ interface Scenario {
   parent_scenario_id?: number;
   last_calculated_at?: string;
   calculation_status: string;
-  calculation_results?: Record<string, any>;
+  calculation_results?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -91,27 +84,23 @@ interface SensitivityAnalysis {
   target_parameter_id: number;
   analysis_type: string;
   results: SensitivityResult[];
-  chart_data: Record<string, any>;
-  summary_statistics: Record<string, any>;
+  chart_data: Record<string, unknown>;
+  summary_statistics: Record<string, unknown>;
   execution_time: number;
   status: string;
 }
 
 const ScenarioModeling: React.FC = () => {
   const { fileId } = useParams<{ fileId: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // State
   const [activeTab, setActiveTab] = useState(0);
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
-  const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(null);
   const [createScenarioOpen, setCreateScenarioOpen] = useState(false);
-  const [compareDialogOpen, setCompareDialogOpen] = useState(false);
   const [sensitivityDialogOpen, setSensitivityDialogOpen] = useState(false);
   const [newScenarioName, setNewScenarioName] = useState('');
   const [newScenarioDescription, setNewScenarioDescription] = useState('');
-  const [compareScenarios, setCompareScenarios] = useState<number[]>([]);
   const [targetParameterId, setTargetParameterId] = useState<number | null>(null);
 
   // Fetch scenarios
@@ -126,7 +115,7 @@ const ScenarioModeling: React.FC = () => {
   });
 
   // Fetch parameters for selected scenario
-  const { data: parameters, isLoading: parametersLoading } = useQuery({
+  const { data: parameters } = useQuery({
     queryKey: ['scenario-parameters', selectedScenario?.id],
     queryFn: async () => {
       if (!selectedScenario) return [];
@@ -159,7 +148,7 @@ const ScenarioModeling: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          base_file_id: parseInt(fileId!),
+          base_file_id: fileId ? parseInt(fileId) : 0,
         }),
       });
       if (!response.ok) throw new Error('Failed to create scenario');
@@ -211,7 +200,7 @@ const ScenarioModeling: React.FC = () => {
   }, []);
 
   // Handle parameter value change
-  const handleParameterValueChange = useCallback((parameterId: number, newValue: number, changeReason?: string) => {
+  const handleParameterValueChange = useCallback((_parameterId: number, _newValue: number, _changeReason?: string) => {
     // This would update the parameter value in the selected scenario
     // For now, just invalidate queries to refetch data
     queryClient.invalidateQueries({ queryKey: ['scenario-parameters'] });
