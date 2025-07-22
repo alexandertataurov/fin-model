@@ -2,5 +2,5 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "python3 main.py"
+startCommand = "cd backend && python3 run_migrations.py && cd .. && python3 main.py"
 healthcheckPath = "/health" 
