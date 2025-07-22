@@ -89,7 +89,7 @@ export const PieChart: React.FC<PieChartProps> = ({
     return `${percentage.toFixed(1)}%`;
   };
 
-  const renderCustomizedLabel = (entry: any) => {
+  const renderCustomizedLabel = (entry: { value: number; name: string }) => {
     if (!showLabels) return null;
     
     const percentage = ((entry.value / total) * 100).toFixed(1);
@@ -101,12 +101,12 @@ export const PieChart: React.FC<PieChartProps> = ({
     return entry.name;
   };
 
-  const customTooltip = ({ active, payload }: any) => {
+  const customTooltip = ({ active, payload }: { active?: boolean; payload?: unknown[] }) => {
     if (!active || !payload || payload.length === 0) {
       return null;
     }
 
-    const data = payload[0];
+    const data = payload[0] as PieChartDataPoint;
     const percentage = ((data.value / total) * 100).toFixed(1);
 
     return (
@@ -164,11 +164,10 @@ export const PieChart: React.FC<PieChartProps> = ({
               paddingTop: '20px',
               fontSize: '14px',
             }}
-            formatter={(value, entry: any) => (
-              <span style={{ color: entry.color }}>
-                {value} ({formatPercentage(entry.payload.value)})
-              </span>
-            )}
+            formatter={(value: unknown, entry: Record<string, unknown>) => {
+              const percentageValue = formatPercentage((entry.payload as { value: number }).value);
+              return `${value} (${percentageValue})`;
+            }}
           />
         )}
       </RechartsPieChart>

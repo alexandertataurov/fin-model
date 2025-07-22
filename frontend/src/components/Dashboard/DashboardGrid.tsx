@@ -20,8 +20,8 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 export interface DashboardWidget {
   id: string;
   title: string;
-  component: React.ComponentType<any>;
-  props?: any;
+  component: React.ComponentType<{ height?: number; isFullscreen?: boolean; onFullscreen?: () => void }>;
+  props?: Record<string, unknown>;
   minWidth?: number;
   minHeight?: number;
   defaultWidth?: number;

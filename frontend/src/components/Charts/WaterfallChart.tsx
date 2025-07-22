@@ -132,12 +132,12 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
     return value;
   };
 
-  const customTooltip = ({ active, payload, label }: any) => {
+  const customTooltip = ({ active, payload, label }: { active?: boolean; payload?: unknown[]; label?: string }) => {
     if (!active || !payload || payload.length === 0) {
       return null;
     }
 
-    const data = payload[0]?.payload;
+    const data = (payload[0] as { payload: WaterfallDataPoint })?.payload;
     if (!data) return null;
 
     const value = data.value;
@@ -169,7 +169,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         )}
         
         <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-          {isTotal ? 'Total' : 'Cumulative'}: {formatYAxis(cumulative)}
+          {isTotal ? 'Total' : 'Cumulative'}: {formatYAxis(cumulative || 0)}
         </Box>
         
         {!isStart && !isTotal && (

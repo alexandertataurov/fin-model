@@ -12,7 +12,7 @@ export const DASHBOARD_TEMPLATES = {
 export type DashboardTemplateKey = typeof DASHBOARD_TEMPLATES[keyof typeof DASHBOARD_TEMPLATES];
 
 // P&L Dashboard Template
-const PLDashboardLayout: { [key: string]: LayoutItem[] } = {
+export const PLDashboardLayout: { [key: string]: LayoutItem[] } = {
   lg: [
     { i: 'revenue-trend', x: 0, y: 0, w: 8, h: 4, minW: 4, minH: 3 },
     { i: 'revenue-breakdown', x: 8, y: 0, w: 4, h: 4, minW: 3, minH: 3 },
@@ -51,7 +51,7 @@ const PLDashboardLayout: { [key: string]: LayoutItem[] } = {
 };
 
 // Cash Flow Dashboard Template
-const CashFlowDashboardLayout: { [key: string]: LayoutItem[] } = {
+export const CashFlowDashboardLayout: { [key: string]: LayoutItem[] } = {
   lg: [
     { i: 'cash-waterfall', x: 0, y: 0, w: 8, h: 5, minW: 6, minH: 4 },
     { i: 'cash-position', x: 8, y: 0, w: 4, h: 5, minW: 3, minH: 4 },
@@ -90,7 +90,7 @@ const CashFlowDashboardLayout: { [key: string]: LayoutItem[] } = {
 };
 
 // Balance Sheet Dashboard Template
-const BalanceSheetDashboardLayout: { [key: string]: LayoutItem[] } = {
+export const BalanceSheetDashboardLayout: { [key: string]: LayoutItem[] } = {
   lg: [
     { i: 'assets-breakdown', x: 0, y: 0, w: 4, h: 5, minW: 3, minH: 4 },
     { i: 'liabilities-breakdown', x: 4, y: 0, w: 4, h: 5, minW: 3, minH: 4 },
@@ -134,7 +134,7 @@ const BalanceSheetDashboardLayout: { [key: string]: LayoutItem[] } = {
 };
 
 // Overview Dashboard Template
-const OverviewDashboardLayout: { [key: string]: LayoutItem[] } = {
+export const OverviewDashboardLayout: { [key: string]: LayoutItem[] } = {
   lg: [
     { i: 'key-metrics', x: 0, y: 0, w: 12, h: 2, minW: 6, minH: 2 },
     { i: 'revenue-profit-trend', x: 0, y: 2, w: 8, h: 4, minW: 6, minH: 3 },
@@ -221,7 +221,7 @@ export const templateMetadata = {
 };
 
 // Helper function to get template layout
-export const getTemplateLayout = (templateKey: DashboardTemplateKey): DashboardLayout => {
+export const getTemplateLayout = (templateKey: DashboardTemplateKey) => {
   return dashboardTemplates[templateKey];
 };
 

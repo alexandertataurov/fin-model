@@ -9,5 +9,5 @@ export {
   templateMetadata,
   getTemplateLayout,
   getAvailableTemplates,
-} from './DashboardTemplates';
-export type { DashboardTemplateKey } from './DashboardTemplates'; 
+  type DashboardTemplateKey,
+} from './dashboardConstants'; 
