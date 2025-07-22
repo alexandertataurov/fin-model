@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { CellValueChangedEvent, ColDef } from 'ag-grid-community';
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+
+// Ensure the grid has access to all community features
+ModuleRegistry.registerModules([AllCommunityModule]);
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import type { Currency, Row } from '../types';
@@ -40,15 +44,15 @@ export default function ModelTable({
   const columnDefs = useMemo<ColDef<Row>[]>(
     () => [
       {
-        headerName: 'Account',
-        field: 'account',
+        headerName: "Account",
+        field: "account",
         editable: true,
       },
       {
-        headerName: 'Currency',
-        field: 'currency',
+        headerName: "Currency",
+        field: "currency",
         editable: true,
-        cellEditor: 'agSelectCellEditor',
+        cellEditor: "agSelectCellEditor",
         cellEditorParams: { values: currencyOptions },
       },
       {
@@ -58,23 +62,24 @@ export default function ModelTable({
         type: 'numericColumn',
         cellClass: (params) => {
           const baseClass =
-            (params.data?.amount ?? 0) >= 0 ? styles.positive : styles.negative
+            (params.data?.amount ?? 0) >= 0 ? styles.positive : styles.negative;
           return errors[params.data?.id ?? '']
             ? `${baseClass} ${styles.inputError}`
-            : baseClass
+            : baseClass;
         },
       },
       {
         headerName: `Amount (${baseCurrency})`,
         valueGetter: (p) =>
-          (p.data?.amount ?? 0) / (fxRates[p.data?.currency ?? baseCurrency] ?? 1),
+          (p.data?.amount ?? 0) /
+          (fxRates[p.data?.currency ?? baseCurrency] ?? 1),
         valueFormatter: (p) => fmt(p.value as number, baseCurrency),
         cellClass: (params) =>
           (params.data?.amount ?? 0) >= 0 ? styles.positive : styles.negative,
       },
       {
-        headerName: '',
-        field: 'id',
+        headerName: "",
+        field: "id",
         cellRenderer: () => `<button class="${styles.deleteButton}">Delete</button>`,
         editable: false,
         width: 90,
@@ -84,17 +89,18 @@ export default function ModelTable({
   );
 
   const onCellValueChanged = (e: CellValueChangedEvent<Row>) => {
-    const { data, colDef } = e
-    if (!data) return
-    if (colDef.field === 'account') onAccountChange(data.id, data.account)
-    else if (colDef.field === 'currency')
-      onCurrencyChange(data.id, data.currency as Currency)
-    else if (colDef.field === 'amount') onAmountChange(data.id, String(data.amount))
-  }
+    const { data, colDef } = e;
+    if (!data) return;
+    if (colDef.field === "account") onAccountChange(data.id, data.account);
+    else if (colDef.field === "currency")
+      onCurrencyChange(data.id, data.currency as Currency);
+    else if (colDef.field === "amount")
+      onAmountChange(data.id, String(data.amount));
+  };
 
   const onCellClicked = (e: any) => {
-    if (e.colDef.field === 'id' && e.data) onDeleteRow(e.data.id)
-  }
+    if (e.colDef.field === "id" && e.data) onDeleteRow(e.data.id);
+  };
 
   return (
     <div className={`ag-theme-alpine ${styles.grid}`} role="grid">
@@ -106,6 +112,7 @@ export default function ModelTable({
         pinnedBottomRowData={pinnedBottomRowData}
         suppressMovableColumns
         stopEditingWhenCellsLoseFocus
+        theme="legacy"
       />
     </div>
   );

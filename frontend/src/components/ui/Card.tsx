@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { forwardRef } from 'react'
+import styles from './Card.module.css'
 
 interface Props {
   children: ReactNode
@@ -7,20 +8,20 @@ interface Props {
   variant?: 'primary' | 'secondary'
 }
 const Card = forwardRef<HTMLDivElement, Props>(
-  ({ children, variant = 'primary', className = '' }, ref) => {
-    const variantClass =
-      variant === 'secondary'
-        ? 'bg-gray-50 dark:bg-gray-700'
-        : 'bg-white dark:bg-gray-800';
-    return (
-      <div
-        ref={ref}
-        className={`rounded border p-4 shadow dark:border-gray-600 ${variantClass} ${className}`.trim()}
-      >
-        {children}
-      </div>
-    );
-  },
+  ({ children, variant = 'primary', className = '' }, ref) => (
+    <div
+      ref={ref}
+      className={[
+        styles.card,
+        variant === 'secondary' ? styles.secondary : '',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {children}
+    </div>
+  ),
 );
 
 export default Card
