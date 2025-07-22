@@ -66,6 +66,15 @@ const validationSchema = yup.object({
     .required('Confirm password is required'),
 });
 
+interface FormValues {
+  email: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -75,7 +84,7 @@ const Register: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const formik = useFormik({
+  const formik = useFormik<FormValues>({
     initialValues: {
       email: '',
       username: '',

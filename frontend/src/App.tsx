@@ -69,45 +69,37 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* Protected routes */}
+      {/* Protected routes with Layout */}
       <Route
-        path="/dashboard"
+        path="/"
         element={
           <ProtectedRoute>
-            <Layout>
-              <Dashboard />
-            </Layout>
+            <Layout />
           </ProtectedRoute>
         }
-      />
-
-      {/* Admin routes */}
-      <Route
-        path="/admin/*"
-        element={
-          <ProtectedRoute requiredRole="admin">
-            <Layout>
+      >
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route
+          path="admin/*"
+          element={
+            <ProtectedRoute requiredRole="admin">
               <div>Admin Panel - Coming Soon</div>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Analyst routes */}
-      <Route
-        path="/models/*"
-        element={
-          <ProtectedRoute requiredRole="analyst">
-            <Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="models/*"
+          element={
+            <ProtectedRoute requiredRole="analyst">
               <div>Financial Models - Coming Soon</div>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
       {/* Default redirects */}
       <Route
-        path="/"
+        index
         element={
           <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
         }

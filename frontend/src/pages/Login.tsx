@@ -3,8 +3,6 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
-  Card,
-  CardContent,
   TextField,
   Button,
   Typography,
@@ -40,6 +38,12 @@ const validationSchema = yup.object({
     .required('Password is required'),
 });
 
+interface FormValues {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -47,7 +51,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const formik = useFormik({
+  const formik = useFormik<FormValues>({
     initialValues: {
       email: '',
       password: '',
