@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import AnalyticsDashboard from '../components/Analytics/AnalyticsDashboard';
 
 const Analytics: React.FC = () => {

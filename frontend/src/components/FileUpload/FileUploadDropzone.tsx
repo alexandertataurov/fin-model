@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, FileRejection } from 'react-dropzone';
 import {
   Box,
   Typography,
@@ -20,7 +20,6 @@ import {
   Delete,
   CheckCircle,
   Error,
-  Warning,
 } from '@mui/icons-material';
 import { fileApi, FileUploadResponse, UploadProgressCallback } from '../../services/fileApi';
 
@@ -55,11 +54,11 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   const [isUploading, setIsUploading] = useState(false);
 
   const onDrop = useCallback(
-    async (acceptedFiles: File[], rejectedFiles: any[]) => {
+    async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       // Handle rejected files
       if (rejectedFiles.length > 0) {
         const errors = rejectedFiles.map((file) => {
-          const reasons = file.errors.map((error: any) => {
+          const reasons = file.errors.map((error) => {
             switch (error.code) {
               case 'file-too-large':
                 return `File is too large (max ${fileApi.formatFileSize(maxSize)})`;
@@ -122,8 +121,14 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           );
 
           uploadedFiles.push(uploadedFile);
-        } catch (error: any) {
-          const errorMessage = error.response?.data?.detail || error.message || 'Upload failed';
+        } catch (error: unknown) {
+          let errorMessage = 'Upload failed';
+          if (error instanceof Error) {
+            errorMessage = (error as Error).message;
+          } else if (typeof error === 'object' && error !== null && 'response' in error) {
+            const httpError = error as { response?: { data?: { detail?: string } } };
+            errorMessage = httpError?.response?.data?.detail || 'Upload failed';
+          }
           
           setUploadingFiles((prev) =>
             prev.map((uf, index) =>

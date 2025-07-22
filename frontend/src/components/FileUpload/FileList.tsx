@@ -21,7 +21,6 @@ import {
   DialogActions,
   Alert,
   CircularProgress,
-  Tooltip,
   FormControl,
   InputLabel,
   Select,
@@ -32,10 +31,10 @@ import {
   MoreVert,
   PlayArrow,
   Stop,
-  Visibility,
   Refresh,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { SelectChangeEvent } from '@mui/material/Select';
 import { format } from 'date-fns';
 import { fileApi, FileInfo, FileListResponse } from '../../services/fileApi';
 
@@ -99,7 +98,7 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
     },
   });
 
-  const handlePageChange = (event: unknown, newPage: number) => {
+  const handlePageChange = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -108,8 +107,8 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
     setPage(0);
   };
 
-  const handleStatusFilterChange = (event: any) => {
-    setStatusFilter(event.target.value);
+  const handleStatusFilterChange = (event: SelectChangeEvent<string>) => {
+    setStatusFilter(event.target.value as string);
     setPage(0);
   };
 

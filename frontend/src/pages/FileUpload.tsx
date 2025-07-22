@@ -8,9 +8,8 @@ import {
   Snackbar,
   Tabs,
   Tab,
-  Divider,
 } from '@mui/material';
-import { CloudUpload, List, Analytics } from '@mui/icons-material';
+import { CloudUpload, List } from '@mui/icons-material';
 import FileUploadDropzone from '../components/FileUpload/FileUploadDropzone';
 import FileList from '../components/FileUpload/FileList';
 import { FileUploadResponse } from '../services/fileApi';
@@ -50,7 +49,7 @@ const FileUpload: React.FC = () => {
     severity: 'info',
   });
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 

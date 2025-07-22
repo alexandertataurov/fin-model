@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -20,14 +20,10 @@ import {
   LinearProgress,
 } from '@mui/material';
 import {
-  TrendingUp,
-  Assessment,
   Speed,
   Error,
   CloudUpload,
   CheckCircle,
-  Warning,
-  Info,
 } from '@mui/icons-material';
 import {
   LineChart,
@@ -41,9 +37,8 @@ import {
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar,
 } from 'recharts';
+import { SelectChangeEvent } from '@mui/material/Select';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -108,8 +103,8 @@ const AnalyticsDashboard: React.FC = () => {
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const handleTimePeriodChange = (event: any) => {
-    setTimePeriod(event.target.value);
+  const handleTimePeriodChange = (event: SelectChangeEvent<number>) => {
+    setTimePeriod(event.target.value as number);
   };
 
   // Colors for charts
@@ -261,7 +256,7 @@ const AnalyticsDashboard: React.FC = () => {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {dashboardData?.file_type_distribution.distribution.map((entry, index) => (
+                      {dashboardData?.file_type_distribution.distribution.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                       ))}
                     </Pie>

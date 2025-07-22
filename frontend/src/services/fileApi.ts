@@ -112,7 +112,7 @@ class FileApiService {
     pageSize = 20,
     statusFilter?: string
   ): Promise<FileListResponse> {
-    const params: Record<string, any> = {
+    const params: Record<string, string | number> = {
       skip: (page - 1) * pageSize,
       limit: pageSize,
     };
@@ -211,7 +211,7 @@ class FileApiService {
    */
   async processFile(
     fileId: number,
-    options?: Record<string, any>
+    options?: Record<string, unknown>
   ): Promise<{ message: string; file_id: number }> {
     const response = await axios.post(
       `${this.baseURL}/files/${fileId}/process`,
