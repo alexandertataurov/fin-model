@@ -16,4 +16,10 @@ def get_db():
     try:
         yield db
     finally:
-        db.close() 
+        db.close()
+
+
+# Import all models to ensure they are registered with SQLAlchemy
+from .user import User  # noqa
+from .role import Role, UserRole, RoleType  # noqa
+from .audit import AuditLog, AuditAction  # noqa 
