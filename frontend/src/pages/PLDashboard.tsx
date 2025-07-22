@@ -80,9 +80,11 @@ const PLDashboard: React.FC = () => {
   } = useQuery<PLDashboardData>({
     queryKey: ['pl-dashboard', period],
     queryFn: async () => {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(`/api/v1/dashboard/metrics/pl?period=${period}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
       
