@@ -193,6 +193,8 @@ def trigger_file_processing(
     """
     Trigger processing for a specific file.
     """
+    from app.tasks.file_processing import process_uploaded_file
+    
     file_record = file_service.get_file_by_id(file_id, current_user)
     
     if not file_record:
@@ -207,9 +209,6 @@ def trigger_file_processing(
             detail="File is already being processed"
         )
     
-    # Update status to processing
-    file_service.update_file_status(file_id, FileStatus.PROCESSING)
-    
     # Log processing request
     file_service.log_processing_step(
         file_id,
@@ -218,10 +217,22 @@ def trigger_file_processing(
         "info"
     )
     
-    # TODO: Queue background processing task with Celery
-    # For now, just update status
+    # Queue background processing task with Celery
+    task = process_uploaded_file.delay(file_id, request.processing_options)
     
-    return {"message": "File processing started", "file_id": file_id}
+    # Log task creation
+    file_service.log_processing_step(
+        file_id,
+        "task_queued",
+        f"Background processing task queued with ID: {task.id}",
+        "info"
+    )
+    
+    return {
+        "message": "File processing started", 
+        "file_id": file_id,
+        "task_id": task.id
+    }
 
 
 @router.post("/{file_id}/cancel")
@@ -233,6 +244,8 @@ def cancel_file_processing(
     """
     Cancel processing for a specific file.
     """
+    from app.core.celery_app import celery_app
+    
     file_record = file_service.get_file_by_id(file_id, current_user)
     
     if not file_record:
@@ -247,6 +260,10 @@ def cancel_file_processing(
             detail="File is not currently being processed"
         )
     
+    # Try to revoke the Celery task
+    # Note: This requires finding the task ID, which we should store in the database
+    # For now, just update the status
+    
     # Update status to cancelled
     file_service.update_file_status(file_id, FileStatus.CANCELLED)
     
@@ -258,4 +275,24 @@ def cancel_file_processing(
         "warning"
     )
     
-    return {"message": "File processing cancelled", "file_id": file_id} 
+    return {"message": "File processing cancelled", "file_id": file_id}
+
+
+@router.get("/task/{task_id}/status")
+def get_task_status(
+    task_id: str,
+    current_user: User = Depends(get_current_active_user)
+) -> Any:
+    """
+    Get the status of a processing task.
+    """
+    from app.tasks.file_processing import get_processing_status
+    
+    try:
+        status_info = get_processing_status(task_id)
+        return status_info
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get task status: {str(e)}"
+        ) 

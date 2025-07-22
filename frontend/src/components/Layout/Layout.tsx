@@ -17,6 +17,7 @@ import {
   AccountCircle,
   Dashboard as DashboardIcon,
   CloudUpload,
+  Analytics as AnalyticsIcon,
   Settings,
   Logout,
   Home,
@@ -50,6 +51,7 @@ const Layout = () => {
     const breadcrumbMap: Record<string, { label: string; icon?: React.ReactNode }> = {
       dashboard: { label: 'Dashboard', icon: <DashboardIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
       files: { label: 'File Upload', icon: <CloudUpload sx={{ mr: 0.5 }} fontSize="inherit" /> },
+      analytics: { label: 'Analytics', icon: <AnalyticsIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
       admin: { label: 'Admin', icon: <Settings sx={{ mr: 0.5 }} fontSize="inherit" /> },
       models: { label: 'Models', icon: <DashboardIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
     };
@@ -110,6 +112,16 @@ const Layout = () => {
               }}
             >
               Upload Files
+            </Button>
+            <Button
+              color="inherit"
+              startIcon={<AnalyticsIcon />}
+              onClick={() => navigate('/analytics')}
+              sx={{ 
+                backgroundColor: location.pathname === '/analytics' ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
+              }}
+            >
+              Analytics
             </Button>
           </Box>
 
