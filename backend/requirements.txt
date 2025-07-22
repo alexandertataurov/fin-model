@@ -23,6 +23,7 @@ redis==5.0.1
 
 # Validation
 pydantic>=2.11.7
+pydantic[email]>=2.11.7
 pydantic-settings==2.0.3
 
 # HTTP client
