@@ -1,5 +1,5 @@
 from typing import Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.user import User
@@ -49,39 +49,35 @@ class AuthService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username already taken"
             )
-
-        # Create user
+        
+        # Create new user
+        hashed_password = get_password_hash(user_create.password)
+        verification_token = generate_secure_token()
+        
         db_user = User(
             email=user_create.email,
             username=user_create.username,
             first_name=user_create.first_name,
             last_name=user_create.last_name,
-            hashed_password=get_password_hash(user_create.password),
+            hashed_password=hashed_password,
             is_active=True,
             is_verified=False,
-            verification_token=generate_secure_token(),
-            failed_login_attempts=0
+            verification_token=verification_token
         )
         
         self.db.add(db_user)
-        self.db.flush()  # Get the user ID
-
-        # Assign role
+        self.db.commit()
+        self.db.refresh(db_user)
+        
+        # Assign default role
         role_obj = self.db.query(Role).filter(Role.name == role).first()
         if role_obj:
             user_role = UserRole(
                 user_id=db_user.id,
                 role_id=role_obj.id,
-                is_active=True
+                assigned_by=None  # System assignment
             )
             self.db.add(user_role)
-
-        # Log the registration
-        self.log_audit_action(
-            user_id=db_user.id,
-            action=AuditAction.REGISTER,
-            success="success"
-        )
 
         self.db.commit()
         self.db.refresh(db_user)
@@ -134,7 +130,7 @@ class AuthService:
             
             # Lock account after 5 failed attempts
             if user.failed_login_attempts >= 5:
-                user.account_locked_until = datetime.utcnow() + timedelta(minutes=30)
+                user.account_locked_until = datetime.now(timezone.utc) + timedelta(minutes=30)
                 self.log_audit_action(
                     user_id=user.id,
                     action=AuditAction.ACCOUNT_LOCKED,
@@ -158,7 +154,7 @@ class AuthService:
 
         # Successful login - reset failed attempts and update last login
         user.failed_login_attempts = 0
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.now(timezone.utc)
         user.account_locked_until = None
 
         self.log_audit_action(
@@ -168,29 +164,25 @@ class AuthService:
             ip_address=ip_address,
             user_agent=user_agent
         )
-
+        
         self.db.commit()
         return user
 
     def verify_email(self, token: str) -> bool:
-        """Verify user email with token."""
-        email = verify_email_verification_token(token)
-        if not email:
+        """Verify user's email with token."""
+        user = self.db.query(User).filter(User.verification_token == token).first()
+        if not user:
             return False
-
-        user = self.get_user_by_email(email)
-        if not user or user.verification_token != token:
-            return False
-
+        
         user.is_verified = True
         user.verification_token = None
-
+        
         self.log_audit_action(
             user_id=user.id,
             action=AuditAction.EMAIL_VERIFICATION,
             success="success"
         )
-
+        
         self.db.commit()
         return True
 
@@ -199,49 +191,46 @@ class AuthService:
         user = self.get_user_by_email(email)
         if not user:
             return False  # Don't reveal if email exists
-
+        
         # Generate reset token
-        reset_token = create_password_reset_token(email)
+        reset_token = generate_secure_token()
         user.password_reset_token = reset_token
-        user.password_reset_expires = datetime.utcnow() + timedelta(hours=1)
-
+        user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+        
         self.log_audit_action(
             user_id=user.id,
             action=AuditAction.PASSWORD_RESET,
             success="success",
             details="Password reset requested"
         )
-
+        
         self.db.commit()
         return True
 
     def reset_password(self, token: str, new_password: str) -> bool:
         """Reset user password with token."""
-        email = verify_password_reset_token(token)
-        if not email:
+        user = self.db.query(User).filter(User.password_reset_token == token).first()
+        if not user:
             return False
-
-        user = self.get_user_by_email(email)
-        if not user or user.password_reset_token != token:
+        
+        # Check if token is expired
+        if user.password_reset_expires and datetime.now(timezone.utc) > user.password_reset_expires:
             return False
-
-        if user.password_reset_expires and datetime.utcnow() > user.password_reset_expires:
-            return False
-
+        
         # Update password
         user.hashed_password = get_password_hash(new_password)
         user.password_reset_token = None
         user.password_reset_expires = None
         user.failed_login_attempts = 0
         user.account_locked_until = None
-
+        
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.PASSWORD_CHANGE,
+            action=AuditAction.PASSWORD_RESET,
             success="success",
             details="Password reset completed"
         )
-
+        
         self.db.commit()
         return True
 
@@ -250,7 +239,8 @@ class AuthService:
         user = self.get_user_by_id(user_id)
         if not user:
             return False
-
+        
+        # Verify current password
         if not verify_password(current_password, user.hashed_password):
             self.log_audit_action(
                 user_id=user.id,
@@ -259,80 +249,127 @@ class AuthService:
                 details="Invalid current password"
             )
             return False
-
+        
+        # Update password
         user.hashed_password = get_password_hash(new_password)
-
+        
         self.log_audit_action(
             user_id=user.id,
             action=AuditAction.PASSWORD_CHANGE,
             success="success"
         )
-
+        
         self.db.commit()
         return True
 
-    def get_user_roles(self, user_id: int) -> List[str]:
-        """Get user roles."""
-        user_roles = self.db.query(UserRole).filter(
+    def update_user(self, user_id: int, user_update: UserUpdate) -> Optional[User]:
+        """Update user information."""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return None
+        
+        update_data = user_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(user, field, value)
+        
+        self.log_audit_action(
+            user_id=user.id,
+            action=AuditAction.PROFILE_UPDATED,
+            success="success",
+            details=f"Updated fields: {list(update_data.keys())}"
+        )
+        
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
+    def assign_role(self, user_id: int, role: RoleType, assigned_by_id: int) -> bool:
+        """Assign role to user."""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return False
+        
+        role_obj = self.db.query(Role).filter(Role.name == role).first()
+        if not role_obj:
+            return False
+        
+        # Check if user already has this role
+        existing_role = self.db.query(UserRole).filter(
+            UserRole.user_id == user_id,
+            UserRole.role_id == role_obj.id,
+            UserRole.is_active == True
+        ).first()
+        
+        if existing_role:
+            return True  # Already has role
+        
+        # Assign role
+        user_role = UserRole(
+            user_id=user_id,
+            role_id=role_obj.id,
+            assigned_by=assigned_by_id
+        )
+        self.db.add(user_role)
+        
+        self.log_audit_action(
+            user_id=user_id,
+            action=AuditAction.ROLE_ASSIGNED,
+            success="success",
+            details=f"Role {role.value} assigned by user {assigned_by_id}"
+        )
+        
+        self.db.commit()
+        return True
+
+    def remove_role(self, user_id: int, role: RoleType, removed_by_id: int) -> bool:
+        """Remove role from user."""
+        role_obj = self.db.query(Role).filter(Role.name == role).first()
+        if not role_obj:
+            return False
+        
+        user_role = self.db.query(UserRole).filter(
+            UserRole.user_id == user_id,
+            UserRole.role_id == role_obj.id,
+            UserRole.is_active == True
+        ).first()
+        
+        if not user_role:
+            return True  # Already doesn't have role
+        
+        # Remove role
+        user_role.is_active = False
+        
+        self.log_audit_action(
+            user_id=user_id,
+            action=AuditAction.ROLE_REMOVED,
+            success="success",
+            details=f"Role {role.value} removed by user {removed_by_id}"
+        )
+        
+        self.db.commit()
+        return True
+
+    def get_user_roles(self, user_id: int) -> List[RoleType]:
+        """Get all active roles for a user."""
+        user_roles = self.db.query(UserRole).join(Role).filter(
             UserRole.user_id == user_id,
             UserRole.is_active == True
         ).all()
         
-        role_names = []
-        for user_role in user_roles:
-            role_names.append(user_role.role.name.value)
-        
-        return role_names
-
-    def assign_role(self, user_id: int, role: RoleType, assigned_by: int) -> bool:
-        """Assign role to user."""
-        # Check if user already has this role
-        existing_role = self.db.query(UserRole).filter(
-            UserRole.user_id == user_id,
-            UserRole.role.has(Role.name == role),
-            UserRole.is_active == True
-        ).first()
-
-        if existing_role:
-            return False
-
-        # Get role object
-        role_obj = self.db.query(Role).filter(Role.name == role).first()
-        if not role_obj:
-            return False
-
-        # Create user role
-        user_role = UserRole(
-            user_id=user_id,
-            role_id=role_obj.id,
-            assigned_by=assigned_by,
-            is_active=True
-        )
-
-        self.db.add(user_role)
-
-        self.log_audit_action(
-            user_id=assigned_by,
-            action=AuditAction.ROLE_ASSIGNED,
-            success="success",
-            details=f"Assigned {role.value} role to user {user_id}"
-        )
-
-        self.db.commit()
-        return True
+        return [user_role.role.name for user_role in user_roles]
 
     def log_audit_action(
-        self, 
-        action: AuditAction, 
-        user_id: Optional[int] = None,
+        self,
+        action: AuditAction,
         success: str = "success",
+        user_id: Optional[int] = None,
         resource: Optional[str] = None,
         resource_id: Optional[str] = None,
         ip_address: Optional[str] = None,
         user_agent: Optional[str] = None,
         details: Optional[str] = None
     ):
-        """Log audit action."""
+        """Log an audit action."""
         audit_log = AuditLog(
             user_id=user_id,
             action=action,
@@ -345,14 +382,4 @@ class AuthService:
         )
         
         self.db.add(audit_log)
-
-    def logout_user(self, user_id: int, ip_address: str = None, user_agent: str = None):
-        """Log user logout."""
-        self.log_audit_action(
-            user_id=user_id,
-            action=AuditAction.LOGOUT,
-            success="success",
-            ip_address=ip_address,
-            user_agent=user_agent
-        )
-        self.db.commit() 
+        # Note: commit is handled by the calling method 
