@@ -206,10 +206,10 @@ const ScenarioModeling: React.FC = () => {
   }, []);
 
   // Handle bulk parameter updates
-  const handleBulkParameterUpdate = useCallback((updates: Array<{ id: number; value: number }>) => {
+  const handleBulkParameterUpdate = useCallback((_updates: Array<{ id: number; value: number }>) => {
     // This would update the parameter values in the selected scenario
     // For now, just invalidate queries to refetch data
-    console.log('Bulk update:', updates);
+    // TODO: Implement actual bulk parameter update API call
     queryClient.invalidateQueries({ queryKey: ['scenario-parameters'] });
   }, [queryClient]);
 

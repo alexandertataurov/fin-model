@@ -126,7 +126,7 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
     try {
       await fileApi.downloadFile(file.id, file.original_filename);
     } catch (error) {
-      console.error('Download failed:', error);
+      // Download failed - error will be shown by fileApi
     }
     handleActionMenuClose();
   };
