@@ -59,6 +59,8 @@ class UploadedFile(Base):
     # Relationships
     uploaded_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     uploaded_by = relationship("User", back_populates="uploaded_files")
+    parameters = relationship("Parameter", back_populates="source_file")
+    scenarios = relationship("Scenario", back_populates="base_file")
 
     # Timestamps
     created_at = Column(DateTime, default=func.now(), nullable=False)

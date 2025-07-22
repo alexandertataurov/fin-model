@@ -1,6 +1,0 @@
-[build]
-builder = "NIXPACKS"
-
-[deploy]
-startCommand = "python3 main.py"
-healthcheckPath = "/health" 
