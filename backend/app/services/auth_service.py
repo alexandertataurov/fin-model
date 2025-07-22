@@ -372,6 +372,27 @@ class AuthService:
 
         return [user_role.role.name for user_role in user_roles]
 
+    def logout_user(
+        self, user_id: int, ip_address: str = None, user_agent: str = None
+    ) -> bool:
+        """Logout user and log audit action."""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return False
+
+        # Log the logout action
+        self.log_audit_action(
+            user_id=user_id,
+            action=AuditAction.LOGOUT,
+            success="success",
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details="User logged out successfully",
+        )
+
+        self.db.commit()
+        return True
+
     def log_audit_action(
         self,
         action: AuditAction,

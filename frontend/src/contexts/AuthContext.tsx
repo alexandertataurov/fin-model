@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import { authApi } from '../services/authApi';
 
 export interface User {
@@ -233,7 +239,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error('Registration error:', error);
       setState(prev => ({ ...prev, isLoading: false }));
-      return false;
+      throw error; // Re-throw the error so the component can handle it
     }
   };
 

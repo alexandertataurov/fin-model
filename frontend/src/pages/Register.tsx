@@ -100,7 +100,7 @@ const Register: React.FC = () => {
       setSuccess(null);
 
       try {
-        const success = await register({
+        await register({
           email: values.email,
           username: values.username,
           first_name: values.first_name,
@@ -108,18 +108,17 @@ const Register: React.FC = () => {
           password: values.password,
         });
 
-        if (success) {
-          setSuccess(
-            'Registration successful! Please check your email for verification instructions.'
-          );
-          setTimeout(() => {
-            navigate('/login');
-          }, 3000);
-        } else {
-          setError('Registration failed. Please try again.');
-        }
+        // If we get here, registration was successful
+        setSuccess(
+          'Registration successful! Please check your email for verification instructions.'
+        );
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
       } catch (err: unknown) {
-        const error = err as { response?: { status?: number; data?: { detail?: string } } };
+        const error = err as {
+          response?: { status?: number; data?: { detail?: string } };
+        };
         if (error.response?.status === 400) {
           const detail = error.response?.data?.detail;
           if (detail === 'Email already registered') {
@@ -131,7 +130,10 @@ const Register: React.FC = () => {
               'This username is already taken. Please choose a different username.'
             );
           } else {
-            setError(detail || 'Registration failed. Please check your information and try again.');
+            setError(
+              detail ||
+                'Registration failed. Please check your information and try again.'
+            );
           }
         } else {
           setError('An error occurred. Please try again later.');

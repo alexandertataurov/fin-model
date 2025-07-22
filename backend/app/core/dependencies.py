@@ -1,4 +1,4 @@
-from typing import List, Callable, Any
+from typing import List, Callable, Any, Set
 from functools import wraps
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -139,9 +139,23 @@ def require_admin(
 class UserWithPermissions:
     """Class to hold user with their permissions for dependency injection."""
 
-    def __init__(self, user: User, permissions: List[Permission]):
+    def __init__(self, user: User, permissions: Set[Permission], user_roles: List[str] = None):
         self.user = user
         self.permissions = permissions
+        self._user_roles = user_roles or []
+        
+    @property
+    def roles(self) -> List[str]:
+        """Get user roles."""
+        return self._user_roles
+    
+    def is_admin(self) -> bool:
+        """Check if user is admin."""
+        return Permission.ADMIN_ACCESS in self.permissions
+    
+    def is_analyst(self) -> bool:
+        """Check if user is analyst."""
+        return Permission.MODEL_CREATE in self.permissions and not self.is_admin()
 
 
 def get_current_user_with_permissions(
@@ -150,9 +164,9 @@ def get_current_user_with_permissions(
     """Get current user with their permissions."""
     auth_service = AuthService(db)
     user_roles = auth_service.get_user_roles(current_user.id)
-    permissions = PermissionChecker.get_role_permissions(user_roles)
+    permissions = PermissionChecker.get_user_permissions(user_roles)
 
-    return UserWithPermissions(current_user, permissions)
+    return UserWithPermissions(current_user, permissions, user_roles)
 
 
 def require_resource_access(resource_type: str):

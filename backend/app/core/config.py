@@ -23,28 +23,21 @@ class Settings(BaseSettings):
     # Test database
     TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
 
-    # CORS
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Set default CORS origins
-        if not self.BACKEND_CORS_ORIGINS:
-            cors_origins = os.getenv(
-                "BACKEND_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
-            )
-            self.BACKEND_CORS_ORIGINS = [
-                origin.strip() for origin in cors_origins.split(",")
-            ]
+    # CORS - Use string type to avoid JSON parsing issues
+    BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v
-        raise ValueError(v)
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> str:
+        if isinstance(v, list):
+            return ",".join(v)
+        return str(v) if v else "http://localhost:3000,http://127.0.0.1:3000"
+    
+    def get_cors_origins(self) -> List[str]:
+        """Get CORS origins as a list."""
+        if self.BACKEND_CORS_ORIGINS == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",") if origin.strip()]
 
     # JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
