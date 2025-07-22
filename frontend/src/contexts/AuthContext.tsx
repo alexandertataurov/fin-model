@@ -103,20 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     loadUserData();
   }, []);
 
-  // Auto-refresh token
-  useEffect(() => {
-    if (state.token && state.refreshToken) {
-      const refreshInterval = setInterval(
-        async () => {
-          await refreshTokenInternal();
-        },
-        14 * 60 * 1000
-      ); // Refresh every 14 minutes
-
-      return () => clearInterval(refreshInterval);
-    }
-  }, [state.token, state.refreshToken, refreshTokenInternal]);
-
+  // Clear authentication data - defined before functions that use it
   const clearAuthData = () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
@@ -130,6 +117,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       isLoading: false,
     });
   };
+
+  // Token refresh function - defined before useEffect that uses it
+  const refreshTokenInternal = useCallback(async (): Promise<boolean> => {
+    try {
+      if (!state.refreshToken) return false;
+
+      const response = await authApi.refreshToken(state.refreshToken);
+
+      localStorage.setItem(TOKEN_KEY, response.access_token);
+
+      setState(prev => ({
+        ...prev,
+        token: response.access_token,
+      }));
+
+      return true;
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      clearAuthData();
+      return false;
+    }
+  }, [state.refreshToken]);
+
+  // Auto-refresh token
+  useEffect(() => {
+    if (state.token && state.refreshToken) {
+      const refreshInterval = setInterval(
+        async () => {
+          await refreshTokenInternal();
+        },
+        14 * 60 * 1000
+      ); // Refresh every 14 minutes
+
+      return () => clearInterval(refreshInterval);
+    }
+  }, [state.token, state.refreshToken, refreshTokenInternal]);
 
   const loadUserPermissions = async () => {
     try {
@@ -213,27 +236,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return false;
     }
   };
-
-  const refreshTokenInternal = useCallback(async (): Promise<boolean> => {
-    try {
-      if (!state.refreshToken) return false;
-
-      const response = await authApi.refreshToken(state.refreshToken);
-
-      localStorage.setItem(TOKEN_KEY, response.access_token);
-
-      setState(prev => ({
-        ...prev,
-        token: response.access_token,
-      }));
-
-      return true;
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      clearAuthData();
-      return false;
-    }
-  }, [state.refreshToken]);
 
   const updateUser = (userData: Partial<User>) => {
     if (state.user) {
