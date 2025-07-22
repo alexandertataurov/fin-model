@@ -105,8 +105,19 @@ def register(
     try:
         user = auth_service.create_user(user_in, RoleType.VIEWER)
 
-        # Here you would typically send an email verification email
-        # For now, we'll just return the user
+        # For development: Auto-verify users since email sending is not implemented
+        # TODO: Implement proper email verification for production
+        user.is_verified = True
+        user.verification_token = None
+        auth_service.db.commit()
+        auth_service.db.refresh(user)
+
+        auth_service.log_audit_action(
+            user_id=user.id,
+            action=AuditAction.EMAIL_VERIFICATION,
+            success="success",
+            details="Auto-verified for development",
+        )
 
         return user
     except HTTPException:
@@ -243,6 +254,48 @@ def verify_email(verification: EmailVerification, db: Session = Depends(get_db))
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired verification token",
         )
+
+
+@router.post("/dev-verify-user")
+def dev_verify_user(
+    request: dict, db: Session = Depends(get_db)
+) -> Any:
+    """Development only: Manually verify a user by email or user ID."""
+    auth_service = AuthService(db)
+    
+    user = None
+    if "email" in request:
+        user = auth_service.get_user_by_email(request["email"])
+    elif "user_id" in request:
+        user = auth_service.get_user_by_id(request["user_id"])
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    if user.is_verified:
+        return {"message": f"User {user.email} is already verified"}
+    
+    # Manually verify the user
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+    db.refresh(user)
+    
+    auth_service.log_audit_action(
+        user_id=user.id,
+        action=AuditAction.EMAIL_VERIFICATION,
+        success="success",
+        details="Manually verified via dev endpoint",
+    )
+    
+    return {
+        "message": f"User {user.email} has been verified successfully",
+        "user_id": user.id,
+        "email": user.email
+    }
 
 
 @router.post("/request-password-reset")
