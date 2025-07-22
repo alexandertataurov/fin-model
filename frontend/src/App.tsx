@@ -4,6 +4,7 @@ import TopBar from './components/Layout/TopBar'
 import ModelControls from './components/ModelControls'
 import ModelTable from './components/ModelTable'
 import Card from './components/ui/Card'
+import styles from './App.module.css'
 import useFinancialRows from './hooks/useFinancialRows'
 import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts"
 import useTheme from "./hooks/useTheme"
@@ -14,7 +15,6 @@ import type { Currency, Scenario } from './types'
 import { scenarioOptions } from './types'
 import { formatCurrency } from './utils/format'
 import { parseCsv, rowsToCsv } from './utils/csv'
-import './App.css'
 
 const scenarioMultipliers: Record<Scenario, number> = {
   Base: 1,
@@ -183,12 +183,12 @@ function App() {
 
    useKeyboardShortcuts({ addRow, saveSnapshot: handleSaveSnapshot, exportCsv: handleExport, toggleTheme: toggle });
   return (
-    <div className="container">
+    <div className={styles.app}>
       <TopBar
         theme={theme}
         onToggleTheme={() => toggle()}
       />
-      <h1>Financial Model</h1>
+      <h1 className={styles.title}>Financial Model</h1>
       <ModelControls
         baseCurrency={baseCurrency}
         scenario={scenario}
@@ -212,7 +212,7 @@ function App() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      <Card className="mt-4">
+      <Card className={styles.cardSpacing}>
         <ModelTable
           rows={rowData}
           errors={errors}
