@@ -105,20 +105,9 @@ def register(
     try:
         user = auth_service.create_user(user_in, RoleType.VIEWER)
 
-        # For development: Auto-verify users since email sending is not implemented
-        # TODO: Implement proper email verification for production
-        user.is_verified = True
-        user.verification_token = None
-        auth_service.db.commit()
-        auth_service.db.refresh(user)
-
-        auth_service.log_audit_action(
-            user_id=user.id,
-            action=AuditAction.EMAIL_VERIFICATION,
-            success="success",
-            details="Auto-verified for development",
-        )
-
+        # Note: Users now start unverified and must verify their email
+        # Use the /dev-verify-user endpoint for development testing if needed
+        
         return user
     except HTTPException:
         raise
