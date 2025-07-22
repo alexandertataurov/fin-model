@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, admin
+from app.api.v1.endpoints import auth, admin, files
 
 api_router = APIRouter()
 
@@ -8,6 +8,9 @@ api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 
 # Include admin routes
 api_router.include_router(admin.router, prefix="/admin", tags=["administration"])
+
+# Include file upload routes
+api_router.include_router(files.router, prefix="/files", tags=["file-upload"])
 
 @api_router.get("/")
 async def api_root():

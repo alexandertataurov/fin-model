@@ -27,6 +27,7 @@ class User(Base):
     # Relationships
     user_roles = relationship("UserRole", back_populates="user", foreign_keys="UserRole.user_id", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
+    uploaded_files = relationship("UploadedFile", back_populates="uploaded_by", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"

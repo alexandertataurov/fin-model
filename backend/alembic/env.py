@@ -10,6 +10,11 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from app.core.config import settings
 from app.models.base import Base
+# Import all models so Alembic can detect them
+from app.models.user import User
+from app.models.role import Role, UserRole
+from app.models.audit import AuditLog
+from app.models.file import UploadedFile, ProcessingLog
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -31,7 +36,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    return settings.SQLALCHEMY_DATABASE_URI
+    return settings.DATABASE_URL
 
 
 def run_migrations_offline() -> None:

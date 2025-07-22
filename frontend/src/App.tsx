@@ -19,6 +19,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import FileUpload from './pages/FileUpload';
 
 // Create theme
 const theme = createTheme({
@@ -79,6 +80,7 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="files" element={<FileUpload />} />
         <Route
           path="admin/*"
           element={
