@@ -19,6 +19,12 @@ pandas>=2.3.1
 openpyxl==3.1.2
 xlsxwriter==3.1.9
 
+# PDF generation and reporting
+reportlab==4.0.7
+weasyprint==61.2
+Pillow>=10.1.0
+matplotlib>=3.8.0
+
 # Background tasks
 celery==5.3.4
 redis==5.0.1
