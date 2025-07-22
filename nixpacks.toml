@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["python311", "gcc", "postgresql"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt", "mkdir -p backend/uploads"]
+
+[start]
+cmd = "python main.py" 

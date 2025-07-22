@@ -37,4 +37,4 @@ def test_api_v1_status():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "operational"
-    assert data["version"] == "1.0.0" 
+    assert data["version"] == "1.0.0"

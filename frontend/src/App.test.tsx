@@ -5,18 +5,18 @@ import App from './App';
 describe('App', () => {
   it('renders without crashing', () => {
     render(<App />);
-    expect(screen.getByText('FinVision Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('FinVision')).toBeInTheDocument();
   });
 
-  it('displays welcome message', () => {
+  it('displays the application subtitle', () => {
     render(<App />);
-    expect(screen.getByText('Welcome to FinVision')).toBeInTheDocument();
+    expect(screen.getByText('Financial Modeling & Analysis Platform')).toBeInTheDocument();
   });
 
-  it('shows the main description', () => {
+  it('shows the login form', () => {
     render(<App />);
-    expect(
-      screen.getByText(/Transform your Excel financial models/)
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Email Address')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 });
