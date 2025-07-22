@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
 
     # CORS
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[str] = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -33,15 +33,21 @@ class Settings(BaseSettings):
             cors_origins = os.getenv(
                 "BACKEND_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
             )
-            self.BACKEND_CORS_ORIGINS = [
-                origin.strip() for origin in cors_origins.split(",")
-            ]
+            if cors_origins == "*":
+                self.BACKEND_CORS_ORIGINS = ["*"]
+            else:
+                self.BACKEND_CORS_ORIGINS = [
+                    origin.strip() for origin in cors_origins.split(",")
+                ]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
+        if isinstance(v, str):
+            if v == "*":
+                return ["*"]
+            elif not v.startswith("["):
+                return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):
             return v
         raise ValueError(v)
