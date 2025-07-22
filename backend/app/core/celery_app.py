@@ -6,7 +6,11 @@ celery_app = Celery(
     "finvision",
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
-    include=['app.tasks.file_processing']
+    include=[
+        'app.tasks.file_processing',
+        'app.tasks.notifications',
+        'app.tasks.scheduled_tasks'
+    ]
 )
 
 # Configure Celery

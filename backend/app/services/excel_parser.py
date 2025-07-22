@@ -12,6 +12,7 @@ from app.schemas.file import (
     ExcelSheetInfo, FileValidationResult, ParsedFileData, 
     TemplateValidationConfig
 )
+from app.services.financial_extractor import FinancialExtractor
 
 
 class ExcelParser:
@@ -24,6 +25,7 @@ class ExcelParser:
             'balance_sheet': self._get_balance_sheet_template(),
             'cash_flow': self._get_cash_flow_template()
         }
+        self.financial_extractor = FinancialExtractor()
     
     def parse_excel_file(self, file_path: str) -> ParsedFileData:
         """
@@ -53,11 +55,15 @@ class ExcelParser:
             financial_statements = None
             key_metrics = None
             assumptions = None
+            comprehensive_extraction = None
             
             if validation_result.is_valid:
                 financial_statements = self._extract_financial_statements(workbook, validation_result)
                 key_metrics = self._extract_key_metrics(workbook, financial_statements)
                 assumptions = self._extract_assumptions(workbook)
+                
+                # Perform comprehensive financial extraction
+                comprehensive_extraction = self.financial_extractor.extract_comprehensive_data(file_path)
             
             return ParsedFileData(
                 file_id=0,  # Will be set by the service
@@ -65,7 +71,8 @@ class ExcelParser:
                 financial_statements=financial_statements,
                 key_metrics=key_metrics,
                 assumptions=assumptions,
-                validation_summary=validation_result
+                validation_summary=validation_result,
+                comprehensive_analysis=comprehensive_extraction
             )
             
         except Exception as e:

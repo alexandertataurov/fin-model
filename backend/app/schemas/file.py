@@ -105,6 +105,7 @@ class ParsedFileData(BaseModel):
     key_metrics: Optional[Dict[str, Any]] = None
     assumptions: Optional[Dict[str, Any]] = None
     validation_summary: FileValidationResult
+    comprehensive_analysis: Optional[Dict[str, Any]] = None
 
 
 class FileProcessingRequest(BaseModel):

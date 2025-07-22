@@ -22,10 +22,14 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ]
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Set default CORS origins
+        if not self.BACKEND_CORS_ORIGINS:
+            cors_origins = os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+            self.BACKEND_CORS_ORIGINS = [origin.strip() for origin in cors_origins.split(",")]
     
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
@@ -59,6 +63,29 @@ class Settings(BaseSettings):
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
     CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+    
+    # Cloud Storage Settings
+    STORAGE_PROVIDER: str = os.getenv("STORAGE_PROVIDER", "local")  # local, s3, azure
+    AWS_S3_BUCKET: str = os.getenv("AWS_S3_BUCKET", "finvision-files")
+    AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
+    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
+    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+    AZURE_CONTAINER_NAME: str = os.getenv("AZURE_CONTAINER_NAME", "finvision-files")
+    AZURE_STORAGE_CONNECTION_STRING: str = os.getenv("AZURE_STORAGE_CONNECTION_STRING", "")
+    
+    # Virus Scanning Settings
+    VIRUS_SCANNERS: List[str] = os.getenv("VIRUS_SCANNERS", "basic").split(",")
+    CLAMAV_HOST: str = os.getenv("CLAMAV_HOST", "localhost")
+    CLAMAV_PORT: int = int(os.getenv("CLAMAV_PORT", "3310"))
+    VIRUSTOTAL_API_KEY: str = os.getenv("VIRUSTOTAL_API_KEY", "")
+    
+    # File Retention Settings
+    FAILED_FILES_RETENTION_DAYS: int = int(os.getenv("FAILED_FILES_RETENTION_DAYS", "7"))
+    COMPLETED_FILES_RETENTION_DAYS: int = int(os.getenv("COMPLETED_FILES_RETENTION_DAYS", "90"))
+    CANCELLED_FILES_RETENTION_DAYS: int = int(os.getenv("CANCELLED_FILES_RETENTION_DAYS", "3"))
+    LARGE_FILES_RETENTION_DAYS: int = int(os.getenv("LARGE_FILES_RETENTION_DAYS", "30"))
+    PREMIUM_FILES_RETENTION_DAYS: int = int(os.getenv("PREMIUM_FILES_RETENTION_DAYS", "180"))
+    DEMO_FILES_RETENTION_DAYS: int = int(os.getenv("DEMO_FILES_RETENTION_DAYS", "1"))
 
     class Config:
         case_sensitive = True
