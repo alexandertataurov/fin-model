@@ -12,12 +12,12 @@ const Dashboard = () => {
         </Typography>
         <Typography variant="body1">
           Transform your Excel financial models into interactive web dashboards.
-          Upload your financial templates and start analyzing your data with powerful
-          visualization tools.
+          Upload your financial templates and start analyzing your data with
+          powerful visualization tools.
         </Typography>
       </Paper>
     </Box>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

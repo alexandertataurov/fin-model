@@ -1,29 +1,37 @@
 import '@testing-library/jest-dom';
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  observe() {
-    return null;
-  }
-  disconnect() {
-    return null;
-  }
-  unobserve() {
-    return null;
-  }
-};
+Object.defineProperty(window, 'IntersectionObserver', {
+  writable: true,
+  configurable: true,
+  value: class IntersectionObserver {
+    constructor() {}
+    observe() {
+      return null;
+    }
+    disconnect() {
+      return null;
+    }
+    unobserve() {
+      return null;
+    }
+  },
+});
 
 // Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
-  constructor() {}
-  observe() {
-    return null;
-  }
-  disconnect() {
-    return null;
-  }
-  unobserve() {
-    return null;
-  }
-}; 
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  configurable: true,
+  value: class ResizeObserver {
+    constructor() {}
+    observe() {
+      return null;
+    }
+    disconnect() {
+      return null;
+    }
+    unobserve() {
+      return null;
+    }
+  },
+});

@@ -44,7 +44,7 @@ export const formatLargeNumber = (value: number): string => {
 /**
  * Debounce function for performance optimization
  */
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number
 ): ((...args: Parameters<T>) => void) => {
@@ -58,6 +58,6 @@ export const debounce = <T extends (...args: any[]) => any>(
 /**
  * Check if a value is a valid number
  */
-export const isValidNumber = (value: any): boolean => {
-  return !isNaN(parseFloat(value)) && isFinite(value);
-}; 
+export const isValidNumber = (value: unknown): boolean => {
+  return !isNaN(parseFloat(value as string)) && isFinite(value as number);
+};
