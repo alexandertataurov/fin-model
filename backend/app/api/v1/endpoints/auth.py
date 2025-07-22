@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.base import get_db
 from app.models.role import RoleType
+from app.models.audit import AuditAction
 from app.schemas.user import (
     UserRegister, UserLogin, User, Token, PasswordReset, 
     PasswordResetConfirm, PasswordChange, EmailVerification
@@ -108,7 +109,7 @@ def register(
         raise
     except Exception as e:
         auth_service.log_audit_action(
-            action=auth_service.AuditAction.REGISTER,
+            action=AuditAction.REGISTER,
             success="error",
             details=str(e),
             ip_address=ip_address,

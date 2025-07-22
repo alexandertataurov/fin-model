@@ -92,7 +92,7 @@ def test_admin_endpoints_require_permission(client):
     """Test that admin endpoints require proper permissions."""
     # Try to access admin endpoint without authentication
     response = client.get("/api/v1/admin/users")
-    assert response.status_code == 401
+    assert response.status_code == 403  # HTTPBearer returns 403 when no auth header provided
 
     # Try to access with invalid token
     response = client.get("/api/v1/admin/users", headers={"Authorization": "Bearer invalid_token"})

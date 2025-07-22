@@ -9,6 +9,7 @@ from app.models.role import RoleType
 from app.services.auth_service import AuthService
 from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.permissions import Permission, PermissionChecker
+from app.models.audit import AuditAction
 
 
 def require_permissions(*required_permissions: Permission):
@@ -22,7 +23,7 @@ def require_permissions(*required_permissions: Permission):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=auth_service.AuditAction.PERMISSION_DENIED,
+                action=AuditAction.PERMISSION_DENIED,
                 success="failure",
                 details=f"Missing permissions: {[p.value for p in required_permissions]}"
             )
@@ -49,7 +50,7 @@ def require_all_permissions(*required_permissions: Permission):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=auth_service.AuditAction.PERMISSION_DENIED,
+                action=AuditAction.PERMISSION_DENIED,
                 success="failure",
                 details=f"Missing permissions: {[p.value for p in required_permissions]}"
             )
@@ -65,26 +66,27 @@ def require_all_permissions(*required_permissions: Permission):
     return permission_decorator
 
 
-def require_role(*required_roles: RoleType):
-    """Decorator to require specific roles for an endpoint."""
+def require_role(required_role: RoleType):
+    """Decorator to require a specific role for an endpoint."""
     def role_decorator(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
         auth_service = AuthService(db)
         user_roles = auth_service.get_user_roles(current_user.id)
         
-        # Check if user has any of the required roles
-        if not any(role.value in user_roles for role in required_roles):
+        # Check if user has the required role
+        role_names = [role.value for role in user_roles]
+        if required_role.value not in role_names:
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=auth_service.AuditAction.PERMISSION_DENIED,
+                action=AuditAction.PERMISSION_DENIED,
                 success="failure",
-                details=f"Missing roles: {[r.value for r in required_roles]}"
+                details=f"Missing required role: {required_role.value}"
             )
             auth_service.db.commit()
             
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Missing required roles: {[r.value for r in required_roles]}"
+                detail=f"Missing required role: {required_role.value}"
             )
         
         return current_user
@@ -97,125 +99,126 @@ def require_admin(current_user: User = Depends(get_current_active_user), db: Ses
     auth_service = AuthService(db)
     user_roles = auth_service.get_user_roles(current_user.id)
     
-    if RoleType.ADMIN.value not in user_roles:
+    # Check if user has admin role
+    role_names = [role.value for role in user_roles]
+    if RoleType.ADMIN.value not in role_names:
         # Log permission denied
         auth_service.log_audit_action(
             user_id=current_user.id,
-            action=auth_service.AuditAction.PERMISSION_DENIED,
+            action=AuditAction.PERMISSION_DENIED,
             success="failure",
-            details="Admin role required"
+            details="Missing admin role"
         )
         auth_service.db.commit()
         
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required"
+            detail="Admin access required"
         )
     
     return current_user
 
 
-def require_analyst_or_admin(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    """Dependency to require analyst or admin role."""
+class UserWithPermissions:
+    """Class to hold user with their permissions for dependency injection."""
+    def __init__(self, user: User, permissions: List[Permission]):
+        self.user = user
+        self.permissions = permissions
+
+
+def get_current_user_with_permissions(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)) -> UserWithPermissions:
+    """Get current user with their permissions."""
     auth_service = AuthService(db)
     user_roles = auth_service.get_user_roles(current_user.id)
+    permissions = PermissionChecker.get_role_permissions(user_roles)
     
-    if not (RoleType.ANALYST.value in user_roles or RoleType.ADMIN.value in user_roles):
-        # Log permission denied
-        auth_service.log_audit_action(
-            user_id=current_user.id,
-            action=auth_service.AuditAction.PERMISSION_DENIED,
-            success="failure",
-            details="Analyst or Admin role required"
-        )
-        auth_service.db.commit()
-        
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Analyst or Admin privileges required"
-        )
-    
-    return current_user
+    return UserWithPermissions(current_user, permissions)
 
 
-def check_resource_access(resource_owner_id: int, required_permission: Permission):
-    """Check if current user can access a specific resource."""
-    def access_checker(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+def require_resource_access(resource_type: str):
+    """Decorator to require access to a specific resource type."""
+    def resource_decorator(
+        current_user: User = Depends(get_current_active_user), 
+        db: Session = Depends(get_db)
+    ):
         auth_service = AuthService(db)
         user_roles = auth_service.get_user_roles(current_user.id)
         
-        if not PermissionChecker.can_access_resource(
-            user_roles, resource_owner_id, current_user.id, required_permission
-        ):
+        # Check resource-specific permissions based on the resource type
+        required_permission = None
+        if resource_type == "financial_model":
+            required_permission = Permission.MODEL_READ
+        elif resource_type == "analytics":
+            required_permission = Permission.ANALYTICS_VIEW
+        elif resource_type == "reports":
+            required_permission = Permission.REPORT_VIEW
+        else:
+            # Default to general read permission
+            required_permission = Permission.DATA_READ
+        
+        if not PermissionChecker.has_permission(user_roles, required_permission):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=auth_service.AuditAction.PERMISSION_DENIED,
+                action=AuditAction.PERMISSION_DENIED,
                 success="failure",
-                details=f"Cannot access resource owned by user {resource_owner_id}"
+                details=f"Missing permission for resource type: {resource_type}"
             )
             auth_service.db.commit()
             
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied to this resource"
+                detail=f"Access denied for resource: {resource_type}"
             )
         
         return current_user
     
-    return access_checker
+    return resource_decorator
 
 
-class UserWithPermissions:
-    """Enhanced user object with permission checking methods."""
+def check_resource_ownership(resource_id: int, resource_type: str):
+    """Decorator to check if user owns the resource or has admin permissions."""
+    def ownership_decorator(
+        current_user: User = Depends(get_current_active_user), 
+        db: Session = Depends(get_db)
+    ):
+        auth_service = AuthService(db)
+        user_roles = auth_service.get_user_roles(current_user.id)
+        
+        # Admins can access all resources
+        role_names = [role.value for role in user_roles]
+        if RoleType.ADMIN.value in role_names:
+            return current_user
+        
+        # TODO: Implement resource ownership checking
+        # This would involve checking if the user created/owns the specific resource
+        # For now, we'll allow access if user has the required permissions
+        
+        required_permission = None
+        if resource_type == "financial_model":
+            required_permission = Permission.MODEL_READ
+        elif resource_type == "analytics":
+            required_permission = Permission.ANALYTICS_VIEW
+        elif resource_type == "reports":
+            required_permission = Permission.REPORT_VIEW
+        else:
+            required_permission = Permission.DATA_READ
+        
+        if not PermissionChecker.has_permission(user_roles, required_permission):
+            # Log permission denied
+            auth_service.log_audit_action(
+                user_id=current_user.id,
+                action=AuditAction.PERMISSION_DENIED,
+                success="failure",
+                details=f"Missing permission for resource {resource_type}:{resource_id}"
+            )
+            auth_service.db.commit()
+            
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied for resource: {resource_type}:{resource_id}"
+            )
+        
+        return current_user
     
-    def __init__(self, user: User, db: Session):
-        self.user = user
-        self.db = db
-        self._auth_service = AuthService(db)
-        self._roles = None
-        self._permissions = None
-    
-    @property
-    def roles(self) -> List[str]:
-        """Get user roles (cached)."""
-        if self._roles is None:
-            self._roles = self._auth_service.get_user_roles(self.user.id)
-        return self._roles
-    
-    @property
-    def permissions(self):
-        """Get user permissions (cached)."""
-        if self._permissions is None:
-            self._permissions = PermissionChecker.get_user_permissions(self.roles)
-        return self._permissions
-    
-    def has_permission(self, permission: Permission) -> bool:
-        """Check if user has a specific permission."""
-        return PermissionChecker.has_permission(self.roles, permission)
-    
-    def has_role(self, role: RoleType) -> bool:
-        """Check if user has a specific role."""
-        return role.value in self.roles
-    
-    def is_admin(self) -> bool:
-        """Check if user is an admin."""
-        return self.has_role(RoleType.ADMIN)
-    
-    def is_analyst(self) -> bool:
-        """Check if user is an analyst."""
-        return self.has_role(RoleType.ANALYST)
-    
-    def can_access_resource(self, resource_owner_id: int, required_permission: Permission) -> bool:
-        """Check if user can access a resource."""
-        return PermissionChecker.can_access_resource(
-            self.roles, resource_owner_id, self.user.id, required_permission
-        )
-
-
-def get_current_user_with_permissions(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-) -> UserWithPermissions:
-    """Get current user with permission checking capabilities."""
-    return UserWithPermissions(current_user, db) 
+    return ownership_decorator 
