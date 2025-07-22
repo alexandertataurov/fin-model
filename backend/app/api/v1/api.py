@@ -16,15 +16,19 @@ api_router.include_router(files.router, prefix="/files", tags=["file-upload"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 
 # Include admin tools routes
-api_router.include_router(admin_tools.router, prefix="/admin-tools", tags=["admin-tools"])
+api_router.include_router(
+    admin_tools.router, prefix="/admin-tools", tags=["admin-tools"]
+)
 
 # Include WebSocket routes
 api_router.include_router(websocket.router, tags=["websocket"])
+
 
 @api_router.get("/")
 async def api_root():
     return {"message": "FinVision API v1"}
 
+
 @api_router.get("/status")
 async def api_status():
-    return {"status": "operational", "version": "1.0.0"} 
+    return {"status": "operational", "version": "1.0.0"}

@@ -7,8 +7,12 @@ from app.models.base import get_db
 from app.models.user import User
 from app.models.file import FileStatus
 from app.schemas.file import (
-    FileUploadResponse, FileInfo, FileListResponse, 
-    FileWithLogs, ProcessingLogEntry, FileProcessingRequest
+    FileUploadResponse,
+    FileInfo,
+    FileListResponse,
+    FileWithLogs,
+    ProcessingLogEntry,
+    FileProcessingRequest,
 )
 from app.services.file_service import FileService
 from app.api.v1.endpoints.auth import get_current_active_user
@@ -27,7 +31,7 @@ def get_file_service(db: Session = Depends(get_db)) -> FileService:
 async def upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Upload a new file.
@@ -40,7 +44,7 @@ async def upload_file(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Upload failed: {str(e)}"
+            detail=f"Upload failed: {str(e)}",
         )
 
 
@@ -48,27 +52,26 @@ async def upload_file(
 def list_files(
     skip: int = Query(0, ge=0, description="Number of files to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of files to return"),
-    status_filter: Optional[FileStatus] = Query(None, description="Filter by file status"),
+    status_filter: Optional[FileStatus] = Query(
+        None, description="Filter by file status"
+    ),
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Get list of uploaded files for the current user.
     """
     result = file_service.get_user_files(
-        user=current_user,
-        skip=skip,
-        limit=limit,
-        status_filter=status_filter
+        user=current_user, skip=skip, limit=limit, status_filter=status_filter
     )
-    
+
     return FileListResponse(
         files=[FileInfo.from_orm(f) for f in result["files"]],
         total=result["total"],
         page=result["page"],
         page_size=result["page_size"],
         has_next=result["has_next"],
-        has_previous=result["has_previous"]
+        has_previous=result["has_previous"],
     )
 
 
@@ -76,19 +79,18 @@ def list_files(
 def get_file_info(
     file_id: int,
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Get information about a specific file.
     """
     file_record = file_service.get_file_by_id(file_id, current_user)
-    
+
     if not file_record:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
-    
+
     return FileInfo.from_orm(file_record)
 
 
@@ -96,7 +98,7 @@ def get_file_info(
 def get_file_logs(
     file_id: int,
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Get processing logs for a specific file.
@@ -109,25 +111,24 @@ def get_file_logs(
 def get_file_with_logs(
     file_id: int,
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Get detailed file information including processing logs.
     """
     file_record = file_service.get_file_by_id(file_id, current_user)
-    
+
     if not file_record:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
-    
+
     logs = file_service.get_file_logs(file_id, current_user)
-    
+
     file_info = FileInfo.from_orm(file_record)
     return FileWithLogs(
         **file_info.dict(),
-        processing_logs=[ProcessingLogEntry.from_orm(log) for log in logs]
+        processing_logs=[ProcessingLogEntry.from_orm(log) for log in logs],
     )
 
 
@@ -135,31 +136,29 @@ def get_file_with_logs(
 def download_file(
     file_id: int,
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> FileResponse:
     """
     Download a specific file.
     """
     file_record = file_service.get_file_by_id(file_id, current_user)
-    
+
     if not file_record:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
-    
+
     file_path = file_service.get_file_path(file_id, current_user)
-    
+
     if not file_path:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found on disk"
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk"
         )
-    
+
     return FileResponse(
         path=file_path,
         filename=file_record.original_filename,
-        media_type=file_record.mime_type
+        media_type=file_record.mime_type,
     )
 
 
@@ -167,19 +166,18 @@ def download_file(
 def delete_file(
     file_id: int,
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Delete a specific file.
     """
     success = file_service.delete_file(file_id, current_user)
-    
+
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
-    
+
     return {"message": "File deleted successfully"}
 
 
@@ -188,50 +186,49 @@ def trigger_file_processing(
     file_id: int,
     request: FileProcessingRequest,
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Trigger processing for a specific file.
     """
     from app.tasks.file_processing import process_uploaded_file
-    
+
     file_record = file_service.get_file_by_id(file_id, current_user)
-    
+
     if not file_record:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
-    
+
     if file_record.status == FileStatus.PROCESSING:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File is already being processed"
+            detail="File is already being processed",
         )
-    
+
     # Log processing request
     file_service.log_processing_step(
         file_id,
         "processing_requested",
         f"Processing requested by user {current_user.username}",
-        "info"
+        "info",
     )
-    
+
     # Queue background processing task with Celery
     task = process_uploaded_file.delay(file_id, request.processing_options)
-    
+
     # Log task creation
     file_service.log_processing_step(
         file_id,
         "task_queued",
         f"Background processing task queued with ID: {task.id}",
-        "info"
+        "info",
     )
-    
+
     return {
-        "message": "File processing started", 
+        "message": "File processing started",
         "file_id": file_id,
-        "task_id": task.id
+        "task_id": task.id,
     }
 
 
@@ -239,60 +236,58 @@ def trigger_file_processing(
 def cancel_file_processing(
     file_id: int,
     current_user: User = Depends(get_current_active_user),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Cancel processing for a specific file.
     """
     from app.core.celery_app import celery_app
-    
+
     file_record = file_service.get_file_by_id(file_id, current_user)
-    
+
     if not file_record:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
-    
+
     if file_record.status != FileStatus.PROCESSING:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File is not currently being processed"
+            detail="File is not currently being processed",
         )
-    
+
     # Try to revoke the Celery task
     # Note: This requires finding the task ID, which we should store in the database
     # For now, just update the status
-    
+
     # Update status to cancelled
     file_service.update_file_status(file_id, FileStatus.CANCELLED)
-    
+
     # Log cancellation
     file_service.log_processing_step(
         file_id,
         "processing_cancelled",
         f"Processing cancelled by user {current_user.username}",
-        "warning"
+        "warning",
     )
-    
+
     return {"message": "File processing cancelled", "file_id": file_id}
 
 
 @router.get("/task/{task_id}/status")
 def get_task_status(
-    task_id: str,
-    current_user: User = Depends(get_current_active_user)
+    task_id: str, current_user: User = Depends(get_current_active_user)
 ) -> Any:
     """
     Get the status of a processing task.
     """
     from app.tasks.file_processing import get_processing_status
-    
+
     try:
         status_info = get_processing_status(task_id)
         return status_info
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get task status: {str(e)}"
-        ) 
+            detail=f"Failed to get task status: {str(e)}",
+        )

@@ -21,7 +21,7 @@ def get_analytics_service(db: Session = Depends(get_db)) -> AnalyticsService:
 def get_processing_overview(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     current_user: User = Depends(get_current_active_user),
-    analytics_service: AnalyticsService = Depends(get_analytics_service)
+    analytics_service: AnalyticsService = Depends(get_analytics_service),
 ) -> Any:
     """
     Get processing overview statistics.
@@ -33,7 +33,7 @@ def get_processing_overview(
 def get_daily_processing_stats(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     current_user: User = Depends(get_current_active_user),
-    analytics_service: AnalyticsService = Depends(get_analytics_service)
+    analytics_service: AnalyticsService = Depends(get_analytics_service),
 ) -> Any:
     """
     Get daily processing statistics for charts and trends.
@@ -45,7 +45,7 @@ def get_daily_processing_stats(
 def get_file_type_distribution(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     current_user: User = Depends(get_current_active_user),
-    analytics_service: AnalyticsService = Depends(get_analytics_service)
+    analytics_service: AnalyticsService = Depends(get_analytics_service),
 ) -> Any:
     """
     Get file type distribution statistics.
@@ -56,9 +56,11 @@ def get_file_type_distribution(
 @router.get("/user-activity")
 def get_user_activity_stats(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
-    limit: int = Query(10, ge=1, le=50, description="Maximum number of users to return"),
+    limit: int = Query(
+        10, ge=1, le=50, description="Maximum number of users to return"
+    ),
     current_user: User = Depends(require_permissions(Permission.USER_LIST)),
-    analytics_service: AnalyticsService = Depends(get_analytics_service)
+    analytics_service: AnalyticsService = Depends(get_analytics_service),
 ) -> Any:
     """
     Get user activity statistics (admin only).
@@ -70,7 +72,7 @@ def get_user_activity_stats(
 def get_error_analysis(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     current_user: User = Depends(get_current_active_user),
-    analytics_service: AnalyticsService = Depends(get_analytics_service)
+    analytics_service: AnalyticsService = Depends(get_analytics_service),
 ) -> Any:
     """
     Get error analysis and common issues.
@@ -82,7 +84,7 @@ def get_error_analysis(
 def get_performance_metrics(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     current_user: User = Depends(require_permissions(Permission.USER_LIST)),
-    analytics_service: AnalyticsService = Depends(get_analytics_service)
+    analytics_service: AnalyticsService = Depends(get_analytics_service),
 ) -> Any:
     """
     Get system performance metrics (admin only).
@@ -94,9 +96,9 @@ def get_performance_metrics(
 def get_dashboard_summary(
     days: int = Query(7, ge=1, le=30, description="Number of days to analyze"),
     current_user: User = Depends(get_current_active_user),
-    analytics_service: AnalyticsService = Depends(get_analytics_service)
+    analytics_service: AnalyticsService = Depends(get_analytics_service),
 ) -> Any:
     """
     Get comprehensive dashboard summary data.
     """
-    return analytics_service.get_dashboard_summary(days) 
+    return analytics_service.get_dashboard_summary(days)
