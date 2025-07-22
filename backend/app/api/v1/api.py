@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, admin, files, websocket, analytics, admin_tools, dashboard
+from app.api.v1.endpoints import auth, admin, files, websocket, analytics, admin_tools, dashboard, parameters, scenarios
 
 api_router = APIRouter()
 
@@ -22,6 +22,12 @@ api_router.include_router(
 
 # Include dashboard routes
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+
+# Include parameter management routes
+api_router.include_router(parameters.router, prefix="/parameters", tags=["parameters"])
+
+# Include scenario management routes
+api_router.include_router(scenarios.router, prefix="/scenarios", tags=["scenarios"])
 
 # Include WebSocket routes
 api_router.include_router(websocket.router, tags=["websocket"])

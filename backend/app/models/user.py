@@ -39,6 +39,8 @@ class User(Base):
     uploaded_files = relationship(
         "UploadedFile", back_populates="uploaded_by", cascade="all, delete-orphan"
     )
+    parameters = relationship("Parameter", back_populates="created_by")
+    scenarios = relationship("Scenario", back_populates="created_by")
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"

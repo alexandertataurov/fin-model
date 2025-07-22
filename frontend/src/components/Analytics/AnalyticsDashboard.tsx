@@ -110,6 +110,28 @@ const AnalyticsDashboard: React.FC = () => {
   // Colors for charts
   const chartColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
 
+  // Default values to prevent undefined errors
+  const overview = dashboardData?.overview || {
+    total_files: 0,
+    completed_files: 0,
+    failed_files: 0,
+    success_rate: 0,
+    average_processing_time_minutes: 0,
+    total_size_mb: 0,
+  };
+
+  const dailyTrends = dashboardData?.daily_trends || [];
+  const fileTypeDistribution = dashboardData?.file_type_distribution?.distribution || [];
+  const topUsers = dashboardData?.top_users || [];
+  const errorSummary = dashboardData?.error_summary || {
+    total_errors: 0,
+    top_error_categories: [],
+  };
+  const performanceSummary = dashboardData?.performance_summary || {
+    avg_processing_time: 0,
+    throughput: 0,
+  };
+
   if (error) {
     return (
       <Alert severity="error" sx={{ mt: 2 }}>
@@ -156,7 +178,7 @@ const AnalyticsDashboard: React.FC = () => {
                       Total Files
                     </Typography>
                     <Typography variant="h5">
-                      {dashboardData?.overview.total_files || 0}
+                      {overview.total_files}
                     </Typography>
                   </Box>
                 </Box>
@@ -174,7 +196,7 @@ const AnalyticsDashboard: React.FC = () => {
                       Success Rate
                     </Typography>
                     <Typography variant="h5">
-                      {dashboardData?.overview.success_rate.toFixed(1) || 0}%
+                      {overview.success_rate.toFixed(1)}%
                     </Typography>
                   </Box>
                 </Box>
@@ -192,7 +214,7 @@ const AnalyticsDashboard: React.FC = () => {
                       Avg Processing Time
                     </Typography>
                     <Typography variant="h5">
-                      {dashboardData?.performance_summary.avg_processing_time.toFixed(1) || 0}m
+                      {performanceSummary.avg_processing_time.toFixed(1)}m
                     </Typography>
                   </Box>
                 </Box>
@@ -210,7 +232,7 @@ const AnalyticsDashboard: React.FC = () => {
                       Failed Files
                     </Typography>
                     <Typography variant="h5">
-                      {dashboardData?.overview.failed_files || 0}
+                      {overview.failed_files}
                     </Typography>
                   </Box>
                 </Box>
@@ -224,7 +246,7 @@ const AnalyticsDashboard: React.FC = () => {
               <CardHeader title="Daily Processing Trends" />
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dashboardData?.daily_trends || []}>
+                  <LineChart data={dailyTrends}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis />
@@ -247,7 +269,7 @@ const AnalyticsDashboard: React.FC = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={dashboardData?.file_type_distribution.distribution || []}
+                      data={fileTypeDistribution}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -256,7 +278,7 @@ const AnalyticsDashboard: React.FC = () => {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {dashboardData?.file_type_distribution.distribution.map((_, index) => (
+                      {fileTypeDistribution.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                       ))}
                     </Pie>
@@ -268,13 +290,13 @@ const AnalyticsDashboard: React.FC = () => {
           </Grid>
 
           {/* Top Users (if available) */}
-          {dashboardData?.top_users && dashboardData.top_users.length > 0 && (
+          {topUsers.length > 0 && (
             <Grid item xs={12} md={6}>
               <Card>
                 <CardHeader title="Top Active Users" />
                 <CardContent>
                   <List>
-                    {dashboardData.top_users.slice(0, 5).map((user, index) => (
+                    {topUsers.slice(0, 5).map((user, index) => (
                       <React.Fragment key={user.username}>
                         <ListItem>
                           <ListItemText
@@ -294,7 +316,7 @@ const AnalyticsDashboard: React.FC = () => {
                             }
                           />
                         </ListItem>
-                        {index < Math.min(dashboardData.top_users.length - 1, 4) && <Divider />}
+                        {index < Math.min(topUsers.length - 1, 4) && <Divider />}
                       </React.Fragment>
                     ))}
                   </List>
@@ -310,32 +332,34 @@ const AnalyticsDashboard: React.FC = () => {
               <CardContent>
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="h6" color="error">
-                    {dashboardData?.error_summary.total_errors || 0} Total Errors
+                    {errorSummary.total_errors} Total Errors
                   </Typography>
                 </Box>
                 <List>
-                  {dashboardData?.error_summary.top_error_categories.map((error, index) => (
-                    <React.Fragment key={error.category}>
-                      <ListItem>
-                        <ListItemText
-                          primary={error.category}
-                          secondary={
-                            <Box>
-                              <Typography variant="body2" color="text.secondary">
-                                {error.count} occurrences
-                              </Typography>
-                              <LinearProgress
-                                variant="determinate"
-                                value={Math.min((error.count / (dashboardData?.error_summary.total_errors || 1)) * 100, 100)}
-                                sx={{ mt: 1 }}
-                              />
-                            </Box>
-                          }
-                        />
-                      </ListItem>
-                      {index < dashboardData.error_summary.top_error_categories.length - 1 && <Divider />}
-                    </React.Fragment>
-                  )) || (
+                  {errorSummary.top_error_categories.length > 0 ? (
+                    errorSummary.top_error_categories.map((error, index) => (
+                      <React.Fragment key={error.category}>
+                        <ListItem>
+                          <ListItemText
+                            primary={error.category}
+                            secondary={
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">
+                                  {error.count} occurrences
+                                </Typography>
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={Math.min((error.count / errorSummary.total_errors) * 100, 100)}
+                                  sx={{ mt: 1 }}
+                                />
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                        {index < errorSummary.top_error_categories.length - 1 && <Divider />}
+                      </React.Fragment>
+                    ))
+                  ) : (
                     <ListItem>
                       <ListItemText
                         primary="No errors recorded"
@@ -357,7 +381,7 @@ const AnalyticsDashboard: React.FC = () => {
                   <Grid item xs={12} md={4}>
                     <Box sx={{ textAlign: 'center' }}>
                       <Typography variant="h4" color="primary">
-                        {dashboardData?.performance_summary.avg_processing_time.toFixed(1) || 0}
+                        {performanceSummary.avg_processing_time.toFixed(1)}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Average Processing Time (minutes)
@@ -367,7 +391,7 @@ const AnalyticsDashboard: React.FC = () => {
                   <Grid item xs={12} md={4}>
                     <Box sx={{ textAlign: 'center' }}>
                       <Typography variant="h4" color="secondary">
-                        {dashboardData?.performance_summary.throughput.toFixed(1) || 0}
+                        {performanceSummary.throughput.toFixed(1)}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Files per Hour
@@ -377,7 +401,7 @@ const AnalyticsDashboard: React.FC = () => {
                   <Grid item xs={12} md={4}>
                     <Box sx={{ textAlign: 'center' }}>
                       <Typography variant="h4" color="success.main">
-                        {dashboardData?.overview.total_size_mb.toFixed(1) || 0}
+                        {overview.total_size_mb.toFixed(1)}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Total Data Processed (MB)
