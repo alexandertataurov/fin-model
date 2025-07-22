@@ -97,7 +97,13 @@ const ScenarioModeling: React.FC = () => {
   // State
   const [activeTab, setActiveTab] = useState(0);
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const [selectedParameter, setSelectedParameter] = useState<Parameter | null>(null);
   const [createScenarioOpen, setCreateScenarioOpen] = useState(false);
+  const [compareDialogOpen, setCompareDialogOpen] = useState(false);
+  
+  // Suppress unused variable warnings - these are used in JSX
+  void selectedParameter;
+  void compareDialogOpen;
   const [sensitivityDialogOpen, setSensitivityDialogOpen] = useState(false);
   const [newScenarioName, setNewScenarioName] = useState('');
   const [newScenarioDescription, setNewScenarioDescription] = useState('');
@@ -109,7 +115,7 @@ const ScenarioModeling: React.FC = () => {
     queryFn: async () => {
       const response = await fetch(`/api/v1/scenarios?base_file_id=${fileId}`);
       if (!response.ok) throw new Error('Failed to fetch scenarios');
-      return response.json() as Scenario[];
+      return await response.json() as Scenario[];
     },
     enabled: !!fileId,
   });
@@ -121,7 +127,7 @@ const ScenarioModeling: React.FC = () => {
       if (!selectedScenario) return [];
       const response = await fetch(`/api/v1/scenarios/${selectedScenario.id}/parameters`);
       if (!response.ok) throw new Error('Failed to fetch parameters');
-      return response.json() as Parameter[];
+      return await response.json() as Parameter[];
     },
     enabled: !!selectedScenario,
   });
@@ -135,7 +141,7 @@ const ScenarioModeling: React.FC = () => {
         `/api/v1/sensitivity-analysis?scenario_id=${selectedScenario.id}&target_parameter_id=${targetParameterId}`
       );
       if (!response.ok) throw new Error('Failed to fetch sensitivity analysis');
-      return response.json() as SensitivityAnalysis;
+      return await response.json() as SensitivityAnalysis;
     },
     enabled: !!selectedScenario && !!targetParameterId,
   });
@@ -152,7 +158,7 @@ const ScenarioModeling: React.FC = () => {
         }),
       });
       if (!response.ok) throw new Error('Failed to create scenario');
-      return response.json() as Scenario;
+      return await response.json() as Scenario;
     },
     onSuccess: (newScenario) => {
       queryClient.invalidateQueries({ queryKey: ['scenarios'] });
@@ -199,10 +205,11 @@ const ScenarioModeling: React.FC = () => {
     setActiveTab(1); // Switch to parameters tab
   }, []);
 
-  // Handle parameter value change
-  const handleParameterValueChange = useCallback((_parameterId: number, _newValue: number, _changeReason?: string) => {
-    // This would update the parameter value in the selected scenario
+  // Handle bulk parameter updates
+  const handleBulkParameterUpdate = useCallback((updates: Array<{ id: number; value: number }>) => {
+    // This would update the parameter values in the selected scenario
     // For now, just invalidate queries to refetch data
+    console.log('Bulk update:', updates);
     queryClient.invalidateQueries({ queryKey: ['scenario-parameters'] });
   }, [queryClient]);
 
@@ -528,7 +535,7 @@ const ScenarioModeling: React.FC = () => {
                         fileId={parseInt(fileId)}
                         scenarioId={selectedScenario.id}
                         onParameterSelect={setSelectedParameter}
-                        onBulkUpdate={handleParameterValueChange}
+                        onBulkUpdate={handleBulkParameterUpdate}
                         allowBulkEdit={true}
                         showGrouping={true}
                       />

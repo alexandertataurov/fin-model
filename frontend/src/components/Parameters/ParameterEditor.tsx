@@ -61,7 +61,6 @@ interface ParameterValidation {
 
 interface ParameterEditorProps {
   parameter: Parameter;
-  _scenarioId?: number;
   onValueChange?: (parameterId: number, newValue: number, changeReason?: string) => void;
   readonly?: boolean;
   showDependencies?: boolean;
@@ -70,7 +69,6 @@ interface ParameterEditorProps {
 
 const ParameterEditor: React.FC<ParameterEditorProps> = ({
   parameter,
-  _scenarioId,
   onValueChange,
   readonly = false,
   showDependencies = true,
@@ -100,7 +98,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
       });
       
       if (!response.ok) throw new Error('Validation failed');
-      return response.json() as ParameterValidation;
+      return await response.json() as ParameterValidation;
     },
     enabled: isEditing && editValue !== parameter.current_value,
     staleTime: 1000, // 1 second
@@ -304,7 +302,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   type="number"
                   value={editValue}
                   onChange={(e) => handleValueChange(Number(e.target.value))}
-                  error={!!validationError || (validation && !validation.is_valid)}
+                  error={!!validationError || (validation ? !validation.is_valid : false)}
                   helperText={
                     validationError ||
                     (validation && !validation.is_valid 
@@ -379,7 +377,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   {validation && validation.suggested_value !== undefined && (
                     <Button
                       variant="text"
-                      onClick={() => handleValueChange(validation.suggested_value)}
+                      onClick={() => handleValueChange(validation.suggested_value ?? 0)}
                     >
                       Use Suggested: {formatValue(validation.suggested_value)}
                     </Button>

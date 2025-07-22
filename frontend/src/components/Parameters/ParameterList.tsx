@@ -97,7 +97,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
   readonly = false,
   allowBulkEdit = true,
   showGrouping = true,
-  _compact = false,
+  compact = false,
   onParameterSelect,
   onBulkUpdate,
 }) => {
@@ -142,7 +142,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
       const response = await fetch(`/api/v1/parameters?${params}`);
       if (!response.ok) throw new Error('Failed to fetch parameters');
       
-      return response.json() as Parameter[];
+      return await response.json() as Parameter[];
     },
     staleTime: 30000, // 30 seconds
   });
@@ -449,10 +449,9 @@ const ParameterList: React.FC<ParameterListProps> = ({
       <CardContent sx={{ p: 2 }}>
         <ParameterEditor
           parameter={parameter}
-          scenarioId={scenarioId}
           onValueChange={handleParameterValueChange}
           readonly={readonly}
-          compact={true}
+          compact={compact}
         />
       </CardContent>
     </Card>
@@ -469,7 +468,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
   if (error) {
     return (
       <Alert severity="error" sx={{ m: 2 }}>
-        Failed to load parameters: {error.message}
+        Failed to load parameters: {error instanceof Error ? error.message : 'Unknown error'}
       </Alert>
     );
   }
