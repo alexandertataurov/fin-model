@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY
 
-from app.core.dependencies import get_db, get_current_user
+from app.core.dependencies import get_db
+from app.api.v1.endpoints.auth import get_current_active_user as get_current_user
 from app.models.user import User
 from app.services.dashboard_metrics import (
     DashboardMetricsService,
@@ -13,8 +14,8 @@ from app.services.dashboard_metrics import (
     DashboardData,
     DashboardMetric,
 )
-from app.core.permissions import require_permissions
-from app.core.security import Permission
+from app.core.dependencies import require_permissions
+from app.core.permissions import Permission
 
 router = APIRouter()
 
@@ -358,7 +359,7 @@ async def get_metric_time_series(
     period: DashboardPeriod = Query(DashboardPeriod.LAST_12_MONTHS),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
-    granularity: str = Query("monthly", regex="^(daily|weekly|monthly|quarterly)$"),
+    granularity: str = Query("monthly", pattern="^(daily|weekly|monthly|quarterly)$"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
@@ -425,7 +426,7 @@ async def dashboard_health_check(
 @router.get("/export/{format}")
 async def export_dashboard_data(
     format: str,
-    dashboard_type: str = Query("overview", regex="^(overview|pl|cash-flow|balance-sheet)$"),
+    dashboard_type: str = Query("overview", pattern="^(overview|pl|cash-flow|balance-sheet)$"),
     period: DashboardPeriod = Query(DashboardPeriod.YTD),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
