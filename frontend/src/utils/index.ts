@@ -5,7 +5,7 @@
  */
 export const formatCurrency = (
   value: number,
-  currency: string = 'USD'
+  currency = 'USD'
 ): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -20,7 +20,7 @@ export const formatCurrency = (
  */
 export const formatPercentage = (
   value: number,
-  decimals: number = 1
+  decimals = 1
 ): string => {
   return `${(value * 100).toFixed(decimals)}%`;
 };

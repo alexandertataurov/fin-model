@@ -1,15 +1,24 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Contexts
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+// Components
+import Layout from './components/Layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
-import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-
-// Layout
-import Layout from './components/Layout/Layout';
+import Dashboard from './pages/Dashboard';
 
 // Create theme
 const theme = createTheme({
@@ -21,9 +30,12 @@ const theme = createTheme({
       main: '#dc004e',
     },
   },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
 });
 
-// Create query client
+// Create a new QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -33,24 +45,90 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
+// App routes with authentication logic
+const AppRoutes: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; // AuthProvider will show loading
+  }
+
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />
+        }
+      />
+
+      {/* Protected routes with Layout */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route
+          path="admin/*"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <div>Admin Panel - Coming Soon</div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="models/*"
+          element={
+            <ProtectedRoute requiredRole="analyst">
+              <div>Financial Models - Coming Soon</div>
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      {/* Default redirects */}
+      <Route
+        index
+        element={
+          <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
+        }
+      />
+
+      {/* Catch all - redirect to dashboard or login */}
+      <Route
+        path="*"
+        element={
+          <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
+        }
+      />
+    </Routes>
+  );
+};
+
+const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/*" element={<Layout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="dashboard" element={<Dashboard />} />
-            </Route>
-          </Routes>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
         </Router>
       </ThemeProvider>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;

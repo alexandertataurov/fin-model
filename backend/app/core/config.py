@@ -1,21 +1,25 @@
-from typing import List, Union
+import os
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import AnyHttpUrl, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings
-from pydantic import AnyHttpUrl, validator
+
 
 class Settings(BaseSettings):
+    # Basic app settings
+    PROJECT_NAME: str = "FinVision API"
+    VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    
+    # Security
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    ALGORITHM: str = "HS256"
     
     # Database
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "password"
-    POSTGRES_DB: str = "finvision"
-    POSTGRES_PORT: str = "5432"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/finvision")
     
-    @property
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+    # Test database
+    TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
     
     # CORS
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
@@ -23,7 +27,8 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
     
-    @validator("BACKEND_CORS_ORIGINS", pre=True)
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
@@ -33,16 +38,21 @@ class Settings(BaseSettings):
     
     # JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    ALGORITHM: str = "HS256"
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     
-    # Redis
-    REDIS_URL: str = "redis://localhost:6379"
+    # Email settings
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "localhost")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_TLS: bool = os.getenv("SMTP_TLS", "true").lower() == "true"
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     
-    # File upload
-    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
-    UPLOAD_FOLDER: str = "uploads"
-    
+    # Frontend URL
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
     class Config:
+        case_sensitive = True
         env_file = ".env"
+
 
 settings = Settings() 
