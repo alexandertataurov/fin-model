@@ -11,6 +11,12 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from app.core.config import settings
 from app.models.base import Base
 
+# Import all models so Alembic can detect them
+from app.models.user import User
+from app.models.role import Role, UserRole
+from app.models.audit import AuditLog
+from app.models.file import UploadedFile, ProcessingLog
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -31,7 +37,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    return settings.SQLALCHEMY_DATABASE_URI
+    return settings.DATABASE_URL
 
 
 def run_migrations_offline() -> None:
@@ -74,9 +80,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
@@ -85,4 +89,4 @@ def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online() 
+    run_migrations_online()

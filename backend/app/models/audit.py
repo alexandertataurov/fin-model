@@ -25,18 +25,22 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Can be null for anonymous actions
+    user_id = Column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )  # Can be null for anonymous actions
     action = Column(Enum(AuditAction), nullable=False)
     resource = Column(String(100), nullable=True)  # What resource was accessed
     resource_id = Column(String(100), nullable=True)  # ID of the resource
     ip_address = Column(String(45), nullable=True)  # IPv4 or IPv6
     user_agent = Column(Text, nullable=True)
     details = Column(Text, nullable=True)  # Additional context in JSON format
-    success = Column(String(10), nullable=False, default="success")  # success, failure, error
+    success = Column(
+        String(10), nullable=False, default="success"
+    )  # success, failure, error
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     # Relationships
     user = relationship("User", back_populates="audit_logs")
 
     def __repr__(self):
-        return f"<AuditLog(id={self.id}, user_id={self.user_id}, action='{self.action.value}', success='{self.success}')>" 
+        return f"<AuditLog(id={self.id}, user_id={self.user_id}, action='{self.action.value}', success='{self.success}')>"

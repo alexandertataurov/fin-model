@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Enum
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Text,
+    Enum,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from enum import Enum as PyEnum
@@ -20,10 +29,14 @@ class Role(Base):
     description = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
 
     # Relationships
-    user_roles = relationship("UserRole", back_populates="role", cascade="all, delete-orphan")
+    user_roles = relationship(
+        "UserRole", back_populates="role", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Role(id={self.id}, name='{self.name.value}', display_name='{self.display_name}')>"
@@ -38,7 +51,9 @@ class UserRole(Base):
     assigned_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
 
     # Relationships
     user = relationship("User", back_populates="user_roles", foreign_keys=[user_id])
@@ -46,4 +61,4 @@ class UserRole(Base):
     assigned_by_user = relationship("User", foreign_keys=[assigned_by])
 
     def __repr__(self):
-        return f"<UserRole(user_id={self.user_id}, role_id={self.role_id})>" 
+        return f"<UserRole(user_id={self.user_id}, role_id={self.role_id})>"
