@@ -5,6 +5,7 @@ Object.defineProperty(window, 'IntersectionObserver', {
   writable: true,
   configurable: true,
   value: class IntersectionObserver {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     constructor() {}
     observe() {
       return null;
@@ -23,6 +24,7 @@ Object.defineProperty(window, 'ResizeObserver', {
   writable: true,
   configurable: true,
   value: class ResizeObserver {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     constructor() {}
     observe() {
       return null;

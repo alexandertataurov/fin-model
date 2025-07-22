@@ -74,14 +74,15 @@ const Login: React.FC = () => {
         } else {
           setError('Invalid email or password. Please try again.');
         }
-      } catch (err: any) {
-        if (err.response?.status === 401) {
+      } catch (err: unknown) {
+        const error = err as { response?: { status?: number; data?: { detail?: string } } };
+        if (error.response?.status === 401) {
           setError('Invalid email or password. Please try again.');
-        } else if (err.response?.status === 423) {
+        } else if (error.response?.status === 423) {
           setError(
             'Account is locked due to multiple failed login attempts. Please try again later.'
           );
-        } else if (err.response?.data?.detail === 'Email not verified') {
+        } else if (error.response?.data?.detail === 'Email not verified') {
           setError('Please verify your email address before logging in.');
         } else {
           setError('An error occurred. Please try again later.');

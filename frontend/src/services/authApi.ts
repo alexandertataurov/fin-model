@@ -196,7 +196,7 @@ export const authApi = {
   },
 
   async getAuditLogs(skip = 0, limit = 100, userId?: number, action?: string) {
-    const params: any = { skip, limit };
+    const params: Record<string, unknown> = { skip, limit };
     if (userId) params.user_id = userId;
     if (action) params.action = action;
 
@@ -217,17 +217,17 @@ export const checkPasswordStrength = (password: string) => {
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /\d/.test(password),
-    special: /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password),
+    special: /[!@#$%^&*()_+=[\]{}|;:,.<>?-]/.test(password),
   };
 
   const score = Object.values(checks).filter(Boolean).length;
   const strength = score < 3 ? 'weak' : score < 5 ? 'medium' : 'strong';
 
   return {
-    score,
     strength,
+    score,
     checks,
-    isValid: score >= 4, // Require at least 4 out of 5 criteria
+    isValid: score >= 4, // Require at least 4 out of 5 checks to pass
   };
 };
 

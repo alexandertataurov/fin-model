@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { authApi } from '../services/authApi';
 
 export interface User {
@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return () => clearInterval(refreshInterval);
     }
-  }, [state.token, state.refreshToken]);
+  }, [state.token, state.refreshToken, refreshTokenInternal]);
 
   const clearAuthData = () => {
     localStorage.removeItem(TOKEN_KEY);
@@ -214,7 +214,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const refreshTokenInternal = async (): Promise<boolean> => {
+  const refreshTokenInternal = useCallback(async (): Promise<boolean> => {
     try {
       if (!state.refreshToken) return false;
 
@@ -233,7 +233,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       clearAuthData();
       return false;
     }
-  };
+  }, [state.refreshToken]);
 
   const updateUser = (userData: Partial<User>) => {
     if (state.user) {
@@ -280,6 +280,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

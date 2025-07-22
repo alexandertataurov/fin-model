@@ -118,9 +118,10 @@ const Register: React.FC = () => {
         } else {
           setError('Registration failed. Please try again.');
         }
-      } catch (err: any) {
-        if (err.response?.status === 400) {
-          const detail = err.response?.data?.detail;
+      } catch (err: unknown) {
+        const error = err as { response?: { status?: number; data?: { detail?: string } } };
+        if (error.response?.status === 400) {
+          const detail = error.response?.data?.detail;
           if (detail === 'Email already registered') {
             setError(
               'This email is already registered. Please use a different email or try logging in.'
@@ -130,10 +131,7 @@ const Register: React.FC = () => {
               'This username is already taken. Please choose a different username.'
             );
           } else {
-            setError(
-              detail ||
-                'Registration failed. Please check your information and try again.'
-            );
+            setError(detail || 'Registration failed. Please check your information and try again.');
           }
         } else {
           setError('An error occurred. Please try again later.');
