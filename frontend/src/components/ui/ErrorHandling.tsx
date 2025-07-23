@@ -3,7 +3,7 @@ import {
   Box,
   Typography,
   Alert,
-  AlertTitle,
+
   Button,
   Paper,
   IconButton,
@@ -14,7 +14,7 @@ import {
   Error as ErrorIcon,
   Warning as WarningIcon,
   Info as InfoIcon,
-  CheckCircle as SuccessIcon,
+
   Refresh as RefreshIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
@@ -129,16 +129,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     }
   };
 
-  const getSeverity = () => {
-    switch (type) {
-      case 'warning':
-        return 'warning';
-      case 'info':
-        return 'info';
-      default:
-        return 'error';
-    }
-  };
+
 
   return (
     <Box

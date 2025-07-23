@@ -25,7 +25,6 @@ import {
   Search as SearchIcon,
   FilterList as FilterIcon,
   GetApp as ExportIcon,
-  MoreVert as MoreIcon,
 } from '@mui/icons-material';
 
 export interface DataTableColumn<T = any> {

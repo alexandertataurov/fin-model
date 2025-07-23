@@ -58,7 +58,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   const [uploading, setUploading] = useState(false);
 
   const onDrop = useCallback(
-    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+    (acceptedFiles: File[], _rejectedFiles: FileRejection[]) => {
       const newFiles: FileUploadFile[] = acceptedFiles.map((file) => ({
         ...file,
         id: `${file.name}-${Date.now()}-${Math.random()}`,

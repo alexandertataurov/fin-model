@@ -18,7 +18,7 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 
 export const ThemeToggle: React.FC = () => {
-  const { mode, setThemeMode, isDarkMode } = useTheme();
+  const { mode, setThemeMode } = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 

@@ -24,7 +24,7 @@ import {
   AccountBalance as PLIcon,
   TrendingUp as CashFlowIcon,
   BarChart as BalanceSheetIcon,
-  Settings as ParametersIcon,
+
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   ExpandLess,
@@ -249,7 +249,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {hasChildren && (
           <Collapse in={isExpanded && open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {item.children!.map(child => renderNavItem(child, level + 1))}
+              {item.children?.map(child => renderNavItem(child, level + 1))}
             </List>
           </Collapse>
         )}

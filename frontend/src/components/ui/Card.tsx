@@ -8,10 +8,7 @@ import {
   Typography,
   Skeleton,
   Box,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
-import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 
 export interface CardProps extends MuiCardProps {
   title?: string;

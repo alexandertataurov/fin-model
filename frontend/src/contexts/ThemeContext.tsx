@@ -48,7 +48,7 @@ const getEffectiveTheme = (mode: ThemeMode): 'light' | 'dark' => {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [mode, setMode] = useState<ThemeMode>(getStoredTheme);
-  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
+  const [, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
 
   const effectiveTheme = getEffectiveTheme(mode);
   const currentTheme = effectiveTheme === 'dark' ? darkTheme : lightTheme;

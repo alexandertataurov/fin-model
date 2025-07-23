@@ -12,10 +12,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+
   TextField,
   InputAdornment,
   Chip,
@@ -29,7 +26,7 @@ import {
   Search as SearchIcon,
   PlayCircle as VideoIcon,
   Article as ArticleIcon,
-  School as TutorialIcon,
+
   ContactSupport as ContactIcon,
   Close as CloseIcon,
   Launch as LaunchIcon,
