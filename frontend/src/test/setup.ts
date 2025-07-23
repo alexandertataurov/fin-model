@@ -37,3 +37,169 @@ Object.defineProperty(window, 'ResizeObserver', {
     }
   },
 });
+
+// Mock File and FileReader APIs
+Object.defineProperty(window, 'File', {
+  writable: true,
+  value: class File {
+    constructor(
+      fileBits: BlobPart[],
+      fileName: string,
+      options?: FilePropertyBag
+    ) {
+      return {
+        name: fileName,
+        size: fileBits.length,
+        type: options?.type || '',
+        lastModified: Date.now(),
+        slice: () => new Blob(),
+        stream: () => new ReadableStream(),
+        text: () => Promise.resolve(''),
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      };
+    }
+  },
+});
+
+Object.defineProperty(window, 'FileReader', {
+  writable: true,
+  value: class FileReader {
+    readAsDataURL() {
+      this.onload?.({
+        target: { result: 'data:text/plain;base64,dGVzdA==' },
+      } as any);
+    }
+    readAsText() {
+      this.onload?.({ target: { result: 'test content' } } as any);
+    }
+    onload: ((event: any) => void) | null = null;
+    onerror: ((event: any) => void) | null = null;
+    result: string | ArrayBuffer | null = null;
+    readyState: number = 2;
+  },
+});
+
+// Mock URL.createObjectURL
+Object.defineProperty(window.URL, 'createObjectURL', {
+  writable: true,
+  value: jest.fn(() => 'mock-object-url'),
+});
+
+Object.defineProperty(window.URL, 'revokeObjectURL', {
+  writable: true,
+  value: jest.fn(),
+});
+
+// Mock localStorage
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    length: 0,
+    key: (index: number) => Object.keys(store)[index] || null,
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
+
+// Mock sessionStorage
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
+
+// Mock matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock HTMLCanvasElement methods for chart testing
+HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
+  fillRect: jest.fn(),
+  clearRect: jest.fn(),
+  getImageData: jest.fn(),
+  putImageData: jest.fn(),
+  createImageData: jest.fn(),
+  setTransform: jest.fn(),
+  drawImage: jest.fn(),
+  save: jest.fn(),
+  fillText: jest.fn(),
+  restore: jest.fn(),
+  beginPath: jest.fn(),
+  moveTo: jest.fn(),
+  lineTo: jest.fn(),
+  closePath: jest.fn(),
+  stroke: jest.fn(),
+  translate: jest.fn(),
+  scale: jest.fn(),
+  rotate: jest.fn(),
+  arc: jest.fn(),
+  fill: jest.fn(),
+  measureText: jest.fn(() => ({ width: 0 })),
+  transform: jest.fn(),
+  rect: jest.fn(),
+  clip: jest.fn(),
+}));
+
+// Mock SVG for chart rendering
+Object.defineProperty(window, 'SVGElement', {
+  writable: true,
+  value: class SVGElement {
+    getBBox() {
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
+    getScreenCTM() {
+      return null;
+    }
+  },
+});
+
+// Global test utilities
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toBeInTheDocument(): R;
+      toHaveClass(className: string): R;
+      toHaveTextContent(text: string): R;
+    }
+  }
+}
+
+// Suppress specific console warnings during tests
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args: any[]) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('Warning: ReactDOM.render is deprecated')
+    ) {
+      return;
+    }
+    originalError.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+});

@@ -1,0 +1,689 @@
+name: Comprehensive Testing Pipeline
+
+on:
+  push:
+    branches: [main, dev, testing-qa]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    # Run comprehensive tests nightly
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Quick feedback jobs (run on every push/PR)
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Frontend linting
+        working-directory: ./frontend
+        run: npm run lint:ci
+
+      - name: Frontend type checking
+        working-directory: ./frontend
+        run: npm run type-check
+
+      - name: Backend linting
+        working-directory: ./backend
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Security scan
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_PYTHON_FLAKE8: true
+          VALIDATE_TYPESCRIPT_ES: true
+          VALIDATE_JAVASCRIPT_ES: true
+
+  # Unit and Integration Tests
+  backend-tests:
+    name: Backend Testing
+    runs-on: ubuntu-latest
+    needs: code-quality
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: finvision_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests
+        working-directory: ./backend
+        env:
+          POSTGRES_SERVER: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finvision_test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pytest -m unit --cov --cov-report=xml --cov-report=html
+          
+      - name: Run integration tests
+        working-directory: ./backend
+        env:
+          POSTGRES_SERVER: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finvision_test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pytest -m integration --cov-append --cov-report=xml
+
+      - name: Run API tests
+        working-directory: ./backend
+        env:
+          POSTGRES_SERVER: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finvision_test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pytest tests/test_api_endpoints.py -v --cov-append --cov-report=xml
+
+      - name: Run security tests
+        working-directory: ./backend
+        env:
+          POSTGRES_SERVER: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finvision_test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pytest -m security --cov-append --cov-report=xml
+
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+          name: backend-coverage
+
+      - name: Archive backend test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: |
+            backend/htmlcov/
+            backend/coverage.xml
+            backend/pytest-report.xml
+
+  frontend-tests:
+    name: Frontend Testing
+    runs-on: ubuntu-latest
+    needs: code-quality
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: ./frontend
+        run: npm run test:coverage
+
+      - name: Run component tests
+        working-directory: ./frontend
+        run: npm run test:unit
+
+      - name: Run integration tests
+        working-directory: ./frontend
+        run: npm run test:integration
+
+      - name: Run performance tests
+        working-directory: ./frontend
+        run: npm run test:performance
+
+      - name: Upload frontend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./frontend/coverage/coverage-final.json
+          flags: frontend
+          name: frontend-coverage
+
+      - name: Archive frontend test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-test-results
+          path: |
+            frontend/coverage/
+            frontend/test-results.xml
+
+  # Build and prepare for E2E tests
+  build-application:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build backend
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            frontend/dist/
+            backend/
+
+  # End-to-End Testing
+  e2e-tests:
+    name: End-to-End Testing
+    runs-on: ubuntu-latest
+    needs: build-application
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: finvision_e2e
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd frontend && npm ci
+          cd ../backend && pip install -r requirements.txt
+
+      - name: Start backend server
+        working-directory: ./backend
+        env:
+          POSTGRES_SERVER: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finvision_e2e
+          REDIS_URL: redis://localhost:6379
+        run: |
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+
+      - name: Start frontend server
+        working-directory: ./frontend
+        run: |
+          npm run preview &
+          sleep 5
+
+      - name: Run E2E tests
+        working-directory: ./frontend
+        run: |
+          npx cypress run --record false --config video=true,screenshotOnRunFailure=true
+
+      - name: Run specific E2E test suites
+        working-directory: ./frontend
+        run: |
+          npx cypress run --spec "cypress/e2e/auth-flow.cy.ts"
+          npx cypress run --spec "cypress/e2e/file-upload-workflow.cy.ts"
+          npx cypress run --spec "cypress/e2e/dashboard-interactions.cy.ts"
+          npx cypress run --spec "cypress/e2e/parameter-scenarios.cy.ts"
+          npx cypress run --spec "cypress/e2e/report-generation.cy.ts"
+
+      - name: Archive E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            frontend/cypress/screenshots/
+            frontend/cypress/videos/
+            frontend/cypress/reports/
+
+  # Performance Testing
+  performance-tests:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: build-application
+    if: github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install k6
+        run: |
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Start application
+        run: |
+          # Start application in background
+          cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 &
+          cd frontend && npm run preview &
+          sleep 10
+
+      - name: Run load tests
+        working-directory: ./backend/tests/performance
+        run: |
+          k6 run --out json=load-test-results.json load_test.js
+
+      - name: Run Lighthouse performance tests
+        working-directory: ./frontend
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
+
+      - name: Frontend performance tests
+        working-directory: ./frontend
+        run: |
+          npm run test:performance
+
+      - name: Archive performance results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: |
+            backend/tests/performance/load-test-results.json
+            frontend/.lighthouseci/
+            frontend/performance-report.json
+
+  # Security Testing
+  security-tests:
+    name: Security Testing
+    runs-on: ubuntu-latest
+    needs: build-application
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Run OWASP ZAP scan
+        uses: zaproxy/action-full-scan@v0.7.0
+        with:
+          target: 'http://localhost:5173'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: Run backend security tests
+        working-directory: ./backend
+        run: |
+          pytest -m security -v
+
+      - name: Run dependency security audit
+        working-directory: ./frontend
+        run: |
+          npm audit --audit-level=high
+
+      - name: Archive security results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-test-results
+          path: |
+            zap-report.html
+            snyk-report.json
+            backend/security-test-results.xml
+
+  # Accessibility Testing
+  accessibility-tests:
+    name: Accessibility Testing
+    runs-on: ubuntu-latest
+    needs: build-application
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Start application
+        run: |
+          cd frontend && npm run preview &
+          sleep 5
+
+      - name: Run axe accessibility tests
+        working-directory: ./frontend
+        run: |
+          npm run test:a11y
+
+      - name: Run Pa11y accessibility tests
+        run: |
+          npm install -g pa11y
+          pa11y http://localhost:5173 --reporter json > pa11y-report.json
+
+      - name: Run Lighthouse accessibility audit
+        working-directory: ./frontend
+        run: |
+          npx cypress run --spec "cypress/e2e/performance-lighthouse.cy.ts"
+
+      - name: Archive accessibility results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-test-results
+          path: |
+            frontend/a11y-report.json
+            pa11y-report.json
+            frontend/cypress/reports/lighthouse-report.json
+
+  # Cross-browser Testing
+  cross-browser-tests:
+    name: Cross-browser Testing
+    runs-on: ubuntu-latest
+    needs: build-application
+    if: github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    strategy:
+      matrix:
+        browser: [chrome, firefox, edge]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Start application
+        run: |
+          cd frontend && npm run preview &
+          sleep 5
+
+      - name: Run cross-browser tests
+        working-directory: ./frontend
+        run: |
+          npx cypress run --browser ${{ matrix.browser }} --spec "cypress/e2e/auth-flow.cy.ts,cypress/e2e/dashboard-interactions.cy.ts"
+
+      - name: Archive cross-browser results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cross-browser-results-${{ matrix.browser }}
+          path: |
+            frontend/cypress/screenshots/
+            frontend/cypress/videos/
+
+  # Comprehensive Test Report
+  test-report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, e2e-tests, performance-tests, security-tests, accessibility-tests]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Setup Python for report generation
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Generate comprehensive test report
+        run: |
+          python run_tests.py --report-only
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            backend/pytest-report.xml
+            frontend/test-results.xml
+
+      - name: Create test summary
+        run: |
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend Tests: ${{ needs.backend-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Frontend Tests: ${{ needs.frontend-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "### E2E Tests: ${{ needs.e2e-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Performance Tests: ${{ needs.performance-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Security Tests: ${{ needs.security-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Accessibility Tests: ${{ needs.accessibility-tests.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload comprehensive report
+        uses: actions/upload-artifact@v4
+        with:
+          name: comprehensive-test-report
+          path: |
+            test-report.html
+            test-summary.json
+
+  # Quality Gates Check
+  quality-gates:
+    name: Quality Gates Validation
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, e2e-tests]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download test artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Validate quality gates
+        run: |
+          # Check test coverage thresholds
+          # Check performance benchmarks
+          # Check security scan results
+          # Check accessibility compliance
+          echo "Validating quality gates..."
+
+      - name: Quality gates status
+        run: |
+          if [ "${{ needs.backend-tests.result }}" = "success" ] && 
+             [ "${{ needs.frontend-tests.result }}" = "success" ] && 
+             [ "${{ needs.e2e-tests.result }}" = "success" ]; then
+            echo "✅ All quality gates passed"
+            exit 0
+          else
+            echo "❌ Quality gates failed"
+            exit 1
+          fi
+
+  # Deployment (only if all tests pass)
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [quality-gates]
+    if: github.ref == 'refs/heads/main' && needs.quality-gates.result == 'success'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging environment..."
+          # Deployment steps would go here
+
+      - name: Post-deployment tests
+        run: |
+          echo "Running post-deployment validation..."
+          # Smoke tests on staging environment
+
+      - name: Notify stakeholders
+        run: |
+          echo "Notifying stakeholders of successful deployment..."
+          # Notification logic 
