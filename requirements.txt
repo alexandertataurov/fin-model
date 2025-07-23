@@ -20,6 +20,10 @@ pandas>=2.3.1
 openpyxl==3.1.2
 xlsxwriter==3.1.9
 
+# PDF and chart generation
+matplotlib==3.8.2
+reportlab==4.0.8
+
 # PDF generation and reporting
 reportlab==4.0.7
 weasyprint==61.2
