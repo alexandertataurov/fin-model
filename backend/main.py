@@ -7,14 +7,14 @@ import uvicorn
 
 from app.core.config import settings
 from app.api.v1.api import api_router
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.inmemory import InMemoryBackend
+# from fastapi_cache import FastAPICache  # TODO: Fix fastapi-cache2 import
+# from fastapi_cache.backends.inmemory import InMemoryBackend  # TODO: Fix fastapi-cache2 import
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Initialize FastAPI cache on startup."""
-    FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")
+    # FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")  # TODO: Fix fastapi-cache2 setup
     yield
 
 

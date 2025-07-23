@@ -2,7 +2,7 @@ from typing import Any, List, Optional, Dict
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from fastapi_cache.decorator import cache
+# # from fastapi_cache.decorator import cache  # TODO: Fix fastapi-cache2 import  # TODO: Fix fastapi-cache2 import
 
 from app.models.base import get_db
 from app.models.user import User
@@ -27,7 +27,7 @@ class DashboardPeriod:
 
 
 @router.get("/metrics/overview")
-@cache(expire=300)  # Cache for 5 minutes
+# @cache(expire=300)  # TODO: Fix caching
 async def get_overview_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -63,7 +63,7 @@ async def get_overview_metrics(
 
 
 @router.get("/metrics/pl")
-@cache(expire=300)
+# @cache(expire=300)  # TODO: Fix caching
 async def get_pl_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -101,7 +101,7 @@ async def get_pl_metrics(
 
 
 @router.get("/metrics/cash-flow")
-@cache(expire=300)
+# @cache(expire=300)  # TODO: Fix caching
 async def get_cash_flow_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -140,7 +140,7 @@ async def get_cash_flow_metrics(
 
 
 @router.get("/metrics/balance-sheet")
-@cache(expire=300)
+# @cache(expire=300)  # TODO: Fix caching
 async def get_balance_sheet_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -179,7 +179,7 @@ async def get_balance_sheet_metrics(
 
 
 @router.get("/metrics/trends")
-@cache(expire=600)  # Cache for 10 minutes
+# @cache(expire=300)  # TODO: Fix caching
 async def get_financial_trends(
     metric_type: str = Query(..., description="Type of metric (revenue, expenses, cash_flow, etc.)"),
     period_range: str = Query("last_12_months", description="Period range for trend analysis"),
@@ -220,7 +220,7 @@ async def get_financial_trends(
 
 
 @router.get("/metrics/kpis")
-@cache(expire=300)
+# @cache(expire=300)  # TODO: Fix caching
 async def get_key_performance_indicators(
     period: str = Query(DashboardPeriod.YTD, description="Time period for KPIs"),
     industry: Optional[str] = Query(None, description="Industry for benchmarking"),
@@ -261,7 +261,7 @@ async def get_key_performance_indicators(
 
 
 @router.get("/metrics/ratios")
-@cache(expire=600)
+# @cache(expire=300)  # TODO: Fix caching
 async def get_financial_ratios(
     ratio_category: Optional[str] = Query(None, description="Category of ratios (liquidity, profitability, leverage, efficiency)"),
     period: str = Query(DashboardPeriod.YTD, description="Time period for ratios"),
