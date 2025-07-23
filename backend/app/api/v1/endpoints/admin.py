@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Dict
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
@@ -14,6 +14,7 @@ from app.core.dependencies import (
     UserWithPermissions,
 )
 from app.core.permissions import Permission
+from app.services.database_monitor import db_monitor
 
 router = APIRouter()
 
@@ -329,3 +330,80 @@ def get_user_permissions(
         "is_admin": user_with_perms.is_admin(),
         "is_analyst": user_with_perms.is_analyst(),
     }
+
+
+@router.get("/database/health", response_model=Dict[str, Any])
+async def get_database_health(
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH))
+):
+    """
+    Get comprehensive database health check.
+    
+    Returns detailed information about database status, connection pool,
+    table statistics, and performance metrics.
+    """
+    try:
+        health_data = db_monitor.get_health_check()
+        return health_data
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get database health: {str(e)}"
+        )
+
+
+@router.get("/database/performance", response_model=List[Dict[str, Any]])
+async def get_database_performance(
+    limit: int = Query(10, ge=1, le=100),
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH))
+):
+    """
+    Get database query performance analysis.
+    
+    Returns information about slow queries and performance metrics.
+    """
+    try:
+        performance_data = db_monitor.get_query_performance(limit=limit)
+        return performance_data
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get performance data: {str(e)}"
+        )
+
+
+@router.get("/database/tables", response_model=Dict[str, Dict[str, Any]])
+async def get_table_information(
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH))
+):
+    """
+    Get detailed table size and usage information.
+    """
+    try:
+        table_sizes = db_monitor.get_table_sizes()
+        return table_sizes
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get table information: {str(e)}"
+        )
+
+
+@router.post("/database/cleanup", response_model=Dict[str, Any])
+async def cleanup_database(
+    dry_run: bool = Query(True, description="Whether to perform a dry run"),
+    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS))
+):
+    """
+    Clean up stale database records based on retention policies.
+    
+    Use dry_run=false to actually perform the cleanup.
+    """
+    try:
+        cleanup_results = db_monitor.cleanup_stale_data(dry_run=dry_run)
+        return cleanup_results
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to cleanup database: {str(e)}"
+        )

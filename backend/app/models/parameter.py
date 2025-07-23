@@ -108,11 +108,13 @@ class Parameter(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
     
     # Relationships
     source_file = relationship("UploadedFile", back_populates="parameters")
     created_by = relationship("User", back_populates="parameters")
     parameter_values = relationship("ParameterValue", back_populates="parameter")
+    data_source = relationship("DataSource", back_populates="parameters")
     
 
 class Scenario(Base):
@@ -154,6 +156,10 @@ class Scenario(Base):
     parameter_values = relationship("ParameterValue", back_populates="scenario")
     parent_scenario = relationship("Scenario", remote_side=[id])
     child_scenarios = relationship("Scenario", back_populates="parent_scenario")
+    financial_statements = relationship("FinancialStatement", back_populates="scenario")
+    metrics = relationship("Metric", back_populates="scenario")
+    time_series = relationship("TimeSeries", back_populates="scenario")
+    calculations = relationship("Calculation", back_populates="scenario")
 
 
 class ParameterValue(Base):
