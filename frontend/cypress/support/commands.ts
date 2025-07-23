@@ -206,11 +206,8 @@ Cypress.Commands.add('testResponsive', (callback: () => void) => {
   });
 });
 
-// Add simplified lighthouse command (will be configured separately via CLI)
-Cypress.Commands.add('lighthouse', (thresholds = {}, opts = {}) => {
-  // This is a placeholder - actual lighthouse testing is done via LHCI
-  cy.log('Lighthouse testing configured via LHCI');
-});
+// Note: Lighthouse testing is handled separately via @lhci/cli
+// No need for cypress-lighthouse integration since we use LHCI for performance testing
 
 // Add WAVE accessibility testing command
 Cypress.Commands.add('checkWave', (options = {}) => {
@@ -234,7 +231,6 @@ declare global {
       verifyChartData(chartSelector: string, expectedDataPoints: number): Chainable<void>;
       dragAndDrop(sourceSelector: string, targetSelector: string): Chainable<void>;
       testResponsive(callback: () => void): Chainable<void>;
-      lighthouse(thresholds?: {}, opts?: {}): Chainable<void>;
       checkWave(options?: {}): Chainable<void>;
     }
   }
