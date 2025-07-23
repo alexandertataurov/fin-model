@@ -1,3 +1,7 @@
+/* Import external library styles */
+@import 'react-grid-layout/css/styles.css';
+@import 'react-grid-layout/css/resizable.css';
+
 /* CSS Reset and Base Styles */
 *,
 *::before,

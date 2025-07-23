@@ -14,6 +14,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 // Components
 import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ErrorBoundary, ToastProvider } from './components/ui';
 
 // Pages
 import Login from './pages/Login';
@@ -72,16 +73,19 @@ const AppRoutes: React.FC = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="dashboards/pl" element={<PLDashboard />} />
         <Route path="dashboards/cashflow" element={<CashFlowDashboard />} />
-        <Route path="dashboards/balance-sheet" element={<div>Balance Sheet Dashboard - Coming Soon</div>} />
+        <Route
+          path="dashboards/balance-sheet"
+          element={<div>Balance Sheet Dashboard - Coming Soon</div>}
+        />
         <Route path="files" element={<FileUpload />} />
         <Route path="reports" element={<Reports />} />
-        <Route 
-          path="scenarios" 
+        <Route
+          path="scenarios"
           element={
             <ProtectedRoute requiredRole="analyst">
               <ScenarioModeling />
             </ProtectedRoute>
-          } 
+          }
         />
         <Route path="analytics" element={<Analytics />} />
         <Route
@@ -115,15 +119,19 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <Router>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </Router>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <ToastProvider>
+            <Router>
+              <AuthProvider>
+                <AppRoutes />
+              </AuthProvider>
+            </Router>
+          </ToastProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
