@@ -68,3 +68,4 @@ pytest-xdist>=3.3.0  # Parallel test execution
 httpx>=0.24.0  # For async client testing
 factory-boy>=3.3.0  # Test data factories
 faker>=19.0.0  # Generate fake data for tests 
+
