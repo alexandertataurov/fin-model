@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 // Performance monitoring utilities
 export interface PerformanceMetrics {
