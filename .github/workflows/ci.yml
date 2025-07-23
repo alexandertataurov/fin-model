@@ -26,7 +26,7 @@ jobs:
 
       - name: Run linting
         working-directory: ./frontend
-        run: npm run lint
+        run: npm run lint:ci
 
       - name: Run type checking
         working-directory: ./frontend
