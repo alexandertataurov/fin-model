@@ -21,7 +21,7 @@ import {
   Home,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { ThemeToggle } from '../ui';
+import { ThemeToggle, BottomNavigation, HelpButton } from '../ui';
 import Sidebar from './Sidebar';
 
 const Layout = () => {
@@ -132,10 +132,11 @@ const Layout = () => {
               FinVision
             </Typography>
 
-            {/* Theme Toggle and User Menu */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <ThemeToggle />
-              <IconButton
+                      {/* Theme Toggle, Help, and User Menu */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <HelpButton size="medium" />
+            <ThemeToggle />
+            <IconButton
                 size="large"
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
@@ -218,11 +219,15 @@ const Layout = () => {
             p: 3,
             backgroundColor: 'background.default',
             minHeight: 0, // Allow content to be scrollable
+            pb: isMobile ? 10 : 3, // Add bottom padding for mobile navigation
           }}
         >
           <Outlet />
         </Box>
       </Box>
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNavigation />
     </Box>
   );
 };
