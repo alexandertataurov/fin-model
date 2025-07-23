@@ -1,33 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   AppBar,
   Toolbar,
   Typography,
-  Button,
   IconButton,
   Menu,
   MenuItem,
   Avatar,
   Breadcrumbs,
   Link,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
-  CloudUpload,
-  Analytics as AnalyticsIcon,
+  Menu as MenuIcon,
   Settings,
   Logout,
   Home,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { ThemeToggle } from '../ui';
+import Sidebar from './Sidebar';
 
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout } = useAuth();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen(prev => !prev);
+  };
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -47,12 +56,17 @@ const Layout = () => {
     const path = location.pathname;
     const segments = path.split('/').filter(Boolean);
     
-    const breadcrumbMap: Record<string, { label: string; icon?: React.ReactNode }> = {
-      dashboard: { label: 'Dashboard', icon: <DashboardIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
-      files: { label: 'File Upload', icon: <CloudUpload sx={{ mr: 0.5 }} fontSize="inherit" /> },
-      analytics: { label: 'Analytics', icon: <AnalyticsIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
-      admin: { label: 'Admin', icon: <Settings sx={{ mr: 0.5 }} fontSize="inherit" /> },
-      models: { label: 'Models', icon: <DashboardIcon sx={{ mr: 0.5 }} fontSize="inherit" /> },
+    const breadcrumbMap: Record<string, { label: string }> = {
+      dashboard: { label: 'Dashboard' },
+      dashboards: { label: 'Financial Dashboards' },
+      pl: { label: 'P&L Dashboard' },
+      cashflow: { label: 'Cash Flow' },
+      'balance-sheet': { label: 'Balance Sheet' },
+      files: { label: 'File Upload' },
+      reports: { label: 'Reports' },
+      scenarios: { label: 'Scenario Modeling' },
+      analytics: { label: 'Analytics' },
+      admin: { label: 'Admin Panel' },
     };
 
     return segments.map((segment, index) => {
@@ -70,10 +84,10 @@ const Layout = () => {
             display: 'flex',
             alignItems: 'center',
             cursor: 'pointer',
+            textDecoration: 'none',
             '&:hover': { textDecoration: 'underline' },
           }}
         >
-          {breadcrumb.icon}
           {breadcrumb.label}
         </Link>
       );
@@ -81,122 +95,133 @@ const Layout = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* App Bar */}
-      <AppBar position="static" elevation={1}>
-        <Toolbar>
-          {/* Logo/Title */}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            FinVision
-          </Typography>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Sidebar */}
+      <Sidebar open={sidebarOpen} onToggle={handleSidebarToggle} />
 
-          {/* Navigation Buttons */}
-          <Box sx={{ display: 'flex', gap: 1, mr: 2 }}>
-            <Button
-              color="inherit"
-              startIcon={<DashboardIcon />}
-              onClick={() => navigate('/dashboard')}
-              sx={{ 
-                backgroundColor: location.pathname === '/dashboard' ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-              }}
-            >
-              Dashboard
-            </Button>
-            <Button
-              color="inherit"
-              startIcon={<CloudUpload />}
-              onClick={() => navigate('/files')}
-              sx={{ 
-                backgroundColor: location.pathname === '/files' ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-              }}
-            >
-              Upload Files
-            </Button>
-            <Button
-              color="inherit"
-              startIcon={<AnalyticsIcon />}
-              onClick={() => navigate('/analytics')}
-              sx={{ 
-                backgroundColor: location.pathname === '/analytics' ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-              }}
-            >
-              Analytics
-            </Button>
+      {/* Main Content Area */}
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* App Bar */}
+        <AppBar 
+          position="sticky" 
+          elevation={0}
+          sx={{ 
+            zIndex: theme.zIndex.drawer - 1,
+            backgroundColor: 'background.paper',
+            color: 'text.primary',
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}
+        >
+          <Toolbar>
+            {/* Mobile Menu Button */}
+            {isMobile && (
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleSidebarToggle}
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+
+            {/* Title */}
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              FinVision
+            </Typography>
+
+            {/* Theme Toggle and User Menu */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ThemeToggle />
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <Avatar sx={{ width: 32, height: 32 }}>
+                  {user?.first_name?.[0]?.toUpperCase() || 'U'}
+                </Avatar>
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem disabled>
+                  <Box>
+                    <Typography variant="subtitle2">
+                      {user?.first_name} {user?.last_name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {user?.email}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <Logout sx={{ mr: 1 }} />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
+          </Toolbar>
+        </AppBar>
+
+        {/* Breadcrumbs */}
+        {location.pathname !== '/' && location.pathname !== '/dashboard' && (
+          <Box sx={{ 
+            px: 3, 
+            py: 1.5, 
+            backgroundColor: 'background.default',
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}>
+            <Breadcrumbs aria-label="breadcrumb">
+              <Link
+                color="inherit"
+                onClick={() => navigate('/dashboard')}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
+                <Home sx={{ mr: 0.5 }} fontSize="inherit" />
+                Home
+              </Link>
+              {getBreadcrumbs()}
+            </Breadcrumbs>
           </Box>
+        )}
 
-          {/* User Menu */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              color="inherit"
-            >
-              <Avatar sx={{ width: 32, height: 32 }}>
-                {user?.first_name?.[0]?.toUpperCase() || 'U'}
-              </Avatar>
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem disabled>
-                <Box>
-                  <Typography variant="subtitle2">
-                    {user?.first_name} {user?.last_name}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {user?.email}
-                  </Typography>
-                </Box>
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <Logout sx={{ mr: 1 }} />
-                Logout
-              </MenuItem>
-            </Menu>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
-      {/* Breadcrumbs */}
-      {location.pathname !== '/' && (
-        <Box sx={{ px: 3, py: 1, backgroundColor: 'grey.50' }}>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link
-              color="inherit"
-              onClick={() => navigate('/dashboard')}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                '&:hover': { textDecoration: 'underline' },
-              }}
-            >
-              <Home sx={{ mr: 0.5 }} fontSize="inherit" />
-              Home
-            </Link>
-            {getBreadcrumbs()}
-          </Breadcrumbs>
+        {/* Main Content */}
+        <Box 
+          component="main" 
+          sx={{ 
+            flexGrow: 1, 
+            p: 3,
+            backgroundColor: 'background.default',
+            minHeight: 0, // Allow content to be scrollable
+          }}
+        >
+          <Outlet />
         </Box>
-      )}
-
-      {/* Main Content */}
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Outlet />
       </Box>
     </Box>
   );
