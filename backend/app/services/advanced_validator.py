@@ -1,654 +1,657 @@
 import re
 from typing import Dict, List, Any, Optional, Tuple, Set
-from datetime import datetime
-from dataclasses import dataclass
 from enum import Enum
-import pandas as pd
-from openpyxl import Workbook
-
-from app.schemas.file import FileValidationResult
+from dataclasses import dataclass, field
+from app.services.excel_parser import ParsedData, SheetInfo, CellInfo, DataType, SheetType, ValidationError
 
 
-class FinancialStatementType(str, Enum):
-    """Types of financial statements."""
-
+class TemplateType(str, Enum):
+    """Types of financial statement templates."""
     PROFIT_LOSS = "profit_loss"
     BALANCE_SHEET = "balance_sheet"
     CASH_FLOW = "cash_flow"
     TRIAL_BALANCE = "trial_balance"
     BUDGET = "budget"
     FORECAST = "forecast"
+    GENERAL = "general"
 
 
 class ValidationSeverity(str, Enum):
-    """Validation issue severity levels."""
-
+    """Validation severity levels."""
+    CRITICAL = "critical"
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
+    SUGGESTION = "suggestion"
 
 
 @dataclass
-class ValidationIssue:
-    """Represents a validation issue."""
-
-    severity: ValidationSeverity
-    message: str
-    location: str  # Cell or range reference
-    category: str
-    suggestion: Optional[str] = None
-    auto_fixable: bool = False
+class ColumnMapping:
+    """Information about a detected column."""
+    column_index: int
+    column_letter: str
+    expected_name: str
+    detected_name: str
+    confidence: float
+    data_type: str
+    sample_values: List[Any] = field(default_factory=list)
 
 
 @dataclass
-class FinancialTemplate:
-    """Defines a financial statement template."""
+class TemplateValidationResult:
+    """Result of template validation."""
+    template_type: TemplateType
+    is_valid: bool
+    confidence_score: float
+    detected_columns: List[ColumnMapping] = field(default_factory=list)
+    missing_columns: List[str] = field(default_factory=list)
+    validation_errors: List[ValidationError] = field(default_factory=list)
+    suggestions: List[str] = field(default_factory=list)
+    data_quality_score: float = 0.0
+    compliance_score: float = 0.0
 
+
+@dataclass
+class FinancialSection:
+    """A section within a financial statement."""
     name: str
-    statement_type: FinancialStatementType
-    required_sections: List[str]
-    optional_sections: List[str]
-    required_accounts: List[str]
-    validation_rules: List[Dict[str, Any]]
-    calculation_rules: List[Dict[str, Any]]
+    section_type: str
+    start_row: int
+    end_row: int
+    accounts: List[str] = field(default_factory=list)
+    values: List[float] = field(default_factory=list)
+    formulas: List[str] = field(default_factory=list)
 
 
-class AdvancedTemplateValidator:
-    """Advanced validation engine for financial statement templates."""
-
+class AdvancedValidator:
+    """Advanced template validation for financial statements."""
+    
     def __init__(self):
-        self.templates = self._load_templates()
-        self.currency_patterns = {
-            "USD": [r"\$", r"USD", r"US\$"],
-            "EUR": [r"€", r"EUR"],
-            "GBP": [r"£", r"GBP"],
-            "CAD": [r"CAD", r"C\$"],
-        }
-        self.date_patterns = [
-            r"\d{1,2}/\d{1,2}/\d{4}",
-            r"\d{1,2}-\d{1,2}-\d{4}",
-            r"\d{4}-\d{1,2}-\d{1,2}",
-            r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s+\d{4}",
-            r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}",
-        ]
-
-    def validate_financial_statement(
-        self,
-        workbook: Workbook,
-        sheet_name: str,
-        statement_type: FinancialStatementType,
-    ) -> FileValidationResult:
-        """
-        Perform comprehensive validation of a financial statement.
-
-        Args:
-            workbook: Excel workbook object
-            sheet_name: Name of the sheet to validate
-            statement_type: Type of financial statement
-
-        Returns:
-            FileValidationResult with detailed validation results
-        """
-        issues = []
-        warnings = []
-        sheet = workbook[sheet_name]
-
-        # Get template for this statement type
-        template = self.templates.get(statement_type)
-        if not template:
-            issues.append(f"No template found for statement type: {statement_type}")
-            return FileValidationResult(
-                is_valid=False, errors=issues, warnings=warnings
-            )
-
-        # Perform comprehensive validation
-        issues.extend(self._validate_structure(sheet, template))
-        issues.extend(self._validate_accounts(sheet, template))
-        issues.extend(self._validate_calculations(sheet, template))
-        issues.extend(self._validate_formatting(sheet))
-        issues.extend(self._validate_data_consistency(sheet))
-        issues.extend(self._validate_financial_logic(sheet, statement_type))
-
-        # Separate errors and warnings
-        errors = [
-            issue.message
-            for issue in issues
-            if issue.severity == ValidationSeverity.ERROR
-        ]
-        warnings = [
-            issue.message
-            for issue in issues
-            if issue.severity == ValidationSeverity.WARNING
-        ]
-
-        return FileValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings,
-            sheet_info={
-                "statement_type": statement_type,
-                "template_matched": template.name,
-                "validation_issues": len(issues),
-                "auto_fixable_issues": sum(1 for issue in issues if issue.auto_fixable),
+        self._initialize_templates()
+        self._initialize_patterns()
+    
+    def _initialize_templates(self):
+        """Initialize template definitions."""
+        
+        # Profit & Loss Statement Template
+        self.pl_template = {
+            "required_columns": [
+                "account", "description", "current_period", "prior_period"
+            ],
+            "optional_columns": [
+                "budget", "variance", "ytd_actual", "ytd_budget"
+            ],
+            "required_sections": [
+                "revenue", "cost_of_sales", "gross_profit", 
+                "operating_expenses", "operating_income", "net_income"
+            ],
+            "section_patterns": {
+                "revenue": [r"revenue", r"sales", r"income", r"turnover"],
+                "cost_of_sales": [r"cost.*sales", r"cogs", r"cost.*goods"],
+                "gross_profit": [r"gross.*profit", r"gross.*margin"],
+                "operating_expenses": [r"operating.*expense", r"opex", r"sg&a"],
+                "operating_income": [r"operating.*income", r"ebit"],
+                "net_income": [r"net.*income", r"net.*profit", r"bottom.*line"]
             },
-        )
-
-    def _validate_structure(
-        self, sheet, template: FinancialTemplate
-    ) -> List[ValidationIssue]:
-        """Validate the structural elements of the financial statement."""
-        issues = []
-
-        # Check for required sections
-        sheet_text = self._get_sheet_text(sheet)
-
-        for section in template.required_sections:
-            if not self._find_section(sheet_text, section):
-                issues.append(
-                    ValidationIssue(
-                        severity=ValidationSeverity.ERROR,
-                        message=f"Required section '{section}' not found",
-                        location="Sheet structure",
-                        category="Structure",
-                        suggestion=f"Add a '{section}' section to the statement",
-                    )
-                )
-
-        # Check for proper header structure
-        if not self._validate_headers(sheet):
-            issues.append(
-                ValidationIssue(
-                    severity=ValidationSeverity.WARNING,
-                    message="Headers not properly formatted or positioned",
-                    location="Row 1-5",
-                    category="Structure",
-                    suggestion="Ensure headers are in the first few rows and clearly labeled",
-                )
-            )
-
-        # Check for consistent column structure
-        column_issues = self._validate_column_structure(sheet)
-        issues.extend(column_issues)
-
-        return issues
-
-    def _validate_accounts(
-        self, sheet, template: FinancialTemplate
-    ) -> List[ValidationIssue]:
-        """Validate account names and classifications."""
-        issues = []
-
-        # Extract account names from the sheet
-        accounts = self._extract_account_names(sheet)
-
-        # Check for required accounts
-        for required_account in template.required_accounts:
-            if not self._find_similar_account(accounts, required_account):
-                issues.append(
-                    ValidationIssue(
-                        severity=ValidationSeverity.ERROR,
-                        message=f"Required account '{required_account}' not found",
-                        location="Account names",
-                        category="Accounts",
-                        suggestion=f"Add '{required_account}' account or similar",
-                    )
-                )
-
-        # Check for account naming consistency
-        naming_issues = self._validate_account_naming(accounts)
-        issues.extend(naming_issues)
-
-        # Check for duplicate accounts
-        duplicates = self._find_duplicate_accounts(accounts)
-        for duplicate in duplicates:
-            issues.append(
-                ValidationIssue(
-                    severity=ValidationSeverity.WARNING,
-                    message=f"Duplicate account found: '{duplicate}'",
-                    location="Account names",
-                    category="Accounts",
-                    suggestion="Remove or rename duplicate accounts",
-                )
-            )
-
-        return issues
-
-    def _validate_calculations(
-        self, sheet, template: FinancialTemplate
-    ) -> List[ValidationIssue]:
-        """Validate formulas and calculations."""
-        issues = []
-
-        # Check for calculation rules
-        for rule in template.calculation_rules:
-            rule_issues = self._validate_calculation_rule(sheet, rule)
-            issues.extend(rule_issues)
-
-        # Check for broken formulas
-        broken_formulas = self._find_broken_formulas(sheet)
-        for formula_info in broken_formulas:
-            issues.append(
-                ValidationIssue(
-                    severity=ValidationSeverity.ERROR,
-                    message=f"Broken formula in cell {formula_info['cell']}: {formula_info['error']}",
-                    location=formula_info["cell"],
-                    category="Calculations",
-                    suggestion="Fix the formula syntax or references",
-                )
-            )
-
-        # Check for hardcoded values that should be formulas
-        hardcoded_issues = self._find_hardcoded_totals(sheet)
-        issues.extend(hardcoded_issues)
-
-        return issues
-
-    def _validate_formatting(self, sheet) -> List[ValidationIssue]:
-        """Validate formatting consistency and standards."""
-        issues = []
-
-        # Check number formatting
-        number_format_issues = self._validate_number_formatting(sheet)
-        issues.extend(number_format_issues)
-
-        # Check for consistent currency formatting
-        currency_issues = self._validate_currency_formatting(sheet)
-        issues.extend(currency_issues)
-
-        # Check date formatting
-        date_issues = self._validate_date_formatting(sheet)
-        issues.extend(date_issues)
-
-        # Check for proper alignment and styling
-        style_issues = self._validate_styling(sheet)
-        issues.extend(style_issues)
-
-        return issues
-
-    def _validate_data_consistency(self, sheet) -> List[ValidationIssue]:
-        """Validate data consistency and reasonableness."""
-        issues = []
-
-        # Check for missing data
-        missing_data_issues = self._find_missing_data(sheet)
-        issues.extend(missing_data_issues)
-
-        # Check for unreasonable values
-        unreasonable_values = self._find_unreasonable_values(sheet)
-        issues.extend(unreasonable_values)
-
-        # Check for data type consistency
-        type_consistency_issues = self._validate_data_types(sheet)
-        issues.extend(type_consistency_issues)
-
-        return issues
-
-    def _validate_financial_logic(
-        self, sheet, statement_type: FinancialStatementType
-    ) -> List[ValidationIssue]:
-        """Validate financial logic and business rules."""
-        issues = []
-
-        if statement_type == FinancialStatementType.PROFIT_LOSS:
-            issues.extend(self._validate_pnl_logic(sheet))
-        elif statement_type == FinancialStatementType.BALANCE_SHEET:
-            issues.extend(self._validate_balance_sheet_logic(sheet))
-        elif statement_type == FinancialStatementType.CASH_FLOW:
-            issues.extend(self._validate_cash_flow_logic(sheet))
-
-        return issues
-
-    def _validate_pnl_logic(self, sheet) -> List[ValidationIssue]:
-        """Validate P&L specific logic."""
-        issues = []
-
-        # Check that revenue accounts are positive (or negative for returns)
-        revenue_cells = self._find_revenue_cells(sheet)
-        for cell in revenue_cells:
-            if cell["value"] < 0 and "return" not in cell["label"].lower():
-                issues.append(
-                    ValidationIssue(
-                        severity=ValidationSeverity.WARNING,
-                        message=f"Revenue account '{cell['label']}' has negative value",
-                        location=cell["location"],
-                        category="Financial Logic",
-                        suggestion="Verify if this should be an expense or if the value is correct",
-                    )
-                )
-
-        # Check that expense accounts are typically positive (representing outflows)
-        expense_cells = self._find_expense_cells(sheet)
-        for cell in expense_cells:
-            if cell["value"] < 0:
-                issues.append(
-                    ValidationIssue(
-                        severity=ValidationSeverity.WARNING,
-                        message=f"Expense account '{cell['label']}' has negative value",
-                        location=cell["location"],
-                        category="Financial Logic",
-                        suggestion="Verify if this represents a credit or if the value is correct",
-                    )
-                )
-
-        # Check for reasonable gross margin
-        gross_margin = self._calculate_gross_margin(sheet)
-        if gross_margin is not None:
-            if gross_margin < 0:
-                issues.append(
-                    ValidationIssue(
-                        severity=ValidationSeverity.WARNING,
-                        message=f"Gross margin is negative ({gross_margin:.1%})",
-                        location="Gross margin calculation",
-                        category="Financial Logic",
-                        suggestion="Review cost of goods sold and revenue figures",
-                    )
-                )
-            elif gross_margin > 0.95:
-                issues.append(
-                    ValidationIssue(
-                        severity=ValidationSeverity.INFO,
-                        message=f"Gross margin is very high ({gross_margin:.1%})",
-                        location="Gross margin calculation",
-                        category="Financial Logic",
-                        suggestion="Verify if this margin is realistic for the business",
-                    )
-                )
-
-        return issues
-
-    def _validate_balance_sheet_logic(self, sheet) -> List[ValidationIssue]:
-        """Validate Balance Sheet specific logic."""
-        issues = []
-
-        # Check balance sheet equation: Assets = Liabilities + Equity
-        balance_check = self._check_balance_sheet_balance(sheet)
-        if balance_check["unbalanced"]:
-            issues.append(
-                ValidationIssue(
-                    severity=ValidationSeverity.ERROR,
-                    message=f"Balance sheet does not balance. Difference: {balance_check['difference']:,.2f}",
-                    location="Total calculations",
-                    category="Financial Logic",
-                    suggestion="Review all totals and ensure Assets = Liabilities + Equity",
-                )
-            )
-
-        # Check for negative equity (potential concern)
-        equity_total = self._get_total_equity(sheet)
-        if equity_total is not None and equity_total < 0:
-            issues.append(
-                ValidationIssue(
-                    severity=ValidationSeverity.WARNING,
-                    message="Total equity is negative, indicating potential financial distress",
-                    location="Equity section",
-                    category="Financial Logic",
-                    suggestion="Review equity accounts and consider additional analysis",
-                )
-            )
-
-        return issues
-
-    def _validate_cash_flow_logic(self, sheet) -> List[ValidationIssue]:
-        """Validate Cash Flow specific logic."""
-        issues = []
-
-        # Check that cash flow sections sum correctly
-        cf_sections = self._get_cash_flow_sections(sheet)
-
-        if cf_sections:
-            total_calculated = sum(cf_sections.values())
-            reported_total = self._get_reported_cash_flow_total(sheet)
-
-            if (
-                reported_total is not None
-                and abs(total_calculated - reported_total) > 0.01
-            ):
-                issues.append(
-                    ValidationIssue(
-                        severity=ValidationSeverity.ERROR,
-                        message=f"Cash flow sections don't sum to reported total. Difference: {abs(total_calculated - reported_total):,.2f}",
-                        location="Cash flow totals",
-                        category="Financial Logic",
-                        suggestion="Review cash flow section calculations",
-                    )
-                )
-
-        return issues
-
-    def _load_templates(self) -> Dict[FinancialStatementType, FinancialTemplate]:
-        """Load predefined financial statement templates."""
-        templates = {}
-
-        # P&L Template
-        templates[FinancialStatementType.PROFIT_LOSS] = FinancialTemplate(
-            name="Standard P&L",
-            statement_type=FinancialStatementType.PROFIT_LOSS,
-            required_sections=[
-                "Revenue",
-                "Cost of Goods Sold",
-                "Operating Expenses",
-                "Net Income",
-            ],
-            optional_sections=["Other Income", "Taxes", "Depreciation"],
-            required_accounts=[
-                "Revenue",
-                "Cost of Sales",
-                "Gross Profit",
-                "Operating Expenses",
-                "Net Income",
-            ],
-            validation_rules=[
-                {"rule": "revenue_positive", "severity": "warning"},
-                {"rule": "expenses_reasonable", "severity": "warning"},
-                {"rule": "calculations_consistent", "severity": "error"},
-            ],
-            calculation_rules=[
-                {"formula": "Gross Profit = Revenue - Cost of Sales", "required": True},
-                {
-                    "formula": "Net Income = Gross Profit - Operating Expenses",
-                    "required": True,
-                },
-            ],
-        )
-
+            "calculation_rules": [
+                ("gross_profit", "revenue - cost_of_sales"),
+                ("operating_income", "gross_profit - operating_expenses"),
+                ("net_income", "operating_income - taxes - interest")
+            ]
+        }
+        
         # Balance Sheet Template
-        templates[FinancialStatementType.BALANCE_SHEET] = FinancialTemplate(
-            name="Standard Balance Sheet",
-            statement_type=FinancialStatementType.BALANCE_SHEET,
-            required_sections=["Assets", "Liabilities", "Equity"],
-            optional_sections=[
-                "Current Assets",
-                "Fixed Assets",
-                "Current Liabilities",
-                "Long-term Liabilities",
+        self.bs_template = {
+            "required_columns": [
+                "account", "description", "current_year", "prior_year"
             ],
-            required_accounts=["Total Assets", "Total Liabilities", "Total Equity"],
-            validation_rules=[
-                {"rule": "balance_equation", "severity": "error"},
-                {"rule": "asset_liability_classification", "severity": "warning"},
+            "optional_columns": [
+                "notes", "budget", "variance"
             ],
-            calculation_rules=[
-                {
-                    "formula": "Total Assets = Total Liabilities + Total Equity",
-                    "required": True,
-                }
+            "required_sections": [
+                "assets", "current_assets", "non_current_assets",
+                "liabilities", "current_liabilities", "non_current_liabilities",
+                "equity", "total_assets", "total_liabilities_equity"
             ],
+            "section_patterns": {
+                "assets": [r"assets", r"total.*assets"],
+                "current_assets": [r"current.*assets", r"cash", r"receivables", r"inventory"],
+                "non_current_assets": [r"non.*current", r"fixed.*assets", r"ppe", r"property"],
+                "liabilities": [r"liabilities", r"total.*liabilities"],
+                "current_liabilities": [r"current.*liabilities", r"payables", r"accrued"],
+                "non_current_liabilities": [r"non.*current.*liabilities", r"long.*term.*debt"],
+                "equity": [r"equity", r"shareholders", r"retained.*earnings"]
+            },
+            "balance_rules": [
+                ("total_assets", "current_assets + non_current_assets"),
+                ("total_liabilities", "current_liabilities + non_current_liabilities"),
+                ("balance_check", "total_assets = total_liabilities + equity")
+            ]
+        }
+        
+        # Cash Flow Statement Template
+        self.cf_template = {
+            "required_columns": [
+                "description", "current_period", "prior_period"
+            ],
+            "optional_columns": [
+                "budget", "variance", "notes"
+            ],
+            "required_sections": [
+                "operating_activities", "investing_activities", "financing_activities",
+                "net_cash_flow", "beginning_cash", "ending_cash"
+            ],
+            "section_patterns": {
+                "operating_activities": [r"operating.*activities", r"cash.*operations"],
+                "investing_activities": [r"investing.*activities", r"capex", r"investments"],
+                "financing_activities": [r"financing.*activities", r"debt", r"equity"],
+                "net_cash_flow": [r"net.*cash.*flow", r"change.*cash"],
+                "beginning_cash": [r"beginning.*cash", r"opening.*cash"],
+                "ending_cash": [r"ending.*cash", r"closing.*cash"]
+            },
+            "flow_rules": [
+                ("net_cash_flow", "operating + investing + financing"),
+                ("ending_cash", "beginning_cash + net_cash_flow")
+            ]
+        }
+        
+        self.templates = {
+            TemplateType.PROFIT_LOSS: self.pl_template,
+            TemplateType.BALANCE_SHEET: self.bs_template,
+            TemplateType.CASH_FLOW: self.cf_template
+        }
+    
+    def _initialize_patterns(self):
+        """Initialize recognition patterns."""
+        
+        # Common account patterns
+        self.account_patterns = {
+            "revenue": [
+                r"revenue", r"sales", r"income", r"turnover", r"receipts"
+            ],
+            "expenses": [
+                r"expense", r"cost", r"expenditure", r"outlay", r"payment"
+            ],
+            "assets": [
+                r"asset", r"cash", r"receivable", r"inventory", r"equipment"
+            ],
+            "liabilities": [
+                r"liability", r"payable", r"debt", r"loan", r"obligation"
+            ],
+            "equity": [
+                r"equity", r"capital", r"retained", r"earnings", r"surplus"
+            ]
+        }
+        
+        # Date/period patterns
+        self.period_patterns = [
+            r"\d{4}",  # 2023
+            r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)",
+            r"(q1|q2|q3|q4)",
+            r"(fy|year)",
+            r"(current|prior|actual|budget|forecast)",
+            r"\d{1,2}/\d{1,2}/\d{2,4}"
+        ]
+        
+        # Amount/value patterns
+        self.amount_patterns = [
+            r"amount", r"value", r"balance", r"total", r"\$", r"usd", r"eur"
+        ]
+    
+    def validate_template(self, parsed_data: ParsedData, template_type: Optional[TemplateType] = None) -> TemplateValidationResult:
+        """
+        Validate parsed Excel data against financial statement templates.
+        
+        Args:
+            parsed_data: Parsed Excel data
+            template_type: Specific template to validate against (auto-detect if None)
+            
+        Returns:
+            Template validation result
+        """
+        if not parsed_data.sheets:
+            return TemplateValidationResult(
+                template_type=TemplateType.GENERAL,
+                is_valid=False,
+                confidence_score=0.0,
+                validation_errors=[
+                    ValidationError(
+                        severity="error",
+                        message="No worksheets found to validate"
+                    )
+                ]
+            )
+        
+        # Auto-detect template type if not specified
+        if template_type is None:
+            template_type = self._detect_template_type(parsed_data)
+        
+        # Find the best sheet for validation
+        target_sheet = self._find_primary_sheet(parsed_data, template_type)
+        
+        if not target_sheet:
+            return TemplateValidationResult(
+                template_type=template_type,
+                is_valid=False,
+                confidence_score=0.0,
+                validation_errors=[
+                    ValidationError(
+                        severity="error",
+                        message=f"No suitable sheet found for {template_type.value} validation"
+                    )
+                ]
+            )
+        
+        # Perform validation
+        return self._validate_sheet_against_template(target_sheet, template_type)
+    
+    def _detect_template_type(self, parsed_data: ParsedData) -> TemplateType:
+        """Auto-detect the template type from sheet content."""
+        
+        # Score each template type
+        scores = {
+            TemplateType.PROFIT_LOSS: 0,
+            TemplateType.BALANCE_SHEET: 0,
+            TemplateType.CASH_FLOW: 0
+        }
+        
+        for sheet in parsed_data.sheets:
+            # Check sheet type first
+            if sheet.sheet_type == SheetType.PROFIT_LOSS:
+                scores[TemplateType.PROFIT_LOSS] += 10
+            elif sheet.sheet_type == SheetType.BALANCE_SHEET:
+                scores[TemplateType.BALANCE_SHEET] += 10
+            elif sheet.sheet_type == SheetType.CASH_FLOW:
+                scores[TemplateType.CASH_FLOW] += 10
+            
+            # Check content patterns
+            sheet_text = self._extract_sheet_text(sheet)
+            
+            # P&L patterns
+            for pattern in self.pl_template["section_patterns"]["revenue"]:
+                if re.search(pattern, sheet_text, re.IGNORECASE):
+                    scores[TemplateType.PROFIT_LOSS] += 2
+            
+            for pattern in self.pl_template["section_patterns"]["operating_expenses"]:
+                if re.search(pattern, sheet_text, re.IGNORECASE):
+                    scores[TemplateType.PROFIT_LOSS] += 2
+            
+            # Balance sheet patterns
+            for pattern in self.bs_template["section_patterns"]["assets"]:
+                if re.search(pattern, sheet_text, re.IGNORECASE):
+                    scores[TemplateType.BALANCE_SHEET] += 2
+            
+            for pattern in self.bs_template["section_patterns"]["liabilities"]:
+                if re.search(pattern, sheet_text, re.IGNORECASE):
+                    scores[TemplateType.BALANCE_SHEET] += 2
+            
+            # Cash flow patterns
+            for pattern in self.cf_template["section_patterns"]["operating_activities"]:
+                if re.search(pattern, sheet_text, re.IGNORECASE):
+                    scores[TemplateType.CASH_FLOW] += 2
+        
+        # Return template with highest score
+        max_template = max(scores.items(), key=lambda x: x[1])
+        return max_template[0] if max_template[1] > 0 else TemplateType.GENERAL
+    
+    def _find_primary_sheet(self, parsed_data: ParsedData, template_type: TemplateType) -> Optional[SheetInfo]:
+        """Find the primary sheet for validation."""
+        
+        # First, look for sheets with matching type
+        type_mapping = {
+            TemplateType.PROFIT_LOSS: SheetType.PROFIT_LOSS,
+            TemplateType.BALANCE_SHEET: SheetType.BALANCE_SHEET,
+            TemplateType.CASH_FLOW: SheetType.CASH_FLOW
+        }
+        
+        target_sheet_type = type_mapping.get(template_type)
+        if target_sheet_type:
+            for sheet in parsed_data.sheets:
+                if sheet.sheet_type == target_sheet_type:
+                    return sheet
+        
+        # Fall back to sheet with most data
+        if parsed_data.sheets:
+            return max(parsed_data.sheets, key=lambda s: len(s.cells))
+        
+        return None
+    
+    def _extract_sheet_text(self, sheet: SheetInfo) -> str:
+        """Extract all text content from a sheet."""
+        text_content = []
+        for cell in sheet.cells:
+            if cell.data_type == DataType.TEXT and cell.value:
+                text_content.append(str(cell.value))
+        return " ".join(text_content)
+    
+    def _validate_sheet_against_template(self, sheet: SheetInfo, template_type: TemplateType) -> TemplateValidationResult:
+        """Validate a sheet against a specific template."""
+        
+        template = self.templates[template_type]
+        result = TemplateValidationResult(
+            template_type=template_type,
+            is_valid=True,
+            confidence_score=0.0
         )
-
-        # Cash Flow Template
-        templates[FinancialStatementType.CASH_FLOW] = FinancialTemplate(
-            name="Standard Cash Flow",
-            statement_type=FinancialStatementType.CASH_FLOW,
-            required_sections=[
-                "Operating Activities",
-                "Investing Activities",
-                "Financing Activities",
-            ],
-            optional_sections=["Beginning Cash", "Ending Cash"],
-            required_accounts=[
-                "Net Cash from Operations",
-                "Net Cash from Investing",
-                "Net Cash from Financing",
-            ],
-            validation_rules=[
-                {"rule": "cash_flow_consistency", "severity": "error"},
-                {"rule": "activity_classification", "severity": "warning"},
-            ],
-            calculation_rules=[
-                {
-                    "formula": "Net Change in Cash = Operating + Investing + Financing",
-                    "required": True,
-                }
-            ],
-        )
-
-        return templates
-
-    # Helper methods (simplified implementations)
-    def _get_sheet_text(self, sheet) -> str:
-        """Extract all text from the sheet."""
-        text_values = []
-        for row in sheet.iter_rows(values_only=True):
-            for cell in row:
-                if cell and isinstance(cell, str):
-                    text_values.append(cell)
-        return " ".join(text_values)
-
-    def _find_section(self, text: str, section: str) -> bool:
-        """Find if a section exists in the text."""
-        pattern = re.compile(section.replace(" ", r"\s+"), re.IGNORECASE)
-        return bool(pattern.search(text))
-
-    def _validate_headers(self, sheet) -> bool:
-        """Check if headers are properly formatted."""
-        # Simple check for headers in first few rows
-        for row_num in range(1, 6):
-            row = list(
-                sheet.iter_rows(min_row=row_num, max_row=row_num, values_only=True)
-            )[0]
-            if any(cell and isinstance(cell, str) and len(cell) > 3 for cell in row):
-                return True
-        return False
-
-    def _validate_column_structure(self, sheet) -> List[ValidationIssue]:
-        """Validate column structure consistency."""
-        issues = []
-        # Implementation would check for consistent column usage
-        return issues
-
-    def _extract_account_names(self, sheet) -> List[str]:
-        """Extract account names from the sheet."""
-        accounts = []
-        for row in sheet.iter_rows(values_only=True):
-            for cell in row:
-                if cell and isinstance(cell, str) and len(cell) > 3:
-                    # Basic heuristic for account names
-                    if any(
-                        keyword in cell.lower()
-                        for keyword in [
-                            "revenue",
-                            "expense",
-                            "asset",
-                            "liability",
-                            "equity",
-                            "income",
-                            "cost",
-                        ]
-                    ):
-                        accounts.append(cell)
-        return accounts
-
-    def _find_similar_account(self, accounts: List[str], target: str) -> bool:
-        """Find if a similar account exists."""
-        target_lower = target.lower()
-        for account in accounts:
-            if target_lower in account.lower() or account.lower() in target_lower:
-                return True
-        return False
-
-    def _validate_account_naming(self, accounts: List[str]) -> List[ValidationIssue]:
-        """Validate account naming conventions."""
-        issues = []
-        # Implementation would check naming consistency
-        return issues
-
-    def _find_duplicate_accounts(self, accounts: List[str]) -> List[str]:
-        """Find duplicate account names."""
-        seen = set()
-        duplicates = []
-        for account in accounts:
-            if account.lower() in seen:
-                duplicates.append(account)
-            seen.add(account.lower())
-        return duplicates
-
-    # Additional helper methods would be implemented for comprehensive validation
-    def _validate_calculation_rule(
-        self, sheet, rule: Dict[str, Any]
-    ) -> List[ValidationIssue]:
-        """Validate a specific calculation rule."""
-        return []
-
-    def _find_broken_formulas(self, sheet) -> List[Dict[str, Any]]:
-        """Find cells with broken formulas."""
-        return []
-
-    def _find_hardcoded_totals(self, sheet) -> List[ValidationIssue]:
-        """Find totals that should be formulas."""
-        return []
-
-    def _validate_number_formatting(self, sheet) -> List[ValidationIssue]:
-        """Validate number formatting consistency."""
-        return []
-
-    def _validate_currency_formatting(self, sheet) -> List[ValidationIssue]:
-        """Validate currency formatting."""
-        return []
-
-    def _validate_date_formatting(self, sheet) -> List[ValidationIssue]:
-        """Validate date formatting."""
-        return []
-
-    def _validate_styling(self, sheet) -> List[ValidationIssue]:
-        """Validate styling consistency."""
-        return []
-
-    def _find_missing_data(self, sheet) -> List[ValidationIssue]:
-        """Find missing data issues."""
-        return []
-
-    def _find_unreasonable_values(self, sheet) -> List[ValidationIssue]:
-        """Find unreasonable values."""
-        return []
-
-    def _validate_data_types(self, sheet) -> List[ValidationIssue]:
-        """Validate data type consistency."""
-        return []
-
-    def _find_revenue_cells(self, sheet) -> List[Dict[str, Any]]:
-        """Find revenue-related cells."""
-        return []
-
-    def _find_expense_cells(self, sheet) -> List[Dict[str, Any]]:
-        """Find expense-related cells."""
-        return []
-
-    def _calculate_gross_margin(self, sheet) -> Optional[float]:
-        """Calculate gross margin if possible."""
-        return None
-
-    def _check_balance_sheet_balance(self, sheet) -> Dict[str, Any]:
-        """Check if balance sheet balances."""
-        return {"unbalanced": False, "difference": 0}
-
-    def _get_total_equity(self, sheet) -> Optional[float]:
-        """Get total equity value."""
-        return None
-
-    def _get_cash_flow_sections(self, sheet) -> Dict[str, float]:
-        """Get cash flow section totals."""
-        return {}
-
-    def _get_reported_cash_flow_total(self, sheet) -> Optional[float]:
-        """Get reported cash flow total."""
-        return None
+        
+        # Detect column structure
+        detected_columns = self._detect_columns(sheet, template)
+        result.detected_columns = detected_columns
+        
+        # Check for required columns
+        required_columns = set(template["required_columns"])
+        detected_column_names = {col.expected_name for col in detected_columns}
+        missing_columns = required_columns - detected_column_names
+        result.missing_columns = list(missing_columns)
+        
+        # Validate required columns
+        if missing_columns:
+            for missing in missing_columns:
+                result.validation_errors.append(
+                    ValidationError(
+                        severity="error",
+                        message=f"Required column '{missing}' not found",
+                        sheet=sheet.name,
+                        suggestion=f"Add a column for {missing} or check column headers"
+                    )
+                )
+            result.is_valid = False
+        
+        # Detect financial sections
+        sections = self._detect_financial_sections(sheet, template)
+        
+        # Validate required sections
+        required_sections = set(template["required_sections"])
+        detected_section_names = {section.name for section in sections}
+        missing_sections = required_sections - detected_section_names
+        
+        if missing_sections:
+            for missing in missing_sections:
+                result.validation_errors.append(
+                    ValidationError(
+                        severity="warning",
+                        message=f"Expected section '{missing}' not clearly identified",
+                        sheet=sheet.name,
+                        suggestion=f"Consider adding clear section headers for {missing}"
+                    )
+                )
+        
+        # Validate data quality
+        data_quality_score = self._calculate_data_quality_score(sheet, detected_columns)
+        result.data_quality_score = data_quality_score
+        
+        # Validate compliance
+        compliance_score = self._calculate_compliance_score(sheet, template, sections)
+        result.compliance_score = compliance_score
+        
+        # Calculate overall confidence
+        column_score = len(detected_columns) / len(template["required_columns"]) if template["required_columns"] else 1.0
+        section_score = len(detected_section_names) / len(required_sections) if required_sections else 1.0
+        result.confidence_score = (column_score + section_score + data_quality_score + compliance_score) / 4
+        
+        # Generate suggestions
+        result.suggestions = self._generate_suggestions(sheet, template, result)
+        
+        return result
+    
+    def _detect_columns(self, sheet: SheetInfo, template: Dict[str, Any]) -> List[ColumnMapping]:
+        """Detect column mappings in the sheet."""
+        detected_columns = []
+        
+        if not sheet.header_row:
+            return detected_columns
+        
+        # Get header row cells
+        header_cells = [cell for cell in sheet.cells if cell.row == sheet.header_row]
+        header_cells.sort(key=lambda c: c.column)
+        
+        required_columns = template["required_columns"] + template.get("optional_columns", [])
+        
+        for cell in header_cells:
+            if not cell.value or cell.data_type != DataType.TEXT:
+                continue
+            
+            header_text = str(cell.value).lower().strip()
+            
+            # Try to match with template columns
+            best_match = None
+            best_confidence = 0.0
+            
+            for col_name in required_columns:
+                confidence = self._calculate_column_match_confidence(header_text, col_name)
+                if confidence > best_confidence and confidence > 0.5:
+                    best_confidence = confidence
+                    best_match = col_name
+            
+            if best_match:
+                # Get sample values from this column
+                sample_values = self._get_column_sample_values(sheet, cell.column)
+                
+                detected_columns.append(ColumnMapping(
+                    column_index=cell.column,
+                    column_letter=cell.address[0],  # Simplified
+                    expected_name=best_match,
+                    detected_name=str(cell.value),
+                    confidence=best_confidence,
+                    data_type=self._infer_column_data_type(sample_values),
+                    sample_values=sample_values[:5]  # First 5 samples
+                ))
+        
+        return detected_columns
+    
+    def _calculate_column_match_confidence(self, header_text: str, expected_column: str) -> float:
+        """Calculate confidence score for column matching."""
+        
+        # Direct match
+        if header_text == expected_column:
+            return 1.0
+        
+        # Partial matches
+        confidence = 0.0
+        
+        # Check for keywords
+        expected_words = expected_column.replace("_", " ").split()
+        header_words = re.split(r'[_\s]+', header_text)
+        
+        matches = sum(1 for word in expected_words if any(word in hw for hw in header_words))
+        if expected_words:
+            confidence += (matches / len(expected_words)) * 0.8
+        
+        # Check for common synonyms
+        synonyms = {
+            "account": ["account", "description", "item", "line"],
+            "current_period": ["current", "actual", "ytd", "2023", "2024"],
+            "prior_period": ["prior", "previous", "py", "2022", "2023"],
+            "description": ["description", "account", "item", "detail"],
+            "amount": ["amount", "value", "balance", "total"]
+        }
+        
+        if expected_column in synonyms:
+            for synonym in synonyms[expected_column]:
+                if synonym in header_text:
+                    confidence += 0.3
+                    break
+        
+        return min(confidence, 1.0)
+    
+    def _get_column_sample_values(self, sheet: SheetInfo, column: int) -> List[Any]:
+        """Get sample values from a column."""
+        column_cells = [cell for cell in sheet.cells if cell.column == column]
+        column_cells.sort(key=lambda c: c.row)
+        
+        # Skip header row
+        data_cells = [cell for cell in column_cells if cell.row > (sheet.header_row or 0)]
+        
+        return [cell.value for cell in data_cells[:10] if cell.value is not None]
+    
+    def _infer_column_data_type(self, sample_values: List[Any]) -> str:
+        """Infer the data type of a column from sample values."""
+        if not sample_values:
+            return "unknown"
+        
+        numeric_count = sum(1 for v in sample_values if isinstance(v, (int, float)))
+        text_count = sum(1 for v in sample_values if isinstance(v, str))
+        
+        if numeric_count > len(sample_values) * 0.8:
+            return "numeric"
+        elif text_count > len(sample_values) * 0.8:
+            return "text"
+        else:
+            return "mixed"
+    
+    def _detect_financial_sections(self, sheet: SheetInfo, template: Dict[str, Any]) -> List[FinancialSection]:
+        """Detect financial sections within the sheet."""
+        sections = []
+        
+        section_patterns = template.get("section_patterns", {})
+        
+        for section_name, patterns in section_patterns.items():
+            for cell in sheet.cells:
+                if cell.data_type == DataType.TEXT and cell.value:
+                    cell_text = str(cell.value).lower()
+                    
+                    for pattern in patterns:
+                        if re.search(pattern, cell_text, re.IGNORECASE):
+                            # Found a section header
+                            section = FinancialSection(
+                                name=section_name,
+                                section_type="header",
+                                start_row=cell.row,
+                                end_row=cell.row + 10  # Estimate section size
+                            )
+                            sections.append(section)
+                            break
+        
+        return sections
+    
+    def _calculate_data_quality_score(self, sheet: SheetInfo, columns: List[ColumnMapping]) -> float:
+        """Calculate data quality score."""
+        if not columns:
+            return 0.0
+        
+        scores = []
+        
+        for column in columns:
+            # Check data completeness
+            total_cells = len([c for c in sheet.cells if c.column == column.column_index])
+            non_empty_cells = len([c for c in sheet.cells 
+                                 if c.column == column.column_index and c.value is not None])
+            
+            completeness = non_empty_cells / total_cells if total_cells > 0 else 0
+            scores.append(completeness)
+        
+        return sum(scores) / len(scores) if scores else 0.0
+    
+    def _calculate_compliance_score(self, sheet: SheetInfo, template: Dict[str, Any], sections: List[FinancialSection]) -> float:
+        """Calculate template compliance score."""
+        
+        required_sections = template.get("required_sections", [])
+        detected_sections = {section.name for section in sections}
+        
+        if not required_sections:
+            return 1.0
+        
+        compliance = len(detected_sections.intersection(required_sections)) / len(required_sections)
+        return compliance
+    
+    def _generate_suggestions(self, sheet: SheetInfo, template: Dict[str, Any], result: TemplateValidationResult) -> List[str]:
+        """Generate improvement suggestions."""
+        suggestions = []
+        
+        # Missing columns suggestions
+        if result.missing_columns:
+            suggestions.append(
+                f"Add columns for: {', '.join(result.missing_columns)}"
+            )
+        
+        # Data quality suggestions
+        if result.data_quality_score < 0.8:
+            suggestions.append(
+                "Consider filling in missing data values to improve data quality"
+            )
+        
+        # Compliance suggestions
+        if result.compliance_score < 0.7:
+            suggestions.append(
+                "Add clear section headers to improve template compliance"
+            )
+        
+        # Formula suggestions
+        if sheet.formula_count == 0:
+            suggestions.append(
+                "Consider adding formulas for calculated fields (totals, subtotals, etc.)"
+            )
+        
+        return suggestions
+    
+    def get_template_requirements(self, template_type: TemplateType) -> Dict[str, Any]:
+        """Get requirements for a specific template type."""
+        template = self.templates.get(template_type)
+        if not template:
+            return {}
+        
+        return {
+            "template_type": template_type.value,
+            "required_columns": template["required_columns"],
+            "optional_columns": template.get("optional_columns", []),
+            "required_sections": template["required_sections"],
+            "section_patterns": template.get("section_patterns", {}),
+            "validation_rules": template.get("calculation_rules", [])
+        }
+    
+    def suggest_template_improvements(self, parsed_data: ParsedData) -> Dict[str, Any]:
+        """Suggest improvements for better template compliance."""
+        
+        suggestions = {
+            "column_suggestions": [],
+            "structure_suggestions": [],
+            "data_suggestions": [],
+            "formula_suggestions": []
+        }
+        
+        # Detect most likely template type
+        template_type = self._detect_template_type(parsed_data)
+        template = self.templates[template_type]
+        
+        # Analyze current structure
+        primary_sheet = self._find_primary_sheet(parsed_data, template_type)
+        if not primary_sheet:
+            return suggestions
+        
+        # Column suggestions
+        detected_columns = self._detect_columns(primary_sheet, template)
+        required_columns = set(template["required_columns"])
+        detected_column_names = {col.expected_name for col in detected_columns}
+        missing_columns = required_columns - detected_column_names
+        
+        for missing in missing_columns:
+            suggestions["column_suggestions"].append({
+                "type": "add_column",
+                "column_name": missing,
+                "description": f"Add {missing} column for {template_type.value} compliance"
+            })
+        
+        # Structure suggestions
+        if not primary_sheet.header_row:
+            suggestions["structure_suggestions"].append({
+                "type": "add_headers",
+                "description": "Add clear column headers in the first row"
+            })
+        
+        # Data suggestions
+        for column in detected_columns:
+            if column.confidence < 0.7:
+                suggestions["data_suggestions"].append({
+                    "type": "improve_column_naming",
+                    "column": column.detected_name,
+                    "suggestion": f"Consider renaming to '{column.expected_name}' for clarity"
+                })
+        
+        # Formula suggestions
+        if primary_sheet.formula_count < 3:
+            suggestions["formula_suggestions"].append({
+                "type": "add_calculations",
+                "description": "Add formulas for totals and subtotals to improve model functionality"
+            })
+        
+        return suggestions

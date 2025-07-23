@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Paper, Typography, IconButton, Tooltip } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Paper, Typography, IconButton, Tooltip, Menu, MenuItem } from '@mui/material';
 import { Download as DownloadIcon, Fullscreen as FullscreenIcon } from '@mui/icons-material';
 
 interface BaseChartProps {
@@ -9,7 +9,7 @@ interface BaseChartProps {
   height?: number;
   loading?: boolean;
   error?: string;
-  onExport?: () => void;
+  onExport?: (format?: 'PNG' | 'SVG' | 'PDF') => void;
   onFullscreen?: () => void;
   actions?: React.ReactNode;
 }
@@ -25,6 +25,7 @@ export const BaseChart: React.FC<BaseChartProps> = ({
   onFullscreen,
   actions,
 }) => {
+  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
   return (
     <Paper
       elevation={2}
@@ -71,11 +72,40 @@ export const BaseChart: React.FC<BaseChartProps> = ({
           >
             {actions}
             {onExport && (
-              <Tooltip title="Export Chart">
-                <IconButton size="small" onClick={onExport}>
-                  <DownloadIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
+              <>
+                <Tooltip title="Export Chart">
+                  <IconButton 
+                    size="small" 
+                    onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+                  >
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  anchorEl={exportMenuAnchor}
+                  open={Boolean(exportMenuAnchor)}
+                  onClose={() => setExportMenuAnchor(null)}
+                >
+                  <MenuItem onClick={() => {
+                    onExport('PNG');
+                    setExportMenuAnchor(null);
+                  }}>
+                    Export as PNG
+                  </MenuItem>
+                  <MenuItem onClick={() => {
+                    onExport('SVG');
+                    setExportMenuAnchor(null);
+                  }}>
+                    Export as SVG
+                  </MenuItem>
+                  <MenuItem onClick={() => {
+                    onExport('PDF');
+                    setExportMenuAnchor(null);
+                  }}>
+                    Export as PDF
+                  </MenuItem>
+                </Menu>
+              </>
             )}
             {onFullscreen && (
               <Tooltip title="Fullscreen">

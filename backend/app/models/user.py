@@ -41,6 +41,9 @@ class User(Base):
     )
     parameters = relationship("Parameter", back_populates="created_by")
     scenarios = relationship("Scenario", back_populates="created_by")
+    report_templates = relationship("ReportTemplate", back_populates="creator")
+    report_schedules = relationship("ReportSchedule", back_populates="creator")
+    report_exports = relationship("ReportExport", back_populates="creator")
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"
