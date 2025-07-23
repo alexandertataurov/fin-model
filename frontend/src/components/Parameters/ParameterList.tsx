@@ -72,7 +72,7 @@ interface ParameterListProps {
   scenarioId?: number;
   onParameterChange?: (parameter: Parameter) => void;
   onParameterSelect?: (parameter: Parameter | null) => void;
-  onBulkUpdate?: (parameters: Parameter[]) => void;
+  onBulkUpdate?: (updates: Array<{ id: number; value: number }>) => void;
   allowBulkEdit?: boolean;
   showGrouping?: boolean;
 }
