@@ -134,6 +134,19 @@ class ScenarioResponse(ScenarioBase):
         from_attributes = True
 
 
+class ScenarioVersionResponse(BaseModel):
+    id: int
+    name: str
+    version: str
+    description: Optional[str] = None
+    created_at: datetime
+    created_by_id: int
+    is_current: bool = False
+    
+    class Config:
+        from_attributes = True
+
+
 # Parameter Detection Schemas
 class DetectedParameterInfo(BaseModel):
     cell_reference: str

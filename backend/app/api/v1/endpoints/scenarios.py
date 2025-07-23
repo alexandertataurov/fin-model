@@ -1,37 +1,45 @@
-from typing import Dict, List, Any, Optional
+from typing import Any, List, Optional, Dict
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from sqlalchemy import and_, or_, desc
 
-from app.core.dependencies import get_db
-from app.api.v1.endpoints.auth import get_current_active_user as get_current_user
+from app.models.base import get_db
 from app.models.user import User
-from app.models.parameter import Scenario, Parameter, ParameterValue
+from app.models.parameter import Scenario, ParameterValue, Parameter
 from app.models.file import UploadedFile
-from app.services.scenario_manager import ScenarioManager
 from app.schemas.parameter import (
-    ScenarioCreate, ScenarioUpdate, ScenarioResponse,
-    ScenarioComparisonRequest, ScenarioComparisonResponse,
-    ParameterValueResponse
+    ScenarioCreate,
+    ScenarioUpdate,
+    ScenarioResponse,
+    ScenarioComparisonResponse,
+    ScenarioVersionResponse,
+    ParameterValueUpdate
 )
+from app.api.v1.endpoints.auth import get_current_active_user
+from app.core.dependencies import require_permissions
+from app.core.permissions import Permission
+from app.services.scenario_manager import ScenarioManager
 
 router = APIRouter()
 
 
-@router.post("/", response_model=ScenarioResponse, status_code=HTTP_201_CREATED)
+@router.post("/", response_model=ScenarioResponse, status_code=status.HTTP_201_CREATED)
 async def create_scenario(
     scenario: ScenarioCreate,
+    current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+) -> Any:
     """
     Create a new financial modeling scenario.
-    """
-    scenario_manager = ScenarioManager(db)
     
+    Creates a new scenario with optional parameter values.
+    """
     try:
-        new_scenario = await scenario_manager.create_scenario(
+        scenario_manager = ScenarioManager(db)
+        
+        # Create scenario
+        db_scenario = await scenario_manager.create_scenario(
             name=scenario.name,
             description=scenario.description,
             base_file_id=scenario.base_file_id,
@@ -40,64 +48,78 @@ async def create_scenario(
             parent_scenario_id=scenario.parent_scenario_id
         )
         
-        return ScenarioResponse.from_orm(new_scenario)
+        return ScenarioResponse.from_orm(db_scenario)
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create scenario: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create scenario: {str(e)}"
+        )
 
 
 @router.get("/", response_model=List[ScenarioResponse])
 async def list_scenarios(
+    base_file_id: Optional[int] = Query(None, description="Filter by base file ID"),
+    is_baseline: Optional[bool] = Query(None, description="Filter baseline scenarios"),
+    is_template: Optional[bool] = Query(None, description="Filter template scenarios"),
+    status_filter: Optional[str] = Query(None, description="Filter by status"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    base_file_id: Optional[int] = Query(None),
-    is_baseline: Optional[bool] = Query(None),
-    is_template: Optional[bool] = Query(None),
-    status: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+) -> Any:
     """
-    List scenarios with filtering options.
+    List scenarios with optional filtering.
+    
+    Returns paginated list of scenarios accessible to the current user.
     """
-    query = db.query(Scenario).filter(Scenario.created_by_id == current_user.id)
-    
-    # Apply filters
-    if base_file_id:
-        query = query.filter(Scenario.base_file_id == base_file_id)
-    
-    if is_baseline is not None:
-        query = query.filter(Scenario.is_baseline == is_baseline)
-    
-    if is_template is not None:
-        query = query.filter(Scenario.is_template == is_template)
-    
-    if status:
-        query = query.filter(Scenario.status == status)
-    
-    if search:
-        search_term = f"%{search}%"
-        query = query.filter(
-            Scenario.name.ilike(search_term) |
-            Scenario.description.ilike(search_term)
+    try:
+        # Build query
+        query = db.query(Scenario).filter(Scenario.created_by_id == current_user.id)
+        
+        # Apply filters
+        if base_file_id:
+            query = query.filter(Scenario.base_file_id == base_file_id)
+        if is_baseline is not None:
+            query = query.filter(Scenario.is_baseline == is_baseline)
+        if is_template is not None:
+            query = query.filter(Scenario.is_template == is_template)
+        if status_filter:
+            query = query.filter(Scenario.status == status_filter)
+        
+        # Apply pagination and ordering
+        scenarios = (
+            query
+            .order_by(desc(Scenario.created_at))
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
-    
-    scenarios = query.order_by(Scenario.updated_at.desc()).offset(skip).limit(limit).all()
-    
-    return [ScenarioResponse.from_orm(scenario) for scenario in scenarios]
+        
+        return [ScenarioResponse.from_orm(scenario) for scenario in scenarios]
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list scenarios: {str(e)}"
+        )
 
 
 @router.get("/{scenario_id}", response_model=ScenarioResponse)
 async def get_scenario(
     scenario_id: int,
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+) -> Any:
     """
     Get a specific scenario by ID.
+    
+    Returns detailed scenario information including parameter values.
     """
     scenario = db.query(Scenario).filter(
         Scenario.id == scenario_id,
@@ -106,8 +128,8 @@ async def get_scenario(
     
     if not scenario:
         raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND,
-            detail="Scenario not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Scenario {scenario_id} not found"
         )
     
     return ScenarioResponse.from_orm(scenario)
@@ -117,390 +139,480 @@ async def get_scenario(
 async def update_scenario(
     scenario_id: int,
     scenario_update: ScenarioUpdate,
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+) -> Any:
     """
     Update a scenario.
-    """
-    scenario_manager = ScenarioManager(db)
     
+    Updates scenario metadata and status.
+    """
     try:
-        updated_scenario = await scenario_manager.update_scenario(
-            scenario_id=scenario_id,
-            user_id=current_user.id,
-            **scenario_update.dict(exclude_unset=True)
-        )
+        # Get existing scenario
+        db_scenario = db.query(Scenario).filter(
+            Scenario.id == scenario_id,
+            Scenario.created_by_id == current_user.id
+        ).first()
         
-        return ScenarioResponse.from_orm(updated_scenario)
+        if not db_scenario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Scenario {scenario_id} not found"
+            )
         
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        # Update fields
+        update_data = scenario_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_scenario, field, value)
+        
+        db_scenario.updated_at = datetime.utcnow()
+        
+        db.commit()
+        db.refresh(db_scenario)
+        
+        return ScenarioResponse.from_orm(db_scenario)
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update scenario: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update scenario: {str(e)}"
+        )
 
 
 @router.delete("/{scenario_id}")
 async def delete_scenario(
     scenario_id: int,
-    force: bool = Query(False, description="Force delete even if scenario has children"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_DELETE)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+) -> Any:
     """
     Delete a scenario.
-    """
-    scenario_manager = ScenarioManager(db)
     
+    Removes scenario and associated parameter values.
+    """
     try:
-        success = await scenario_manager.delete_scenario(
-            scenario_id=scenario_id,
-            user_id=current_user.id,
-            force=force
-        )
+        # Get scenario
+        db_scenario = db.query(Scenario).filter(
+            Scenario.id == scenario_id,
+            Scenario.created_by_id == current_user.id
+        ).first()
         
-        if success:
-            return {"message": "Scenario deleted successfully"}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to delete scenario")
-            
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        if not db_scenario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Scenario {scenario_id} not found"
+            )
+        
+        # Delete associated parameter values
+        db.query(ParameterValue).filter(ParameterValue.scenario_id == scenario_id).delete()
+        
+        # Delete scenario
+        db.delete(db_scenario)
+        db.commit()
+        
+        return {"message": "Scenario deleted successfully"}
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete scenario: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete scenario: {str(e)}"
+        )
 
 
-@router.post("/clone")
+@router.post("/{scenario_id}/clone", response_model=ScenarioResponse)
 async def clone_scenario(
-    source_scenario_id: int,
-    new_name: str,
-    new_description: Optional[str] = None,
+    scenario_id: int,
+    name: str = Body(..., description="Name for the cloned scenario"),
+    description: Optional[str] = Body(None, description="Description for the cloned scenario"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+) -> Any:
     """
     Clone an existing scenario.
+    
+    Creates a copy of the scenario with all parameter values.
     """
-    scenario_manager = ScenarioManager(db)
+    try:
+        scenario_manager = ScenarioManager(db)
+        
+        # Get source scenario
+        source_scenario = db.query(Scenario).filter(
+            Scenario.id == scenario_id,
+            Scenario.created_by_id == current_user.id
+        ).first()
+        
+        if not source_scenario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Source scenario {scenario_id} not found"
+            )
+        
+        # Clone scenario
+        cloned_scenario = await scenario_manager.clone_scenario(
+            source_scenario_id=scenario_id,
+            new_name=name,
+            new_description=description,
+            user_id=current_user.id
+        )
+        
+        return ScenarioResponse.from_orm(cloned_scenario)
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clone scenario: {str(e)}"
+        )
+
+
+@router.get("/{scenario_id}/parameters", response_model=List[Dict[str, Any]])
+async def get_scenario_parameters(
+    scenario_id: int,
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Get parameter values for a specific scenario.
     
-    result = await scenario_manager.clone_scenario(
-        source_scenario_id=source_scenario_id,
-        new_name=new_name,
-        new_description=new_description,
-        user_id=current_user.id
-    )
+    Returns all parameter values associated with the scenario.
+    """
+    try:
+        # Verify scenario exists and user has access
+        scenario = db.query(Scenario).filter(
+            Scenario.id == scenario_id,
+            Scenario.created_by_id == current_user.id
+        ).first()
+        
+        if not scenario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Scenario {scenario_id} not found"
+            )
+        
+        # Get parameter values with parameter details
+        parameter_values = (
+            db.query(ParameterValue, Parameter)
+            .join(Parameter, ParameterValue.parameter_id == Parameter.id)
+            .filter(ParameterValue.scenario_id == scenario_id)
+            .all()
+        )
+        
+        result = []
+        for param_value, parameter in parameter_values:
+            result.append({
+                "parameter_id": parameter.id,
+                "parameter_name": parameter.name,
+                "parameter_type": parameter.parameter_type,
+                "category": parameter.category,
+                "current_value": param_value.value,
+                "original_value": param_value.original_value,
+                "unit": parameter.unit,
+                "format_type": parameter.format_type,
+                "min_value": parameter.min_value,
+                "max_value": parameter.max_value,
+                "is_editable": parameter.is_editable,
+                "change_reason": param_value.change_reason,
+                "changed_at": param_value.changed_at.isoformat(),
+                "is_valid": param_value.is_valid,
+                "validation_errors": param_value.validation_errors
+            })
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get scenario parameters: {str(e)}"
+        )
+
+
+@router.put("/{scenario_id}/parameters/{parameter_id}")
+async def update_scenario_parameter(
+    scenario_id: int,
+    parameter_id: int,
+    parameter_update: ParameterValueUpdate,
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Update a parameter value in a scenario.
     
-    if not result.success:
-        raise HTTPException(status_code=400, detail=result.error_message)
+    Updates parameter value with validation and tracking.
+    """
+    try:
+        scenario_manager = ScenarioManager(db)
+        
+        # Update parameter value
+        updated_value = await scenario_manager.update_parameter_value(
+            scenario_id=scenario_id,
+            parameter_id=parameter_id,
+            new_value=parameter_update.value,
+            change_reason=parameter_update.change_reason,
+            user_id=current_user.id
+        )
+        
+        return {
+            "parameter_id": parameter_id,
+            "scenario_id": scenario_id,
+            "new_value": updated_value.value,
+            "is_valid": updated_value.is_valid,
+            "validation_errors": updated_value.validation_errors,
+            "updated_at": updated_value.changed_at.isoformat()
+        }
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update parameter: {str(e)}"
+        )
+
+
+@router.post("/compare", response_model=ScenarioComparisonResponse)
+async def compare_scenarios(
+    scenario_ids: List[int] = Body(..., description="List of scenario IDs to compare"),
+    metrics: Optional[List[str]] = Body(None, description="Specific metrics to compare"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Compare multiple scenarios.
     
-    return {
-        "message": "Scenario cloned successfully",
-        "original_scenario_id": result.original_scenario_id,
-        "new_scenario_id": result.new_scenario_id,
-        "parameters_copied": result.parameters_copied
-    }
+    Returns variance analysis and comparison metrics between scenarios.
+    """
+    try:
+        if len(scenario_ids) < 2:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="At least 2 scenarios required for comparison"
+            )
+        
+        if len(scenario_ids) > 5:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Maximum 5 scenarios can be compared at once"
+            )
+        
+        scenario_manager = ScenarioManager(db)
+        
+        # Perform comparison
+        comparison_result = await scenario_manager.compare_scenarios(
+            scenario_ids=scenario_ids,
+            metrics=metrics,
+            user_id=current_user.id
+        )
+        
+        return comparison_result
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to compare scenarios: {str(e)}"
+        )
 
 
 @router.post("/{scenario_id}/calculate")
 async def calculate_scenario(
     scenario_id: int,
-    background_tasks: BackgroundTasks,
-    force_recalculation: bool = Query(False, description="Force recalculation even if up to date"),
+    force_recalculate: bool = Query(False, description="Force full recalculation"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_EXECUTE)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+) -> Any:
     """
-    Calculate all formulas for a scenario.
-    """
-    scenario_manager = ScenarioManager(db)
+    Trigger scenario calculation.
     
+    Recalculates all formulas and dependent values in the scenario.
+    """
     try:
-        result = await scenario_manager.calculate_scenario(
+        scenario_manager = ScenarioManager(db)
+        
+        # Trigger calculation
+        calculation_result = await scenario_manager.calculate_scenario(
             scenario_id=scenario_id,
             user_id=current_user.id,
-            force_recalculation=force_recalculation
+            force_recalculate=force_recalculate
         )
         
-        return result
-        
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Scenario calculation failed: {str(e)}")
-
-
-@router.post("/compare", response_model=List[ScenarioComparisonResponse])
-async def compare_scenarios(
-    request: ScenarioComparisonRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Compare multiple scenarios against a base scenario.
-    """
-    scenario_manager = ScenarioManager(db)
-    
-    try:
-        comparisons = await scenario_manager.compare_scenarios(
-            base_scenario_id=request.base_scenario_id,
-            compare_scenario_ids=request.compare_scenario_ids,
-            user_id=current_user.id,
-            parameter_filters=request.parameter_filters
-        )
-        
-        # Convert to response format
-        results = []
-        for comparison in comparisons:
-            results.append(ScenarioComparisonResponse(
-                base_scenario_id=comparison.base_scenario_id,
-                comparison_scenarios=[comparison.compare_scenario_id],
-                parameter_comparisons=[
-                    {
-                        "parameter_id": diff["parameter_id"],
-                        "parameter_name": f"Parameter {diff['parameter_id']}",  # Would need to join with Parameter table
-                        "base_value": diff["base_value"],
-                        "comparison_values": {comparison.compare_scenario_id: diff["compare_value"]},
-                        "variance": {comparison.compare_scenario_id: diff["variance"]},
-                        "percentage_change": {comparison.compare_scenario_id: diff["percentage_change"]}
-                    }
-                    for diff in comparison.parameter_differences
-                ],
-                summary_statistics=comparison.summary_statistics
-            ))
-        
-        return results
-        
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Scenario comparison failed: {str(e)}")
-
-
-@router.get("/{scenario_id}/parameters", response_model=List[ParameterValueResponse])
-async def get_scenario_parameters(
-    scenario_id: int,
-    parameter_type: Optional[str] = Query(None),
-    category: Optional[str] = Query(None),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Get parameter values for a specific scenario.
-    """
-    # Verify scenario exists and belongs to user
-    scenario = db.query(Scenario).filter(
-        Scenario.id == scenario_id,
-        Scenario.created_by_id == current_user.id
-    ).first()
-    
-    if not scenario:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND,
-            detail="Scenario not found"
-        )
-    
-    # Get parameter values
-    query = db.query(ParameterValue).filter(
-        ParameterValue.scenario_id == scenario_id
-    ).join(Parameter)
-    
-    if parameter_type:
-        query = query.filter(Parameter.parameter_type == parameter_type)
-    
-    if category:
-        query = query.filter(Parameter.category == category)
-    
-    parameter_values = query.all()
-    
-    return [ParameterValueResponse.from_orm(pv) for pv in parameter_values]
-
-
-@router.get("/{scenario_id}/history")
-async def get_scenario_history(
-    scenario_id: int,
-    include_calculations: bool = Query(True, description="Include calculation history"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Get complete history of a scenario.
-    """
-    scenario_manager = ScenarioManager(db)
-    
-    try:
-        history = await scenario_manager.get_scenario_history(
-            scenario_id=scenario_id,
-            user_id=current_user.id,
-            include_calculations=include_calculations
-        )
-        
-        return history
-        
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get scenario history: {str(e)}")
-
-
-@router.post("/templates")
-async def create_scenario_template(
-    name: str,
-    description: str,
-    source_scenario_id: int,
-    parameter_subset: Optional[List[int]] = None,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Create a reusable scenario template.
-    """
-    scenario_manager = ScenarioManager(db)
-    
-    try:
-        template = await scenario_manager.create_scenario_template(
-            name=name,
-            description=description,
-            source_scenario_id=source_scenario_id,
-            user_id=current_user.id,
-            parameter_subset=parameter_subset
-        )
-        
-        return ScenarioResponse.from_orm(template)
-        
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create template: {str(e)}")
-
-
-@router.post("/{scenario_id}/apply-template")
-async def apply_template(
-    scenario_id: int,
-    template_id: int,
-    overwrite_existing: bool = Query(False, description="Overwrite existing parameter values"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Apply a scenario template to an existing scenario.
-    """
-    scenario_manager = ScenarioManager(db)
-    
-    try:
-        result = await scenario_manager.apply_template(
-            template_id=template_id,
-            target_scenario_id=scenario_id,
-            user_id=current_user.id,
-            overwrite_existing=overwrite_existing
-        )
-        
-        return result
-        
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to apply template: {str(e)}")
-
-
-@router.get("/statistics")
-async def get_scenario_statistics(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Get comprehensive statistics about user's scenarios.
-    """
-    scenario_manager = ScenarioManager(db)
-    
-    try:
-        stats = await scenario_manager.get_scenario_statistics(current_user.id)
-        return stats
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get statistics: {str(e)}")
-
-
-@router.get("/{scenario_id}/dependencies")
-async def get_scenario_dependencies(
-    scenario_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Get dependency information for a scenario's parameters.
-    """
-    # Verify scenario exists and belongs to user
-    scenario = db.query(Scenario).filter(
-        Scenario.id == scenario_id,
-        Scenario.created_by_id == current_user.id
-    ).first()
-    
-    if not scenario:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND,
-            detail="Scenario not found"
-        )
-    
-    # Get parameters with dependencies
-    parameters = db.query(Parameter).join(ParameterValue).filter(
-        ParameterValue.scenario_id == scenario_id
-    ).all()
-    
-    dependencies = []
-    for param in parameters:
-        if param.depends_on or param.affects:
-            dependencies.append({
-                "parameter_id": param.id,
-                "parameter_name": param.display_name or param.name,
-                "depends_on": param.depends_on or [],
-                "affects": param.affects or [],
-                "dependency_count": len(param.depends_on or []),
-                "dependent_count": len(param.affects or [])
-            })
-    
-    return {
-        "scenario_id": scenario_id,
-        "parameter_dependencies": dependencies,
-        "total_parameters": len(parameters),
-        "parameters_with_dependencies": len(dependencies),
-        "summary": {
-            "max_dependencies": max((len(param.depends_on or []) for param in parameters), default=0),
-            "max_dependents": max((len(param.affects or []) for param in parameters), default=0),
-            "total_dependencies": sum(len(param.depends_on or []) for param in parameters),
-            "total_dependents": sum(len(param.affects or []) for param in parameters)
+        return {
+            "scenario_id": scenario_id,
+            "calculation_status": calculation_result["status"],
+            "calculated_at": calculation_result["calculated_at"],
+            "results_summary": calculation_result["summary"],
+            "errors": calculation_result.get("errors", []),
+            "warnings": calculation_result.get("warnings", [])
         }
-    }
-
-
-@router.post("/{scenario_id}/export")
-async def export_scenario(
-    scenario_id: int,
-    export_format: str = Query("excel", pattern="^(excel|json|csv)$"),
-    include_calculations: bool = Query(True),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Export scenario data and results.
-    """
-    # Verify scenario exists and belongs to user
-    scenario = db.query(Scenario).filter(
-        Scenario.id == scenario_id,
-        Scenario.created_by_id == current_user.id
-    ).first()
-    
-    if not scenario:
+        
+    except Exception as e:
         raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND,
-            detail="Scenario not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate scenario: {str(e)}"
         )
+
+
+@router.get("/{scenario_id}/versions", response_model=List[ScenarioVersionResponse])
+async def get_scenario_versions(
+    scenario_id: int,
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Get version history of a scenario.
     
-    # For now, return basic export info
-    # In a full implementation, this would generate and return download URLs
-    return {
-        "scenario_id": scenario_id,
-        "export_format": export_format,
-        "download_url": f"/api/v1/scenarios/{scenario_id}/download/{export_format}",
-        "expires_at": datetime.utcnow().isoformat(),
-        "message": "Export functionality not fully implemented yet"
-    } 
+    Returns all versions and changes for the scenario.
+    """
+    try:
+        # Get scenario and its versions
+        scenario = db.query(Scenario).filter(
+            Scenario.id == scenario_id,
+            Scenario.created_by_id == current_user.id
+        ).first()
+        
+        if not scenario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Scenario {scenario_id} not found"
+            )
+        
+        # Get child scenarios (versions)
+        versions = db.query(Scenario).filter(
+            Scenario.parent_scenario_id == scenario_id
+        ).order_by(desc(Scenario.created_at)).all()
+        
+        # Include the original scenario as version 1.0
+        all_versions = [scenario] + versions
+        
+        return [ScenarioVersionResponse.from_orm(v) for v in all_versions]
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get scenario versions: {str(e)}"
+        )
+
+
+@router.get("/templates/", response_model=List[ScenarioResponse])
+async def get_scenario_templates(
+    category: Optional[str] = Query(None, description="Filter by template category"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Get available scenario templates.
+    
+    Returns predefined scenario templates for common use cases.
+    """
+    try:
+        # Get template scenarios
+        query = db.query(Scenario).filter(Scenario.is_template == True)
+        
+        if category:
+            # Filter by category if specified
+            query = query.filter(Scenario.description.contains(category))
+        
+        templates = query.order_by(Scenario.name).all()
+        
+        return [ScenarioResponse.from_orm(template) for template in templates]
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get scenario templates: {str(e)}"
+        )
+
+
+@router.post("/{scenario_id}/save-as-template")
+async def save_scenario_as_template(
+    scenario_id: int,
+    template_name: str = Body(..., description="Name for the template"),
+    template_description: Optional[str] = Body(None, description="Description for the template"),
+    category: Optional[str] = Body(None, description="Template category"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Save a scenario as a reusable template.
+    
+    Creates a template from an existing scenario that can be used by other users.
+    """
+    try:
+        # Get source scenario
+        source_scenario = db.query(Scenario).filter(
+            Scenario.id == scenario_id,
+            Scenario.created_by_id == current_user.id
+        ).first()
+        
+        if not source_scenario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Scenario {scenario_id} not found"
+            )
+        
+        scenario_manager = ScenarioManager(db)
+        
+        # Create template
+        template = await scenario_manager.create_template_from_scenario(
+            source_scenario_id=scenario_id,
+            template_name=template_name,
+            template_description=template_description,
+            category=category,
+            user_id=current_user.id
+        )
+        
+        return {
+            "template_id": template.id,
+            "template_name": template.name,
+            "created_at": template.created_at.isoformat(),
+            "message": "Scenario saved as template successfully"
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save scenario as template: {str(e)}"
+        )
+
+
+@router.get("/{scenario_id}/sensitivity-analysis")
+async def run_sensitivity_analysis(
+    scenario_id: int,
+    target_parameters: List[int] = Query(..., description="Parameter IDs for sensitivity analysis"),
+    output_metrics: Optional[List[str]] = Query(None, description="Output metrics to analyze"),
+    analysis_type: str = Query("tornado", description="Type of analysis (tornado, monte_carlo)"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_EXECUTE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Run sensitivity analysis on a scenario.
+    
+    Analyzes how changes in input parameters affect output metrics.
+    """
+    try:
+        scenario_manager = ScenarioManager(db)
+        
+        # Run sensitivity analysis
+        analysis_result = await scenario_manager.run_sensitivity_analysis(
+            scenario_id=scenario_id,
+            target_parameters=target_parameters,
+            output_metrics=output_metrics,
+            analysis_type=analysis_type,
+            user_id=current_user.id
+        )
+        
+        return {
+            "scenario_id": scenario_id,
+            "analysis_type": analysis_type,
+            "target_parameters": target_parameters,
+            "results": analysis_result["results"],
+            "charts": analysis_result.get("charts", {}),
+            "summary": analysis_result.get("summary", {}),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to run sensitivity analysis: {str(e)}"
+        ) 

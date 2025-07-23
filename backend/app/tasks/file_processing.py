@@ -69,6 +69,11 @@ def process_uploaded_file(
             file_id, "parsing", "Starting file parsing", "info"
         )
         parsed_data = excel_parser.parse_excel_file(file_record.file_path)
+        
+        # Validate against financial templates
+        from app.services.advanced_validator import AdvancedValidator
+        validator = AdvancedValidator()
+        validation_result = validator.validate_template(parsed_data)
 
         # Update progress
         self.update_state(
@@ -77,8 +82,8 @@ def process_uploaded_file(
         )
 
         # Store validation results
-        is_valid = parsed_data.validation_summary.is_valid
-        validation_errors = None
+        is_valid = parsed_data.validation_summary.is_valid and validation_result.is_valid
+        validation_errors = parsed_data.validation_summary.errors + validation_result.validation_errors
 
         if not is_valid:
             validation_errors = json.dumps(

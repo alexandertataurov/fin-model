@@ -1,494 +1,461 @@
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
+from typing import Any, List, Optional, Dict
+from datetime import datetime, timedelta
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_ENTITY
+# # from fastapi_cache.decorator import cache  # TODO: Fix fastapi-cache2 import  # TODO: Fix fastapi-cache2 import
 
-from app.core.dependencies import get_db
-from app.api.v1.endpoints.auth import get_current_active_user as get_current_user
+from app.models.base import get_db
 from app.models.user import User
-from app.services.dashboard_metrics import (
-    DashboardMetricsService,
-    DashboardPeriod,
-    MetricCategory,
-    DashboardData,
-    DashboardMetric,
-)
+from app.models.file import UploadedFile
+from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
+from app.services.dashboard_metrics import DashboardMetricsService
 
 router = APIRouter()
 
 
-@router.get("/metrics/overview", response_model=Dict[str, Any])
-async def get_dashboard_overview(
-    period: DashboardPeriod = Query(DashboardPeriod.YTD, description="Time period for analysis"),
-    start_date: Optional[datetime] = Query(None, description="Custom start date (ISO format)"),
-    end_date: Optional[datetime] = Query(None, description="Custom end date (ISO format)"),
+class DashboardPeriod:
+    """Dashboard time period constants."""
+    MTD = "mtd"  # Month to Date
+    QTD = "qtd"  # Quarter to Date
+    YTD = "ytd"  # Year to Date
+    LAST_30_DAYS = "last_30_days"
+    LAST_90_DAYS = "last_90_days"
+    LAST_12_MONTHS = "last_12_months"
+    CUSTOM = "custom"
+
+
+@router.get("/metrics/overview")
+# @cache(expire=300)  # TODO: Fix caching
+async def get_overview_metrics(
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
     """
-    Get overview dashboard metrics including key financial indicators.
+    Get overview financial metrics for dashboard.
     
-    Returns a comprehensive view of financial performance for the specified period.
+    Returns key metrics across P&L, Balance Sheet, and Cash Flow.
     """
-    try:
-        metrics_service = DashboardMetricsService(db)
-        
-        # Get metrics from all dashboard types
-        pl_data = metrics_service.get_pl_dashboard_data(
-            user_id=current_user.id,
-            period=period,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        
-        cf_data = metrics_service.get_cash_flow_dashboard_data(
-            user_id=current_user.id,
-            period=period,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        
-        bs_data = metrics_service.get_balance_sheet_dashboard_data(
-            user_id=current_user.id,
-            period=period,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        
-        # Combine key metrics from each category
-        key_metrics = []
-        
-        # Select top metrics from each category
-        if pl_data.metrics:
-            key_metrics.extend([m for m in pl_data.metrics if m.display_order <= 3])
-        
-        if cf_data.metrics:
-            key_metrics.extend([m for m in cf_data.metrics if m.display_order <= 2])
-        
-        if bs_data.metrics:
-            key_metrics.extend([m for m in bs_data.metrics if m.display_order <= 2])
-        
-        return {
-            "key_metrics": [
-                {
-                    "name": metric.name,
-                    "value": metric.value,
-                    "category": metric.category.value,
-                    "period": metric.period,
-                    "unit": metric.unit,
-                    "format_type": metric.format_type,
-                    "change": metric.change,
-                    "change_percentage": metric.change_percentage,
-                    "trend": metric.trend,
-                    "description": metric.description,
-                }
-                for metric in key_metrics
-            ],
-            "period_info": pl_data.period_info,
-            "last_updated": pl_data.last_updated.isoformat(),
-            "data_quality_score": pl_data.data_quality_score,
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to generate overview metrics: {str(e)}"
-        )
-
-
-@router.get("/metrics/pl", response_model=Dict[str, Any])
-async def get_pl_dashboard_metrics(
-    period: DashboardPeriod = Query(DashboardPeriod.YTD),
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> Dict[str, Any]:
-    """
-    Get Profit & Loss dashboard metrics including revenue trends and profitability.
-    """
-    try:
-        metrics_service = DashboardMetricsService(db)
-        dashboard_data = metrics_service.get_pl_dashboard_data(
-            user_id=current_user.id,
-            period=period,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        
-        return {
-            "metrics": [
-                {
-                    "name": metric.name,
-                    "value": metric.value,
-                    "category": metric.category.value,
-                    "period": metric.period,
-                    "unit": metric.unit,
-                    "format_type": metric.format_type,
-                    "change": metric.change,
-                    "change_percentage": metric.change_percentage,
-                    "trend": metric.trend,
-                    "description": metric.description,
-                    "display_order": metric.display_order,
-                }
-                for metric in dashboard_data.metrics
-            ],
-            "charts": {
-                chart_name: [
-                    {
-                        "period": point.period,
-                        "value": point.value,
-                        "date": point.date.isoformat(),
-                        "label": point.label,
-                        "category": point.category,
-                    }
-                    for point in chart_data
-                ]
-                for chart_name, chart_data in dashboard_data.charts.items()
-            },
-            "period_info": dashboard_data.period_info,
-            "last_updated": dashboard_data.last_updated.isoformat(),
-            "data_quality_score": dashboard_data.data_quality_score,
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to generate P&L metrics: {str(e)}"
-        )
-
-
-@router.get("/metrics/cash-flow", response_model=Dict[str, Any])
-async def get_cash_flow_dashboard_metrics(
-    period: DashboardPeriod = Query(DashboardPeriod.YTD),
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> Dict[str, Any]:
-    """
-    Get Cash Flow dashboard metrics including cash position and flow analysis.
-    """
-    try:
-        metrics_service = DashboardMetricsService(db)
-        dashboard_data = metrics_service.get_cash_flow_dashboard_data(
-            user_id=current_user.id,
-            period=period,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        
-        return {
-            "metrics": [
-                {
-                    "name": metric.name,
-                    "value": metric.value,
-                    "category": metric.category.value,
-                    "period": metric.period,
-                    "unit": metric.unit,
-                    "format_type": metric.format_type,
-                    "change": metric.change,
-                    "change_percentage": metric.change_percentage,
-                    "trend": metric.trend,
-                    "description": metric.description,
-                    "display_order": metric.display_order,
-                }
-                for metric in dashboard_data.metrics
-            ],
-            "charts": {
-                chart_name: [
-                    {
-                        "period": point.period,
-                        "value": point.value,
-                        "date": point.date.isoformat(),
-                        "label": point.label,
-                        "category": point.category,
-                    }
-                    for point in chart_data
-                ]
-                for chart_name, chart_data in dashboard_data.charts.items()
-            },
-            "period_info": dashboard_data.period_info,
-            "last_updated": dashboard_data.last_updated.isoformat(),
-            "data_quality_score": dashboard_data.data_quality_score,
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to generate cash flow metrics: {str(e)}"
-        )
-
-
-@router.get("/metrics/balance-sheet", response_model=Dict[str, Any])
-async def get_balance_sheet_dashboard_metrics(
-    period: DashboardPeriod = Query(DashboardPeriod.YTD),
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> Dict[str, Any]:
-    """
-    Get Balance Sheet dashboard metrics including assets, liabilities, and financial ratios.
-    """
-    try:
-        metrics_service = DashboardMetricsService(db)
-        dashboard_data = metrics_service.get_balance_sheet_dashboard_data(
-            user_id=current_user.id,
-            period=period,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        
-        return {
-            "metrics": [
-                {
-                    "name": metric.name,
-                    "value": metric.value,
-                    "category": metric.category.value,
-                    "period": metric.period,
-                    "unit": metric.unit,
-                    "format_type": metric.format_type,
-                    "change": metric.change,
-                    "change_percentage": metric.change_percentage,
-                    "trend": metric.trend,
-                    "description": metric.description,
-                    "display_order": metric.display_order,
-                }
-                for metric in dashboard_data.metrics
-            ],
-            "charts": {
-                chart_name: [
-                    {
-                        "period": point.period,
-                        "value": point.value,
-                        "date": point.date.isoformat(),
-                        "label": point.label,
-                        "category": point.category,
-                    }
-                    for point in chart_data
-                ]
-                for chart_name, chart_data in dashboard_data.charts.items()
-            },
-            "period_info": dashboard_data.period_info,
-            "last_updated": dashboard_data.last_updated.isoformat(),
-            "data_quality_score": dashboard_data.data_quality_score,
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to generate balance sheet metrics: {str(e)}"
-        )
-
-
-@router.post("/scenarios/compare", response_model=Dict[str, Any])
-async def compare_scenarios(
-    scenario_data: Dict[str, Any],
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> Dict[str, Any]:
-    """
-    Compare financial metrics across multiple scenarios.
+    metrics_service = DashboardMetricsService(db)
     
-    Expected payload:
-    {
-        "scenario_ids": [1, 2, 3],
-        "metrics": ["revenue", "net_income", "cash_flow"]
-    }
-    """
     try:
-        scenario_ids = scenario_data.get("scenario_ids", [])
-        metrics = scenario_data.get("metrics", [])
-        
-        if not scenario_ids or not metrics:
-            raise HTTPException(
-                status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="scenario_ids and metrics are required"
-            )
-        
-        if len(scenario_ids) > 5:
-            raise HTTPException(
-                status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Maximum 5 scenarios can be compared at once"
-            )
-        
-        metrics_service = DashboardMetricsService(db)
-        comparison_data = metrics_service.get_scenario_comparison_data(
+        overview_data = await metrics_service.get_overview_metrics(
             user_id=current_user.id,
-            scenario_ids=scenario_ids,
-            metrics=metrics,
+            period=period,
+            file_id=file_id
         )
         
         return {
-            "scenarios": comparison_data["scenarios"],
-            "variance_analysis": comparison_data["variance_analysis"],
-            "comparison_charts": {
-                chart_name: [
-                    {
-                        "period": point.period,
-                        "value": point.value,
-                        "date": point.date.isoformat(),
-                        "label": point.label,
-                        "category": point.category,
-                    }
-                    for point in chart_data
-                ]
-                for chart_name, chart_data in comparison_data["comparison_chart_data"].items()
-            },
-            "comparison_metadata": {
-                "scenario_count": len(scenario_ids),
-                "metric_count": len(metrics),
-                "generated_at": datetime.utcnow().isoformat(),
-            }
+            "period": period,
+            "file_id": file_id,
+            "metrics": overview_data,
+            "generated_at": datetime.utcnow().isoformat()
         }
         
     except Exception as e:
         raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to compare scenarios: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch overview metrics: {str(e)}"
         )
 
 
-@router.get("/metrics/time-series/{metric_name}", response_model=Dict[str, Any])
-async def get_metric_time_series(
-    metric_name: str,
-    period: DashboardPeriod = Query(DashboardPeriod.LAST_12_MONTHS),
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
-    granularity: str = Query("monthly", pattern="^(daily|weekly|monthly|quarterly)$"),
+@router.get("/metrics/pl")
+# @cache(expire=300)  # TODO: Fix caching
+async def get_pl_metrics(
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
     """
-    Get time series data for a specific financial metric.
+    Get Profit & Loss metrics and charts.
+    
+    Returns detailed P&L metrics including revenue, expenses, margins, and trends.
     """
+    metrics_service = DashboardMetricsService(db)
+    
     try:
-        # This would be implemented to return time series data for charts
-        # For now, return a placeholder structure
+        pl_data = await metrics_service.get_pl_metrics(
+            user_id=current_user.id,
+            period=period,
+            file_id=file_id
+        )
+        
         return {
-            "metric_name": metric_name,
-            "time_series": [],
-            "granularity": granularity,
-            "period": period.value,
-            "metadata": {
-                "total_points": 0,
-                "trend": "stable",
-                "volatility": 0.0,
-                "last_updated": datetime.utcnow().isoformat(),
-            }
+            "period": period,
+            "file_id": file_id,
+            "metrics": pl_data["metrics"],
+            "charts": pl_data["charts"],
+            "data_quality": pl_data.get("data_quality", {}),
+            "generated_at": datetime.utcnow().isoformat()
         }
         
     except Exception as e:
         raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to get time series for {metric_name}: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch P&L metrics: {str(e)}"
         )
 
 
-@router.get("/health", response_model=Dict[str, Any])
+@router.get("/metrics/cash-flow")
+# @cache(expire=300)  # TODO: Fix caching
+async def get_cash_flow_metrics(
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get Cash Flow metrics and charts.
+    
+    Returns cash flow from operations, investing, financing activities and trends.
+    """
+    metrics_service = DashboardMetricsService(db)
+    
+    try:
+        cf_data = await metrics_service.get_cash_flow_metrics(
+            user_id=current_user.id,
+            period=period,
+            file_id=file_id
+        )
+        
+        return {
+            "period": period,
+            "file_id": file_id,
+            "metrics": cf_data["metrics"],
+            "charts": cf_data["charts"],
+            "waterfall_data": cf_data.get("waterfall_data", []),
+            "data_quality": cf_data.get("data_quality", {}),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch Cash Flow metrics: {str(e)}"
+        )
+
+
+@router.get("/metrics/balance-sheet")
+# @cache(expire=300)  # TODO: Fix caching
+async def get_balance_sheet_metrics(
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get Balance Sheet metrics and charts.
+    
+    Returns assets, liabilities, equity, and financial ratios.
+    """
+    metrics_service = DashboardMetricsService(db)
+    
+    try:
+        bs_data = await metrics_service.get_balance_sheet_metrics(
+            user_id=current_user.id,
+            period=period,
+            file_id=file_id
+        )
+        
+        return {
+            "period": period,
+            "file_id": file_id,
+            "metrics": bs_data["metrics"],
+            "charts": bs_data["charts"],
+            "ratios": bs_data.get("ratios", {}),
+            "data_quality": bs_data.get("data_quality", {}),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch Balance Sheet metrics: {str(e)}"
+        )
+
+
+@router.get("/metrics/trends")
+# @cache(expire=300)  # TODO: Fix caching
+async def get_financial_trends(
+    metric_type: str = Query(..., description="Type of metric (revenue, expenses, cash_flow, etc.)"),
+    period_range: str = Query("last_12_months", description="Period range for trend analysis"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get financial trends over time for specific metrics.
+    
+    Returns time-series data for trend analysis and forecasting.
+    """
+    metrics_service = DashboardMetricsService(db)
+    
+    try:
+        trend_data = await metrics_service.get_financial_trends(
+            user_id=current_user.id,
+            metric_type=metric_type,
+            period_range=period_range,
+            file_id=file_id
+        )
+        
+        return {
+            "metric_type": metric_type,
+            "period_range": period_range,
+            "file_id": file_id,
+            "trend_data": trend_data["time_series"],
+            "statistics": trend_data.get("statistics", {}),
+            "forecast": trend_data.get("forecast", []),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch financial trends: {str(e)}"
+        )
+
+
+@router.get("/metrics/kpis")
+# @cache(expire=300)  # TODO: Fix caching
+async def get_key_performance_indicators(
+    period: str = Query(DashboardPeriod.YTD, description="Time period for KPIs"),
+    industry: Optional[str] = Query(None, description="Industry for benchmarking"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get Key Performance Indicators (KPIs) with benchmarking.
+    
+    Returns calculated KPIs with industry benchmarks when available.
+    """
+    metrics_service = DashboardMetricsService(db)
+    
+    try:
+        kpi_data = await metrics_service.get_key_performance_indicators(
+            user_id=current_user.id,
+            period=period,
+            industry=industry,
+            file_id=file_id
+        )
+        
+        return {
+            "period": period,
+            "industry": industry,
+            "file_id": file_id,
+            "kpis": kpi_data["kpis"],
+            "benchmarks": kpi_data.get("benchmarks", {}),
+            "performance_score": kpi_data.get("performance_score", 0),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch KPIs: {str(e)}"
+        )
+
+
+@router.get("/metrics/ratios")
+# @cache(expire=300)  # TODO: Fix caching
+async def get_financial_ratios(
+    ratio_category: Optional[str] = Query(None, description="Category of ratios (liquidity, profitability, leverage, efficiency)"),
+    period: str = Query(DashboardPeriod.YTD, description="Time period for ratios"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get financial ratios with analysis and benchmarking.
+    
+    Returns calculated financial ratios organized by category.
+    """
+    metrics_service = DashboardMetricsService(db)
+    
+    try:
+        ratio_data = await metrics_service.get_financial_ratios(
+            user_id=current_user.id,
+            ratio_category=ratio_category,
+            period=period,
+            file_id=file_id
+        )
+        
+        return {
+            "ratio_category": ratio_category,
+            "period": period,
+            "file_id": file_id,
+            "ratios": ratio_data["ratios"],
+            "analysis": ratio_data.get("analysis", {}),
+            "trends": ratio_data.get("trends", []),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch financial ratios: {str(e)}"
+        )
+
+
+@router.get("/metrics/variance")
+async def get_variance_analysis(
+    base_period: str = Query(..., description="Base period for comparison"),
+    compare_period: str = Query(..., description="Period to compare against"),
+    variance_type: str = Query("absolute", description="Type of variance (absolute, percentage)"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get variance analysis between two periods.
+    
+    Returns detailed variance analysis with explanations for significant changes.
+    """
+    metrics_service = DashboardMetricsService(db)
+    
+    try:
+        variance_data = await metrics_service.get_variance_analysis(
+            user_id=current_user.id,
+            base_period=base_period,
+            compare_period=compare_period,
+            variance_type=variance_type,
+            file_id=file_id
+        )
+        
+        return {
+            "base_period": base_period,
+            "compare_period": compare_period,
+            "variance_type": variance_type,
+            "file_id": file_id,
+            "variances": variance_data["variances"],
+            "significant_changes": variance_data.get("significant_changes", []),
+            "summary": variance_data.get("summary", {}),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch variance analysis: {str(e)}"
+        )
+
+
+@router.get("/data-sources")
+async def get_dashboard_data_sources(
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get available data sources for dashboard metrics.
+    
+    Returns list of uploaded files and their processing status.
+    """
+    try:
+        # Get user's uploaded files
+        files = db.query(UploadedFile).filter(
+            UploadedFile.uploaded_by_id == current_user.id
+        ).order_by(UploadedFile.created_at.desc()).all()
+        
+        data_sources = []
+        for file in files:
+            data_sources.append({
+                "id": file.id,
+                "filename": file.original_filename,
+                "file_type": file.file_type,
+                "status": file.status,
+                "is_valid": file.is_valid,
+                "created_at": file.created_at.isoformat(),
+                "file_size": file.file_size,
+                "has_financial_data": file.parsed_data is not None
+            })
+        
+        return {
+            "data_sources": data_sources,
+            "total_count": len(data_sources),
+            "valid_count": sum(1 for ds in data_sources if ds["is_valid"]),
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch data sources: {str(e)}"
+        )
+
+
+@router.post("/refresh-cache")
+async def refresh_dashboard_cache(
+    file_id: Optional[int] = Query(None, description="Specific file ID to refresh"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Refresh dashboard cache for updated data.
+    
+    Forces recalculation of metrics and clears cached results.
+    """
+    metrics_service = DashboardMetricsService(db)
+    
+    try:
+        refresh_result = await metrics_service.refresh_cache(
+            user_id=current_user.id,
+            file_id=file_id
+        )
+        
+        return {
+            "message": "Dashboard cache refreshed successfully",
+            "file_id": file_id,
+            "refresh_stats": refresh_result,
+            "refreshed_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to refresh cache: {str(e)}"
+        )
+
+
+@router.get("/health")
 async def dashboard_health_check(
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
-    Check dashboard service health and data availability.
+    Health check for dashboard services.
+    
+    Returns status of dashboard components and data availability.
     """
     try:
         # Check database connectivity
         db.execute("SELECT 1")
         
-        # Check if there are any processed files
-        from app.models.file import UploadedFile, FileStatus
-        file_count = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.COMPLETED
+        # Check cache connectivity (if implemented)
+        cache_status = "healthy"  # Would check Redis/cache here
+        
+        # Check data availability
+        total_files = db.query(UploadedFile).count()
+        processed_files = db.query(UploadedFile).filter(
+            UploadedFile.status == "completed"
         ).count()
         
         return {
             "status": "healthy",
-            "database_connected": True,
-            "processed_files_available": file_count > 0,
-            "processed_files_count": file_count,
-            "timestamp": datetime.utcnow().isoformat(),
-            "version": "1.0.0",
-        }
-        
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
-        }
-
-
-@router.get("/export/{format}")
-async def export_dashboard_data(
-    format: str,
-    dashboard_type: str = Query("overview", pattern="^(overview|pl|cash-flow|balance-sheet)$"),
-    period: DashboardPeriod = Query(DashboardPeriod.YTD),
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Export dashboard data in various formats (CSV, Excel, PDF).
-    """
-    if format not in ["csv", "excel", "pdf"]:
-        raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Supported formats: csv, excel, pdf"
-        )
-    
-    try:
-        metrics_service = DashboardMetricsService(db)
-        
-        # Get the appropriate dashboard data
-        if dashboard_type == "pl":
-            dashboard_data = metrics_service.get_pl_dashboard_data(
-                user_id=current_user.id,
-                period=period,
-                start_date=start_date,
-                end_date=end_date,
-            )
-        elif dashboard_type == "cash-flow":
-            dashboard_data = metrics_service.get_cash_flow_dashboard_data(
-                user_id=current_user.id,
-                period=period,
-                start_date=start_date,
-                end_date=end_date,
-            )
-        elif dashboard_type == "balance-sheet":
-            dashboard_data = metrics_service.get_balance_sheet_dashboard_data(
-                user_id=current_user.id,
-                period=period,
-                start_date=start_date,
-                end_date=end_date,
-            )
-        else:  # overview
-            # For overview, we'd combine data from all dashboards
-            dashboard_data = metrics_service.get_pl_dashboard_data(
-                user_id=current_user.id,
-                period=period,
-                start_date=start_date,
-                end_date=end_date,
-            )
-        
-        # For now, return a JSON response
-        # In a full implementation, this would generate actual file exports
-        return {
-            "message": f"Export functionality for {format} format would be implemented here",
-            "dashboard_type": dashboard_type,
-            "period": period.value,
-            "metrics_count": len(dashboard_data.metrics),
-            "charts_count": len(dashboard_data.charts),
-            "export_timestamp": datetime.utcnow().isoformat(),
+            "database": "connected",
+            "cache": cache_status,
+            "data_availability": {
+                "total_files": total_files,
+                "processed_files": processed_files,
+                "processing_rate": processed_files / total_files if total_files > 0 else 0
+            },
+            "timestamp": datetime.utcnow().isoformat()
         }
         
     except Exception as e:
         raise HTTPException(
-            status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to export dashboard data: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Dashboard service unhealthy: {str(e)}"
         ) 

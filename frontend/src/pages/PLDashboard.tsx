@@ -16,16 +16,18 @@ import {
   CardContent,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { 
+import {
   TrendingUp,
   TrendingDown,
   AccountBalance,
   Refresh,
+  PictureAsPdf,
 } from '@mui/icons-material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { DashboardGrid, DashboardWidget } from '../components/Dashboard';
 import { LineChart, BarChart, PieChart, LineChartDataPoint, BarChartDataPoint } from '../components/Charts';
+import { ReportApi } from '../services/reportApi';
 
 interface PLMetric {
   name: string;
@@ -70,7 +72,45 @@ type DashboardPeriod = 'mtd' | 'qtd' | 'ytd' | 'last_30_days' | 'last_90_days' |
 const PLDashboard: React.FC = () => {
   const [period, setPeriod] = useState<DashboardPeriod>('ytd');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const queryClient = useQueryClient();
+
+  // Chart export handler
+  const handleChartExport = async (format: 'PNG' | 'SVG' | 'PDF', _chartTitle: string) => {
+    try {
+      setIsExporting(true);
+      
+      // Generate a comprehensive P&L report
+      const reportData = await ReportApi.generateReport({
+        export_format: format === 'PDF' ? 'PDF' : 'EXCEL',
+        name: `PL_Report_${period}_${new Date().toISOString().split('T')[0]}`,
+        custom_config: {
+          period,
+          report_type: 'PROFIT_LOSS',
+          include_charts: true,
+          chart_format: format
+        }
+      });
+
+             // Poll for completion and download
+       await ReportApi.pollExportStatus(
+         reportData.id,
+         (_progress) => {
+           // Progress callback - could show progress indicator here
+           return;
+         }
+       );
+
+      // Download the completed report
+      await ReportApi.downloadFile(reportData.id);
+      
+    } catch (error) {
+      console.error('Export failed:', error);
+      // You could show a toast notification here
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const {
     data: dashboardData,
@@ -80,9 +120,11 @@ const PLDashboard: React.FC = () => {
   } = useQuery<PLDashboardData>({
     queryKey: ['pl-dashboard', period],
     queryFn: async () => {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(`/api/v1/dashboard/metrics/pl?period=${period}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
       
@@ -368,6 +410,15 @@ const PLDashboard: React.FC = () => {
             disabled={isRefreshing}
           >
             Refresh
+          </Button>
+          
+          <Button
+            variant="contained"
+            startIcon={isExporting ? <CircularProgress size={16} /> : <PictureAsPdf />}
+            onClick={() => handleChartExport('PDF', 'P&L Dashboard')}
+            disabled={isExporting}
+          >
+            Export PDF
           </Button>
         </Box>
       </Box>
