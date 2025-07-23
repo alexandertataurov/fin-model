@@ -15,7 +15,7 @@ import {
   Save as SaveIcon,
 } from '@mui/icons-material';
 
-export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
+export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant' | 'autoSave'> {
   variant?: 'outlined' | 'filled' | 'standard';
   showPasswordToggle?: boolean;
   autoSave?: boolean;

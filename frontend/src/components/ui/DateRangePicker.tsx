@@ -173,8 +173,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   };
 
   const isDateSelected = (date: Date): boolean => {
-    return (value.startDate && date.toDateString() === value.startDate.toDateString()) ||
-           (value.endDate && date.toDateString() === value.endDate.toDateString());
+    const startMatch = value.startDate ? date.toDateString() === value.startDate.toDateString() : false;
+    const endMatch = value.endDate ? date.toDateString() === value.endDate.toDateString() : false;
+    return startMatch || endMatch;
   };
 
   const isDateDisabled = (date: Date): boolean => {
@@ -244,9 +245,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                     minWidth: 32,
                     height: 32,
                     p: 0,
-                    color: isCurrentMonth ? 'text.primary' : 'text.disabled',
+                    color: isSelected ? 'primary.contrastText' : isInRange ? 'primary.dark' : isCurrentMonth ? 'text.primary' : 'text.disabled',
                     backgroundColor: isSelected ? 'primary.main' : isInRange ? 'primary.light' : 'transparent',
-                    color: isSelected ? 'primary.contrastText' : isInRange ? 'primary.dark' : undefined,
                     border: isToday && !isSelected ? 1 : 0,
                     borderColor: 'primary.main',
                     '&:hover': {

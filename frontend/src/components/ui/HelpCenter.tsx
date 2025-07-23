@@ -195,8 +195,10 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ open, onClose }) => {
             <Button
               startIcon={<VideoIcon />}
               variant="outlined"
-              href={item.url}
+              component="a"
+              href={item.url || '#'}
               target="_blank"
+              rel="noopener noreferrer"
               sx={{ mt: 1 }}
             >
               Watch Video
@@ -207,8 +209,10 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ open, onClose }) => {
             <Button
               startIcon={<LaunchIcon />}
               variant="outlined"
-              href={item.url}
+              component="a"
+              href={item.url || '#'}
               target="_blank"
+              rel="noopener noreferrer"
               sx={{ mt: 1 }}
             >
               Open Link

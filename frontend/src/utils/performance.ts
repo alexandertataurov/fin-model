@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 // Performance monitoring utilities
 export interface PerformanceMetrics {
@@ -57,7 +57,7 @@ export class PerformanceMonitor {
   measurePageLoad(pageName: string): void {
     if (typeof window !== 'undefined' && window.performance) {
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      const loadTime = navigation.loadEventEnd - navigation.navigationStart;
+      const loadTime = navigation.loadEventEnd - navigation.fetchStart;
       
       this.recordMetric({
         loadTime,
@@ -375,8 +375,6 @@ export const analyzeBundleSize = () => {
 export default {
   PerformanceMonitor,
   usePerformanceMonitor,
-  createStableMemo,
-  createStableCallback,
   useDeepMemo,
   useIntersectionObserver,
   useVirtualScrolling,

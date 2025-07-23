@@ -11,7 +11,7 @@ import {
   Fullscreen as FullscreenIcon,
 } from '@mui/icons-material';
 
-// CSS for react-grid-layout will be imported in index.css
+// React Grid Layout CSS should be imported at the app level or in index.html
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

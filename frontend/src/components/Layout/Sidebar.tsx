@@ -167,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const hasPermission = (item: NavItem): boolean => {
     if (!item.roles || !user?.roles) return true;
-    return item.roles.some(role => user.roles.includes(role));
+    return item.roles.some(role => user.roles?.includes(role) ?? false);
   };
 
   const renderNavItem = (item: NavItem, level = 0) => {
