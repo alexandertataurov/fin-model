@@ -3,9 +3,10 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 gunicorn==21.2.0
 python-multipart==0.0.6
+fastapi-cache==0.1.0
 
 # Database
-sqlalchemy==2.0.23
+sqlalchemy>=2.0.25
 alembic==1.12.1
 psycopg2-binary==2.9.10
 
@@ -18,6 +19,12 @@ bcrypt==4.0.1
 pandas>=2.3.1
 openpyxl==3.1.2
 xlsxwriter==3.1.9
+
+# PDF generation and reporting
+reportlab==4.0.7
+weasyprint==61.2
+Pillow>=10.1.0
+matplotlib>=3.8.0
 
 # Background tasks
 celery==5.3.4

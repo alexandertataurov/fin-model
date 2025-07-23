@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -5,12 +7,23 @@ import uvicorn
 
 from app.core.config import settings
 from app.api.v1.api import api_router
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Initialize FastAPI cache on startup."""
+    FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")
+    yield
+
 
 app = FastAPI(
     title="FinVision API",
     description="Financial Modeling and Analysis Platform API",
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
 )
 
 # Set up CORS

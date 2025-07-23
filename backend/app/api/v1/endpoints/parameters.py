@@ -13,9 +13,9 @@ from app.schemas.parameter import (
     ParameterUpdate,
     ParameterResponse,
     ParameterValueUpdate,
-    ParameterBatchUpdate,
+    BulkParameterUpdateRequest,
     ParameterHistoryResponse,
-    ParameterValidationResult
+    ParameterValidationResponse
 )
 from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
@@ -229,7 +229,7 @@ async def delete_parameter(
 
 @router.post("/batch-update", response_model=Dict[str, Any])
 async def batch_update_parameters(
-    batch_update: ParameterBatchUpdate,
+    batch_update: BulkParameterUpdateRequest,
     current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -337,7 +337,7 @@ async def get_parameter_history(
         )
 
 
-@router.post("/{parameter_id}/validate", response_model=ParameterValidationResult)
+@router.post("/{parameter_id}/validate", response_model=ParameterValidationResponse)
 async def validate_parameter_value(
     parameter_id: int,
     value: float = Body(..., description="Value to validate"),
@@ -558,7 +558,7 @@ async def get_parameter_dependencies(
 
 # Helper functions
 
-async def _validate_parameter_data(parameter: ParameterCreate, db: Session) -> ParameterValidationResult:
+async def _validate_parameter_data(parameter: ParameterCreate, db: Session) -> ParameterValidationResponse:
     """Validate parameter creation data."""
     errors = []
     warnings = []
@@ -588,14 +588,16 @@ async def _validate_parameter_data(parameter: ParameterCreate, db: Session) -> P
             parameter.current_value > parameter.max_value):
             errors.append("current_value is above maximum allowed value")
     
-    return ParameterValidationResult(
+    return ParameterValidationResponse(
+        parameter_id=0,  # Not available at creation time
+        value=parameter.current_value,
         is_valid=len(errors) == 0,
-        errors=errors,
-        warnings=warnings
+        validation_errors=errors,
+        validation_warnings=warnings
     )
 
 
-async def _validate_parameter_value(parameter: Parameter, value: float) -> ParameterValidationResult:
+async def _validate_parameter_value(parameter: Parameter, value: float) -> ParameterValidationResponse:
     """Validate a parameter value against constraints."""
     errors = []
     warnings = []
@@ -612,8 +614,10 @@ async def _validate_parameter_value(parameter: Parameter, value: float) -> Param
         # Custom validation logic based on rules
         pass
     
-    return ParameterValidationResult(
+    return ParameterValidationResponse(
+        parameter_id=parameter.id,
+        value=value,
         is_valid=len(errors) == 0,
-        errors=errors,
-        warnings=warnings
+        validation_errors=errors,
+        validation_warnings=warnings
     ) 
