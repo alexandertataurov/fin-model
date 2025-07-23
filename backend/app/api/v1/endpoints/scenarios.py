@@ -12,7 +12,7 @@ from app.schemas.parameter import (
     ScenarioCreate,
     ScenarioUpdate,
     ScenarioResponse,
-    ScenarioComparison,
+    ScenarioComparisonResponse,
     ScenarioVersionResponse,
     ParameterValueUpdate
 )
@@ -371,7 +371,7 @@ async def update_scenario_parameter(
         )
 
 
-@router.post("/compare", response_model=ScenarioComparison)
+@router.post("/compare", response_model=ScenarioComparisonResponse)
 async def compare_scenarios(
     scenario_ids: List[int] = Body(..., description="List of scenario IDs to compare"),
     metrics: Optional[List[str]] = Body(None, description="Specific metrics to compare"),
