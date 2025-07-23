@@ -71,12 +71,20 @@ interface ParameterListProps {
   fileId?: number;
   scenarioId?: number;
   onParameterChange?: (parameter: Parameter) => void;
+  onParameterSelect?: (parameter: Parameter | null) => void;
+  onBulkUpdate?: (parameters: Parameter[]) => void;
+  allowBulkEdit?: boolean;
+  showGrouping?: boolean;
 }
 
 const ParameterList: React.FC<ParameterListProps> = ({
   fileId,
-  _scenarioId,
-  _onParameterChange,
+  scenarioId: _scenarioId,
+  onParameterChange: _onParameterChange,
+  onParameterSelect: _onParameterSelect,
+  onBulkUpdate: _onBulkUpdate,
+  allowBulkEdit: _allowBulkEdit,
+  showGrouping: _showGrouping,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
@@ -111,7 +119,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
         throw new Error('Failed to fetch parameters');
       }
       
-      return response.json() as Parameter[];
+      return await response.json() as Parameter[];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });

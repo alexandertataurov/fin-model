@@ -178,11 +178,18 @@ const Reports: React.FC = () => {
     setSelectedTemplate(null);
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  const handleFormChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent) => {
+  const handleTextFieldChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: event.target.value
+    }));
+  };
+
+  const handleSelectChange = (field: string) => (event: SelectChangeEvent) => {
     setFormData(prev => ({
       ...prev,
       [field]: event.target.value
@@ -526,7 +533,7 @@ const Reports: React.FC = () => {
             <TextField
               label="Report Name"
               value={formData.name}
-              onChange={handleFormChange('name')}
+              onChange={handleTextFieldChange('name')}
               fullWidth
               placeholder="Enter report name"
             />
@@ -535,7 +542,7 @@ const Reports: React.FC = () => {
               <InputLabel>Export Format</InputLabel>
               <Select
                 value={formData.export_format}
-                onChange={handleFormChange('export_format')}
+                onChange={handleSelectChange('export_format')}
                 label="Export Format"
               >
                 <MenuItem value="PDF">PDF Report</MenuItem>
@@ -582,7 +589,7 @@ const Reports: React.FC = () => {
             <TextField
               label="Template Name"
               value={formData.name}
-              onChange={handleFormChange('name')}
+              onChange={handleTextFieldChange('name')}
               fullWidth
               required
             />
@@ -590,7 +597,7 @@ const Reports: React.FC = () => {
             <TextField
               label="Description"
               value={formData.description}
-              onChange={handleFormChange('description')}
+              onChange={handleTextFieldChange('description')}
               fullWidth
               multiline
               rows={3}
@@ -600,7 +607,7 @@ const Reports: React.FC = () => {
               <InputLabel>Report Type</InputLabel>
               <Select
                 value={formData.report_type}
-                onChange={handleFormChange('report_type')}
+                onChange={handleSelectChange('report_type')}
                 label="Report Type"
               >
                 <MenuItem value="FINANCIAL_SUMMARY">Financial Summary</MenuItem>
