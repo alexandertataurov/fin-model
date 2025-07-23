@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Grid,
@@ -23,12 +23,9 @@ import {
   IconButton,
   Tooltip,
   Alert,
-  LinearProgress,
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
-  Divider,
   Paper,
   Table,
   TableBody,
@@ -36,12 +33,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress,
-  FormControlLabel,
-  Switch,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails
+  CircularProgress
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -49,10 +41,7 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   Description as ReportIcon,
-  Schedule as ScheduleIcon,
-  ExpandMore as ExpandMoreIcon,
   GetApp as ExportIcon,
-  Visibility as PreviewIcon,
   Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

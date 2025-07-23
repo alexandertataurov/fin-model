@@ -27,18 +27,12 @@ import {
   CircularProgress,
   Tooltip,
   Grid,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from '@mui/material';
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
   Refresh as RefreshIcon,
-  Download as DownloadIcon,
-  Upload as UploadIcon,
-  ExpandMore as ExpandMoreIcon,
   Info as InfoIcon,
   History as HistoryIcon,
   Analytics as AnalyticsIcon,
@@ -81,16 +75,16 @@ interface ParameterListProps {
 
 const ParameterList: React.FC<ParameterListProps> = ({
   fileId,
-  scenarioId,
-  onParameterChange,
+  _scenarioId,
+  _onParameterChange,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedSensitivity, setSelectedSensitivity] = useState<string>('all');
   const [editingParameter, setEditingParameter] = useState<Parameter | null>(null);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
-  const [selectedParameterId, setSelectedParameterId] = useState<number | null>(null);
+  const [, setCreateDialogOpen] = useState(false);
+  const [, setHistoryDialogOpen] = useState(false);
+  const [, setSelectedParameterId] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -255,17 +249,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
     detectParametersMutation.mutate(fileId);
   }, [fileId, detectParametersMutation]);
 
-  const handleParameterValueChange = useCallback((parameter: Parameter, newValue: number) => {
-    const updatedParameter = { ...parameter, current_value: newValue };
-    updateParameterMutation.mutate({ 
-      id: parameter.id, 
-      updates: { current_value: newValue } 
-    });
-    
-    if (onParameterChange) {
-      onParameterChange(updatedParameter);
-    }
-  }, [updateParameterMutation, onParameterChange]);
+
 
   const formatValue = (parameter: Parameter): string => {
     const value = parameter.current_value;

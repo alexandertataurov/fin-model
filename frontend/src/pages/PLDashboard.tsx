@@ -21,7 +21,6 @@ import {
   TrendingDown,
   AccountBalance,
   Refresh,
-  GetApp,
   PictureAsPdf,
 } from '@mui/icons-material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -77,7 +76,7 @@ const PLDashboard: React.FC = () => {
   const queryClient = useQueryClient();
 
   // Chart export handler
-  const handleChartExport = async (format: 'PNG' | 'SVG' | 'PDF', chartTitle: string) => {
+  const handleChartExport = async (format: 'PNG' | 'SVG' | 'PDF', _chartTitle: string) => {
     try {
       setIsExporting(true);
       
@@ -93,11 +92,14 @@ const PLDashboard: React.FC = () => {
         }
       });
 
-      // Poll for completion and download
-      await ReportApi.pollExportStatus(
-        reportData.id,
-        (progress) => console.log(`Export progress: ${progress}%`)
-      );
+             // Poll for completion and download
+       await ReportApi.pollExportStatus(
+         reportData.id,
+         (_progress) => {
+           // Progress callback - could show progress indicator here
+           return;
+         }
+       );
 
       // Download the completed report
       await ReportApi.downloadFile(reportData.id);
