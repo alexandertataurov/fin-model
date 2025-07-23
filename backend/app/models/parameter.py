@@ -108,6 +108,7 @@ class Parameter(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
     
     # Relationships
     source_file = relationship("UploadedFile", back_populates="parameters")

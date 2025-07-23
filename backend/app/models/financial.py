@@ -110,7 +110,6 @@ class FinancialStatement(Base):
     # Relationships
     scenario = relationship("Scenario", back_populates="financial_statements")
     created_by = relationship("User")
-    metrics = relationship("Metric", back_populates="financial_statement")
 
 
 class Metric(Base):
@@ -146,7 +145,6 @@ class Metric(Base):
     # Relationships
     scenario = relationship("Scenario", back_populates="metrics")
     created_by = relationship("User")
-    financial_statement = relationship("FinancialStatement", back_populates="metrics")
 
 
 class TimeSeries(Base):

@@ -56,8 +56,12 @@ class UploadedFile(Base):
     validation_errors = Column(Text, nullable=True)
     parsed_data = Column(Text, nullable=True)  # JSON string of parsed data
 
-    # Relationships
+    # Foreign Keys
     uploaded_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
+    data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
+
+    # Relationships
     uploaded_by = relationship("User", back_populates="uploaded_files")
     parameters = relationship("Parameter", back_populates="source_file")
     scenarios = relationship("Scenario", back_populates="base_file")
