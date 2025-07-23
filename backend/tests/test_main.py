@@ -2,6 +2,9 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app
 
+# Mark all tests in this file as unit tests
+pytestmark = pytest.mark.unit
+
 client = TestClient(app)
 
 

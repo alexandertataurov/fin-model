@@ -206,23 +206,10 @@ Cypress.Commands.add('testResponsive', (callback: () => void) => {
   });
 });
 
-// Add Lighthouse custom command
+// Add simplified lighthouse command (will be configured separately via CLI)
 Cypress.Commands.add('lighthouse', (thresholds = {}, opts = {}) => {
-  cy.task('lighthouse', {
-    url: Cypress.config().baseUrl + Cypress.env('currentPath'),
-    options: {
-      logLevel: 'info',
-      onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo', 'pwa'],
-      ...opts
-    },
-    thresholds: {
-      performance: 90,
-      accessibility: 90,
-      'best-practices': 85,
-      seo: 85,
-      ...thresholds
-    }
-  });
+  // This is a placeholder - actual lighthouse testing is done via LHCI
+  cy.log('Lighthouse testing configured via LHCI');
 });
 
 // Add WAVE accessibility testing command

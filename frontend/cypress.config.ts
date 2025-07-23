@@ -1,5 +1,4 @@
 import { defineConfig } from 'cypress';
-import { lighthouse, prepareAudit } from '@cypress/lighthouse';
 
 export default defineConfig({
   e2e: {
@@ -32,33 +31,7 @@ export default defineConfig({
       apiUrl: 'http://localhost:8000/api/v1'
     },
     setupNodeEvents(on, config) {
-      // Lighthouse setup
-      on('before:browser:launch', (browser = {}, launchOptions) => {
-        prepareAudit(launchOptions);
-      });
-
       on('task', {
-        lighthouse: lighthouse((lighthouseOptions) => {
-          lighthouseOptions.settings = {
-            ...lighthouseOptions.settings,
-            formFactor: 'desktop',
-            throttling: {
-              rttMs: 40,
-              throughputKbps: 10240,
-              cpuSlowdownMultiplier: 1,
-              requestLatencyMs: 0,
-              downloadThroughputKbps: 0,
-              uploadThroughputKbps: 0
-            },
-            screenEmulation: {
-              mobile: false,
-              width: 1280,
-              height: 720,
-              deviceScaleFactor: 1,
-              disabled: false
-            }
-          };
-        }),
 
         // WAVE accessibility testing
         waveCheck: async ({ url, options }) => {

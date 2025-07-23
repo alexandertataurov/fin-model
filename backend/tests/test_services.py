@@ -5,10 +5,14 @@ Simple Service Tests for FinVision Components
 Tests core services without requiring database or server setup.
 """
 
+import pytest
 import sys
 import os
 import tempfile
 from pathlib import Path
+
+# Mark all tests in this file as unit tests
+pytestmark = pytest.mark.unit
 
 # Add the app directory to Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
