@@ -82,8 +82,7 @@ export const useIsTouchDevice = () => {
       setIsTouchDevice(
         'ontouchstart' in window ||
         navigator.maxTouchPoints > 0 ||
-        // @ts-ignore
-        navigator.msMaxTouchPoints > 0
+        (navigator as any).msMaxTouchPoints > 0
       );
     };
 

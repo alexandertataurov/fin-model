@@ -74,8 +74,8 @@ export class PerformanceMonitor {
   // Get memory usage (if available)
   private getMemoryUsage(): number | undefined {
     if (typeof window !== 'undefined' && 'memory' in performance) {
-      // @ts-ignore
-      return performance.memory.usedJSHeapSize;
+      const perfMemory = performance as any;
+      return perfMemory.memory?.usedJSHeapSize;
     }
     return undefined;
   }
@@ -150,17 +150,10 @@ export const usePerformanceMonitor = () => {
   };
 };
 
-// Memoization utilities
-export const createStableMemo = <T>(fn: () => T, deps: React.DependencyList): T => {
-  return useMemo(fn, deps);
-};
-
-export const createStableCallback = <T extends (...args: any[]) => any>(
-  fn: T,
-  deps: React.DependencyList
-): T => {
-  return useCallback(fn, deps);
-};
+// Memoization utilities are available directly from React:
+// - useMemo for expensive calculations
+// - useCallback for function memoization
+// Use these hooks directly in your components
 
 // Deep comparison hook for object dependencies
 export const useDeepMemo = <T>(fn: () => T, deps: any[]): T => {
