@@ -61,6 +61,9 @@ class UploadedFile(Base):
     uploaded_by = relationship("User", back_populates="uploaded_files")
     parameters = relationship("Parameter", back_populates="source_file")
     scenarios = relationship("Scenario", back_populates="base_file")
+    template = relationship("Template", back_populates="uploaded_files")
+    data_source = relationship("DataSource", back_populates="uploaded_files")
+    versions = relationship("FileVersion", back_populates="uploaded_file")
 
     # Timestamps
     created_at = Column(DateTime, default=func.now(), nullable=False)
