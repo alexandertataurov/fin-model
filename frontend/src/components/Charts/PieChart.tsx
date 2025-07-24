@@ -156,7 +156,7 @@ export const PieChart: React.FC<PieChartProps> = ({
           ))}
         </Pie>
         
-        <Tooltip content={customTooltip} />
+        <Tooltip data-testid="tooltip" content={customTooltip} />
         
         {showLegend && (
           <Legend
