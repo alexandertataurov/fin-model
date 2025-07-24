@@ -9,38 +9,47 @@ import { WaterfallChart } from '../Charts/WaterfallChart';
 import { TestDataFactory } from '../../test/test-utils';
 
 // Mock Recharts to avoid rendering issues in tests
+interface MockChartProps {
+  children?: React.ReactNode;
+  [key: string]: unknown;
+}
+
+interface MockComponentProps {
+  [key: string]: unknown;
+}
+
 vi.mock('recharts', () => ({
-  LineChart: ({ children, ...props }: any) => (
+  LineChart: ({ children, ...props }: MockChartProps) => (
     <div data-testid="line-chart" {...props}>
       {children}
     </div>
   ),
-  BarChart: ({ children, ...props }: any) => (
+  BarChart: ({ children, ...props }: MockChartProps) => (
     <div data-testid="bar-chart" {...props}>
       {children}
     </div>
   ),
-  PieChart: ({ children, ...props }: any) => (
+  PieChart: ({ children, ...props }: MockChartProps) => (
     <div data-testid="pie-chart" {...props}>
       {children}
     </div>
   ),
-  ResponsiveContainer: ({ children, ...props }: any) => (
+  ResponsiveContainer: ({ children, ...props }: MockChartProps) => (
     <div data-testid="responsive-container" {...props}>
       {children}
     </div>
   ),
-  XAxis: (props: any) => <div data-testid="x-axis" {...props} />,
-  YAxis: (props: any) => <div data-testid="y-axis" {...props} />,
-  CartesianGrid: (props: any) => (
+  XAxis: (props: MockComponentProps) => <div data-testid="x-axis" {...props} />,
+  YAxis: (props: MockComponentProps) => <div data-testid="y-axis" {...props} />,
+  CartesianGrid: (props: MockComponentProps) => (
     <div data-testid="cartesian-grid" {...props} />
   ),
-  Tooltip: (props: any) => <div data-testid="tooltip" {...props} />,
-  Legend: (props: any) => <div data-testid="legend" {...props} />,
-  Line: (props: any) => <div data-testid="line" {...props} />,
-  Bar: (props: any) => <div data-testid="bar" {...props} />,
-  Area: (props: any) => <div data-testid="area" {...props} />,
-  Cell: (props: any) => <div data-testid="cell" {...props} />,
+  Tooltip: (props: MockComponentProps) => <div data-testid="tooltip" {...props} />,
+  Legend: (props: MockComponentProps) => <div data-testid="legend" {...props} />,
+  Line: (props: MockComponentProps) => <div data-testid="line" {...props} />,
+  Bar: (props: MockComponentProps) => <div data-testid="bar" {...props} />,
+  Area: (props: MockComponentProps) => <div data-testid="area" {...props} />,
+  Cell: (props: MockComponentProps) => <div data-testid="cell" {...props} />,
 }));
 
 describe('LineChart', () => {
@@ -401,7 +410,7 @@ describe('Chart Error Handling', () => {
   it('handles malformed data gracefully', () => {
     const malformedData = [{ invalidStructure: true }, null, undefined];
 
-    render(<LineChart data={malformedData as any} labels={[]} />);
+    render(<LineChart data={malformedData as unknown[]} labels={[]} />);
 
     expect(screen.getByText(/invalid data format/i)).toBeInTheDocument();
   });
@@ -411,7 +420,7 @@ describe('Chart Error Handling', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
     // Trigger an error in chart rendering
-    render(<LineChart data={undefined as any} labels={undefined as any} />);
+    render(<LineChart data={undefined as unknown} labels={undefined as unknown} />);
 
     expect(screen.getByText(/chart error/i)).toBeInTheDocument();
 
@@ -420,7 +429,7 @@ describe('Chart Error Handling', () => {
 
   it('recovers from data updates after errors', () => {
     const { rerender } = render(
-      <LineChart data={undefined as any} labels={undefined as any} />
+      <LineChart data={undefined as unknown} labels={undefined as unknown} />
     );
 
     expect(screen.getByText(/chart error/i)).toBeInTheDocument();

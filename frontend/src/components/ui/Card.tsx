@@ -45,7 +45,7 @@ export const Card: React.FC<CardProps> = ({
     ...(hover && {
       '&:hover': {
         transform: 'translateY(-2px)',
-        boxShadow: (theme: any) => theme.shadows[8],
+        boxShadow: (theme: { shadows: string[] }) => theme.shadows[8],
       },
     }),
     ...sx,

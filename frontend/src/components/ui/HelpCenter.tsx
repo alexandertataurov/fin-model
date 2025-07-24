@@ -129,7 +129,7 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ open, onClose }) => {
     }
   };
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category: string): 'primary' | 'success' | 'info' | 'warning' | 'default' => {
     switch (category) {
       case 'faq':
         return 'primary';
@@ -176,7 +176,7 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({ open, onClose }) => {
                 <Chip 
                   label={item.category} 
                   size="small" 
-                  color={getCategoryColor(item.category) as any}
+                  color={getCategoryColor(item.category)}
                   variant="outlined"
                 />
                 {item.tags.slice(0, 2).map(tag => (

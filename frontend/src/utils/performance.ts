@@ -74,7 +74,7 @@ export class PerformanceMonitor {
   // Get memory usage (if available)
   private getMemoryUsage(): number | undefined {
     if (typeof window !== 'undefined' && 'memory' in performance) {
-      const perfMemory = performance as any;
+      const perfMemory = performance as Performance & { memory?: { usedJSHeapSize: number } };
       return perfMemory.memory?.usedJSHeapSize;
     }
     return undefined;
@@ -156,8 +156,8 @@ export const usePerformanceMonitor = () => {
 // Use these hooks directly in your components
 
 // Deep comparison hook for object dependencies
-export const useDeepMemo = <T>(fn: () => T, deps: any[]): T => {
-  const ref = useRef<{ deps: any[]; value: T }>();
+export const useDeepMemo = <T>(fn: () => T, deps: unknown[]): T => {
+  const ref = useRef<{ deps: unknown[]; value: T }>();
   
   if (!ref.current || !deepEqual(ref.current.deps, deps)) {
     ref.current = { deps, value: fn() };
@@ -167,7 +167,7 @@ export const useDeepMemo = <T>(fn: () => T, deps: any[]): T => {
 };
 
 // Deep equality check
-function deepEqual(a: any[], b: any[]): boolean {
+function deepEqual(a: unknown[], b: unknown[]): boolean {
   if (a.length !== b.length) return false;
   
   for (let i = 0; i < a.length; i++) {
@@ -181,7 +181,7 @@ function deepEqual(a: any[], b: any[]): boolean {
   return true;
 }
 
-function deepEqualObjects(a: any, b: any): boolean {
+function deepEqualObjects(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
   
@@ -327,14 +327,14 @@ export const useDebouncedState = <T>(
 };
 
 // Throttled callback hook
-export const useThrottledCallback = <T extends (...args: any[]) => any>(
+export const useThrottledCallback = <T extends (...args: unknown[]) => unknown>(
   callback: T,
   delay: number
 ): T => {
   const lastRun = useRef(Date.now());
 
   return useCallback(
-    ((...args: any[]) => {
+    ((...args: unknown[]) => {
       if (Date.now() - lastRun.current >= delay) {
         callback(...args);
         lastRun.current = Date.now();

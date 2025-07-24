@@ -130,7 +130,7 @@ Cypress.Commands.overwrite('visit', (originalFn, url, options) => {
 });
 
 // Add command to handle API requests with auth
-Cypress.Commands.add('apiRequest', (method: string, url: string, body?: any) => {
+Cypress.Commands.add('apiRequest', (method: string, url: string, body?: Record<string, unknown>) => {
   const token = window.localStorage.getItem('auth_token');
   
   return cy.request({
@@ -146,7 +146,7 @@ Cypress.Commands.add('apiRequest', (method: string, url: string, body?: any) => 
 });
 
 // Command to create test user via API
-Cypress.Commands.add('createTestUser', (userData: any) => {
+Cypress.Commands.add('createTestUser', (userData: Record<string, unknown>) => {
   return cy.request({
     method: 'POST',
     url: `${Cypress.env('apiUrl')}/api/v1/auth/register`,
@@ -223,8 +223,8 @@ Cypress.Commands.add('checkWave', (options = {}) => {
 // Declare additional commands for TypeScript - using declare module instead of namespace
 declare module 'cypress' {
   interface Chainable {
-    apiRequest(method: string, url: string, body?: any): Chainable<Response<any>>;
-    createTestUser(userData: any): Chainable<Response<any>>;
+    apiRequest(method: string, url: string, body?: Record<string, unknown>): Chainable<Response<unknown>>;
+    createTestUser(userData: Record<string, unknown>): Chainable<Response<unknown>>;
     waitForElement(selector: string, timeout?: number): Chainable<JQuery<HTMLElement>>;
     downloadFile(url: string, filename: string): Chainable<void>;
     verifyChartData(chartSelector: string, expectedDataPoints: number): Chainable<void>;
