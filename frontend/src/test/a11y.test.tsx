@@ -1,11 +1,12 @@
 // Jest globals are available without explicit import
-import { configureAxe } from 'jest-axe';
+import { expect, vi } from 'vitest';
+import { configureAxe, toHaveNoViolations } from 'jest-axe';
+import { render as customRender } from './test-utils';
 import App from '../App';
 import Dashboard from '../pages/Dashboard';
 import FileUpload from '../pages/FileUpload';
 import Login from '../pages/Login';
 import AnalyticsDashboard from '../components/Analytics/AnalyticsDashboard';
-import { render as customRender } from './test-utils';
 
 // Configure axe for testing
 const axe = configureAxe({
@@ -15,16 +16,19 @@ const axe = configureAxe({
   },
 });
 
+// Register jest-axe custom matcher with Vitest
+expect.extend({ toHaveNoViolations });
+
 // Mock components that may cause issues in test environment
-jest.mock('../components/Charts/LineChart', () => ({
+vi.mock('../components/Charts/LineChart', () => ({
   LineChart: () => <div data-testid="line-chart">Line Chart</div>,
 }));
 
-jest.mock('../components/Charts/BarChart', () => ({
+vi.mock('../components/Charts/BarChart', () => ({
   BarChart: () => <div data-testid="bar-chart">Bar Chart</div>,
 }));
 
-jest.mock('../components/Charts/PieChart', () => ({
+vi.mock('../components/Charts/PieChart', () => ({
   PieChart: () => <div data-testid="pie-chart">Pie Chart</div>,
 }));
 
@@ -133,7 +137,6 @@ describe('Accessibility Tests', () => {
       const results = await axe(container, {
         rules: {
           'label': { enabled: true },
-          'aria-label': { enabled: true },
         },
       });
       expect(results).toHaveNoViolations();

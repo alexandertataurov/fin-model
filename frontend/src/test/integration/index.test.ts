@@ -3,37 +3,45 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { mockApiResponses } from '../test-utils';
 
+// Base URL for API requests in tests
+const BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+
 // Setup MSW server for API mocking
 const server = setupServer(
   // Auth endpoints
-  rest.post('/api/v1/auth/login', (_req, res, ctx) => {
+  rest.post(`${BASE_URL}/api/v1/auth/login`, (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.auth.login));
   }),
-  rest.get('/api/v1/auth/me', (_req, res, ctx) => {
+  rest.get(`${BASE_URL}/api/v1/auth/me`, (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.auth.user));
   }),
   
   // File endpoints
-  rest.get('/api/v1/files/', (_req, res, ctx) => {
+  rest.get(`${BASE_URL}/api/v1/files/`, (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.files));
   }),
-  rest.post('/api/v1/files/upload', (_req, res, ctx) => {
+  rest.post(`${BASE_URL}/api/v1/files/upload`, (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.files[0]));
   }),
   
   // Parameter endpoints
-  rest.get('/api/v1/parameters/', (_req, res, ctx) => {
+  rest.get(`${BASE_URL}/api/v1/parameters/`, (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.parameters));
   }),
   
   // Dashboard endpoints
-  rest.get('/api/v1/dashboard/metrics', (_req, res, ctx) => {
+  rest.get(`${BASE_URL}/api/v1/dashboard/metrics`, (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.dashboard.metrics));
   }),
   
   // Report endpoints
-  rest.get('/api/v1/reports/', (_req, res, ctx) => {
+  rest.get(`${BASE_URL}/api/v1/reports/`, (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.reports));
+  }),
+
+  // Generic 404 endpoint for error handling test
+  rest.get(`${BASE_URL}/api/v1/nonexistent`, (_req, res, ctx) => {
+    return res(ctx.status(404));
   }),
 );
 
@@ -48,7 +56,7 @@ afterAll(() => {
 describe('API Integration Tests', () => {
   describe('Authentication API', () => {
     it('should handle login flow', async () => {
-      const response = await fetch('/api/v1/auth/login', {
+      const response = await fetch(`${BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'testuser', password: 'password' }),
@@ -60,7 +68,7 @@ describe('API Integration Tests', () => {
     });
 
     it('should handle user profile retrieval', async () => {
-      const response = await fetch('/api/v1/auth/me');
+      const response = await fetch(`${BASE_URL}/api/v1/auth/me`);
       const data = await response.json();
       
       expect(data.username).toBe(mockApiResponses.auth.user.username);
@@ -70,7 +78,7 @@ describe('API Integration Tests', () => {
 
   describe('File API', () => {
     it('should handle file list retrieval', async () => {
-      const response = await fetch('/api/v1/files/');
+      const response = await fetch(`${BASE_URL}/api/v1/files/`);
       const data = await response.json();
       
       expect(Array.isArray(data)).toBe(true);
@@ -82,7 +90,7 @@ describe('API Integration Tests', () => {
       const formData = new FormData();
       formData.append('file', new File(['test'], 'test.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
       
-      const response = await fetch('/api/v1/files/upload', {
+      const response = await fetch(`${BASE_URL}/api/v1/files/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -95,7 +103,7 @@ describe('API Integration Tests', () => {
 
   describe('Dashboard API', () => {
     it('should retrieve dashboard metrics', async () => {
-      const response = await fetch('/api/v1/dashboard/metrics');
+      const response = await fetch(`${BASE_URL}/api/v1/dashboard/metrics`);
       const data = await response.json();
       
       expect(data.total_files).toBeDefined();
@@ -106,7 +114,7 @@ describe('API Integration Tests', () => {
 
   describe('Parameters API', () => {
     it('should handle parameter list retrieval', async () => {
-      const response = await fetch('/api/v1/parameters/');
+      const response = await fetch(`${BASE_URL}/api/v1/parameters/`);
       const data = await response.json();
       
       expect(Array.isArray(data)).toBe(true);
@@ -120,7 +128,7 @@ describe('API Integration Tests', () => {
 
   describe('Reports API', () => {
     it('should handle report list retrieval', async () => {
-      const response = await fetch('/api/v1/reports/');
+      const response = await fetch(`${BASE_URL}/api/v1/reports/`);
       const data = await response.json();
       
       expect(Array.isArray(data)).toBe(true);
@@ -133,7 +141,7 @@ describe('API Integration Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle 404 errors gracefully', async () => {
-      const response = await fetch('/api/v1/nonexistent');
+      const response = await fetch(`${BASE_URL}/api/v1/nonexistent`);
       expect(response.ok).toBe(false);
     });
 
