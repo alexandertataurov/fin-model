@@ -39,9 +39,9 @@ const createTestQueryClient = () =>
 const mockAuthContext = {
   user: null,
   token: null,
-  login: vi.fn(),
-  logout: vi.fn(),
-  register: vi.fn(),
+  login: jest.fn(),
+  logout: jest.fn(),
+  register: jest.fn(),
   isLoading: false,
   isAuthenticated: false,
 };

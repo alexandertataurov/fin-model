@@ -82,12 +82,12 @@ Object.defineProperty(window, 'FileReader', {
 // Mock URL.createObjectURL
 Object.defineProperty(window.URL, 'createObjectURL', {
   writable: true,
-  value: vi.fn(() => 'mock-object-url'),
+  value: jest.fn(() => 'mock-object-url'),
 });
 
 Object.defineProperty(window.URL, 'revokeObjectURL', {
   writable: true,
-  value: vi.fn(),
+  value: jest.fn(),
 });
 
 // Mock localStorage
@@ -122,44 +122,44 @@ Object.defineProperty(window, 'sessionStorage', {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
   })),
 });
 
 // Mock HTMLCanvasElement methods for chart testing
-HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
-  fillRect: vi.fn(),
-  clearRect: vi.fn(),
-  getImageData: vi.fn(),
-  putImageData: vi.fn(),
-  createImageData: vi.fn(),
-  setTransform: vi.fn(),
-  drawImage: vi.fn(),
-  save: vi.fn(),
-  fillText: vi.fn(),
-  restore: vi.fn(),
-  beginPath: vi.fn(),
-  moveTo: vi.fn(),
-  lineTo: vi.fn(),
-  closePath: vi.fn(),
-  stroke: vi.fn(),
-  translate: vi.fn(),
-  scale: vi.fn(),
-  rotate: vi.fn(),
-  arc: vi.fn(),
-  fill: vi.fn(),
-  measureText: vi.fn(() => ({ width: 0 })),
-  transform: vi.fn(),
-  rect: vi.fn(),
-  clip: vi.fn(),
+HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
+  fillRect: jest.fn(),
+  clearRect: jest.fn(),
+  getImageData: jest.fn(),
+  putImageData: jest.fn(),
+  createImageData: jest.fn(),
+  setTransform: jest.fn(),
+  drawImage: jest.fn(),
+  save: jest.fn(),
+  fillText: jest.fn(),
+  restore: jest.fn(),
+  beginPath: jest.fn(),
+  moveTo: jest.fn(),
+  lineTo: jest.fn(),
+  closePath: jest.fn(),
+  stroke: jest.fn(),
+  translate: jest.fn(),
+  scale: jest.fn(),
+  rotate: jest.fn(),
+  arc: jest.fn(),
+  fill: jest.fn(),
+  measureText: jest.fn(() => ({ width: 0 })),
+  transform: jest.fn(),
+  rect: jest.fn(),
+  clip: jest.fn(),
 }));
 
 // Mock SVG for chart rendering
@@ -176,15 +176,15 @@ Object.defineProperty(window, 'SVGElement', {
 });
 
 // Global test utilities - using interface extension instead of namespace
-interface ViAsymmetricMatchersContaining {
+interface JestAsymmetricMatchersContaining {
   toBeInTheDocument(): any;
   toHaveClass(className: string): any;
   toHaveTextContent(text: string): any;
 }
 
-// Extend vitest matchers
-declare module 'vitest' {
-  interface AsymmetricMatchersContaining extends ViAsymmetricMatchersContaining {
+// Extend jest matchers
+declare module '@testing-library/jest-dom' {
+  interface AsymmetricMatchersContaining extends JestAsymmetricMatchersContaining {
     // Placeholder to avoid empty interface warning
     _placeholder?: never;
   }
@@ -193,7 +193,7 @@ declare module 'vitest' {
 // Suppress specific console warnings during tests
 const originalError = console.error;
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('Warning: ReactDOM.render is deprecated')

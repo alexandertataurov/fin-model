@@ -1,17 +1,14 @@
-import React from 'react';
 import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render, mockApiResponses, createMockFile, simulateFileUpload } from '../../test/test-utils';
-import { FileUploadDropzone } from '../FileUpload/FileUploadDropzone';
-import { FileList } from '../FileUpload/FileList';
-
-import { vi } from 'vitest';
+import { render, mockApiResponses, createMockFileObject, simulateFileUpload } from '../../test/test-utils';
+import FileUploadDropzone from '../FileUpload/FileUploadDropzone';
+import FileList from '../FileUpload/FileList';
 
 // Mock file API
-const mockFileUpload = vi.fn();
-const mockFileDelete = vi.fn();
+const mockFileUpload = jest.fn();
+const mockFileDelete = jest.fn();
 
-vi.mock('../../services/fileApi', () => ({
+jest.mock('../../services/fileApi', () => ({
   uploadFile: (...args: unknown[]) => mockFileUpload(...args),
   deleteFile: (...args: unknown[]) => mockFileDelete(...args),
   getUserFiles: () => Promise.resolve(mockApiResponses.files),
@@ -19,11 +16,11 @@ vi.mock('../../services/fileApi', () => ({
 
 describe('FileUploadDropzone', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('renders dropzone with proper instructions', () => {
-    render(<FileUploadDropzone onUpload={vi.fn()} />);
+    render(<FileUploadDropzone onUpload={jest.fn()} />);
     
     expect(screen.getByText(/drag & drop files here/i)).toBeInTheDocument();
     expect(screen.getByText(/or click to browse/i)).toBeInTheDocument();
@@ -31,13 +28,13 @@ describe('FileUploadDropzone', () => {
   });
 
   it('handles file selection via input', async () => {
-    const onUpload = vi.fn();
+    const onUpload = jest.fn();
     mockFileUpload.mockResolvedValue(mockApiResponses.files[0]);
 
     render(<FileUploadDropzone onUpload={onUpload} />);
     
     const input = screen.getByLabelText(/choose file/i);
-    const file = createMockFile('test.xlsx', 1024);
+    const file = createMockFileObject('test.xlsx', 1024);
     
     await simulateFileUpload(input as HTMLInputElement, [file]);
     
@@ -47,13 +44,13 @@ describe('FileUploadDropzone', () => {
   });
 
   it('handles drag and drop', async () => {
-    const onUpload = vi.fn();
+    const onUpload = jest.fn();
     mockFileUpload.mockResolvedValue(mockApiResponses.files[0]);
 
     render(<FileUploadDropzone onUpload={onUpload} />);
     
     const dropzone = screen.getByTestId('dropzone');
-    const file = createMockFile('test.xlsx', 1024);
+    const file = createMockFileObject('test.xlsx', 1024);
     
     // Simulate drag over
     fireEvent.dragOver(dropzone, {
@@ -79,12 +76,12 @@ describe('FileUploadDropzone', () => {
   });
 
   it('validates file types', async () => {
-    const onUpload = vi.fn();
+    const onUpload = jest.fn();
 
     render(<FileUploadDropzone onUpload={onUpload} />);
     
     const input = screen.getByLabelText(/choose file/i);
-    const invalidFile = createMockFile('test.txt', 1024, 'text/plain');
+    const invalidFile = createMockFileObject('test.txt', 1024, 'text/plain');
     
     await simulateFileUpload(input as HTMLInputElement, [invalidFile]);
     
@@ -93,12 +90,12 @@ describe('FileUploadDropzone', () => {
   });
 
   it('validates file size', async () => {
-    const onUpload = vi.fn();
+    const onUpload = jest.fn();
 
     render(<FileUploadDropzone onUpload={onUpload} maxSize={1000} />);
     
     const input = screen.getByLabelText(/choose file/i);
-    const largeFile = createMockFile('test.xlsx', 2000);
+    const largeFile = createMockFileObject('test.xlsx', 2000);
     
     await simulateFileUpload(input as HTMLInputElement, [largeFile]);
     
@@ -107,8 +104,8 @@ describe('FileUploadDropzone', () => {
   });
 
   it('shows upload progress', async () => {
-    const onUpload = vi.fn();
-    let uploadResolve: (value: any) => void;
+    const onUpload = jest.fn();
+    let uploadResolve: (value: unknown) => void;
     const uploadPromise = new Promise((resolve) => {
       uploadResolve = resolve;
     });
@@ -117,7 +114,7 @@ describe('FileUploadDropzone', () => {
     render(<FileUploadDropzone onUpload={onUpload} />);
     
     const input = screen.getByLabelText(/choose file/i);
-    const file = createMockFile('test.xlsx', 1024);
+    const file = createMockFileObject('test.xlsx', 1024);
     
     await simulateFileUpload(input as HTMLInputElement, [file]);
     
@@ -134,13 +131,13 @@ describe('FileUploadDropzone', () => {
   });
 
   it('handles upload errors', async () => {
-    const onUpload = vi.fn();
+    const onUpload = jest.fn();
     mockFileUpload.mockRejectedValue(new Error('Upload failed'));
 
     render(<FileUploadDropzone onUpload={onUpload} />);
     
     const input = screen.getByLabelText(/choose file/i);
-    const file = createMockFile('test.xlsx', 1024);
+    const file = createMockFileObject('test.xlsx', 1024);
     
     await simulateFileUpload(input as HTMLInputElement, [file]);
     
@@ -150,15 +147,15 @@ describe('FileUploadDropzone', () => {
   });
 
   it('supports multiple file uploads', async () => {
-    const onUpload = vi.fn();
+    const onUpload = jest.fn();
     mockFileUpload.mockResolvedValue(mockApiResponses.files[0]);
 
     render(<FileUploadDropzone onUpload={onUpload} multiple />);
     
     const input = screen.getByLabelText(/choose file/i);
     const files = [
-      createMockFile('test1.xlsx', 1024),
-      createMockFile('test2.xlsx', 1024),
+      createMockFileObject('test1.xlsx', 1024),
+      createMockFileObject('test2.xlsx', 1024),
     ];
     
     await simulateFileUpload(input as HTMLInputElement, files);
@@ -169,7 +166,7 @@ describe('FileUploadDropzone', () => {
   });
 
   it('disables upload when disabled prop is true', () => {
-    render(<FileUploadDropzone onUpload={vi.fn()} disabled />);
+    render(<FileUploadDropzone onUpload={jest.fn()} disabled />);
     
     const dropzone = screen.getByTestId('dropzone');
     expect(dropzone).toHaveClass('disabled');
@@ -181,12 +178,12 @@ describe('FileUploadDropzone', () => {
 
 describe('FileList', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('renders list of files', () => {
     const files = mockApiResponses.files;
-    render(<FileList files={files} onDelete={vi.fn()} />);
+    render(<FileList files={files} onDelete={jest.fn()} />);
     
     expect(screen.getByText('test.xlsx')).toBeInTheDocument();
     expect(screen.getByText('1024 bytes')).toBeInTheDocument();
@@ -194,7 +191,7 @@ describe('FileList', () => {
 
   it('handles file deletion', async () => {
     const user = userEvent.setup();
-    const onDelete = vi.fn();
+    const onDelete = jest.fn();
     const files = mockApiResponses.files;
     mockFileDelete.mockResolvedValue(true);
 
@@ -222,7 +219,7 @@ describe('FileList', () => {
       { ...mockApiResponses.files[0], processing_status: 'failed', id: 3 },
     ];
 
-    render(<FileList files={files} onDelete={vi.fn()} />);
+    render(<FileList files={files} onDelete={jest.fn()} />);
     
     expect(screen.getByText(/processing/i)).toBeInTheDocument();
     expect(screen.getByText(/completed/i)).toBeInTheDocument();
@@ -230,7 +227,7 @@ describe('FileList', () => {
   });
 
   it('shows empty state when no files', () => {
-    render(<FileList files={[]} onDelete={vi.fn()} />);
+    render(<FileList files={[]} onDelete={jest.fn()} />);
     
     expect(screen.getByText(/no files uploaded/i)).toBeInTheDocument();
   });
@@ -243,7 +240,7 @@ describe('FileList', () => {
     const mockCreateObjectURL = jest.fn(() => 'mock-url');
     global.URL.createObjectURL = mockCreateObjectURL;
     
-    render(<FileList files={files} onDelete={vi.fn()} />);
+    render(<FileList files={files} onDelete={jest.fn()} />);
     
     const downloadButton = screen.getByLabelText(/download file/i);
     await user.click(downloadButton);
@@ -259,7 +256,7 @@ describe('FileList', () => {
       { ...mockApiResponses.files[0], original_filename: 'a.xlsx', id: 2 },
     ];
 
-    render(<FileList files={files} onDelete={vi.fn()} />);
+    render(<FileList files={files} onDelete={jest.fn()} />);
     
     // Initially shows files in original order
     const rows = screen.getAllByRole('row');
@@ -283,7 +280,7 @@ describe('FileList', () => {
       { ...mockApiResponses.files[0], original_filename: 'budget-2023.xlsx', id: 2 },
     ];
 
-    render(<FileList files={files} onDelete={vi.fn()} />);
+    render(<FileList files={files} onDelete={jest.fn()} />);
     
     const searchInput = screen.getByLabelText(/search files/i);
     await user.type(searchInput, 'financial');
@@ -296,7 +293,7 @@ describe('FileList', () => {
     const user = userEvent.setup();
     const files = mockApiResponses.files;
 
-    render(<FileList files={files} onDelete={vi.fn()} />);
+    render(<FileList files={files} onDelete={jest.fn()} />);
     
     const expandButton = screen.getByLabelText(/show details/i);
     await user.click(expandButton);

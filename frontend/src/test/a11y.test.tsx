@@ -1,12 +1,12 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { configureAxe } from 'jest-axe';
 import App from '../App';
-import { Dashboard } from '../pages/Dashboard';
-import { FileUpload } from '../pages/FileUpload';
-import { Login } from '../pages/Login';
-import { AnalyticsDashboard } from '../components/Analytics/AnalyticsDashboard';
-import { customRender } from './test-utils';
+import Dashboard from '../pages/Dashboard';
+import FileUpload from '../pages/FileUpload';
+import Login from '../pages/Login';
+import AnalyticsDashboard from '../components/Analytics/AnalyticsDashboard';
+import { render as customRender } from './test-utils';
 
 // Configure axe for testing
 const axe = configureAxe({

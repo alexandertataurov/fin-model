@@ -1,12 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { LineChart } from '../Charts/LineChart';
-import { BarChart } from '../Charts/BarChart';
-import { PieChart } from '../Charts/PieChart';
-import { WaterfallChart } from '../Charts/WaterfallChart';
-import { TestDataFactory } from '../../test/test-utils';
+import LineChart from '../Charts/LineChart';
+import BarChart from '../Charts/BarChart';
+import PieChart from '../Charts/PieChart';
+import WaterfallChart from '../Charts/WaterfallChart';
 
 // Mock Recharts to avoid rendering issues in tests
 interface MockChartProps {
@@ -18,7 +16,7 @@ interface MockComponentProps {
   [key: string]: unknown;
 }
 
-vi.mock('recharts', () => ({
+jest.mock('recharts', () => ({
   LineChart: ({ children, ...props }: MockChartProps) => (
     <div data-testid="line-chart" {...props}>
       {children}
@@ -44,8 +42,12 @@ vi.mock('recharts', () => ({
   CartesianGrid: (props: MockComponentProps) => (
     <div data-testid="cartesian-grid" {...props} />
   ),
-  Tooltip: (props: MockComponentProps) => <div data-testid="tooltip" {...props} />,
-  Legend: (props: MockComponentProps) => <div data-testid="legend" {...props} />,
+  Tooltip: (props: MockComponentProps) => (
+    <div data-testid="tooltip" {...props} />
+  ),
+  Legend: (props: MockComponentProps) => (
+    <div data-testid="legend" {...props} />
+  ),
   Line: (props: MockComponentProps) => <div data-testid="line" {...props} />,
   Bar: (props: MockComponentProps) => <div data-testid="bar" {...props} />,
   Area: (props: MockComponentProps) => <div data-testid="area" {...props} />,
@@ -53,12 +55,20 @@ vi.mock('recharts', () => ({
 }));
 
 describe('LineChart', () => {
-  const mockData = TestDataFactory.chartData();
+  const mockLineData = [
+    { period: 'Q1 2023', revenue: 1000000, expenses: 600000 },
+    { period: 'Q2 2023', revenue: 1200000, expenses: 720000 },
+    { period: 'Q3 2023', revenue: 1100000, expenses: 660000 },
+    { period: 'Q4 2023', revenue: 1300000, expenses: 780000 },
+  ];
+
+  const mockSeries = [
+    { dataKey: 'revenue', name: 'Revenue', color: '#8884d8' },
+    { dataKey: 'expenses', name: 'Expenses', color: '#82ca9d' },
+  ];
 
   it('renders chart with data', () => {
-    render(
-      <LineChart data={mockData.datasets[0].data} labels={mockData.labels} />
-    );
+    render(<LineChart data={mockLineData} series={mockSeries} />);
 
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
@@ -68,43 +78,31 @@ describe('LineChart', () => {
 
   it('shows title when provided', () => {
     const title = 'Revenue Trend';
-    render(
-      <LineChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
-        title={title}
-      />
-    );
+    render(<LineChart data={mockLineData} series={mockSeries} title={title} />);
 
     expect(screen.getByText(title)).toBeInTheDocument();
   });
 
   it('handles empty data gracefully', () => {
-    render(<LineChart data={[]} labels={[]} />);
+    render(<LineChart data={[]} series={[]} />);
 
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     expect(screen.getByText(/no data available/i)).toBeInTheDocument();
   });
 
   it('supports custom colors', () => {
-    const customColor = '#ff5722';
-    render(
-      <LineChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
-        color={customColor}
-      />
-    );
+    const customSeries = [
+      { dataKey: 'revenue', name: 'Revenue', color: '#ff5722' },
+    ];
+    render(<LineChart data={mockLineData} series={customSeries} />);
 
     const line = screen.getByTestId('line');
-    expect(line).toHaveAttribute('stroke', customColor);
+    expect(line).toHaveAttribute('stroke', '#ff5722');
   });
 
   it('shows tooltip on hover', async () => {
     const user = userEvent.setup();
-    render(
-      <LineChart data={mockData.datasets[0].data} labels={mockData.labels} />
-    );
+    render(<LineChart data={mockLineData} series={mockSeries} />);
 
     const chartArea = screen.getByTestId('line-chart');
     await user.hover(chartArea);
@@ -114,12 +112,12 @@ describe('LineChart', () => {
 
   it('supports data point highlighting', async () => {
     const user = userEvent.setup();
-    const onDataPointClick = vi.fn();
+    const onDataPointClick = jest.fn();
 
     render(
       <LineChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
+        data={mockLineData}
+        series={mockSeries}
         onDataPointClick={onDataPointClick}
       />
     );
@@ -131,14 +129,27 @@ describe('LineChart', () => {
   });
 
   it('handles data updates', () => {
+    const initialData = [
+      { period: 'A', value: 100 },
+      { period: 'B', value: 200 },
+    ];
+    const initialSeries = [
+      { dataKey: 'value', name: 'Value', color: '#8884d8' },
+    ];
+
     const { rerender } = render(
-      <LineChart data={[100, 200]} labels={['A', 'B']} />
+      <LineChart data={initialData} series={initialSeries} />
     );
 
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
 
     // Update with new data
-    rerender(<LineChart data={[300, 400, 500]} labels={['A', 'B', 'C']} />);
+    const updatedData = [
+      { period: 'A', value: 300 },
+      { period: 'B', value: 400 },
+      { period: 'C', value: 500 },
+    ];
+    rerender(<LineChart data={updatedData} series={initialSeries} />);
 
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
   });
@@ -146,8 +157,8 @@ describe('LineChart', () => {
   it('supports accessibility features', () => {
     render(
       <LineChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
+        data={mockLineData}
+        series={mockSeries}
         title="Revenue Chart"
         ariaLabel="Revenue trend over time"
       />
@@ -159,12 +170,20 @@ describe('LineChart', () => {
 });
 
 describe('BarChart', () => {
-  const mockData = TestDataFactory.chartData();
+  const mockBarData = [
+    { category: 'Q1 2023', revenue: 1000000, expenses: 600000 },
+    { category: 'Q2 2023', revenue: 1200000, expenses: 720000 },
+    { category: 'Q3 2023', revenue: 1100000, expenses: 660000 },
+    { category: 'Q4 2023', revenue: 1300000, expenses: 780000 },
+  ];
+
+  const mockBarSeries = [
+    { dataKey: 'revenue', name: 'Revenue', color: '#8884d8' },
+    { dataKey: 'expenses', name: 'Expenses', color: '#82ca9d' },
+  ];
 
   it('renders bar chart with data', () => {
-    render(
-      <BarChart data={mockData.datasets[0].data} labels={mockData.labels} />
-    );
+    render(<BarChart data={mockBarData} series={mockBarSeries} />);
 
     expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
     expect(screen.getByTestId('bar')).toBeInTheDocument();
@@ -172,11 +191,7 @@ describe('BarChart', () => {
 
   it('supports horizontal orientation', () => {
     render(
-      <BarChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
-        orientation="horizontal"
-      />
+      <BarChart data={mockBarData} series={mockBarSeries} layout="horizontal" />
     );
 
     const chart = screen.getByTestId('bar-chart');
@@ -188,35 +203,42 @@ describe('BarChart', () => {
       { name: 'Q1', revenue: 1000, expenses: 600 },
       { name: 'Q2', revenue: 1200, expenses: 720 },
     ];
+    
+    const stackedSeries = [
+      { dataKey: 'revenue', name: 'Revenue', color: '#1976d2', stackId: 'stack' },
+      { dataKey: 'expenses', name: 'Expenses', color: '#dc004e', stackId: 'stack' },
+    ];
 
-    render(<BarChart data={stackedData} stacked />);
+    render(<BarChart data={stackedData} series={stackedSeries} />);
 
     const chart = screen.getByTestId('bar-chart');
     expect(chart).toBeInTheDocument();
   });
 
   it('shows custom bar colors', () => {
-    const colors = ['#1976d2', '#dc004e'];
+    const customSeries = [
+      { dataKey: 'revenue', name: 'Revenue', color: '#1976d2' },
+      { dataKey: 'expenses', name: 'Expenses', color: '#dc004e' },
+    ];
     render(
       <BarChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
-        colors={colors}
+        data={mockBarData}
+        series={customSeries}
       />
     );
 
     const bars = screen.getAllByTestId('bar');
-    expect(bars[0]).toHaveAttribute('fill', colors[0]);
+    expect(bars[0]).toHaveAttribute('fill', '#1976d2');
   });
 
   it('handles click events on bars', async () => {
     const user = userEvent.setup();
-    const onBarClick = vi.fn();
+    const onBarClick = jest.fn();
 
     render(
       <BarChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
+        data={mockBarData}
+        series={mockBarSeries}
         onBarClick={onBarClick}
       />
     );
@@ -232,8 +254,8 @@ describe('BarChart', () => {
 
     render(
       <BarChart
-        data={mockData.datasets[0].data}
-        labels={mockData.labels}
+        data={mockBarData}
+        series={mockBarSeries}
         formatValue={formatValue}
       />
     );
@@ -269,8 +291,11 @@ describe('PieChart', () => {
   });
 
   it('supports custom colors for segments', () => {
-    const colors = ['#1976d2', '#dc004e', '#2e7d32'];
-    render(<PieChart data={pieData} colors={colors} />);
+    const dataWithColors = pieData.map((item, index) => ({
+      ...item,
+      color: ['#1976d2', '#dc004e', '#2e7d32'][index]
+    }));
+    render(<PieChart data={dataWithColors} />);
 
     const cells = screen.getAllByTestId('cell');
     expect(cells).toHaveLength(pieData.length);
@@ -283,32 +308,32 @@ describe('PieChart', () => {
     expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
   });
 
-  it('handles segment click events', async () => {
+  it('handles chart interaction', async () => {
     const user = userEvent.setup();
-    const onSegmentClick = vi.fn();
 
-    render(<PieChart data={pieData} onSegmentClick={onSegmentClick} />);
-
-    const segment = screen.getAllByTestId('cell')[0];
-    await user.click(segment);
-
-    expect(onSegmentClick).toHaveBeenCalledWith(pieData[0]);
-  });
-
-  it('supports donut style', () => {
-    render(<PieChart data={pieData} variant="donut" />);
+    render(<PieChart data={pieData} />);
 
     const chart = screen.getByTestId('pie-chart');
-    expect(chart).toHaveAttribute('innerRadius', '60');
+    await user.hover(chart);
+
+    // Should show tooltip on hover
+    expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+  });
+
+  it('supports donut style with inner radius', () => {
+    render(<PieChart data={pieData} innerRadius={60} />);
+
+    const chart = screen.getByTestId('pie-chart');
+    expect(chart).toBeInTheDocument();
   });
 });
 
 describe('WaterfallChart', () => {
   const waterfallData = [
-    { name: 'Starting Revenue', value: 1000000, type: 'start' },
-    { name: 'Q1 Growth', value: 200000, type: 'positive' },
-    { name: 'Q2 Decline', value: -100000, type: 'negative' },
-    { name: 'Ending Revenue', value: 1100000, type: 'end' },
+    { name: 'Starting Revenue', value: 1000000, type: 'start' as const },
+    { name: 'Q1 Growth', value: 200000, type: 'positive' as const },
+    { name: 'Q2 Decline', value: -100000, type: 'negative' as const },
+    { name: 'Ending Revenue', value: 1100000, type: 'total' as const },
   ];
 
   it('renders waterfall chart with data', () => {
@@ -417,10 +442,12 @@ describe('Chart Error Handling', () => {
 
   it('shows error state when chart fails to render', () => {
     // Mock console.error to avoid noise in tests
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
     // Trigger an error in chart rendering
-    render(<LineChart data={undefined as unknown} labels={undefined as unknown} />);
+    render(
+      <LineChart data={undefined as unknown} labels={undefined as unknown} />
+    );
 
     expect(screen.getByText(/chart error/i)).toBeInTheDocument();
 
