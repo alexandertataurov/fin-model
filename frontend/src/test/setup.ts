@@ -82,12 +82,12 @@ Object.defineProperty(window, 'FileReader', {
 // Mock URL.createObjectURL
 Object.defineProperty(window.URL, 'createObjectURL', {
   writable: true,
-  value: jest.fn(() => 'mock-object-url'),
+  value: vi.fn(() => 'mock-object-url'),
 });
 
 Object.defineProperty(window.URL, 'revokeObjectURL', {
   writable: true,
-  value: jest.fn(),
+  value: vi.fn(),
 });
 
 // Mock localStorage
@@ -122,44 +122,44 @@ Object.defineProperty(window, 'sessionStorage', {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
 
 // Mock HTMLCanvasElement methods for chart testing
-HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
-  fillRect: jest.fn(),
-  clearRect: jest.fn(),
-  getImageData: jest.fn(),
-  putImageData: jest.fn(),
-  createImageData: jest.fn(),
-  setTransform: jest.fn(),
-  drawImage: jest.fn(),
-  save: jest.fn(),
-  fillText: jest.fn(),
-  restore: jest.fn(),
-  beginPath: jest.fn(),
-  moveTo: jest.fn(),
-  lineTo: jest.fn(),
-  closePath: jest.fn(),
-  stroke: jest.fn(),
-  translate: jest.fn(),
-  scale: jest.fn(),
-  rotate: jest.fn(),
-  arc: jest.fn(),
-  fill: jest.fn(),
-  measureText: jest.fn(() => ({ width: 0 })),
-  transform: jest.fn(),
-  rect: jest.fn(),
-  clip: jest.fn(),
+HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+  fillRect: vi.fn(),
+  clearRect: vi.fn(),
+  getImageData: vi.fn(),
+  putImageData: vi.fn(),
+  createImageData: vi.fn(),
+  setTransform: vi.fn(),
+  drawImage: vi.fn(),
+  save: vi.fn(),
+  fillText: vi.fn(),
+  restore: vi.fn(),
+  beginPath: vi.fn(),
+  moveTo: vi.fn(),
+  lineTo: vi.fn(),
+  closePath: vi.fn(),
+  stroke: vi.fn(),
+  translate: vi.fn(),
+  scale: vi.fn(),
+  rotate: vi.fn(),
+  arc: vi.fn(),
+  fill: vi.fn(),
+  measureText: vi.fn(() => ({ width: 0 })),
+  transform: vi.fn(),
+  rect: vi.fn(),
+  clip: vi.fn(),
 }));
 
 // Mock SVG for chart rendering
@@ -177,11 +177,11 @@ Object.defineProperty(window, 'SVGElement', {
 
 // Global test utilities
 declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toBeInTheDocument(): R;
-      toHaveClass(className: string): R;
-      toHaveTextContent(text: string): R;
+  namespace Vi {
+    interface AsymmetricMatchersContaining {
+      toBeInTheDocument(): any;
+      toHaveClass(className: string): any;
+      toHaveTextContent(text: string): any;
     }
   }
 }

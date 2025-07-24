@@ -39,9 +39,9 @@ const createTestQueryClient = () =>
 const mockAuthContext = {
   user: null,
   token: null,
-  login: jest.fn(),
-  logout: jest.fn(),
-  register: jest.fn(),
+  login: vi.fn(),
+  logout: vi.fn(),
+  register: vi.fn(),
   isLoading: false,
   isAuthenticated: false,
 };
@@ -204,7 +204,7 @@ export const createMockFileList = (files: File[]) => {
   return input.files;
 };
 
-export const createMockFile = (
+export const createMockFileObject = (
   name = 'test.xlsx',
   size = 1024,
   type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

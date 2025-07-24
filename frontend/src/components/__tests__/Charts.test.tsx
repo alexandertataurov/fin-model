@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { LineChart } from '../Charts/LineChart';
 import { BarChart } from '../Charts/BarChart';
@@ -8,7 +9,7 @@ import { WaterfallChart } from '../Charts/WaterfallChart';
 import { TestDataFactory } from '../../test/test-utils';
 
 // Mock Recharts to avoid rendering issues in tests
-jest.mock('recharts', () => ({
+vi.mock('recharts', () => ({
   LineChart: ({ children, ...props }: any) => (
     <div data-testid="line-chart" {...props}>{children}</div>
   ),
@@ -90,7 +91,7 @@ describe('LineChart', () => {
 
   it('supports data point highlighting', async () => {
     const user = userEvent.setup();
-    const onDataPointClick = jest.fn();
+    const onDataPointClick = vi.fn();
     
     render(
       <LineChart 
@@ -185,7 +186,7 @@ describe('BarChart', () => {
 
   it('handles click events on bars', async () => {
     const user = userEvent.setup();
-    const onBarClick = jest.fn();
+    const onBarClick = vi.fn();
     
     render(
       <BarChart 
@@ -259,7 +260,7 @@ describe('PieChart', () => {
 
   it('handles segment click events', async () => {
     const user = userEvent.setup();
-    const onSegmentClick = jest.fn();
+    const onSegmentClick = vi.fn();
     
     render(<PieChart data={pieData} onSegmentClick={onSegmentClick} />);
     
@@ -397,7 +398,7 @@ describe('Chart Error Handling', () => {
 
   it('shows error state when chart fails to render', () => {
     // Mock console.error to avoid noise in tests
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     // Trigger an error in chart rendering
     render(<LineChart data={undefined as any} labels={undefined as any} />);

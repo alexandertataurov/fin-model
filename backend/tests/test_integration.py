@@ -5,13 +5,13 @@ import asyncio
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.models.file import FileUpload
+from app.models.file import UploadedFile
 from app.models.parameter import Parameter
-from app.models.report import Report
+from app.models.report import ReportTemplate, ReportExport
 from app.core.security import get_password_hash
 from app.services.excel_parser import ExcelParser
 from app.services.financial_extractor import FinancialExtractor
-from app.tasks.file_processing import process_file_task
+from app.tasks.file_processing import process_uploaded_file
 import pandas as pd
 
 
@@ -204,10 +204,11 @@ class TestDashboardIntegration:
 
         # Create test reports
         reports = [
-            Report(
-                name="Q1 Analysis",
-                type="financial_analysis",
+            ReportExport(
+                title="Q1 Analysis",
+                export_format="pdf",
                 file_path="/reports/q1.pdf",
+                status="completed",
                 user_id=user.id
             )
         ]
@@ -332,7 +333,7 @@ class TestReportGenerationWorkflow:
         assert status_response.status_code == 200
 
         # Simulate report completion
-        report = db_session.query(Report).filter(Report.id == report_id).first()
+        report = db_session.query(ReportExport).filter(ReportExport.id == report_id).first()
         report.status = "completed"
         report.file_path = f"/reports/{report_id}.pdf"
         db_session.commit()

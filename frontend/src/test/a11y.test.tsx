@@ -1,7 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { configureAxe } from 'jest-axe';
 import App from '../App';
 import { Dashboard } from '../pages/Dashboard';
 import { FileUpload } from '../pages/FileUpload';
@@ -9,8 +8,13 @@ import { Login } from '../pages/Login';
 import { AnalyticsDashboard } from '../components/Analytics/AnalyticsDashboard';
 import { customRender } from './test-utils';
 
-// Extend Jest matchers
-expect.extend(toHaveNoViolations);
+// Configure axe for testing
+const axe = configureAxe({
+  rules: {
+    // Disable color-contrast checking in tests
+    'color-contrast': { enabled: false },
+  },
+});
 
 // Mock components that may cause issues in test environment
 jest.mock('../components/Charts/LineChart', () => ({

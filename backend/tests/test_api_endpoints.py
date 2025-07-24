@@ -4,7 +4,7 @@ import tempfile
 import os
 from fastapi.testclient import TestClient
 from app.models.user import User
-from app.models.file import FileUpload
+from app.models.file import UploadedFile
 from app.core.security import get_password_hash
 
 
