@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, expect } from 'vitest';
+import { toHaveNoViolations } from 'jest-axe';
+
+// Vitest's expect.extend requires an object of matcher functions. Cast to any
+// to avoid TS complaints about the matcher signature.
+expect.extend({ toHaveNoViolations } as any);
 
 // Mock IntersectionObserver
 Object.defineProperty(window, 'IntersectionObserver', {
