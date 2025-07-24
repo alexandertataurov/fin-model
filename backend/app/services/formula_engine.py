@@ -15,6 +15,14 @@ from collections import defaultdict, deque
 from app.models.parameter import FormulaNode
 
 
+def safe_eval(expression: str, context: Dict[str, Any] = None) -> Any:
+    """Module-level safe_eval function for backward compatibility."""
+    engine = FormulaEngine()
+    if context:
+        engine.cell_values.update(context)
+    return engine._safe_eval(expression)
+
+
 @dataclass
 class CalculationResult:
     """Result of a formula calculation."""
@@ -269,6 +277,27 @@ class FormulaEngine:
         )
         
         return self.dependency_graph
+
+    def evaluate(self, formula: str, context: Dict[str, Any] = None) -> Any:
+        """Evaluate a formula expression for backward compatibility."""
+        try:
+            if context:
+                # Update cell values with provided context
+                self.cell_values.update(context)
+            
+            # If it's a simple cell reference, return its value
+            if re.match(r'^[A-Z]+\d+$', formula):
+                return self.cell_values.get(formula, 0)
+            
+            # If it starts with =, evaluate as formula
+            if formula.startswith('='):
+                return self._evaluate_formula(formula, 'TEMP!A1')
+            
+            # Try to evaluate as expression
+            return self._safe_eval(formula)
+            
+        except Exception as e:
+            return f"#ERROR: {str(e)}"
 
     def calculate_cell(self, cell_ref: str) -> CalculationResult:
         """

@@ -148,6 +148,10 @@ class ExcelParser:
             r'\d{1,2}/\d{1,2}/\d{2,4}'  # Date format
         ]
 
+    def parse_file(self, file_path: str) -> ParsedData:
+        """Alias for parse_excel_file for backward compatibility."""
+        return self.parse_excel_file(file_path)
+
     def parse_excel_file(self, file_path: str) -> ParsedData:
         """
         Parse Excel file and extract comprehensive data.

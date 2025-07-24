@@ -307,7 +307,9 @@ class TestScenarioManager:
 
     def test_create_scenario(self):
         """Test creation of a new scenario."""
-        manager = ScenarioManager()
+        from unittest.mock import Mock
+        mock_db = Mock()
+        manager = ScenarioManager(mock_db)
         
         base_assumptions = {
             "growth_rate": 0.10,
@@ -322,7 +324,9 @@ class TestScenarioManager:
 
     def test_scenario_sensitivity_analysis(self):
         """Test sensitivity analysis across scenarios."""
-        manager = ScenarioManager()
+        from unittest.mock import Mock
+        mock_db = Mock()
+        manager = ScenarioManager(mock_db)
         
         base_case = {
             "name": "Base",
@@ -347,7 +351,9 @@ class TestScenarioManager:
 
     def test_monte_carlo_simulation(self):
         """Test Monte Carlo simulation for scenario analysis."""
-        manager = ScenarioManager()
+        from unittest.mock import Mock
+        mock_db = Mock()
+        manager = ScenarioManager(mock_db)
         
         # Mock parameters with distributions
         parameter_distributions = {
@@ -367,7 +373,9 @@ class TestScenarioManager:
 
     def test_scenario_comparison(self):
         """Test comparison of multiple scenarios."""
-        manager = ScenarioManager()
+        from unittest.mock import Mock
+        mock_db = Mock()
+        manager = ScenarioManager(mock_db)
         
         scenario1 = {
             "name": "Scenario A",
@@ -405,7 +413,9 @@ class TestServiceIntegration:
     def test_parameter_to_scenario_pipeline(self):
         """Test pipeline from parameter detection to scenario creation."""
         detector = ParameterDetector()
-        manager = ScenarioManager()
+        from unittest.mock import Mock
+        mock_db = Mock()
+        manager = ScenarioManager(mock_db)
         
         # Mock detected parameters
         assumptions = {

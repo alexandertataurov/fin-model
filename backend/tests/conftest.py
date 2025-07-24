@@ -224,16 +224,17 @@ class UserFactory(factory.Factory):
 
     username = factory.Sequence(lambda n: f"user{n}")
     email = factory.LazyAttribute(lambda obj: f"{obj.username}@example.com")
-    full_name = factory.Faker("name")
-    hashed_password = factory.LazyFunction(lambda: get_password_hash("testpassword"))
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
+    hashed_password = factory.LazyFunction(
+        lambda: get_password_hash("testpassword")
+    )
     is_active = True
-    is_admin = False
 
 
 class AdminUserFactory(UserFactory):
     username = factory.Sequence(lambda n: f"admin{n}")
     email = factory.LazyAttribute(lambda obj: f"{obj.username}@example.com")
-    is_admin = True
 
 
 @pytest.fixture

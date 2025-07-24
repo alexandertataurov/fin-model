@@ -77,6 +77,37 @@ class ParameterDetector:
             r'days.*sales|collection.*period'
         ]
 
+    def detect_growth_patterns(self, file_path: str) -> Dict[str, Any]:
+        """Detect growth patterns for backward compatibility."""
+        # This is a simplified version that returns basic growth pattern detection
+        try:
+            workbook = openpyxl.load_workbook(file_path, data_only=True)
+            growth_patterns = {}
+            
+            for sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+                sheet_patterns = []
+                
+                # Look for growth-related cells
+                for row in sheet.iter_rows():
+                    for cell in row:
+                        if cell.value and isinstance(cell.value, str):
+                            text = cell.value.lower()
+                            if any(pattern in text for pattern in ['growth', 'rate', 'cagr', '%']):
+                                sheet_patterns.append({
+                                    'cell': cell.coordinate,
+                                    'value': cell.value,
+                                    'type': 'growth_indicator'
+                                })
+                
+                if sheet_patterns:
+                    growth_patterns[sheet_name] = sheet_patterns
+            
+            return growth_patterns
+            
+        except Exception as e:
+            return {"error": f"Failed to detect growth patterns: {str(e)}"}
+
     async def detect_parameters(
         self, 
         file_path: str, 

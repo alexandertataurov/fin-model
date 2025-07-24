@@ -91,6 +91,10 @@ class FinancialExtractor:
         self.metric_calculators = self._initialize_metric_calculators()
         self.time_patterns = self._initialize_time_patterns()
 
+    def extract_statements(self, file_path: str) -> Dict[str, Any]:
+        """Alias for extract_comprehensive_data for backward compatibility."""
+        return self.extract_comprehensive_data(file_path)
+
     def extract_comprehensive_data(self, file_path: str) -> Dict[str, Any]:
         """
         Perform comprehensive financial data extraction from Excel file.
