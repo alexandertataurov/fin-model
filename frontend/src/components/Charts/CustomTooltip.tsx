@@ -79,6 +79,7 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
 
   return (
     <Paper
+      data-testid="tooltip"
       elevation={8}
       sx={{
         p: 2,
