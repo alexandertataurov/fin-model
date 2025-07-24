@@ -1,5 +1,5 @@
 import { performance } from 'perf_hooks';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Dashboard from '../pages/Dashboard';
 import FileUpload from '../pages/FileUpload';
@@ -260,7 +260,7 @@ describe('Performance Tests', () => {
         updateCount++;
 
         // Simulate data update processing
-        const data = TestDataFactory.chartData();
+        TestDataFactory.chartData();
 
         if (updateCount >= maxUpdates) {
           clearInterval(interval);

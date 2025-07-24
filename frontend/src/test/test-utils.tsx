@@ -46,18 +46,16 @@ const mockAuthContext = {
   isAuthenticated: false,
 };
 
-const MockAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AuthProvider value={mockAuthContext}>{children}</AuthProvider>
-);
+// Removed unused MockAuthProvider to fix linting error
 
 const AllTheProviders: React.FC<{
   children: React.ReactNode;
   queryClient?: QueryClient;
   authContext?: typeof mockAuthContext;
-}> = ({ 
-  children, 
+}> = ({
+  children,
   queryClient = createTestQueryClient(),
-  authContext = mockAuthContext 
+  authContext = mockAuthContext,
 }) => {
   return (
     <BrowserRouter>
@@ -65,9 +63,7 @@ const AllTheProviders: React.FC<{
         <ThemeProvider theme={testTheme}>
           <CustomThemeProvider>
             <CssBaseline />
-            <AuthProvider value={authContext}>
-              {children}
-            </AuthProvider>
+            <AuthProvider value={authContext}>{children}</AuthProvider>
           </CustomThemeProvider>
         </ThemeProvider>
       </QueryClientProvider>
@@ -81,10 +77,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   route?: string;
 }
 
-const customRender = (
-  ui: ReactElement,
-  options: CustomRenderOptions = {}
-) => {
+const customRender = (ui: ReactElement, options: CustomRenderOptions = {}) => {
   const { queryClient, authContext, route = '/', ...renderOptions } = options;
 
   // Set the initial route if provided
@@ -169,17 +162,23 @@ export const mockApiResponses = {
 };
 
 // Mock data generators
-export const createMockUser = (overrides: Partial<typeof mockApiResponses.auth.user> = {}) => ({
+export const createMockUser = (
+  overrides: Partial<typeof mockApiResponses.auth.user> = {}
+) => ({
   ...mockApiResponses.auth.user,
   ...overrides,
 });
 
-export const createMockFile = (overrides: Partial<typeof mockApiResponses.files[0]> = {}) => ({
+export const createMockFile = (
+  overrides: Partial<(typeof mockApiResponses.files)[0]> = {}
+) => ({
   ...mockApiResponses.files[0],
   ...overrides,
 });
 
-export const createMockParameter = (overrides: Partial<typeof mockApiResponses.parameters[0]> = {}) => ({
+export const createMockParameter = (
+  overrides: Partial<(typeof mockApiResponses.parameters)[0]> = {}
+) => ({
   ...mockApiResponses.parameters[0],
   ...overrides,
 });
@@ -218,7 +217,7 @@ export const createMockFileObject = (
 export const waitFor = (callback: () => void, timeout = 1000) => {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
-    
+
     const check = () => {
       try {
         callback();
@@ -231,18 +230,21 @@ export const waitFor = (callback: () => void, timeout = 1000) => {
         }
       }
     };
-    
+
     check();
   });
 };
 
 // Helper to simulate user interactions
-export const simulateFileUpload = async (input: HTMLInputElement, files: File[]) => {
+export const simulateFileUpload = async (
+  input: HTMLInputElement,
+  files: File[]
+) => {
   Object.defineProperty(input, 'files', {
     value: createMockFileList(files),
     writable: false,
   });
-  
+
   const event = new Event('change', { bubbles: true });
   input.dispatchEvent(event);
 };
@@ -252,7 +254,7 @@ export const TestDataFactory = {
   user: createMockUser,
   file: createMockFile,
   parameter: createMockParameter,
-  
+
   financialData: () => ({
     income_statement: [
       { account: 'Revenue', q1_2023: 1000000, q2_2023: 1200000 },
@@ -264,7 +266,7 @@ export const TestDataFactory = {
       { account: 'Accounts Receivable', q1_2023: 200000, q2_2023: 240000 },
     ],
   }),
-  
+
   chartData: () => ({
     labels: ['Q1 2023', 'Q2 2023', 'Q3 2023', 'Q4 2023'],
     datasets: [
@@ -286,4 +288,4 @@ export * from '@testing-library/user-event';
 export { customRender as render };
 
 // Export the mock contexts
-export { mockAuthContext, createTestQueryClient }; 
+export { mockAuthContext, createTestQueryClient };

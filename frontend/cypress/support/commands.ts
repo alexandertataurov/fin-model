@@ -220,18 +220,16 @@ Cypress.Commands.add('checkWave', (options = {}) => {
   });
 });
 
-// Declare additional commands for TypeScript
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      apiRequest(method: string, url: string, body?: any): Chainable<Response<any>>;
-      createTestUser(userData: any): Chainable<Response<any>>;
-      waitForElement(selector: string, timeout?: number): Chainable<JQuery<HTMLElement>>;
-      downloadFile(url: string, filename: string): Chainable<void>;
-      verifyChartData(chartSelector: string, expectedDataPoints: number): Chainable<void>;
-      dragAndDrop(sourceSelector: string, targetSelector: string): Chainable<void>;
-      testResponsive(callback: () => void): Chainable<void>;
-      checkWave(options?: {}): Chainable<void>;
-    }
+// Declare additional commands for TypeScript - using declare module instead of namespace
+declare module 'cypress' {
+  interface Chainable {
+    apiRequest(method: string, url: string, body?: any): Chainable<Response<any>>;
+    createTestUser(userData: any): Chainable<Response<any>>;
+    waitForElement(selector: string, timeout?: number): Chainable<JQuery<HTMLElement>>;
+    downloadFile(url: string, filename: string): Chainable<void>;
+    verifyChartData(chartSelector: string, expectedDataPoints: number): Chainable<void>;
+    dragAndDrop(sourceSelector: string, targetSelector: string): Chainable<void>;
+    testResponsive(callback: () => void): Chainable<void>;
+    checkWave(options?: Record<string, unknown>): Chainable<void>;
   }
 } 

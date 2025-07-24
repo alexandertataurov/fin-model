@@ -75,7 +75,7 @@ Object.defineProperty(window, 'FileReader', {
     onload: ((event: any) => void) | null = null;
     onerror: ((event: any) => void) | null = null;
     result: string | ArrayBuffer | null = null;
-    readyState: number = 2;
+    readyState = 2;
   },
 });
 
@@ -175,14 +175,18 @@ Object.defineProperty(window, 'SVGElement', {
   },
 });
 
-// Global test utilities
-declare global {
-  namespace Vi {
-    interface AsymmetricMatchersContaining {
-      toBeInTheDocument(): any;
-      toHaveClass(className: string): any;
-      toHaveTextContent(text: string): any;
-    }
+// Global test utilities - using interface extension instead of namespace
+interface ViAsymmetricMatchersContaining {
+  toBeInTheDocument(): any;
+  toHaveClass(className: string): any;
+  toHaveTextContent(text: string): any;
+}
+
+// Extend vitest matchers
+declare module 'vitest' {
+  interface AsymmetricMatchersContaining extends ViAsymmetricMatchersContaining {
+    // Placeholder to avoid empty interface warning
+    _placeholder?: never;
   }
 }
 

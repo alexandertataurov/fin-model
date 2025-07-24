@@ -11,13 +11,11 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme } from '@mui/material/styles';
 
-// Augment the Cypress namespace
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      mount: typeof mount;
-      mountWithProviders(component: React.ReactNode): Chainable<Element>;
-    }
+// Extend Cypress Chainable interface - using declare module instead of namespace
+declare module 'cypress' {
+  interface Chainable {
+    mount: typeof mount;
+    mountWithProviders(component: React.ReactNode): Chainable<Element>;
   }
 }
 

@@ -35,7 +35,7 @@ export default defineConfig({
 
         // WAVE accessibility testing
         waveCheck: async ({ url, options }) => {
-          const axios = require('axios');
+          const { default: axios } = await import('axios');
           try {
             const response = await axios.get(`https://wave.webaim.org/api/request`, {
               params: {
@@ -70,12 +70,12 @@ export default defineConfig({
         },
 
         // Performance report generation
-        generatePerformanceReport: (data) => {
-          const fs = require('fs');
-          const path = require('path');
+        generatePerformanceReport: async (data) => {
+          const { promises: fs } = await import('fs');
+          const { default: path } = await import('path');
           
           const reportPath = path.join('cypress', 'reports', 'performance-report.json');
-          fs.writeFileSync(reportPath, JSON.stringify(data, null, 2));
+          await fs.writeFile(reportPath, JSON.stringify(data, null, 2));
           
           console.log(`Performance report generated: ${reportPath}`);
           return null;
@@ -93,7 +93,7 @@ export default defineConfig({
       bundler: 'vite',
     },
     specPattern: 'src/**/*.cy.{js,jsx,ts,tsx}',
-    supportFile: 'cypress/support/component.ts',
+    supportFile: 'cypress/support/component.tsx',
   },
   
   env: {
