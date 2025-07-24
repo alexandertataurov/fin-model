@@ -1,12 +1,12 @@
 // Jest globals are available without explicit import
-import { configureAxe } from 'jest-axe';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
+import { configureAxe, toHaveNoViolations } from 'jest-axe';
+import { render as customRender } from './test-utils';
 import App from '../App';
 import Dashboard from '../pages/Dashboard';
 import FileUpload from '../pages/FileUpload';
 import Login from '../pages/Login';
 import AnalyticsDashboard from '../components/Analytics/AnalyticsDashboard';
-import { render as customRender } from './test-utils';
 
 // Configure axe for testing
 const axe = configureAxe({
@@ -15,6 +15,9 @@ const axe = configureAxe({
     'color-contrast': { enabled: false },
   },
 });
+
+// Register jest-axe custom matcher with Vitest
+expect.extend(toHaveNoViolations);
 
 // Mock components that may cause issues in test environment
 vi.mock('../components/Charts/LineChart', () => ({
@@ -134,7 +137,6 @@ describe('Accessibility Tests', () => {
       const results = await axe(container, {
         rules: {
           'label': { enabled: true },
-          'aria-label': { enabled: true },
         },
       });
       expect(results).toHaveNoViolations();
