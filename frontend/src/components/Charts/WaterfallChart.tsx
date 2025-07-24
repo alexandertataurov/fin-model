@@ -246,7 +246,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           ))}
         </Bar>
         
-        <Tooltip content={customTooltip} />
+        <Tooltip data-testid="tooltip" content={customTooltip} />
       </RechartsBarChart>
     </ResponsiveContainer>
   );

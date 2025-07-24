@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Legend,
   ReferenceLine,
+  Tooltip as RechartsTooltip,
 } from 'recharts';
 import BaseChart from './BaseChart';
 import CustomTooltip from './CustomTooltip';
@@ -161,11 +162,16 @@ export const BarChart: React.FC<BarChartProps> = ({
           </>
         )}
         
-        <CustomTooltip
-          currency={currency}
-          formatter={formatTooltip}
-          labelFormatter={(label) => `Category: ${label}`}
-          showTotal={true}
+        <RechartsTooltip
+          data-testid="tooltip"
+          content={
+            <CustomTooltip
+              currency={currency}
+              formatter={formatTooltip}
+              labelFormatter={(label) => `Category: ${label}`}
+              showTotal={true}
+            />
+          }
         />
         
         {showLegend && (
