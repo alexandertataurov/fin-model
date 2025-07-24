@@ -17,7 +17,7 @@ const axe = configureAxe({
 });
 
 // Register jest-axe custom matcher with Vitest
-expect.extend(toHaveNoViolations);
+expect.extend({ toHaveNoViolations });
 
 // Mock components that may cause issues in test environment
 vi.mock('../components/Charts/LineChart', () => ({
