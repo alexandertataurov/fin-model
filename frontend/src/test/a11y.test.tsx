@@ -18,6 +18,8 @@ const axe = configureAxe({
   },
 });
 
+// Matcher registered in test setup
+
 // Mock components that may cause issues in test environment
 vi.mock('../components/Charts/LineChart', () => ({
   LineChart: () => <div data-testid="line-chart">Line Chart</div>,
