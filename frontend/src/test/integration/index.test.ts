@@ -6,33 +6,33 @@ import { mockApiResponses } from '../test-utils';
 // Setup MSW server for API mocking
 const server = setupServer(
   // Auth endpoints
-  rest.post('/api/v1/auth/login', (req, res, ctx) => {
+  rest.post('/api/v1/auth/login', (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.auth.login));
   }),
-  rest.get('/api/v1/auth/me', (req, res, ctx) => {
+  rest.get('/api/v1/auth/me', (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.auth.user));
   }),
   
   // File endpoints
-  rest.get('/api/v1/files/', (req, res, ctx) => {
+  rest.get('/api/v1/files/', (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.files));
   }),
-  rest.post('/api/v1/files/upload', (req, res, ctx) => {
+  rest.post('/api/v1/files/upload', (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.files[0]));
   }),
   
   // Parameter endpoints
-  rest.get('/api/v1/parameters/', (req, res, ctx) => {
+  rest.get('/api/v1/parameters/', (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.parameters));
   }),
   
   // Dashboard endpoints
-  rest.get('/api/v1/dashboard/metrics', (req, res, ctx) => {
+  rest.get('/api/v1/dashboard/metrics', (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.dashboard.metrics));
   }),
   
   // Report endpoints
-  rest.get('/api/v1/reports/', (req, res, ctx) => {
+  rest.get('/api/v1/reports/', (_req, res, ctx) => {
     return res(ctx.json(mockApiResponses.reports));
   }),
 );

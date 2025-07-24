@@ -184,17 +184,21 @@ function deepEqual(a: unknown[], b: unknown[]): boolean {
 function deepEqualObjects(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
   
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
+  const objA = a as Record<string, unknown>;
+  const objB = b as Record<string, unknown>;
+  
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
   
   if (keysA.length !== keysB.length) return false;
   
   for (const key of keysA) {
     if (!keysB.includes(key)) return false;
-    if (typeof a[key] === 'object' && typeof b[key] === 'object') {
-      if (!deepEqualObjects(a[key], b[key])) return false;
-    } else if (a[key] !== b[key]) {
+    if (typeof objA[key] === 'object' && typeof objB[key] === 'object') {
+      if (!deepEqualObjects(objA[key], objB[key])) return false;
+    } else if (objA[key] !== objB[key]) {
       return false;
     }
   }

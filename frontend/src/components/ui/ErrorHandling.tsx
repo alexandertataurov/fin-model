@@ -85,7 +85,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           title="Something went wrong"
           message={this.state.error?.message || 'An unexpected error occurred'}
           onRetry={this.handleRetry}
-          details={this.state.errorInfo?.componentStack}
+          details={this.state.errorInfo?.componentStack || undefined}
         />
       );
     }

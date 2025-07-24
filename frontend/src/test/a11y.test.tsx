@@ -1,5 +1,4 @@
-import React from 'react';
-import { describe, it, expect } from '@jest/globals';
+// Jest globals are available without explicit import
 import { configureAxe } from 'jest-axe';
 import App from '../App';
 import Dashboard from '../pages/Dashboard';

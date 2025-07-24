@@ -218,7 +218,7 @@ const Reports: React.FC = () => {
   const handleGenerateReport = () => {
     generateReportMutation.mutate({
       template_id: selectedTemplate?.id,
-      export_format: formData.export_format,
+      export_format: formData.export_format as 'PDF' | 'EXCEL' | 'CSV',
       name: formData.name || `Report_${new Date().toISOString().split('T')[0]}`,
       source_file_ids: formData.source_file_ids,
       custom_config: formData.custom_config,

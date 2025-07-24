@@ -4,8 +4,28 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider as CustomThemeProvider } from '../contexts/ThemeContext';
+
+// Mock the useAuth hook
+jest.mock('../contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    token: null,
+    permissions: [],
+    roles: [],
+    login: jest.fn(),
+    logout: jest.fn(),
+    register: jest.fn(),
+    refreshToken: jest.fn(),
+    updateUser: jest.fn(),
+    hasPermission: jest.fn(() => false),
+    hasRole: jest.fn(() => false),
+    isAdmin: jest.fn(() => false),
+    isAnalyst: jest.fn(() => false),
+    isLoading: false,
+    isAuthenticated: false,
+  }),
+}));
 import { createTheme } from '@mui/material/styles';
 
 // Create a test theme
@@ -27,7 +47,7 @@ const createTestQueryClient = () =>
     defaultOptions: {
       queries: {
         retry: false,
-        gcTime: 0, // Previously cacheTime
+        cacheTime: 0, // Use cacheTime for compatibility
       },
       mutations: {
         retry: false,
@@ -39,9 +59,17 @@ const createTestQueryClient = () =>
 const mockAuthContext = {
   user: null,
   token: null,
+  permissions: [],
+  roles: [],
   login: jest.fn(),
   logout: jest.fn(),
   register: jest.fn(),
+  refreshToken: jest.fn(),
+  updateUser: jest.fn(),
+  hasPermission: jest.fn(() => false),
+  hasRole: jest.fn(() => false),
+  isAdmin: jest.fn(() => false),
+  isAnalyst: jest.fn(() => false),
   isLoading: false,
   isAuthenticated: false,
 };
@@ -51,11 +79,9 @@ const mockAuthContext = {
 const AllTheProviders: React.FC<{
   children: React.ReactNode;
   queryClient?: QueryClient;
-  authContext?: typeof mockAuthContext;
 }> = ({
   children,
   queryClient = createTestQueryClient(),
-  authContext = mockAuthContext,
 }) => {
   return (
     <BrowserRouter>
@@ -63,7 +89,7 @@ const AllTheProviders: React.FC<{
         <ThemeProvider theme={testTheme}>
           <CustomThemeProvider>
             <CssBaseline />
-            <AuthProvider value={authContext}>{children}</AuthProvider>
+            {children}
           </CustomThemeProvider>
         </ThemeProvider>
       </QueryClientProvider>
@@ -73,12 +99,11 @@ const AllTheProviders: React.FC<{
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   queryClient?: QueryClient;
-  authContext?: typeof mockAuthContext;
   route?: string;
 }
 
 const customRender = (ui: ReactElement, options: CustomRenderOptions = {}) => {
-  const { queryClient, authContext, route = '/', ...renderOptions } = options;
+  const { queryClient, route = '/', ...renderOptions } = options;
 
   // Set the initial route if provided
   if (route !== '/') {
@@ -86,7 +111,7 @@ const customRender = (ui: ReactElement, options: CustomRenderOptions = {}) => {
   }
 
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <AllTheProviders queryClient={queryClient} authContext={authContext}>
+    <AllTheProviders queryClient={queryClient}>
       {children}
     </AllTheProviders>
   );

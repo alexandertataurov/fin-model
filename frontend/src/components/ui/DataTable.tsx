@@ -403,7 +403,7 @@ export const DataTable = <T extends Record<string, unknown>>({
                   )}
                   {columns.map((column) => (
                     <TableCell key={column.id as string} align={column.align}>
-                      {column.format ? column.format(row[column.id], row) : row[column.id]}
+                      {column.format ? column.format(row[column.id], row) : String(row[column.id] ?? '')}
                     </TableCell>
                   ))}
                   {actions && (
