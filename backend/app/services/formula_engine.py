@@ -280,24 +280,25 @@ class FormulaEngine:
 
     def evaluate(self, formula: str, context: Dict[str, Any] = None) -> Any:
         """Evaluate a formula expression for backward compatibility."""
-        try:
-            if context:
-                # Update cell values with provided context
-                self.cell_values.update(context)
-            
-            # If it's a simple cell reference, return its value
-            if re.match(r'^[A-Z]+\d+$', formula):
-                return self.cell_values.get(formula, 0)
-            
-            # If it starts with =, evaluate as formula
-            if formula.startswith('='):
-                return self._evaluate_formula(formula, 'TEMP!A1')
-            
-            # Try to evaluate as expression
-            return self._safe_eval(formula)
-            
-        except Exception as e:
-            return f"#ERROR: {str(e)}"
+        if context:
+            # Update cell values with provided context
+            self.cell_values.update(context)
+        
+        # Security validation - check for dangerous patterns
+        if self._is_dangerous_expression(formula):
+            raise Exception(
+                "Security validation failed: Dangerous expression detected")
+        
+        # If it's a simple cell reference, return its value
+        if re.match(r'^[A-Z]+\d+$', formula):
+            return self.cell_values.get(formula, 0)
+        
+        # If it starts with =, evaluate as formula
+        if formula.startswith('='):
+            return self._evaluate_formula(formula, 'TEMP!A1')
+        
+        # Try to evaluate as expression
+        return self._safe_eval(formula)
 
     def calculate_cell(self, cell_ref: str) -> CalculationResult:
         """
@@ -640,7 +641,6 @@ class FormulaEngine:
         """
         # Create a safe environment for evaluation
         safe_dict = {
-            'self': self,
             'abs': abs,
             'round': round,
             'min': min,
@@ -650,9 +650,15 @@ class FormulaEngine:
             '__builtins__': {},
         }
         
+        # Add cell values and variables to the evaluation context
+        safe_dict.update(self.cell_values)
+        
         try:
             result = eval(expression, safe_dict)
             return result
+        except ZeroDivisionError:
+            # Re-raise division by zero to be handled by caller
+            raise ZeroDivisionError("Division by zero in formula evaluation")
         except Exception as e:
             raise Exception(f"Expression evaluation failed: {str(e)}")
 
@@ -739,3 +745,88 @@ class FormulaEngine:
             return depths[cell]
         
         return max(calculate_depth(cell) for cell in self.dependency_graph.nodes.keys()) if self.dependency_graph.nodes else 0 
+
+    def _is_dangerous_expression(self, expression: str) -> bool:
+        """
+        Check if an expression contains dangerous patterns.
+        
+        Args:
+            expression: The expression to validate
+            
+        Returns:
+            True if the expression is dangerous, False otherwise
+        """
+        dangerous_patterns = [
+            '__import__',
+            'import',
+            'exec',
+            'eval',
+            'compile',
+            'open',
+            'file',
+            'input',
+            'raw_input',
+            'reload',
+            'vars',
+            'globals',
+            'locals',
+            'dir',
+            'hasattr',
+            'getattr',
+            'setattr',
+            'delattr',
+            'callable',
+            'type',
+            'isinstance',
+            'issubclass',
+            'super',
+            'classmethod',
+            'staticmethod',
+            'property',
+            'lambda',
+            'yield',
+            'return',
+            'break',
+            'continue',
+            'pass',
+            'class',
+            'def',
+            'try',
+            'except',
+            'finally',
+            'raise',
+            'assert',
+            'global',
+            'nonlocal',
+            'del',
+            'with',
+            'as',
+            'if',
+            'elif',
+            'else',
+            'for',
+            'while',
+            'in',
+            'is',
+            'and',
+            'or',
+            'not',
+            'from'
+        ]
+        
+        expression_lower = expression.lower()
+        
+        # Check for dangerous patterns as whole words/tokens
+        import re
+        for pattern in dangerous_patterns:
+            # Use word boundaries to match complete words only
+            if re.search(r'\b' + re.escape(pattern) + r'\b', expression_lower):
+                return True
+        
+        # Check for suspicious characters/patterns
+        suspicious_chars = ['__', '{{', '}}', 'system', 'shell', 'subprocess']
+        for char in suspicious_chars:
+            if char in expression_lower:
+                return True
+                
+        return False 
