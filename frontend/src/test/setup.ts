@@ -1,5 +1,36 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, expect } from 'vitest';
+import { toHaveNoViolations } from 'jest-axe';
+
+// Vitest's expect.extend requires an object of matcher functions. Cast to any
+// to avoid TS complaints about the matcher signature.
+// jest-axe exports an object of matchers
+expect.extend(toHaveNoViolations);
+
+// Ensure Recharts components render in tests by providing non-zero dimensions
+// for elements queried by ResponsiveContainer. Without this, it falls back to
+// rendering empty divs because JSDOM reports zero width/height.
+Object.defineProperty(HTMLDivElement.prototype, 'getBoundingClientRect', {
+  configurable: true,
+  value() {
+    const rect = {
+      width: 800,
+      height: 400,
+      top: 0,
+      left: 0,
+      bottom: 400,
+      right: 800,
+      x: 0,
+      y: 0,
+    };
+    return {
+      ...rect,
+      toJSON() {
+        return rect;
+      },
+    };
+  },
+});
 
 // Mock IntersectionObserver
 Object.defineProperty(window, 'IntersectionObserver', {
