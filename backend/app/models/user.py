@@ -52,6 +52,12 @@ class User(Base):
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
+    @full_name.setter
+    def full_name(self, value: str) -> None:
+        parts = value.split(" ", 1)
+        self.first_name = parts[0]
+        self.last_name = parts[1] if len(parts) > 1 else ""
+
     @property
     def is_locked(self):
         if self.account_locked_until is None:

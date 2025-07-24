@@ -13,6 +13,7 @@ class FileUploadResponse(BaseModel):
     file_size: int
     file_type: str
     status: FileStatus
+    user_id: int
     created_at: datetime
 
     class Config:
