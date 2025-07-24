@@ -132,14 +132,14 @@ class TestFileEndpoints:
         client, user = authenticated_client
         
         # Create test files
-        file1 = FileUpload(
+        file1 = UploadedFile(
             original_filename="file1.xlsx",
             stored_filename="stored1.xlsx",
             file_path="/path/file1.xlsx",
             file_size=1024,
             user_id=user.id
         )
-        file2 = FileUpload(
+        file2 = UploadedFile(
             original_filename="file2.xlsx",
             stored_filename="stored2.xlsx",
             file_path="/path/file2.xlsx",
@@ -160,7 +160,7 @@ class TestFileEndpoints:
         client, user = authenticated_client
         
         # Create test file
-        file_upload = FileUpload(
+        file_upload = UploadedFile(
             original_filename="test.xlsx",
             stored_filename="stored.xlsx",
             file_path="/path/test.xlsx",
@@ -196,7 +196,7 @@ class TestFileEndpoints:
         db_session.refresh(other_user)
         
         # Create file owned by other user
-        file_upload = FileUpload(
+        file_upload = UploadedFile(
             original_filename="test.xlsx",
             stored_filename="stored.xlsx",
             file_path="/path/test.xlsx",

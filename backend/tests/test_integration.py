@@ -53,7 +53,7 @@ class TestFileUploadWorkflow:
         file_id = file_data["id"]
 
         # Verify file was saved to database
-        uploaded_file = db_session.query(FileUpload).filter(FileUpload.id == file_id).first()
+        uploaded_file = db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         assert uploaded_file is not None
         assert uploaded_file.original_filename == "test.xlsx"
         assert uploaded_file.user_id == user.id
@@ -176,7 +176,7 @@ class TestDashboardIntegration:
 
         # Create test files
         files = [
-            FileUpload(
+            UploadedFile(
                 original_filename="file1.xlsx",
                 stored_filename="stored1.xlsx",
                 file_path="/path/file1.xlsx",
@@ -184,7 +184,7 @@ class TestDashboardIntegration:
                 user_id=user.id,
                 processing_status="completed"
             ),
-            FileUpload(
+            UploadedFile(
                 original_filename="file2.xlsx",
                 stored_filename="stored2.xlsx",
                 file_path="/path/file2.xlsx",
@@ -262,7 +262,7 @@ class TestDashboardIntegration:
         file_id = upload_response.json()["id"]
 
         # Simulate processing completion
-        uploaded_file = db_session.query(FileUpload).filter(FileUpload.id == file_id).first()
+        uploaded_file = db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         uploaded_file.processing_status = "completed"
         db_session.commit()
 
@@ -309,7 +309,7 @@ class TestReportGenerationWorkflow:
         file_id = upload_response.json()["id"]
 
         # Simulate processing completion
-        uploaded_file = db_session.query(FileUpload).filter(FileUpload.id == file_id).first()
+        uploaded_file = db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         uploaded_file.processing_status = "completed"
         db_session.commit()
 
