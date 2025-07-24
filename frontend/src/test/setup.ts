@@ -12,17 +12,24 @@ expect.extend(toHaveNoViolations);
 // rendering empty divs because JSDOM reports zero width/height.
 Object.defineProperty(HTMLDivElement.prototype, 'getBoundingClientRect', {
   configurable: true,
-  value: () => ({
-    width: 800,
-    height: 400,
-    top: 0,
-    left: 0,
-    bottom: 400,
-    right: 800,
-    x: 0,
-    y: 0,
-    toJSON: () => {},
-  }),
+  value() {
+    const rect = {
+      width: 800,
+      height: 400,
+      top: 0,
+      left: 0,
+      bottom: 400,
+      right: 800,
+      x: 0,
+      y: 0,
+    };
+    return {
+      ...rect,
+      toJSON() {
+        return rect;
+      },
+    };
+  },
 });
 
 // Mock IntersectionObserver
