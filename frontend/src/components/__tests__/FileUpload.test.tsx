@@ -14,9 +14,22 @@ const mockFileUpload = vi.fn();
 const mockFileDelete = vi.fn();
 
 vi.mock('../../services/fileApi', () => ({
-  uploadFile: (...args: unknown[]) => mockFileUpload(...args),
-  deleteFile: (...args: unknown[]) => mockFileDelete(...args),
-  getUserFiles: () => Promise.resolve(mockApiResponses.files),
+  fileApi: {
+    uploadFile: (...args: unknown[]) => mockFileUpload(...args),
+    deleteFile: (...args: unknown[]) => mockFileDelete(...args),
+    getFiles: () =>
+      Promise.resolve({
+        files: mockApiResponses.files,
+        total: mockApiResponses.files.length,
+        page: 1,
+        page_size: 10,
+        has_next: false,
+        has_previous: false,
+      }),
+    formatFileSize: (bytes: number) => `${bytes} Bytes`,
+    getStatusColor: () => 'info',
+    getStatusText: () => 'Uploaded',
+  },
 }));
 
 describe('FileUploadDropzone', () => {
