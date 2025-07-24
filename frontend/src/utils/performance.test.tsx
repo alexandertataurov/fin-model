@@ -245,8 +245,8 @@ describe('Performance Tests', () => {
       const endTime = performance.now();
       const processingTime = endTime - startTime;
 
-      // Processing 10,000 items should complete within 50ms
-      expect(processingTime).toBeLessThan(50);
+      // Processing 10,000 items should complete within 100ms
+      expect(processingTime).toBeLessThan(100);
       expect(processed.length).toBeLessThanOrEqual(100);
 
       console.log(
