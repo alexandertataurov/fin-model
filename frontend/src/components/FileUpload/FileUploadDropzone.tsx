@@ -123,7 +123,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           uploadedFiles.push(uploadedFile);
         } catch (error: unknown) {
           let errorMessage = 'Upload failed';
-          if (error instanceof Error) {
+          if ((error as Error)?.message) {
             errorMessage = (error as Error).message;
           } else if (typeof error === 'object' && error !== null && 'response' in error) {
             const httpError = error as { response?: { data?: { detail?: string } } };
@@ -231,8 +231,8 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
     <Box>
       {/* Dropzone */}
       <Paper elevation={1} sx={getDropzoneStyles()}>
-        <div {...getRootProps()}>
-          <input {...getInputProps()} />
+        <div data-testid="dropzone" {...getRootProps()}>
+          <input data-testid="file-input" {...getInputProps()} />
           <CloudUpload sx={{ fontSize: 48, color: '#666', mb: 2 }} />
           
           {isDragActive ? (
