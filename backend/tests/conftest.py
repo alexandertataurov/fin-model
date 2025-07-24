@@ -115,11 +115,15 @@ def client(test_db):
 @pytest.fixture
 def test_user_data():
     """Generate test user data."""
+    first_name = fake.first_name()
+    last_name = fake.last_name()
     return {
         "username": fake.user_name(),
         "email": fake.email(),
         "password": "testpassword123",
-        "full_name": fake.name(),
+        "first_name": first_name,
+        "last_name": last_name,
+        "full_name": f"{first_name} {last_name}",
         "is_active": True,
     }
 
@@ -165,7 +169,8 @@ def authenticated_client(client, db_session, test_user_data):
         username=test_user_data["username"],
         email=test_user_data["email"],
         hashed_password=hashed_password,
-        full_name=test_user_data["full_name"],
+        first_name=test_user_data["first_name"],
+        last_name=test_user_data["last_name"],
         is_active=test_user_data["is_active"]
     )
     db_session.add(user)

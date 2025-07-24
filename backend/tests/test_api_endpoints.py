@@ -17,8 +17,9 @@ class TestAuthEndpoints:
         user_data = {
             "username": "testuser",
             "email": "test@example.com",
-            "password": "testpassword123",
-            "full_name": "Test User"
+            "password": "TestPassword123!",
+            "first_name": "Test",
+            "last_name": "User"
         }
         response = client.post("/api/v1/auth/register", json=user_data)
         assert response.status_code == 201
@@ -34,7 +35,8 @@ class TestAuthEndpoints:
             username="testuser",
             email="existing@example.com",
             hashed_password=get_password_hash("password"),
-            full_name="Existing User"
+            first_name="Existing",
+            last_name="User"
         )
         db_session.add(existing_user)
         db_session.commit()
@@ -57,7 +59,8 @@ class TestAuthEndpoints:
             username="testuser",
             email="test@example.com",
             hashed_password=get_password_hash(password),
-            full_name="Test User"
+            first_name="Test",
+            last_name="User"
         )
         db_session.add(user)
         db_session.commit()
@@ -189,7 +192,8 @@ class TestFileEndpoints:
             username="otheruser",
             email="other@example.com",
             hashed_password=get_password_hash("password"),
-            full_name="Other User"
+            first_name="Other",
+            last_name="User"
         )
         db_session.add(other_user)
         db_session.commit()
