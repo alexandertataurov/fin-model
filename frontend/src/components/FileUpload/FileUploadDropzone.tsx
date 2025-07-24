@@ -232,7 +232,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       {/* Dropzone */}
       <Paper elevation={1} sx={getDropzoneStyles()}>
         <div data-testid="dropzone" {...getRootProps()}>
-          <input data-testid="file-input" {...getInputProps()} />
+          <input aria-label="file input" data-testid="file-input" {...getInputProps()} />
           <CloudUpload sx={{ fontSize: 48, color: '#666', mb: 2 }} />
           
           {isDragActive ? (

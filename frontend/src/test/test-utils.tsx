@@ -83,31 +83,39 @@ const mockAuthContext = {
 
 // Removed unused MockAuthProvider to fix linting error
 
-const AllTheProviders: React.FC<{
+interface ProviderProps {
   children: React.ReactNode;
   queryClient?: QueryClient;
-}> = ({ children, queryClient = createTestQueryClient() }) => {
-  return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={testTheme}>
-          <CustomThemeProvider>
-            <CssBaseline />
-            {children}
-          </CustomThemeProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+  withRouter?: boolean;
+}
+
+const AllTheProviders: React.FC<ProviderProps> = ({
+  children,
+  queryClient = createTestQueryClient(),
+  withRouter = true,
+}) => {
+  const content = (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={testTheme}>
+        <CustomThemeProvider>
+          <CssBaseline />
+          {children}
+        </CustomThemeProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
+
+  return withRouter ? <BrowserRouter>{content}</BrowserRouter> : content;
 };
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   queryClient?: QueryClient;
   route?: string;
+  withRouter?: boolean;
 }
 
 const customRender = (ui: ReactElement, options: CustomRenderOptions = {}) => {
-  const { queryClient, route = '/', ...renderOptions } = options;
+  const { queryClient, route = '/', withRouter = true, ...renderOptions } = options;
 
   // Set the initial route if provided
   if (route !== '/') {
@@ -115,7 +123,9 @@ const customRender = (ui: ReactElement, options: CustomRenderOptions = {}) => {
   }
 
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <AllTheProviders queryClient={queryClient}>{children}</AllTheProviders>
+    <AllTheProviders queryClient={queryClient} withRouter={withRouter}>
+      {children}
+    </AllTheProviders>
   );
 
   return render(ui, { wrapper: Wrapper, ...renderOptions });
