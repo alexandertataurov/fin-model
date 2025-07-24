@@ -7,26 +7,32 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider as CustomThemeProvider } from '../contexts/ThemeContext';
 import { vi } from 'vitest';
 
-// Mock the useAuth hook
-vi.mock('../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: null,
-    token: null,
-    permissions: [],
-    roles: [],
-    login: vi.fn(),
-    logout: vi.fn(),
-    register: vi.fn(),
-    refreshToken: vi.fn(),
-    updateUser: vi.fn(),
-    hasPermission: vi.fn(() => false),
-    hasRole: vi.fn(() => false),
-    isAdmin: vi.fn(() => false),
-    isAnalyst: vi.fn(() => false),
-    isLoading: false,
-    isAuthenticated: false,
-  }),
-}));
+// Mock the useAuth hook but preserve other exports like AuthProvider
+vi.mock('../contexts/AuthContext', async () => {
+  const actual = await vi.importActual<typeof import('../contexts/AuthContext')>(
+    '../contexts/AuthContext'
+  );
+  return {
+    ...actual,
+    useAuth: () => ({
+      user: null,
+      token: null,
+      permissions: [],
+      roles: [],
+      login: vi.fn(),
+      logout: vi.fn(),
+      register: vi.fn(),
+      refreshToken: vi.fn(),
+      updateUser: vi.fn(),
+      hasPermission: vi.fn(() => false),
+      hasRole: vi.fn(() => false),
+      isAdmin: vi.fn(() => false),
+      isAnalyst: vi.fn(() => false),
+      isLoading: false,
+      isAuthenticated: false,
+    }),
+  };
+});
 import { createTheme } from '@mui/material/styles';
 
 // Create a test theme
@@ -138,7 +144,8 @@ export const mockApiResponses = {
       original_filename: 'test.xlsx',
       stored_filename: 'stored-test.xlsx',
       file_size: 1024,
-      upload_date: '2023-01-01T00:00:00Z',
+      file_type: 'xlsx',
+      created_at: '2023-01-01T00:00:00Z',
       processing_status: 'completed',
     },
   ],
