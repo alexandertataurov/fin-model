@@ -5,23 +5,24 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider as CustomThemeProvider } from '../contexts/ThemeContext';
+import { vi } from 'vitest';
 
 // Mock the useAuth hook
-jest.mock('../contexts/AuthContext', () => ({
+vi.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     token: null,
     permissions: [],
     roles: [],
-    login: jest.fn(),
-    logout: jest.fn(),
-    register: jest.fn(),
-    refreshToken: jest.fn(),
-    updateUser: jest.fn(),
-    hasPermission: jest.fn(() => false),
-    hasRole: jest.fn(() => false),
-    isAdmin: jest.fn(() => false),
-    isAnalyst: jest.fn(() => false),
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    refreshToken: vi.fn(),
+    updateUser: vi.fn(),
+    hasPermission: vi.fn(() => false),
+    hasRole: vi.fn(() => false),
+    isAdmin: vi.fn(() => false),
+    isAnalyst: vi.fn(() => false),
     isLoading: false,
     isAuthenticated: false,
   }),
@@ -61,15 +62,15 @@ const mockAuthContext = {
   token: null,
   permissions: [],
   roles: [],
-  login: jest.fn(),
-  logout: jest.fn(),
-  register: jest.fn(),
-  refreshToken: jest.fn(),
-  updateUser: jest.fn(),
-  hasPermission: jest.fn(() => false),
-  hasRole: jest.fn(() => false),
-  isAdmin: jest.fn(() => false),
-  isAnalyst: jest.fn(() => false),
+  login: vi.fn(),
+  logout: vi.fn(),
+  register: vi.fn(),
+  refreshToken: vi.fn(),
+  updateUser: vi.fn(),
+  hasPermission: vi.fn(() => false),
+  hasRole: vi.fn(() => false),
+  isAdmin: vi.fn(() => false),
+  isAnalyst: vi.fn(() => false),
   isLoading: false,
   isAuthenticated: false,
 };
@@ -79,10 +80,7 @@ const mockAuthContext = {
 const AllTheProviders: React.FC<{
   children: React.ReactNode;
   queryClient?: QueryClient;
-}> = ({
-  children,
-  queryClient = createTestQueryClient(),
-}) => {
+}> = ({ children, queryClient = createTestQueryClient() }) => {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
@@ -111,9 +109,7 @@ const customRender = (ui: ReactElement, options: CustomRenderOptions = {}) => {
   }
 
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <AllTheProviders queryClient={queryClient}>
-      {children}
-    </AllTheProviders>
+    <AllTheProviders queryClient={queryClient}>{children}</AllTheProviders>
   );
 
   return render(ui, { wrapper: Wrapper, ...renderOptions });
@@ -210,11 +206,11 @@ export const createMockParameter = (
 
 // Mock fetch for API calls
 export const mockFetch = (response: any, status = 200) => {
-  return jest.fn().mockResolvedValue({
+  return vi.fn().mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
-    json: jest.fn().mockResolvedValue(response),
-    text: jest.fn().mockResolvedValue(JSON.stringify(response)),
+    json: vi.fn().mockResolvedValue(response),
+    text: vi.fn().mockResolvedValue(JSON.stringify(response)),
   });
 };
 

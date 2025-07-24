@@ -693,3 +693,218 @@ class ParameterDetector:
         }
         
         return descriptions.get(param_type, "Financial parameter") 
+
+    def detect_seasonality(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Detect seasonal patterns in financial data.
+        
+        Args:
+            data: Time series data to analyze for seasonality
+            
+        Returns:
+            Dictionary containing seasonality analysis results
+        """
+        result = {
+            "has_seasonality": False,
+            "seasonal_strength": 0.0,
+            "seasonal_periods": [],
+            "confidence": 0.0
+        }
+        
+        try:
+            # Extract time series data
+            if isinstance(data, list) and len(data) >= 12:  # Need at least 12 points
+                values = []
+                for item in data:
+                    if isinstance(item, dict) and 'value' in item:
+                        try:
+                            values.append(float(item['value']))
+                        except (ValueError, TypeError):
+                            continue
+                
+                if len(values) >= 12:
+                    # Simple seasonality detection using coefficient of variation
+                    # Check quarterly patterns (every 3 months)
+                    quarterly_groups = [values[i::4] for i in range(
+                        min(4, len(values)))]
+                    quarterly_cvs = []
+                    
+                    for group in quarterly_groups:
+                        if len(group) > 1:
+                            mean_val = sum(group) / len(group)
+                            if mean_val != 0:
+                                variance = sum((x - mean_val) ** 2 for x in group) / len(group)
+                                cv = (variance ** 0.5) / abs(mean_val)
+                                quarterly_cvs.append(cv)
+                    
+                    if quarterly_cvs:
+                        avg_cv = sum(quarterly_cvs) / len(quarterly_cvs)
+                        # If coefficient of variation is low, there might be seasonality
+                        if avg_cv < 0.5:  # Threshold for seasonal pattern
+                            result["has_seasonality"] = True
+                            result["seasonal_strength"] = 1.0 - avg_cv
+                            result["seasonal_periods"] = ["quarterly"]
+                            result["confidence"] = min(0.9, 1.0 - avg_cv)
+                    
+        except Exception as e:
+            result["error"] = str(e)
+            
+        return result
+    
+    def identify_assumptions(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Identify key assumptions from parsed financial data.
+        
+        Args:
+            parsed_data: Parsed financial data from Excel file
+            
+        Returns:
+            Dictionary containing identified assumptions
+        """
+        assumptions = {
+            "growth_assumptions": [],
+            "operational_assumptions": [],
+            "financial_assumptions": [],
+            "confidence_scores": {}
+        }
+        
+        try:
+            # Extract assumptions from sheets
+            if "sheets" in parsed_data:
+                for sheet in parsed_data["sheets"]:
+                    sheet_name = sheet.get("name", "").lower()
+                    
+                    # Look for assumption-related sheets
+                    if any(keyword in sheet_name for keyword in 
+                           ["assumption", "input", "parameter", "scenario"]):
+                        
+                        # Extract numeric values that look like assumptions
+                        if "cells" in sheet:
+                            for cell in sheet["cells"]:
+                                if self._looks_like_assumption(cell):
+                                    assumption = self._create_assumption_from_cell(cell, sheet_name)
+                                    if assumption:
+                                        category = self._categorize_assumption(assumption)
+                                        assumptions[f"{category}_assumptions"].append(assumption)
+            
+            # Calculate confidence scores
+            for category in ["growth", "operational", "financial"]:
+                key = f"{category}_assumptions"
+                if assumptions[key]:
+                    assumptions["confidence_scores"][category] = min(0.9, 
+                        len(assumptions[key]) / 10.0)  # More assumptions = higher confidence
+                        
+        except Exception as e:
+            assumptions["error"] = str(e)
+            
+        return assumptions
+    
+    def validate_assumptions(self, assumptions: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate the reasonableness of financial assumptions.
+        
+        Args:
+            assumptions: Dictionary of assumptions to validate
+            
+        Returns:
+            Dictionary containing validation results
+        """
+        validation_result = {
+            "is_valid": True,
+            "warnings": [],
+            "errors": [],
+            "recommendations": []
+        }
+        
+        try:
+            # Validate growth assumptions
+            if "growth_assumptions" in assumptions:
+                for assumption in assumptions["growth_assumptions"]:
+                    if isinstance(assumption, dict) and "value" in assumption:
+                        try:
+                            value = float(assumption["value"])
+                            
+                            # Check for unrealistic growth rates
+                            if abs(value) > 1.0:  # More than 100% growth
+                                validation_result["warnings"].append(
+                                    f"High growth rate detected: {value*100:.1f}%")
+                            elif abs(value) > 0.5:  # More than 50% growth
+                                validation_result["warnings"].append(
+                                    f"Aggressive growth rate: {value*100:.1f}%")
+                                    
+                        except (ValueError, TypeError):
+                            validation_result["errors"].append(
+                                f"Invalid growth rate value: {assumption.get('value')}")
+            
+            # Validate operational assumptions
+            if "operational_assumptions" in assumptions:
+                for assumption in assumptions["operational_assumptions"]:
+                    if isinstance(assumption, dict) and "value" in assumption:
+                        try:
+                            value = float(assumption["value"])
+                            name = assumption.get("name", "").lower()
+                            
+                            # Check margin assumptions
+                            if "margin" in name and (value < 0 or value > 1):
+                                validation_result["errors"].append(
+                                    f"Invalid margin value: {value}")
+                                    
+                        except (ValueError, TypeError):
+                            continue
+            
+            # Add recommendations
+            if validation_result["warnings"]:
+                validation_result["recommendations"].append(
+                    "Review aggressive assumptions for reasonableness")
+            if validation_result["errors"]:
+                validation_result["recommendations"].append(
+                    "Correct invalid assumption values")
+                validation_result["is_valid"] = False
+                
+        except Exception as e:
+            validation_result["errors"].append(str(e))
+            validation_result["is_valid"] = False
+            
+        return validation_result
+    
+    def _looks_like_assumption(self, cell: Dict[str, Any]) -> bool:
+        """Check if a cell looks like it contains an assumption."""
+        if not isinstance(cell, dict):
+            return False
+            
+        # Check if it's a numeric value
+        value = cell.get("value")
+        if value is None:
+            return False
+            
+        try:
+            float_val = float(value)
+            # Assumptions are often percentages or small numbers
+            return 0 <= abs(float_val) <= 10
+        except (ValueError, TypeError):
+            return False
+    
+    def _create_assumption_from_cell(self, cell: Dict[str, Any], sheet_name: str) -> Optional[Dict[str, Any]]:
+        """Create an assumption dictionary from a cell."""
+        try:
+            value = float(cell.get("value", 0))
+            return {
+                "name": f"{sheet_name}_{cell.get('address', 'unknown')}",
+                "value": value,
+                "sheet": sheet_name,
+                "address": cell.get("address"),
+                "confidence": 0.7
+            }
+        except (ValueError, TypeError):
+            return None
+    
+    def _categorize_assumption(self, assumption: Dict[str, Any]) -> str:
+        """Categorize an assumption based on its name and value."""
+        name = assumption.get("name", "").lower()
+        
+        if any(keyword in name for keyword in ["growth", "rate", "increase"]):
+            return "growth"
+        elif any(keyword in name for keyword in ["margin", "cost", "expense"]):
+            return "operational"
+        else:
+            return "financial" 

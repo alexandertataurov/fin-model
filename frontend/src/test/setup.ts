@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock IntersectionObserver
 Object.defineProperty(window, 'IntersectionObserver', {
@@ -82,12 +83,12 @@ Object.defineProperty(window, 'FileReader', {
 // Mock URL.createObjectURL
 Object.defineProperty(window.URL, 'createObjectURL', {
   writable: true,
-  value: jest.fn(() => 'mock-object-url'),
+  value: vi.fn(() => 'mock-object-url'),
 });
 
 Object.defineProperty(window.URL, 'revokeObjectURL', {
   writable: true,
-  value: jest.fn(),
+  value: vi.fn(),
 });
 
 // Mock localStorage
@@ -122,58 +123,58 @@ Object.defineProperty(window, 'sessionStorage', {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
 
 // Mock HTMLCanvasElement methods for chart testing
 // Mock canvas context with proper typing
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
-  value: jest.fn((contextId: string) => {
+  value: vi.fn((contextId: string) => {
     if (contextId === '2d') {
       return {
-        fillRect: jest.fn(),
-        clearRect: jest.fn(),
-        getImageData: jest.fn(() => ({ 
+        fillRect: vi.fn(),
+        clearRect: vi.fn(),
+        getImageData: vi.fn(() => ({
           data: new Uint8ClampedArray(4),
           width: 1,
           height: 1,
-          colorSpace: 'srgb'
+          colorSpace: 'srgb',
         })),
-        putImageData: jest.fn(),
-        createImageData: jest.fn(() => ({ 
+        putImageData: vi.fn(),
+        createImageData: vi.fn(() => ({
           data: new Uint8ClampedArray(4),
           width: 1,
           height: 1,
-          colorSpace: 'srgb'
+          colorSpace: 'srgb',
         })),
-        setTransform: jest.fn(),
-        drawImage: jest.fn(),
-        save: jest.fn(),
-        fillText: jest.fn(),
-        restore: jest.fn(),
-        beginPath: jest.fn(),
-        moveTo: jest.fn(),
-        lineTo: jest.fn(),
-        closePath: jest.fn(),
-        stroke: jest.fn(),
-        translate: jest.fn(),
-        scale: jest.fn(),
-        rotate: jest.fn(),
-        arc: jest.fn(),
-        fill: jest.fn(),
-        measureText: jest.fn(() => ({ width: 0 })),
-        transform: jest.fn(),
-        rect: jest.fn(),
-        clip: jest.fn(),
+        setTransform: vi.fn(),
+        drawImage: vi.fn(),
+        save: vi.fn(),
+        fillText: vi.fn(),
+        restore: vi.fn(),
+        beginPath: vi.fn(),
+        moveTo: vi.fn(),
+        lineTo: vi.fn(),
+        closePath: vi.fn(),
+        stroke: vi.fn(),
+        translate: vi.fn(),
+        scale: vi.fn(),
+        rotate: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+        measureText: vi.fn(() => ({ width: 0 })),
+        transform: vi.fn(),
+        rect: vi.fn(),
+        clip: vi.fn(),
         canvas: document.createElement('canvas'),
         globalAlpha: 1,
         globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
@@ -206,7 +207,8 @@ interface JestAsymmetricMatchersContaining {
 
 // Extend jest matchers
 declare module '@testing-library/jest-dom' {
-  interface AsymmetricMatchersContaining extends JestAsymmetricMatchersContaining {
+  interface AsymmetricMatchersContaining
+    extends JestAsymmetricMatchersContaining {
     // Placeholder to avoid empty interface warning
     _placeholder?: never;
   }
