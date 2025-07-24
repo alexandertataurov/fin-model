@@ -27,7 +27,7 @@ class FileService:
     def validate_file(self, file: UploadFile) -> None:
         """Validate uploaded file."""
         # Check file size
-        if file.size and file.size > self.max_file_size:
+        if hasattr(file, "size") and file.size and file.size > self.max_file_size:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=f"File size {file.size} exceeds maximum allowed size {self.max_file_size} bytes",

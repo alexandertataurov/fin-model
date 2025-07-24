@@ -7,8 +7,8 @@ from app.models.role import RoleType
 class UserBase(BaseModel):
     email: EmailStr
     username: str
-    first_name: str
-    last_name: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
     @field_validator("username")
     @classmethod
@@ -26,6 +26,8 @@ class UserBase(BaseModel):
     @field_validator("first_name", "last_name")
     @classmethod
     def validate_names(cls, v):
+        if v is None:
+            return v
         if len(v) < 1:
             raise ValueError("Name fields cannot be empty")
         if len(v) > 50:
@@ -34,6 +36,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    full_name: Optional[str] = None
     password: str
 
     @field_validator("password")
@@ -44,22 +47,9 @@ class UserCreate(UserBase):
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
-        # Check for at least one uppercase letter
-        if not any(c.isupper() for c in v):
-            raise ValueError("Password must contain at least one uppercase letter")
-
-        # Check for at least one lowercase letter
-        if not any(c.islower() for c in v):
-            raise ValueError("Password must contain at least one lowercase letter")
-
-        # Check for at least one digit
+        # Basic check for at least one digit to keep minimal strength
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
-
-        # Check for at least one special character
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in v):
-            raise ValueError("Password must contain at least one special character")
 
         return v
 
