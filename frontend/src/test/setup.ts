@@ -5,7 +5,7 @@ import { toHaveNoViolations } from 'jest-axe';
 // Vitest's expect.extend requires an object of matcher functions. Cast to any
 // to avoid TS complaints about the matcher signature.
 // jest-axe exports an object of matchers
-expect.extend(toHaveNoViolations);
+expect.extend(toHaveNoViolations as any);
 
 // Ensure Recharts components render in tests by providing non-zero dimensions
 // for elements queried by ResponsiveContainer. Without this, it falls back to
@@ -229,21 +229,6 @@ Object.defineProperty(window, 'SVGElement', {
   },
 });
 
-// Global test utilities - using interface extension instead of namespace
-interface JestAsymmetricMatchersContaining {
-  toBeInTheDocument(): any;
-  toHaveClass(className: string): any;
-  toHaveTextContent(text: string): any;
-}
-
-// Extend jest matchers
-declare module '@testing-library/jest-dom' {
-  interface AsymmetricMatchersContaining
-    extends JestAsymmetricMatchersContaining {
-    // Placeholder to avoid empty interface warning
-    _placeholder?: never;
-  }
-}
 
 // Suppress specific console warnings during tests
 const originalError = console.error;
