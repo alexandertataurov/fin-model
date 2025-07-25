@@ -81,13 +81,14 @@ class FileService:
             # Create database record
             file_record = UploadedFile(
                 filename=unique_filename,
+                stored_filename=unique_filename,
                 original_filename=file.filename,
                 file_path=str(file_path),
                 file_size=file_size,
                 file_type=self.get_file_type(file.filename).value,
                 mime_type=file.content_type or "application/octet-stream",
                 status=FileStatus.UPLOADED,
-                uploaded_by_id=user.id,
+                user_id=user.id,
             )
 
             self.db.add(file_record)
@@ -119,7 +120,7 @@ class FileService:
 
         # TODO: Add admin check when permissions are ready
         # For now, users can only access their own files
-        query = query.filter(UploadedFile.uploaded_by_id == user.id)
+        query = query.filter(UploadedFile.user_id == user.id)
 
         return query.first()
 
@@ -132,7 +133,7 @@ class FileService:
     ) -> Dict[str, Any]:
         """Get files uploaded by user with pagination."""
         query = self.db.query(UploadedFile).filter(
-            UploadedFile.uploaded_by_id == user.id
+            UploadedFile.user_id == user.id
         )
 
         if status_filter:

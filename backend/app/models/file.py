@@ -39,12 +39,13 @@ class UploadedFile(Base):
     __tablename__ = "uploaded_files"
 
     id = Column(Integer, primary_key=True, index=True)
-    filename = Column(String(255), nullable=False)
+    filename = Column(String(255), nullable=True)
+    stored_filename = Column(String(255), unique=True, nullable=False)
     original_filename = Column(String(255), nullable=False)
     file_path = Column(String(500), nullable=False)
     file_size = Column(BigInteger, nullable=False)
-    file_type = Column(String(50), nullable=False)
-    mime_type = Column(String(100), nullable=False)
+    file_type = Column(String(50), nullable=True)
+    mime_type = Column(String(100), nullable=True)
 
     # Processing status
     status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)
@@ -57,7 +58,7 @@ class UploadedFile(Base):
     parsed_data = Column(Text, nullable=True)  # JSON string of parsed data
 
     # Foreign Keys
-    uploaded_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
 
@@ -81,6 +82,7 @@ class UploadedFile(Base):
     @property
     def user_id(self) -> int:
         return self.uploaded_by_id
+
 
 
 class ProcessingLog(Base):
