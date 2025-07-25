@@ -192,7 +192,6 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email not verified",
         )
-
     # Create tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     if remember_me:
