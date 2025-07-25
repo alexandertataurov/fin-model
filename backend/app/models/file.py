@@ -61,6 +61,7 @@ class UploadedFile(Base):
     # Foreign Keys
     # Connect each file to its owning user. This satisfies the User.uploaded_files
     # back-populated relationship required in tests.
+
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
@@ -81,6 +82,17 @@ class UploadedFile(Base):
 
     def __repr__(self):
         return f"<UploadedFile(id={self.id}, filename='{self.filename}', status='{self.status}')>"
+
+    @property
+    def user_id(self) -> int:
+        return self.uploaded_by_id
+
+
+
+
+
+
+
 
 
 
