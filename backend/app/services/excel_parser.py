@@ -166,7 +166,6 @@ class ExcelParser:
         """Simplified parser used in unit tests."""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
-
         workbook = load_workbook(file_path, data_only=True)
         sheets = []
         for sheet_name in workbook.sheetnames:

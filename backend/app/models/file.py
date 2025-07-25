@@ -92,6 +92,7 @@ class UploadedFile(Base):
 
 
 
+
 class ProcessingLog(Base):
     """Model for tracking file processing logs."""
 
