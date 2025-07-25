@@ -101,7 +101,7 @@ def require_role(required_role: RoleType):
     return role_checker
 
 
-@router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(
     user_in: UserRegister, request: Request, db: Session = Depends(get_db)
 ) -> Any:
@@ -120,10 +120,10 @@ def register(
 
         user = auth_service.create_user(user_in, RoleType.VIEWER)
 
-        # Note: Users now start unverified and must verify their email
-        # Use the /dev-verify-user endpoint for development testing if needed
-        
-        return user
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(subject=user.id, expires_delta=access_token_expires)
+
+        return {"access_token": access_token, "token_type": "bearer"}
     except HTTPException:
         raise
     except Exception as e:
@@ -174,17 +174,11 @@ def login(
     if getattr(form_data, "remember_me", False):
         access_token_expires = timedelta(days=30)
 
-    access_token = create_access_token(
-        subject=user.id, expires_delta=access_token_expires
-    )
-
-    refresh_token = create_refresh_token(subject=user.id)
+    access_token = create_access_token(subject=user.id, expires_delta=access_token_expires)
 
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "expires_in": int(access_token_expires.total_seconds()),
-        "refresh_token": refresh_token,
     }
 
 

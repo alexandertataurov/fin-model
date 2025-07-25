@@ -10,7 +10,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.sql import func
 
 from app.models.base import Base
@@ -49,6 +49,7 @@ class UploadedFile(Base):
 
     # Processing status
     status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)
+    processing_status = synonym("status")
     processing_started_at = Column(DateTime, nullable=True)
     processing_completed_at = Column(DateTime, nullable=True)
 

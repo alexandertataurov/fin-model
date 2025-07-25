@@ -10,8 +10,9 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     username = Column(String(50), unique=True, index=True, nullable=False)
-    first_name = Column(String(50), nullable=False)
-    last_name = Column(String(50), nullable=False)
+    first_name = Column(String(50), nullable=True)
+    last_name = Column(String(50), nullable=True)
+    full_name = Column(String(100), nullable=False, default="")
     hashed_password = Column(String(255), nullable=False)
     is_admin = Column(Boolean, default=False, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
@@ -48,16 +49,6 @@ class User(Base):
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"
-
-    @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
-    @full_name.setter
-    def full_name(self, value: str) -> None:
-        parts = value.split(" ", 1)
-        self.first_name = parts[0]
-        self.last_name = parts[1] if len(parts) > 1 else ""
 
     @property
     def is_locked(self):

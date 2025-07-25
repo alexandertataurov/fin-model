@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, JSON, ForeignKey, Enum as SQLEnum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.sql import func
 import enum
 from app.models.base import Base
@@ -39,6 +39,7 @@ class ReportTemplate(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
+    title = synonym("name")
     description = Column(Text)
     report_type = Column(SQLEnum(ReportType), nullable=False)
     is_system = Column(Boolean, default=False)  # System templates vs user-created
@@ -50,6 +51,7 @@ class ReportTemplate(Base):
     
     # Ownership
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = synonym("created_by")
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -106,6 +108,7 @@ class ReportExport(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
+    title = synonym("name")
     export_format = Column(SQLEnum(ExportFormat), nullable=False)
     status = Column(SQLEnum(ReportStatus), default=ReportStatus.PENDING)
     
@@ -132,6 +135,7 @@ class ReportExport(Base):
     
     # Ownership and sharing
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = synonym("created_by")
     is_shared = Column(Boolean, default=False)
     shared_with = Column(JSON)  # List of user IDs with access
     
