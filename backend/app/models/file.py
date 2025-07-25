@@ -49,6 +49,7 @@ class UploadedFile(Base):
 
     # Processing status
     status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)
+    processing_status = synonym("status")
     processing_started_at = Column(DateTime, nullable=True)
     processing_completed_at = Column(DateTime, nullable=True)
 
@@ -82,6 +83,7 @@ class UploadedFile(Base):
     @property
     def user_id(self) -> int:
         return self.uploaded_by_id
+
 
 
 

@@ -119,7 +119,6 @@ class FileService:
         file_record = (
             self.db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         )
-
         if not file_record:
             return None
         if not user.is_admin and file_record.user_id != user.id:

@@ -21,6 +21,10 @@ def require_permissions(*required_permissions: Permission):
     ):
         auth_service = AuthService(db)
         user_roles = auth_service.get_user_roles(current_user.id)
+        if current_user.is_admin and RoleType.ADMIN.value not in user_roles:
+            user_roles.append(RoleType.ADMIN.value)
+        if not user_roles:
+            user_roles.append(RoleType.VIEWER.value)
 
         # Check if user has any of the required permissions
         if not PermissionChecker.has_any_permission(
@@ -116,6 +120,10 @@ def require_admin(
     """Dependency to require admin role."""
     auth_service = AuthService(db)
     user_roles = auth_service.get_user_roles(current_user.id)
+    if current_user.is_admin and RoleType.ADMIN.value not in user_roles:
+        user_roles.append(RoleType.ADMIN.value)
+    if not user_roles:
+        user_roles.append(RoleType.VIEWER.value)
 
     # Check if user has admin role
     role_names = [role.value for role in user_roles]
