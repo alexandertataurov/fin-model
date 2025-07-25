@@ -8,11 +8,12 @@ class FileUploadResponse(BaseModel):
     """Response schema for file upload."""
 
     id: int
-    filename: str
+    filename: Optional[str] = None
     original_filename: str
     file_size: int
     file_type: str
     status: FileStatus
+    user_id: int
     created_at: datetime
 
     class Config:
@@ -23,11 +24,11 @@ class FileInfo(BaseModel):
     """Schema for file information."""
 
     id: int
-    filename: str
+    filename: Optional[str] = None
     original_filename: str
     file_size: int
-    file_type: str
-    mime_type: str
+    file_type: Optional[str] = None
+    mime_type: Optional[str] = None
     status: FileStatus
     is_valid: Optional[bool] = None
     validation_errors: Optional[str] = None

@@ -39,12 +39,13 @@ class UploadedFile(Base):
     __tablename__ = "uploaded_files"
 
     id = Column(Integer, primary_key=True, index=True)
-    filename = Column(String(255), nullable=False)
+    filename = Column(String(255), nullable=True)
+    stored_filename = Column(String(255), unique=True, nullable=False)
     original_filename = Column(String(255), nullable=False)
     file_path = Column(String(500), nullable=False)
     file_size = Column(BigInteger, nullable=False)
-    file_type = Column(String(50), nullable=False)
-    mime_type = Column(String(100), nullable=False)
+    file_type = Column(String(50), nullable=True)
+    mime_type = Column(String(100), nullable=True)
 
     # Processing status
     status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)
@@ -57,12 +58,12 @@ class UploadedFile(Base):
     parsed_data = Column(Text, nullable=True)  # JSON string of parsed data
 
     # Foreign Keys
-    uploaded_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
 
     # Relationships
-    uploaded_by = relationship("User", back_populates="uploaded_files")
+    user = relationship("User", back_populates="uploaded_files")
     parameters = relationship("Parameter", back_populates="source_file")
     scenarios = relationship("Scenario", back_populates="base_file")
     template = relationship("Template", back_populates="uploaded_files")
@@ -77,6 +78,7 @@ class UploadedFile(Base):
 
     def __repr__(self):
         return f"<UploadedFile(id={self.id}, filename='{self.filename}', status='{self.status}')>"
+
 
 
 class ProcessingLog(Base):
