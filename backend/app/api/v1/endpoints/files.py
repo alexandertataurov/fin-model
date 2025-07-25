@@ -27,7 +27,7 @@ def get_file_service(db: Session = Depends(get_db)) -> FileService:
     return FileService(db)
 
 
-@router.post("/upload", response_model=FileUploadResponse)
+@router.post("/upload", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_active_user),
