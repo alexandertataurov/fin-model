@@ -80,6 +80,11 @@ class UploadedFile(Base):
     def __repr__(self):
         return f"<UploadedFile(id={self.id}, filename='{self.filename}', status='{self.status}')>"
 
+    @property
+    def user_id(self) -> int:
+        return self.uploaded_by_id
+
+
 
 
 class ProcessingLog(Base):

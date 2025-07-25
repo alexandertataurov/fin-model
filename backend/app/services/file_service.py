@@ -122,7 +122,6 @@ class FileService:
 
         if not file_record:
             return None
-
         if not user.is_admin and file_record.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
