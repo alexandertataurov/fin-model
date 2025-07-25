@@ -82,14 +82,22 @@ class ValidationError:
     suggestion: Optional[str] = None
 
 
-@dataclass
 class ValidationSummary:
     """Summary of validation results."""
-    is_valid: bool
-    errors: List[ValidationError] = field(default_factory=list)
-    warnings: List[ValidationError] = field(default_factory=list)
-    total_errors: int = 0
-    total_warnings: int = 0
+
+    def __init__(
+        self,
+        is_valid: bool = True,
+        errors: Optional[List[ValidationError]] = None,
+        warnings: Optional[List[ValidationError]] = None,
+        total_errors: int = 0,
+        total_warnings: int = 0,
+    ) -> None:
+        self.is_valid = is_valid
+        self.errors = errors or []
+        self.warnings = warnings or []
+        self.total_errors = total_errors
+        self.total_warnings = total_warnings
 
 
 @dataclass

@@ -307,9 +307,16 @@ class FinancialExtractor:
                     for item in statement_data:
                         if isinstance(item, dict):
                             for keyword in keywords:
-                                # Check if keyword matches any key (case-insensitive)
+                                account_val = str(item.get("account", "")).lower()
+                                norm_account = account_val.replace(" ", "")
+                                norm_keyword = keyword.lower().replace("_", "")
+                                if norm_keyword in norm_account:
+                                    try:
+                                        return float(item.get("value"))
+                                    except (ValueError, TypeError):
+                                        continue
                                 for key, value in item.items():
-                                    if keyword.lower() in key.lower():
+                                    if keyword.lower() in str(key).lower():
                                         try:
                                             return float(value)
                                         except (ValueError, TypeError):

@@ -38,7 +38,7 @@ class User(Base):
         "AuditLog", back_populates="user", cascade="all, delete-orphan"
     )
     uploaded_files = relationship(
-        "UploadedFile", back_populates="uploaded_by", cascade="all, delete-orphan"
+        "UploadedFile", back_populates="user", cascade="all, delete-orphan"
     )
     parameters = relationship("Parameter", back_populates="created_by")
     scenarios = relationship("Scenario", back_populates="created_by")

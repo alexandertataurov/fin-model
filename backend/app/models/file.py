@@ -10,7 +10,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.sql import func
 
 from app.models.base import Base
@@ -58,12 +58,13 @@ class UploadedFile(Base):
     parsed_data = Column(Text, nullable=True)  # JSON string of parsed data
 
     # Foreign Keys
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column("uploaded_by_id", Integer, ForeignKey("users.id"), nullable=False)
+    uploaded_by_id = synonym("user_id")
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
 
     # Relationships
-    uploaded_by = relationship("User", back_populates="uploaded_files")
+    user = relationship("User", back_populates="uploaded_files")
     parameters = relationship("Parameter", back_populates="source_file")
     scenarios = relationship("Scenario", back_populates="base_file")
     template = relationship("Template", back_populates="uploaded_files")
@@ -82,6 +83,7 @@ class UploadedFile(Base):
     @property
     def user_id(self) -> int:
         return self.uploaded_by_id
+
 
 
 

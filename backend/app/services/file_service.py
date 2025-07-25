@@ -115,14 +115,20 @@ class FileService:
             )
 
     def get_file_by_id(self, file_id: int, user: User) -> Optional[UploadedFile]:
-        """Get file by ID (user can only access their own files unless admin)."""
-        query = self.db.query(UploadedFile).filter(UploadedFile.id == file_id)
+        """Get file by ID, enforcing ownership unless admin."""
+        file_record = (
+            self.db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        )
 
-        # TODO: Add admin check when permissions are ready
-        # For now, users can only access their own files
-        query = query.filter(UploadedFile.user_id == user.id)
+        if not file_record:
+            return None
+        if not user.is_admin and file_record.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to access this file",
+            )
 
-        return query.first()
+        return file_record
 
     def get_user_files(
         self,
