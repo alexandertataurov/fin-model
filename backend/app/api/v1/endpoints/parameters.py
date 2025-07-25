@@ -28,7 +28,7 @@ router = APIRouter()
 @router.post("/", response_model=ParameterResponse, status_code=status.HTTP_201_CREATED)
 async def create_parameter(
     parameter: ParameterCreate,
-    current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -53,7 +53,8 @@ async def create_parameter(
             parameter_type=parameter.parameter_type,
             category=parameter.category,
             sensitivity_level=parameter.sensitivity_level,
-            current_value=parameter.current_value,
+            value=parameter.value,
+            current_value=parameter.value,
             default_value=parameter.default_value,
             min_value=parameter.min_value,
             max_value=parameter.max_value,
@@ -93,7 +94,7 @@ async def list_parameters(
     sensitivity_level: Optional[SensitivityLevel] = Query(None, description="Filter by sensitivity"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -153,7 +154,7 @@ async def get_parameter(
 async def update_parameter(
     parameter_id: int,
     parameter_update: ParameterUpdate,
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -255,9 +256,9 @@ async def batch_update_parameters(
                     continue
                 
                 # Validate update
-                if param_update.current_value is not None:
+                if param_update.value is not None:
                     validation_result = await _validate_parameter_value(
-                        db_parameter, param_update.current_value
+                        db_parameter, param_update.value
                     )
                     
                     if not validation_result.is_valid:
@@ -412,6 +413,7 @@ async def detect_parameters_from_file(
                     parameter_type=detected.parameter_type,
                     category=detected.category,
                     sensitivity_level=detected.sensitivity_level,
+                    value=detected.value,
                     current_value=detected.value,
                     default_value=detected.value,
                     min_value=detected.min_value,
@@ -443,6 +445,7 @@ async def detect_parameters_from_file(
                     parameter_type=detected.parameter_type,
                     category=detected.category,
                     sensitivity_level=detected.sensitivity_level,
+                    value=detected.value,
                     current_value=detected.value,
                     default_value=detected.value,
                     min_value=detected.min_value,
@@ -579,18 +582,16 @@ async def _validate_parameter_data(parameter: ParameterCreate, db: Session) -> P
         errors.append("min_value must be less than max_value")
     
     # Validate current value against range
-    if parameter.current_value is not None:
-        if (parameter.min_value is not None and 
-            parameter.current_value < parameter.min_value):
-            errors.append("current_value is below minimum allowed value")
-        
-        if (parameter.max_value is not None and 
-            parameter.current_value > parameter.max_value):
-            errors.append("current_value is above maximum allowed value")
+    if parameter.value is not None:
+        if parameter.min_value is not None and parameter.value < parameter.min_value:
+            errors.append("value is below minimum allowed value")
+
+        if parameter.max_value is not None and parameter.value > parameter.max_value:
+            errors.append("value is above maximum allowed value")
     
     return ParameterValidationResponse(
         parameter_id=0,  # Not available at creation time
-        value=parameter.current_value,
+        value=parameter.value,
         is_valid=len(errors) == 0,
         validation_errors=errors,
         validation_warnings=warnings

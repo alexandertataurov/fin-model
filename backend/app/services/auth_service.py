@@ -85,15 +85,21 @@ class AuthService:
         return db_user
 
     def authenticate_user(
-        self, email: str, password: str, ip_address: str = None, user_agent: str = None
+        self,
+        identifier: str,
+        password: str,
+        ip_address: str = None,
+        user_agent: str = None,
     ) -> Optional[User]:
-        """Authenticate user with email and password."""
-        user = self.get_user_by_email(email)
+        """Authenticate user with username or email and password."""
+        user = self.get_user_by_email(identifier)
+        if not user:
+            user = self.get_user_by_username(identifier)
         if not user:
             self.log_audit_action(
                 action=AuditAction.FAILED_LOGIN,
                 success="failure",
-                details=f"User not found: {email}",
+                details=f"User not found: {identifier}",
                 ip_address=ip_address,
                 user_agent=user_agent,
             )

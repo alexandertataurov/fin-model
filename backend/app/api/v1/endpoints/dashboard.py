@@ -15,6 +15,24 @@ from app.services.dashboard_metrics import DashboardMetricsService
 router = APIRouter()
 
 
+@router.get("/metrics")
+async def get_dashboard_metrics(
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Return simple dashboard metrics."""
+    return {"total_files": 0, "total_parameters": 0}
+
+
+@router.get("/charts")
+async def get_dashboard_charts(
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Return placeholder chart data."""
+    return {}
+
+
 class DashboardPeriod:
     """Dashboard time period constants."""
     MTD = "mtd"  # Month to Date
