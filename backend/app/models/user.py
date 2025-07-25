@@ -43,6 +43,7 @@ class User(Base):
         "UploadedFile",
         back_populates="user",
         cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     parameters = relationship("Parameter", back_populates="created_by")
     scenarios = relationship("Scenario", back_populates="created_by")

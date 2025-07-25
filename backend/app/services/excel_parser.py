@@ -160,13 +160,13 @@ class ExcelParser:
         """Return DataFrames keyed by sheet name."""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
-
         return pd.read_excel(file_path, sheet_name=None)
 
     def parse_file(self, file_path: str) -> Dict[str, Any]:
         """Simplified parser used in unit tests."""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
+
         workbook = load_workbook(file_path, data_only=True)
         sheets = []
         for sheet_name in workbook.sheetnames:
