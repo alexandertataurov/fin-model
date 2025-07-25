@@ -42,7 +42,6 @@ async def get_dashboard_metrics(
         "total_reports": total_reports,
     }
 
-
 @router.get("/charts")
 async def get_dashboard_charts(
     current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
