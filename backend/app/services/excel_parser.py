@@ -156,6 +156,13 @@ class ExcelParser:
             r'\d{1,2}/\d{1,2}/\d{2,4}'  # Date format
         ]
 
+    def parse(self, file_path: str) -> Dict[str, pd.DataFrame]:
+        """Return DataFrames keyed by sheet name."""
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Excel file not found: {file_path}")
+
+        return pd.read_excel(file_path, sheet_name=None)
+
     def parse_file(self, file_path: str) -> Dict[str, Any]:
         """Simplified parser used in unit tests."""
         if not os.path.exists(file_path):

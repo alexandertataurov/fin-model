@@ -92,6 +92,21 @@ class FinancialExtractor:
         self.metric_calculators = self._initialize_metric_calculators()
         self.time_patterns = self._initialize_time_patterns()
 
+    def extract(self, source: Any) -> Dict[str, Any]:
+        """High level extract used in unit tests."""
+        if isinstance(source, dict):
+            parsed = source
+        else:
+            parsed = ExcelParser().parse_file(source)
+
+        statements = self._extract_from_parsed(parsed)
+
+        return {
+            "financial_metrics": statements.get("financial_metrics", {}),
+            "time_series_data": statements.get("time_series_data", []),
+            "extraction_metadata": {"sheets": len(parsed.get("sheets", []))},
+        }
+
     def extract_statements(self, source: Any) -> Dict[str, Any]:
         """Extract basic financial statements from a file path or parsed data."""
         if isinstance(source, dict):
