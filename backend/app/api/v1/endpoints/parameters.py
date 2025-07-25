@@ -28,7 +28,7 @@ router = APIRouter()
 @router.post("/", response_model=ParameterResponse, status_code=status.HTTP_201_CREATED)
 async def create_parameter(
     parameter: ParameterCreate,
-    current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -154,7 +154,7 @@ async def get_parameter(
 async def update_parameter(
     parameter_id: int,
     parameter_update: ParameterUpdate,
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Any:
     """

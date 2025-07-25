@@ -127,7 +127,6 @@ class FileService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not authorized to access this file",
             )
-
         return file_record
 
     def get_user_files(
