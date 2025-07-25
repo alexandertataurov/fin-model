@@ -11,10 +11,10 @@ class ParameterBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     display_name: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
-    parameter_type: ParameterType
-    category: ParameterCategory
+    parameter_type: ParameterType = ParameterType.GROWTH_RATE
+    category: ParameterCategory = ParameterCategory.ASSUMPTIONS
     sensitivity_level: SensitivityLevel = SensitivityLevel.MEDIUM
-    current_value: Optional[float] = None
+    value: Optional[float] = None
     default_value: Optional[float] = None
     min_value: Optional[float] = None
     max_value: Optional[float] = None
@@ -46,7 +46,7 @@ class ParameterUpdate(BaseModel):
     display_name: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
     sensitivity_level: Optional[SensitivityLevel] = None
-    current_value: Optional[float] = None
+    value: Optional[float] = None
     min_value: Optional[float] = None
     max_value: Optional[float] = None
     unit: Optional[str] = Field(None, max_length=50)

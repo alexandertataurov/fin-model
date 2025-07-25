@@ -42,24 +42,30 @@ class AuthService:
         # Check if user already exists
         if self.get_user_by_email(user_create.email):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered",
+                status_code=status.HTTP_409_CONFLICT,
+                detail="User already exists",
             )
 
         if self.get_user_by_username(user_create.username):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken"
+                status_code=status.HTTP_409_CONFLICT,
+                detail="User already exists",
             )
 
         # Create new user
         hashed_password = get_password_hash(user_create.password)
         verification_token = generate_secure_token()
 
+        full_name = user_create.full_name
+        if not full_name:
+            if user_create.first_name or user_create.last_name:
+                full_name = f"{user_create.first_name or ''} {user_create.last_name or ''}".strip()
         db_user = User(
             email=user_create.email,
             username=user_create.username,
-            first_name=user_create.first_name,
-            last_name=user_create.last_name,
+            first_name=user_create.first_name or '',
+            last_name=user_create.last_name or '',
+            full_name=full_name,
             hashed_password=hashed_password,
             is_active=True,
             is_verified=False,
@@ -85,15 +91,21 @@ class AuthService:
         return db_user
 
     def authenticate_user(
-        self, email: str, password: str, ip_address: str = None, user_agent: str = None
+        self,
+        identifier: str,
+        password: str,
+        ip_address: str = None,
+        user_agent: str = None,
     ) -> Optional[User]:
-        """Authenticate user with email and password."""
-        user = self.get_user_by_email(email)
+        """Authenticate user with username or email and password."""
+        user = self.get_user_by_email(identifier)
+        if not user:
+            user = self.get_user_by_username(identifier)
         if not user:
             self.log_audit_action(
                 action=AuditAction.FAILED_LOGIN,
                 success="failure",
-                details=f"User not found: {email}",
+                details=f"User not found: {identifier}",
                 ip_address=ip_address,
                 user_agent=user_agent,
             )
