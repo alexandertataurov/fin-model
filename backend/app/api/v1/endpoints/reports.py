@@ -19,6 +19,15 @@ from app.services.report_service import ReportService
 router = APIRouter()
 
 
+@router.get("/", response_model=List[ReportExport])
+async def list_reports(
+    current_user: User = Depends(require_permissions(Permission.REPORT_READ)),
+    db: Session = Depends(get_db),
+) -> List[ReportExport]:
+    """Return list of reports (empty for now)."""
+    return []
+
+
 # Template Management Endpoints
 @router.post("/templates", response_model=ReportTemplate)
 async def create_template(

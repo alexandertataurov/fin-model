@@ -81,6 +81,7 @@ class Parameter(Base):
     sensitivity_level = Column(String(20), nullable=False, default=SensitivityLevel.MEDIUM)
     
     # Value Information
+    value = Column(Float, nullable=False)
     current_value = Column(Float, nullable=True)
     default_value = Column(Float, nullable=True)
     min_value = Column(Float, nullable=True)

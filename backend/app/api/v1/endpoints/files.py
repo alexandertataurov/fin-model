@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from app.models.base import get_db
@@ -27,7 +27,7 @@ def get_file_service(db: Session = Depends(get_db)) -> FileService:
     return FileService(db)
 
 
-@router.post("/upload", response_model=FileUploadResponse)
+@router.post("/upload", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_active_user),
@@ -48,7 +48,7 @@ async def upload_file(
         )
 
 
-@router.get("/", response_model=FileListResponse)
+@router.get("/", response_model=List[FileInfo])
 def list_files(
     skip: int = Query(0, ge=0, description="Number of files to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of files to return"),
@@ -65,14 +65,7 @@ def list_files(
         user=current_user, skip=skip, limit=limit, status_filter=status_filter
     )
 
-    return FileListResponse(
-        files=[FileInfo.from_orm(f) for f in result["files"]],
-        total=result["total"],
-        page=result["page"],
-        page_size=result["page_size"],
-        has_next=result["has_next"],
-        has_previous=result["has_previous"],
-    )
+    return [FileInfo.from_orm(f) for f in result["files"]]
 
 
 @router.get("/{file_id}", response_model=FileInfo)
@@ -178,7 +171,7 @@ def delete_file(
             status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
 
-    return {"message": "File deleted successfully"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/{file_id}/process")
