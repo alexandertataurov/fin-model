@@ -3,6 +3,7 @@ from celery import Task
 from celery.schedules import crontab
 from sqlalchemy.orm import Session
 
+import asyncio
 from app.core.celery_app import celery_app
 from app.models.base import SessionLocal
 from app.services.file_cleanup import FileCleanupService
@@ -25,7 +26,7 @@ def cleanup_expired_files(self):
     """Scheduled task to clean up expired files."""
     try:
         cleanup_service = FileCleanupService()
-        results = await cleanup_service.run_scheduled_cleanup()
+        results = asyncio.run(cleanup_service.run_scheduled_cleanup())
 
         # Send notification if significant cleanup occurred
         if results.get("total_files_deleted", 0) > 0:

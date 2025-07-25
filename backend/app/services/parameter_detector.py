@@ -77,36 +77,26 @@ class ParameterDetector:
             r'days.*sales|collection.*period'
         ]
 
-    def detect_growth_patterns(self, file_path: str) -> Dict[str, Any]:
-        """Detect growth patterns for backward compatibility."""
-        # This is a simplified version that returns basic growth pattern detection
+    def detect_growth_patterns(self, data: List[float]) -> Dict[str, Any]:
+        """Detect growth rates in a simple time series list."""
+        result = {
+            "average_growth_rate": 0.0,
+            "growth_rates": [],
+        }
+
         try:
-            workbook = openpyxl.load_workbook(file_path, data_only=True)
-            growth_patterns = {}
-            
-            for sheet_name in workbook.sheetnames:
-                sheet = workbook[sheet_name]
-                sheet_patterns = []
-                
-                # Look for growth-related cells
-                for row in sheet.iter_rows():
-                    for cell in row:
-                        if cell.value and isinstance(cell.value, str):
-                            text = cell.value.lower()
-                            if any(pattern in text for pattern in ['growth', 'rate', 'cagr', '%']):
-                                sheet_patterns.append({
-                                    'cell': cell.coordinate,
-                                    'value': cell.value,
-                                    'type': 'growth_indicator'
-                                })
-                
-                if sheet_patterns:
-                    growth_patterns[sheet_name] = sheet_patterns
-            
-            return growth_patterns
-            
+            if isinstance(data, list) and len(data) > 1:
+                rates = []
+                for prev, curr in zip(data[:-1], data[1:]):
+                    if prev != 0:
+                        rates.append((curr - prev) / prev)
+                if rates:
+                    result["growth_rates"] = rates
+                    result["average_growth_rate"] = sum(rates) / len(rates)
         except Exception as e:
-            return {"error": f"Failed to detect growth patterns: {str(e)}"}
+            result["error"] = str(e)
+
+        return result
 
     async def detect_parameters(
         self, 
@@ -694,61 +684,32 @@ class ParameterDetector:
         
         return descriptions.get(param_type, "Financial parameter") 
 
-    def detect_seasonality(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Detect seasonal patterns in financial data.
-        
-        Args:
-            data: Time series data to analyze for seasonality
-            
-        Returns:
-            Dictionary containing seasonality analysis results
-        """
+    def detect_seasonality(self, data: List[float]) -> Dict[str, Any]:
+        """Detect simple seasonal patterns in a numeric series."""
         result = {
             "has_seasonality": False,
-            "seasonal_strength": 0.0,
             "seasonal_periods": [],
-            "confidence": 0.0
+            "seasonal_strength": 0.0,
+            "seasonal_pattern": [],
         }
-        
+
         try:
-            # Extract time series data
-            if isinstance(data, list) and len(data) >= 12:  # Need at least 12 points
-                values = []
-                for item in data:
-                    if isinstance(item, dict) and 'value' in item:
-                        try:
-                            values.append(float(item['value']))
-                        except (ValueError, TypeError):
-                            continue
-                
-                if len(values) >= 12:
-                    # Simple seasonality detection using coefficient of variation
-                    # Check quarterly patterns (every 3 months)
-                    quarterly_groups = [values[i::4] for i in range(
-                        min(4, len(values)))]
-                    quarterly_cvs = []
-                    
-                    for group in quarterly_groups:
-                        if len(group) > 1:
-                            mean_val = sum(group) / len(group)
-                            if mean_val != 0:
-                                variance = sum((x - mean_val) ** 2 for x in group) / len(group)
-                                cv = (variance ** 0.5) / abs(mean_val)
-                                quarterly_cvs.append(cv)
-                    
-                    if quarterly_cvs:
-                        avg_cv = sum(quarterly_cvs) / len(quarterly_cvs)
-                        # If coefficient of variation is low, there might be seasonality
-                        if avg_cv < 0.5:  # Threshold for seasonal pattern
-                            result["has_seasonality"] = True
-                            result["seasonal_strength"] = 1.0 - avg_cv
-                            result["seasonal_periods"] = ["quarterly"]
-                            result["confidence"] = min(0.9, 1.0 - avg_cv)
-                    
+            if isinstance(data, list) and len(data) >= 8:
+                period = 4
+                groups = [data[i::period] for i in range(period)]
+                averages = [sum(g)/len(g) for g in groups if g]
+                overall_avg = sum(data) / len(data)
+                if overall_avg != 0:
+                    deviations = [abs(a - overall_avg)/abs(overall_avg) for a in averages]
+                    strength = 1 - (sum(deviations)/len(deviations))
+                    result["seasonal_strength"] = max(0.0, strength)
+                    result["seasonal_pattern"] = averages
+                    if strength > 0.2:
+                        result["has_seasonality"] = True
+                        result["seasonal_periods"] = [period]
         except Exception as e:
             result["error"] = str(e)
-            
+
         return result
     
     def identify_assumptions(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
