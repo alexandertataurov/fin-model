@@ -122,13 +122,11 @@ class FileService:
 
         if not file_record:
             return None
-
         if not user.is_admin and file_record.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not authorized to access this file",
             )
-
         return file_record
 
     def get_user_files(
