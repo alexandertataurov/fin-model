@@ -1,7 +1,11 @@
 from typing import Any
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import (
+    HTTPBearer,
+    HTTPAuthorizationCredentials,
+    OAuth2PasswordRequestForm,
+)
 from sqlalchemy.orm import Session
 
 from app.models.base import get_db
@@ -9,7 +13,6 @@ from app.models.role import RoleType
 from app.models.audit import AuditAction
 from app.schemas.user import (
     UserRegister,
-    UserLogin,
     User,
     Token,
     PasswordReset,
@@ -27,7 +30,7 @@ from app.core.security import (
 from app.core.config import settings
 
 router = APIRouter()
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
@@ -35,6 +38,13 @@ def get_current_user(
     db: Session = Depends(get_db),
 ) -> User:
     """Get current authenticated user."""
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     token = credentials.credentials
     user_id = verify_token(token)
 
@@ -91,7 +101,7 @@ def require_role(required_role: RoleType):
     return role_checker
 
 
-@router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(
     user_in: UserRegister, request: Request, db: Session = Depends(get_db)
 ) -> Any:
@@ -103,12 +113,17 @@ def register(
     user_agent = request.headers.get("user-agent")
 
     try:
+        if user_in.full_name and (user_in.first_name is None or user_in.last_name is None):
+            parts = user_in.full_name.split(" ", 1)
+            user_in.first_name = parts[0]
+            user_in.last_name = parts[1] if len(parts) > 1 else ""
+
         user = auth_service.create_user(user_in, RoleType.VIEWER)
 
-        # Note: Users now start unverified and must verify their email
-        # Use the /dev-verify-user endpoint for development testing if needed
-        
-        return user
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(subject=user.id, expires_delta=access_token_expires)
+
+        return {"access_token": access_token, "token_type": "bearer"}
     except HTTPException:
         raise
     except Exception as e:
@@ -127,7 +142,9 @@ def register(
 
 @router.post("/login", response_model=Token)
 def login(
-    user_credentials: UserLogin, request: Request, db: Session = Depends(get_db)
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
 ) -> Any:
     """Login user and return access token."""
     auth_service = AuthService(db)
@@ -137,8 +154,8 @@ def login(
     user_agent = request.headers.get("user-agent")
 
     user = auth_service.authenticate_user(
-        email=user_credentials.email,
-        password=user_credentials.password,
+        identifier=form_data.username,
+        password=form_data.password,
         ip_address=ip_address,
         user_agent=user_agent,
     )
@@ -150,27 +167,18 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    if not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not verified"
-        )
+
 
     # Create tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    if user_credentials.remember_me:
+    if getattr(form_data, "remember_me", False):
         access_token_expires = timedelta(days=30)
 
-    access_token = create_access_token(
-        subject=user.id, expires_delta=access_token_expires
-    )
-
-    refresh_token = create_refresh_token(subject=user.id)
+    access_token = create_access_token(subject=user.id, expires_delta=access_token_expires)
 
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "expires_in": int(access_token_expires.total_seconds()),
-        "refresh_token": refresh_token,
     }
 
 
