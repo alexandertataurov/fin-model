@@ -173,7 +173,6 @@ class ExcelParser:
             data = [list(row) for row in sheet.iter_rows(values_only=True)]
             sheets.append({"name": sheet_name, "type": "financial", "data": data})
         return {"file_path": file_path, "sheets": sheets, "metadata": {"sheet_count": len(sheets)}}
-
     # The remaining complex implementation is kept for completeness but unused in tests
     def parse_excel_file(self, file_path: str) -> ParsedData:
         """Original comprehensive parser retained for reference."""
