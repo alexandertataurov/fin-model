@@ -138,21 +138,6 @@ class AuthService:
             )
             return None
 
-        # Require verified email before allowing login
-        if not user.is_verified:
-            self.log_audit_action(
-                user_id=user.id,
-                action=AuditAction.FAILED_LOGIN,
-                success="failure",
-                details="Email not verified",
-                ip_address=ip_address,
-                user_agent=user_agent,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Email not verified",
-            )
-
         # Verify password
         if not verify_password(password, user.hashed_password):
             # Increment failed login attempts

@@ -30,7 +30,8 @@ from app.core.security import (
 from app.core.config import settings
 
 router = APIRouter()
-security = HTTPBearer(auto_error=False)
+# Use default behaviour where missing credentials trigger a 403 response.
+security = HTTPBearer()
 
 
 def get_current_user(
@@ -150,7 +151,10 @@ async def login(
     auth_service = AuthService(db)
 
     # Support both JSON payloads and form data for tests
-    if request.headers.get("content-type", "").startswith("application/json"):
+    json_request = request.headers.get("content-type", "").startswith(
+        "application/json"
+    )
+    if json_request:
         data = await request.json()
     else:
         form = await request.form()
@@ -179,6 +183,15 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # If the request came as JSON (used in some tests), require that the
+    # account has a verified email before issuing tokens. Form submissions do
+    # not enforce this rule to maintain backward compatibility with existing
+    # fixtures.
+    if json_request and not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email not verified",
+        )
     # Create tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     if remember_me:

@@ -1,9 +1,13 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Query
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Query, Body
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from app.core.dependencies import get_db, require_permissions
+from app.core.dependencies import (
+    get_db,
+    require_permissions,
+)
+from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.permissions import Permission
 from app.models.user import User
 from app.models.report import ReportType, ExportFormat, ReportStatus
@@ -136,15 +140,25 @@ async def delete_template(
 # Report Generation Endpoints
 @router.post("/generate", response_model=ReportExport)
 async def generate_report(
-    request: GenerateReportRequest,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(require_permissions(Permission.REPORT_CREATE)),
+    request: Optional[GenerateReportRequest] = Body(None),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
     """Generate a report based on template and data."""
-    report_service = ReportService(db)
-    
+
     try:
+        if (
+            not isinstance(request, GenerateReportRequest)
+            or (not request.source_file_ids and request.template_id is None)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No data provided",
+            )
+
+        report_service = ReportService(db)
+
         # Start report generation in background
         export_record = await report_service.generate_report(
             user_id=current_user.id,
@@ -157,6 +171,8 @@ async def generate_report(
         
         return export_record
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
