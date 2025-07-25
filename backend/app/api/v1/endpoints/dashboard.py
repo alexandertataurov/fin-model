@@ -6,13 +6,50 @@ from sqlalchemy.orm import Session
 
 from app.models.base import get_db
 from app.models.user import User
-from app.models.file import UploadedFile
+from app.models.file import UploadedFile, FileStatus
+from app.models.parameter import Parameter
+from app.models.report import ReportExport
 from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
 from app.services.dashboard_metrics import DashboardMetricsService
 
 router = APIRouter()
+
+
+@router.get("/metrics")
+async def get_dashboard_metrics(
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Return simple dashboard metrics."""
+    total_files = db.query(UploadedFile).filter(UploadedFile.user_id == current_user.id).count()
+    completed_files = db.query(UploadedFile).filter(
+        UploadedFile.user_id == current_user.id,
+        UploadedFile.status == FileStatus.COMPLETED,
+    ).count()
+    processing_files = db.query(UploadedFile).filter(
+        UploadedFile.user_id == current_user.id,
+        UploadedFile.status == FileStatus.PROCESSING,
+    ).count()
+    total_parameters = db.query(Parameter).filter(Parameter.user_id == current_user.id).count()
+    total_reports = db.query(ReportExport).filter(ReportExport.created_by == current_user.id).count()
+    return {
+        "total_files": total_files,
+        "completed_files": completed_files,
+        "processing_files": processing_files,
+        "total_parameters": total_parameters,
+        "total_reports": total_reports,
+    }
+
+
+@router.get("/charts")
+async def get_dashboard_charts(
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Return placeholder chart data."""
+    return {}
 
 
 class DashboardPeriod:

@@ -10,9 +10,11 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     username = Column(String(50), unique=True, index=True, nullable=False)
-    first_name = Column(String(50), nullable=False)
-    last_name = Column(String(50), nullable=False)
+    first_name = Column(String(50), nullable=True)
+    last_name = Column(String(50), nullable=True)
+    full_name = Column(String(100), nullable=False, default="")
     hashed_password = Column(String(255), nullable=False)
+    is_admin = Column(Boolean, default=False, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
     verification_token = Column(String(255), nullable=True)
@@ -36,8 +38,11 @@ class User(Base):
     audit_logs = relationship(
         "AuditLog", back_populates="user", cascade="all, delete-orphan"
     )
+    # Files uploaded by this user
     uploaded_files = relationship(
-        "UploadedFile", back_populates="uploaded_by", cascade="all, delete-orphan"
+        "UploadedFile",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
     parameters = relationship("Parameter", back_populates="created_by")
     scenarios = relationship("Scenario", back_populates="created_by")
@@ -47,10 +52,6 @@ class User(Base):
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"
-
-    @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
 
     @property
     def is_locked(self):
