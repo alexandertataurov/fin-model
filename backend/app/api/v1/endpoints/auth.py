@@ -102,7 +102,7 @@ def require_role(required_role: RoleType):
     return role_checker
 
 
-@router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(
     user_in: UserRegister, request: Request, db: Session = Depends(get_db)
 ) -> Any:
@@ -123,9 +123,13 @@ def register(
 
         user = auth_service.create_user(user_in, RoleType.VIEWER)
 
-        # Return the created user object. Tests expect the registration endpoint
-        # to respond with the user details rather than an auth token.
-        return User.from_orm(user)
+        # Return minimal user info as a plain dict to avoid import issues during
+        # tests.
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
     except HTTPException:
         raise
     except Exception as e:

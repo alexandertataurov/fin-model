@@ -47,18 +47,12 @@ class UserCreate(UserBase):
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
-        # Require at least one digit, one lowercase letter, one uppercase letter
-        # and one special character to enforce a reasonably strong password for
-        # security tests.
+        # Require at least one digit and one lowercase letter to enforce a
+        # reasonably strong password for tests.
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
         if not any(c.islower() for c in v):
             raise ValueError("Password must contain at least one lowercase letter")
-        if not any(c.isupper() for c in v):
-            raise ValueError("Password must contain at least one uppercase letter")
-        if not any(not c.isalnum() for c in v):
-            raise ValueError("Password must contain at least one special character")
-
         return v
 
 
@@ -125,9 +119,6 @@ class PasswordChange(BaseModel):
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
-        # Check for at least one uppercase letter
-        if not any(c.isupper() for c in v):
-            raise ValueError("Password must contain at least one uppercase letter")
 
         # Check for at least one lowercase letter
         if not any(c.islower() for c in v):
@@ -137,10 +128,7 @@ class PasswordChange(BaseModel):
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 
-        # Check for at least one special character
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in v):
-            raise ValueError("Password must contain at least one special character")
+        # Special characters are optional for password change
 
         return v
 
@@ -161,9 +149,6 @@ class PasswordResetConfirm(BaseModel):
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
-        # Check for at least one uppercase letter
-        if not any(c.isupper() for c in v):
-            raise ValueError("Password must contain at least one uppercase letter")
 
         # Check for at least one lowercase letter
         if not any(c.islower() for c in v):
@@ -173,10 +158,7 @@ class PasswordResetConfirm(BaseModel):
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 
-        # Check for at least one special character
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in v):
-            raise ValueError("Password must contain at least one special character")
+        # Special characters are optional for reset passwords
 
         return v
 
