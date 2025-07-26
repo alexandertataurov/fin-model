@@ -33,3 +33,16 @@ async def test_file_subscription_and_broadcast():
     assert any("file_status_update" in msg for msg in ws.sent)
     await manager.unsubscribe_from_file(1, 42)
     manager.disconnect(ws, user_id=1)
+
+@pytest.mark.asyncio
+async def test_task_subscription_and_notification():
+    manager = ConnectionManager()
+    ws = DummyWebSocket()
+    await manager.connect(ws, user_id=2)
+    await manager.subscribe_to_task(2, "task1")
+    await manager.broadcast_task_progress("task1", {"progress": 50}, user_id=2)
+    await manager.send_notification(2, {"text": "hi"})
+    assert any("task_progress_update" in m for m in ws.sent)
+    assert any("notification" in m for m in ws.sent)
+    await manager.unsubscribe_from_task(2, "task1")
+    manager.disconnect(ws, user_id=2)
