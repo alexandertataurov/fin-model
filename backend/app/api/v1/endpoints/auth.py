@@ -103,7 +103,7 @@ def require_role(required_role: RoleType):
     return role_checker
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
 def register(
     user_in: UserRegister, request: Request, db: Session = Depends(get_db)
 ) -> Any:
