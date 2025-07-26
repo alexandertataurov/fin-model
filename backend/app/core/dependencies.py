@@ -16,6 +16,11 @@ def require_permissions(
     *required_permissions: Permission,
     unauthenticated_status: int = status.HTTP_401_UNAUTHORIZED,
 ):
+
+def require_permissions(
+    *required_permissions: Permission,
+    unauthenticated_status: int = status.HTTP_401_UNAUTHORIZED,
+):
     """Decorator to require specific permissions for an endpoint.
 
     ``unauthenticated_status`` controls the response code when no ``Authorization``
@@ -147,6 +152,9 @@ def require_role(required_role: RoleType):
     return role_decorator
 
 security_admin = HTTPBearer(auto_error=False)
+
+security_admin = HTTPBearer(auto_error=False)
+
 
 security_admin = HTTPBearer(auto_error=False)
 
