@@ -30,7 +30,8 @@ from app.core.security import (
 from app.core.config import settings
 
 router = APIRouter()
-security = HTTPBearer(auto_error=False)
+# Use default behaviour where missing credentials trigger a 403 response.
+security = HTTPBearer()
 
 
 def get_current_user(

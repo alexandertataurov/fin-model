@@ -37,6 +37,13 @@ async def create_parameter(
     Creates a parameter with validation rules and metadata.
     """
     try:
+        # Basic required field check
+        if parameter.value is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="value field is required",
+            )
+
         # Validate parameter data
         validation_result = await _validate_parameter_data(parameter, db)
         if not validation_result.is_valid:
