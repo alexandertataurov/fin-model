@@ -153,10 +153,9 @@ def get_file_data(
             status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
     if not file_record.parsed_data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No parsed data available",
-        )
+        # Tests expect an empty JSON payload rather than a 404 when a file has
+        # completed processing but no parsed data was stored.
+        return {"financial_data": {}}
     import json
 
     try:
