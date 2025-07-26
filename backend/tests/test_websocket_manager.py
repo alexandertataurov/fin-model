@@ -46,4 +46,3 @@ async def test_task_subscription_and_notification():
     assert any("notification" in m for m in ws.sent)
     await manager.unsubscribe_from_task(2, "task1")
     manager.disconnect(ws, user_id=2)
-
