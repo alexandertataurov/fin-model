@@ -79,9 +79,11 @@ const CashFlowDashboard: React.FC = () => {
   } = useQuery<CFDashboardData>({
     queryKey: ['cash-flow-dashboard', period],
     queryFn: async () => {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch(`/api/v1/dashboard/metrics/cash-flow?period=${period}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
       

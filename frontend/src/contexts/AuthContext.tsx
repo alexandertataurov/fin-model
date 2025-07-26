@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           // Load permissions
           await loadUserPermissions();
         } catch (error) {
-          console.error('Error loading user data:', error);
+          // Error loading user data - clear auth data
           clearAuthData();
         }
       } else {
@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return true;
     } catch (error) {
-      console.error('Token refresh error:', error);
+      // Token refresh failed - clear auth data
       clearAuthData();
       return false;
     }
@@ -169,7 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         roles: permissionsData.roles || [],
       }));
     } catch (error) {
-      console.error('Error loading permissions:', error);
+      // Error loading permissions - continue with empty permissions
     }
   };
 
@@ -210,7 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return true;
     } catch (error) {
-      console.error('Login error:', error);
+      // Login failed
       setState(prev => ({ ...prev, isLoading: false }));
       return false;
     }
@@ -222,7 +222,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         await authApi.logout();
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      // Logout error - proceed with local cleanup
     } finally {
       clearAuthData();
     }
@@ -237,9 +237,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setState(prev => ({ ...prev, isLoading: false }));
       return true;
     } catch (error) {
-      console.error('Registration error:', error);
+      // Registration failed - re-throw for component to handle
       setState(prev => ({ ...prev, isLoading: false }));
-      throw error; // Re-throw the error so the component can handle it
+      throw error;
     }
   };
 

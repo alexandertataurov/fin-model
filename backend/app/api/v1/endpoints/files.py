@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from app.models.base import get_db
@@ -27,7 +27,7 @@ def get_file_service(db: Session = Depends(get_db)) -> FileService:
     return FileService(db)
 
 
-@router.post("/upload", response_model=FileUploadResponse)
+@router.post("/upload", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_active_user),
@@ -48,7 +48,7 @@ async def upload_file(
         )
 
 
-@router.get("/", response_model=FileListResponse)
+@router.get("/", response_model=List[FileInfo])
 def list_files(
     skip: int = Query(0, ge=0, description="Number of files to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of files to return"),
@@ -65,26 +65,21 @@ def list_files(
         user=current_user, skip=skip, limit=limit, status_filter=status_filter
     )
 
-    return FileListResponse(
-        files=[FileInfo.from_orm(f) for f in result["files"]],
-        total=result["total"],
-        page=result["page"],
-        page_size=result["page_size"],
-        has_next=result["has_next"],
-        has_previous=result["has_previous"],
-    )
+    return [FileInfo.from_orm(f) for f in result["files"]]
 
 
 @router.get("/{file_id}", response_model=FileInfo)
 def get_file_info(
-    file_id: int,
+    file_id: str,
     current_user: User = Depends(get_current_active_user),
     file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Get information about a specific file.
     """
-    file_record = file_service.get_file_by_id(file_id, current_user)
+    if not file_id.isdigit():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file id")
+    file_record = file_service.get_file_by_id(int(file_id), current_user)
 
     if not file_record:
         raise HTTPException(
@@ -130,6 +125,48 @@ def get_file_with_logs(
         **file_info.dict(),
         processing_logs=[ProcessingLogEntry.from_orm(log) for log in logs],
     )
+
+
+@router.get("/{file_id}/status")
+def get_file_status(
+    file_id: int,
+    current_user: User = Depends(get_current_active_user),
+    file_service: FileService = Depends(get_file_service),
+) -> Any:
+    """Return simple processing status information for a file."""
+    file_record = file_service.get_file_by_id(file_id, current_user)
+    if not file_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
+    return {"status": file_record.status}
+
+
+@router.get("/{file_id}/data")
+def get_file_data(
+    file_id: int,
+    current_user: User = Depends(get_current_active_user),
+    file_service: FileService = Depends(get_file_service),
+) -> Any:
+    """Return parsed data for a processed file if available."""
+    file_record = file_service.get_file_by_id(file_id, current_user)
+    if not file_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
+    if not file_record.parsed_data:
+        # Tests expect an empty JSON payload rather than a 404 when a file has
+        # completed processing but no parsed data was stored.
+        return {"financial_data": {}}
+    import json
+
+    try:
+        return json.loads(file_record.parsed_data)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to parse stored data",
+        )
 
 
 @router.get("/{file_id}/download")
@@ -178,7 +215,7 @@ def delete_file(
             status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
 
-    return {"message": "File deleted successfully"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/{file_id}/process")

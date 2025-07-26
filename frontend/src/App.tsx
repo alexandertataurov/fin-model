@@ -5,37 +5,27 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Contexts
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Components
 import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ErrorBoundary, ToastProvider } from './components/ui';
 
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import PLDashboard from './pages/PLDashboard';
+import CashFlowDashboard from './pages/CashFlowDashboard';
 import FileUpload from './pages/FileUpload';
+import Reports from './pages/Reports';
+import ScenarioModeling from './pages/ScenarioModeling';
 import Analytics from './pages/Analytics';
-
-// Create theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  },
-});
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient({
@@ -81,21 +71,28 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="dashboards/pl" element={<PLDashboard />} />
+        <Route path="dashboards/cashflow" element={<CashFlowDashboard />} />
+        <Route
+          path="dashboards/balance-sheet"
+          element={<div>Balance Sheet Dashboard - Coming Soon</div>}
+        />
         <Route path="files" element={<FileUpload />} />
+        <Route path="reports" element={<Reports />} />
+        <Route
+          path="scenarios"
+          element={
+            <ProtectedRoute requiredRole="analyst">
+              <ScenarioModeling />
+            </ProtectedRoute>
+          }
+        />
         <Route path="analytics" element={<Analytics />} />
         <Route
           path="admin/*"
           element={
             <ProtectedRoute requiredRole="admin">
               <div>Admin Panel - Coming Soon</div>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="models/*"
-          element={
-            <ProtectedRoute requiredRole="analyst">
-              <div>Financial Models - Coming Soon</div>
             </ProtectedRoute>
           }
         />
@@ -122,16 +119,19 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </Router>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <ToastProvider>
+            <Router>
+              <AuthProvider>
+                <AppRoutes />
+              </AuthProvider>
+            </Router>
+          </ToastProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
