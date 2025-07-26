@@ -52,9 +52,7 @@ class UserCreate(UserBase):
             raise ValueError("Password must contain at least one digit")
         if not any(c.islower() for c in v):
             raise ValueError("Password must contain at least one lowercase letter")
-
         return v
-
 
 class UserRegister(UserCreate):
     pass
@@ -128,7 +126,6 @@ class PasswordChange(BaseModel):
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 
-
         # Special characters are optional for password change
 
         return v
@@ -158,7 +155,6 @@ class PasswordResetConfirm(BaseModel):
         # Check for at least one digit
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
-
 
         # Special characters are optional for reset passwords
 

@@ -383,7 +383,6 @@ async def get_report(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
     return report
 
-
 @router.get("/{report_id}/download")
 async def download_report(
     report_id: int,
