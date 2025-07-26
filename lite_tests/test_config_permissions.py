@@ -21,7 +21,9 @@ from app.core.permissions import (
 )
 
 
-def test_get_cors_origins_parsing():
+def test_get_cors_origins_parsing(monkeypatch):
+    """Ensure CORS list parsing works even if other env vars are set."""
+    monkeypatch.delenv("VIRUS_SCANNERS", raising=False)
     settings = Settings(BACKEND_CORS_ORIGINS="http://a.com,http://b.com")
     assert settings.get_cors_origins() == ["http://a.com", "http://b.com"]
     star = Settings(BACKEND_CORS_ORIGINS="*")
