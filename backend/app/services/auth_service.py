@@ -138,6 +138,7 @@ class AuthService:
             )
             return None
 
+
         # Verify password
         if not verify_password(password, user.hashed_password):
             # Increment failed login attempts
