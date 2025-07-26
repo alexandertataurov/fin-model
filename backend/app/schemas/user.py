@@ -52,13 +52,13 @@ class UserCreate(UserBase):
         # weight. Ensure a reasonable length and at least one digit so that
         # common dictionary words are discouraged, but do not enforce mixed
         # case or special characters.
+        
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
         if not any(c.islower() for c in v):
             raise ValueError("Password must contain at least one lowercase letter")
 
         return v
-
 
 class UserRegister(UserCreate):
     pass

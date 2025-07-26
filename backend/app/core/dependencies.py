@@ -12,6 +12,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+def require_permissions(
+    *required_permissions: Permission,
+    unauthenticated_status: int = status.HTTP_401_UNAUTHORIZED,
+):
 
 def require_permissions(
     *required_permissions: Permission,
@@ -146,6 +150,10 @@ def require_role(required_role: RoleType):
         return current_user
 
     return role_decorator
+
+security_admin = HTTPBearer(auto_error=False)
+
+security_admin = HTTPBearer(auto_error=False)
 
 
 security_admin = HTTPBearer(auto_error=False)
