@@ -16,7 +16,6 @@ def test_pdf_generator_creates_file(tmp_path):
     path = generator.generate_financial_report(data)
     assert os.path.exists(path)
 
-
 def test_export_raw_data_csv(tmp_path):
     exporter = ExcelExporter(output_dir=tmp_path)
     data = [
