@@ -371,6 +371,18 @@ async def get_report_status(
     return ReportGenerationStatus(export_id=report_id, status=ReportStatus.PROCESSING)
 
 
+# Basic retrieval endpoint used in data consistency tests
+@router.get("/{report_id}", response_model=ReportExport)
+async def get_report(
+    report_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> ReportExport:
+    report = db.query(ReportExportModel).filter_by(id=report_id).first()
+    if not report:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
+    return report
+
 @router.get("/{report_id}/download")
 async def download_report(
     report_id: int,

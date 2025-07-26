@@ -14,6 +14,7 @@ from app.models.audit import AuditAction
 from app.schemas.user import (
     UserRegister,
     User,
+    UserUpdate,
     Token,
     PasswordReset,
     PasswordResetConfirm,
@@ -30,9 +31,9 @@ from app.core.security import (
 from app.core.config import settings
 
 router = APIRouter()
-# For endpoints secured with HTTPBearer, tests expect a 403 status when the
-# Authorization header is missing. Using ``auto_error=False`` lets us control
-# the response code explicitly instead of FastAPI returning 403 by default.
+# Use ``auto_error=False`` so we can return a custom response when the
+# Authorization header is missing. Most tests expect a 401 status in this case
+# rather than FastAPI's default 403.
 security = HTTPBearer(auto_error=False)
 
 def get_current_user(
@@ -41,8 +42,8 @@ def get_current_user(
 ) -> User:
     """Get current authenticated user."""
     if credentials is None:
-        # When no Authorization header is provided, respond with 403 to match
-        # test expectations that missing credentials are treated as forbidden.
+        # No Authorization header - inform the client that authentication is
+        # required with a 401 status.
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authenticated",
@@ -270,6 +271,20 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)) -> Any:
 def read_users_me(current_user: User = Depends(get_current_active_user)) -> Any:
     """Get current user information."""
     return current_user
+
+
+@router.put("/me", response_model=User)
+def update_users_me(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Update the current user's profile."""
+    auth_service = AuthService(db)
+    updated = auth_service.update_user(current_user.id, user_update)
+    if not updated:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return updated
 
 
 @router.post("/verify-email")
