@@ -1,0 +1,3 @@
+[run]
+include =
+    backend/app/simple_module.py
