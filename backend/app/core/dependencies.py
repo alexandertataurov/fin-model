@@ -18,7 +18,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 def require_permissions(*required_permissions: Permission):
     """Decorator to require specific permissions for an endpoint."""
 
-    security = HTTPBearer()
+    security = HTTPBearer(auto_error=False)
 
     def permission_decorator(
         credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -58,7 +58,7 @@ def require_permissions(*required_permissions: Permission):
 def require_all_permissions(*required_permissions: Permission):
     """Decorator to require ALL specified permissions for an endpoint."""
 
-    security = HTTPBearer()
+    security = HTTPBearer(auto_error=False)
 
     def permission_decorator(
         credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -93,7 +93,8 @@ def require_all_permissions(*required_permissions: Permission):
 
 def require_role(required_role: RoleType):
     """Decorator to require a specific role for an endpoint."""
-    security = HTTPBearer()
+    security = HTTPBearer(auto_error=False)
+
 
     def role_decorator(
         credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -124,8 +125,7 @@ def require_role(required_role: RoleType):
 
     return role_decorator
 
-
-security_admin = HTTPBearer()
+security_admin = HTTPBearer(auto_error=False)
 
 def require_admin(
     credentials: HTTPAuthorizationCredentials = Depends(security_admin),

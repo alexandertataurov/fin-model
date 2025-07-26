@@ -52,6 +52,12 @@ class UserCreate(UserBase):
             raise ValueError("Password must contain at least one digit")
         if not any(c.islower() for c in v):
             raise ValueError("Password must contain at least one lowercase letter")
+        if not any(c.isupper() for c in v):
+            raise ValueError("Password must contain at least one uppercase letter")
+        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?/"
+        if not any(c in special_chars for c in v):
+            raise ValueError("Password must contain at least one special character")
+
         return v
 
 class UserRegister(UserCreate):
@@ -122,11 +128,17 @@ class PasswordChange(BaseModel):
         if not any(c.islower() for c in v):
             raise ValueError("Password must contain at least one lowercase letter")
 
+        # Check for at least one uppercase letter
+        if not any(c.isupper() for c in v):
+            raise ValueError("Password must contain at least one uppercase letter")
+
         # Check for at least one digit
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 
-        # Special characters are optional for password change
+        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?/"
+        if not any(c in special_chars for c in v):
+            raise ValueError("Password must contain at least one special character")
 
         return v
 
@@ -152,11 +164,17 @@ class PasswordResetConfirm(BaseModel):
         if not any(c.islower() for c in v):
             raise ValueError("Password must contain at least one lowercase letter")
 
+        # Check for at least one uppercase letter
+        if not any(c.isupper() for c in v):
+            raise ValueError("Password must contain at least one uppercase letter")
+
         # Check for at least one digit
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 
-        # Special characters are optional for reset passwords
+        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?/"
+        if not any(c in special_chars for c in v):
+            raise ValueError("Password must contain at least one special character")
 
         return v
 
