@@ -54,9 +54,6 @@ class UserCreate(UserBase):
         if not any(c.islower() for c in v):
             raise ValueError("Password must contain at least one lowercase letter")
 
-        return v
-
-
 class UserRegister(UserCreate):
     pass
 

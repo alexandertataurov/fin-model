@@ -35,7 +35,6 @@ router = APIRouter()
 # the response code explicitly instead of FastAPI returning 403 by default.
 security = HTTPBearer(auto_error=False)
 
-
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
