@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -34,6 +34,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Ensure validation errors return JSON responses instead of raising
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    errors = []
+    for err in exc.errors():
+        if "ctx" in err and isinstance(err["ctx"].get("error"), Exception):
+            err = err.copy()
+            err["ctx"] = {"error": str(err["ctx"]["error"])}
+        errors.append(err)
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": errors},
+    )
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
