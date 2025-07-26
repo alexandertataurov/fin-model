@@ -26,7 +26,7 @@ def list_users(
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(
         require_permissions(
-            Permission.USER_LIST, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.USER_LIST
         )
     ),
     db: Session = Depends(get_db),
@@ -53,7 +53,7 @@ def get_user(
     user_id: int,
     current_user: User = Depends(
         require_permissions(
-            Permission.USER_READ, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.USER_READ
         )
     ),
     db: Session = Depends(get_db),
@@ -81,7 +81,7 @@ def update_user(
     user_update: UserUpdate,
     current_user: User = Depends(
         require_permissions(
-            Permission.USER_UPDATE, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.USER_UPDATE
         )
     ),
     db: Session = Depends(get_db),
@@ -119,7 +119,7 @@ def delete_user(
     user_id: int,
     current_user: User = Depends(
         require_permissions(
-            Permission.USER_DELETE, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.USER_DELETE
         )
     ),
     db: Session = Depends(get_db),
@@ -161,7 +161,7 @@ def assign_role(
     role: RoleType,
     current_user: User = Depends(
         require_permissions(
-            Permission.ROLE_ASSIGN, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.ROLE_ASSIGN
         )
     ),
     db: Session = Depends(get_db),
@@ -199,7 +199,7 @@ def remove_role(
     role: RoleType,
     current_user: User = Depends(
         require_permissions(
-            Permission.ROLE_REMOVE, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.ROLE_REMOVE
         )
     ),
     db: Session = Depends(get_db),
@@ -264,7 +264,7 @@ def get_audit_logs(
     action: str = Query(None),
     current_user: User = Depends(
         require_permissions(
-            Permission.AUDIT_LOGS, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.AUDIT_LOGS
         )
     ),
     db: Session = Depends(get_db),
@@ -302,7 +302,7 @@ def get_audit_logs(
 def system_health(
     current_user: User = Depends(
         require_permissions(
-            Permission.SYSTEM_HEALTH, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.SYSTEM_HEALTH
         )
     ),
     db: Session = Depends(get_db),
@@ -370,7 +370,7 @@ def get_user_permissions(
 async def get_database_health(
     current_user: User = Depends(
         require_permissions(
-            Permission.SYSTEM_HEALTH, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.SYSTEM_HEALTH
         )
     )
 ):
@@ -395,7 +395,7 @@ async def get_database_performance(
     limit: int = Query(10, ge=1, le=100),
     current_user: User = Depends(
         require_permissions(
-            Permission.SYSTEM_HEALTH, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.SYSTEM_HEALTH
         )
     ),
 ):
@@ -418,7 +418,7 @@ async def get_database_performance(
 async def get_table_information(
     current_user: User = Depends(
         require_permissions(
-            Permission.SYSTEM_HEALTH, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.SYSTEM_HEALTH
         )
     )
 ):
@@ -440,7 +440,7 @@ async def cleanup_database(
     dry_run: bool = Query(True, description="Whether to perform a dry run"),
     current_user: User = Depends(
         require_permissions(
-            Permission.ADMIN_ACCESS, unauthenticated_status=status.HTTP_403_FORBIDDEN
+            Permission.ADMIN_ACCESS
         )
     ),
 ):
