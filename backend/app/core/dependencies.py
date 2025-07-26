@@ -12,10 +12,16 @@ from app.core.permissions import Permission, PermissionChecker
 from app.models.audit import AuditAction
 
 
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+
 def require_permissions(*required_permissions: Permission):
     """Decorator to require specific permissions for an endpoint."""
 
+    security = HTTPBearer(auto_error=False)
+
     def permission_decorator(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
         current_user: User = Depends(get_current_active_user),
         db: Session = Depends(get_db),
     ):
@@ -52,7 +58,10 @@ def require_permissions(*required_permissions: Permission):
 def require_all_permissions(*required_permissions: Permission):
     """Decorator to require ALL specified permissions for an endpoint."""
 
+    security = HTTPBearer(auto_error=False)
+
     def permission_decorator(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
         current_user: User = Depends(get_current_active_user),
         db: Session = Depends(get_db),
     ):
@@ -84,8 +93,10 @@ def require_all_permissions(*required_permissions: Permission):
 
 def require_role(required_role: RoleType):
     """Decorator to require a specific role for an endpoint."""
+    security = HTTPBearer(auto_error=False)
 
     def role_decorator(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
         current_user: User = Depends(get_current_active_user),
         db: Session = Depends(get_db),
     ):
@@ -114,8 +125,12 @@ def require_role(required_role: RoleType):
     return role_decorator
 
 
+security_admin = HTTPBearer(auto_error=False)
+
 def require_admin(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(security_admin),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
 ):
     """Dependency to require admin role."""
     auth_service = AuthService(db)

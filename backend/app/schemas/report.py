@@ -139,10 +139,16 @@ class GenerateReportRequest(BaseModel):
     template_id: Optional[int] = None
     export_format: ExportFormat = ExportFormat.PDF
     name: Optional[str] = None
-    source_file_ids: Optional[List[int]] = None
+    # Tests send `file_ids`; support that alias for backward compatibility.
+    source_file_ids: Optional[List[int]] = Field(
+        default=None, alias="file_ids"
+    )
     data_period_start: Optional[datetime] = None
     data_period_end: Optional[datetime] = None
     custom_config: Optional[Dict[str, Any]] = None
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class ChartExportRequest(BaseModel):
