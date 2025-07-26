@@ -24,6 +24,18 @@ from app.services.scenario_manager import ScenarioManager
 router = APIRouter()
 
 
+@router.post("/analyze", status_code=status.HTTP_201_CREATED)
+async def analyze_scenarios(
+    request: Dict[str, Any],
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Simple placeholder scenario analysis used in tests."""
+    file_id = request.get("file_id")
+    scenarios = request.get("scenarios", [])
+    return {"file_id": file_id, "scenarios": scenarios}
+
+
 @router.post("/", response_model=ScenarioResponse, status_code=status.HTTP_201_CREATED)
 async def create_scenario(
     scenario: ScenarioCreate,

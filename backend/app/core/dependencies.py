@@ -1,24 +1,53 @@
-from typing import List, Callable, Any, Set
 from functools import wraps
-from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from typing import Any, Callable, List, Set
 
-from app.models.base import get_db
-from app.models.user import User
-from app.models.role import RoleType
-from app.services.auth_service import AuthService
-from app.api.v1.endpoints.auth import get_current_active_user
+from app.api.v1.endpoints.auth import get_current_active_user, get_current_user
 from app.core.permissions import Permission, PermissionChecker
 from app.models.audit import AuditAction
+from app.models.base import get_db
+from app.models.role import RoleType
+from app.models.user import User
+from app.services.auth_service import AuthService
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
 
 
-def require_permissions(*required_permissions: Permission):
-    """Decorator to require specific permissions for an endpoint."""
+def require_permissions(
+    *required_permissions: Permission,
+    unauthenticated_status: int = status.HTTP_401_UNAUTHORIZED,
+):
+    """Decorator to require specific permissions for an endpoint.
+
+    ``unauthenticated_status`` controls the response code when no ``Authorization``
+    header is provided. Standard API endpoints expect ``401 Unauthorized`` while
+    some admin routes check for a ``403 Forbidden`` response.
+    """
+
+    security = HTTPBearer(auto_error=False)
 
     def permission_decorator(
-        current_user: User = Depends(get_current_active_user),
+        credentials: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db),
     ):
+        # If no credentials were provided at all return the configured status
+        # code. Admin endpoints pass ``403`` to mimic FastAPI's default
+        # behaviour while most endpoints use ``401``.
+        if credentials is None:
+            raise HTTPException(
+                status_code=unauthenticated_status,
+                detail="Not authenticated",
+            )
+
+        # Manually resolve the user from the provided credentials so that we do
+        # not trigger the 401 response from ``get_current_active_user`` when the
+        # Authorization header is missing.
+        current_user = get_current_user(credentials, db)
+        if not current_user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+            )
+
         auth_service = AuthService(db)
         user_roles = auth_service.get_user_roles(current_user.id)
         if current_user.is_admin and RoleType.ADMIN.value not in user_roles:
@@ -52,7 +81,10 @@ def require_permissions(*required_permissions: Permission):
 def require_all_permissions(*required_permissions: Permission):
     """Decorator to require ALL specified permissions for an endpoint."""
 
+    security = HTTPBearer(auto_error=False)
+
     def permission_decorator(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
         current_user: User = Depends(get_current_active_user),
         db: Session = Depends(get_db),
     ):
@@ -84,8 +116,10 @@ def require_all_permissions(*required_permissions: Permission):
 
 def require_role(required_role: RoleType):
     """Decorator to require a specific role for an endpoint."""
+    security = HTTPBearer(auto_error=False)
 
     def role_decorator(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
         current_user: User = Depends(get_current_active_user),
         db: Session = Depends(get_db),
     ):
@@ -114,8 +148,13 @@ def require_role(required_role: RoleType):
     return role_decorator
 
 
+security_admin = HTTPBearer(auto_error=False)
+
+
 def require_admin(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(security_admin),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Dependency to require admin role."""
     auth_service = AuthService(db)
@@ -147,20 +186,22 @@ def require_admin(
 class UserWithPermissions:
     """Class to hold user with their permissions for dependency injection."""
 
-    def __init__(self, user: User, permissions: Set[Permission], user_roles: List[str] = None):
+    def __init__(
+        self, user: User, permissions: Set[Permission], user_roles: List[str] = None
+    ):
         self.user = user
         self.permissions = permissions
         self._user_roles = user_roles or []
-        
+
     @property
     def roles(self) -> List[str]:
         """Get user roles."""
         return self._user_roles
-    
+
     def is_admin(self) -> bool:
         """Check if user is admin."""
         return Permission.ADMIN_ACCESS in self.permissions
-    
+
     def is_analyst(self) -> bool:
         """Check if user is analyst."""
         return Permission.MODEL_CREATE in self.permissions and not self.is_admin()

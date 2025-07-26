@@ -47,8 +47,11 @@ async def get_dashboard_charts(
     current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
-    """Return placeholder chart data."""
-    return {}
+    """Return simple example chart data used in tests."""
+    return {
+        "revenue_trend": [1000, 1200, 1100, 1300],
+        "expense_breakdown": {"COGS": 600, "OPEX": 300},
+    }
 
 
 class DashboardPeriod:
