@@ -52,6 +52,8 @@ class ParameterCategory(str, Enum):
     REGULATORY = "regulatory"
     ASSUMPTIONS = "assumptions"
     CALCULATED = "calculated"
+    CONFIDENTIAL = "confidential"
+    TEST = "test"  # Used in tests
 
 
 class SensitivityLevel(str, Enum):
