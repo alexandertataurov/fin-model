@@ -125,6 +125,48 @@ def get_file_with_logs(
     )
 
 
+@router.get("/{file_id}/status")
+def get_file_status(
+    file_id: int,
+    current_user: User = Depends(get_current_active_user),
+    file_service: FileService = Depends(get_file_service),
+) -> Any:
+    """Return simple processing status information for a file."""
+    file_record = file_service.get_file_by_id(file_id, current_user)
+    if not file_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
+    return {"status": file_record.status}
+
+
+@router.get("/{file_id}/data")
+def get_file_data(
+    file_id: int,
+    current_user: User = Depends(get_current_active_user),
+    file_service: FileService = Depends(get_file_service),
+) -> Any:
+    """Return parsed data for a processed file if available."""
+    file_record = file_service.get_file_by_id(file_id, current_user)
+    if not file_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
+    if not file_record.parsed_data:
+        # Tests expect an empty JSON payload rather than a 404 when a file has
+        # completed processing but no parsed data was stored.
+        return {"financial_data": {}}
+    import json
+
+    try:
+        return json.loads(file_record.parsed_data)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to parse stored data",
+        )
+
+
 @router.get("/{file_id}/download")
 def download_file(
     file_id: int,
