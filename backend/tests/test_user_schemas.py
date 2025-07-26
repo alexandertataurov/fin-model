@@ -47,7 +47,6 @@ def test_password_validations_create_change_reset():
     with pytest.raises(ValueError):
         PasswordResetConfirm(token="abc", new_password="NOLOWERS123456")
 
-
 def test_password_change_and_reset_nonumbers():
     with pytest.raises(ValueError):
         PasswordChange(current_password="old", new_password="weaknonumbers")
