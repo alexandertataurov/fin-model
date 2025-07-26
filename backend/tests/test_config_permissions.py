@@ -55,3 +55,7 @@ def test_can_access_resource_denied():
         viewer, 2, 1, Permission.MODEL_UPDATE
     )
 
+
+def test_assemble_cors_origins_default_if_blank():
+    settings = Settings(BACKEND_CORS_ORIGINS="")
+    assert settings.get_cors_origins() == ["http://localhost:3000", "http://127.0.0.1:3000"]
