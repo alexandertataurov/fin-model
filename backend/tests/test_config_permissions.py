@@ -59,3 +59,9 @@ def test_can_access_resource_denied():
 def test_assemble_cors_origins_default_if_blank():
     settings = Settings(BACKEND_CORS_ORIGINS="")
     assert settings.get_cors_origins() == ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+def test_can_access_resource_admin():
+    admin = [RoleType.ADMIN.value]
+    assert PermissionChecker.can_access_resource(
+        admin, 2, 1, Permission.MODEL_UPDATE
+    )
