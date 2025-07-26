@@ -28,6 +28,9 @@ FinVision is a comprehensive web-based financial modeling and analysis platform 
 - **Database**: PostgreSQL
 - **ORM**: SQLAlchemy
 - **Authentication**: JWT tokens
+- **Unauthorized Responses**: Standard endpoints return **401 Unauthorized** when
+  no token is provided, while admin endpoints return **403 Forbidden** for missing
+  credentials
 - **Background Tasks**: Celery + Redis
 - **Excel Processing**: Pandas + openpyxl
 
