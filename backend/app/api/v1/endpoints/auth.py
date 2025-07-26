@@ -31,9 +31,8 @@ from app.core.security import (
 from app.core.config import settings
 
 router = APIRouter()
-# Use ``auto_error=False`` so we can return a custom response when the
-# Authorization header is missing. Most tests expect a 401 status in this case
-# rather than FastAPI's default 403.
+
+# Use HTTPBearer with auto_error disabled so we can return 401 instead of 403
 security = HTTPBearer(auto_error=False)
 
 def get_current_user(
@@ -42,10 +41,8 @@ def get_current_user(
 ) -> User:
     """Get current authenticated user."""
     if credentials is None:
-        # No Authorization header - inform the client that authentication is
-        # required with a 401 status.
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -127,13 +124,11 @@ def register(
 
         user = auth_service.create_user(user_in, RoleType.VIEWER)
 
-        # Return minimal user info as a plain dict to avoid import issues during
-        # tests.
-        return {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-        }
+        # Note: Users now start unverified and must verify their email
+        # Use the /dev-verify-user endpoint for development testing if needed
+
+        return user
+
     except HTTPException:
         raise
     except Exception as e:
