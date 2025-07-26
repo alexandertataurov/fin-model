@@ -154,6 +154,9 @@ security_admin = HTTPBearer(auto_error=False)
 security_admin = HTTPBearer(auto_error=False)
 
 
+security_admin = HTTPBearer(auto_error=False)
+
+
 def require_admin(
     credentials: HTTPAuthorizationCredentials = Depends(security_admin),
     current_user: User = Depends(get_current_active_user),
