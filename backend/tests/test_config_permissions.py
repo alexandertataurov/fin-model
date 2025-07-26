@@ -65,4 +65,3 @@ def test_can_access_resource_admin():
     assert PermissionChecker.can_access_resource(
         admin, 2, 1, Permission.MODEL_UPDATE
     )
-
