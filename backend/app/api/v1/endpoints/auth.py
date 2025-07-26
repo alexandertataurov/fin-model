@@ -27,7 +27,8 @@ from app.core.security import (
 from app.core.config import settings
 
 router = APIRouter()
-security = HTTPBearer()
+# Use HTTPBearer with auto_error disabled so we can return 401 instead of 403
+security = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
@@ -35,6 +36,13 @@ def get_current_user(
     db: Session = Depends(get_db),
 ) -> User:
     """Get current authenticated user."""
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     token = credentials.credentials
     user_id = verify_token(token)
 
@@ -107,7 +115,7 @@ def register(
 
         # Note: Users now start unverified and must verify their email
         # Use the /dev-verify-user endpoint for development testing if needed
-        
+
         return user
     except HTTPException:
         raise
@@ -246,44 +254,41 @@ def verify_email(verification: EmailVerification, db: Session = Depends(get_db))
 
 
 @router.post("/dev-verify-user")
-def dev_verify_user(
-    request: dict, db: Session = Depends(get_db)
-) -> Any:
+def dev_verify_user(request: dict, db: Session = Depends(get_db)) -> Any:
     """Development only: Manually verify a user by email or user ID."""
     auth_service = AuthService(db)
-    
+
     user = None
     if "email" in request:
         user = auth_service.get_user_by_email(request["email"])
     elif "user_id" in request:
         user = auth_service.get_user_by_id(request["user_id"])
-    
+
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    
+
     if user.is_verified:
         return {"message": f"User {user.email} is already verified"}
-    
+
     # Manually verify the user
     user.is_verified = True
     user.verification_token = None
     db.commit()
     db.refresh(user)
-    
+
     auth_service.log_audit_action(
         user_id=user.id,
         action=AuditAction.EMAIL_VERIFICATION,
         success="success",
         details="Manually verified via dev endpoint",
     )
-    
+
     return {
         "message": f"User {user.email} has been verified successfully",
         "user_id": user.id,
-        "email": user.email
+        "email": user.email,
     }
 
 
