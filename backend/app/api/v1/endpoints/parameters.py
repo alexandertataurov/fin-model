@@ -51,7 +51,7 @@ async def create_parameter(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="value must be a finite number",
             )
-
+            
         # Validate parameter data
         validation_result = await _validate_parameter_data(parameter, db)
         if not validation_result.is_valid:

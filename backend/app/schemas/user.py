@@ -60,7 +60,6 @@ class UserCreate(UserBase):
 
         return v
 
-
 class UserRegister(UserCreate):
     pass
 

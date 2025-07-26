@@ -95,6 +95,7 @@ def require_role(required_role: RoleType):
     """Decorator to require a specific role for an endpoint."""
     security = HTTPBearer(auto_error=False)
 
+
     def role_decorator(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         current_user: User = Depends(get_current_active_user),
@@ -123,7 +124,6 @@ def require_role(required_role: RoleType):
         return current_user
 
     return role_decorator
-
 
 security_admin = HTTPBearer(auto_error=False)
 
