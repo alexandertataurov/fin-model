@@ -16,11 +16,6 @@ def require_permissions(
     *required_permissions: Permission,
     unauthenticated_status: int = status.HTTP_401_UNAUTHORIZED,
 ):
-
-def require_permissions(
-    *required_permissions: Permission,
-    unauthenticated_status: int = status.HTTP_401_UNAUTHORIZED,
-):
     """Decorator to require specific permissions for an endpoint.
 
     ``unauthenticated_status`` controls the response code when no ``Authorization``
