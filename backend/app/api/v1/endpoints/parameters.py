@@ -215,7 +215,7 @@ async def update_parameter(
 @router.delete("/{parameter_id}")
 async def delete_parameter(
     parameter_id: int,
-    current_user: User = Depends(require_permissions(Permission.MODEL_DELETE)),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Any:
     """

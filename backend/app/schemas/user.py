@@ -42,13 +42,12 @@ class UserCreate(UserBase):
     @field_validator("password")
     @classmethod
     def validate_password(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters long")
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters long")
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
-        # Require at least one digit and one lowercase letter to enforce a
-        # reasonably strong password for tests.
+        # Require mixed character types for reasonable strength in tests.
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
         if not any(c.islower() for c in v):
@@ -113,8 +112,8 @@ class PasswordChange(BaseModel):
     @field_validator("new_password")
     @classmethod
     def validate_new_password(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters long")
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters long")
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
@@ -143,8 +142,8 @@ class PasswordResetConfirm(BaseModel):
     @field_validator("new_password")
     @classmethod
     def validate_new_password(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters long")
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters long")
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 

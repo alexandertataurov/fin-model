@@ -70,14 +70,16 @@ def list_files(
 
 @router.get("/{file_id}", response_model=FileInfo)
 def get_file_info(
-    file_id: int,
+    file_id: str,
     current_user: User = Depends(get_current_active_user),
     file_service: FileService = Depends(get_file_service),
 ) -> Any:
     """
     Get information about a specific file.
     """
-    file_record = file_service.get_file_by_id(file_id, current_user)
+    if not file_id.isdigit():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file id")
+    file_record = file_service.get_file_by_id(int(file_id), current_user)
 
     if not file_record:
         raise HTTPException(
