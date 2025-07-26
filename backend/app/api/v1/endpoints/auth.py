@@ -36,7 +36,6 @@ router = APIRouter()
 # rather than FastAPI's default 403.
 security = HTTPBearer(auto_error=False)
 
-
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
@@ -46,7 +45,7 @@ def get_current_user(
         # No Authorization header - inform the client that authentication is
         # required with a 401 status.
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
