@@ -86,10 +86,13 @@ async def create_parameter(
         
         return ParameterResponse.from_orm(db_parameter)
         
+    except HTTPException:
+        # Propagate explicit HTTP errors such as 422 for validation failures.
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create parameter: {str(e)}"
+            detail=f"Failed to create parameter: {str(e)}",
         )
 
 
