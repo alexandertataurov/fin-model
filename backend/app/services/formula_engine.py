@@ -679,6 +679,12 @@ class FormulaEngine:
         
         # Recalculate affected cells
         return self.recalculate_affected_cells(cell_ref)
+    
+    def set_cell_value(self, cell_ref: str, new_value: Any) -> Dict[str, CalculationResult]:
+        """
+        Alias for update_cell_value for backward compatibility with tests.
+        """
+        return self.update_cell_value(cell_ref, new_value)
 
     def get_formula_dependencies(self, cell_ref: str) -> Dict[str, Any]:
         """

@@ -46,6 +46,7 @@ class UploadedFile(Base):
     file_size = Column(BigInteger, nullable=False)
     file_type = Column(String(50), nullable=True)
     mime_type = Column(String(100), nullable=True)
+    upload_date = Column(DateTime, default=datetime.utcnow)
 
     # Processing status
     status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)

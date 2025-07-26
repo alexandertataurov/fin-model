@@ -6,7 +6,8 @@
       "Bash(python -m pytest tests/test_financial_extractor.py -v)",
       "Bash(python -m pytest tests/test_formula_engine.py -v)",
       "Bash(python -m pytest --co)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(timeout 60 python -m pytest --tb=no -x)"
     ],
     "deny": []
   }

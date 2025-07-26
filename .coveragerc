@@ -1,3 +1,2 @@
 [run]
-include =
-    backend/app/simple_module.py
+# Configuration is handled by pytest.ini
