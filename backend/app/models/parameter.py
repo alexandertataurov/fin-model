@@ -185,6 +185,8 @@ class ParameterValue(Base):
     change_reason = Column(String(255), nullable=True)
     changed_at = Column(DateTime, default=datetime.utcnow)
     changed_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    # Alias for backward compatibility with tests
+    created_by_id = synonym("changed_by_id")
     
     # Validation
     is_valid = Column(Boolean, default=True)
