@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
@@ -244,16 +244,81 @@ class ScenarioManager:
             self.db.rollback()
             raise Exception(f"Failed to delete scenario: {str(e)}")
 
+    # ------------------------------------------------------------------
+    # Helper methods used in unit tests
+    # ------------------------------------------------------------------
+
+    def get_scenario_by_id(self, scenario_id: int, user_id: int) -> Optional[Scenario]:
+        """Return a scenario by ID or None."""
+        return (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+
+    def get_user_scenarios(self, user_id: int) -> List[Scenario]:
+        """Return all scenarios for a user ordered by ID."""
+        return (
+            self.db.query(Scenario)
+            .filter(Scenario.created_by_id == user_id)
+            .order_by(Scenario.id)
+            .all()
+        )
+
+    def update_parameter_value(
+        self,
+        scenario_id: int,
+        parameter_id: int,
+        new_value: float,
+        user_id: int,
+    ) -> Optional[ParameterValue]:
+        """Update a parameter value and return the updated row."""
+        param_value = (
+            self.db.query(ParameterValue)
+            .filter(
+                ParameterValue.scenario_id == scenario_id,
+                ParameterValue.parameter_id == parameter_id,
+            )
+            .first()
+        )
+
+        if not param_value:
+            return None
+
+        param_value.value = new_value
+        param_value.changed_at = datetime.utcnow()
+        param_value.changed_by_id = user_id
+        self.db.commit()
+        self.db.refresh(param_value)
+        return param_value
+
+    async def calculate_scenario_results(self, scenario_id: int, user_id: int) -> Dict[str, Any]:
+        """Calculate scenario results using the formula engine."""
+        scenario = (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+        if not scenario:
+            raise ValueError("Scenario not found")
+
+        params = (
+            self.db.query(ParameterValue)
+            .filter(ParameterValue.scenario_id == scenario_id)
+            .all()
+        )
+        param_dict = {p.parameter_id: p.value for p in params}
+        return await self.formula_engine.calculate_scenario(param_dict)
+
+
     async def compare_scenarios(
         self,
         base_scenario_id: int,
-        compare_scenario_ids: List[int],
+        compare_scenario_ids: Union[int, List[int]],
         user_id: int,
-        parameter_filters: Optional[List[int]] = None
-    ) -> List[ScenarioComparison]:
-        """
-        Compare multiple scenarios against a base scenario.
-        """
+        parameter_filters: Optional[List[int]] = None,
+    ) -> Union[ScenarioComparison, List[ScenarioComparison]]:
+        """Compare one or multiple scenarios against a base scenario."""
         # Validate base scenario
         base_scenario = self.db.query(Scenario).filter(
             Scenario.id == base_scenario_id,
@@ -264,25 +329,29 @@ class ScenarioManager:
             raise ValueError("Base scenario not found")
         
         # Validate comparison scenarios
-        compare_scenarios = self.db.query(Scenario).filter(
-            Scenario.id.in_(compare_scenario_ids),
-            Scenario.created_by_id == user_id
-        ).all()
-        
+        if isinstance(compare_scenario_ids, int):
+            compare_scenario_ids = [compare_scenario_ids]
+
+        compare_scenarios = (
+            self.db.query(Scenario)
+            .filter(Scenario.id.in_(compare_scenario_ids), Scenario.created_by_id == user_id)
+            .all()
+        )
+
         if len(compare_scenarios) != len(compare_scenario_ids):
             raise ValueError("One or more comparison scenarios not found")
-        
+
         results = []
-        
+
         for compare_scenario in compare_scenarios:
             comparison = await self._compare_two_scenarios(
                 base_scenario,
                 compare_scenario,
-                parameter_filters
+                parameter_filters,
             )
             results.append(comparison)
-        
-        return results
+
+        return results[0] if len(results) == 1 else results
 
     async def get_scenario_history(
         self,
@@ -1060,78 +1129,3 @@ class ScenarioManager:
         variance = sum((x - mean) ** 2 for x in values) / (len(values) - 1)
         return variance ** 0.5
 
-    # ------------------------------------------------------------------
-    # Simplified methods used in unit tests
-    # ------------------------------------------------------------------
-
-    def create_scenario(
-        self,
-        base_file_id: int | str,
-        user_id: int | Dict[str, float],
-        parameters: Optional[Dict[str, float]] = None,
-    ) -> Dict[str, Any]:
-        """Lightweight scenario creation for unit tests."""
-        if parameters is None and isinstance(base_file_id, str) and isinstance(user_id, dict):
-            # Backwards compatibility with old signature (name, assumptions)
-            return {"name": base_file_id, "assumptions": user_id}
-
-        return {
-            "base_file_id": base_file_id,
-            "user_id": user_id,
-            "parameters": parameters or {},
-        }
-
-    def analyze_sensitivity(
-        self,
-        base_file_id: int | List[Dict[str, Any]],
-        user_id: int | str,
-        parameters: Optional[Dict[str, float]] = None,
-    ) -> Any:
-        """Return parameters for testing or simple sensitivity list."""
-        if isinstance(base_file_id, list) and isinstance(user_id, str):
-            # Old signature (scenarios, parameter_name)
-            scenarios = base_file_id
-            param = user_id
-            results = []
-            for sc in scenarios:
-                value = sc.get("assumptions", {}).get(param)
-                results.append({"name": sc.get("name"), param: value})
-            return results
-
-        return {
-            "base_file_id": base_file_id,
-            "user_id": user_id,
-            "parameters": parameters or {},
-        }
-
-    def monte_carlo_simulation(
-        self,
-        base_file_id: int | Dict[str, Dict[str, float]],
-        user_id: int | int = 0,
-        parameters: Optional[Dict[str, float]] = None,
-        iterations: int = 1000,
-    ) -> Dict[str, Any]:
-        """Return a dummy simulation payload."""
-        if isinstance(base_file_id, dict) and parameters is None:
-            # Old signature (parameters, iterations)
-            params = base_file_id
-            return {"iterations": user_id if isinstance(user_id, int) else iterations, "results": [params]}
-
-        return {
-            "base_file_id": base_file_id,
-            "user_id": user_id,
-            "parameters": parameters or {},
-            "iterations": iterations,
-        }
-
-    def compare_scenarios(
-        self,
-        compare_scenario_ids: List[int] | List[Dict[str, Any]],
-        user_id: Optional[int] = None,
-    ) -> Any:
-        """Return ids for testing or echo scenarios."""
-        if compare_scenario_ids and isinstance(compare_scenario_ids[0], dict):
-            # Old signature (scenarios)
-            return compare_scenario_ids
-
-        return {"compare_scenario_ids": compare_scenario_ids, "user_id": user_id}

@@ -111,6 +111,8 @@ class FinancialExtractor:
         """Extract basic financial statements from a file path or parsed data."""
         if isinstance(source, dict):
             parsed_data = source
+        elif isinstance(source, list):
+            parsed_data = {"sheets": source}
         else:
             parsed_data = ExcelParser().parse_file(source)
 
@@ -129,14 +131,7 @@ class FinancialExtractor:
             for sheet in sheets:
                 name = sheet.get("name", "").lower()
                 data = sheet.get("data", [])
-                if "p&l" in name or "income" in name or sheet.get("type") == "financial":
-                    for row in data[1:]:
-                        if len(row) >= 2:
-                            statements["income_statement"].append({
-                                "account": row[0],
-                                "value": row[1]
-                            })
-                elif "balance" in name:
+                if "balance" in name:
                     for row in data[1:]:
                         if len(row) >= 2:
                             statements["balance_sheet"].append({
@@ -147,6 +142,13 @@ class FinancialExtractor:
                     for row in data[1:]:
                         if len(row) >= 2:
                             statements["cash_flow"].append({
+                                "account": row[0],
+                                "value": row[1]
+                            })
+                elif "p&l" in name or "income" in name or sheet.get("type") == "financial":
+                    for row in data[1:]:
+                        if len(row) >= 2:
+                            statements["income_statement"].append({
                                 "account": row[0],
                                 "value": row[1]
                             })
