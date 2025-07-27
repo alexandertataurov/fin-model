@@ -445,7 +445,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                       Affects:
                     </Typography>
                     <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
-                      {parameter.affects.map((affect, index) => (
+                      {parameter.affects?.map((affect, index) => (
                         <Chip key={index} size="small" label={affect} variant="outlined" />
                       ))}
                     </Box>

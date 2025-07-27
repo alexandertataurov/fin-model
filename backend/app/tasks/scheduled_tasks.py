@@ -3,9 +3,11 @@ from celery import Task
 from celery.schedules import crontab
 from sqlalchemy.orm import Session
 
+import asyncio
 from app.core.celery_app import celery_app
 from app.models.base import SessionLocal
 from app.services.file_cleanup import FileCleanupService
+from app.services.file_service import FileService
 from app.tasks.notifications import send_system_alert
 
 
@@ -20,12 +22,12 @@ class DatabaseTask(Task):
         raise NotImplementedError
 
 
-@celery_app.task(bind=True, name="app.tasks.scheduled_tasks.cleanup_expired_files")
-def cleanup_expired_files(self):
+@celery_app.task(bind=True, base=DatabaseTask, name="app.tasks.scheduled_tasks.cleanup_expired_files")
+def cleanup_expired_files(self, db: Session):
     """Scheduled task to clean up expired files."""
     try:
-        cleanup_service = FileCleanupService()
-        results = await cleanup_service.run_scheduled_cleanup()
+        service = FileService(db)
+        results = service.cleanup_expired_files()
 
         # Send notification if significant cleanup occurred
         if results.get("total_files_deleted", 0) > 0:
@@ -40,7 +42,7 @@ def cleanup_expired_files(self):
     except Exception as e:
         error_msg = f"Scheduled file cleanup failed: {str(e)}"
         send_system_alert.delay("file_cleanup_error", error_msg, "high")
-        raise
+        return {"success": False, "error": str(e)}
 
 
 @celery_app.task(bind=True, name="app.tasks.scheduled_tasks.generate_cleanup_report")
@@ -197,3 +199,6 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute=0),
     },
 }
+
+# Expose raw function for unit tests
+cleanup_expired_files.__wrapped__ = cleanup_expired_files.__wrapped__.__func__

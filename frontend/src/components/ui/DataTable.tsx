@@ -27,7 +27,7 @@ import {
   GetApp as ExportIcon,
 } from '@mui/icons-material';
 
-export interface DataTableColumn<T = any> {
+export interface DataTableColumn<T = Record<string, unknown>> {
   id: keyof T;
   label: string;
   minWidth?: number;
@@ -35,12 +35,12 @@ export interface DataTableColumn<T = any> {
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
   filterable?: boolean;
-  format?: (value: any, row: T) => React.ReactNode;
+  format?: (value: unknown, row: T) => React.ReactNode;
   filterType?: 'text' | 'select' | 'number' | 'date';
   filterOptions?: string[];
 }
 
-export interface DataTableProps<T = any> {
+export interface DataTableProps<T = Record<string, unknown>> {
   columns: DataTableColumn<T>[];
   data: T[];
   loading?: boolean;
@@ -57,7 +57,7 @@ export interface DataTableProps<T = any> {
 
 type Order = 'asc' | 'desc';
 
-export const DataTable = <T extends Record<string, any>>({
+export const DataTable = <T extends Record<string, unknown>>({
   columns,
   data,
   loading = false,
@@ -76,7 +76,7 @@ export const DataTable = <T extends Record<string, any>>({
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof T>(columns[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [selected, setSelected] = useState<T[]>([]);
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -177,7 +177,7 @@ export const DataTable = <T extends Record<string, any>>({
     return selected.some(item => JSON.stringify(item) === JSON.stringify(row));
   };
 
-  const handleFilterChange = (columnId: string, value: any) => {
+  const handleFilterChange = (columnId: string, value: unknown) => {
     setFilters(prev => ({
       ...prev,
       [columnId]: value || undefined,
@@ -403,7 +403,7 @@ export const DataTable = <T extends Record<string, any>>({
                   )}
                   {columns.map((column) => (
                     <TableCell key={column.id as string} align={column.align}>
-                      {column.format ? column.format(row[column.id], row) : row[column.id]}
+                      {column.format ? column.format(row[column.id], row) : String(row[column.id] ?? '')}
                     </TableCell>
                   ))}
                   {actions && (

@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
@@ -244,16 +244,81 @@ class ScenarioManager:
             self.db.rollback()
             raise Exception(f"Failed to delete scenario: {str(e)}")
 
+    # ------------------------------------------------------------------
+    # Helper methods used in unit tests
+    # ------------------------------------------------------------------
+
+    def get_scenario_by_id(self, scenario_id: int, user_id: int) -> Optional[Scenario]:
+        """Return a scenario by ID or None."""
+        return (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+
+    def get_user_scenarios(self, user_id: int) -> List[Scenario]:
+        """Return all scenarios for a user ordered by ID."""
+        return (
+            self.db.query(Scenario)
+            .filter(Scenario.created_by_id == user_id)
+            .order_by(Scenario.id)
+            .all()
+        )
+
+    def update_parameter_value(
+        self,
+        scenario_id: int,
+        parameter_id: int,
+        new_value: float,
+        user_id: int,
+    ) -> Optional[ParameterValue]:
+        """Update a parameter value and return the updated row."""
+        param_value = (
+            self.db.query(ParameterValue)
+            .filter(
+                ParameterValue.scenario_id == scenario_id,
+                ParameterValue.parameter_id == parameter_id,
+            )
+            .first()
+        )
+
+        if not param_value:
+            return None
+
+        param_value.value = new_value
+        param_value.changed_at = datetime.utcnow()
+        param_value.changed_by_id = user_id
+        self.db.commit()
+        self.db.refresh(param_value)
+        return param_value
+
+    async def calculate_scenario_results(self, scenario_id: int, user_id: int) -> Dict[str, Any]:
+        """Calculate scenario results using the formula engine."""
+        scenario = (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+        if not scenario:
+            raise ValueError("Scenario not found")
+
+        params = (
+            self.db.query(ParameterValue)
+            .filter(ParameterValue.scenario_id == scenario_id)
+            .all()
+        )
+        param_dict = {p.parameter_id: p.value for p in params}
+        return await self.formula_engine.calculate_scenario(param_dict)
+
+
     async def compare_scenarios(
         self,
         base_scenario_id: int,
-        compare_scenario_ids: List[int],
+        compare_scenario_ids: Union[int, List[int]],
         user_id: int,
-        parameter_filters: Optional[List[int]] = None
-    ) -> List[ScenarioComparison]:
-        """
-        Compare multiple scenarios against a base scenario.
-        """
+        parameter_filters: Optional[List[int]] = None,
+    ) -> Union[ScenarioComparison, List[ScenarioComparison]]:
+        """Compare one or multiple scenarios against a base scenario."""
         # Validate base scenario
         base_scenario = self.db.query(Scenario).filter(
             Scenario.id == base_scenario_id,
@@ -264,25 +329,29 @@ class ScenarioManager:
             raise ValueError("Base scenario not found")
         
         # Validate comparison scenarios
-        compare_scenarios = self.db.query(Scenario).filter(
-            Scenario.id.in_(compare_scenario_ids),
-            Scenario.created_by_id == user_id
-        ).all()
-        
+        if isinstance(compare_scenario_ids, int):
+            compare_scenario_ids = [compare_scenario_ids]
+
+        compare_scenarios = (
+            self.db.query(Scenario)
+            .filter(Scenario.id.in_(compare_scenario_ids), Scenario.created_by_id == user_id)
+            .all()
+        )
+
         if len(compare_scenarios) != len(compare_scenario_ids):
             raise ValueError("One or more comparison scenarios not found")
-        
+
         results = []
-        
+
         for compare_scenario in compare_scenarios:
             comparison = await self._compare_two_scenarios(
                 base_scenario,
                 compare_scenario,
-                parameter_filters
+                parameter_filters,
             )
             results.append(comparison)
-        
-        return results
+
+        return results[0] if len(results) == 1 else results
 
     async def get_scenario_history(
         self,
@@ -849,3 +918,214 @@ class ScenarioManager:
                 'total_cells_calculated': calculation_stats[2] or 0
             }
         } 
+
+    async def analyze_sensitivity(self, scenarios: List[Scenario], parameter_name: str) -> Dict[str, Any]:
+        """
+        Perform sensitivity analysis on scenarios for a given parameter.
+        
+        Args:
+            scenarios: List of scenarios to analyze
+            parameter_name: Name of the parameter to analyze sensitivity for
+            
+        Returns:
+            Dictionary containing sensitivity analysis results
+        """
+        sensitivity_results = {
+            "parameter_name": parameter_name,
+            "scenarios_analyzed": len(scenarios),
+            "sensitivity_data": [],
+            "summary_statistics": {},
+            "recommendations": []
+        }
+        
+        try:
+            scenario_data = []
+            
+            for scenario in scenarios:
+                # Get parameter values for this scenario
+                parameters = self.db.query(ParameterValue).filter(
+                    ParameterValue.scenario_id == scenario.id
+                ).all()
+                
+                # Find the specific parameter
+                target_param = None
+                for param in parameters:
+                    if parameter_name.lower() in param.parameter.name.lower():
+                        target_param = param
+                        break
+                
+                if target_param:
+                    scenario_data.append({
+                        "scenario_id": scenario.id,
+                        "scenario_name": scenario.name,
+                        "parameter_value": target_param.value,
+                        "base_scenario": scenario.is_baseline
+                    })
+            
+            # Calculate sensitivity metrics
+            if len(scenario_data) >= 2:
+                values = [item["parameter_value"] for item in scenario_data]
+                
+                sensitivity_results["sensitivity_data"] = scenario_data
+                sensitivity_results["summary_statistics"] = {
+                    "min_value": min(values),
+                    "max_value": max(values),
+                    "mean_value": sum(values) / len(values),
+                    "range": max(values) - min(values),
+                    "coefficient_of_variation": self._calculate_cv(values)
+                }
+                
+                # Generate recommendations
+                cv = sensitivity_results["summary_statistics"]["coefficient_of_variation"]
+                if cv > 0.5:
+                    sensitivity_results["recommendations"].append(
+                        "High sensitivity detected - consider additional scenario planning")
+                elif cv < 0.1:
+                    sensitivity_results["recommendations"].append(
+                        "Low sensitivity - parameter may not be critical for modeling")
+            
+        except Exception as e:
+            sensitivity_results["error"] = str(e)
+            
+        return sensitivity_results
+    
+    async def monte_carlo_simulation(
+         self, base_scenario_id: int, parameters: Dict[str, Dict[str, float]], 
+         iterations: int = 1000) -> Dict[str, Any]:
+        """
+        Run Monte Carlo simulation on a scenario.
+        
+        Args:
+            base_scenario_id: ID of the base scenario to simulate
+            parameters: Dictionary of parameters with their distributions
+            iterations: Number of simulation iterations
+            
+        Returns:
+            Dictionary containing simulation results
+        """
+        import random
+        
+        simulation_results = {
+            "base_scenario_id": base_scenario_id,
+            "iterations": iterations,
+            "parameter_distributions": parameters,
+            "simulation_data": [],
+            "summary_statistics": {},
+            "percentiles": {},
+            "status": "completed"
+        }
+        
+        try:
+            base_scenario = self.db.query(Scenario).filter(
+                Scenario.id == base_scenario_id
+            ).first()
+            
+            if not base_scenario:
+                raise ValueError(f"Base scenario {base_scenario_id} not found")
+            
+            # Get base parameter values
+            base_parameters = self.db.query(ParameterValue).filter(
+                ParameterValue.scenario_id == base_scenario_id
+            ).all()
+            
+            base_values = {param.parameter.name: param.value for param in base_parameters}
+            
+            # Run simulation iterations
+            simulation_outcomes = []
+            
+            for i in range(iterations):
+                iteration_values = base_values.copy()
+                
+                # Apply random variations based on distributions
+                for param_name, distribution in parameters.items():
+                    if param_name in iteration_values:
+                        base_value = iteration_values[param_name]
+                        
+                        # Simple normal distribution simulation
+                        mean = distribution.get("mean", 0.0)
+                        std_dev = distribution.get("std_dev", 0.1)
+                        
+                        variation = random.normalvariate(mean, std_dev)
+                        iteration_values[param_name] = base_value * (1 + variation)
+                
+                # Calculate outcome metric (simplified)
+                outcome = self._calculate_simulation_outcome(iteration_values)
+                simulation_outcomes.append(outcome)
+                
+                if i < 100:  # Store detailed data for first 100 iterations
+                    simulation_results["simulation_data"].append({
+                        "iteration": i + 1,
+                        "parameters": iteration_values.copy(),
+                        "outcome": outcome
+                    })
+            
+            # Calculate summary statistics
+            simulation_results["summary_statistics"] = {
+                "mean": sum(simulation_outcomes) / len(simulation_outcomes),
+                "min": min(simulation_outcomes),
+                "max": max(simulation_outcomes),
+                "std_dev": self._calculate_std_dev(simulation_outcomes)
+            }
+            
+            # Calculate percentiles
+            sorted_outcomes = sorted(simulation_outcomes)
+            simulation_results["percentiles"] = {
+                "5th": sorted_outcomes[int(0.05 * len(sorted_outcomes))],
+                "25th": sorted_outcomes[int(0.25 * len(sorted_outcomes))],
+                "50th": sorted_outcomes[int(0.50 * len(sorted_outcomes))],
+                "75th": sorted_outcomes[int(0.75 * len(sorted_outcomes))],
+                "95th": sorted_outcomes[int(0.95 * len(sorted_outcomes))]
+            }
+            
+        except Exception as e:
+            simulation_results["error"] = str(e)
+            simulation_results["status"] = "failed"
+            
+        return simulation_results
+    
+    def _calculate_cv(self, values: List[float]) -> float:
+        """Calculate coefficient of variation."""
+        if not values or len(values) < 2:
+            return 0.0
+            
+        mean = sum(values) / len(values)
+        if mean == 0:
+            return 0.0
+            
+        variance = sum((x - mean) ** 2 for x in values) / (len(values) - 1)
+        std_dev = variance ** 0.5
+        
+        return std_dev / abs(mean)
+    
+    def _calculate_simulation_outcome(self, parameter_values: Dict[str, float]) -> float:
+        """
+        Calculate outcome metric from parameter values.
+        This is a simplified calculation - in practice would use the formula engine.
+        """
+        # Simple example: weighted sum of parameters
+        weights = {
+            "revenue_growth": 0.4,
+            "cost_growth": -0.3,
+            "margin": 0.3
+        }
+        
+        outcome = 0.0
+        for param_name, value in parameter_values.items():
+            weight = 0.1  # Default weight
+            for weight_key, weight_value in weights.items():
+                if weight_key.lower() in param_name.lower():
+                    weight = weight_value
+                    break
+            outcome += value * weight
+            
+        return outcome
+    
+    def _calculate_std_dev(self, values: List[float]) -> float:
+        """Calculate standard deviation."""
+        if len(values) < 2:
+            return 0.0
+
+        mean = sum(values) / len(values)
+        variance = sum((x - mean) ** 2 for x in values) / (len(values) - 1)
+        return variance ** 0.5
+

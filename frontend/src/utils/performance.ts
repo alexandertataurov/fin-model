@@ -74,7 +74,7 @@ export class PerformanceMonitor {
   // Get memory usage (if available)
   private getMemoryUsage(): number | undefined {
     if (typeof window !== 'undefined' && 'memory' in performance) {
-      const perfMemory = performance as any;
+      const perfMemory = performance as Performance & { memory?: { usedJSHeapSize: number } };
       return perfMemory.memory?.usedJSHeapSize;
     }
     return undefined;
@@ -156,8 +156,8 @@ export const usePerformanceMonitor = () => {
 // Use these hooks directly in your components
 
 // Deep comparison hook for object dependencies
-export const useDeepMemo = <T>(fn: () => T, deps: any[]): T => {
-  const ref = useRef<{ deps: any[]; value: T }>();
+export const useDeepMemo = <T>(fn: () => T, deps: unknown[]): T => {
+  const ref = useRef<{ deps: unknown[]; value: T }>();
   
   if (!ref.current || !deepEqual(ref.current.deps, deps)) {
     ref.current = { deps, value: fn() };
@@ -167,7 +167,7 @@ export const useDeepMemo = <T>(fn: () => T, deps: any[]): T => {
 };
 
 // Deep equality check
-function deepEqual(a: any[], b: any[]): boolean {
+function deepEqual(a: unknown[], b: unknown[]): boolean {
   if (a.length !== b.length) return false;
   
   for (let i = 0; i < a.length; i++) {
@@ -181,20 +181,24 @@ function deepEqual(a: any[], b: any[]): boolean {
   return true;
 }
 
-function deepEqualObjects(a: any, b: any): boolean {
+function deepEqualObjects(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
   
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
+  const objA = a as Record<string, unknown>;
+  const objB = b as Record<string, unknown>;
+  
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
   
   if (keysA.length !== keysB.length) return false;
   
   for (const key of keysA) {
     if (!keysB.includes(key)) return false;
-    if (typeof a[key] === 'object' && typeof b[key] === 'object') {
-      if (!deepEqualObjects(a[key], b[key])) return false;
-    } else if (a[key] !== b[key]) {
+    if (typeof objA[key] === 'object' && typeof objB[key] === 'object') {
+      if (!deepEqualObjects(objA[key], objB[key])) return false;
+    } else if (objA[key] !== objB[key]) {
       return false;
     }
   }
@@ -327,14 +331,14 @@ export const useDebouncedState = <T>(
 };
 
 // Throttled callback hook
-export const useThrottledCallback = <T extends (...args: any[]) => any>(
+export const useThrottledCallback = <T extends (...args: unknown[]) => unknown>(
   callback: T,
   delay: number
 ): T => {
   const lastRun = useRef(Date.now());
 
   return useCallback(
-    ((...args: any[]) => {
+    ((...args: unknown[]) => {
       if (Date.now() - lastRun.current >= delay) {
         callback(...args);
         lastRun.current = Date.now();

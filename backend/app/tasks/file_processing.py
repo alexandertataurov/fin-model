@@ -362,4 +362,7 @@ def get_processing_status(task_id: str) -> Dict[str, Any]:
             "error": str(result.info),
         }
 
-    return response
+        return response
+
+# Expose raw function for unit tests
+process_uploaded_file.__wrapped__ = process_uploaded_file.__wrapped__.__func__

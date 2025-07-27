@@ -1,20 +1,21 @@
-from typing import Any, List, Dict
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from typing import Any, Dict, List
 
-from app.models.base import get_db
-from app.models.user import User
-from app.models.role import RoleType
-from app.schemas.user import User as UserSchema, UserUpdate, UserWithRoles
-from app.services.auth_service import AuthService
 from app.core.dependencies import (
+    UserWithPermissions,
+    get_current_user_with_permissions,
     require_admin,
     require_permissions,
-    get_current_user_with_permissions,
-    UserWithPermissions,
 )
 from app.core.permissions import Permission
+from app.models.base import get_db
+from app.models.role import RoleType
+from app.models.user import User
+from app.schemas.user import User as UserSchema
+from app.schemas.user import UserUpdate, UserWithRoles
+from app.services.auth_service import AuthService
 from app.services.database_monitor import db_monitor
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -23,7 +24,11 @@ router = APIRouter()
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(require_permissions(Permission.USER_LIST)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.USER_LIST
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """List all users (Admin only)."""
@@ -46,7 +51,11 @@ def list_users(
 @router.get("/users/{user_id}", response_model=UserWithRoles)
 def get_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_READ)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.USER_READ
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get user by ID."""
@@ -70,7 +79,11 @@ def get_user(
 def update_user(
     user_id: int,
     user_update: UserUpdate,
-    current_user: User = Depends(require_permissions(Permission.USER_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.USER_UPDATE
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Update user information."""
@@ -104,7 +117,11 @@ def update_user(
 @router.delete("/users/{user_id}")
 def delete_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_DELETE)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.USER_DELETE
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Delete user (Admin only)."""
@@ -142,7 +159,11 @@ def delete_user(
 def assign_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_ASSIGN)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.ROLE_ASSIGN
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Assign role to user."""
@@ -176,7 +197,11 @@ def assign_role(
 def remove_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_REMOVE)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.ROLE_REMOVE
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Remove role from user."""
@@ -204,7 +229,7 @@ def remove_role(
         )
 
     # Find and deactivate the user role
-    from app.models.role import UserRole, Role
+    from app.models.role import Role, UserRole
 
     user_role = (
         db.query(UserRole)
@@ -237,11 +262,15 @@ def get_audit_logs(
     limit: int = Query(100, ge=1, le=1000),
     user_id: int = Query(None),
     action: str = Query(None),
-    current_user: User = Depends(require_permissions(Permission.AUDIT_LOGS)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.AUDIT_LOGS
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get audit logs (Admin only)."""
-    from app.models.audit import AuditLog, AuditAction
+    from app.models.audit import AuditAction, AuditLog
 
     query = db.query(AuditLog)
 
@@ -271,13 +300,18 @@ def get_audit_logs(
 
 @router.get("/system/health")
 def system_health(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(
+            Permission.SYSTEM_HEALTH
+        )
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get system health information."""
+    from datetime import datetime, timedelta
+
     from app.models.audit import AuditLog
     from sqlalchemy import func
-    from datetime import datetime, timedelta
 
     # Get basic statistics
     total_users = db.query(User).count()
@@ -334,11 +368,15 @@ def get_user_permissions(
 
 @router.get("/database/health", response_model=Dict[str, Any])
 async def get_database_health(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH))
+    current_user: User = Depends(
+        require_permissions(
+            Permission.SYSTEM_HEALTH
+        )
+    )
 ):
     """
     Get comprehensive database health check.
-    
+
     Returns detailed information about database status, connection pool,
     table statistics, and performance metrics.
     """
@@ -348,18 +386,22 @@ async def get_database_health(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get database health: {str(e)}"
+            detail=f"Failed to get database health: {str(e)}",
         )
 
 
 @router.get("/database/performance", response_model=List[Dict[str, Any]])
 async def get_database_performance(
     limit: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH))
+    current_user: User = Depends(
+        require_permissions(
+            Permission.SYSTEM_HEALTH
+        )
+    ),
 ):
     """
     Get database query performance analysis.
-    
+
     Returns information about slow queries and performance metrics.
     """
     try:
@@ -368,13 +410,17 @@ async def get_database_performance(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get performance data: {str(e)}"
+            detail=f"Failed to get performance data: {str(e)}",
         )
 
 
 @router.get("/database/tables", response_model=Dict[str, Dict[str, Any]])
 async def get_table_information(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH))
+    current_user: User = Depends(
+        require_permissions(
+            Permission.SYSTEM_HEALTH
+        )
+    )
 ):
     """
     Get detailed table size and usage information.
@@ -385,18 +431,22 @@ async def get_table_information(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get table information: {str(e)}"
+            detail=f"Failed to get table information: {str(e)}",
         )
 
 
 @router.post("/database/cleanup", response_model=Dict[str, Any])
 async def cleanup_database(
     dry_run: bool = Query(True, description="Whether to perform a dry run"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS))
+    current_user: User = Depends(
+        require_permissions(
+            Permission.ADMIN_ACCESS
+        )
+    ),
 ):
     """
     Clean up stale database records based on retention policies.
-    
+
     Use dry_run=false to actually perform the cleanup.
     """
     try:
@@ -405,5 +455,5 @@ async def cleanup_database(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to cleanup database: {str(e)}"
+            detail=f"Failed to cleanup database: {str(e)}",
         )

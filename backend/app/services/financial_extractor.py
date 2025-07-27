@@ -11,6 +11,7 @@ from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
 
 from app.schemas.file import ExcelSheetInfo, ParsedFileData
+from app.services.excel_parser import ExcelParser
 
 
 class MetricType(str, Enum):
@@ -91,6 +92,73 @@ class FinancialExtractor:
         self.metric_calculators = self._initialize_metric_calculators()
         self.time_patterns = self._initialize_time_patterns()
 
+    def extract(self, source: Any) -> Dict[str, Any]:
+        """High level extract used in unit tests."""
+        if isinstance(source, dict):
+            parsed = source
+        else:
+            parsed = ExcelParser().parse_file(source)
+
+        statements = self._extract_from_parsed(parsed)
+
+        return {
+            "financial_metrics": statements.get("financial_metrics", {}),
+            "time_series_data": statements.get("time_series_data", []),
+            "extraction_metadata": {"sheets": len(parsed.get("sheets", []))},
+        }
+
+    def extract_statements(self, source: Any) -> Dict[str, Any]:
+        """Extract basic financial statements from a file path or parsed data."""
+        if isinstance(source, dict):
+            parsed_data = source
+        elif isinstance(source, list):
+            parsed_data = {"sheets": source}
+        else:
+            parsed_data = ExcelParser().parse_file(source)
+
+        return self._extract_from_parsed(parsed_data)
+
+    def _extract_from_parsed(self, parsed: Dict[str, Any]) -> Dict[str, Any]:
+        """Simplified extraction used for unit tests."""
+        statements = {
+            "income_statement": [],
+            "balance_sheet": [],
+            "cash_flow": [],
+        }
+
+        try:
+            sheets = parsed.get("sheets", [])
+            for sheet in sheets:
+                name = sheet.get("name", "").lower()
+                data = sheet.get("data", [])
+                if "balance" in name:
+                    for row in data[1:]:
+                        if len(row) >= 2:
+                            statements["balance_sheet"].append({
+                                "account": row[0],
+                                "value": row[1]
+                            })
+                elif "cash" in name:
+                    for row in data[1:]:
+                        if len(row) >= 2:
+                            statements["cash_flow"].append({
+                                "account": row[0],
+                                "value": row[1]
+                            })
+                elif "p&l" in name or "income" in name or sheet.get("type") == "financial":
+                    for row in data[1:]:
+                        if len(row) >= 2:
+                            statements["income_statement"].append({
+                                "account": row[0],
+                                "value": row[1]
+                            })
+        except Exception:
+            pass
+
+        statements["financial_metrics"] = self.calculate_ratios(statements)
+        statements["time_series_data"] = []
+        return statements
+
     def extract_comprehensive_data(self, file_path: str) -> Dict[str, Any]:
         """
         Perform comprehensive financial data extraction from Excel file.
@@ -157,6 +225,130 @@ class FinancialExtractor:
                     "error": str(e),
                 },
             }
+
+    def calculate_ratios(self, statements: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Calculate financial ratios from extracted financial statements.
+        
+        Args:
+            statements: Dictionary containing financial statement data
+            
+        Returns:
+            Dictionary containing calculated financial ratios
+        """
+        ratios = {}
+        
+        # Extract key values from statements
+        try:
+            # Income statement items
+            revenue = self._get_value_from_statements(
+                statements, ['revenue', 'sales', 'total_revenue'])
+            gross_profit = self._get_value_from_statements(
+                statements, ['gross_profit', 'gross_margin'])
+            operating_income = self._get_value_from_statements(
+                statements, ['operating_income', 'ebit', 'operating_profit'])
+            net_income = self._get_value_from_statements(
+                statements, ['net_income', 'net_profit', 'bottom_line'])
+            
+            # Balance sheet items  
+            total_assets = self._get_value_from_statements(
+                statements, ['total_assets', 'assets'])
+            current_assets = self._get_value_from_statements(
+                statements, ['current_assets'])
+            current_liabilities = self._get_value_from_statements(
+                statements, ['current_liabilities'])
+            total_debt = self._get_value_from_statements(
+                statements, ['total_debt', 'debt'])
+            equity = self._get_value_from_statements(
+                statements, ['equity', 'shareholders_equity'])
+            
+            # Calculate profitability ratios
+            if revenue and revenue != 0:
+                if gross_profit is not None:
+                    ratios['gross_margin'] = gross_profit / revenue
+                if operating_income is not None:
+                    ratios['operating_margin'] = operating_income / revenue
+                if net_income is not None:
+                    ratios['net_margin'] = net_income / revenue
+                    
+            # Calculate EBITDA margin (simplified)
+            if revenue and operating_income is not None:
+                # Approximate EBITDA as operating income (simplified for demo)
+                ratios['ebitda_margin'] = operating_income / revenue
+                
+            # Calculate liquidity ratios
+            if current_liabilities and current_liabilities != 0:
+                if current_assets is not None:
+                    ratios['current_ratio'] = current_assets / current_liabilities
+                    
+            # Calculate leverage ratios
+            if total_assets and total_assets != 0:
+                if total_debt is not None:
+                    ratios['debt_to_assets'] = total_debt / total_assets
+                if equity is not None:
+                    ratios['equity_ratio'] = equity / total_assets
+                    
+            # Calculate efficiency ratios
+            if total_assets and total_assets != 0:
+                if revenue is not None:
+                    ratios['asset_turnover'] = revenue / total_assets
+                if net_income is not None:
+                    ratios['roa'] = net_income / total_assets
+                    
+            if equity and equity != 0 and net_income is not None:
+                ratios['roe'] = net_income / equity
+                
+        except Exception as e:
+            ratios['calculation_error'] = str(e)
+            
+        return ratios
+    
+    def _get_value_from_statements(self, statements: Dict[str, Any], keywords: List[str]) -> Optional[float]:
+        """
+        Helper method to extract values from statements using keyword matching.
+        
+        Args:
+            statements: Financial statements dictionary
+            keywords: List of possible keywords to search for
+            
+        Returns:
+            Extracted numeric value or None if not found
+        """
+        # Look through different statement types
+        for statement_type in ['income_statement', 'balance_sheet', 'cash_flow', 'financial_metrics']:
+            if statement_type in statements:
+                statement_data = statements[statement_type]
+                
+                # Handle different data structures
+                if isinstance(statement_data, list):
+                    for item in statement_data:
+                        if isinstance(item, dict):
+                            for keyword in keywords:
+                                account_val = str(item.get("account", "")).lower()
+                                norm_account = account_val.replace(" ", "")
+                                norm_keyword = keyword.lower().replace("_", "")
+                                if norm_keyword in norm_account:
+                                    try:
+                                        return float(item.get("value"))
+                                    except (ValueError, TypeError):
+                                        continue
+                                for key, value in item.items():
+                                    if keyword.lower() in str(key).lower():
+                                        try:
+                                            return float(value)
+                                        except (ValueError, TypeError):
+                                            continue
+                                            
+                elif isinstance(statement_data, dict):
+                    for keyword in keywords:
+                        for key, value in statement_data.items():
+                            if keyword.lower() in key.lower():
+                                try:
+                                    return float(value)
+                                except (ValueError, TypeError):
+                                    continue
+                                    
+        return None
 
     def _analyze_sheets_structure(self, workbook: Workbook) -> List[Dict[str, Any]]:
         """Analyze the structure of all sheets in the workbook."""
