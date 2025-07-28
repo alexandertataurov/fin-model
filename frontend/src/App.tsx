@@ -26,6 +26,7 @@ import FileUpload from './pages/FileUpload';
 import Reports from './pages/Reports';
 import ScenarioModeling from './pages/ScenarioModeling';
 import Analytics from './pages/Analytics';
+import NewDashboard from './pages/NewDashboard';
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient({
@@ -60,6 +61,7 @@ const AppRoutes: React.FC = () => {
           isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />
         }
       />
+      <Route path="/new-dashboard" element={<NewDashboard />} />
 
       {/* Protected routes with Layout */}
       <Route
