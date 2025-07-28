@@ -1,26 +1,12 @@
-import pytest
+from unittest.mock import MagicMock
+import asyncio
 from app.services.dashboard_metrics import DashboardMetricsService
 
 
-def test_demo_overview_metrics():
-    service = DashboardMetricsService(db=None)
-    data = service._get_demo_overview_metrics()
-    assert "key_metrics" in data
-    assert "summary" in data
-
-
-def test_demo_pl_metrics():
-    service = DashboardMetricsService(db=None)
-    data = service._get_demo_pl_metrics()
-    assert data["metrics"]
-    assert "charts" in data
-    assert "data_quality" in data
-
-
-def test_demo_trends_and_kpis():
-    service = DashboardMetricsService(db=None)
-    trends = service._get_demo_trends("revenue")
-    assert "time_series" in trends
-    kpis = service._get_demo_kpis()
-    assert any(k["name"] == "ROE" for k in kpis["kpis"])
-
+def test_refresh_cache_counts_files():
+    db = MagicMock()
+    db.query.return_value.filter.return_value.all.return_value = [1,2,3]
+    service = DashboardMetricsService(db)
+    result = asyncio.run(service.refresh_cache(user_id=1))
+    assert result['files_processed'] == 3
+    assert result['metrics_updated'] == 30
