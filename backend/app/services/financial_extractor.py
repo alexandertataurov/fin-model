@@ -131,22 +131,23 @@ class FinancialExtractor:
             for sheet in sheets:
                 name = sheet.get("name", "").lower()
                 data = sheet.get("data", [])
+                start_idx = 1 if data and all(isinstance(v, str) for v in data[0]) else 0
                 if "balance" in name:
-                    for row in data[1:]:
+                    for row in data[start_idx:]:
                         if len(row) >= 2:
                             statements["balance_sheet"].append({
                                 "account": row[0],
                                 "value": row[1]
                             })
                 elif "cash" in name:
-                    for row in data[1:]:
+                    for row in data[start_idx:]:
                         if len(row) >= 2:
                             statements["cash_flow"].append({
                                 "account": row[0],
                                 "value": row[1]
                             })
                 elif "p&l" in name or "income" in name or sheet.get("type") == "financial":
-                    for row in data[1:]:
+                    for row in data[start_idx:]:
                         if len(row) >= 2:
                             statements["income_statement"].append({
                                 "account": row[0],

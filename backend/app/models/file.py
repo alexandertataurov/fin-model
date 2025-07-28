@@ -40,9 +40,9 @@ class UploadedFile(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String(255), nullable=True)
-    stored_filename = Column(String(255), unique=True, nullable=False)
+    stored_filename = Column(String(255), unique=True, nullable=True)
     original_filename = Column(String(255), nullable=False)
-    file_path = Column(String(500), nullable=False)
+    file_path = Column(String(500), nullable=True)
     file_size = Column(BigInteger, nullable=False)
     file_type = Column(String(50), nullable=True)
     mime_type = Column(String(100), nullable=True)

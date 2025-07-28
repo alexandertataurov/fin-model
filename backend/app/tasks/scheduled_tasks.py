@@ -7,7 +7,6 @@ import asyncio
 from app.core.celery_app import celery_app
 from app.models.base import SessionLocal
 from app.services.file_cleanup import FileCleanupService
-from app.services.file_service import FileService
 from app.tasks.notifications import send_system_alert
 
 
@@ -22,12 +21,12 @@ class DatabaseTask(Task):
         raise NotImplementedError
 
 
-@celery_app.task(bind=True, base=DatabaseTask, name="app.tasks.scheduled_tasks.cleanup_expired_files")
-def cleanup_expired_files(self, db: Session):
-    """Scheduled task to clean up expired files."""
+@celery_app.task(name="app.tasks.scheduled_tasks.cleanup_expired_files")
+def cleanup_expired_files():
+    """Clean up expired files synchronously for tests."""
     try:
-        service = FileService(db)
-        results = service.cleanup_expired_files()
+        service = FileCleanupService()
+        results = asyncio.run(service.cleanup_expired_files(dry_run=False))
 
         # Send notification if significant cleanup occurred
         if results.get("total_files_deleted", 0) > 0:
@@ -200,5 +199,3 @@ celery_app.conf.beat_schedule = {
     },
 }
 
-# Expose raw function for unit tests
-cleanup_expired_files.__wrapped__ = cleanup_expired_files.__wrapped__.__func__
