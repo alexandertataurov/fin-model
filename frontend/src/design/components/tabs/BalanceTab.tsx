@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { DraggableWidget } from '../DraggableWidget'
-import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts'
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts'
 import { Building, CreditCard, TrendingUp, Shield, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 

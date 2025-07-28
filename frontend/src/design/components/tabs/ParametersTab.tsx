@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { DraggableWidget } from '../DraggableWidget'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Slider } from '../ui/slider'
 import { Input } from '../ui/input'
