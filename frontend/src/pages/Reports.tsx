@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import {
+  CreateTemplateRequest,
+  GenerateReportRequest,
+} from '../services/reportApi';
+import {
   Container,
   Grid,
   Card,
@@ -33,7 +37,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -42,7 +46,7 @@ import {
   Edit as EditIcon,
   Description as ReportIcon,
   GetApp as ExportIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SelectChangeEvent } from '@mui/material/Select';
@@ -56,8 +60,8 @@ interface ReportTemplate {
   report_type: string;
   is_system: boolean;
   is_active: boolean;
-  template_config?: any;
-  branding_config?: any;
+  template_config?: Record<string, unknown>;
+  branding_config?: Record<string, unknown>;
   created_at: string;
   updated_at?: string;
 }
@@ -100,14 +104,15 @@ const Reports: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<ReportTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<ReportTemplate | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     report_type: 'FINANCIAL_SUMMARY',
     export_format: 'PDF',
     source_file_ids: [] as number[],
-    custom_config: {}
+    custom_config: {},
   });
 
   const queryClient = useQueryClient();
@@ -118,7 +123,7 @@ const Reports: React.FC = () => {
     queryFn: async () => {
       const response = await axios.get('/api/v1/reports/templates');
       return response.data;
-    }
+    },
   });
 
   // Fetch report exports
@@ -127,25 +132,28 @@ const Reports: React.FC = () => {
     queryFn: async () => {
       const response = await axios.get('/api/v1/reports/exports?limit=50');
       return response.data;
-    }
+    },
   });
 
   // Create template mutation
   const createTemplateMutation = useMutation({
-    mutationFn: async (templateData: any) => {
-      const response = await axios.post('/api/v1/reports/templates', templateData);
+    mutationFn: async (templateData: CreateTemplateRequest) => {
+      const response = await axios.post(
+        '/api/v1/reports/templates',
+        templateData
+      );
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['report-templates'] });
       setTemplateDialogOpen(false);
       resetFormData();
-    }
+    },
   });
 
   // Generate report mutation
   const generateReportMutation = useMutation({
-    mutationFn: async (reportData: any) => {
+    mutationFn: async (reportData: GenerateReportRequest) => {
       const response = await axios.post('/api/v1/reports/generate', reportData);
       return response.data;
     },
@@ -153,7 +161,7 @@ const Reports: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['report-exports'] });
       setGenerateDialogOpen(false);
       resetFormData();
-    }
+    },
   });
 
   // Delete export mutation
@@ -163,7 +171,7 @@ const Reports: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['report-exports'] });
-    }
+    },
   });
 
   const resetFormData = () => {
@@ -173,7 +181,7 @@ const Reports: React.FC = () => {
       report_type: 'FINANCIAL_SUMMARY',
       export_format: 'PDF',
       source_file_ids: [],
-      custom_config: {}
+      custom_config: {},
     });
     setSelectedTemplate(null);
   };
@@ -182,17 +190,19 @@ const Reports: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const handleTextFieldChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: event.target.value
-    }));
-  };
+  const handleTextFieldChange =
+    (field: string) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFormData(prev => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
+    };
 
   const handleSelectChange = (field: string) => (event: SelectChangeEvent) => {
     setFormData(prev => ({
       ...prev,
-      [field]: event.target.value
+      [field]: event.target.value,
     }));
   };
 
@@ -201,17 +211,17 @@ const Reports: React.FC = () => {
       name: formData.name,
       description: formData.description,
       report_type: formData.report_type,
-      template_config: formData.custom_config
+      template_config: formData.custom_config,
     });
   };
 
   const handleGenerateReport = () => {
     generateReportMutation.mutate({
       template_id: selectedTemplate?.id,
-      export_format: formData.export_format,
+      export_format: formData.export_format as 'PDF' | 'EXCEL' | 'CSV',
       name: formData.name || `Report_${new Date().toISOString().split('T')[0]}`,
       source_file_ids: formData.source_file_ids,
-      custom_config: formData.custom_config
+      custom_config: formData.custom_config,
     });
   };
 
@@ -223,7 +233,9 @@ const Reports: React.FC = () => {
     return `${kb.toFixed(2)} KB`;
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (
+    status: string
+  ): 'success' | 'warning' | 'error' | 'default' => {
     switch (status) {
       case 'COMPLETED':
         return 'success';
@@ -250,9 +262,17 @@ const Reports: React.FC = () => {
       </Box>
 
       <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 3 }}>
-        <Tab label="Generate Reports" icon={<ReportIcon />} iconPosition="start" />
+        <Tab
+          label="Generate Reports"
+          icon={<ReportIcon />}
+          iconPosition="start"
+        />
         <Tab label="Templates" icon={<EditIcon />} iconPosition="start" />
-        <Tab label="Export History" icon={<DownloadIcon />} iconPosition="start" />
+        <Tab
+          label="Export History"
+          icon={<DownloadIcon />}
+          iconPosition="start"
+        />
       </Tabs>
 
       {/* Generate Reports Tab */}
@@ -260,7 +280,7 @@ const Reports: React.FC = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <Card>
-              <CardHeader 
+              <CardHeader
                 title="Quick Report Generation"
                 action={
                   <Button
@@ -274,30 +294,55 @@ const Reports: React.FC = () => {
               />
               <CardContent>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  Select a template and generate a comprehensive financial report.
-                  Reports include charts, tables, and key metrics.
+                  Select a template and generate a comprehensive financial
+                  report. Reports include charts, tables, and key metrics.
                 </Typography>
-                
+
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="h6" gutterBottom>
                     Available Report Types
                   </Typography>
                   <Grid container spacing={2}>
                     {[
-                      { type: 'FINANCIAL_SUMMARY', name: 'Financial Summary', desc: 'Complete overview' },
-                      { type: 'PROFIT_LOSS', name: 'P&L Report', desc: 'Revenue and expenses' },
-                      { type: 'BALANCE_SHEET', name: 'Balance Sheet', desc: 'Assets and liabilities' },
-                      { type: 'CASH_FLOW', name: 'Cash Flow', desc: 'Cash movement analysis' }
-                    ].map((reportType) => (
+                      {
+                        type: 'FINANCIAL_SUMMARY',
+                        name: 'Financial Summary',
+                        desc: 'Complete overview',
+                      },
+                      {
+                        type: 'PROFIT_LOSS',
+                        name: 'P&L Report',
+                        desc: 'Revenue and expenses',
+                      },
+                      {
+                        type: 'BALANCE_SHEET',
+                        name: 'Balance Sheet',
+                        desc: 'Assets and liabilities',
+                      },
+                      {
+                        type: 'CASH_FLOW',
+                        name: 'Cash Flow',
+                        desc: 'Cash movement analysis',
+                      },
+                    ].map(reportType => (
                       <Grid item xs={12} sm={6} key={reportType.type}>
-                        <Paper 
-                          sx={{ p: 2, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+                        <Paper
+                          sx={{
+                            p: 2,
+                            cursor: 'pointer',
+                            '&:hover': { bgcolor: 'action.hover' },
+                          }}
                           onClick={() => {
-                            setFormData(prev => ({ ...prev, report_type: reportType.type }));
+                            setFormData(prev => ({
+                              ...prev,
+                              report_type: reportType.type,
+                            }));
                             setGenerateDialogOpen(true);
                           }}
                         >
-                          <Typography variant="subtitle2">{reportType.name}</Typography>
+                          <Typography variant="subtitle2">
+                            {reportType.name}
+                          </Typography>
                           <Typography variant="body2" color="text.secondary">
                             {reportType.desc}
                           </Typography>
@@ -309,41 +354,42 @@ const Reports: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Card>
               <CardHeader title="Export Options" />
               <CardContent>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  Export charts and data in various formats for presentations and analysis.
+                  Export charts and data in various formats for presentations
+                  and analysis.
                 </Typography>
-                
+
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="h6" gutterBottom>
                     Supported Formats
                   </Typography>
                   <List dense>
                     <ListItem>
-                      <ListItemText 
+                      <ListItemText
                         primary="PDF Reports"
                         secondary="Professional reports with charts and tables"
                       />
                       <Chip label="Most Popular" size="small" color="primary" />
                     </ListItem>
                     <ListItem>
-                      <ListItemText 
+                      <ListItemText
                         primary="Excel Workbooks"
                         secondary="Interactive spreadsheets with formulas"
                       />
                     </ListItem>
                     <ListItem>
-                      <ListItemText 
+                      <ListItemText
                         primary="CSV Data"
                         secondary="Raw data for further analysis"
                       />
                     </ListItem>
                     <ListItem>
-                      <ListItemText 
+                      <ListItemText
                         primary="Chart Images"
                         secondary="PNG/SVG charts for presentations"
                       />
@@ -358,7 +404,14 @@ const Reports: React.FC = () => {
 
       {/* Templates Tab */}
       <TabPanel value={tabValue} index={1}>
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box
+          sx={{
+            mb: 3,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <Typography variant="h6">Report Templates</Typography>
           <Button
             variant="contained"
@@ -380,7 +433,9 @@ const Reports: React.FC = () => {
                 <Card>
                   <CardHeader
                     title={template.name}
-                    subheader={template.is_system ? 'System Template' : 'Custom Template'}
+                    subheader={
+                      template.is_system ? 'System Template' : 'Custom Template'
+                    }
                     action={
                       <Box>
                         <Tooltip title="Generate Report">
@@ -404,14 +459,18 @@ const Reports: React.FC = () => {
                     }
                   />
                   <CardContent>
-                    <Typography variant="body2" color="text.secondary" paragraph>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      paragraph
+                    >
                       {template.description || 'No description available'}
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      <Chip 
-                        label={template.report_type.replace('_', ' ')} 
-                        size="small" 
-                        variant="outlined" 
+                      <Chip
+                        label={template.report_type.replace('_', ' ')}
+                        size="small"
+                        variant="outlined"
                       />
                       {template.is_system && (
                         <Chip label="System" size="small" color="primary" />
@@ -430,12 +489,21 @@ const Reports: React.FC = () => {
 
       {/* Export History Tab */}
       <TabPanel value={tabValue} index={2}>
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box
+          sx={{
+            mb: 3,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <Typography variant="h6">Export History</Typography>
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
-            onClick={() => queryClient.invalidateQueries({ queryKey: ['report-exports'] })}
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ['report-exports'] })
+            }
           >
             Refresh
           </Button>
@@ -464,48 +532,54 @@ const Reports: React.FC = () => {
                   <TableRow key={exportItem.id}>
                     <TableCell>{exportItem.name}</TableCell>
                     <TableCell>
-                      <Chip 
-                        label={exportItem.export_format} 
-                        size="small" 
-                        variant="outlined" 
+                      <Chip
+                        label={exportItem.export_format}
+                        size="small"
+                        variant="outlined"
                       />
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Chip 
-                          label={exportItem.status} 
-                          size="small" 
-                          color={getStatusColor(exportItem.status) as any}
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
+                        <Chip
+                          label={exportItem.status}
+                          size="small"
+                          color={getStatusColor(exportItem.status)}
                         />
                         {exportItem.status === 'PROCESSING' && (
                           <CircularProgress size={16} />
                         )}
                       </Box>
                     </TableCell>
-                    <TableCell>{formatFileSize(exportItem.file_size)}</TableCell>
+                    <TableCell>
+                      {formatFileSize(exportItem.file_size)}
+                    </TableCell>
                     <TableCell>
                       {new Date(exportItem.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      {exportItem.processing_duration_seconds 
-                        ? `${exportItem.processing_duration_seconds}s` 
-                        : 'N/A'
-                      }
+                      {exportItem.processing_duration_seconds
+                        ? `${exportItem.processing_duration_seconds}s`
+                        : 'N/A'}
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        {exportItem.status === 'COMPLETED' && exportItem.file_path && (
-                          <Tooltip title="Download">
-                            <IconButton size="small">
-                              <DownloadIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
+                        {exportItem.status === 'COMPLETED' &&
+                          exportItem.file_path && (
+                            <Tooltip title="Download">
+                              <IconButton size="small">
+                                <DownloadIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                         <Tooltip title="Delete">
-                          <IconButton 
-                            size="small" 
+                          <IconButton
+                            size="small"
                             color="error"
-                            onClick={() => deleteExportMutation.mutate(exportItem.id)}
+                            onClick={() =>
+                              deleteExportMutation.mutate(exportItem.id)
+                            }
                           >
                             <DeleteIcon />
                           </IconButton>
@@ -521,8 +595,8 @@ const Reports: React.FC = () => {
       </TabPanel>
 
       {/* Generate Report Dialog */}
-      <Dialog 
-        open={generateDialogOpen} 
+      <Dialog
+        open={generateDialogOpen}
         onClose={() => setGenerateDialogOpen(false)}
         maxWidth="sm"
         fullWidth
@@ -537,7 +611,7 @@ const Reports: React.FC = () => {
               fullWidth
               placeholder="Enter report name"
             />
-            
+
             <FormControl fullWidth>
               <InputLabel>Export Format</InputLabel>
               <Select
@@ -559,11 +633,9 @@ const Reports: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setGenerateDialogOpen(false)}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
+          <Button onClick={() => setGenerateDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
             onClick={handleGenerateReport}
             disabled={generateReportMutation.isPending}
           >
@@ -577,8 +649,8 @@ const Reports: React.FC = () => {
       </Dialog>
 
       {/* Create Template Dialog */}
-      <Dialog 
-        open={templateDialogOpen} 
+      <Dialog
+        open={templateDialogOpen}
         onClose={() => setTemplateDialogOpen(false)}
         maxWidth="sm"
         fullWidth
@@ -593,7 +665,7 @@ const Reports: React.FC = () => {
               fullWidth
               required
             />
-            
+
             <TextField
               label="Description"
               value={formData.description}
@@ -602,7 +674,7 @@ const Reports: React.FC = () => {
               multiline
               rows={3}
             />
-            
+
             <FormControl fullWidth>
               <InputLabel>Report Type</InputLabel>
               <Select
@@ -620,11 +692,9 @@ const Reports: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setTemplateDialogOpen(false)}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
+          <Button onClick={() => setTemplateDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
             onClick={handleCreateTemplate}
             disabled={createTemplateMutation.isPending || !formData.name}
           >
@@ -640,4 +710,4 @@ const Reports: React.FC = () => {
   );
 };
 
-export default Reports; 
+export default Reports;

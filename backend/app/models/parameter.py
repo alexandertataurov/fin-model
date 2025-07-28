@@ -2,7 +2,7 @@ from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
 from enum import Enum
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Boolean, ForeignKey, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.ext.declarative import declarative_base
 
 from app.models.base import Base
@@ -52,6 +52,8 @@ class ParameterCategory(str, Enum):
     REGULATORY = "regulatory"
     ASSUMPTIONS = "assumptions"
     CALCULATED = "calculated"
+    CONFIDENTIAL = "confidential"
+    TEST = "test"  # Used in tests
 
 
 class SensitivityLevel(str, Enum):
@@ -76,11 +78,12 @@ class Parameter(Base):
     description = Column(Text, nullable=True)
     
     # Classification
-    parameter_type = Column(String(50), nullable=False, index=True)
-    category = Column(String(50), nullable=False, index=True)
+    parameter_type = Column(String(50), nullable=False, index=True, default=ParameterType.GROWTH_RATE.value)
+    category = Column(String(50), nullable=False, index=True, default=ParameterCategory.ASSUMPTIONS.value)
     sensitivity_level = Column(String(20), nullable=False, default=SensitivityLevel.MEDIUM)
     
     # Value Information
+    value = Column(Float, nullable=False)
     current_value = Column(Float, nullable=True)
     default_value = Column(Float, nullable=True)
     min_value = Column(Float, nullable=True)
@@ -90,6 +93,8 @@ class Parameter(Base):
     
     # Excel Source Information
     source_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=True)
+    # Alias for backward compatibility with tests
+    file_id = synonym("source_file_id")
     source_sheet = Column(String(255), nullable=True)
     source_cell = Column(String(20), nullable=True)  # e.g., "A1", "B5"
     source_range = Column(String(50), nullable=True)  # e.g., "A1:B10"
@@ -108,11 +113,14 @@ class Parameter(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = synonym("created_by_id")
+    data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
     
     # Relationships
     source_file = relationship("UploadedFile", back_populates="parameters")
     created_by = relationship("User", back_populates="parameters")
     parameter_values = relationship("ParameterValue", back_populates="parameter")
+    data_source = relationship("DataSource", back_populates="parameters")
     
 
 class Scenario(Base):
@@ -154,6 +162,10 @@ class Scenario(Base):
     parameter_values = relationship("ParameterValue", back_populates="scenario")
     parent_scenario = relationship("Scenario", remote_side=[id])
     child_scenarios = relationship("Scenario", back_populates="parent_scenario")
+    financial_statements = relationship("FinancialStatement", back_populates="scenario")
+    metrics = relationship("Metric", back_populates="scenario")
+    time_series = relationship("TimeSeries", back_populates="scenario")
+    calculations = relationship("Calculation", back_populates="scenario")
 
 
 class ParameterValue(Base):
@@ -175,6 +187,8 @@ class ParameterValue(Base):
     change_reason = Column(String(255), nullable=True)
     changed_at = Column(DateTime, default=datetime.utcnow)
     changed_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    # Alias for backward compatibility with tests
+    created_by_id = synonym("changed_by_id")
     
     # Validation
     is_valid = Column(Boolean, default=True)

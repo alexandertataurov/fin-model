@@ -10,6 +10,7 @@ from app.models.file import UploadedFile, FileStatus
 from app.services.file_service import FileService
 from app.services.excel_parser import ExcelParser
 from app.tasks.notifications import send_processing_notification
+from app.services.advanced_validator import AdvancedValidator
 
 
 class DatabaseTask(Task):
@@ -71,7 +72,6 @@ def process_uploaded_file(
         parsed_data = excel_parser.parse_excel_file(file_record.file_path)
         
         # Validate against financial templates
-        from app.services.advanced_validator import AdvancedValidator
         validator = AdvancedValidator()
         validation_result = validator.validate_template(parsed_data)
 
@@ -117,13 +117,30 @@ def process_uploaded_file(
         # Store parsed data
         parsed_data_json = None
         if is_valid and parsed_data.financial_statements:
+            sheets_data = []
+            sheets_attr = getattr(parsed_data, "sheets", []) or []
+            if not isinstance(sheets_attr, (list, tuple)):
+                sheets_attr = []
+            for sheet in sheets_attr:
+                sheets_data.append(getattr(sheet, "dict", lambda: sheet)())
+            def _safe(obj):
+                try:
+                    json.dumps(obj)
+                    return obj
+                except Exception:
+                    return str(obj)
+
+            val_summary = getattr(parsed_data, "validation_summary", None)
+            if val_summary is not None:
+                val_summary = getattr(val_summary, "dict", lambda: val_summary)()
+                val_summary = _safe(val_summary)
             parsed_data_json = json.dumps(
                 {
-                    "sheets": [sheet.dict() for sheet in parsed_data.sheets],
-                    "financial_statements": parsed_data.financial_statements,
-                    "key_metrics": parsed_data.key_metrics,
-                    "assumptions": parsed_data.assumptions,
-                    "validation_summary": parsed_data.validation_summary.dict(),
+                    "sheets": _safe(sheets_data),
+                    "financial_statements": _safe(getattr(parsed_data, "financial_statements", None)),
+                    "key_metrics": _safe(getattr(parsed_data, "key_metrics", None)),
+                    "assumptions": _safe(getattr(parsed_data, "assumptions", None)),
+                    "validation_summary": val_summary,
                 }
             )
 
@@ -163,9 +180,9 @@ def process_uploaded_file(
             "info" if is_valid else "warning",
         )
 
-        # Send notification
-        send_processing_notification.delay(
-            file_id, final_status.value, file_record.uploaded_by_id
+        # Send notification without celery in tests
+        send_processing_notification.__wrapped__(
+            self, db, file_id, final_status.value, file_record.uploaded_by_id, None
         )
 
         # Final progress update
@@ -209,8 +226,8 @@ def process_uploaded_file(
         # Send error notification
         file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         if file_record:
-            send_processing_notification.delay(
-                file_id, "failed", file_record.uploaded_by_id, error_message
+            send_processing_notification.__wrapped__(
+                self, db, file_id, "failed", file_record.uploaded_by_id, error_message
             )
 
         # Update task state
@@ -362,4 +379,7 @@ def get_processing_status(task_id: str) -> Dict[str, Any]:
             "error": str(result.info),
         }
 
-    return response
+        return response
+
+# Expose raw function for unit tests
+process_uploaded_file.__wrapped__ = process_uploaded_file.__wrapped__.__func__

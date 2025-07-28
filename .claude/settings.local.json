@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest --co -q)",
+      "Bash(python -m pytest tests/test_auth_service.py -v)",
+      "Bash(python -m pytest tests/test_financial_extractor.py -v)",
+      "Bash(python -m pytest tests/test_formula_engine.py -v)",
+      "Bash(python -m pytest --co)",
+      "Bash(python:*)",
+      "Bash(timeout 60 python -m pytest --tb=no -x)"
+    ],
+    "deny": []
+  }
+}

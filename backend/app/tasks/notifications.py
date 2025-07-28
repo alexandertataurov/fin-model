@@ -208,3 +208,6 @@ def send_system_alert(alert_type: str, message: str, severity: str = "info") -> 
 
     except Exception as e:
         return {"status": "error", "message": f"Failed to send system alert: {str(e)}"}
+
+# Expose raw function for unit tests
+send_processing_notification.__wrapped__ = send_processing_notification.__wrapped__.__func__

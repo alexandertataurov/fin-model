@@ -10,7 +10,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.sql import func
 
 from app.models.base import Base
@@ -39,15 +39,18 @@ class UploadedFile(Base):
     __tablename__ = "uploaded_files"
 
     id = Column(Integer, primary_key=True, index=True)
-    filename = Column(String(255), nullable=False)
+    filename = Column(String(255), nullable=True)
+    stored_filename = Column(String(255), unique=True, nullable=True)
     original_filename = Column(String(255), nullable=False)
-    file_path = Column(String(500), nullable=False)
+    file_path = Column(String(500), nullable=True)
     file_size = Column(BigInteger, nullable=False)
-    file_type = Column(String(50), nullable=False)
-    mime_type = Column(String(100), nullable=False)
+    file_type = Column(String(50), nullable=True)
+    mime_type = Column(String(100), nullable=True)
+    upload_date = Column(DateTime, default=datetime.utcnow)
 
     # Processing status
     status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)
+    processing_status = synonym("status")
     processing_started_at = Column(DateTime, nullable=True)
     processing_completed_at = Column(DateTime, nullable=True)
 
@@ -56,11 +59,25 @@ class UploadedFile(Base):
     validation_errors = Column(Text, nullable=True)
     parsed_data = Column(Text, nullable=True)  # JSON string of parsed data
 
+    # Foreign Keys
+    # Connect each file to its owning user. This satisfies the User.uploaded_files
+    # back-populated relationship required in tests.
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    # Older parts of the codebase reference ``uploaded_by_id``. Provide a
+    # synonym so both attribute names work without affecting the ORM mapping.
+    uploaded_by_id = synonym("user_id")
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
+    data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
+
     # Relationships
-    uploaded_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    uploaded_by = relationship("User", back_populates="uploaded_files")
+    user = relationship("User", back_populates="uploaded_files")
     parameters = relationship("Parameter", back_populates="source_file")
     scenarios = relationship("Scenario", back_populates="base_file")
+    template = relationship("Template", back_populates="uploaded_files")
+    data_source = relationship("DataSource", back_populates="uploaded_files")
+    versions = relationship("FileVersion", back_populates="uploaded_file")
 
     # Timestamps
     created_at = Column(DateTime, default=func.now(), nullable=False)

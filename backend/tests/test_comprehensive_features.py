@@ -13,6 +13,7 @@ This script demonstrates all the implemented features:
 - File cleanup and retention
 """
 
+import pytest
 import asyncio
 import json
 import tempfile
@@ -21,6 +22,9 @@ from pathlib import Path
 from datetime import datetime
 import requests
 import time
+
+# Mark all tests in this file as integration tests
+pytestmark = pytest.mark.integration
 
 # Test configuration
 API_BASE = "http://localhost:8000/api/v1"

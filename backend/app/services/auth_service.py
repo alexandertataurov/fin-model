@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -43,23 +43,29 @@ class AuthService:
         if self.get_user_by_email(user_create.email):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered",
+                detail="User already registered",
             )
 
         if self.get_user_by_username(user_create.username):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User already registered",
             )
 
         # Create new user
         hashed_password = get_password_hash(user_create.password)
         verification_token = generate_secure_token()
 
+        full_name = user_create.full_name
+        if not full_name:
+            if user_create.first_name or user_create.last_name:
+                full_name = f"{user_create.first_name or ''} {user_create.last_name or ''}".strip()
         db_user = User(
             email=user_create.email,
             username=user_create.username,
-            first_name=user_create.first_name,
-            last_name=user_create.last_name,
+            first_name=user_create.first_name or "",
+            last_name=user_create.last_name or "",
+            full_name=full_name,
             hashed_password=hashed_password,
             is_active=True,
             is_verified=False,
@@ -85,15 +91,21 @@ class AuthService:
         return db_user
 
     def authenticate_user(
-        self, email: str, password: str, ip_address: str = None, user_agent: str = None
+        self,
+        identifier: str,
+        password: str,
+        ip_address: str = None,
+        user_agent: str = None,
     ) -> Optional[User]:
-        """Authenticate user with email and password."""
-        user = self.get_user_by_email(email)
+        """Authenticate user with username or email and password."""
+        user = self.get_user_by_email(identifier)
+        if not user:
+            user = self.get_user_by_username(identifier)
         if not user:
             self.log_audit_action(
                 action=AuditAction.FAILED_LOGIN,
                 success="failure",
-                details=f"User not found: {email}",
+                details=f"User not found: {identifier}",
                 ip_address=ip_address,
                 user_agent=user_agent,
             )
@@ -126,10 +138,11 @@ class AuthService:
             )
             return None
 
+
         # Verify password
         if not verify_password(password, user.hashed_password):
             # Increment failed login attempts
-            user.failed_login_attempts += 1
+            user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
 
             # Lock account after 5 failed attempts
             if user.failed_login_attempts >= 5:
@@ -418,3 +431,9 @@ class AuthService:
 
         self.db.add(audit_log)
         # Note: commit is handled by the calling method
+
+    def create_user_tokens(self, user: User, expires_delta: timedelta | None = None) -> Dict[str, str]:
+        """Return access and refresh tokens for a user."""
+        access = create_access_token(user.id, expires_delta=expires_delta)
+        refresh = create_refresh_token(user.id)
+        return {"access_token": access, "refresh_token": refresh, "token_type": "bearer"}

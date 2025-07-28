@@ -9,8 +9,8 @@ export interface ReportTemplate {
   report_type: string;
   is_system: boolean;
   is_active: boolean;
-  template_config?: any;
-  branding_config?: any;
+  template_config?: Record<string, unknown>;
+  branding_config?: Record<string, unknown>;
   created_at: string;
   updated_at?: string;
 }
@@ -38,12 +38,12 @@ export interface GenerateReportRequest {
   source_file_ids?: number[];
   data_period_start?: string;
   data_period_end?: string;
-  custom_config?: any;
+  custom_config?: Record<string, unknown>;
 }
 
 export interface ChartExportRequest {
   chart_type: string;
-  chart_data: any;
+  chart_data: Record<string, unknown>;
   export_format: 'PNG' | 'SVG' | 'PDF';
   width?: number;
   height?: number;
@@ -55,8 +55,8 @@ export interface CreateTemplateRequest {
   name: string;
   description?: string;
   report_type: string;
-  template_config?: any;
-  branding_config?: any;
+  template_config?: Record<string, unknown>;
+  branding_config?: Record<string, unknown>;
 }
 
 export class ReportApi {
@@ -103,8 +103,8 @@ export class ReportApi {
   static async exportData(exportData: {
     export_format: 'CSV' | 'JSON';
     source_file_ids?: number[];
-    date_range?: any;
-    filters?: any;
+    date_range?: Record<string, unknown>;
+    filters?: Record<string, unknown>;
     include_raw_data?: boolean;
     include_calculations?: boolean;
     include_metadata?: boolean;
