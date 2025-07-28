@@ -11,7 +11,6 @@ from fastapi import UploadFile, HTTPException, status
 from app.models.file import UploadedFile, ProcessingLog, FileStatus, FileType
 from app.models.user import User
 from app.core.config import settings
-from app.services.file_cleanup import FileCleanupService
 
 
 class FileService:
