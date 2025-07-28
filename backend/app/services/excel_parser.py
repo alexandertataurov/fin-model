@@ -80,6 +80,7 @@ class ValidationError:
     sheet: Optional[str] = None
     cell: Optional[str] = None
     suggestion: Optional[str] = None
+    cell_reference: Optional[str] = None
 
 
 class ValidationSummary:
