@@ -66,6 +66,11 @@ interface Parameter {
   created_at: string;
   updated_at: string;
 }
+interface Category {
+  category: string;
+  description: string;
+}
+
 
 interface ParameterListProps {
   fileId?: number;
@@ -340,7 +345,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
                   onChange={handleCategoryChange}
                 >
                   <MenuItem value="all">All Categories</MenuItem>
-                  {categories.map((category: any) => (
+                  {categories.map((category: Category) => (
                     <MenuItem key={category.category} value={category.category}>
                       {category.description}
                     </MenuItem>

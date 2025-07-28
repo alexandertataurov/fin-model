@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { GripVertical, Maximize2, Minimize2, X } from 'lucide-react'
@@ -20,7 +20,6 @@ export function DraggableWidget({
 }: DraggableWidgetProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.target instanceof HTMLElement && e.target.closest('.widget-controls')) {
@@ -30,7 +29,7 @@ export function DraggableWidget({
     setIsDragging(true)
   }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (_e: React.MouseEvent) => {
     // Simplified - just maintain visual state
   }
 

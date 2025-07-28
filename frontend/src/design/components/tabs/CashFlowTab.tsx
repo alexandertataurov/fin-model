@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { DraggableWidget } from '../DraggableWidget'
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from 'recharts'
 import { TrendingUp, TrendingDown, Activity, AlertCircle, Plus } from 'lucide-react'

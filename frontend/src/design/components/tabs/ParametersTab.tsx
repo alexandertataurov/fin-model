@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { DraggableWidget } from '../DraggableWidget'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Slider } from '../ui/slider'
 import { Input } from '../ui/input'
@@ -17,6 +16,14 @@ interface Parameters {
   discountRate: number
   inflationRate: number
 }
+interface ScenarioPoint {
+  month: string;
+  revenue: number;
+  marketingCost: number;
+  operatingProfit: number;
+  netProfit: number;
+}
+
 
 export function ParametersTab() {
   const [parameters, setParameters] = useState<Parameters>({
@@ -29,7 +36,7 @@ export function ParametersTab() {
   })
 
   const [isLivePreview, setIsLivePreview] = useState(true)
-  const [scenarioData, setScenarioData] = useState<any[]>([])
+  const [scenarioData, setScenarioData] = useState<ScenarioPoint[]>([])
 
   // Generate scenario data based on parameters
   useEffect(() => {

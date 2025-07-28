@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { DraggableWidget } from '../DraggableWidget'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
-import { TrendingUp, TrendingDown, DollarSign, Percent, Plus } from 'lucide-react'
+import { TrendingUp, TrendingDown, Percent, Plus } from 'lucide-react'
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, expenses: 32000, profit: 13000 },
