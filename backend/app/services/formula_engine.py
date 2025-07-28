@@ -602,8 +602,17 @@ class FormulaEngine:
         """
         sheet_name = current_cell.split('!')[0] if '!' in current_cell else 'Sheet1'
         
-        # Pattern to match cell references
+        # Pattern to match ranges like A1:B5
+        range_pattern = r'([A-Z]+\d+):([A-Z]+\d+)'
         cell_pattern = r'\b([A-Z]+\d+)\b'
+
+        def replace_range(match):
+            start_ref, end_ref = match.groups()
+            cells = self._expand_range(start_ref, end_ref, sheet_name)
+            values = [self.cell_values.get(c, self.cell_values.get(f"{sheet_name}!{c}", 0)) for c in cells]
+            return str(values)
+
+        formula = re.sub(range_pattern, replace_range, formula)
         
         def replace_ref(match):
             ref = match.group(1)
@@ -670,9 +679,9 @@ class FormulaEngine:
         """
         Handle unknown Excel functions.
         """
-        # Return 0 for unknown functions or implement specific handling
+        # Unknown function should raise an error for strict evaluation
         print(f"Warning: Unknown function {func_name} called with args {args}")
-        return 0
+        raise Exception(f"Unknown function {func_name}")
 
     def update_cell_value(self, cell_ref: str, new_value: Any) -> Dict[str, CalculationResult]:
         """
@@ -715,7 +724,9 @@ class FormulaEngine:
         results = {}
         for cell, formula in formulas.items():
             self.set_formula(cell, formula)
-            results[cell] = self.evaluate_formula(formula)
+            value = self.evaluate_formula(formula)
+            results[cell] = value
+            self.set_cell_value(cell, value)
         return results
 
     def get_dependencies(self, cell_ref: str) -> List[str]:
@@ -753,9 +764,31 @@ class FormulaEngine:
         """
         if not self.dependency_graph:
             self.build_dependency_graph()
-        if self.dependency_graph.circular_references:
-            raise Exception("Circular reference detected")
-        return self.dependency_graph.circular_references
+
+        visited = set()
+        stack = []
+
+        def dfs(node):
+            if node in stack:
+                return stack[stack.index(node):] + [node]
+            if node in visited:
+                return None
+            visited.add(node)
+            stack.append(node)
+            for dep in self.dependency_graph.nodes.get(node, []):
+                cycle = dfs(dep)
+                if cycle:
+                    return cycle
+            stack.pop()
+            return None
+
+        for cell in self.dependency_graph.nodes:
+            cycle = dfs(cell)
+            if cycle:
+                self.dependency_graph.circular_references.append(cycle)
+                raise Exception("Circular reference detected")
+
+        return []
 
     def get_calculation_statistics(self) -> Dict[str, Any]:
         """

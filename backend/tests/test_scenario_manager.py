@@ -160,7 +160,7 @@ class TestScenarioManager:
         
         new_scenario = Scenario(id=2, name="Cloned Scenario")
         
-        with patch.object(scenario_manager, 'create_scenario', return_value=new_scenario) as mock_create:
+        with patch.object(scenario_manager, 'create_scenario', new_callable=AsyncMock, return_value=new_scenario) as mock_create:
             result = await scenario_manager.clone_scenario(
                 source_scenario_id=1,
                 new_name="Cloned Scenario",
@@ -173,7 +173,7 @@ class TestScenarioManager:
             assert result.new_scenario_id == 2
             assert result.parameters_copied == 5
             assert result.error_message is None
-            mock_create.assert_called_once()
+            mock_create.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_clone_scenario_source_not_found(self, scenario_manager, mock_db):
@@ -226,6 +226,7 @@ class TestScenarioManager:
     def test_delete_scenario(self, scenario_manager, mock_db, sample_scenario):
         """Test scenario deletion"""
         mock_db.query.return_value.filter.return_value.first.return_value = sample_scenario
+        mock_db.query.return_value.filter.return_value.count.return_value = 0
         mock_db.delete = Mock()
         mock_db.commit = Mock()
         

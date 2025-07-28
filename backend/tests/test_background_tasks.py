@@ -206,23 +206,24 @@ class TestNotificationTasks:
 class TestScheduledTasks:
     """Test scheduled background tasks"""
     
+    @patch('app.tasks.scheduled_tasks.send_system_alert')
     @patch('app.tasks.scheduled_tasks.SessionLocal')
     @patch('app.tasks.scheduled_tasks.FileService')
-    def test_cleanup_expired_files(self, mock_file_service, mock_session_local):
+    def test_cleanup_expired_files(self, mock_file_service, mock_session_local, mock_alert):
         """Test expired file cleanup task"""
         mock_db = Mock()
         mock_session_local.return_value.__enter__.return_value = mock_db
         
         mock_file_service_instance = mock_file_service.return_value
         mock_file_service_instance.cleanup_expired_files.return_value = {
-            "total_files_deleted": 5,
-            "total_storage_freed_mb": 1024.0
+            "total_files_deleted": 2,
+            "total_storage_freed_mb": 512.0
         }
         
         result = cleanup_expired_files()
         
-        assert result["total_files_deleted"] == 5
-        assert result["total_storage_freed_mb"] == 1024.0
+        assert result["total_files_deleted"] == 2
+        assert result["total_storage_freed_mb"] == 512.0
         mock_file_service_instance.cleanup_expired_files.assert_called_once()
 
     @patch('app.tasks.scheduled_tasks.SessionLocal')
