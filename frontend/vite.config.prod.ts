@@ -62,12 +62,19 @@ export default defineConfig(({ mode }) => {
               '@radix-ui/react-toggle-group',
               '@radix-ui/react-tooltip',
               'class-variance-authority',
-              'tailwind-merge'
+              'tailwind-merge',
             ],
             charts: ['recharts'],
             utils: ['axios', 'date-fns', 'yup'],
             forms: ['react-hook-form', 'input-otp'],
-            interactions: ['cmdk', 'embla-carousel-react', 'react-day-picker', 'react-resizable-panels', 'sonner', 'vaul']
+            interactions: [
+              'cmdk',
+              'embla-carousel-react',
+              'react-day-picker',
+              'react-resizable-panels',
+              'sonner',
+              'vaul',
+            ],
           },
         },
       },

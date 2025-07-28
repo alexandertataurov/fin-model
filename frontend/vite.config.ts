@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
           'react-resizable-panels',
           'sonner',
           'tailwind-merge',
-          'vaul'
+          'vaul',
         ],
         output: {
           manualChunks: {
