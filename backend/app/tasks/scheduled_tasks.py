@@ -7,6 +7,7 @@ import asyncio
 from app.core.celery_app import celery_app
 from app.models.base import SessionLocal
 from app.services.file_cleanup import FileCleanupService
+from app.services.file_service import FileService
 from app.tasks.notifications import send_system_alert
 
 
@@ -31,11 +32,11 @@ def cleanup_expired_files(task=None, db_session: Session | None = None):
 
         if db_session is None:
             with SessionLocal() as session:
-                service = FileCleanupService()
-                results = asyncio.run(service.run_scheduled_cleanup())
+                service = FileService(session)
+                results = service.cleanup_expired_files()
         else:
-            service = FileCleanupService()
-            results = asyncio.run(service.run_scheduled_cleanup())
+            service = FileService(db_session)
+            results = service.cleanup_expired_files()
 
         # Send notification if significant cleanup occurred
         if results.get("total_files_deleted", 0) > 0:

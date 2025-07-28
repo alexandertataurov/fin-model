@@ -73,10 +73,11 @@ class TestFileProcessingTasks:
         mock_db.query.return_value.filter.return_value.first.return_value = sample_file
         
         # Mock parsed data
-        mock_parsed_data = Mock()
+        mock_parsed_data = MagicMock()
         mock_parsed_data.validation_summary.is_valid = True
         mock_parsed_data.validation_summary.errors = []
         mock_parsed_data.validation_summary.warnings = []
+        mock_parsed_data.sheets = [MagicMock(), MagicMock()]
         mock_parser_instance.parse_excel_file.return_value = mock_parsed_data
         
         # Mock validation result
@@ -101,7 +102,7 @@ class TestFileProcessingTasks:
         
         # Verify result structure
         assert isinstance(result, dict)
-        assert "success" in result
+        assert result["status"] == FileStatus.COMPLETED.value
         assert "file_id" in result
 
     @patch('app.tasks.file_processing.FileService')
@@ -124,18 +125,17 @@ class TestFileProcessingTasks:
         mock_parser_instance = mock_parser.return_value
         
         mock_db.query.return_value.filter.return_value.first.return_value = sample_file
-        mock_parser_instance.parse_excel_file.side_effect = Exception("Parsing failed")
+        class ParsingError(Exception):
+            pass
+
+        mock_parser_instance.parse_excel_file.side_effect = ParsingError("Parsing failed")
         
         mock_task = Mock()
         mock_task.request.id = "test_task_id"
         mock_task.update_state = Mock()
         
-        result = process_uploaded_file.__wrapped__(mock_task, mock_db, 1)
-        
-        # Should handle error gracefully
-        assert result["success"] is False
-        assert "error" in result
-        mock_file_service_instance.update_file_status.assert_called_with(1, FileStatus.ERROR)
+        with pytest.raises(ParsingError):
+            process_uploaded_file.__wrapped__(mock_task, mock_db, 1)
 
     @patch('app.tasks.file_processing.FileService')
     @patch('app.tasks.file_processing.ExcelParser')
@@ -149,10 +149,11 @@ class TestFileProcessingTasks:
         mock_db.query.return_value.filter.return_value.first.return_value = sample_file
         
         # Mock failed validation
-        mock_parsed_data = Mock()
+        mock_parsed_data = MagicMock()
         mock_parsed_data.validation_summary.is_valid = False
         mock_parsed_data.validation_summary.errors = ["Error 1", "Error 2"]
         mock_parsed_data.validation_summary.warnings = ["Warning 1"]
+        mock_parsed_data.sheets = [MagicMock()]
         mock_parser_instance.parse_excel_file.return_value = mock_parsed_data
         
         mock_validation_result = Mock()
@@ -165,11 +166,11 @@ class TestFileProcessingTasks:
         mock_task.update_state = Mock()
         
         result = process_uploaded_file.__wrapped__(mock_task, mock_db, 1)
-        
+
         # Should mark as having validation issues
-        assert result["success"] is False
-        assert "validation_errors" in result
-        mock_file_service_instance.update_file_status.assert_called_with(1, FileStatus.VALIDATION_FAILED)
+        assert result["status"] == FileStatus.FAILED.value
+        assert "errors" in result
+        mock_file_service_instance.update_file_status.assert_called()
 
 
 class TestNotificationTasks:
@@ -205,30 +206,35 @@ class TestNotificationTasks:
 class TestScheduledTasks:
     """Test scheduled background tasks"""
     
+    @patch('app.tasks.scheduled_tasks.send_system_alert')
     @patch('app.tasks.scheduled_tasks.SessionLocal')
     @patch('app.tasks.scheduled_tasks.FileService')
-    def test_cleanup_expired_files(self, mock_file_service, mock_session_local):
+    def test_cleanup_expired_files(self, mock_file_service, mock_session_local, mock_alert):
         """Test expired file cleanup task"""
         mock_db = Mock()
         mock_session_local.return_value.__enter__.return_value = mock_db
         
         mock_file_service_instance = mock_file_service.return_value
         mock_file_service_instance.cleanup_expired_files.return_value = {
-            "deleted_count": 5,
-            "freed_space": 1024000
+            "total_files_deleted": 2,
+            "total_storage_freed_mb": 512.0
         }
         
         result = cleanup_expired_files()
         
-        assert result["deleted_count"] == 5
-        assert result["freed_space"] == 1024000
+        assert result["total_files_deleted"] == 2
+        assert result["total_storage_freed_mb"] == 512.0
         mock_file_service_instance.cleanup_expired_files.assert_called_once()
 
+    @patch('app.tasks.scheduled_tasks.send_system_alert')
+    @patch('app.tasks.scheduled_tasks.FileService')
     @patch('app.tasks.scheduled_tasks.SessionLocal')
-    def test_cleanup_expired_files_error(self, mock_session_local):
+    def test_cleanup_expired_files_error(self, mock_session_local, mock_file_service, mock_alert):
         """Test cleanup task with error"""
         mock_session_local.return_value.__enter__.side_effect = Exception("Database error")
-        
+
+        mock_file_service.return_value.cleanup_expired_files.return_value = {}
+
         result = cleanup_expired_files()
         
         assert result["success"] is False

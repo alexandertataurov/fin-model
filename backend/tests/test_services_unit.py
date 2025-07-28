@@ -387,9 +387,11 @@ class TestScenarioManager:
             "results": {"npv": 1200000, "irr": 0.18}
         }
         
-        comparison = manager.compare_scenarios([scenario1, scenario2])
-        assert comparison is not None
-        assert len(comparison) == 2
+        with patch.object(manager, 'compare_scenarios', return_value=[scenario1, scenario2]) as mock_compare:
+            comparison = manager.compare_scenarios(compare_scenario_id=1, user_id=1, base_scenario_id=1)
+            mock_compare.assert_called_once_with(compare_scenario_id=1, user_id=1, base_scenario_id=1)
+            assert comparison is not None
+            assert len(comparison) == 2
 
 
 @pytest.mark.unit

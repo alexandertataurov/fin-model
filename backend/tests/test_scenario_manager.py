@@ -160,7 +160,7 @@ class TestScenarioManager:
         
         new_scenario = Scenario(id=2, name="Cloned Scenario")
         
-        with patch.object(scenario_manager, 'create_scenario', return_value=new_scenario) as mock_create:
+        with patch.object(scenario_manager, 'create_scenario', new_callable=AsyncMock, return_value=new_scenario) as mock_create:
             result = await scenario_manager.clone_scenario(
                 source_scenario_id=1,
                 new_name="Cloned Scenario",
@@ -173,7 +173,7 @@ class TestScenarioManager:
             assert result.new_scenario_id == 2
             assert result.parameters_copied == 5
             assert result.error_message is None
-            mock_create.assert_called_once()
+            mock_create.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_clone_scenario_source_not_found(self, scenario_manager, mock_db):
@@ -226,6 +226,7 @@ class TestScenarioManager:
     def test_delete_scenario(self, scenario_manager, mock_db, sample_scenario):
         """Test scenario deletion"""
         mock_db.query.return_value.filter.return_value.first.return_value = sample_scenario
+        mock_db.query.return_value.filter.return_value.count.return_value = 0
         mock_db.delete = Mock()
         mock_db.commit = Mock()
         
@@ -239,9 +240,8 @@ class TestScenarioManager:
         """Test deleting non-existent scenario"""
         mock_db.query.return_value.filter.return_value.first.return_value = None
         
-        result = scenario_manager.delete_scenario(999, user_id=1)
-        
-        assert result is False
+        with pytest.raises(ValueError):
+            scenario_manager.delete_scenario(999, user_id=1)
 
     def test_update_parameter_value(self, scenario_manager, mock_db, sample_parameter_value):
         """Test updating parameter value in scenario"""
@@ -448,9 +448,11 @@ class TestScenarioManagerIntegration:
         user_scenarios = scenario_manager.get_user_scenarios(user.id)
         assert len(user_scenarios) == 2
         
-        # Clean up
-        scenario_manager.delete_scenario(base_scenario.id, user_id=user.id)
-        scenario_manager.delete_scenario(clone_result.new_scenario_id, user_id=user.id)
+        # Clean up using force to remove children
+        scenario_manager.delete_scenario(base_scenario.id, user_id=user.id, force=True)
+
+        remaining = scenario_manager.get_user_scenarios(user.id)
+        assert len(remaining) == 0
 
     @pytest.mark.integration
     def test_parameter_value_management(self, db_session):
@@ -483,8 +485,13 @@ class TestScenarioManagerIntegration:
         
         parameter = Parameter(
             name="Growth Rate",
+            display_name="Growth Rate",
             parameter_type="percentage",
+            value=0.05,
+            current_value=0.05,
             default_value=0.05,
+            created_by_id=user.id,
+            data_source_id=1,
             file_id=uploaded_file.id
         )
         db_session.add(parameter)
