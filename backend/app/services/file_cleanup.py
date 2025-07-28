@@ -11,6 +11,7 @@ from app.models.base import SessionLocal
 from app.models.file import UploadedFile, ProcessingLog, FileStatus
 from app.models.user import User
 from app.services.cloud_storage import CloudStorageManager
+from app.services.file_service import FileService
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -75,7 +76,9 @@ class FileRetentionPolicy:
 class FileCleanupService:
     """Service for managing file cleanup and retention policies."""
 
-    def __init__(self):
+    def __init__(self, db_session: Session | None = None, file_service: FileService | None = None):
+        self.db_session = db_session or SessionLocal()
+        self.file_service = file_service or FileService(self.db_session)
         self.storage_manager = CloudStorageManager()
         self.policies = self._load_retention_policies()
 

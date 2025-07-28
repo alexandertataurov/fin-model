@@ -22,11 +22,20 @@ class DatabaseTask(Task):
 
 
 @celery_app.task(name="app.tasks.scheduled_tasks.cleanup_expired_files")
-def cleanup_expired_files():
+def cleanup_expired_files(task=None, db_session: Session | None = None):
     """Clean up expired files synchronously for tests."""
     try:
-        service = FileCleanupService()
-        results = asyncio.run(service.cleanup_expired_files(dry_run=False))
+        if db_session is None and isinstance(task, Session):
+            db_session = task
+            task = None
+
+        if db_session is None:
+            with SessionLocal() as session:
+                service = FileCleanupService()
+                results = asyncio.run(service.run_scheduled_cleanup())
+        else:
+            service = FileCleanupService()
+            results = asyncio.run(service.run_scheduled_cleanup())
 
         # Send notification if significant cleanup occurred
         if results.get("total_files_deleted", 0) > 0:
@@ -36,7 +45,13 @@ def cleanup_expired_files():
             )
             send_system_alert.delay("file_cleanup", message, "info")
 
-        return results
+        results_dict = {
+            "success": True,
+            "total_files_deleted": results.get("total_files_deleted") or results.get("files_deleted", 0),
+            "total_storage_freed_mb": results.get("total_storage_freed_mb") or results.get("storage_freed_mb", 0),
+            "error": None,
+        }
+        return results_dict
 
     except Exception as e:
         error_msg = f"Scheduled file cleanup failed: {str(e)}"

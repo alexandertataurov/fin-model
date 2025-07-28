@@ -285,5 +285,5 @@ class FileService:
 
     def cleanup_expired_files(self) -> Dict[str, Any]:
         """Wrapper around FileCleanupService for scheduled tasks."""
-        cleanup_service = FileCleanupService()
-        return asyncio.run(cleanup_service.cleanup_expired_files(dry_run=False))
+        from app.services.file_cleanup import FileCleanupService
+        cleanup_service = FileCleanupService(self.db, self)
