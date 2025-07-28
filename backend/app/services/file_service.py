@@ -287,3 +287,4 @@ class FileService:
         """Wrapper around FileCleanupService for scheduled tasks."""
         from app.services.file_cleanup import FileCleanupService
         cleanup_service = FileCleanupService(self.db, self)
+        return asyncio.run(cleanup_service.cleanup_expired_files(dry_run=False))
