@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --config vite.config.prod.ts",
     "build:strict": "tsc && vite build",
+    "build:standard": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 50",
     "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
