@@ -18,6 +18,7 @@ class RoleType(PyEnum):
     ADMIN = "admin"
     ANALYST = "analyst"
     VIEWER = "viewer"
+    EDITOR = "editor"
 
 
 class Role(Base):
@@ -25,7 +26,7 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(Enum(RoleType), unique=True, nullable=False)
-    display_name = Column(String(50), nullable=False)
+    display_name = Column(String(50), nullable=True)
     description = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)

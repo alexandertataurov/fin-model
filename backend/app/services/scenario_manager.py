@@ -210,7 +210,7 @@ class ScenarioManager:
         
         return scenario
 
-    async def delete_scenario(
+    def delete_scenario(
         self,
         scenario_id: int,
         user_id: int,
@@ -241,9 +241,9 @@ class ScenarioManager:
                 child_scenarios = self.db.query(Scenario).filter(
                     Scenario.parent_scenario_id == scenario_id
                 ).all()
-                
+
                 for child in child_scenarios:
-                    await self.delete_scenario(child.id, user_id, force=True)
+                    self.delete_scenario(child.id, user_id, force=True)
             
             # Delete parameter values
             self.db.query(ParameterValue).filter(
@@ -334,63 +334,50 @@ class ScenarioManager:
 
     def compare_scenarios(
         self,
-        compare_scenarios: List[Any],
+        base_scenario_id: int,
+        compare_scenario_id: int,
+        user_id: int,
         parameter_filters: Optional[List[int]] = None,
-        base_scenario_id: Optional[int] = None,
-        user_id: Optional[int] = None,
-    ) -> Any:
-        """Compare scenarios.
+    ) -> ScenarioComparison:
+        """Compare two scenarios and return differences."""
+        base_scenario = self.db.query(Scenario).filter(
+            Scenario.id == base_scenario_id,
+            Scenario.created_by_id == user_id
+        ).first()
 
-        With simple dictionary inputs (used in unit tests) this returns the
-        provided list. When ``base_scenario_id`` and ``user_id`` are given the
-        full asynchronous comparison logic is executed.
-        """
+        compare_scenario = self.db.query(Scenario).filter(
+            Scenario.id == compare_scenario_id,
+            Scenario.created_by_id == user_id
+        ).first()
 
-        if base_scenario_id is None and user_id is None:
-            return compare_scenarios
+        if not base_scenario or not compare_scenario:
+            raise ValueError("One or both scenarios not found")
 
-        async def _impl():
-            """Full asynchronous scenario comparison implementation."""
-            # Validate base scenario
-            base_scenario = self.db.query(Scenario).filter(
-                Scenario.id == base_scenario_id,
-                Scenario.created_by_id == user_id,
-            ).first()
+        base_params = self.db.query(ParameterValue).filter(
+            ParameterValue.scenario_id == base_scenario_id
+        ).all()
+        compare_params = self.db.query(ParameterValue).filter(
+            ParameterValue.scenario_id == compare_scenario_id
+        ).all()
 
-            if not base_scenario:
-                raise ValueError("Base scenario not found")
+        differences = []
+        for bp in base_params:
+            cp = next((p for p in compare_params if p.parameter_id == bp.parameter_id), None)
+            if cp and cp.value != bp.value:
+                differences.append({
+                    "parameter_id": bp.parameter_id,
+                    "base_value": bp.value,
+                    "compare_value": cp.value,
+                })
 
-            if isinstance(compare_scenarios, int):
-                compare_ids = [compare_scenarios]
-            else:
-                compare_ids = (
-                    [c.id for c in compare_scenarios]
-                    if isinstance(compare_scenarios[0], Scenario)
-                    else compare_scenarios
-                )
-
-            scenarios = (
-                self.db.query(Scenario)
-                .filter(Scenario.id.in_(compare_ids), Scenario.created_by_id == user_id)
-                .all()
-            )
-
-            if len(scenarios) != len(compare_ids):
-                raise ValueError("One or more comparison scenarios not found")
-
-            results = []
-
-            for compare_scenario in scenarios:
-                comparison = await self._compare_two_scenarios(
-                    base_scenario,
-                    compare_scenario,
-                    parameter_filters,
-                )
-                results.append(comparison)
-
-            return results[0] if len(results) == 1 else results
-
-        return _ensure_async(_impl())
+        summary = {"total_differences": len(differences)}
+        return ScenarioComparison(
+            base_scenario_id=base_scenario_id,
+            compare_scenario_id=compare_scenario_id,
+            parameter_differences=differences,
+            summary_statistics=summary,
+            variance_analysis={},
+        )
 
     async def get_scenario_history(
         self,

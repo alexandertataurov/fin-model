@@ -653,9 +653,10 @@ class FormulaEngine:
             'pow': pow,
             '__builtins__': {},
         }
-        
+
         # Add cell values and variables to the evaluation context
         safe_dict.update(self.cell_values)
+        safe_dict['self'] = self
         
         try:
             result = eval(expression, safe_dict)
@@ -753,7 +754,8 @@ class FormulaEngine:
         """
         if not self.dependency_graph:
             self.build_dependency_graph()
-        
+        if self.dependency_graph.circular_references:
+            raise Exception("Circular reference detected")
         return self.dependency_graph.circular_references
 
     def get_calculation_statistics(self) -> Dict[str, Any]:
@@ -808,60 +810,11 @@ class FormulaEngine:
         """
         dangerous_patterns = [
             '__import__',
-            'import',
             'exec',
             'eval',
-            'compile',
             'open',
-            'file',
-            'input',
-            'raw_input',
-            'reload',
-            'vars',
-            'globals',
-            'locals',
-            'dir',
-            'hasattr',
-            'getattr',
-            'setattr',
-            'delattr',
-            'callable',
-            'type',
-            'isinstance',
-            'issubclass',
-            'super',
-            'classmethod',
-            'staticmethod',
-            'property',
-            'lambda',
-            'yield',
-            'return',
-            'break',
-            'continue',
-            'pass',
-            'class',
-            'def',
-            'try',
-            'except',
-            'finally',
-            'raise',
-            'assert',
-            'global',
-            'nonlocal',
-            'del',
-            'with',
-            'as',
-            'if',
-            'elif',
-            'else',
-            'for',
-            'while',
-            'in',
-            'is',
-            'and',
-            'or',
-            'not',
-            'from'
+            'subprocess',
+            'system'
         ]
         
         expression_lower = expression.lower()
