@@ -394,7 +394,7 @@ class FormulaEngine:
         try:
             # Parse formula with openpyxl tokenizer
             tokens = Tokenizer(formula).items
-            sheet_name = current_cell.split('!')[0]
+            sheet_name = current_cell.split('!')[0] if '!' in current_cell else 'Sheet1'
             
             for token in tokens:
                 if token.type == Token.OPERAND and token.subtype == Token.RANGE:
@@ -409,18 +409,17 @@ class FormulaEngine:
                     else:
                         # Single cell reference
                         if '!' not in ref:
-                            ref = f"{sheet_name}!{ref}"
+                            ref = ref
                         references.add(ref)
         
         except Exception:
             # Fallback to regex parsing
             cell_pattern = r'[A-Z]+\d+'
             matches = re.findall(cell_pattern, formula.upper())
-            sheet_name = current_cell.split('!')[0]
+            sheet_name = current_cell.split('!')[0] if '!' in current_cell else 'Sheet1'
             
             for match in matches:
-                ref = f"{sheet_name}!{match}"
-                references.add(ref)
+                references.add(match)
         
         return references
 
@@ -437,7 +436,7 @@ class FormulaEngine:
         for row in range(start_row, end_row + 1):
             for col in range(start_col, end_col + 1):
                 col_letter = get_column_letter(col)
-                cell_ref = f"{sheet_name}!{col_letter}{row}"
+                cell_ref = f"{col_letter}{row}"
                 references.append(cell_ref)
         
         return references
@@ -601,7 +600,7 @@ class FormulaEngine:
         """
         Replace cell references with their values.
         """
-        sheet_name = current_cell.split('!')[0]
+        sheet_name = current_cell.split('!')[0] if '!' in current_cell else 'Sheet1'
         
         # Pattern to match cell references
         cell_pattern = r'\b([A-Z]+\d+)\b'
@@ -609,8 +608,8 @@ class FormulaEngine:
         def replace_ref(match):
             ref = match.group(1)
             full_ref = f"{sheet_name}!{ref}"
-            
-            value = self.cell_values.get(full_ref, 0)
+
+            value = self.cell_values.get(ref, self.cell_values.get(full_ref, 0))
             
             # Handle different data types
             if isinstance(value, str):

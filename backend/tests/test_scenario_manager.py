@@ -239,9 +239,8 @@ class TestScenarioManager:
         """Test deleting non-existent scenario"""
         mock_db.query.return_value.filter.return_value.first.return_value = None
         
-        result = scenario_manager.delete_scenario(999, user_id=1)
-        
-        assert result is False
+        with pytest.raises(ValueError):
+            scenario_manager.delete_scenario(999, user_id=1)
 
     def test_update_parameter_value(self, scenario_manager, mock_db, sample_parameter_value):
         """Test updating parameter value in scenario"""
@@ -449,7 +448,7 @@ class TestScenarioManagerIntegration:
         assert len(user_scenarios) == 2
         
         # Clean up
-        scenario_manager.delete_scenario(base_scenario.id, user_id=user.id)
+        scenario_manager.delete_scenario(base_scenario.id, user_id=user.id, force=True)
         scenario_manager.delete_scenario(clone_result.new_scenario_id, user_id=user.id)
 
     @pytest.mark.integration
@@ -483,8 +482,13 @@ class TestScenarioManagerIntegration:
         
         parameter = Parameter(
             name="Growth Rate",
+            display_name="Growth Rate",
             parameter_type="percentage",
+            value=0.05,
+            current_value=0.05,
             default_value=0.05,
+            created_by_id=user.id,
+            data_source_id=1,
             file_id=uploaded_file.id
         )
         db_session.add(parameter)

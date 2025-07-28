@@ -236,8 +236,8 @@ class TestAuthServiceIntegration:
         
         # Authenticate user
         authenticated_user = auth_service.authenticate_user(
-            "integrationuser", 
-            "securepassword123456"
+            "integrationuser",
+            "securepassword123"
         )
         assert authenticated_user is not None
         assert authenticated_user.id == created_user.id
