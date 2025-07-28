@@ -226,11 +226,15 @@ class TestScheduledTasks:
         assert result["total_storage_freed_mb"] == 512.0
         mock_file_service_instance.cleanup_expired_files.assert_called_once()
 
+    @patch('app.tasks.scheduled_tasks.send_system_alert')
+    @patch('app.tasks.scheduled_tasks.FileService')
     @patch('app.tasks.scheduled_tasks.SessionLocal')
-    def test_cleanup_expired_files_error(self, mock_session_local):
+    def test_cleanup_expired_files_error(self, mock_session_local, mock_file_service, mock_alert):
         """Test cleanup task with error"""
         mock_session_local.return_value.__enter__.side_effect = Exception("Database error")
-        
+
+        mock_file_service.return_value.cleanup_expired_files.return_value = {}
+
         result = cleanup_expired_files()
         
         assert result["success"] is False

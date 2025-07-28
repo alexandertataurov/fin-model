@@ -50,6 +50,14 @@ class DummyAnalytics:
 @pytest.fixture(autouse=True)
 def patch_deps(monkeypatch):
     dummy_send = DummySend()
+    class DummyFileService:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def cleanup_expired_files(self):
+            return {"total_files_deleted": 2, "total_storage_freed_mb": 1.2}
+
+    monkeypatch.setattr(st, "FileService", DummyFileService)
     monkeypatch.setattr(st, "FileCleanupService", DummyCleanupService)
     monkeypatch.setattr(st, "send_system_alert", dummy_send)
     monkeypatch.setattr(st, "SessionLocal", lambda: DummySessionLocal())

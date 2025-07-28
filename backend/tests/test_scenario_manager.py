@@ -448,9 +448,11 @@ class TestScenarioManagerIntegration:
         user_scenarios = scenario_manager.get_user_scenarios(user.id)
         assert len(user_scenarios) == 2
         
-        # Clean up
+        # Clean up using force to remove children
         scenario_manager.delete_scenario(base_scenario.id, user_id=user.id, force=True)
-        scenario_manager.delete_scenario(clone_result.new_scenario_id, user_id=user.id)
+
+        remaining = scenario_manager.get_user_scenarios(user.id)
+        assert len(remaining) == 0
 
     @pytest.mark.integration
     def test_parameter_value_management(self, db_session):
