@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { DraggableWidget } from '../DraggableWidget'
-import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
+import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
 import { TrendingUp, Users, Target, ShoppingCart, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Progress } from '../ui/progress'
