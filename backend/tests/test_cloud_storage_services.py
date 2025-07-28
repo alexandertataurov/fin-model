@@ -54,8 +54,9 @@ async def test_s3_storage_roundtrip(monkeypatch):
         cloud_storage,
         "boto3",
         types.SimpleNamespace(client=lambda *args, **kwargs: DummyS3Client()),
+        raising=False,
     )
-    monkeypatch.setattr(cloud_storage, "ClientError", Exception)
+    monkeypatch.setattr(cloud_storage, "ClientError", Exception, raising=False)
 
     service = cloud_storage.S3StorageService()
     await service.upload_file(io.BytesIO(b"data"), "f.txt")

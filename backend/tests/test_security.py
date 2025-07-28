@@ -374,7 +374,7 @@ class TestInputValidationSecurity:
             {"name": "", "value": 0.1, "category": "test"},  # Empty name
             {"name": "x" * 1000, "value": 0.1, "category": "test"},  # Too long name
             {"name": "Test", "value": "not_a_number", "category": "test"},  # Invalid value type
-            {"name": "Test", "value": float('inf'), "category": "test"},  # Infinite value
+            {"name": "Test", "value": "inf", "category": "test"},  # Non-finite value
             {"name": "Test", "value": 0.1, "category": ""},  # Empty category
         ]
         
