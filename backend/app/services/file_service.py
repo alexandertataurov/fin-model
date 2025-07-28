@@ -11,6 +11,7 @@ from fastapi import UploadFile, HTTPException, status
 from app.models.file import UploadedFile, ProcessingLog, FileStatus, FileType
 from app.models.user import User
 from app.core.config import settings
+from app.services.file_cleanup import FileCleanupService
 
 
 class FileService:
@@ -286,4 +287,3 @@ class FileService:
         """Wrapper around FileCleanupService for scheduled tasks."""
         from app.services.file_cleanup import FileCleanupService
         cleanup_service = FileCleanupService(self.db, self)
-        return asyncio.run(cleanup_service.cleanup_expired_files(dry_run=False))

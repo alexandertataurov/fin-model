@@ -7,7 +7,6 @@ import asyncio
 from app.core.celery_app import celery_app
 from app.models.base import SessionLocal
 from app.services.file_cleanup import FileCleanupService
-from app.services.file_service import FileService
 from app.tasks.notifications import send_system_alert
 
 
