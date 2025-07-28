@@ -3,6 +3,7 @@ import uuid
 import shutil
 from pathlib import Path
 from typing import Optional, List, BinaryIO, Dict, Any
+import asyncio
 from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import UploadFile, HTTPException, status
@@ -280,3 +281,9 @@ class FileService:
             )
 
         return str(file_path)
+
+    def cleanup_expired_files(self) -> Dict[str, Any]:
+        """Wrapper around FileCleanupService for scheduled tasks."""
+        from app.services.file_cleanup import FileCleanupService
+        cleanup_service = FileCleanupService(self.db, self)
+        return asyncio.run(cleanup_service.cleanup_expired_files(dry_run=False))

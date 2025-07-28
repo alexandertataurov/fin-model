@@ -93,6 +93,8 @@ class Parameter(Base):
     
     # Excel Source Information
     source_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=True)
+    # Alias for backward compatibility with tests
+    file_id = synonym("source_file_id")
     source_sheet = Column(String(255), nullable=True)
     source_cell = Column(String(20), nullable=True)  # e.g., "A1", "B5"
     source_range = Column(String(50), nullable=True)  # e.g., "A1:B10"
