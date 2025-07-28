@@ -656,6 +656,7 @@ class FormulaEngine:
 
         # Add cell values and variables to the evaluation context
         safe_dict.update(self.cell_values)
+        safe_dict['self'] = self
         
         try:
             result = eval(expression, safe_dict)
