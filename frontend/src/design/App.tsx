@@ -1,4 +1,3 @@
-import React from "react";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { Toaster } from "./components/ui/sonner";
