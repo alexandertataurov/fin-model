@@ -108,7 +108,7 @@ const Dashboard = () => {
       title: 'P&L Dashboard',
       subtitle: 'Analyze profit & loss statements with interactive charts and key metrics',
       icon: <TrendingUp />,
-      color: '#2e7d32',
+      color: 'var(--chart-3)', // DESIGN_FIX
       path: '/dashboards/pl',
       badge: 'Financial',
     },
@@ -116,7 +116,7 @@ const Dashboard = () => {
       title: 'Cash Flow',
       subtitle: 'Track cash inflows and outflows with waterfall visualizations',
       icon: <AttachMoney />,
-      color: '#1976d2',
+      color: 'var(--chart-1)', // DESIGN_FIX
       path: '/dashboards/cashflow',
       badge: 'Financial',
     },
@@ -124,7 +124,7 @@ const Dashboard = () => {
       title: 'Balance Sheet',
       subtitle: 'Monitor assets, liabilities, and equity positions',
       icon: <AccountBalance />,
-      color: '#7b1fa2',
+      color: 'var(--chart-5)', // DESIGN_FIX
       path: '/dashboards/balance-sheet',
       badge: 'Coming Soon',
     },
@@ -132,21 +132,21 @@ const Dashboard = () => {
       title: 'Reports',
       subtitle: 'Generate and export comprehensive financial reports',
       icon: <Assessment />,
-      color: '#d32f2f',
+      color: 'var(--chart-4)', // DESIGN_FIX
       path: '/reports',
     },
     {
       title: 'File Upload',
       subtitle: 'Upload and process Excel financial models',
       icon: <CloudUpload />,
-      color: '#f57c00',
+      color: 'var(--chart-2)', // DESIGN_FIX
       path: '/files',
     },
     {
       title: 'Analytics',
       subtitle: 'Advanced analytics and performance insights',
       icon: <Analytics />,
-      color: '#303f9f',
+      color: 'var(--chart-1)', // DESIGN_FIX
       path: '/analytics',
     },
   ];

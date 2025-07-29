@@ -350,8 +350,9 @@ const ScenarioModeling: React.FC = () => {
       <BarChart
         data={chartData}
         series={[
-          { dataKey: 'value', name: 'Sensitivity', color: '#1976d2' },
-          { dataKey: 'impact', name: 'Impact Range', color: '#ff9800' },
+          { dataKey: 'value', name: 'Sensitivity', color: 'var(--chart-1)' },
+          // DESIGN_FIX: replaced hex color with chart token
+          { dataKey: 'impact', name: 'Impact Range', color: 'var(--chart-4)' },
         ]}
         height={400}
         title="Parameter Sensitivity Analysis"

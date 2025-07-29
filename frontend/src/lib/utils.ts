@@ -1,20 +1,4 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-/**
- * Combines multiple class names into a single className string.
- * Uses clsx to merge class names and twMerge to handle Tailwind CSS class conflicts.
- *
- * @example
- * ```tsx
- * <div className={cn("bg-red-500", condition && "text-white", ["p-4", "m-2"])}>
- *   Content
- * </div>
- * ```
- */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export { cn } from '@/utils/cn';
 
 /**
  * Formats a number as currency

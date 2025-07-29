@@ -107,10 +107,11 @@ export function CashFlowTab() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="operating" stroke="#8884d8" strokeWidth={2} />
-                <Line type="monotone" dataKey="investing" stroke="#82ca9d" strokeWidth={2} />
-                <Line type="monotone" dataKey="financing" stroke="#ffc658" strokeWidth={2} />
-                <Line type="monotone" dataKey="net" stroke="#ff7300" strokeWidth={3} />
+                {/* DESIGN_FIX: replace hex colors with design tokens */}
+                <Line type="monotone" dataKey="operating" stroke="var(--chart-1)" strokeWidth={2} />
+                <Line type="monotone" dataKey="investing" stroke="var(--chart-2)" strokeWidth={2} />
+                <Line type="monotone" dataKey="financing" stroke="var(--chart-3)" strokeWidth={2} />
+                <Line type="monotone" dataKey="net" stroke="var(--chart-4)" strokeWidth={3} />
               </LineChart>
             </ResponsiveContainer>
           </DraggableWidget>
@@ -129,7 +130,8 @@ export function CashFlowTab() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="cumulative" fill="#8884d8" />
+                {/* DESIGN_FIX: use chart color token */}
+                <Bar dataKey="cumulative" fill="var(--chart-1)" />
               </BarChart>
             </ResponsiveContainer>
           </DraggableWidget>

@@ -14,11 +14,12 @@ const salesData = [
   { month: 'Jun', sales: 67000, leads: 450, conversion: 14.9 },
 ]
 
+// DESIGN_FIX: replace hex colors with design system tokens
 const salesByChannel = [
-  { name: 'Direct Sales', value: 180000, color: '#8884d8' },
-  { name: 'Online', value: 120000, color: '#82ca9d' },
-  { name: 'Partners', value: 80000, color: '#ffc658' },
-  { name: 'Referrals', value: 48000, color: '#ff7300' },
+  { name: 'Direct Sales', value: 180000, color: 'var(--chart-1)' },
+  { name: 'Online', value: 120000, color: 'var(--chart-2)' },
+  { name: 'Partners', value: 80000, color: 'var(--chart-3)' },
+  { name: 'Referrals', value: 48000, color: 'var(--chart-4)' },
 ]
 
 const salesTargets = [
@@ -113,8 +114,9 @@ export function SalesTab() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="sales" stroke="#8884d8" strokeWidth={2} />
-                <Line type="monotone" dataKey="leads" stroke="#82ca9d" strokeWidth={2} />
+                {/* DESIGN_FIX: use chart color tokens */}
+                <Line type="monotone" dataKey="sales" stroke="var(--chart-1)" strokeWidth={2} />
+                <Line type="monotone" dataKey="leads" stroke="var(--chart-2)" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </DraggableWidget>

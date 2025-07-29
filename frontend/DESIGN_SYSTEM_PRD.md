@@ -100,10 +100,10 @@ frontend/src/pages/NewDashboard.tsx
 
 | Task | Status | Notes |
 | ---- | ------ | ----- |
-| FR1 Merge globals | [ ] | |
-| FR2 Single cn utility | [ ] | |
+| FR1 Merge globals | [x] | Removed duplicate design/styles/globals.css |
+| FR2 Single cn utility | [x] | Consolidated cn imports |
 | FR3 Consolidate UI directory | [ ] | |
 | FR4 One theme provider | [ ] | |
-| FR5 Replace hex colors with variables | [ ] | |
+| FR5 Replace hex colors with variables | [~] | Most tabs and pages updated |
 | FR6 Update page imports | [ ] | |
 | FR7 Document components | [ ] | |

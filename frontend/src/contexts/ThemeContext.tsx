@@ -85,10 +85,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       // Update meta theme-color for mobile browsers
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) {
-        metaThemeColor.setAttribute(
-          'content', 
-          effectiveTheme === 'dark' ? '#1e1e1e' : '#ffffff'
-        );
+        const style = getComputedStyle(root)
+        // DESIGN_FIX: read meta theme color from CSS variable
+        metaThemeColor.setAttribute('content', style.getPropertyValue('--background').trim())
       }
     }
   }, [effectiveTheme]);

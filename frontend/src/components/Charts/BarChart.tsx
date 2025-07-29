@@ -51,15 +51,13 @@ interface BarChartProps {
   formatYAxisTick?: (value: number) => string;
 }
 
+// DESIGN_FIX: use design system chart color tokens
 const defaultColors = [
-  '#1976d2', // Primary blue
-  '#dc004e', // Secondary pink
-  '#2e7d32', // Success green
-  '#ed6c02', // Warning orange
-  '#9c27b0', // Purple
-  '#00695c', // Teal
-  '#c62828', // Red
-  '#5e35b1', // Deep purple
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
 ];
 
 export const BarChart: React.FC<BarChartProps> = ({
@@ -125,7 +123,7 @@ export const BarChart: React.FC<BarChartProps> = ({
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#e0e0e0"
+            stroke="var(--border)" // DESIGN_FIX: use border token
             opacity={0.5}
           />
         )}
@@ -188,7 +186,7 @@ export const BarChart: React.FC<BarChartProps> = ({
           <ReferenceLine
             key={index}
             {...(layout === 'vertical' ? { y: refLine.value } : { x: refLine.value })}
-            stroke={refLine.color || '#666'}
+            stroke={refLine.color || 'var(--muted-foreground)'} // DESIGN_FIX: replace hex
             strokeDasharray="5 5"
             label={{
               value: refLine.label || '',
