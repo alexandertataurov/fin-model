@@ -38,17 +38,18 @@ interface PieChartProps {
   formatTooltip?: (value: number | string, name: string) => [string, string];
 }
 
+// DESIGN_FIX: use chart color tokens from design system
 const defaultColors = [
-  '#1976d2', // Primary blue
-  '#dc004e', // Secondary pink
-  '#2e7d32', // Success green
-  '#ed6c02', // Warning orange
-  '#9c27b0', // Purple
-  '#00695c', // Teal
-  '#c62828', // Red
-  '#5e35b1', // Deep purple
-  '#795548', // Brown
-  '#607d8b', // Blue grey
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+  'var(--chart-1)',
 ];
 
 export const PieChart: React.FC<PieChartProps> = ({
@@ -91,13 +92,13 @@ export const PieChart: React.FC<PieChartProps> = ({
 
   const renderCustomizedLabel = (entry: { value: number; name: string }) => {
     if (!showLabels) return null;
-    
+
     const percentage = ((entry.value / total) * 100).toFixed(1);
-    
+
     if (showPercentages) {
       return `${percentage}%`;
     }
-    
+
     return entry.name;
   };
 
@@ -147,7 +148,8 @@ export const PieChart: React.FC<PieChartProps> = ({
           label={renderCustomizedLabel}
           outerRadius={chartRadius}
           innerRadius={innerRadius}
-          fill="#8884d8"
+          // DESIGN_FIX: replace default pie color with design token
+          fill="var(--chart-1)"
           dataKey="value"
           stroke="none"
         >
@@ -155,9 +157,9 @@ export const PieChart: React.FC<PieChartProps> = ({
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        
+
         <Tooltip data-testid="tooltip" content={customTooltip} />
-        
+
         {showLegend && (
           <Legend
             wrapperStyle={{
@@ -186,7 +188,7 @@ export const PieChart: React.FC<PieChartProps> = ({
     >
       <Box sx={{ position: 'relative', height: '100%' }}>
         {chartContent}
-        
+
         {/* Center Label for Donut Charts */}
         {isDonut && centerLabel && (
           <Box
@@ -207,7 +209,7 @@ export const PieChart: React.FC<PieChartProps> = ({
                 lineHeight: 1,
               }}
             >
-              {typeof centerLabel.value === 'number' 
+              {typeof centerLabel.value === 'number'
                 ? formatCurrency(centerLabel.value)
                 : centerLabel.value
               }
@@ -229,4 +231,4 @@ export const PieChart: React.FC<PieChartProps> = ({
   );
 };
 
-export default PieChart; 
+export default PieChart;

@@ -107,9 +107,9 @@ const AnalyticsDashboard: React.FC = () => {
     setTimePeriod(event.target.value as number);
   };
 
-  // Colors for charts
+  // Colors for charts pulled from design tokens
+  // DESIGN_FIX: replaced hard-coded hex colors with CSS variables
   const chartColors = [
-    // DESIGN_FIX: use CSS variables for chart palette
     'var(--chart-1)',
     'var(--chart-2)',
     'var(--chart-3)',
@@ -262,21 +262,21 @@ const AnalyticsDashboard: React.FC = () => {
                     <Line
                       type="monotone"
                       dataKey="total_files"
-                      // DESIGN_FIX: use chart color token
+                      // DESIGN_FIX: use design token for chart color
                       stroke="var(--chart-1)"
                       name="Total Files"
                     />
                     <Line
                       type="monotone"
                       dataKey="completed_files"
-                      // DESIGN_FIX: use chart color token
+                      // DESIGN_FIX: use design token for chart color
                       stroke="var(--chart-2)"
                       name="Completed"
                     />
                     <Line
                       type="monotone"
                       dataKey="failed_files"
-                      // DESIGN_FIX: use chart color token
+                      // DESIGN_FIX: use design token for chart color
                       stroke="var(--chart-3)"
                       name="Failed"
                     />
@@ -300,7 +300,7 @@ const AnalyticsDashboard: React.FC = () => {
                       labelLine={false}
                       label={({ file_type, percentage }) => `${file_type} (${percentage}%)`}
                       outerRadius={80}
-                      // DESIGN_FIX: use chart color token
+                      // DESIGN_FIX: use design token for default pie color
                       fill="var(--chart-1)"
                       dataKey="count"
                     >
@@ -444,4 +444,4 @@ const AnalyticsDashboard: React.FC = () => {
   );
 };
 
-export default AnalyticsDashboard; 
+export default AnalyticsDashboard;
