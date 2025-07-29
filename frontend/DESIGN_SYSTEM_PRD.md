@@ -10,6 +10,59 @@ This PRD outlines the improvements required to unify and refine the FinVision fr
 - **Theme provider mismatch**: `src/contexts/ThemeContext.tsx` uses Material‑UI while `src/design/components/ThemeProvider.tsx` implements a custom CSS variable approach.
 - **Hard‑coded colors**: chart tabs in `src/design/components/tabs` use hex colors instead of design tokens.
 - **Mixed component usage**: pages like `NewDashboard.tsx` import from the new `design` path, while other pages rely on the old components.
+- **Legacy Material‑UI usage**: many components and pages still depend on Material‑UI widgets while newer parts of the app use Tailwind and Radix UI. This leads to duplicated styling approaches and larger bundle size.
+
+### 2.1 Component Audit
+
+**Material‑UI based files**
+
+```
+frontend/src/components/Analytics/AnalyticsDashboard.tsx
+frontend/src/components/Charts/BaseChart.tsx
+frontend/src/components/Charts/CustomTooltip.tsx
+frontend/src/components/Charts/PieChart.tsx
+frontend/src/components/Charts/WaterfallChart.tsx
+frontend/src/components/Dashboard/DashboardGrid.tsx
+frontend/src/components/FileUpload/FileList.tsx
+frontend/src/components/FileUpload/FileUploadDropzone.tsx
+frontend/src/components/Layout/Layout.tsx
+frontend/src/components/Layout/Sidebar.tsx
+frontend/src/components/Parameters/ParameterEditor.tsx
+frontend/src/components/Parameters/ParameterList.tsx
+frontend/src/components/ProtectedRoute.tsx
+frontend/src/components/ui/BottomNavigation.tsx
+frontend/src/components/ui/DataTable.tsx
+frontend/src/components/ui/DateRangePicker.tsx
+frontend/src/components/ui/ErrorHandling.tsx
+frontend/src/components/ui/FileUploadZone.tsx
+frontend/src/components/ui/HelpCenter.tsx
+frontend/src/components/ui/LoadingStates.tsx
+frontend/src/components/ui/MultiSelect.tsx
+frontend/src/components/ui/TextField.tsx
+frontend/src/components/ui/ThemeToggle.tsx
+frontend/src/contexts/ThemeContext.tsx
+frontend/src/pages/Analytics.tsx
+frontend/src/pages/CashFlowDashboard.tsx
+frontend/src/pages/Dashboard.tsx
+frontend/src/pages/FileUpload.tsx
+frontend/src/pages/PLDashboard.tsx
+frontend/src/pages/Reports.tsx
+frontend/src/pages/ScenarioModeling.tsx
+frontend/src/test/test-utils.tsx
+frontend/src/theme/index.ts
+frontend/src/utils/responsive.ts
+```
+
+**Tailwind/Radix based files**
+
+```
+frontend/src/design/**/*
+frontend/src/components/theme-toggle.tsx
+frontend/src/lib/shadcn-registry.tsx
+frontend/src/pages/Login.tsx
+frontend/src/pages/Register.tsx
+frontend/src/pages/NewDashboard.tsx
+```
 
 ## 3. Goals
 1. Consolidate the design system into a single source of truth.
