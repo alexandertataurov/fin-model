@@ -23,12 +23,26 @@ describe('Card', () => {
       </Card>
     );
 
-    expect(screen.getByText('Card Title').closest('[data-slot="card"]')).toBeInTheDocument();
-    expect(screen.getByText('Card Title').closest('[data-slot="card-header"]')).toBeInTheDocument();
-    expect(screen.getByText('Card Title')).toHaveAttribute('data-slot', 'card-title');
-    expect(screen.getByText('Card Description')).toHaveAttribute('data-slot', 'card-description');
-    expect(screen.getByText('Card Content').closest('[data-slot="card-content"]')).toBeInTheDocument();
-    expect(screen.getByText('Card Footer').closest('[data-slot="card-footer"]')).toBeInTheDocument();
+    expect(
+      screen.getByText('Card Title').closest('[data-slot="card"]')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Card Title').closest('[data-slot="card-header"]')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Card Title')).toHaveAttribute(
+      'data-slot',
+      'card-title'
+    );
+    expect(screen.getByText('Card Description')).toHaveAttribute(
+      'data-slot',
+      'card-description'
+    );
+    expect(
+      screen.getByText('Card Content').closest('[data-slot="card-content"]')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Card Footer').closest('[data-slot="card-footer"]')
+    ).toBeInTheDocument();
   });
 
   it('handles interactive card behavior', async () => {
@@ -39,7 +53,9 @@ describe('Card', () => {
       </Card>
     );
 
-    const card = screen.getByText('Interactive Card').closest('[data-slot="card"]');
+    const card = screen
+      .getByText('Interactive Card')
+      .closest('[data-slot="card"]');
     expect(card).toHaveAttribute('role', 'button');
     expect(card).toHaveAttribute('tabIndex', '0');
 
@@ -50,7 +66,7 @@ describe('Card', () => {
       // Test keyboard interaction
       await userEvent.tab();
       expect(card).toHaveFocus();
-      
+
       await userEvent.keyboard('{enter}');
       expect(handleClick).toHaveBeenCalledTimes(2);
     }
@@ -94,7 +110,10 @@ describe('Card', () => {
     );
 
     expect(screen.getByLabelText('Example card')).toBeInTheDocument();
-    expect(screen.getByText('Accessible Title')).toHaveAttribute('aria-level', '2');
+    expect(screen.getByText('Accessible Title')).toHaveAttribute(
+      'aria-level',
+      '2'
+    );
     expect(screen.getByLabelText('Card description')).toBeInTheDocument();
   });
 
@@ -107,7 +126,9 @@ describe('Card', () => {
       </Card>
     );
 
-    const actionsContainer = screen.getByRole('button').closest('[data-slot="card-actions"]');
+    const actionsContainer = screen
+      .getByRole('button')
+      .closest('[data-slot="card-actions"]');
     expect(actionsContainer).toBeInTheDocument();
   });
 
@@ -132,11 +153,18 @@ describe('Card', () => {
       </Card>
     );
 
-    Object.values(refs).forEach((ref) => {
+    Object.values(refs).forEach(ref => {
       expect(ref.current).toBeInstanceOf(HTMLElement);
     });
   });
-});
+
+  it('applies custom classes through className prop', () => {
+    render(
+      <Card className="custom-card">
+        <CardHeader className="custom-header">Header</CardHeader>
+        <CardContent className="custom-content">Content</CardContent>
+        <CardFooter className="custom-footer">Footer</CardFooter>
+      </Card>
     );
     expect(screen.getByText('Footer').parentElement).toHaveClass(
       'custom-footer'

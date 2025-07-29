@@ -8,7 +8,9 @@ import {
 
 const defaultProps = {
   direction: 'horizontal' as const,
-  onLayout: () => {},
+  onLayout: function () {
+    /* implementation */
+  },
 };
 
 describe('Resizable Components', () => {

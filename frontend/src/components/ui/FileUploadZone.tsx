@@ -59,17 +59,17 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
 
   const onDrop = useCallback(
     (acceptedFiles: File[], _rejectedFiles: FileRejection[]) => {
-      const newFiles: FileUploadFile[] = acceptedFiles.map((file) => ({
+      const newFiles: FileUploadFile[] = acceptedFiles.map(file => ({
         ...file,
         id: `${file.name}-${Date.now()}-${Math.random()}`,
         status: 'pending' as const,
       }));
 
       const updatedFiles = multiple ? [...files, ...newFiles] : newFiles;
-      
+
       // Limit to maxFiles
       const limitedFiles = updatedFiles.slice(0, maxFiles);
-      
+
       setFiles(limitedFiles);
       onFilesChange?.(limitedFiles);
 
@@ -78,7 +78,15 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
         handleUpload(limitedFiles);
       }
     },
-    [files, multiple, maxFiles, onFilesChange, autoUpload, onUpload]
+    [
+      files,
+      multiple,
+      maxFiles,
+      onFilesChange,
+      autoUpload,
+      onUpload,
+      handleUpload,
+    ]
   );
 
   const {
@@ -102,7 +110,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     if (!onUpload) return;
 
     setUploading(true);
-    
+
     try {
       // Update files to uploading status
       const uploadingFiles = filesToUpload.map(file => ({
@@ -123,7 +131,6 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
       }));
       setFiles(successFiles);
       onFilesChange?.(successFiles);
-
     } catch (error) {
       // Update to error status
       const errorFiles = filesToUpload.map(file => ({
@@ -225,26 +232,26 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
         }}
       >
         <input {...getInputProps()} />
-        
-        <CloudUpload 
-          sx={{ 
-            fontSize: 48, 
+
+        <CloudUpload
+          sx={{
+            fontSize: 48,
             color: 'text.secondary',
             mb: 2,
             opacity: disabled || uploading ? 0.5 : 1,
-          }} 
+          }}
         />
-        
+
         <Typography variant="h6" gutterBottom>
           {isDragActive
             ? 'Drop files here...'
             : 'Drag & drop files here, or click to select'}
         </Typography>
-        
+
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Supported formats: {accept.join(', ')}
         </Typography>
-        
+
         <Typography variant="caption" color="text.secondary">
           Max file size: {formatFileSize(maxSize)} • Max files: {maxFiles}
         </Typography>
@@ -259,11 +266,18 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
       {/* File List */}
       {showFileList && files.length > 0 && (
         <Box sx={{ mt: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+            }}
+          >
             <Typography variant="h6">
               Selected Files ({files.length})
             </Typography>
-            
+
             <Box sx={{ display: 'flex', gap: 1 }}>
               {canUpload && (
                 <Button
@@ -273,10 +287,11 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                   loading={uploading}
                   startIcon={<CloudUpload />}
                 >
-                  Upload {pendingFiles.length} file{pendingFiles.length !== 1 ? 's' : ''}
+                  Upload {pendingFiles.length} file
+                  {pendingFiles.length !== 1 ? 's' : ''}
                 </Button>
               )}
-              
+
               <Button
                 variant="outlined"
                 size="small"
@@ -289,12 +304,10 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
           </Box>
 
           <List dense>
-            {files.map((file) => (
+            {files.map(file => (
               <ListItem key={file.id} divider>
-                <ListItemIcon>
-                  {getFileIcon(file)}
-                </ListItemIcon>
-                
+                <ListItemIcon>{getFileIcon(file)}</ListItemIcon>
+
                 <ListItemText
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -305,9 +318,13 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                         label={file.status}
                         size="small"
                         color={
-                          file.status === 'success' ? 'success' :
-                          file.status === 'error' ? 'error' :
-                          file.status === 'uploading' ? 'primary' : 'default'
+                          file.status === 'success'
+                            ? 'success'
+                            : file.status === 'error'
+                            ? 'error'
+                            : file.status === 'uploading'
+                            ? 'primary'
+                            : 'default'
                         }
                         variant="outlined"
                       />
@@ -318,7 +335,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                       <Typography variant="caption" color="text.secondary">
                         {formatFileSize(file.size)}
                       </Typography>
-                      
+
                       {file.status === 'uploading' && (
                         <LinearProgress
                           variant="determinate"
@@ -326,7 +343,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                           sx={{ mt: 0.5 }}
                         />
                       )}
-                      
+
                       {file.status === 'error' && file.error && (
                         <Alert severity="error" sx={{ mt: 0.5 }}>
                           {file.error}
@@ -335,7 +352,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                     </Box>
                   }
                 />
-                
+
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
@@ -358,14 +375,15 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
 // Helper function to get MIME type from extension
 function getMimeType(extension: string): string {
   const mimeTypes: Record<string, string> = {
-    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    '.xlsx':
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     '.xls': 'application/vnd.ms-excel',
     '.csv': 'text/csv',
     '.pdf': 'application/pdf',
     '.txt': 'text/plain',
   };
-  
+
   return mimeTypes[extension] || '*/*';
 }
 
-export default FileUploadZone; 
+export default FileUploadZone;
