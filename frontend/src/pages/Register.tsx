@@ -15,7 +15,6 @@ import {
   Lock,
   User,
   TrendingUp,
-  Loader2,
   AlertCircle,
   Check,
   X,
@@ -135,18 +134,6 @@ const Register: React.FC = () => {
 
   const passwordStrength = checkPasswordStrength(formik.values.password);
 
-  const getPasswordStrengthColor = (strength: string) => {
-    switch (strength) {
-      case 'weak':
-        return 'error';
-      case 'medium':
-        return 'warning';
-      case 'strong':
-        return 'success';
-      default:
-        return 'primary';
-    }
-  };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -440,14 +427,15 @@ const Register: React.FC = () => {
                 disabled={isLoading || !passwordStrength.isValid}
                 className="w-full mt-6"
                 size="lg"
-                mb: 3,
-                py: 1.5,
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                borderRadius: 2,
-                textTransform: 'none',
-              }}
-            >
+                sx={{
+                  mb: 3,
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                }}
+              >
               {isLoading ? (
                 <>
                   <CircularProgress size={20} sx={{ mr: 1 }} />
@@ -478,7 +466,8 @@ const Register: React.FC = () => {
               </Typography>
             </Box>
           </form>
-        </Paper>
+        </CardContent>
+      </Card>
 
         {/* Footer */}
         <Box sx={{ textAlign: 'center', mt: 3 }}>
@@ -486,8 +475,8 @@ const Register: React.FC = () => {
             © 2024 FinVision. All rights reserved.
           </Typography>
         </Box>
-      </Container>
-    </Box>
+      </div>
+    </div>
   );
 };
 

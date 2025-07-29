@@ -222,7 +222,7 @@ export const createMockParameter = (
 });
 
 // Mock fetch for API calls
-export const mockFetch = (response: any, status = 200) => {
+export const mockFetch = (response: unknown, status = 200) => {
   return vi.fn().mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
