@@ -1,4 +1,3 @@
-import React from 'react';
 import { ThemeProvider } from '../design/components/ThemeProvider';
 import { DashboardLayout } from '../design/components/DashboardLayout';
 

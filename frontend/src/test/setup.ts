@@ -5,7 +5,7 @@ import { toHaveNoViolations } from 'jest-axe';
 // Vitest's expect.extend requires an object of matcher functions. Cast to any
 // to avoid TS complaints about the matcher signature.
 // jest-axe exports an object of matchers
-expect.extend(toHaveNoViolations as unknown as Record<string, unknown>);
+expect.extend(toHaveNoViolations as unknown as Record<string, any>);
 
 // Ensure Recharts components render in tests by providing non-zero dimensions
 // for elements queried by ResponsiveContainer. Without this, it falls back to

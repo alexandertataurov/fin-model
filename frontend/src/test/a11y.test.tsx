@@ -16,7 +16,7 @@ const axe = configureAxe({
     // Skip heading order rule which fails in mock pages
     'heading-order': { enabled: false },
   },
-});
+}) as any;
 
 // Matcher registered in test setup
 

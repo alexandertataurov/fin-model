@@ -14,6 +14,8 @@ export interface ButtonProps
   icon?: React.ReactNode;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
+  sx?: Record<string, unknown>;
+  fullWidth?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -30,6 +32,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       endIcon,
       children,
       disabled,
+      sx,
+      fullWidth = false,
       ...props
     },
     ref
@@ -39,9 +43,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          fullWidth && 'w-full'
+        )}
         ref={ref}
         disabled={isDisabled}
+        style={sx}
         {...props}
       >
         <span className="inline-flex items-center gap-2">

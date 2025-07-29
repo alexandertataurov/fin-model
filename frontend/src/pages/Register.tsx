@@ -19,6 +19,13 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import {
+  Box,
+  Typography,
+  Divider,
+  Link,
+  CircularProgress,
+} from '@mui/material';
 
 const validationSchema = yup.object({
   email: yup
