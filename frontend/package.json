@@ -11,7 +11,6 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 50",
     "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
-    "format": "npx prettier --write \"src/**/*.{ts,tsx,css,scss,md}\"",
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",

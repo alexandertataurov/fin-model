@@ -145,21 +145,11 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
   // Get sensitivity color
   const getSensitivityColor = (level: string) => {
     switch (level) {
-      case 'critical':
-        // DESIGN_FIX: use destructive color token
-        return 'var(--destructive)';
-      case 'high':
-        // DESIGN_FIX: mapped to chart color token
-        return 'var(--chart-1)';
-      case 'medium':
-        // DESIGN_FIX: mapped to chart color token
-        return 'var(--chart-2)';
-      case 'low':
-        // DESIGN_FIX: mapped to chart color token
-        return 'var(--chart-3)';
-      default:
-        // DESIGN_FIX: fallback to muted foreground
-        return 'var(--muted-foreground)';
+      case 'critical': return '#f44336';
+      case 'high': return '#ff9800';
+      case 'medium': return '#2196f3';
+      case 'low': return '#4caf50';
+      default: return '#757575';
     }
   };
 
@@ -243,7 +233,6 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                 size="small"
                 label={parameter.sensitivity_level}
                 sx={{
-                  // DESIGN_FIX: use design token colors
                   backgroundColor: getSensitivityColor(parameter.sensitivity_level),
                   color: 'white',
                   fontSize: '0.7rem',
@@ -284,7 +273,6 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
               size="small"
               label={parameter.sensitivity_level}
               sx={{
-                // DESIGN_FIX: use design token colors
                 backgroundColor: getSensitivityColor(parameter.sensitivity_level),
                 color: 'white',
               }}

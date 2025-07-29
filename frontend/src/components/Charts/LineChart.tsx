@@ -54,16 +54,15 @@ interface LineChartProps {
   formatYAxisTick?: (value: number) => string;
 }
 
-// DESIGN_FIX: replace hard-coded palette with design system chart tokens
 const defaultColors = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
+  '#1976d2', // Primary blue
+  '#dc004e', // Secondary pink
+  '#2e7d32', // Success green
+  '#ed6c02', // Warning orange
+  '#9c27b0', // Purple
+  '#00695c', // Teal
+  '#c62828', // Red
+  '#5e35b1', // Deep purple
 ];
 
 export const LineChart: React.FC<LineChartProps> = ({
@@ -93,7 +92,7 @@ export const LineChart: React.FC<LineChartProps> = ({
     if (formatYAxisTick) {
       return formatYAxisTick(value);
     }
-
+    
     // Auto-format based on value size
     if (Math.abs(value) >= 1000000) {
       return `${currency}${(value / 1000000).toFixed(1)}M`;
@@ -131,25 +130,24 @@ export const LineChart: React.FC<LineChartProps> = ({
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
-            // DESIGN_FIX: use border token for grid color
-            stroke="var(--border)"
+            stroke="#e0e0e0"
             opacity={0.5}
           />
         )}
-
+        
         <XAxis
           dataKey={xAxisKey}
           tick={{ fontSize: 12 }}
           tickFormatter={formatXAxis}
           label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -10 } : undefined}
         />
-
+        
         <YAxis
           tick={{ fontSize: 12 }}
           tickFormatter={formatYAxis}
           label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
         />
-
+        
         <RechartsTooltip
           data-testid="tooltip"
           content={
@@ -160,7 +158,7 @@ export const LineChart: React.FC<LineChartProps> = ({
             />
           }
         />
-
+        
         {showLegend && (
           <Legend
             wrapperStyle={{
@@ -175,8 +173,7 @@ export const LineChart: React.FC<LineChartProps> = ({
           <ReferenceLine
             key={index}
             y={refLine.value}
-            // DESIGN_FIX: use muted foreground token for reference lines
-            stroke={refLine.color || 'var(--muted-foreground)'}
+            stroke={refLine.color || '#666'}
             strokeDasharray="5 5"
             label={{
               value: refLine.label || '',
@@ -201,8 +198,7 @@ export const LineChart: React.FC<LineChartProps> = ({
               r: 4,
               stroke: seriesItem.color,
               strokeWidth: 2,
-              // DESIGN_FIX: replace hard-coded white with background token
-              fill: 'var(--background)',
+              fill: '#fff',
             }}
             connectNulls={false}
           />
@@ -226,4 +222,4 @@ export const LineChart: React.FC<LineChartProps> = ({
   );
 };
 
-export default LineChart;
+export default LineChart; 
