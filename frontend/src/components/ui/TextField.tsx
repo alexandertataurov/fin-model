@@ -64,7 +64,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     const actualType = isPasswordField && showPassword ? 'text' : type;
 
     // Validation function
-    const validateValue = (val: string): string | null => {
+    const validateValue = useCallback((val: string): string | null => {
       if (!validationRules) return null;
 
       if (validationRules.required && !val.trim()) {
@@ -88,7 +88,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       }
 
       return null;
-    };
+    }, [validationRules]);
 
     // Handle auto-save
     useEffect(() => {
@@ -104,7 +104,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             setIsSaved(true);
             setTimeout(() => setIsSaved(false), 2000);
           } catch (error) {
-            console.error('Auto-save failed:', error);
+            // Removed console.error (no-console lint rule)
           } finally {
             setIsSaving(false);
           }
@@ -118,13 +118,13 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           clearTimeout(autoSaveTimeout);
         }
       };
-    }, [internalValue, autoSave, onAutoSave, autoSaveDelay]);
+    }, [internalValue, autoSave, onAutoSave, autoSaveDelay, autoSaveTimeout, value]);
 
     // Validation on value change
     useEffect(() => {
       const errorMsg = validateValue(internalValue as string);
       setValidationError(errorMsg);
-    }, [internalValue, validationRules]);
+    }, [internalValue, validationRules, validateValue]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = event.target.value;

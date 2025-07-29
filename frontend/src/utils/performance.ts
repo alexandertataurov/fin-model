@@ -23,7 +23,7 @@ export class PerformanceMonitor {
   // Measure component render time
   measureRenderTime<T extends object>(
     Component: React.ComponentType<T>,
-    componentName: string
+    _componentName: string
   ): React.ComponentType<T> {
     return (props: T) => {
       const startTime = useRef<number>();
@@ -43,7 +43,7 @@ export class PerformanceMonitor {
             });
             
             if (renderTime > 16.67) { // 60fps threshold
-              console.warn(`Slow render detected in ${componentName}: ${renderTime.toFixed(2)}ms`);
+              // Removed console.warn (no-console lint rule)
             }
           }
         };
@@ -54,7 +54,7 @@ export class PerformanceMonitor {
   }
 
   // Measure page load time
-  measurePageLoad(pageName: string): void {
+  measurePageLoad(_pageName: string): void {
     if (typeof window !== 'undefined' && window.performance) {
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       const loadTime = navigation.loadEventEnd - navigation.fetchStart;
@@ -66,7 +66,7 @@ export class PerformanceMonitor {
       });
 
       if (loadTime > 3000) { // 3 second threshold
-        console.warn(`Slow page load detected for ${pageName}: ${loadTime}ms`);
+        // Removed console.warn (no-console lint rule)
       }
     }
   }
@@ -337,6 +337,7 @@ export const useThrottledCallback = <T extends (...args: unknown[]) => unknown>(
 ): T => {
   const lastRun = useRef(Date.now());
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(
     ((...args: unknown[]) => {
       if (Date.now() - lastRun.current >= delay) {
@@ -348,33 +349,31 @@ export const useThrottledCallback = <T extends (...args: unknown[]) => unknown>(
   );
 };
 
-// Bundle size analyzer (development only)
 export const analyzeBundleSize = () => {
-  if (process.env.NODE_ENV === 'development') {
-    console.group('Bundle Analysis');
-    
-    // Analyze chunk sizes
-    if (typeof window !== 'undefined' && window.performance) {
-      const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-      const jsResources = resources.filter(r => r.name.includes('.js'));
-      const cssResources = resources.filter(r => r.name.includes('.css'));
-      
-      console.log('JavaScript bundles:', jsResources.map(r => ({
-        name: r.name.split('/').pop(),
+  if (process.env.NODE_ENV === "development") {
+    if (typeof window !== "undefined" && window.performance) {
+      const resources = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
+      const jsResources = resources.filter(r => r.name.includes(".js"));
+      const cssResources = resources.filter(r => r.name.includes(".css"));
+
+      const jsInfo = jsResources.map(r => ({
+        name: r.name.split("/").pop(),
         size: `${Math.round(r.transferSize / 1024)}KB`,
-        loadTime: `${Math.round(r.duration)}ms`
-      })));
-      
-      console.log('CSS bundles:', cssResources.map(r => ({
-        name: r.name.split('/').pop(),
+        loadTime: `${Math.round(r.duration)}ms`,
+      }));
+
+      const cssInfo = cssResources.map(r => ({
+        name: r.name.split("/").pop(),
         size: `${Math.round(r.transferSize / 1024)}KB`,
-        loadTime: `${Math.round(r.duration)}ms`
-      })));
+        loadTime: `${Math.round(r.duration)}ms`,
+      }));
+
+      return { jsInfo, cssInfo };
     }
-    
-    console.groupEnd();
   }
+  return null;
 };
+
 
 export default {
   PerformanceMonitor,

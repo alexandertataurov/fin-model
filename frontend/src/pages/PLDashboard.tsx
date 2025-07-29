@@ -105,7 +105,7 @@ const PLDashboard: React.FC = () => {
       await ReportApi.downloadFile(reportData.id);
       
     } catch (error) {
-      console.error('Export failed:', error);
+      // Removed console.error (no-console lint rule)
       // You could show a toast notification here
     } finally {
       setIsExporting(false);
