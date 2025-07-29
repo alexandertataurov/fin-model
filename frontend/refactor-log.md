@@ -11,9 +11,9 @@
 - meta theme-color now reads from CSS variable
 - replaced inline colors in `FileUploadDropzone` and `AnalyticsDashboard`
 - mapped sensitivity colors in `ParameterEditor` to design tokens
+- updated color tokens in `src/components/Layout/Layout.tsx`
 
 ### Pending
 - consolidate UI directories into one
 - unify theme providers
 - continue replacing hard-coded colors across legacy components
-
