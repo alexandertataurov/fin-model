@@ -244,7 +244,7 @@ const CashFlowDashboard: React.FC = () => {
         const series = [{
           dataKey: 'value',
           name: 'Cash Position',
-          color: '#00695c',
+          color: 'var(--chart-3)', // DESIGN_FIX: use token
         }];
 
         return (
@@ -279,7 +279,7 @@ const CashFlowDashboard: React.FC = () => {
         const series = [{
           dataKey: 'value',
           name: 'Operating CF',
-          color: '#2e7d32',
+          color: 'var(--chart-2)', // DESIGN_FIX
         }];
 
         return (
@@ -312,7 +312,7 @@ const CashFlowDashboard: React.FC = () => {
         const series = [{
           dataKey: 'value',
           name: 'Free CF',
-          color: '#1976d2',
+          color: 'var(--chart-1)', // DESIGN_FIX
         }];
 
         return (

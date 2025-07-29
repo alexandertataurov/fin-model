@@ -242,7 +242,7 @@ const PLDashboard: React.FC = () => {
         const series = [{
           dataKey: 'value',
           name: 'Revenue',
-          color: '#1976d2',
+          color: 'var(--chart-1)', // DESIGN_FIX: use chart token
         }];
 
         return (
@@ -306,7 +306,7 @@ const PLDashboard: React.FC = () => {
         const series = [{
           dataKey: 'value',
           name: 'Margin %',
-          color: '#2e7d32',
+          color: 'var(--chart-3)', // DESIGN_FIX
         }];
 
         return (
@@ -339,7 +339,7 @@ const PLDashboard: React.FC = () => {
         const series = [{
           dataKey: 'value',
           name: 'Expenses',
-          color: '#dc004e',
+          color: 'var(--chart-4)', // DESIGN_FIX
         }];
 
         return (
