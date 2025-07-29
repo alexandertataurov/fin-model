@@ -1,13 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ThemeProvider as MuiThemeProvider, Theme } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-import { lightTheme, darkTheme } from '../theme';
+
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   mode: ThemeMode;
-  currentTheme: Theme;
   toggleTheme: () => void;
   setThemeMode: (mode: ThemeMode) => void;
   isDarkMode: boolean;
@@ -51,14 +48,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
 
   const effectiveTheme = getEffectiveTheme(mode);
-  const currentTheme = effectiveTheme === 'dark' ? darkTheme : lightTheme;
   const isDarkMode = effectiveTheme === 'dark';
 
   // Listen for system theme changes
   useEffect(() => {
     if (typeof window !== 'undefined' && window.matchMedia) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      
+
       const handleChange = (e: MediaQueryListEvent) => {
         setSystemTheme(e.matches ? 'dark' : 'light');
       };
@@ -79,9 +75,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const root = document.documentElement;
-      root.classList.remove('light-theme', 'dark-theme');
-      root.classList.add(`${effectiveTheme}-theme`);
-      
+      root.classList.remove('light', 'dark');
+      root.classList.add(effectiveTheme);
+
       // Update meta theme-color for mobile browsers
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) {
@@ -113,19 +109,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const value: ThemeContextType = {
     mode,
-    currentTheme,
     toggleTheme,
     setThemeMode,
     isDarkMode,
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      <MuiThemeProvider theme={currentTheme}>
-        <CssBaseline />
-        {children}
-      </MuiThemeProvider>
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 
@@ -137,4 +127,4 @@ export const useTheme = (): ThemeContextType => {
   return context;
 };
 
-export default ThemeProvider; 
+export default ThemeProvider;

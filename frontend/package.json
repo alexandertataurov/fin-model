@@ -29,7 +29,8 @@
     "test:a11y": "vitest run src/test/a11y.test.tsx",
     "test:all": "npm run test:unit && npm run test:integration && npm run e2e",
     "test:quick": "vitest run --changed",
-    "test:debug": "vitest --inspect-brk --no-coverage"
+    "test:debug": "vitest --inspect-brk --no-coverage",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",
