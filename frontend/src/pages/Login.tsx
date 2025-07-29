@@ -1,31 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import {
-  Box,
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Link,
-  Checkbox,
-  FormControlLabel,
-  Alert,
-  CircularProgress,
-  Divider,
-  IconButton,
-  InputAdornment,
-  Paper,
-} from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  Email,
-  Lock,
-  AccountBalance,
-} from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  TrendingUp,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
 
 const validationSchema = yup.object({
   email: yup
@@ -75,7 +66,9 @@ const Login: React.FC = () => {
           setError('Invalid email or password. Please try again.');
         }
       } catch (err: unknown) {
-        const error = err as { response?: { status?: number; data?: { detail?: string } } };
+        const error = err as {
+          response?: { status?: number; data?: { detail?: string } };
+        };
         if (error.response?.status === 401) {
           setError('Invalid email or password. Please try again.');
         } else if (error.response?.status === 423) {
@@ -98,202 +91,171 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: 2,
-      }}
-    >
-      <Container maxWidth="sm">
-        <Paper
-          elevation={24}
-          sx={{
-            padding: 4,
-            borderRadius: 3,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          {/* Header */}
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-              <AccountBalance sx={{ fontSize: 48, color: 'primary.main' }} />
-            </Box>
-            <Typography
-              variant="h4"
-              component="h1"
-              fontWeight="bold"
-              color="primary"
-            >
-              FinVision
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              color="text.secondary"
-              sx={{ mt: 1 }}
-            >
-              Financial Modeling & Analysis Platform
-            </Typography>
-          </Box>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
+      <div className="w-full max-w-md">
+        <Card className="bg-card/95 backdrop-blur-md border-border/20 shadow-2xl">
+          <div className="p-6 pb-6 text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="p-3 rounded-full bg-primary/10">
+                <TrendingUp className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">
+                FinVision
+              </h1>
+              <p className="text-muted-foreground">
+                Financial Modeling & Analysis Platform
+              </p>
+            </div>
+          </div>
 
-          <Divider sx={{ mb: 3 }} />
-
-          <form onSubmit={formik.handleSubmit}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 3 }}>
-                {error}
-              </Alert>
-            )}
-
-            <TextField
-              fullWidth
-              id="email"
-              name="email"
-              label="Email Address"
-              variant="outlined"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.email && Boolean(formik.errors.email)}
-              helperText={formik.touched.email && formik.errors.email}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 3 }}
-              autoComplete="email"
-              autoFocus
-            />
-
-            <TextField
-              fullWidth
-              id="password"
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              variant="outlined"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.password && Boolean(formik.errors.password)}
-              helperText={formik.touched.password && formik.errors.password}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Lock color="action" />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 2 }}
-              autoComplete="current-password"
-            />
-
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 3,
-              }}
-            >
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="rememberMe"
-                    checked={formik.values.rememberMe}
-                    onChange={formik.handleChange}
-                    color="primary"
-                  />
-                }
-                label="Remember me"
-              />
-              <Link
-                component={RouterLink}
-                to="/forgot-password"
-                variant="body2"
-                color="primary"
-                sx={{
-                  textDecoration: 'none',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-              >
-                Forgot password?
-              </Link>
-            </Box>
-
-            <Button
-              color="primary"
-              variant="contained"
-              fullWidth
-              type="submit"
-              disabled={isLoading}
-              sx={{
-                mb: 3,
-                py: 1.5,
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                borderRadius: 2,
-                textTransform: 'none',
-              }}
-            >
-              {isLoading ? (
-                <>
-                  <CircularProgress size={20} sx={{ mr: 1 }} />
-                  Signing In...
-                </>
-              ) : (
-                'Sign In'
+          <CardContent className="space-y-6 pt-0">
+            <form onSubmit={formik.handleSubmit} className="space-y-4">
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  {error}
+                </div>
               )}
-            </Button>
 
-            <Divider sx={{ mb: 3 }}>
-              <Typography variant="body2" color="text.secondary">
-                or
-              </Typography>
-            </Divider>
+              <div className="space-y-2">
+                <Label htmlFor="email" required>
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.email && Boolean(formik.errors.email)}
+                    helperText={
+                      formik.touched.email ? formik.errors.email : undefined
+                    }
+                    autoComplete="email"
+                    autoFocus
+                    className="pl-9"
+                  />
+                </div>
+              </div>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                Don't have an account?{' '}
-                <Link
-                  component={RouterLink}
-                  to="/register"
-                  color="primary"
-                  sx={{ fontWeight: 'bold', textDecoration: 'none' }}
+              <div className="space-y-2">
+                <Label htmlFor="password" required>
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.password && Boolean(formik.errors.password)
+                    }
+                    helperText={
+                      formik.touched.password
+                        ? formik.errors.password
+                        : undefined
+                    }
+                    autoComplete="current-password"
+                    className="pl-9 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleClickShowPassword}
+                    className="absolute right-3 top-[10px] text-muted-foreground hover:text-foreground transition-colors z-10"
+                    aria-label="toggle password visibility"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="rememberMe"
+                    checked={formik.values.rememberMe}
+                    onCheckedChange={checked =>
+                      formik.setFieldValue('rememberMe', checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="rememberMe"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Remember me
+                  </Label>
+                </div>
+                <RouterLink
+                  to="/forgot-password"
+                  className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors"
                 >
-                  Sign up here
-                </Link>
-              </Typography>
-            </Box>
-          </form>
-        </Paper>
+                  Forgot password?
+                </RouterLink>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full"
+                size="lg"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </Button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-4 py-1 text-muted-foreground">or</span>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{' '}
+                  <RouterLink
+                    to="/register"
+                    className="font-medium text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    Sign up here
+                  </RouterLink>
+                </p>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
         {/* Footer */}
-        <Box sx={{ textAlign: 'center', mt: 3 }}>
-          <Typography variant="body2" color="rgba(255, 255, 255, 0.8)">
+        <div className="text-center mt-6">
+          <p className="text-sm text-white/80">
             © 2024 FinVision. All rights reserved.
-          </Typography>
-        </Box>
-      </Container>
-    </Box>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,36 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import {
-  Box,
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Link,
-  Alert,
-  CircularProgress,
-  Divider,
-  IconButton,
-  InputAdornment,
-  Paper,
-  LinearProgress,
-  Chip,
-  Grid,
-} from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  Email,
-  Lock,
-  Person,
-  AccountBalance,
-  Check,
-  Clear,
-} from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { checkPasswordStrength } from '../services/authApi';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+  TrendingUp,
+  Loader2,
+  AlertCircle,
+  Check,
+  X,
+} from 'lucide-react';
 
 const validationSchema = yup.object({
   email: yup
@@ -168,300 +157,289 @@ const Register: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: 2,
-      }}
-    >
-      <Container maxWidth="md">
-        <Paper
-          elevation={24}
-          sx={{
-            padding: 4,
-            borderRadius: 3,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          {/* Header */}
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-              <AccountBalance sx={{ fontSize: 48, color: 'primary.main' }} />
-            </Box>
-            <Typography
-              variant="h4"
-              component="h1"
-              fontWeight="bold"
-              color="primary"
-            >
-              Join FinVision
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              color="text.secondary"
-              sx={{ mt: 1 }}
-            >
-              Create your account to start financial modeling
-            </Typography>
-          </Box>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
+      <div className="w-full max-w-2xl">
+        <Card className="bg-card/95 backdrop-blur-md border-border/20 shadow-2xl">
+          <div className="p-6 pb-6 text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="p-3 rounded-full bg-primary/10">
+                <TrendingUp className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">
+                Join FinVision
+              </h1>
+              <p className="text-muted-foreground">
+                Create your account to start financial modeling
+              </p>
+            </div>
+          </div>
 
-          <Divider sx={{ mb: 3 }} />
+          <CardContent className="space-y-6 pt-0">
+            <form onSubmit={formik.handleSubmit} className="space-y-4">
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  {error}
+                </div>
+              )}
 
-          <form onSubmit={formik.handleSubmit}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 3 }}>
-                {error}
-              </Alert>
-            )}
+              {success && (
+                <div className="flex items-center gap-2 p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
+                  <Check className="h-4 w-4" />
+                  {success}
+                </div>
+              )}
 
-            {success && (
-              <Alert severity="success" sx={{ mb: 3 }}>
-                {success}
-              </Alert>
-            )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first_name" required>
+                    First Name
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                    <Input
+                      id="first_name"
+                      name="first_name"
+                      placeholder="Enter your first name"
+                      value={formik.values.first_name}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.first_name &&
+                        Boolean(formik.errors.first_name)
+                      }
+                      helperText={
+                        formik.touched.first_name
+                          ? formik.errors.first_name
+                          : undefined
+                      }
+                      autoComplete="given-name"
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
 
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  id="first_name"
-                  name="first_name"
-                  label="First Name"
-                  variant="outlined"
-                  value={formik.values.first_name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.first_name &&
-                    Boolean(formik.errors.first_name)
-                  }
-                  helperText={
-                    formik.touched.first_name && formik.errors.first_name
-                  }
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  autoComplete="given-name"
-                />
-              </Grid>
+                <div className="space-y-2">
+                  <Label htmlFor="last_name" required>
+                    Last Name
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                    <Input
+                      id="last_name"
+                      name="last_name"
+                      placeholder="Enter your last name"
+                      value={formik.values.last_name}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.last_name &&
+                        Boolean(formik.errors.last_name)
+                      }
+                      helperText={
+                        formik.touched.last_name
+                          ? formik.errors.last_name
+                          : undefined
+                      }
+                      autoComplete="family-name"
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  id="last_name"
-                  name="last_name"
-                  label="Last Name"
-                  variant="outlined"
-                  value={formik.values.last_name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.last_name && Boolean(formik.errors.last_name)
-                  }
-                  helperText={
-                    formik.touched.last_name && formik.errors.last_name
-                  }
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  autoComplete="family-name"
-                />
-              </Grid>
+              <div className="space-y-2">
+                <Label htmlFor="email" required>
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.email && Boolean(formik.errors.email)}
+                    helperText={
+                      formik.touched.email ? formik.errors.email : undefined
+                    }
+                    autoComplete="email"
+                    className="pl-9"
+                  />
+                </div>
+              </div>
 
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="email"
-                  name="email"
-                  label="Email Address"
-                  variant="outlined"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.email && Boolean(formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Email color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  autoComplete="email"
-                />
-              </Grid>
+              <div className="space-y-2">
+                <Label htmlFor="username" required>
+                  Username
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                  <Input
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    value={formik.values.username}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.username && Boolean(formik.errors.username)
+                    }
+                    helperText={
+                      formik.touched.username ? formik.errors.username : undefined
+                    }
+                    autoComplete="username"
+                    className="pl-9"
+                  />
+                </div>
+              </div>
 
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="username"
-                  name="username"
-                  label="Username"
-                  variant="outlined"
-                  value={formik.values.username}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.username && Boolean(formik.errors.username)
-                  }
-                  helperText={formik.touched.username && formik.errors.username}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  autoComplete="username"
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="password"
-                  name="password"
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  variant="outlined"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.password && Boolean(formik.errors.password)
-                  }
-                  helperText={formik.touched.password && formik.errors.password}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Lock color="action" />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  autoComplete="new-password"
-                />
+              <div className="space-y-2">
+                <Label htmlFor="password" required>
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.password && Boolean(formik.errors.password)
+                    }
+                    helperText={
+                      formik.touched.password ? formik.errors.password : undefined
+                    }
+                    autoComplete="new-password"
+                    className="pl-9 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleClickShowPassword}
+                    className="absolute right-3 top-[10px] text-muted-foreground hover:text-foreground transition-colors z-10"
+                    aria-label="toggle password visibility"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
 
                 {/* Password Strength Indicator */}
                 {formik.values.password && (
-                  <Box sx={{ mt: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="body2" sx={{ mr: 2 }}>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
                         Password Strength:
-                      </Typography>
-                      <Chip
-                        label={passwordStrength.strength.toUpperCase()}
-                        color={getPasswordStrengthColor(
-                          passwordStrength.strength
-                        )}
-                        size="small"
+                      </span>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          passwordStrength.strength === 'strong'
+                            ? 'bg-green-100 text-green-800'
+                            : passwordStrength.strength === 'medium'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {passwordStrength.strength.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          passwordStrength.strength === 'strong'
+                            ? 'bg-green-500'
+                            : passwordStrength.strength === 'medium'
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500'
+                        }`}
+                        style={{
+                          width: `${(passwordStrength.score / 5) * 100}%`,
+                        }}
                       />
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={(passwordStrength.score / 5) * 100}
-                      color={getPasswordStrengthColor(
-                        passwordStrength.strength
-                      )}
-                      sx={{ height: 8, borderRadius: 4 }}
-                    />
-                    <Box
-                      sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}
-                    >
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
                       {Object.entries(passwordStrength.checks).map(
                         ([key, passed]) => (
-                          <Chip
+                          <span
                             key={key}
-                            label={key}
-                            size="small"
-                            icon={passed ? <Check /> : <Clear />}
-                            color={passed ? 'success' : 'default'}
-                            variant={passed ? 'filled' : 'outlined'}
-                          />
+                            className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
+                              passed
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            {passed ? (
+                              <Check className="h-3 w-3" />
+                            ) : (
+                              <X className="h-3 w-3" />
+                            )}
+                            {key}
+                          </span>
                         )
                       )}
-                    </Box>
-                  </Box>
+                    </div>
+                  </div>
                 )}
-              </Grid>
+              </div>
 
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  variant="outlined"
-                  value={formik.values.confirmPassword}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.confirmPassword &&
-                    Boolean(formik.errors.confirmPassword)
-                  }
-                  helperText={
-                    formik.touched.confirmPassword &&
-                    formik.errors.confirmPassword
-                  }
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Lock color="action" />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle confirm password visibility"
-                          onClick={handleClickShowConfirmPassword}
-                          edge="end"
-                        >
-                          {showConfirmPassword ? (
-                            <VisibilityOff />
-                          ) : (
-                            <Visibility />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  autoComplete="new-password"
-                />
-              </Grid>
-            </Grid>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" required>
+                  Confirm Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Confirm your password"
+                    value={formik.values.confirmPassword}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.confirmPassword &&
+                      Boolean(formik.errors.confirmPassword)
+                    }
+                    helperText={
+                      formik.touched.confirmPassword
+                        ? formik.errors.confirmPassword
+                        : undefined
+                    }
+                    autoComplete="new-password"
+                    className="pl-9 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleClickShowConfirmPassword}
+                    className="absolute right-3 top-[10px] text-muted-foreground hover:text-foreground transition-colors z-10"
+                    aria-label="toggle confirm password visibility"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
 
-            <Button
-              color="primary"
-              variant="contained"
-              fullWidth
-              type="submit"
-              disabled={isLoading || !passwordStrength.isValid}
-              sx={{
-                mt: 4,
+              <Button
+                type="submit"
+                disabled={isLoading || !passwordStrength.isValid}
+                className="w-full mt-6"
+                size="lg"
                 mb: 3,
                 py: 1.5,
                 fontSize: '1.1rem',
