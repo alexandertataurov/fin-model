@@ -1,96 +1,97 @@
-import React, { forwardRef } from 'react';
-import {
-  Button as MuiButton,
-  ButtonProps as MuiButtonProps,
-  CircularProgress,
-  Box,
-} from '@mui/material';
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/utils/cn';
+import { Loader2 } from 'lucide-react';
 
-export interface ButtonProps extends Omit<MuiButtonProps, 'size'> {
+const buttonVariants = cva(
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        default:
+          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
+        destructive:
+          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+        outline:
+          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
+        secondary:
+          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-10 px-4 py-2',
+        sm: 'h-8 rounded-md px-3 text-xs',
+        lg: 'h-12 rounded-md px-8',
+        icon: 'h-10 w-10',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
   loading?: boolean;
   loadingText?: string;
-  size?: 'small' | 'medium' | 'large';
   icon?: React.ReactNode;
-  fullWidth?: boolean;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      children,
+      className,
+      variant,
+      size,
+      asChild = false,
       loading = false,
       loadingText,
-      disabled,
-      variant = 'contained',
-      size = 'medium',
       icon,
       startIcon,
       endIcon,
+      children,
+      disabled,
       ...props
     },
     ref
   ) => {
+    const Comp = asChild ? Slot : 'button';
     const isDisabled = disabled || loading;
 
-    const sizeMap = {
-      small: { height: 32, minWidth: 64 },
-      medium: { height: 40, minWidth: 80 },
-      large: { height: 48, minWidth: 96 },
-    };
-
-    const buttonStyles = {
-      ...sizeMap[size],
-      position: 'relative' as const,
-      '&.Mui-disabled': {
-        opacity: loading ? 0.7 : 0.5,
-      },
-    };
-
-    const content = loading ? (loadingText || children) : children;
-
     return (
-      <MuiButton
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        variant={variant}
         disabled={isDisabled}
-        startIcon={loading ? undefined : startIcon || icon}
-        endIcon={loading ? undefined : endIcon}
-        sx={buttonStyles}
         {...props}
       >
-        {loading && (
-          <Box
-            sx={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <CircularProgress
-              size={16}
-              color="inherit"
-              sx={{
-                color: variant === 'contained' ? 'white' : 'primary.main',
-              }}
-            />
-          </Box>
-        )}
-        <Box
-          sx={{
-            opacity: loading ? 0 : 1,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-          }}
-        >
-          {content}
-        </Box>
-      </MuiButton>
+        <span className="inline-flex items-center gap-2">
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {loadingText || children}
+            </>
+          ) : (
+            <>
+              {startIcon || icon}
+              {children}
+              {endIcon}
+            </>
+          )}
+        </span>
+      </Comp>
     );
   }
 );
 
 Button.displayName = 'Button';
 
-export default Button; 
+export { Button, buttonVariants };
