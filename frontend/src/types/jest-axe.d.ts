@@ -1,5 +1,5 @@
 declare module 'jest-axe' {
-  export function configureAxe(options?: any): any;
-  export function axe(container: any, options?: any): Promise<any>;
-  export function toHaveNoViolations(): any;
-} 
+  export function configureAxe(options?: unknown): unknown;
+  export function axe(container: unknown, options?: unknown): Promise<unknown>;
+  export function toHaveNoViolations(): unknown;
+}

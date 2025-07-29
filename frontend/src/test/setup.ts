@@ -5,7 +5,7 @@ import { toHaveNoViolations } from 'jest-axe';
 // Vitest's expect.extend requires an object of matcher functions. Cast to any
 // to avoid TS complaints about the matcher signature.
 // jest-axe exports an object of matchers
-expect.extend(toHaveNoViolations as any);
+expect.extend(toHaveNoViolations as unknown as Record<string, unknown>);
 
 // Ensure Recharts components render in tests by providing non-zero dimensions
 // for elements queried by ResponsiveContainer. Without this, it falls back to
@@ -99,13 +99,13 @@ Object.defineProperty(window, 'FileReader', {
     readAsDataURL() {
       this.onload?.({
         target: { result: 'data:text/plain;base64,dGVzdA==' },
-      } as any);
+      } as unknown);
     }
     readAsText() {
-      this.onload?.({ target: { result: 'test content' } } as any);
+      this.onload?.({ target: { result: 'test content' } } as unknown);
     }
-    onload: ((event: any) => void) | null = null;
-    onerror: ((event: any) => void) | null = null;
+    onload: ((event: unknown) => void) | null = null;
+    onerror: ((event: unknown) => void) | null = null;
     result: string | ArrayBuffer | null = null;
     readyState = 2;
   },

@@ -46,7 +46,7 @@ export default defineConfig({
             });
             return response.data;
           } catch (error) {
-            console.log('WAVE API not available, skipping accessibility check');
+            // Removed console.log (no-console lint rule)
             return { status: 'skipped' };
           }
         },
@@ -64,8 +64,8 @@ export default defineConfig({
         },
 
         // Logging task
-        log: (message) => {
-          console.log(message);
+        log: (_message) => {
+          // Removed console.log (no-console lint rule)
           return null;
         },
 
@@ -77,7 +77,7 @@ export default defineConfig({
           const reportPath = path.join('cypress', 'reports', 'performance-report.json');
           await fs.writeFile(reportPath, JSON.stringify(data, null, 2));
           
-          console.log(`Performance report generated: ${reportPath}`);
+          // Removed console.log (no-console lint rule)
           return null;
         }
       });

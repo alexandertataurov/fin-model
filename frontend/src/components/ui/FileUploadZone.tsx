@@ -106,7 +106,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     disabled: disabled || uploading,
   });
 
-  const handleUpload = async (filesToUpload: FileUploadFile[]) => {
+  const handleUpload = useCallback(async (filesToUpload: FileUploadFile[]) => {
     if (!onUpload) return;
 
     setUploading(true);
@@ -143,7 +143,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     } finally {
       setUploading(false);
     }
-  };
+  }, [onUpload, onFilesChange]);
 
   const handleRemoveFile = (fileId: string) => {
     const updatedFiles = files.filter(file => file.id !== fileId);
