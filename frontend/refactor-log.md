@@ -9,6 +9,8 @@
   `ScenarioModeling`) and `BarChart` defaults
 - replaced hex colors in design tab components (`PLTab`, `CashFlowTab`, `SalesTab`, `ParametersTab`)
 - meta theme-color now reads from CSS variable
+- replaced inline colors in `FileUploadDropzone` and `AnalyticsDashboard`
+- mapped sensitivity colors in `ParameterEditor` to design tokens
 
 ### Pending
 - consolidate UI directories into one

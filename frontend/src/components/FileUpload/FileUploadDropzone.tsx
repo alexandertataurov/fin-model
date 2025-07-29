@@ -173,18 +173,19 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   };
 
   const getDropzoneStyles = () => {
-    let borderColor = '#cccccc';
-    let backgroundColor = '#fafafa';
+    // DESIGN_FIX: replace hard-coded colors with design tokens
+    let borderColor = 'var(--border)';
+    let backgroundColor = 'var(--input-background)';
 
     if (isDragAccept) {
-      borderColor = '#4caf50';
-      backgroundColor = '#f1f8e9';
+      borderColor = 'var(--chart-2)';
+      backgroundColor = 'var(--muted)';
     } else if (isDragReject) {
-      borderColor = '#f44336';
-      backgroundColor = '#ffebee';
+      borderColor = 'var(--destructive)';
+      backgroundColor = 'var(--muted)';
     } else if (isDragActive) {
-      borderColor = '#2196f3';
-      backgroundColor = '#e3f2fd';
+      borderColor = 'var(--accent)';
+      backgroundColor = 'var(--muted)';
     }
 
     return {
@@ -192,7 +193,8 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       backgroundColor,
       borderWidth: 2,
       borderStyle: 'dashed',
-      borderRadius: '8px',
+      // DESIGN_FIX: use radius token
+      borderRadius: 'var(--radius-lg)',
       padding: '40px 20px',
       textAlign: 'center' as const,
       cursor: isUploading ? 'not-allowed' : 'pointer',
@@ -233,7 +235,14 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       <Paper elevation={1} sx={getDropzoneStyles()}>
         <div data-testid="dropzone" {...getRootProps()}>
           <input aria-label="file input" data-testid="file-input" {...getInputProps()} />
-          <CloudUpload sx={{ fontSize: 48, color: '#666', mb: 2 }} />
+          <CloudUpload
+            sx={{
+              fontSize: 48,
+              // DESIGN_FIX: use muted foreground token
+              color: 'var(--muted-foreground)',
+              mb: 2,
+            }}
+          />
           
           {isDragActive ? (
             isDragAccept ? (
