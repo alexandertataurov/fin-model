@@ -2,8 +2,6 @@ import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider as CustomThemeProvider } from '../contexts/ThemeContext';
 import { vi } from 'vitest';
 
@@ -32,20 +30,6 @@ vi.mock('../contexts/AuthContext', async () => {
       isAuthenticated: false,
     }),
   };
-});
-import { createTheme } from '@mui/material/styles';
-
-// Create a test theme
-const testTheme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
 });
 
 // Create a new QueryClient for each test
@@ -96,12 +80,7 @@ const AllTheProviders: React.FC<ProviderProps> = ({
 }) => {
   const content = (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={testTheme}>
-        <CustomThemeProvider>
-          <CssBaseline />
-          {children}
-        </CustomThemeProvider>
-      </ThemeProvider>
+      <CustomThemeProvider>{children}</CustomThemeProvider>
     </QueryClientProvider>
   );
 
