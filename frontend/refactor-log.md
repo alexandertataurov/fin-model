@@ -9,9 +9,9 @@
   `ScenarioModeling`) and `BarChart` defaults
 - replaced hex colors in design tab components (`PLTab`, `CashFlowTab`, `SalesTab`, `ParametersTab`)
 - meta theme-color now reads from CSS variable
+- replaced hard-coded chart colors in `AnalyticsDashboard`, `LineChart`, and `PieChart`
 
 ### Pending
 - consolidate UI directories into one
 - unify theme providers
 - continue replacing hard-coded colors across legacy components
-
