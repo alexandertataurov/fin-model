@@ -293,8 +293,9 @@ export function ParametersTab() {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
-                  <Line type="monotone" dataKey="netProfit" stroke="#82ca9d" strokeWidth={2} />
+                  {/* DESIGN_FIX: use chart color tokens */}
+                  <Line type="monotone" dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2} />
+                  <Line type="monotone" dataKey="netProfit" stroke="var(--chart-2)" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

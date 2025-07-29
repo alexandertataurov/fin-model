@@ -7,6 +7,8 @@
 - updated scrollbar and background styles in `src/index.css`
 - replaced hex colors in pages (`PLDashboard`, `CashFlowDashboard`, `Dashboard`,
   `ScenarioModeling`) and `BarChart` defaults
+- replaced hex colors in design tab components (`PLTab`, `CashFlowTab`, `SalesTab`, `ParametersTab`)
+- meta theme-color now reads from CSS variable
 
 ### Pending
 - consolidate UI directories into one

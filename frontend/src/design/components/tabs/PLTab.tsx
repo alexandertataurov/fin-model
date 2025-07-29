@@ -13,12 +13,13 @@ const revenueData = [
   { month: 'Jun', revenue: 67000, expenses: 42000, profit: 25000 },
 ]
 
+// DESIGN_FIX: replace hex colors with design system tokens
 const expenseData = [
-  { name: 'Salaries', value: 45000, color: '#8884d8' },
-  { name: 'Marketing', value: 15000, color: '#82ca9d' },
-  { name: 'Operations', value: 12000, color: '#ffc658' },
-  { name: 'Technology', value: 8000, color: '#ff7300' },
-  { name: 'Other', value: 5000, color: '#0088fe' },
+  { name: 'Salaries', value: 45000, color: 'var(--chart-1)' },
+  { name: 'Marketing', value: 15000, color: 'var(--chart-2)' },
+  { name: 'Operations', value: 12000, color: 'var(--chart-3)' },
+  { name: 'Technology', value: 8000, color: 'var(--chart-4)' },
+  { name: 'Other', value: 5000, color: 'var(--chart-5)' },
 ]
 
 export function PLTab() {
@@ -107,8 +108,9 @@ export function PLTab() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
-                <Line type="monotone" dataKey="profit" stroke="#82ca9d" strokeWidth={2} />
+                {/* DESIGN_FIX: use chart color tokens */}
+                <Line type="monotone" dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2} />
+                <Line type="monotone" dataKey="profit" stroke="var(--chart-2)" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </DraggableWidget>
@@ -155,8 +157,9 @@ export function PLTab() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="revenue" fill="#8884d8" />
-                <Bar dataKey="expenses" fill="#82ca9d" />
+                {/* DESIGN_FIX: use chart color tokens */}
+                <Bar dataKey="revenue" fill="var(--chart-1)" />
+                <Bar dataKey="expenses" fill="var(--chart-2)" />
               </BarChart>
             </ResponsiveContainer>
           </DraggableWidget>
