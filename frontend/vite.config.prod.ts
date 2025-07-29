@@ -35,7 +35,6 @@ export default defineConfig(({ mode }) => {
             vendor: ['react', 'react-dom'],
             mui: ['@mui/material', '@mui/icons-material'],
             ui: [
-              'lucide-react',
               '@radix-ui/react-accessible-icon',
               '@radix-ui/react-accordion',
               '@radix-ui/react-alert-dialog',
