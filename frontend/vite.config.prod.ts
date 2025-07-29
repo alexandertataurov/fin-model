@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
       minify: 'esbuild',
       // Bundle everything for deployment - simpler but larger bundle
       rollupOptions: {
-        external: ['lucide-react'],
+        external: ['lucide-react', '@radix-ui/react-slot'],
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],
