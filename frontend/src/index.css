@@ -1,5 +1,7 @@
-/* Import external library styles */
-/* React Grid Layout styles - using CDN or handled by bundler */
+/* Import Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* CSS Reset and Base Styles */
 *,
