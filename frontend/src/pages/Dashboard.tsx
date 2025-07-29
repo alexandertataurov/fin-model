@@ -4,8 +4,6 @@ import {
   Box,
   Typography,
   Grid,
-  Paper,
-
   Chip,
 } from '@mui/material';
 import {
@@ -79,15 +77,15 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
             />
           )}
         </Box>
-        
+
         <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 1 }}>
           {title}
         </Typography>
-        
+
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {subtitle}
         </Typography>
-        
+
         <Box sx={{ display: 'flex', alignItems: 'center', color: color }}>
           <Typography variant="caption" sx={{ fontWeight: 600 }}>
             Open Dashboard
@@ -166,65 +164,46 @@ const Dashboard = () => {
       </Box>
 
       {/* Quick Actions */}
-      <Paper sx={{ p: 3, mb: 4, backgroundColor: 'primary.main', color: 'primary.contrastText' }}>
+      {/* DESIGN_FIX: replaced Paper with Card and removed inline colors */}
+      <Card className="mb-4 bg-primary text-primary-foreground p-3" hover={false}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
           Quick Actions
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
-            variant="contained"
+            variant="secondary"
             startIcon={<CloudUpload />}
             onClick={() => navigate('/files')}
-            sx={{
-              backgroundColor: 'white',
-              color: 'primary.main',
-              '&:hover': {
-                backgroundColor: 'grey.100',
-              },
-            }}
+            className="bg-background text-primary hover:bg-muted"
           >
             Upload Financial Model
           </Button>
           <Button
-            variant="outlined"
+            variant="outline"
             startIcon={<TrendingUp />}
             onClick={() => navigate('/dashboards/pl')}
-            sx={{
-              borderColor: 'white',
-              color: 'white',
-              '&:hover': {
-                borderColor: 'white',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              },
-            }}
+            className="border-border text-primary-foreground hover:bg-primary/10"
           >
             View P&L Dashboard
           </Button>
           {hasAnalystAccess && (
             <Button
-              variant="outlined"
+              variant="outline"
               startIcon={<Timeline />}
               onClick={() => navigate('/scenarios')}
-              sx={{
-                borderColor: 'white',
-                color: 'white',
-                '&:hover': {
-                  borderColor: 'white',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                },
-              }}
+              className="border-border text-primary-foreground hover:bg-primary/10"
             >
               Scenario Modeling
             </Button>
           )}
         </Box>
-      </Paper>
+      </Card>
 
       {/* Dashboard Cards */}
       <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 3 }}>
         Dashboards & Tools
       </Typography>
-      
+
       <Grid container spacing={3}>
         {dashboardCards.map((card) => (
           <Grid item xs={12} sm={6} md={4} key={card.title}>
@@ -245,90 +224,46 @@ const Dashboard = () => {
         <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 3 }}>
           Getting Started
         </Typography>
-        
+
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Card title="Steps to Get Started">
               <Box sx={{ '& > *': { mb: 2 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: 'primary.main',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 600,
-                    }}
-                  >
+                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                     1
-                  </Box>
+                  </div>
                   <Typography>Upload your Excel financial model files</Typography>
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: 'primary.main',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 600,
-                    }}
-                  >
+                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                     2
-                  </Box>
+                  </div>
                   <Typography>Review and validate extracted parameters</Typography>
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: 'primary.main',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 600,
-                    }}
-                  >
+                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                     3
-                  </Box>
+                  </div>
                   <Typography>Explore interactive dashboards and visualizations</Typography>
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: 'primary.main',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 600,
-                    }}
-                  >
+                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                     4
-                  </Box>
+                  </div>
                   <Typography>Generate and export comprehensive reports</Typography>
                 </Box>
               </Box>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} md={4}>
             <Card title="Need Help?">
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>

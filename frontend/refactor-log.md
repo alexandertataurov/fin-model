@@ -9,9 +9,10 @@
   `ScenarioModeling`) and `BarChart` defaults
 - replaced hex colors in design tab components (`PLTab`, `CashFlowTab`, `SalesTab`, `ParametersTab`)
 - meta theme-color now reads from CSS variable
+- replaced quick actions container with Card and utility classes
+- updated Register page footer color token
 
 ### Pending
 - consolidate UI directories into one
 - unify theme providers
 - continue replacing hard-coded colors across legacy components
-
