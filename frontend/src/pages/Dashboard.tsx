@@ -171,7 +171,7 @@ const Dashboard = () => {
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
-            variant="secondary"
+            variant="default"
             startIcon={<CloudUpload />}
             onClick={() => navigate('/files')}
             className="bg-background text-primary hover:bg-muted"
@@ -269,7 +269,7 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Get started quickly with our documentation and support resources.
               </Typography>
-              <Button variant="outlined" fullWidth>
+              <Button variant="outline" fullWidth>
                 View Documentation
               </Button>
             </Card>

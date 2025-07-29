@@ -129,7 +129,7 @@ describe('FileUploadDropzone', () => {
 
   it('shows upload progress', async () => {
     const onUploadComplete = vi.fn();
-    let uploadResolve: (value: unknown) => void;
+    let uploadResolve: (value: unknown) => void = vi.fn();
     const uploadPromise = new Promise(resolve => {
       uploadResolve = resolve;
     });

@@ -57,6 +57,45 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   const [files, setFiles] = useState<FileUploadFile[]>([]);
   const [uploading, setUploading] = useState(false);
 
+  const handleUpload = useCallback(async (filesToUpload: FileUploadFile[]) => {
+    if (!onUpload) return;
+
+    setUploading(true);
+
+    try {
+      // Update files to uploading status
+      const uploadingFiles = filesToUpload.map(file => ({
+        ...file,
+        status: 'uploading' as const,
+        progress: 0,
+      }));
+      setFiles(uploadingFiles);
+      onFilesChange?.(uploadingFiles);
+
+      await onUpload(uploadingFiles);
+
+      // Update to success status
+      const successFiles = uploadingFiles.map(file => ({
+        ...file,
+        status: 'success' as const,
+        progress: 100,
+      }));
+      setFiles(successFiles);
+      onFilesChange?.(successFiles);
+    } catch (error) {
+      // Update to error status
+      const errorFiles = filesToUpload.map(file => ({
+        ...file,
+        status: 'error' as const,
+        error: error instanceof Error ? error.message : 'Upload failed',
+      }));
+      setFiles(errorFiles);
+      onFilesChange?.(errorFiles);
+    } finally {
+      setUploading(false);
+    }
+  }, [onUpload, onFilesChange]);
+
   const onDrop = useCallback(
     (acceptedFiles: File[], _rejectedFiles: FileRejection[]) => {
       const newFiles: FileUploadFile[] = acceptedFiles.map(file => ({
@@ -106,44 +145,6 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     disabled: disabled || uploading,
   });
 
-  const handleUpload = useCallback(async (filesToUpload: FileUploadFile[]) => {
-    if (!onUpload) return;
-
-    setUploading(true);
-
-    try {
-      // Update files to uploading status
-      const uploadingFiles = filesToUpload.map(file => ({
-        ...file,
-        status: 'uploading' as const,
-        progress: 0,
-      }));
-      setFiles(uploadingFiles);
-      onFilesChange?.(uploadingFiles);
-
-      await onUpload(uploadingFiles);
-
-      // Update to success status
-      const successFiles = uploadingFiles.map(file => ({
-        ...file,
-        status: 'success' as const,
-        progress: 100,
-      }));
-      setFiles(successFiles);
-      onFilesChange?.(successFiles);
-    } catch (error) {
-      // Update to error status
-      const errorFiles = filesToUpload.map(file => ({
-        ...file,
-        status: 'error' as const,
-        error: error instanceof Error ? error.message : 'Upload failed',
-      }));
-      setFiles(errorFiles);
-      onFilesChange?.(errorFiles);
-    } finally {
-      setUploading(false);
-    }
-  }, [onUpload, onFilesChange]);
 
   const handleRemoveFile = (fileId: string) => {
     const updatedFiles = files.filter(file => file.id !== fileId);
@@ -281,8 +282,8 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
             <Box sx={{ display: 'flex', gap: 1 }}>
               {canUpload && (
                 <Button
-                  variant="contained"
-                  size="small"
+                  variant="default"
+                  size="sm"
                   onClick={() => handleUpload(pendingFiles)}
                   loading={uploading}
                   startIcon={<CloudUpload />}
@@ -293,8 +294,8 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
               )}
 
               <Button
-                variant="outlined"
-                size="small"
+                variant="outline"
+                size="sm"
                 onClick={handleClearAll}
                 disabled={uploading}
               >

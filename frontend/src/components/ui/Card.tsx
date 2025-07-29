@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { cn } from '@/utils/cn';
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & {
-    hover?: boolean;
-    interactive?: boolean;
-  }
->(({ className, hover, interactive, ...props }, ref) => (
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  hover?: boolean;
+  interactive?: boolean;
+  sx?: Record<string, unknown>;
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, hover, interactive, sx, ...props }, ref) => (
   <div
     ref={ref}
     data-slot="card"
@@ -21,6 +22,7 @@ const Card = React.forwardRef<
         'cursor-pointer focus-visible:ring-ring/50 focus-visible:outline-none focus-visible:ring-[3px]',
       className
     )}
+    style={sx}
     {...props}
   />
 ));
@@ -83,12 +85,13 @@ CardDescription.displayName = 'CardDescription';
 
 const CardContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & { sx?: Record<string, unknown> }
+>(({ className, sx, ...props }, ref) => (
   <div
     ref={ref}
     data-slot="card-content"
     className={cn('p-6 pt-0', className)}
+    style={sx}
     {...props}
   />
 ));
