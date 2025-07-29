@@ -147,7 +147,7 @@ describe('FileUploadDropzone', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
     // Complete upload
-    uploadResolve!(mockApiResponses.files[0]);
+    uploadResolve?.(mockApiResponses.files[0]);
 
     await waitFor(() => {
       expect(screen.queryByText(/uploading/i)).not.toBeInTheDocument();

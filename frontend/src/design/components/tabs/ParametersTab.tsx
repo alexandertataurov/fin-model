@@ -89,7 +89,7 @@ export function ParametersTab() {
 
   const saveScenario = () => {
     // In a real app, this would save to backend
-    console.log('Saving scenario:', parameters)
+    // Removed console.log (no-console lint rule)
   }
 
   return (

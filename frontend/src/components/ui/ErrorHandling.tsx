@@ -58,7 +58,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     });
 
     // Log error
-    console.error('Error caught by boundary:', error, errorInfo);
+    // Removed console.error (no-console lint rule)
     
     // Call optional error handler
     this.props.onError?.(error, errorInfo);

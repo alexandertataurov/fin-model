@@ -26,7 +26,7 @@ describe('Performance Tests', () => {
       // Dashboard should render within 400ms in CI environments
       expect(renderTime).toBeLessThan(400);
 
-      console.log(`Dashboard render time: ${renderTime.toFixed(2)}ms`);
+      // Removed console.log (no-console lint rule)
     });
 
     it('should render FileUpload component quickly', () => {
@@ -44,7 +44,7 @@ describe('Performance Tests', () => {
       // FileUpload should render quickly in CI environments
       expect(renderTime).toBeLessThan(250);
 
-      console.log(`FileUpload render time: ${renderTime.toFixed(2)}ms`);
+      // Removed console.log (no-console lint rule)
     });
 
     it('should render charts efficiently with large datasets', () => {
@@ -68,9 +68,7 @@ describe('Performance Tests', () => {
       // Chart with 1000 data points should render within 700ms
       expect(renderTime).toBeLessThan(700);
 
-      console.log(
-        `Chart render time (1000 points): ${renderTime.toFixed(2)}ms`
-      );
+      // Removed console.log (no-console lint rule)
     });
 
     it('should handle rapid re-renders efficiently', () => {
@@ -91,13 +89,13 @@ describe('Performance Tests', () => {
       // 10 re-renders should complete within 100ms
       expect(rerenderTime).toBeLessThan(100);
 
-      console.log(`10 re-renders time: ${rerenderTime.toFixed(2)}ms`);
+      // Removed console.log (no-console lint rule)
     });
   });
 
   describe('Memory Usage', () => {
     it('should not leak memory during multiple renders', () => {
-      const initialMemory = (performance as any).memory?.usedJSHeapSize || 0;
+      const initialMemory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize || 0;
 
       // Render and unmount components multiple times
       for (let i = 0; i < 50; i++) {
@@ -116,19 +114,13 @@ describe('Performance Tests', () => {
         global.gc();
       }
 
-      const finalMemory = (performance as any).memory?.usedJSHeapSize || 0;
+      const finalMemory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize || 0;
       const memoryIncrease = finalMemory - initialMemory;
 
       // Memory increase should be reasonable (less than 10MB)
       expect(memoryIncrease).toBeLessThan(10 * 1024 * 1024);
 
-      console.log(
-        `Memory increase after 50 renders: ${(
-          memoryIncrease /
-          1024 /
-          1024
-        ).toFixed(2)}MB`
-      );
+      // Removed console.log (no-console lint rule)
     });
 
     it('should clean up event listeners properly', () => {
@@ -168,10 +160,10 @@ describe('Performance Tests', () => {
         Charts: 25.3,
       };
 
-      Object.entries(componentSizes).forEach(([component, size]) => {
+      Object.entries(componentSizes).forEach(([_component, size]) => {
         // Components should not exceed reasonable size limits
         expect(size).toBeLessThan(30); // 30KB limit
-        console.log(`${component} bundle size: ${size}KB`);
+        // Removed console.log (no-console lint rule)
       });
     });
 
@@ -188,7 +180,7 @@ describe('Performance Tests', () => {
       // Lazy loading should be fast
       expect(loadTime).toBeLessThan(50);
 
-      console.log(`Lazy component load time: ${loadTime.toFixed(2)}ms`);
+      // Removed console.log (no-console lint rule)
     });
   });
 
@@ -211,7 +203,7 @@ describe('Performance Tests', () => {
           // Average frame time should be close to 16.67ms (60fps)
           expect(avgFrameTime).toBeLessThan(20);
 
-          console.log(`Average frame time: ${avgFrameTime.toFixed(2)}ms`);
+          // Removed console.log (no-console lint rule)
         }
       };
 
@@ -249,9 +241,7 @@ describe('Performance Tests', () => {
       expect(processingTime).toBeLessThan(200);
       expect(processed.length).toBeLessThanOrEqual(100);
 
-      console.log(
-        `Data processing time (10k items): ${processingTime.toFixed(2)}ms`
-      );
+      // Removed console.log (no-console lint rule)
     });
 
     it('should handle real-time data updates efficiently', () => {
@@ -276,7 +266,7 @@ describe('Performance Tests', () => {
           // Average update processing should be fast
           expect(avgUpdateTime).toBeLessThan(12);
 
-          console.log(`Average update time: ${avgUpdateTime.toFixed(2)}ms`);
+          // Removed console.log (no-console lint rule)
         }
       }, 10);
     });
@@ -303,7 +293,7 @@ describe('Performance Tests', () => {
       expect(waitTime).toBeGreaterThan(1900);
       expect(waitTime).toBeLessThan(2200);
 
-      console.log(`Slow network simulation time: ${waitTime.toFixed(2)}ms`);
+      // Removed console.log (no-console lint rule)
     });
 
     it('should handle network errors without performance degradation', () => {
@@ -319,7 +309,7 @@ describe('Performance Tests', () => {
 
         expect(errorHandlingTime).toBeLessThan(5);
 
-        console.log(`Error handling time: ${errorHandlingTime.toFixed(2)}ms`);
+        // Removed console.log (no-console lint rule)
       }
     });
   });
@@ -344,9 +334,7 @@ describe('Performance Tests', () => {
       // Accessibility features should not significantly impact performance
       expect(renderTime).toBeLessThan(120); // Slight increase from base 100ms
 
-      console.log(
-        `Accessible component render time: ${renderTime.toFixed(2)}ms`
-      );
+      // Removed console.log (no-console lint rule)
     });
   });
 });
@@ -366,7 +354,8 @@ export class PerformanceMonitor {
         this.metrics.set(label, []);
       }
 
-      this.metrics.get(label)!.push(duration);
+      const metric = this.metrics.get(label);
+      metric?.push(duration);
     };
   }
 
@@ -391,7 +380,7 @@ export class PerformanceMonitor {
   }
 
   getAllStats() {
-    const allStats: Record<string, any> = {};
+    const allStats: Record<string, unknown> = {};
 
     for (const [label] of this.metrics) {
       allStats[label] = this.getStats(label);
