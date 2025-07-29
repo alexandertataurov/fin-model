@@ -96,3 +96,14 @@ frontend/src/pages/NewDashboard.tsx
 3. **Week 3**: Refactor pages to use the consolidated components.
 4. **Week 4**: Document components and publish Storybook.
 
+## 8. Progress Tracker
+
+| Task | Status | Notes |
+| ---- | ------ | ----- |
+| FR1 Merge globals | [ ] | |
+| FR2 Single cn utility | [ ] | |
+| FR3 Consolidate UI directory | [ ] | |
+| FR4 One theme provider | [ ] | |
+| FR5 Replace hex colors with variables | [ ] | |
+| FR6 Update page imports | [ ] | |
+| FR7 Document components | [ ] | |
