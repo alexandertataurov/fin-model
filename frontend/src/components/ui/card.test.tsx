@@ -1,4 +1,6 @@
+import * as React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   Card,
   CardHeader,
@@ -9,95 +11,132 @@ import {
 } from './card';
 
 describe('Card', () => {
-  it('renders basic card correctly', () => {
-    render(<Card>Card content</Card>);
-    expect(screen.getByText('Card content')).toBeInTheDocument();
-  });
-
-  it('applies hover effect when hover prop is true', () => {
-    render(<Card hover>Card content</Card>);
-    const card = screen.getByText('Card content').parentElement;
-    expect(card).toHaveClass('hover:-translate-y-0.5', 'hover:shadow-md');
-  });
-
-  it('renders card header with title and description', () => {
+  it('renders all card components with correct data-slots', () => {
     render(
       <Card>
         <CardHeader>
           <CardTitle>Card Title</CardTitle>
           <CardDescription>Card Description</CardDescription>
         </CardHeader>
+        <CardContent>Card Content</CardContent>
+        <CardFooter>Card Footer</CardFooter>
       </Card>
     );
 
-    expect(screen.getByText('Card Title')).toBeInTheDocument();
-    expect(screen.getByText('Card Description')).toBeInTheDocument();
+    expect(screen.getByText('Card Title').closest('[data-slot="card"]')).toBeInTheDocument();
+    expect(screen.getByText('Card Title').closest('[data-slot="card-header"]')).toBeInTheDocument();
+    expect(screen.getByText('Card Title')).toHaveAttribute('data-slot', 'card-title');
+    expect(screen.getByText('Card Description')).toHaveAttribute('data-slot', 'card-description');
+    expect(screen.getByText('Card Content').closest('[data-slot="card-content"]')).toBeInTheDocument();
+    expect(screen.getByText('Card Footer').closest('[data-slot="card-footer"]')).toBeInTheDocument();
   });
 
-  it('renders header actions correctly', () => {
+  it('handles interactive card behavior', async () => {
+    const handleClick = jest.fn();
     render(
-      <Card>
-        <CardHeader actions={<button>Action</button>}>
-          <CardTitle>Card Title</CardTitle>
-        </CardHeader>
+      <Card interactive onClick={handleClick}>
+        <CardContent>Interactive Card</CardContent>
       </Card>
     );
 
-    expect(screen.getByRole('button')).toBeInTheDocument();
+    const card = screen.getByText('Interactive Card').closest('[data-slot="card"]');
+    expect(card).toHaveAttribute('role', 'button');
+    expect(card).toHaveAttribute('tabIndex', '0');
+
+    if (card) {
+      await userEvent.click(card);
+      expect(handleClick).toHaveBeenCalled();
+
+      // Test keyboard interaction
+      await userEvent.tab();
+      expect(card).toHaveFocus();
+      
+      await userEvent.keyboard('{enter}');
+      expect(handleClick).toHaveBeenCalledTimes(2);
+    }
   });
 
-  it('renders card content with proper padding', () => {
+  it('supports different heading levels for CardTitle', () => {
     render(
-      <Card>
-        <CardContent>Content</CardContent>
+      <>
+        <CardTitle as="h1">Heading 1</CardTitle>
+        <CardTitle as="h2">Heading 2</CardTitle>
+        <CardTitle as="h3">Heading 3</CardTitle>
+      </>
+    );
+
+    expect(screen.getByText('Heading 1').tagName).toBe('H1');
+    expect(screen.getByText('Heading 2').tagName).toBe('H2');
+    expect(screen.getByText('Heading 3').tagName).toBe('H3');
+  });
+
+  it('applies hover styles correctly', () => {
+    render(
+      <Card hover>
+        <CardContent>Hover Card</CardContent>
       </Card>
     );
 
-    const content = screen.getByText('Content').parentElement;
-    expect(content).toHaveClass('p-6', 'pt-0');
+    const card = screen.getByText('Hover Card').closest('[data-slot="card"]');
+    expect(card).toHaveClass('hover:-translate-y-0.5', 'hover:shadow-md');
   });
 
-  it('renders card footer with proper alignment', () => {
+  it('maintains ARIA attributes', () => {
     render(
-      <Card>
-        <CardFooter>
-          <button>Cancel</button>
-          <button>Submit</button>
-        </CardFooter>
-      </Card>
-    );
-
-    const footer = screen.getByRole('button', { name: 'Cancel' }).parentElement;
-    expect(footer).toHaveClass('flex', 'items-center');
-  });
-
-  it('forwards refs correctly', () => {
-    const ref = jest.fn();
-    render(<Card ref={ref}>Card content</Card>);
-    expect(ref).toHaveBeenCalledWith(expect.any(HTMLDivElement));
-  });
-
-  it('allows custom className to be passed to all components', () => {
-    render(
-      <Card className="custom-card">
-        <CardHeader className="custom-header">
-          <CardTitle className="custom-title">Title</CardTitle>
-          <CardDescription className="custom-description">
+      <Card aria-label="Example card">
+        <CardHeader>
+          <CardTitle aria-level={2}>Accessible Title</CardTitle>
+          <CardDescription aria-label="Card description">
             Description
           </CardDescription>
         </CardHeader>
-        <CardContent className="custom-content">Content</CardContent>
-        <CardFooter className="custom-footer">Footer</CardFooter>
       </Card>
     );
 
-    expect(
-      screen.getByText('Title').parentElement?.parentElement?.parentElement
-    ).toHaveClass('custom-header');
-    expect(screen.getByText('Title')).toHaveClass('custom-title');
-    expect(screen.getByText('Description')).toHaveClass('custom-description');
-    expect(screen.getByText('Content').parentElement).toHaveClass(
-      'custom-content'
+    expect(screen.getByLabelText('Example card')).toBeInTheDocument();
+    expect(screen.getByText('Accessible Title')).toHaveAttribute('aria-level', '2');
+    expect(screen.getByLabelText('Card description')).toBeInTheDocument();
+  });
+
+  it('renders header actions in correct slot', () => {
+    render(
+      <Card>
+        <CardHeader actions={<button>Action</button>}>
+          <CardTitle>Title</CardTitle>
+        </CardHeader>
+      </Card>
+    );
+
+    const actionsContainer = screen.getByRole('button').closest('[data-slot="card-actions"]');
+    expect(actionsContainer).toBeInTheDocument();
+  });
+
+  it('forwards refs to all components', () => {
+    const refs = {
+      card: React.createRef<HTMLDivElement>(),
+      header: React.createRef<HTMLDivElement>(),
+      title: React.createRef<HTMLHeadingElement>(),
+      description: React.createRef<HTMLParagraphElement>(),
+      content: React.createRef<HTMLDivElement>(),
+      footer: React.createRef<HTMLDivElement>(),
+    };
+
+    render(
+      <Card ref={refs.card}>
+        <CardHeader ref={refs.header}>
+          <CardTitle ref={refs.title}>Title</CardTitle>
+          <CardDescription ref={refs.description}>Description</CardDescription>
+        </CardHeader>
+        <CardContent ref={refs.content}>Content</CardContent>
+        <CardFooter ref={refs.footer}>Footer</CardFooter>
+      </Card>
+    );
+
+    Object.values(refs).forEach((ref) => {
+      expect(ref.current).toBeInstanceOf(HTMLElement);
+    });
+  });
+});
     );
     expect(screen.getByText('Footer').parentElement).toHaveClass(
       'custom-footer'
