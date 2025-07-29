@@ -32,9 +32,8 @@ export default defineConfig(({ mode }) => {
       },
       // Optimize CSS output
       modules: {
-        generateScopedName: mode === 'production' 
-          ? '[hash:base64:8]' 
-          : '[local]_[hash:base64:5]',
+        generateScopedName:
+          mode === 'production' ? '[hash:base64:8]' : '[local]_[hash:base64:5]',
       },
     },
     resolve: {
