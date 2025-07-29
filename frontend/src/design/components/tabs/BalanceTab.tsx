@@ -5,26 +5,26 @@ import { Building, CreditCard, TrendingUp, Shield, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 
 const balanceData = [
-  { category: 'Current Assets', amount: 125000, color: '#8884d8' },
-  { category: 'Fixed Assets', amount: 275000, color: '#82ca9d' },
-  { category: 'Current Liabilities', amount: -85000, color: '#ffc658' },
-  { category: 'Long-term Debt', amount: -150000, color: '#ff7300' },
-  { category: 'Equity', amount: 165000, color: '#0088fe' },
+  { category: 'Current Assets', amount: 125000, color: 'var(--chart-1)' },
+  { category: 'Fixed Assets', amount: 275000, color: 'var(--chart-2)' },
+  { category: 'Current Liabilities', amount: -85000, color: 'var(--chart-3)' },
+  { category: 'Long-term Debt', amount: -150000, color: 'var(--chart-4)' },
+  { category: 'Equity', amount: 165000, color: 'var(--chart-5)' },
 ]
 
 const assetBreakdown = [
-  { name: 'Cash & Equivalents', value: 72000, color: '#8884d8' },
-  { name: 'Accounts Receivable', value: 35000, color: '#82ca9d' },
-  { name: 'Inventory', value: 18000, color: '#ffc658' },
-  { name: 'Equipment', value: 180000, color: '#ff7300' },
-  { name: 'Real Estate', value: 95000, color: '#0088fe' },
+  { name: 'Cash & Equivalents', value: 72000, color: 'var(--chart-1)' },
+  { name: 'Accounts Receivable', value: 35000, color: 'var(--chart-2)' },
+  { name: 'Inventory', value: 18000, color: 'var(--chart-3)' },
+  { name: 'Equipment', value: 180000, color: 'var(--chart-4)' },
+  { name: 'Real Estate', value: 95000, color: 'var(--chart-5)' },
 ]
 
 const liabilityBreakdown = [
-  { name: 'Accounts Payable', value: 45000, color: '#8884d8' },
-  { name: 'Accrued Expenses', value: 25000, color: '#82ca9d' },
-  { name: 'Short-term Debt', value: 15000, color: '#ffc658' },
-  { name: 'Long-term Debt', value: 150000, color: '#ff7300' },
+  { name: 'Accounts Payable', value: 45000, color: 'var(--chart-1)' },
+  { name: 'Accrued Expenses', value: 25000, color: 'var(--chart-2)' },
+  { name: 'Short-term Debt', value: 15000, color: 'var(--chart-3)' },
+  { name: 'Long-term Debt', value: 150000, color: 'var(--chart-4)' },
 ]
 
 export function BalanceTab() {
@@ -68,7 +68,7 @@ export function BalanceTab() {
                 <XAxis dataKey="category" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="amount" fill="#8884d8" />
+                <Bar dataKey="amount" fill="var(--chart-1)" />
               </BarChart>
             </ResponsiveContainer>
           </DraggableWidget>
