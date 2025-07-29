@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => {
       minify: 'esbuild',
       // Bundle everything for deployment - simpler but larger bundle
       rollupOptions: {
+        external: ['lucide-react'],
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],
