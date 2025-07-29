@@ -29,7 +29,7 @@ const Layout = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout } = useAuth();
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -54,7 +54,7 @@ const Layout = () => {
   const getBreadcrumbs = () => {
     const path = location.pathname;
     const segments = path.split('/').filter(Boolean);
-    
+
     const breadcrumbMap: Record<string, { label: string }> = {
       dashboard: { label: 'Dashboard' },
       dashboards: { label: 'Financial Dashboards' },
@@ -71,7 +71,7 @@ const Layout = () => {
     return segments.map((segment, index) => {
       const path = `/${segments.slice(0, index + 1).join('/')}`;
       const breadcrumb = breadcrumbMap[segment];
-      
+
       if (!breadcrumb) return null;
 
       return (
@@ -101,15 +101,18 @@ const Layout = () => {
       {/* Main Content Area */}
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {/* App Bar */}
-        <AppBar 
-          position="sticky" 
+        <AppBar
+          position="sticky"
           elevation={0}
-          sx={{ 
+          sx={{
             zIndex: theme.zIndex.drawer - 1,
-            backgroundColor: 'background.paper',
-            color: 'text.primary',
+            // DESIGN_FIX: use design system token instead of MUI background.paper
+            backgroundColor: 'var(--card)',
+            // DESIGN_FIX: use design system token for text color
+            color: 'var(--card-foreground)',
             borderBottom: 1,
-            borderColor: 'divider',
+            // DESIGN_FIX: use design system border token
+            borderColor: 'var(--border)',
           }}
         >
           <Toolbar>
@@ -183,12 +186,14 @@ const Layout = () => {
 
         {/* Breadcrumbs */}
         {location.pathname !== '/' && location.pathname !== '/dashboard' && (
-          <Box sx={{ 
-            px: 3, 
-            py: 1.5, 
-            backgroundColor: 'background.default',
+          <Box sx={{
+            px: 3,
+            py: 1.5,
+            // DESIGN_FIX: replace MUI background.default with design token
+            backgroundColor: 'var(--background)',
             borderBottom: 1,
-            borderColor: 'divider',
+            // DESIGN_FIX: use design system border token
+            borderColor: 'var(--border)',
           }}>
             <Breadcrumbs aria-label="breadcrumb">
               <Link
@@ -211,12 +216,13 @@ const Layout = () => {
         )}
 
         {/* Main Content */}
-        <Box 
-          component="main" 
-          sx={{ 
-            flexGrow: 1, 
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
             p: 3,
-            backgroundColor: 'background.default',
+            // DESIGN_FIX: use design token for page background
+            backgroundColor: 'var(--background)',
             minHeight: 0, // Allow content to be scrollable
             pb: isMobile ? 10 : 3, // Add bottom padding for mobile navigation
           }}

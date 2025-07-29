@@ -321,7 +321,7 @@ const Register: React.FC = () => {
                     onClick={handleClickShowPassword}
                     className="absolute right-3 top-[10px] text-muted-foreground hover:text-foreground transition-colors z-10"
                     aria-label="toggle password visibility"
-                  >
+>
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
                     ) : (
@@ -434,15 +434,7 @@ const Register: React.FC = () => {
                 disabled={isLoading || !passwordStrength.isValid}
                 className="w-full mt-6"
                 size="lg"
-                sx={{
-                  mb: 3,
-                  py: 1.5,
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  borderRadius: 2,
-                  textTransform: 'none',
-                }}
-              >
+            >
               {isLoading ? (
                 <>
                   <CircularProgress size={20} sx={{ mr: 1 }} />
@@ -473,12 +465,13 @@ const Register: React.FC = () => {
               </Typography>
             </Box>
           </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
         {/* Footer */}
         <Box sx={{ textAlign: 'center', mt: 3 }}>
-          <Typography variant="body2" color="rgba(255, 255, 255, 0.8)">
+          {/* DESIGN_FIX: replaced hard-coded footer color with token */}
+          <Typography variant="body2" className="text-muted-foreground">
             © 2024 FinVision. All rights reserved.
           </Typography>
         </Box>
