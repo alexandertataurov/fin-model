@@ -108,14 +108,7 @@ const AnalyticsDashboard: React.FC = () => {
   };
 
   // Colors for charts
-  const chartColors = [
-    // DESIGN_FIX: use CSS variables for chart palette
-    'var(--chart-1)',
-    'var(--chart-2)',
-    'var(--chart-3)',
-    'var(--chart-4)',
-    'var(--chart-5)',
-  ];
+  const chartColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
 
   // Default values to prevent undefined errors
   const overview = dashboardData?.overview || {
@@ -259,27 +252,9 @@ const AnalyticsDashboard: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="total_files"
-                      // DESIGN_FIX: use chart color token
-                      stroke="var(--chart-1)"
-                      name="Total Files"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="completed_files"
-                      // DESIGN_FIX: use chart color token
-                      stroke="var(--chart-2)"
-                      name="Completed"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="failed_files"
-                      // DESIGN_FIX: use chart color token
-                      stroke="var(--chart-3)"
-                      name="Failed"
-                    />
+                    <Line type="monotone" dataKey="total_files" stroke="#8884d8" name="Total Files" />
+                    <Line type="monotone" dataKey="completed_files" stroke="#82ca9d" name="Completed" />
+                    <Line type="monotone" dataKey="failed_files" stroke="#ffc658" name="Failed" />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -300,8 +275,7 @@ const AnalyticsDashboard: React.FC = () => {
                       labelLine={false}
                       label={({ file_type, percentage }) => `${file_type} (${percentage}%)`}
                       outerRadius={80}
-                      // DESIGN_FIX: use chart color token
-                      fill="var(--chart-1)"
+                      fill="#8884d8"
                       dataKey="count"
                     >
                       {fileTypeDistribution.map((_, index) => (
