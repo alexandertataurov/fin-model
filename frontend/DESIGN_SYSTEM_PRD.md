@@ -96,7 +96,6 @@ frontend/src/pages/NewDashboard.tsx
 3. **Week 3**: Refactor pages to use the consolidated components.
 4. **Week 4**: Document components and publish Storybook.
 
-
 ## 8. Progress Tracker
 
 | Task | Status | Notes |
