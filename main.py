@@ -19,14 +19,21 @@ try:
     if auto_fix_enabled:
         print("🔧 Auto-fix database enabled, checking schema...")
         try:
-            # Add parent directory to path for auto_fix_database import
+            # Try simple fix first
             parent_dir = os.path.dirname(os.path.dirname(__file__))
             sys.path.insert(0, parent_dir)
-            from auto_fix_database import run_auto_fix
-            if not run_auto_fix():
+            
+            # Import and run simple fix
+            from simple_fix import simple_database_fix
+            if simple_database_fix():
+                print("✅ Database auto-fix completed successfully!")
+            else:
                 print("⚠️ Database auto-fix failed, but continuing startup...")
+                
         except Exception as fix_error:
             print(f"⚠️ Database auto-fix error: {fix_error}")
+            import traceback
+            traceback.print_exc()
             print("Continuing with startup anyway...")
     
     # Import the FastAPI app
