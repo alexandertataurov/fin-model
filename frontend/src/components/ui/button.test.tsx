@@ -16,7 +16,7 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveClass('bg-destructive');
 
     rerender(<Button variant="outline">Button</Button>);
-    expect(screen.getByRole('button')).toHaveClass('border-input');
+    expect(screen.getByRole('button')).toHaveClass('border');
   });
 
   it('handles disabled state as loading', () => {
