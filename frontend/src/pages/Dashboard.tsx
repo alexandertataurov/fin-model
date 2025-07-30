@@ -172,27 +172,27 @@ const Dashboard = () => {
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
             variant="default"
-            startIcon={<CloudUpload />}
             onClick={() => navigate('/files')}
-            className="bg-background text-primary hover:bg-muted"
+            className="bg-background text-primary hover:bg-muted flex items-center"
           >
+            <CloudUpload className="mr-2 h-4 w-4" />
             Upload Financial Model
           </Button>
           <Button
             variant="outline"
-            startIcon={<TrendingUp />}
             onClick={() => navigate('/dashboards/pl')}
-            className="border-border text-primary-foreground hover:bg-primary/10"
+            className="border-border text-primary-foreground hover:bg-primary/10 flex items-center"
           >
+            <TrendingUp className="mr-2 h-4 w-4" />
             View P&L Dashboard
           </Button>
           {hasAnalystAccess && (
             <Button
               variant="outline"
-              startIcon={<Timeline />}
               onClick={() => navigate('/scenarios')}
-              className="border-border text-primary-foreground hover:bg-primary/10"
+              className="border-border text-primary-foreground hover:bg-primary/10 flex items-center"
             >
+              <Timeline className="mr-2 h-4 w-4" />
               Scenario Modeling
             </Button>
           )}
@@ -269,7 +269,7 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Get started quickly with our documentation and support resources.
               </Typography>
-              <Button variant="outline" fullWidth>
+              <Button variant="outline" className="w-full">
                 View Documentation
               </Button>
             </Card>

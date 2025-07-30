@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/Card'
 import { Button } from './ui/button'
 import { Label } from './ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import { Checkbox } from './ui/checkbox'
-import { Slider } from './ui/slider'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
+import { Slider } from '@/design/components/ui/slider'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/design/components/ui/collapsible'
 import { ChevronDown, Filter, RotateCcw } from 'lucide-react'
 
 export function FilterSidebar() {

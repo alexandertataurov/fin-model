@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DraggableWidget } from '../DraggableWidget'
+import { DraggableWidget } from '../draggable-widget'
 import { Button } from '../ui/button'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { TrendingUp, TrendingDown, Percent, Plus } from 'lucide-react'
