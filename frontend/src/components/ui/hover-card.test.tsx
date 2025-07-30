@@ -6,7 +6,7 @@ describe('HoverCard', () => {
   it('renders trigger and shows content on hover', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
       </HoverCard>
     );
@@ -37,7 +37,7 @@ describe('HoverCard', () => {
   it('supports keyboard navigation', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
       </HoverCard>
     );
@@ -45,7 +45,8 @@ describe('HoverCard', () => {
     const trigger = screen.getByText('Hover me');
 
     // Focus the trigger
-    trigger.focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(trigger);
     expect(trigger).toHaveFocus();
 
     // Press Enter
@@ -68,7 +69,7 @@ describe('HoverCard', () => {
   it('applies custom className to content', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent className="custom-content">
           Hover content
         </HoverCardContent>
@@ -89,7 +90,7 @@ describe('HoverCard', () => {
   it('maintains ARIA attributes', () => {
     render(
       <HoverCard>
-        <HoverCardTrigger aria-label="More information">
+        <HoverCardTrigger aria-label="More information" tabIndex={0}>
           Hover me
         </HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
