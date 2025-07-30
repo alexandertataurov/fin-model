@@ -22,6 +22,10 @@
 - switched App and tests to new ThemeProvider
 - moved DashboardLayout and related tabs to `src/components`
 - replaced legacy Button component with design-system `button`
+<<<<<<< HEAD
+=======
+- migrated Accordion, Alert and Badge to `src/components/ui` and updated registry imports
+>>>>>>> d4acaa42638dada959bf744f7a69e14d8bcedcfc
 - removed obsolete `ThemeContext` provider
 - updated NewDashboard to use unified theme provider
 
