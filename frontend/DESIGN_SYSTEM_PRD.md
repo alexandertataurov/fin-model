@@ -104,7 +104,7 @@ frontend/src/pages/NewDashboard.tsx
 | FR2 Single cn utility | [x] | Consolidated cn imports |
 | FR3 Consolidate UI directory | [ ] | |
 | FR4 One theme provider | [ ] | |
-| FR5 Replace hex colors with variables | [~] | Dashboard and Register pages migrated |
+| FR5 Replace hex colors with variables | [~] | Most chart and form components migrated |
 | FR6 Update page imports | [ ] | |
 | FR7 Document components | [ ] | |
 
@@ -120,6 +120,9 @@ frontend/src/pages/NewDashboard.tsx
 - meta theme-color now reads from CSS variable
 - replaced quick actions container with Card and utility classes
 - updated Register page footer color token
+- tokenized colors in `AnalyticsDashboard`, `LineChart`, and `PieChart`
+- replaced inline styles in `FileUploadDropzone` with tokens
+- applied design tokens in `WaterfallChart` and `ParameterEditor`
 
 ### Pending
 - consolidate UI directories into one

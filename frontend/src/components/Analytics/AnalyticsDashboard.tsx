@@ -19,12 +19,7 @@ import {
   Divider,
   LinearProgress,
 } from '@mui/material';
-import {
-  Speed,
-  Error,
-  CloudUpload,
-  CheckCircle,
-} from '@mui/icons-material';
+import { Speed, Error, CloudUpload, CheckCircle } from '@mui/icons-material';
 import {
   LineChart,
   Line,
@@ -90,7 +85,11 @@ interface DashboardData {
 const AnalyticsDashboard: React.FC = () => {
   const [timePeriod, setTimePeriod] = useState(7);
 
-  const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
+  const {
+    data: dashboardData,
+    isLoading,
+    error,
+  } = useQuery<DashboardData>({
     queryKey: ['analytics-dashboard', timePeriod],
     queryFn: async () => {
       const token = localStorage.getItem('auth_token');
@@ -107,8 +106,14 @@ const AnalyticsDashboard: React.FC = () => {
     setTimePeriod(event.target.value as number);
   };
 
-  // Colors for charts
-  const chartColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe'];
+  // DESIGN_FIX: use design system chart tokens
+  const chartColors = [
+    'var(--chart-1)',
+    'var(--chart-2)',
+    'var(--chart-3)',
+    'var(--chart-4)',
+    'var(--chart-5)',
+  ];
 
   // Default values to prevent undefined errors
   const overview = dashboardData?.overview || {
@@ -121,7 +126,8 @@ const AnalyticsDashboard: React.FC = () => {
   };
 
   const dailyTrends = dashboardData?.daily_trends || [];
-  const fileTypeDistribution = dashboardData?.file_type_distribution?.distribution || [];
+  const fileTypeDistribution =
+    dashboardData?.file_type_distribution?.distribution || [];
   const topUsers = dashboardData?.top_users || [];
   const errorSummary = dashboardData?.error_summary || {
     total_errors: 0,
@@ -143,7 +149,14 @@ const AnalyticsDashboard: React.FC = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
         <Typography variant="h4" component="h1">
           Analytics Dashboard
         </Typography>
@@ -177,9 +190,7 @@ const AnalyticsDashboard: React.FC = () => {
                     <Typography color="text.secondary" gutterBottom>
                       Total Files
                     </Typography>
-                    <Typography variant="h5">
-                      {overview.total_files}
-                    </Typography>
+                    <Typography variant="h5">{overview.total_files}</Typography>
                   </Box>
                 </Box>
               </CardContent>
@@ -252,9 +263,24 @@ const AnalyticsDashboard: React.FC = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="total_files" stroke="#8884d8" name="Total Files" />
-                    <Line type="monotone" dataKey="completed_files" stroke="#82ca9d" name="Completed" />
-                    <Line type="monotone" dataKey="failed_files" stroke="#ffc658" name="Failed" />
+                    <Line
+                      type="monotone"
+                      dataKey="total_files"
+                      stroke="var(--chart-1)" // DESIGN_FIX: tokenized stroke
+                      name="Total Files"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="completed_files"
+                      stroke="var(--chart-2)" // DESIGN_FIX: tokenized stroke
+                      name="Completed"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="failed_files"
+                      stroke="var(--chart-3)" // DESIGN_FIX: tokenized stroke
+                      name="Failed"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -273,13 +299,18 @@ const AnalyticsDashboard: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ file_type, percentage }) => `${file_type} (${percentage}%)`}
+                      label={({ file_type, percentage }) =>
+                        `${file_type} (${percentage}%)`
+                      }
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="var(--chart-1)" // DESIGN_FIX: replace hardcoded color
                       dataKey="count"
                     >
                       {fileTypeDistribution.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={chartColors[index % chartColors.length]}
+                        />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -302,21 +333,35 @@ const AnalyticsDashboard: React.FC = () => {
                           <ListItemText
                             primary={user.username}
                             secondary={
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 1,
+                                }}
+                              >
                                 <Typography variant="body2">
                                   {user.total_uploads} files
                                 </Typography>
                                 <Chip
                                   size="small"
                                   label={`${user.success_rate.toFixed(1)}% success`}
-                                  color={user.success_rate > 90 ? 'success' : user.success_rate > 70 ? 'warning' : 'error'}
+                                  color={
+                                    user.success_rate > 90
+                                      ? 'success'
+                                      : user.success_rate > 70
+                                        ? 'warning'
+                                        : 'error'
+                                  }
                                   variant="outlined"
                                 />
                               </Box>
                             }
                           />
                         </ListItem>
-                        {index < Math.min(topUsers.length - 1, 4) && <Divider />}
+                        {index < Math.min(topUsers.length - 1, 4) && (
+                          <Divider />
+                        )}
                       </React.Fragment>
                     ))}
                   </List>
@@ -344,19 +389,29 @@ const AnalyticsDashboard: React.FC = () => {
                             primary={error.category}
                             secondary={
                               <Box>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
                                   {error.count} occurrences
                                 </Typography>
                                 <LinearProgress
                                   variant="determinate"
-                                  value={Math.min((error.count / errorSummary.total_errors) * 100, 100)}
+                                  value={Math.min(
+                                    (error.count / errorSummary.total_errors) *
+                                      100,
+                                    100
+                                  )}
                                   sx={{ mt: 1 }}
                                 />
                               </Box>
                             }
                           />
                         </ListItem>
-                        {index < errorSummary.top_error_categories.length - 1 && <Divider />}
+                        {index <
+                          errorSummary.top_error_categories.length - 1 && (
+                          <Divider />
+                        )}
                       </React.Fragment>
                     ))
                   ) : (
@@ -418,4 +473,4 @@ const AnalyticsDashboard: React.FC = () => {
   );
 };
 
-export default AnalyticsDashboard; 
+export default AnalyticsDashboard;

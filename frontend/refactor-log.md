@@ -12,6 +12,12 @@
 - replaced inline colors in `FileUploadDropzone` and `AnalyticsDashboard`
 - mapped sensitivity colors in `ParameterEditor` to design tokens
 - updated color tokens in `src/components/Layout/Layout.tsx`
+- tokenized colors in `AnalyticsDashboard` charts
+- migrated default colors in `LineChart` to design tokens
+- converted PieChart colors to design tokens
+- replaced hard-coded colors in `FileUploadDropzone`
+- tokenized colors in `WaterfallChart`
+- replaced sensitivity colors in `ParameterEditor`
 
 ### Pending
 - consolidate UI directories into one
