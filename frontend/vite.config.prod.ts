@@ -46,8 +46,7 @@ export default defineConfig(({ mode }) => {
       // Simple and fast rollup configuration
       rollupOptions: {
         external: (id) => {
-          // Only externalize specific packages, never internal modules
-          if (id === 'lucide-react') return true;
+          // Don't externalize any packages - let them be bundled
           return false;
         },
         output: {
