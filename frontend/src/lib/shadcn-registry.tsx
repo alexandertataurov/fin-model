@@ -14,7 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/design/components/ui/aler
 import { AspectRatio } from '@/design/components/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/design/components/ui/avatar';
 import { Badge } from '@/design/components/ui/badge';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Calendar } from '@/design/components/ui/calendar';
 import {
   Card,
@@ -182,7 +182,7 @@ import {
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { DataTable } from '@/components/ui/DataTable';
 import { FileUploadZone } from '@/components/ui/FileUploadZone';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { BottomNavigation } from '@/components/ui/BottomNavigation';
 import { MultiSelect } from '@/components/ui/MultiSelect';
 

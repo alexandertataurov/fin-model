@@ -17,8 +17,8 @@ export function FilterSidebar() {
   const [isRangeOpen, setIsRangeOpen] = useState(true)
 
   const handleMetricToggle = (metric: string) => {
-    setSelectedMetrics(prev => 
-      prev.includes(metric) 
+    setSelectedMetrics(prev =>
+      prev.includes(metric)
         ? prev.filter(m => m !== metric)
         : [...prev, metric]
     )

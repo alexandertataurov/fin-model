@@ -165,8 +165,8 @@ export function SalesTab() {
                       ${rep.actual.toLocaleString()} / ${rep.target.toLocaleString()}
                     </span>
                   </div>
-                  <Progress 
-                    value={rep.percentage} 
+                  <Progress
+                    value={rep.percentage}
                     className="h-2"
                   />
                   <div className="flex justify-between items-center">

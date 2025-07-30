@@ -43,7 +43,7 @@ export function ParametersTab() {
     const generateScenarioData = () => {
       const baseRevenue = 100000
       const data = []
-      
+
       for (let i = 0; i < 12; i++) {
         const month = i + 1
         const revenue = baseRevenue * Math.pow(1 + parameters.growthRate / 100, month / 12)
@@ -51,7 +51,7 @@ export function ParametersTab() {
         const operatingProfit = revenue * (parameters.operatingMargin / 100)
         const taxes = operatingProfit * (parameters.taxRate / 100)
         const netProfit = operatingProfit - taxes
-        
+
         data.push({
           month: `Month ${month}`,
           revenue: Math.round(revenue),
@@ -60,7 +60,7 @@ export function ParametersTab() {
           netProfit: Math.round(netProfit)
         })
       }
-      
+
       return data
     }
 
@@ -129,7 +129,7 @@ export function ParametersTab() {
                 <TabsTrigger value="costs">Costs</TabsTrigger>
                 <TabsTrigger value="financial">Financial</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="growth" className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="growthRate">Growth Rate (%)</Label>
@@ -286,7 +286,7 @@ export function ParametersTab() {
                   </p>
                 </div>
               </div>
-              
+
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={scenarioData}>
                   <CartesianGrid strokeDasharray="3 3" />

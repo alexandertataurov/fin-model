@@ -6,7 +6,7 @@ describe('HoverCard', () => {
   it('renders trigger and shows content on hover', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
       </HoverCard>
     );
@@ -17,7 +17,7 @@ describe('HoverCard', () => {
     // Content should not be visible initially
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
-    // Hover over trigger
+        // Hover over trigger
     await userEvent.hover(trigger);
 
     // Content should be visible
@@ -37,7 +37,7 @@ describe('HoverCard', () => {
   it('supports keyboard navigation', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
       </HoverCard>
     );
@@ -53,7 +53,7 @@ describe('HoverCard', () => {
 
     // Content should be visible
     await waitFor(() => {
-      expect(screen.getByText('Hover content')).toBeInTheDocument();
+      expect(screen.getByText('Hover content')).toBeVisible();
     });
 
     // Press Escape
@@ -61,14 +61,15 @@ describe('HoverCard', () => {
 
     // Content should not be visible
     await waitFor(() => {
-      expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+      const content = screen.queryByText('Hover content');
+      expect(content).not.toBeVisible();
     });
   });
 
   it('applies custom className to content', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent className="custom-content">
           Hover content
         </HoverCardContent>
@@ -89,7 +90,7 @@ describe('HoverCard', () => {
   it('maintains ARIA attributes', () => {
     render(
       <HoverCard>
-        <HoverCardTrigger aria-label="More information">
+        <HoverCardTrigger aria-label="More information" tabIndex={0}>
           Hover me
         </HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>

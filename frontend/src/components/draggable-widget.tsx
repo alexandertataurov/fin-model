@@ -11,12 +11,12 @@ interface DraggableWidgetProps {
   className?: string
 }
 
-export function DraggableWidget({ 
-  title, 
-  children, 
-  id, 
-  onRemove, 
-  className = "" 
+export function DraggableWidget({
+  title,
+  children,
+  id,
+  onRemove,
+  className = ""
 }: DraggableWidgetProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDragging, setIsDragging] = useState(false)

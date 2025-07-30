@@ -38,15 +38,15 @@ export function FileUpload() {
       'text/csv',
       'application/json'
     ]
-    
+
     if (!allowedTypes.includes(file.type)) {
       return 'Please upload a valid file (Excel, CSV, or JSON)'
     }
-    
+
     if (file.size > 10 * 1024 * 1024) {
       return 'File size must be less than 10MB'
     }
-    
+
     return null
   }
 
@@ -90,7 +90,7 @@ export function FileUpload() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setIsDragOver(false)
-    
+
     const files = Array.from(e.dataTransfer.files)
     if (files.length > 0) {
       processFile(files[0])
