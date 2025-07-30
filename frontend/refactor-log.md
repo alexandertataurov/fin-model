@@ -1,6 +1,7 @@
 ## Refactor Log
 
 ### Completed
+
 - `src/styles/globals.css` consolidated
 - single `cn` helper in `src/utils/cn.ts`
 - replaced hex chart colors in `src/design/components/tabs/BalanceTab.tsx`
@@ -22,14 +23,17 @@
 - switched App and tests to new ThemeProvider
 - moved DashboardLayout and related tabs to `src/components`
 - replaced legacy Button component with design-system `button`
-<<<<<<< HEAD
-=======
 - migrated Accordion, Alert and Badge to `src/components/ui` and updated registry imports
->>>>>>> d4acaa42638dada959bf744f7a69e14d8bcedcfc
 - removed obsolete `ThemeContext` provider
 - updated NewDashboard to use unified theme provider
+- migrated Card component to lowercase and unified implementation
+- migrated Slider, Tabs, Progress, Collapsible, Dialog, and Sheet components from design directory
+- updated all component imports to use unified components directory
+- updated shadcn registry to import from unified components
 
 ### Pending
-- consolidate UI directories into one
-- unify theme providers
+
+- migrate remaining PascalCase UI components to lowercase
+- remove duplicate components from design directory
 - continue replacing hard-coded colors across legacy components
+- update remaining Material-UI based components

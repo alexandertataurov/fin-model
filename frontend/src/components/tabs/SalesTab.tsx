@@ -3,7 +3,7 @@ import { DraggableWidget } from '../draggable-widget'
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
 import { TrendingUp, Users, Target, ShoppingCart, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
-import { Progress } from '@/design/components/ui/progress'
+import { Progress } from '../ui/progress'
 
 const salesData = [
   { month: 'Jan', sales: 45000, leads: 320, conversion: 14.1 },

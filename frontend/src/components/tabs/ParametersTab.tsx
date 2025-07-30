@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
-import { Slider } from '@/design/components/ui/slider'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Slider } from '../ui/slider'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { Play, Pause, RotateCcw, Save } from 'lucide-react'
 

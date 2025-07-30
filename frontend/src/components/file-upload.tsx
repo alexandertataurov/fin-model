@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
 import { Button } from './ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/design/components/ui/dialog'
-import { Progress } from '@/design/components/ui/progress'
-import { Alert, AlertDescription } from '@/design/components/ui/alert'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
+import { Progress } from './ui/progress'
+import { Alert, AlertDescription } from './ui/alert'
 import { Upload, File, CheckCircle, AlertCircle, X } from 'lucide-react'
 
 interface FileUploadState {

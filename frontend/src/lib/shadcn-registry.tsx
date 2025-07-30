@@ -9,15 +9,6 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-<<<<<<< HEAD
-} from '@/design/components/ui/accordion';
-import { Alert, AlertDescription, AlertTitle } from '@/design/components/ui/alert';
-import { AspectRatio } from '@/design/components/ui/aspect-ratio';
-import { Avatar, AvatarFallback, AvatarImage } from '@/design/components/ui/avatar';
-import { Badge } from '@/design/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/design/components/ui/calendar';
-=======
 } from '@/components/ui/accordion';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -25,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
->>>>>>> d4acaa42638dada959bf744f7a69e14d8bcedcfc
 import {
   Card,
   CardContent,
@@ -33,7 +23,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/Card';
+  CardAction,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Collapsible,
@@ -221,6 +212,7 @@ export {
   CardFooter,
   CardHeader,
   CardTitle,
+  CardAction,
   Checkbox,
   Collapsible,
   CollapsibleContent,

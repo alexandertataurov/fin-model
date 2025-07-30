@@ -3,7 +3,7 @@ import { DraggableWidget } from '../draggable-widget'
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from 'recharts'
 import { TrendingUp, TrendingDown, Activity, AlertCircle, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
-import { Alert, AlertDescription } from '@/design/components/ui/alert'
+import { Alert, AlertDescription } from '../ui/alert'
 
 const cashFlowData = [
   { month: 'Jan', operating: 15000, investing: -5000, financing: 2000, net: 12000 },
