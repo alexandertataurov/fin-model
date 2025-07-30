@@ -44,7 +44,7 @@ describe('Input', () => {
   });
 
   it('forwards refs correctly', () => {
-    const ref = jest.fn();
+    const ref = vi.fn();
     render(<Input ref={ref} />);
     expect(ref).toHaveBeenCalledWith(expect.any(HTMLInputElement));
   });

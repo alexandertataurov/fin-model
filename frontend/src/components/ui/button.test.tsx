@@ -59,7 +59,7 @@ describe('Button', () => {
   });
 
   it('forwards refs correctly', () => {
-    const ref = jest.fn();
+    const ref = vi.fn();
     render(<Button ref={ref}>Button</Button>);
     expect(ref).toHaveBeenCalledWith(expect.any(HTMLButtonElement));
   });
