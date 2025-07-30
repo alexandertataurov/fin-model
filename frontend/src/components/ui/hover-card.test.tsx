@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from './hover-card';
 import userEvent from '@testing-library/user-event';
 
