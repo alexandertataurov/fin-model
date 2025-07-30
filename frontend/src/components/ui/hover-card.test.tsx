@@ -14,15 +14,18 @@ describe('HoverCard', () => {
     const trigger = screen.getByText('Hover me');
     expect(trigger).toBeInTheDocument();
 
-    // Content should not be visible initially
-    expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+    // Content should not be visible initially (Radix mounts it hidden)
+    await waitFor(() => {
+      const content = screen.queryByText('Hover content');
+      expect(content).not.toBeVisible();
+    });
 
     // Hover over trigger
     await userEvent.hover(trigger);
 
     // Content should be visible
     await waitFor(() => {
-      expect(screen.getByText('Hover content')).toBeInTheDocument();
+      expect(screen.getByText('Hover content')).toBeVisible();
     });
 
     // Unhover
@@ -30,7 +33,8 @@ describe('HoverCard', () => {
 
     // Content should not be visible
     await waitFor(() => {
-      expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+      const content = screen.queryByText('Hover content');
+      expect(content).not.toBeVisible();
     });
   });
 
@@ -54,7 +58,7 @@ describe('HoverCard', () => {
 
     // Content should be visible
     await waitFor(() => {
-      expect(screen.getByText('Hover content')).toBeInTheDocument();
+      expect(screen.getByText('Hover content')).toBeVisible();
     });
 
     // Press Escape
@@ -62,7 +66,8 @@ describe('HoverCard', () => {
 
     // Content should not be visible
     await waitFor(() => {
-      expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+      const content = screen.queryByText('Hover content');
+      expect(content).not.toBeVisible();
     });
   });
 
