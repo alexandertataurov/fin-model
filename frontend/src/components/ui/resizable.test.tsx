@@ -95,7 +95,7 @@ describe('Resizable Components', () => {
 
   it('handles keyboard navigation', async () => {
     const user = userEvent.setup();
-    const handleKeyDown = jest.fn();
+    const handleKeyDown = vi.fn();
 
     render(
       <ResizablePanelGroup {...defaultProps}>

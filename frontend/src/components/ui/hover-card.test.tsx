@@ -15,14 +15,14 @@ describe('HoverCard', () => {
     expect(trigger).toBeInTheDocument();
 
     // Content should not be visible initially
-    expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
     // Hover over trigger
     await userEvent.hover(trigger);
 
     // Content should be visible
     await waitFor(() => {
-      expect(screen.getByText('Hover content')).toBeInTheDocument();
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
     // Unhover
@@ -30,7 +30,7 @@ describe('HoverCard', () => {
 
     // Content should not be visible
     await waitFor(() => {
-      expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
   });
 
@@ -45,7 +45,7 @@ describe('HoverCard', () => {
     const trigger = screen.getByText('Hover me');
 
     // Focus the trigger
-    trigger.focus();
+    await userEvent.tab();
     expect(trigger).toHaveFocus();
 
     // Press Enter

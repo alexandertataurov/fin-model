@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     optimizeDeps: {
       include: [
+        'react/jsx-runtime',
         'lucide-react',
         '@radix-ui/react-accordion',
         '@radix-ui/react-alert-dialog',
@@ -56,7 +57,9 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
+        '@mui/styled-engine': '@mui/styled-engine/index.js',
       },
+      conditions: ['development', 'browser'],
     },
     server: {
       port: 3000,
@@ -137,6 +140,9 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
+      deps: {
+        inline: [/^@mui\/./],
+      },
       coverage: {
         reporter: ['text', 'json', 'html'],
         exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*'],

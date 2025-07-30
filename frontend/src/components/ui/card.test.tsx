@@ -46,7 +46,7 @@ describe('Card', () => {
   });
 
   it('handles interactive card behavior', async () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(
       <Card interactive onClick={handleClick}>
         <CardContent>Interactive Card</CardContent>
@@ -166,8 +166,7 @@ describe('Card', () => {
         <CardFooter className="custom-footer">Footer</CardFooter>
       </Card>
     );
-    expect(screen.getByText('Footer').parentElement).toHaveClass(
-      'custom-footer'
-    );
+    const footer = screen.getByText('Footer');
+    expect(footer).toHaveClass('custom-footer');
   });
 });

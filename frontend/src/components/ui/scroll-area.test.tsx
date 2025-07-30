@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { ScrollArea } from './scroll-area';
 
 describe('ScrollArea', () => {
@@ -51,16 +51,18 @@ describe('ScrollArea', () => {
     expect(viewport).toHaveClass('size-full', 'rounded-[inherit]');
   });
 
-  it('renders scrollbar', () => {
+  it('renders scrollbar', async () => {
     render(
       <ScrollArea>
         <div>Content</div>
       </ScrollArea>
     );
 
-    const scrollbar = document.querySelector(
-      '[data-slot="scroll-area-scrollbar"]'
-    );
-    expect(scrollbar).toBeInTheDocument();
+    await waitFor(() => {
+      const scrollbar = document.querySelector(
+        '[data-slot="scroll-area-scrollbar"]'
+      );
+      expect(scrollbar).toBeInTheDocument();
+    });
   });
 });
