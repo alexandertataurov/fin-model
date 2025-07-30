@@ -12,6 +12,19 @@
 - replaced inline colors in `FileUploadDropzone` and `AnalyticsDashboard`
 - mapped sensitivity colors in `ParameterEditor` to design tokens
 - updated color tokens in `src/components/Layout/Layout.tsx`
+- tokenized colors in `AnalyticsDashboard` charts
+- migrated default colors in `LineChart` to design tokens
+- converted PieChart colors to design tokens
+- replaced hard-coded colors in `FileUploadDropzone`
+- tokenized colors in `WaterfallChart`
+- replaced sensitivity colors in `ParameterEditor`
+- removed MUI-based `ThemeToggle` component and updated imports
+- switched App and tests to new ThemeProvider
+- moved DashboardLayout and related tabs to `src/components`
+- replaced legacy Button component with design-system `button`
+- migrated Accordion, Alert and Badge to `src/components/ui` and updated registry imports
+- removed obsolete `ThemeContext` provider
+- updated NewDashboard to use unified theme provider
 
 ### Pending
 - consolidate UI directories into one

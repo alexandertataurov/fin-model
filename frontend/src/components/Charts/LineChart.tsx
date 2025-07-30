@@ -54,15 +54,16 @@ interface LineChartProps {
   formatYAxisTick?: (value: number) => string;
 }
 
+// DESIGN_FIX: use design system chart color tokens instead of hex values
 const defaultColors = [
-  '#1976d2', // Primary blue
-  '#dc004e', // Secondary pink
-  '#2e7d32', // Success green
-  '#ed6c02', // Warning orange
-  '#9c27b0', // Purple
-  '#00695c', // Teal
-  '#c62828', // Red
-  '#5e35b1', // Deep purple
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
 ];
 
 export const LineChart: React.FC<LineChartProps> = ({
@@ -92,7 +93,7 @@ export const LineChart: React.FC<LineChartProps> = ({
     if (formatYAxisTick) {
       return formatYAxisTick(value);
     }
-    
+
     // Auto-format based on value size
     if (Math.abs(value) >= 1000000) {
       return `${currency}${(value / 1000000).toFixed(1)}M`;
@@ -130,35 +131,43 @@ export const LineChart: React.FC<LineChartProps> = ({
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#e0e0e0"
+            stroke="var(--muted)" // DESIGN_FIX: replace hardcoded grid color
             opacity={0.5}
           />
         )}
-        
+
         <XAxis
           dataKey={xAxisKey}
           tick={{ fontSize: 12 }}
           tickFormatter={formatXAxis}
-          label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -10 } : undefined}
+          label={
+            xAxisLabel
+              ? { value: xAxisLabel, position: 'insideBottom', offset: -10 }
+              : undefined
+          }
         />
-        
+
         <YAxis
           tick={{ fontSize: 12 }}
           tickFormatter={formatYAxis}
-          label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
+          label={
+            yAxisLabel
+              ? { value: yAxisLabel, angle: -90, position: 'insideLeft' }
+              : undefined
+          }
         />
-        
+
         <RechartsTooltip
           data-testid="tooltip"
           content={
             <CustomTooltip
               currency={currency}
               formatter={formatTooltip}
-              labelFormatter={(label) => `Period: ${label}`}
+              labelFormatter={label => `Period: ${label}`}
             />
           }
         />
-        
+
         {showLegend && (
           <Legend
             wrapperStyle={{
@@ -173,7 +182,7 @@ export const LineChart: React.FC<LineChartProps> = ({
           <ReferenceLine
             key={index}
             y={refLine.value}
-            stroke={refLine.color || '#666'}
+            stroke={refLine.color || 'var(--muted-foreground)'} // DESIGN_FIX: replace hardcoded reference line color
             strokeDasharray="5 5"
             label={{
               value: refLine.label || '',
@@ -184,7 +193,7 @@ export const LineChart: React.FC<LineChartProps> = ({
         ))}
 
         {/* Data Lines */}
-        {enhancedSeries.map((seriesItem) => (
+        {enhancedSeries.map(seriesItem => (
           <Line
             key={seriesItem.dataKey}
             type={smooth ? 'monotone' : 'linear'}
@@ -198,7 +207,7 @@ export const LineChart: React.FC<LineChartProps> = ({
               r: 4,
               stroke: seriesItem.color,
               strokeWidth: 2,
-              fill: '#fff',
+              fill: 'var(--background)', // DESIGN_FIX: replace hardcoded active dot color
             }}
             connectNulls={false}
           />
@@ -222,4 +231,4 @@ export const LineChart: React.FC<LineChartProps> = ({
   );
 };
 
-export default LineChart; 
+export default LineChart;

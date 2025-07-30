@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTheme } from './ThemeProvider'
+import { useTheme } from './theme-provider'
 import { Button } from './ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
@@ -9,8 +9,8 @@ import { CashFlowTab } from './tabs/CashFlowTab'
 import { BalanceTab } from './tabs/BalanceTab'
 import { ParametersTab } from './tabs/ParametersTab'
 import { SalesTab } from './tabs/SalesTab'
-import { FilterSidebar } from './FilterSidebar'
-import { FileUpload } from './FileUpload'
+import { FilterSidebar } from './filter-sidebar'
+import { FileUpload } from './file-upload'
 
 export function DashboardLayout() {
   const { theme, toggleTheme } = useTheme()
@@ -36,7 +36,7 @@ export function DashboardLayout() {
             </Sheet>
             <h1 className="text-xl font-semibold">Financial Dashboard</h1>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <FileUpload />
             <Button

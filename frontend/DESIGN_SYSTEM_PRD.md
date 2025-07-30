@@ -102,10 +102,10 @@ frontend/src/pages/NewDashboard.tsx
 | ---- | ------ | ----- |
 | FR1 Merge globals | [x] | Removed duplicate design/styles/globals.css |
 | FR2 Single cn utility | [x] | Consolidated cn imports |
-| FR3 Consolidate UI directory | [ ] | |
-| FR4 One theme provider | [ ] | |
-| FR5 Replace hex colors with variables | [~] | Dashboard and Register pages migrated |
-| FR6 Update page imports | [ ] | |
+| FR3 Consolidate UI directory | [~] | Migrated Button, Accordion, Alert, Badge and dashboard layout components |
+| FR4 One theme provider | [~] | Removed legacy ThemeContext and using unified provider |
+| FR5 Replace hex colors with variables | [~] | Most chart and form components migrated |
+| FR6 Update page imports | [~] | NewDashboard imports updated |
 | FR7 Document components | [ ] | |
 
 ## Refactor Log
@@ -120,6 +120,11 @@ frontend/src/pages/NewDashboard.tsx
 - meta theme-color now reads from CSS variable
 - replaced quick actions container with Card and utility classes
 - updated Register page footer color token
+- tokenized colors in `AnalyticsDashboard`, `LineChart`, and `PieChart`
+- replaced inline styles in `FileUploadDropzone` with tokens
+- applied design tokens in `WaterfallChart` and `ParameterEditor`
+- removed MUI-based `ThemeToggle` and switched to design component
+- switched App and tests to new ThemeProvider
 
 ### Pending
 - consolidate UI directories into one
