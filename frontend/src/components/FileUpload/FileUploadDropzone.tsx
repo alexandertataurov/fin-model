@@ -22,6 +22,7 @@ import {
   Error,
 } from '@mui/icons-material';
 import { fileApi, FileUploadResponse, UploadProgressCallback } from '../../services/fileApi';
+import { tokens } from '@/theme';
 
 interface UploadingFile {
   file: File;
@@ -72,7 +73,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           });
           return `${file.file.name}: ${reasons.join(', ')}`;
         });
-        
+
         onUploadError?.(errors.join('\n'));
         return;
       }
@@ -92,10 +93,10 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
 
       // Upload files sequentially to avoid overwhelming the server
       const uploadedFiles: FileUploadResponse[] = [];
-      
+
       for (let i = 0; i < acceptedFiles.length; i++) {
         const file = acceptedFiles[i];
-        
+
         try {
           const onProgress: UploadProgressCallback = (progress) => {
             setUploadingFiles((prev) =>
@@ -106,7 +107,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           };
 
           const uploadedFile = await fileApi.uploadFile(file, onProgress);
-          
+
           setUploadingFiles((prev) =>
             prev.map((uf, index) =>
               index === i
@@ -129,7 +130,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
             const httpError = error as { response?: { data?: { detail?: string } } };
             errorMessage = httpError?.response?.data?.detail || 'Upload failed';
           }
-          
+
           setUploadingFiles((prev) =>
             prev.map((uf, index) =>
               index === i
@@ -147,7 +148,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       }
 
       setIsUploading(false);
-      
+
       if (uploadedFiles.length > 0) {
         onUploadComplete?.(uploadedFiles);
       }
@@ -172,19 +173,20 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
     setUploadingFiles((prev) => prev.filter((file) => file.status !== 'completed'));
   };
 
+  // DESIGN_FIX: replace hardcoded colors with design tokens
   const getDropzoneStyles = () => {
-    let borderColor = '#cccccc';
-    let backgroundColor = '#fafafa';
+    let borderColor = tokens.colors.grey[400];
+    let backgroundColor = tokens.colors.grey[50];
 
     if (isDragAccept) {
-      borderColor = '#4caf50';
-      backgroundColor = '#f1f8e9';
+      borderColor = tokens.colors.success[500];
+      backgroundColor = tokens.colors.success[50];
     } else if (isDragReject) {
-      borderColor = '#f44336';
-      backgroundColor = '#ffebee';
+      borderColor = tokens.colors.error[500];
+      backgroundColor = tokens.colors.error[50];
     } else if (isDragActive) {
-      borderColor = '#2196f3';
-      backgroundColor = '#e3f2fd';
+      borderColor = tokens.colors.primary[500];
+      backgroundColor = tokens.colors.primary[50];
     }
 
     return {
@@ -233,8 +235,10 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       <Paper elevation={1} sx={getDropzoneStyles()}>
         <div data-testid="dropzone" {...getRootProps()}>
           <input aria-label="file input" data-testid="file-input" {...getInputProps()} />
-          <CloudUpload sx={{ fontSize: 48, color: '#666', mb: 2 }} />
-          
+          <CloudUpload
+            sx={{ fontSize: 48, color: tokens.colors.grey[600], mb: 2 }}
+          />
+
           {isDragActive ? (
             isDragAccept ? (
               <Typography variant="h6" color="success.main">
@@ -298,7 +302,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                       <Typography variant="body2" color="text.secondary">
                         {fileApi.formatFileSize(uploadingFile.file.size)}
                       </Typography>
-                      
+
                       {uploadingFile.status === 'uploading' && (
                         <Box sx={{ mt: 1 }}>
                           <LinearProgress
@@ -311,13 +315,13 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                           </Typography>
                         </Box>
                       )}
-                      
+
                       {uploadingFile.status === 'error' && uploadingFile.error && (
                         <Alert severity="error" sx={{ mt: 1 }}>
                           {uploadingFile.error}
                         </Alert>
                       )}
-                      
+
                       {uploadingFile.status === 'completed' && uploadingFile.uploadedInfo && (
                         <Typography variant="caption" color="success.main">
                           ✓ Uploaded successfully (ID: {uploadingFile.uploadedInfo.id})
@@ -344,4 +348,4 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   );
 };
 
-export default FileUploadDropzone; 
+export default FileUploadDropzone;

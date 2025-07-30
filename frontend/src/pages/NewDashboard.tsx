@@ -1,5 +1,5 @@
-import { ThemeProvider } from '../design/components/ThemeProvider';
-import { DashboardLayout } from '../design/components/DashboardLayout';
+import { ThemeProvider } from '../components/theme-provider';
+import { DashboardLayout } from '../components/dashboard-layout';
 
 const NewDashboard = () => (
   <ThemeProvider>

@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { Box } from '@mui/material';
+import { tokens } from '@/theme';
 import BaseChart from './BaseChart';
 
 
@@ -50,10 +51,11 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   error,
   currency = '$',
   showGrid = true,
-  positiveColor = '#2e7d32',
-  negativeColor = '#c62828',
-  totalColor = '#1976d2',
-  startColor = '#666666',
+  // DESIGN_FIX: use design tokens for default colors
+  positiveColor = tokens.colors.financial.positive,
+  negativeColor = tokens.colors.financial.negative,
+  totalColor = tokens.colors.financial.currency,
+  startColor = tokens.colors.financial.neutral,
   onExport,
   onFullscreen,
   formatXAxisTick,
@@ -61,14 +63,14 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 }) => {
   const processedData = useMemo(() => {
     let cumulative = 0;
-    
+
     return data.map((item, index) => {
       const isStart = item.type === 'start' || index === 0;
       const isTotal = item.type === 'total';
-      
+
       let stackBottom = 0;
       let stackTop = item.value;
-      
+
       if (isStart) {
         cumulative = item.value;
         stackBottom = 0;
@@ -88,15 +90,15 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         }
         cumulative += item.value;
       }
-      
-      const color = isStart 
-        ? startColor 
-        : isTotal 
-          ? totalColor 
-          : item.value >= 0 
-            ? positiveColor 
+
+      const color = isStart
+        ? startColor
+        : isTotal
+          ? totalColor
+          : item.value >= 0
+            ? positiveColor
             : negativeColor;
-      
+
       return {
         ...item,
         stackBottom,
@@ -115,7 +117,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
     if (formatYAxisTick) {
       return formatYAxisTick(value);
     }
-    
+
     // Auto-format based on value size
     if (Math.abs(value) >= 1000000) {
       return `${currency}${(value / 1000000).toFixed(1)}M`;
@@ -161,21 +163,21 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         <Box sx={{ fontSize: '0.875rem', fontWeight: 600, mb: 1 }}>
           {label}
         </Box>
-        
+
         {!isStart && !isTotal && (
           <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>
             Change: {formatYAxis(value)}
           </Box>
         )}
-        
+
         <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
           {isTotal ? 'Total' : 'Cumulative'}: {formatYAxis(cumulative || 0)}
         </Box>
-        
+
         {!isStart && !isTotal && (
-          <Box 
-            sx={{ 
-              fontSize: '0.75rem', 
+          <Box
+            sx={{
+              fontSize: '0.75rem',
               color: isPositive ? positiveColor : negativeColor,
               fontWeight: 500,
               mt: 0.5,
@@ -210,32 +212,36 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#e0e0e0"
+            stroke={tokens.colors.grey[300]} // DESIGN_FIX: tokenized grid color
             opacity={0.5}
           />
         )}
-        
+
         <XAxis
           dataKey="name"
           tick={{ fontSize: 12 }}
           tickFormatter={formatXAxis}
         />
-        
+
         <YAxis
           domain={yAxisDomain}
           tick={{ fontSize: 12 }}
           tickFormatter={formatYAxis}
         />
-        
-        <ReferenceLine y={0} stroke="#666" strokeWidth={1} />
-        
+
+        <ReferenceLine
+          y={0}
+          stroke={tokens.colors.grey[700]} // DESIGN_FIX: tokenized line color
+          strokeWidth={1}
+        />
+
         {/* Invisible bars for stacking */}
         <Bar
           dataKey="invisibleBottom"
           fill="transparent"
           strokeWidth={0}
         />
-        
+
         {/* Visible bars */}
         <Bar
           dataKey="visibleHeight"
@@ -245,7 +251,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Bar>
-        
+
         <Tooltip data-testid="tooltip" content={customTooltip} />
       </RechartsBarChart>
     </ResponsiveContainer>
@@ -266,4 +272,4 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   );
 };
 
-export default WaterfallChart; 
+export default WaterfallChart;

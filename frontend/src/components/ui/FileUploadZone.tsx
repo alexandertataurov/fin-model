@@ -20,7 +20,7 @@ import {
   CheckCircle,
   Error as ErrorIcon,
 } from '@mui/icons-material';
-import { Button } from './Button';
+import { Button } from './button';
 
 export interface FileUploadFile extends File {
   id: string;

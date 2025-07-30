@@ -27,6 +27,7 @@ import {
   TrendingDown as TrendingDownIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { tokens } from '@/theme';
 
 // Types
 interface Parameter {
@@ -87,7 +88,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
     queryKey: ['parameter-validation', parameter.id, editValue],
     queryFn: async () => {
       if (editValue === parameter.current_value) return null;
-      
+
       const response = await fetch('/api/v1/parameters/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,7 +97,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
           value: editValue,
         }),
       });
-      
+
       if (!response.ok) throw new Error('Validation failed');
       return await response.json() as ParameterValidation;
     },
@@ -115,7 +116,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
           change_reason: reason,
         }),
       });
-      
+
       if (!response.ok) throw new Error('Update failed');
       return response.json();
     },
@@ -142,14 +143,19 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
     }
   }, [parameter.format_type]);
 
-  // Get sensitivity color
+  // DESIGN_FIX: use design tokens for sensitivity colors
   const getSensitivityColor = (level: string) => {
     switch (level) {
-      case 'critical': return '#f44336';
-      case 'high': return '#ff9800';
-      case 'medium': return '#2196f3';
-      case 'low': return '#4caf50';
-      default: return '#757575';
+      case 'critical':
+        return tokens.colors.error[500];
+      case 'high':
+        return tokens.colors.warning[500];
+      case 'medium':
+        return tokens.colors.primary[500];
+      case 'low':
+        return tokens.colors.success[500];
+      default:
+        return tokens.colors.grey[600];
     }
   };
 
@@ -227,7 +233,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                 {formatValue(parameter.current_value)}
               </Typography>
             </Box>
-            
+
             <Box display="flex" alignItems="center" gap={1}>
               <Chip
                 size="small"
@@ -238,7 +244,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   fontSize: '0.7rem',
                 }}
               />
-              
+
               {!readonly && parameter.is_editable && (
                 <IconButton size="small" onClick={handleEditStart}>
                   <EditIcon fontSize="small" />
@@ -267,7 +273,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
               </Typography>
             )}
           </Box>
-          
+
           <Box display="flex" alignItems="center" gap={1}>
             <Chip
               size="small"
@@ -277,7 +283,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                 color: 'white',
               }}
             />
-            
+
             {parameter.source_cell && (
               <Tooltip title={`Source: ${parameter.source_sheet}!${parameter.source_cell}`}>
                 <Chip
@@ -305,7 +311,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   error={!!validationError || (validation ? !validation.is_valid : false)}
                   helperText={
                     validationError ||
-                    (validation && !validation.is_valid 
+                    (validation && !validation.is_valid
                       ? validation.validation_errors.join(', ')
                       : `Current: ${formatValue(parameter.current_value)}`
                     )
@@ -320,7 +326,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   }}
                 />
               </Grid>
-              
+
               {/* Slider for range inputs */}
               {parameter.min_value !== undefined && parameter.max_value !== undefined && (
                 <Grid item xs={12} md={6}>
@@ -338,7 +344,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   />
                 </Grid>
               )}
-              
+
               {/* Change Reason */}
               <Grid item xs={12}>
                 <TextField
@@ -350,7 +356,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   size="small"
                 />
               </Grid>
-              
+
               {/* Action Buttons */}
               <Grid item xs={12}>
                 <Box display="flex" gap={1}>
@@ -373,7 +379,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   >
                     Cancel
                   </Button>
-                  
+
                   {validation && validation.suggested_value !== undefined && (
                     <Button
                       variant="text"
@@ -390,7 +396,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
               <Typography variant="h4" component="div">
                 {formatValue(parameter.current_value)}
               </Typography>
-              
+
               {!readonly && parameter.is_editable && (
                 <Button
                   variant="outlined"
@@ -423,7 +429,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                     </Typography>
                   </Grid>
                 )}
-                
+
                 {/* Dependencies */}
                 {parameter.depends_on?.length && (
                   <Grid item xs={12} md={6}>
@@ -437,7 +443,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                     </Box>
                   </Grid>
                 )}
-                
+
                 {/* Affects */}
                 {parameter.affects?.length && (
                   <Grid item xs={12} md={6}>
@@ -451,7 +457,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                     </Box>
                   </Grid>
                 )}
-                
+
                 {/* Validation Rules */}
                 {parameter.validation_rules && (
                   <Grid item xs={12}>
@@ -474,7 +480,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
             Value change is valid. Impact will be calculated after save.
           </Alert>
         )}
-        
+
         {validation && !validation.is_valid && (
           <Alert severity="warning" sx={{ mt: 1 }}>
             <Typography variant="body2">
@@ -487,7 +493,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
             )}
           </Alert>
         )}
-        
+
         {!parameter.is_editable && (
           <Alert severity="info" sx={{ mt: 1 }}>
             This parameter is calculated automatically and cannot be edited.
@@ -498,4 +504,4 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
   );
 };
 
-export default ParameterEditor; 
+export default ParameterEditor;
