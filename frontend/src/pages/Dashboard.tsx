@@ -171,6 +171,7 @@ const Dashboard = () => {
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
+            type="button"
             variant="default"
             onClick={() => navigate('/files')}
             className="bg-background text-primary hover:bg-muted flex items-center"
@@ -179,6 +180,7 @@ const Dashboard = () => {
             Upload Financial Model
           </Button>
           <Button
+            type="button"
             variant="outline"
             onClick={() => navigate('/dashboards/pl')}
             className="border-border text-primary-foreground hover:bg-primary/10 flex items-center"
@@ -188,6 +190,7 @@ const Dashboard = () => {
           </Button>
           {hasAnalystAccess && (
             <Button
+              type="button"
               variant="outline"
               onClick={() => navigate('/scenarios')}
               className="border-border text-primary-foreground hover:bg-primary/10 flex items-center"
@@ -269,7 +272,7 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Get started quickly with our documentation and support resources.
               </Typography>
-              <Button variant="outline" className="w-full">
+              <Button type="button" variant="outline" className="w-full">
                 View Documentation
               </Button>
             </Card>

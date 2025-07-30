@@ -192,6 +192,7 @@ const Login: React.FC = () => {
                     onCheckedChange={checked =>
                       formik.setFieldValue('rememberMe', checked)
                     }
+                    aria-label="Remember me"
                   />
                   <Label
                     htmlFor="rememberMe"
