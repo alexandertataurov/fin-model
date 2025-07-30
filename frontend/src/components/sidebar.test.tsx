@@ -64,7 +64,8 @@ describe('Sidebar', () => {
       </BrowserRouter>
     );
 
-    const sidebar = screen.getByTestId('sidebar');
+    const sidebar = screen.getByText('FinVision').closest('div')?.parentElement;
+
     expect(sidebar).toHaveClass('custom-sidebar');
   });
 

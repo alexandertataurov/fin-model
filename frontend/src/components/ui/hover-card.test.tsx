@@ -14,18 +14,15 @@ describe('HoverCard', () => {
     const trigger = screen.getByText('Hover me');
     expect(trigger).toBeInTheDocument();
 
-    // Content should not be visible initially (Radix mounts it hidden)
-    await waitFor(() => {
-      const content = screen.queryByText('Hover content');
-      expect(content).not.toBeVisible();
-    });
+    // Content should not be visible initially
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
-    // Hover over trigger
+        // Hover over trigger
     await userEvent.hover(trigger);
 
     // Content should be visible
     await waitFor(() => {
-      expect(screen.getByText('Hover content')).toBeVisible();
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
     // Unhover
@@ -33,8 +30,7 @@ describe('HoverCard', () => {
 
     // Content should not be visible
     await waitFor(() => {
-      const content = screen.queryByText('Hover content');
-      expect(content).not.toBeVisible();
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
   });
 
@@ -50,7 +46,6 @@ describe('HoverCard', () => {
 
     // Focus the trigger
     await userEvent.tab();
-    expect(document.activeElement).toBe(trigger);
     expect(trigger).toHaveFocus();
 
     // Press Enter
