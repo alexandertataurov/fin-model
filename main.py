@@ -14,6 +14,21 @@ sys.path.insert(0, backend_path)
 os.chdir(backend_path)
 
 try:
+    # Auto-fix database schema if needed
+    auto_fix_enabled = os.environ.get("AUTO_FIX_DATABASE", "true").lower() == "true"
+    if auto_fix_enabled:
+        print("🔧 Auto-fix database enabled, checking schema...")
+        try:
+            # Add parent directory to path for auto_fix_database import
+            parent_dir = os.path.dirname(os.path.dirname(__file__))
+            sys.path.insert(0, parent_dir)
+            from auto_fix_database import run_auto_fix
+            if not run_auto_fix():
+                print("⚠️ Database auto-fix failed, but continuing startup...")
+        except Exception as fix_error:
+            print(f"⚠️ Database auto-fix error: {fix_error}")
+            print("Continuing with startup anyway...")
+    
     # Import the FastAPI app
     from main import app
     
