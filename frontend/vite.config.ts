@@ -143,6 +143,16 @@ export default defineConfig(({ mode }) => {
       deps: {
         inline: [/^@mui\/./],
       },
+      server: {
+        deps: {
+          inline: [
+            '@radix-ui/react-slot',
+            'react-router-dom',
+            '@testing-library/react',
+            '@testing-library/user-event',
+          ],
+        },
+      },
       coverage: {
         reporter: ['text', 'json', 'html'],
         exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*'],
