@@ -1,17 +1,12 @@
 # Netlify Configuration for FinVision Frontend
 
 [build]
-  # Base directory for build commands
   base = "frontend"
-  
-  # Build command
   command = "npm run build"
-  
-  # Directory to publish (relative to base)
   publish = "dist"
-  
-  # Environment variables for build
-  environment = { NODE_VERSION = "18" }
+
+  [build.environment]
+    NODE_VERSION = "18"
 
 [build.processing]
   skip_processing = false
@@ -30,19 +25,19 @@
 [build.processing.images]
   compress = true
 
-# SPA routing - redirect all routes to index.html
+# SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# API proxy to Railway backend
+# API proxy
 [[redirects]]
   from = "/api/*"
   to = "https://fin-model-production.up.railway.app/api/:splat"
   status = 200
   force = false
-  headers = {X-From = "Netlify"}
+  headers = { X-From = "Netlify" }
 
 # Health check proxy
 [[redirects]]
@@ -61,7 +56,7 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.railway.app wss://*.railway.app; frame-src 'self' https://app.netlify.com;"
 
-# Cache static assets
+# Caching
 [[headers]]
   for = "/assets/*"
   [headers.values]
@@ -77,7 +72,6 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Cache images
 [[headers]]
   for = "/*.png"
   [headers.values]
@@ -93,7 +87,7 @@
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
-# Environment-specific configuration
+# Environment-specific configs
 [context.production]
   command = "npm run build"
   [context.production.environment]
@@ -112,12 +106,12 @@
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
-# Functions (if you plan to use Netlify Functions for serverless API)
+# Netlify Functions config
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Dev server configuration for Netlify Dev
+# Local dev config
 [dev]
   command = "npm run dev"
   port = 3000
