@@ -65,7 +65,6 @@ describe('Sidebar', () => {
     );
 
     const sidebar = screen.getByText('FinVision').closest('div')?.parentElement;
-
     expect(sidebar).toHaveClass('custom-sidebar');
   });
 
