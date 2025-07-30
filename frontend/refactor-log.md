@@ -18,6 +18,8 @@
 - replaced hard-coded colors in `FileUploadDropzone`
 - tokenized colors in `WaterfallChart`
 - replaced sensitivity colors in `ParameterEditor`
+- removed MUI-based `ThemeToggle` component and updated imports
+- switched App and tests to new ThemeProvider
 
 ### Pending
 - consolidate UI directories into one

@@ -182,7 +182,7 @@ import {
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { DataTable } from '@/components/ui/DataTable';
 import { FileUploadZone } from '@/components/ui/FileUploadZone';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { BottomNavigation } from '@/components/ui/BottomNavigation';
 import { MultiSelect } from '@/components/ui/MultiSelect';
 

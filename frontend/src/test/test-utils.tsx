@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider as CustomThemeProvider } from '../contexts/ThemeContext';
+import { ThemeProvider as CustomThemeProvider } from '../components/theme-provider';
 import { vi } from 'vitest';
 
 // Mock the useAuth hook but preserve other exports like AuthProvider

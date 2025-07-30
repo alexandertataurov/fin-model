@@ -102,8 +102,8 @@ frontend/src/pages/NewDashboard.tsx
 | ---- | ------ | ----- |
 | FR1 Merge globals | [x] | Removed duplicate design/styles/globals.css |
 | FR2 Single cn utility | [x] | Consolidated cn imports |
-| FR3 Consolidate UI directory | [ ] | |
-| FR4 One theme provider | [ ] | |
+| FR3 Consolidate UI directory | [~] | Removed old ThemeToggle component |
+| FR4 One theme provider | [~] | App and tests use design provider |
 | FR5 Replace hex colors with variables | [~] | Most chart and form components migrated |
 | FR6 Update page imports | [ ] | |
 | FR7 Document components | [ ] | |
@@ -123,6 +123,8 @@ frontend/src/pages/NewDashboard.tsx
 - tokenized colors in `AnalyticsDashboard`, `LineChart`, and `PieChart`
 - replaced inline styles in `FileUploadDropzone` with tokens
 - applied design tokens in `WaterfallChart` and `ParameterEditor`
+- removed MUI-based `ThemeToggle` and switched to design component
+- switched App and tests to new ThemeProvider
 
 ### Pending
 - consolidate UI directories into one
