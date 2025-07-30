@@ -34,8 +34,11 @@ describe('Sidebar', () => {
   it('renders icons correctly', () => {
     renderSidebar();
 
-    expect(screen.getByTestId('home-icon')).toBeInTheDocument();
-    expect(screen.getByTestId('settings-icon')).toBeInTheDocument();
+    const homeIcon = document.querySelector('[data-testid="home-icon"]');
+    expect(homeIcon).not.toBeNull();
+
+    const settingsIcon = document.querySelector('[data-testid="settings-icon"]');
+    expect(settingsIcon).not.toBeNull();
   });
 
   it('renders correct links', () => {
@@ -57,11 +60,11 @@ describe('Sidebar', () => {
   it('applies custom className', () => {
     render(
       <BrowserRouter>
-        <Sidebar items={mockItems} className="custom-sidebar" />
+        <Sidebar items={mockItems} className="custom-sidebar" data-testid="sidebar" />
       </BrowserRouter>
     );
 
-    const sidebar = screen.getByText('FinVision').closest('div');
+    const sidebar = screen.getByTestId('sidebar');
     expect(sidebar).toHaveClass('custom-sidebar');
   });
 

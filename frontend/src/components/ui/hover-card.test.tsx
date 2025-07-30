@@ -6,7 +6,7 @@ describe('HoverCard', () => {
   it('renders trigger and shows content on hover', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
       </HoverCard>
     );
@@ -14,15 +14,18 @@ describe('HoverCard', () => {
     const trigger = screen.getByText('Hover me');
     expect(trigger).toBeInTheDocument();
 
-    // Content should not be visible initially
-    expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+    // Content should not be visible initially (Radix mounts it hidden)
+    await waitFor(() => {
+      const content = screen.queryByText('Hover content');
+      expect(content).not.toBeVisible();
+    });
 
     // Hover over trigger
     await userEvent.hover(trigger);
 
     // Content should be visible
     await waitFor(() => {
-      expect(screen.getByText('Hover content')).toBeInTheDocument();
+      expect(screen.getByText('Hover content')).toBeVisible();
     });
 
     // Unhover
@@ -30,14 +33,15 @@ describe('HoverCard', () => {
 
     // Content should not be visible
     await waitFor(() => {
-      expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+      const content = screen.queryByText('Hover content');
+      expect(content).not.toBeVisible();
     });
   });
 
   it('supports keyboard navigation', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
       </HoverCard>
     );
@@ -45,7 +49,8 @@ describe('HoverCard', () => {
     const trigger = screen.getByText('Hover me');
 
     // Focus the trigger
-    trigger.focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(trigger);
     expect(trigger).toHaveFocus();
 
     // Press Enter
@@ -53,7 +58,7 @@ describe('HoverCard', () => {
 
     // Content should be visible
     await waitFor(() => {
-      expect(screen.getByText('Hover content')).toBeInTheDocument();
+      expect(screen.getByText('Hover content')).toBeVisible();
     });
 
     // Press Escape
@@ -61,14 +66,15 @@ describe('HoverCard', () => {
 
     // Content should not be visible
     await waitFor(() => {
-      expect(screen.queryByText('Hover content')).not.toBeInTheDocument();
+      const content = screen.queryByText('Hover content');
+      expect(content).not.toBeVisible();
     });
   });
 
   it('applies custom className to content', async () => {
     render(
       <HoverCard>
-        <HoverCardTrigger>Hover me</HoverCardTrigger>
+        <HoverCardTrigger tabIndex={0}>Hover me</HoverCardTrigger>
         <HoverCardContent className="custom-content">
           Hover content
         </HoverCardContent>
@@ -89,7 +95,7 @@ describe('HoverCard', () => {
   it('maintains ARIA attributes', () => {
     render(
       <HoverCard>
-        <HoverCardTrigger aria-label="More information">
+        <HoverCardTrigger aria-label="More information" tabIndex={0}>
           Hover me
         </HoverCardTrigger>
         <HoverCardContent>Hover content</HoverCardContent>
