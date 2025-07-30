@@ -34,6 +34,7 @@ function ScrollBar({
 }: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
   return (
     <ScrollAreaPrimitive.ScrollAreaScrollbar
+      forceMount
       data-slot="scroll-area-scrollbar"
       orientation={orientation}
       className={cn(

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -95,7 +96,7 @@ describe('Resizable Components', () => {
 
   it('handles keyboard navigation', async () => {
     const user = userEvent.setup();
-    const handleKeyDown = jest.fn();
+    const handleKeyDown = vi.fn();
 
     render(
       <ResizablePanelGroup {...defaultProps}>

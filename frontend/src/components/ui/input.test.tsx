@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { Input } from './input';
 
 describe('Input', () => {
@@ -37,14 +38,22 @@ describe('Input', () => {
 
   it('handles different types correctly', () => {
     const { rerender } = render(<Input type="password" />);
-    expect(screen.getByRole('textbox')).toHaveAttribute('type', 'password');
+    const input = document.querySelector('input');
+    expect(input).not.toBeNull();
+    if (input) {
+      expect(input).toHaveAttribute('type', 'password');
+    }
 
     rerender(<Input type="email" />);
-    expect(screen.getByRole('textbox')).toHaveAttribute('type', 'email');
+    const updated = document.querySelector('input');
+    expect(updated).not.toBeNull();
+    if (updated) {
+      expect(updated).toHaveAttribute('type', 'email');
+    }
   });
 
   it('forwards refs correctly', () => {
-    const ref = jest.fn();
+    const ref = vi.fn();
     render(<Input ref={ref} />);
     expect(ref).toHaveBeenCalledWith(expect.any(HTMLInputElement));
   });
