@@ -1,5 +1,5 @@
 // Base UI Components
-export { default as Button } from './Button';
+export { Button, buttonVariants } from './button';
 export { default as Card } from './Card';
 // Re-export design system ThemeToggle component
 export { ThemeToggle } from '../theme-toggle';
@@ -35,7 +35,6 @@ export {
 } from './ErrorHandling';
 
 // Re-export types
-export type { ButtonProps } from './Button';
 export type { CardProps } from './Card';
 export type { TextFieldProps } from './TextField';
 export type { FileUploadZoneProps, FileUploadFile } from './FileUploadZone';

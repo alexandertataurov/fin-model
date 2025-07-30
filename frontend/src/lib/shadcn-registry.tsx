@@ -14,7 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/design/components/ui/aler
 import { AspectRatio } from '@/design/components/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/design/components/ui/avatar';
 import { Badge } from '@/design/components/ui/badge';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Calendar } from '@/design/components/ui/calendar';
 import {
   Card,

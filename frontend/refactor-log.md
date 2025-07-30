@@ -20,6 +20,10 @@
 - replaced sensitivity colors in `ParameterEditor`
 - removed MUI-based `ThemeToggle` component and updated imports
 - switched App and tests to new ThemeProvider
+- moved DashboardLayout and related tabs to `src/components`
+- replaced legacy Button component with design-system `button`
+- removed obsolete `ThemeContext` provider
+- updated NewDashboard to use unified theme provider
 
 ### Pending
 - consolidate UI directories into one
