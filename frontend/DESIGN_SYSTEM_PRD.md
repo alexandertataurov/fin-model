@@ -102,7 +102,11 @@ frontend/src/pages/NewDashboard.tsx
 | ---- | ------ | ----- |
 | FR1 Merge globals | [x] | Removed duplicate design/styles/globals.css |
 | FR2 Single cn utility | [x] | Consolidated cn imports |
+<<<<<<< HEAD
 | FR3 Consolidate UI directory | [~] | Moved DashboardLayout and tabs to `src/components`; replaced Button component |
+=======
+| FR3 Consolidate UI directory | [~] | Migrated Button, Accordion, Alert, Badge and dashboard layout components |
+>>>>>>> d4acaa42638dada959bf744f7a69e14d8bcedcfc
 | FR4 One theme provider | [~] | Removed legacy ThemeContext and using unified provider |
 | FR5 Replace hex colors with variables | [~] | Most chart and form components migrated |
 | FR6 Update page imports | [~] | NewDashboard imports updated |
