@@ -68,7 +68,11 @@ export default defineConfig(({ mode }) => {
       reportCompressedSize: true,
       // Optimize chunks and improve caching
       rollupOptions: {
-        external: ['lucide-react'],
+        external: (id) => {
+          // Only externalize specific packages, never internal modules
+          if (id === 'lucide-react') return true;
+          return false;
+        },
         output: {
           // Ensure consistent chunk naming
           chunkFileNames: 'assets/[name]-[hash].js',
