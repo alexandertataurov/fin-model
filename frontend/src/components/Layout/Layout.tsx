@@ -20,7 +20,8 @@ import {
   Home,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { ThemeToggle, BottomNavigation, HelpButton } from '../ui';
+import { BottomNavigation, HelpButton } from '../ui';
+import { ThemeToggle } from '../theme-toggle';
 import Sidebar from './Sidebar';
 
 const Layout = () => {

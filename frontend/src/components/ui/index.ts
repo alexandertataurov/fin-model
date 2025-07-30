@@ -1,7 +1,8 @@
 // Base UI Components
-export { default as Button } from './Button';
+export { Button, buttonVariants } from './button';
 export { default as Card } from './Card';
-export { default as ThemeToggle } from './ThemeToggle';
+// Re-export design system ThemeToggle component
+export { ThemeToggle } from '../theme-toggle';
 export { default as TextField } from './TextField';
 export { default as FileUploadZone } from './FileUploadZone';
 export { default as MultiSelect } from './MultiSelect';
@@ -34,11 +35,10 @@ export {
 } from './ErrorHandling';
 
 // Re-export types
-export type { ButtonProps } from './Button';
 export type { CardProps } from './Card';
 export type { TextFieldProps } from './TextField';
 export type { FileUploadZoneProps, FileUploadFile } from './FileUploadZone';
 export type { MultiSelectProps, MultiSelectOption } from './MultiSelect';
 export type { DateRangePickerProps, DateRange } from './DateRangePicker';
 export type { DataTableProps, DataTableColumn } from './DataTable';
-export type { BottomNavigationProps } from './BottomNavigation'; 
+export type { BottomNavigationProps } from './BottomNavigation';
