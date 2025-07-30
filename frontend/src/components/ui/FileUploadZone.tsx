@@ -285,9 +285,10 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                   variant="default"
                   size="sm"
                   onClick={() => handleUpload(pendingFiles)}
-                  loading={uploading}
-                  startIcon={<CloudUpload />}
+                  disabled={uploading}
+                  className="flex items-center"
                 >
+                  <CloudUpload className="mr-2 h-4 w-4" />
                   Upload {pendingFiles.length} file
                   {pendingFiles.length !== 1 ? 's' : ''}
                 </Button>

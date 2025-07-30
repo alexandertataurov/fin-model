@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Slider } from '../ui/slider'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
+import { Slider } from '@/design/components/ui/slider'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design/components/ui/tabs'
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { Play, Pause, RotateCcw, Save } from 'lucide-react'
 
@@ -140,7 +140,7 @@ export function ParametersTab() {
                       max={50}
                       step={1}
                       value={[parameters.growthRate]}
-                      onValueChange={(value) => handleParameterChange('growthRate', value)}
+                      onValueChange={(value: number[]) => handleParameterChange('growthRate', value)}
                       className="flex-1"
                     />
                     <Input
@@ -161,7 +161,7 @@ export function ParametersTab() {
                       max={50}
                       step={1}
                       value={[parameters.marketingSpend]}
-                      onValueChange={(value) => handleParameterChange('marketingSpend', value)}
+                      onValueChange={(value: number[]) => handleParameterChange('marketingSpend', value)}
                       className="flex-1"
                     />
                     <Input
@@ -184,7 +184,7 @@ export function ParametersTab() {
                       max={50}
                       step={1}
                       value={[parameters.operatingMargin]}
-                      onValueChange={(value) => handleParameterChange('operatingMargin', value)}
+                      onValueChange={(value: number[]) => handleParameterChange('operatingMargin', value)}
                       className="flex-1"
                     />
                     <Input
@@ -205,7 +205,7 @@ export function ParametersTab() {
                       max={10}
                       step={0.1}
                       value={[parameters.inflationRate]}
-                      onValueChange={(value) => handleParameterChange('inflationRate', value)}
+                      onValueChange={(value: number[]) => handleParameterChange('inflationRate', value)}
                       className="flex-1"
                     />
                     <Input
@@ -228,7 +228,7 @@ export function ParametersTab() {
                       max={50}
                       step={1}
                       value={[parameters.taxRate]}
-                      onValueChange={(value) => handleParameterChange('taxRate', value)}
+                      onValueChange={(value: number[]) => handleParameterChange('taxRate', value)}
                       className="flex-1"
                     />
                     <Input
@@ -249,7 +249,7 @@ export function ParametersTab() {
                       max={20}
                       step={0.5}
                       value={[parameters.discountRate]}
-                      onValueChange={(value) => handleParameterChange('discountRate', value)}
+                      onValueChange={(value: number[]) => handleParameterChange('discountRate', value)}
                       className="flex-1"
                     />
                     <Input

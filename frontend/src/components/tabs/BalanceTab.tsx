@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DraggableWidget } from '../DraggableWidget'
+import { DraggableWidget } from '../draggable-widget'
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts'
 import { Building, CreditCard, TrendingUp, Shield, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
