@@ -1,8 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
 // Production-specific Vite config that optimizes for deployment
 export default defineConfig(({ mode }) => {
@@ -12,30 +10,13 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react({
-        // Babel options for better optimization
+        // Simplified React plugin for faster builds
+        jsxImportSource: '@emotion/react',
         babel: {
-          plugins: [
-            ['@babel/plugin-transform-runtime', { useESModules: true }],
-          ],
+          plugins: mode === 'production' ? [] : undefined, // Skip babel in production for speed
         },
       }),
     ],
-    css: {
-      postcss: {
-        plugins: [
-          tailwindcss(),
-          autoprefixer({
-            // Optimize autoprefixer
-            grid: true,
-          }),
-        ],
-      },
-      // Optimize CSS output
-      modules: {
-        generateScopedName:
-          mode === 'production' ? '[hash:base64:8]' : '[local]_[hash:base64:5]',
-      },
-    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
@@ -57,16 +38,12 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: false,
-      minify: 'esbuild',
-      target: 'esnext', // Modern browsers for better optimization
-      cssTarget: 'chrome61', // Target modern Chrome for CSS
-      assetsInlineLimit: 4096, // Inline small assets (4kb)
-      modulePreload: {
-        polyfill: true, // Add module preload polyfill
-      },
-      reportCompressedSize: true,
-      // Optimize chunks and improve caching
+      sourcemap: false, // Disable sourcemaps for faster builds
+      minify: 'esbuild', // Fastest minifier
+      target: 'es2020', // Balance between compatibility and speed
+      assetsInlineLimit: 8192, // Inline more assets to reduce requests
+      reportCompressedSize: false, // Skip size reporting for speed
+      // Simple and fast rollup configuration
       rollupOptions: {
         external: (id) => {
           // Only externalize specific packages, never internal modules
@@ -74,77 +51,20 @@ export default defineConfig(({ mode }) => {
           return false;
         },
         output: {
-          // Ensure consistent chunk naming
-          chunkFileNames: 'assets/[name]-[hash].js',
-          entryFileNames: 'assets/[name]-[hash].js',
+          // Simple chunk naming for better caching
+          chunkFileNames: 'js/[name]-[hash].js',
+          entryFileNames: 'js/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
+          // Simplified manual chunks - less complexity = faster builds
           manualChunks: {
-            // Core React dependencies
             vendor: ['react', 'react-dom', 'react-router-dom'],
-
-            // Material UI and icons (load separately since they're large)
-            mui: ['@mui/material', '@mui/icons-material'],
-
-            // UI Components split by frequency of use
-            'ui-core': [
-              '@radix-ui/react-slot',
-              '@radix-ui/react-label',
-              '@radix-ui/react-dialog',
-              '@radix-ui/react-popover',
-              '@radix-ui/react-tooltip',
-              'class-variance-authority',
-              'tailwind-merge',
-            ],
-            'ui-forms': [
-              '@radix-ui/react-checkbox',
-              '@radix-ui/react-radio-group',
-              '@radix-ui/react-select',
-              '@radix-ui/react-switch',
-              '@radix-ui/react-slider',
-            ],
-            'ui-navigation': [
-              '@radix-ui/react-navigation-menu',
-              '@radix-ui/react-menubar',
-              '@radix-ui/react-tabs',
-              '@radix-ui/react-context-menu',
-              '@radix-ui/react-dropdown-menu',
-            ],
-            'ui-layout': [
-              '@radix-ui/react-accordion',
-              '@radix-ui/react-aspect-ratio',
-              '@radix-ui/react-collapsible',
-              '@radix-ui/react-scroll-area',
-              '@radix-ui/react-separator',
-            ],
-            'ui-feedback': [
-              '@radix-ui/react-alert-dialog',
-              '@radix-ui/react-progress',
-              '@radix-ui/react-hover-card',
-              '@radix-ui/react-toast',
-            ],
-
-            // Data visualization
+            ui: ['@mui/material', '@mui/icons-material', 'lucide-react'],
             charts: ['recharts'],
-
-            // Core utilities (frequent use)
-            'utils-core': ['axios', 'date-fns'],
-
-            // Form handling (load when forms are used)
-            forms: ['react-hook-form', 'yup', 'input-otp'],
-
-            // Interactive features (load on demand)
-            interactions: [
-              'cmdk',
-              'embla-carousel-react',
-              'react-day-picker',
-              'react-resizable-panels',
-              'sonner',
-              'vaul',
-            ],
+            utils: ['axios', 'date-fns', 'tailwind-merge', 'class-variance-authority'],
           },
         },
       },
-      chunkSizeWarningLimit: 1500,
+      chunkSizeWarningLimit: 2000, // Increase threshold to reduce warnings
     },
     test: {
       globals: true,
@@ -156,28 +76,26 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      // Force inclusion of indirect dependencies
+      // Pre-bundle heavy dependencies for faster builds
       include: [
         'react',
         'react-dom',
         'react-router-dom',
-        '@radix-ui/react-slot',
-        'class-variance-authority',
+        '@mui/material',
+        'axios',
+        'date-fns',
+        'tailwind-merge',
       ],
-      // Exclude big optional dependencies
-      exclude: ['@mui/icons-material'],
+      exclude: ['@mui/icons-material'], // Large icon library - load on demand
     },
-    // Performance optimization settings
+    // Optimized esbuild settings for speed
     esbuild: {
-      logLevel: 'info',
-      logLimit: 0,
+      logLevel: 'warning', // Reduce log noise
       treeShaking: true,
-      platform: 'browser',
-      target: 'esnext',
-      supported: {
-        'dynamic-import': true,
-        'import-meta': true,
-      },
+      target: 'es2020',
+      minifyIdentifiers: true,
+      minifySyntax: true,
+      minifyWhitespace: true,
     },
   };
 });

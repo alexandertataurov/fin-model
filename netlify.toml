@@ -2,28 +2,21 @@
 
 [build]
   base = "frontend"
-  command = "npm run build"
+  command = "npm run build:fast"
   publish = "dist"
 
   [build.environment]
     NODE_VERSION = "18"
+    # Enable build performance optimizations
+    NODE_OPTIONS = "--max-old-space-size=4096"
+    # Skip npm audit for faster builds
+    NPM_CONFIG_AUDIT = "false"
+    # Use faster package manager if available
+    NPM_CONFIG_FUND = "false"
 
+# Skip Netlify's post-processing since Vite already optimizes everything
 [build.processing]
-  skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.html]
-  pretty_urls = true
-
-[build.processing.images]
-  compress = true
+  skip_processing = true
 
 # SPA routing
 [[redirects]]
