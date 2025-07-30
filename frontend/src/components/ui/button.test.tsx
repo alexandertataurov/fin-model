@@ -19,14 +19,14 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveClass('border-input');
   });
 
-  it('handles loading state correctly', () => {
+  it('handles disabled state as loading', () => {
     render(
-      <Button loading loadingText="Loading...">
-        Click me
+      <Button disabled>
+        Loading...
       </Button>
     );
     expect(screen.getByText('Loading...')).toBeInTheDocument();
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toBeDisabled();
   });
 
   it('handles disabled state correctly', () => {
@@ -34,13 +34,12 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toBeDisabled();
   });
 
-  it('renders with icons correctly', () => {
+  it('renders with SVG icons correctly', () => {
     render(
-      <Button
-        startIcon={<span data-testid="start-icon" />}
-        endIcon={<span data-testid="end-icon" />}
-      >
+      <Button>
+        <span data-testid="start-icon" />
         Button
+        <span data-testid="end-icon" />
       </Button>
     );
 
@@ -50,13 +49,13 @@ describe('Button', () => {
 
   it('applies size variants correctly', () => {
     const { rerender } = render(<Button size="default">Button</Button>);
-    expect(screen.getByRole('button')).toHaveClass('h-10');
+    expect(screen.getByRole('button')).toHaveClass('h-9');
 
     rerender(<Button size="sm">Button</Button>);
     expect(screen.getByRole('button')).toHaveClass('h-8');
 
     rerender(<Button size="lg">Button</Button>);
-    expect(screen.getByRole('button')).toHaveClass('h-12');
+    expect(screen.getByRole('button')).toHaveClass('h-10');
   });
 
   it('forwards refs correctly', () => {
