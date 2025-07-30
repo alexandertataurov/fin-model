@@ -1,6 +1,6 @@
 // Base UI Components
 export { Button, buttonVariants } from './button';
-export { default as Card } from './Card';
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, CardAction } from './card';
 // Re-export design system ThemeToggle component
 export { ThemeToggle } from '../theme-toggle';
 export { default as TextField } from './TextField';
@@ -38,7 +38,7 @@ export {
 } from './ErrorHandling';
 
 // Re-export types
-export type { CardProps } from './Card';
+export type { CardProps } from './card';
 export type { TextFieldProps } from './TextField';
 export type { FileUploadZoneProps, FileUploadFile } from './FileUploadZone';
 export type { MultiSelectProps, MultiSelectOption } from './MultiSelect';

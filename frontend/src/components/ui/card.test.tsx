@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from './Card';
+} from './card';
 
 describe('Card', () => {
   it('renders all card components with correct data-slots', () => {

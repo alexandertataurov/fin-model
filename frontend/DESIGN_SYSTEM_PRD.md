@@ -109,10 +109,10 @@ frontend/src/pages/NewDashboard.tsx
 | ------------------------------------- | ------ | ------------------------------------------------------------------------ |
 | FR1 Merge globals                     | [x]    | Removed duplicate design/styles/globals.css                              |
 | FR2 Single cn utility                 | [x]    | Consolidated cn imports                                                  |
-| FR3 Consolidate UI directory          | [~]    | Migrated core components (Card, Slider, Tabs, Progress, Dialog, Sheet, etc.) |
+| FR3 Consolidate UI directory          | [~]    | Core components migrated, remaining: PascalCase components and cleanup   |
 | FR4 One theme provider                | [x]    | Removed legacy ThemeContext and using unified provider                   |
 | FR5 Replace hex colors with variables | [~]    | Most chart and form components migrated                                  |
-| FR6 Update page imports               | [~]    | Component imports updated to use unified directory                       |
+| FR6 Update page imports               | [~]    | Dashboard and tab components updated, legacy pages pending               |
 | FR7 Document components               | [ ]    |                                                                          |
 
 ## Refactor Log
@@ -133,9 +133,15 @@ frontend/src/pages/NewDashboard.tsx
 - applied design tokens in `WaterfallChart` and `ParameterEditor`
 - removed MUI-based `ThemeToggle` and switched to design component
 - switched App and tests to new ThemeProvider
+- migrated Card component to lowercase and unified implementation with design system features
+- migrated core UI components from design directory: Slider, Tabs, Progress, Collapsible, Dialog, Sheet
+- updated all component imports in tabs, layout, and utility components to use unified directory
+- updated shadcn registry to import from unified components directory
+- consolidated component imports across ParametersTab, SalesTab, CashFlowTab, FilterSidebar, FileUpload, DashboardLayout
 
 ### Pending
 
-- consolidate UI directories into one
-- unify theme providers
-- continue replacing hard-coded colors across legacy components
+- migrate remaining PascalCase UI components to lowercase naming convention
+- remove duplicate components from design directory after full migration
+- continue replacing hard-coded colors across legacy Material-UI components
+- update remaining Material-UI based components to use unified design system
