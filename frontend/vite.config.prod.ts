@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => {
       reportCompressedSize: false, // Skip size reporting for speed
       // Simple and fast rollup configuration
       rollupOptions: {
-        external: (id) => {
+        external: (_id) => {
           // Don't externalize any packages - let them be bundled
           return false;
         },

@@ -9,6 +9,28 @@ export { default as MultiSelect } from './MultiSelect';
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
 export { Alert, AlertDescription, AlertTitle } from './alert';
 export { Badge } from './badge';
+export { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './alert-dialog';
+export { Toaster } from './sonner';
+export {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './table';
 export { default as DateRangePicker } from './DateRangePicker';
 export { default as DataTable } from './DataTable';
 export { default as BottomNavigation } from './BottomNavigation';
