@@ -27,6 +27,7 @@ import Reports from './pages/Reports';
 import ScenarioModeling from './pages/ScenarioModeling';
 import Analytics from './pages/Analytics';
 import NewDashboard from './pages/NewDashboard';
+import TemplateDashboard from './pages/TemplateDashboard';
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient({
@@ -62,6 +63,7 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route path="/new-dashboard" element={<NewDashboard />} />
+      <Route path="/template-dashboard" element={<TemplateDashboard />} />
 
       {/* Protected routes with Layout */}
       <Route
@@ -90,6 +92,7 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="template" element={<TemplateDashboard />} />
         <Route
           path="admin/*"
           element={

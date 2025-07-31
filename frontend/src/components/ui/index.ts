@@ -9,6 +9,17 @@ export { default as MultiSelect } from './MultiSelect';
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
 export { Alert, AlertDescription, AlertTitle } from './alert';
 export { Badge } from './badge';
+export { AspectRatio } from './aspect-ratio';
+export { Avatar, AvatarImage, AvatarFallback } from './avatar';
+export {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
+} from './breadcrumb';
 export { 
   AlertDialog,
   AlertDialogAction,
