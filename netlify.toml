@@ -2,7 +2,7 @@
 
 [build]
   base = "frontend"
-  command = "npm run build:fast"
+  command = "npm ci && npm run build"
   publish = "dist"
 
   [build.environment]
@@ -82,19 +82,19 @@
 
 # Environment-specific configs
 [context.production]
-  command = "npm run build"
+  command = "npm ci && npm run build"
   [context.production.environment]
     NODE_ENV = "production"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.deploy-preview]
-  command = "npm run build"
+  command = "npm ci && npm run build"
   [context.deploy-preview.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.branch-deploy]
-  command = "npm run build"
+  command = "npm ci && npm run build"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
