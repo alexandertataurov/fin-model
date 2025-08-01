@@ -26,7 +26,9 @@
       "Bash(npm test:*)",
       "Bash(npx vitest:*)",
       "Bash(timeout 240 npm test)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(dir)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" run_migrations.py)"
     ],
     "deny": []
   }
