@@ -20,15 +20,24 @@ def upgrade():
     # Advanced indexes for users table
     conn = op.get_bind()
 
+    # ix_users_last_login
     if not conn.execute(text("SELECT to_regclass('ix_users_last_login')")).scalar():
         op.create_index("ix_users_last_login", "users", ["last_login"], unique=False)
 
+    # ix_users_created_date - expression index (use raw SQL)
     if not conn.execute(text("SELECT to_regclass('ix_users_created_date')")).scalar():
         op.execute("CREATE INDEX ix_users_created_date ON users (DATE(created_at))")
 
-    op.create_index(
-        "ix_users_active_verified", "users", ["is_active", "is_verified"], unique=False
-    )
+    # ix_users_active_verified - compound index
+    if not conn.execute(
+        text("SELECT to_regclass('ix_users_active_verified')")
+    ).scalar():
+        op.create_index(
+            "ix_users_active_verified",
+            "users",
+            ["is_active", "is_verified"],
+            unique=False,
+        )
 
     # Advanced indexes for uploaded_files table
     op.create_index(
@@ -454,6 +463,6 @@ def downgrade():
     op.drop_index("ix_files_status_created", table_name="uploaded_files")
 
     # Drop user indexes
-    op.drop_index("ix_users_active_verified", table_name="users")
-    op.drop_index("ix_users_created_date", table_name="users")
-    op.drop_index("ix_users_last_login", table_name="users")
+    op.execute("DROP INDEX IF EXISTS ix_users_active_verified")
+    op.execute("DROP INDEX IF EXISTS ix_users_created_date")
+    op.execute("DROP INDEX IF EXISTS ix_users_last_login")
