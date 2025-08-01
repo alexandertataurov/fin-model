@@ -2,7 +2,14 @@ import * as React from "react";
 
 import { cn } from "./utils";
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+export type CardProps = React.ComponentProps<"div"> & {
+  interactive?: boolean;
+  hover?: boolean;
+  sx?: any;
+  as?: any;
+};
+
+function Card({ className, interactive, hover, sx, as, ...props }: CardProps) {
   return (
     <div
       data-slot="card"

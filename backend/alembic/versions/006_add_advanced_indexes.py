@@ -279,6 +279,7 @@ def upgrade():
 
     # Full-text search indexes (PostgreSQL specific)
     # Create GIN indexes for better text search on key fields
+
     with op.get_context().autocommit_block():
         op.execute(
             """

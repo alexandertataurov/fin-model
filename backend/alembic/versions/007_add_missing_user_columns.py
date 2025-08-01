@@ -5,9 +5,9 @@ Revises: 006
 Create Date: 2025-07-30 11:30:00.000000
 
 """
-from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "007"
@@ -50,7 +50,6 @@ def upgrade() -> None:
         WHERE full_name LIKE '%  %'
     """
     )
-
     # Make first_name and last_name nullable (they were incorrectly set as NOT NULL in migration 001)
     op.alter_column("users", "first_name", nullable=True)
     op.alter_column("users", "last_name", nullable=True)
