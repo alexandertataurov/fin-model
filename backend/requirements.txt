@@ -22,7 +22,7 @@ openpyxl==3.1.2
 xlsxwriter==3.1.9
 
 # PDF generation and reporting
-reportlab==4.0.7
+reportlab==4.0.8
 weasyprint==61.2
 Pillow>=10.1.0
 matplotlib>=3.8.0
@@ -58,7 +58,7 @@ pytest==7.4.3
 pytest-asyncio==0.21.1
 black==23.11.0
 isort==5.12.0
-flake8==6.1.0 
+flake8==6.1.0
 
 # Testing Dependencies
 pytest>=7.4.0
@@ -68,5 +68,4 @@ pytest-mock>=3.11.0
 pytest-xdist>=3.3.0  # Parallel test execution
 httpx>=0.24.0  # For async client testing
 factory-boy>=3.3.0  # Test data factories
-faker>=19.0.0  # Generate fake data for tests 
-
+faker>=19.0.0  # Generate fake data for tests
