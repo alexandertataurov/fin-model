@@ -7,7 +7,7 @@ Create Date: 2024-12-20 11:00:00.000000
 """
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy import inspect
+from sqlalchemy import text
 
 # revision identifiers, used by Alembic.
 revision = "006"
@@ -19,14 +19,13 @@ depends_on = None
 def upgrade():
     # Advanced indexes for users table
     conn = op.get_bind()
-    inspector = inspect(conn)
-    existing_indexes = [ix["name"] for ix in inspector.get_indexes("users")]
 
-    if "ix_users_last_login" not in existing_indexes:
+    if not conn.execute(text("SELECT to_regclass('ix_users_last_login')")).scalar():
         op.create_index("ix_users_last_login", "users", ["last_login"], unique=False)
-    op.create_index(
-        "ix_users_created_date", "users", [sa.text("DATE(created_at)")], unique=False
-    )
+
+    if not conn.execute(text("SELECT to_regclass('ix_users_created_date')")).scalar():
+        op.execute("CREATE INDEX ix_users_created_date ON users (DATE(created_at))")
+
     op.create_index(
         "ix_users_active_verified", "users", ["is_active", "is_verified"], unique=False
     )
