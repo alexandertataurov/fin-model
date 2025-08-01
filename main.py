@@ -38,6 +38,22 @@ try:
             traceback.print_exc()
             print("Continuing with startup anyway...")
 
+    # Automatically run Alembic migrations unless disabled
+    auto_migrate = os.environ.get("AUTO_MIGRATE_DATABASE", "true").lower() == "true"
+    if auto_migrate:
+        try:
+            from run_migrations import run_migrations
+
+            print("🚀 Running database migrations...")
+            run_migrations()
+            print("✅ Database migrations completed!")
+        except Exception as migrate_error:
+            print(f"⚠️ Migration error: {migrate_error}")
+            import traceback
+
+            traceback.print_exc()
+            print("Continuing with startup despite migration errors...")
+
     # Import the FastAPI app
     from main import app
 
