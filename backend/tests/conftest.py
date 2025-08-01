@@ -41,9 +41,9 @@ def test_db():
 
     # Create engine and sessionmaker
     engine = create_engine(
-        f"sqlite:///{db_path}", 
+        f"sqlite:///{db_path}",
         connect_args={"check_same_thread": False},
-        poolclass=StaticPool
+        poolclass=StaticPool,
     )
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -69,15 +69,13 @@ async def async_test_db():
     engine = create_async_engine(
         f"sqlite+aiosqlite:///{db_path}",
         poolclass=StaticPool,
-        connect_args={"check_same_thread": False}
+        connect_args={"check_same_thread": False},
     )
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    async_session = sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     yield async_session, engine
 
@@ -171,7 +169,7 @@ def authenticated_client(client, db_session, test_user_data):
         hashed_password=hashed_password,
         first_name=test_user_data["first_name"],
         last_name=test_user_data["last_name"],
-        is_active=test_user_data["is_active"]
+        is_active=test_user_data["is_active"],
     )
     db_session.add(user)
     db_session.commit()
@@ -180,14 +178,14 @@ def authenticated_client(client, db_session, test_user_data):
     # Login and get token
     login_data = {
         "username": test_user_data["username"],
-        "password": test_user_data["password"]
+        "password": test_user_data["password"],
     }
     response = client.post("/api/v1/auth/login", data=login_data)
     token = response.json()["access_token"]
-    
+
     # Set authorization header
     client.headers = {"Authorization": f"Bearer {token}"}
-    
+
     return client, user
 
 
@@ -202,7 +200,7 @@ def admin_client(client, db_session, test_admin_data):
         hashed_password=hashed_password,
         full_name=test_admin_data["full_name"],
         is_active=test_admin_data["is_active"],
-        is_admin=test_admin_data.get("is_admin", True)
+        is_admin=test_admin_data.get("is_admin", True),
     )
     db_session.add(admin_user)
     db_session.commit()
@@ -211,14 +209,14 @@ def admin_client(client, db_session, test_admin_data):
     # Login and get token
     login_data = {
         "username": test_admin_data["username"],
-        "password": test_admin_data["password"]
+        "password": test_admin_data["password"],
     }
     response = client.post("/api/v1/auth/login", data=login_data)
     token = response.json()["access_token"]
-    
+
     # Set authorization header
     client.headers = {"Authorization": f"Bearer {token}"}
-    
+
     return client, admin_user
 
 
@@ -231,9 +229,7 @@ class UserFactory(factory.Factory):
     email = factory.LazyAttribute(lambda obj: f"{obj.username}@example.com")
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
-    hashed_password = factory.LazyFunction(
-        lambda: get_password_hash("testpassword")
-    )
+    hashed_password = factory.LazyFunction(lambda: get_password_hash("testpassword"))
     is_active = True
 
 
@@ -248,27 +244,27 @@ def sample_excel_file():
     import pandas as pd
     import tempfile
     import os
-    
+
     # Create sample financial data
     data = {
-        'Account': ['Revenue', 'COGS', 'Gross Profit', 'Operating Expenses', 'EBITDA'],
-        'Q1_2023': [1000000, -600000, 400000, -250000, 150000],
-        'Q2_2023': [1200000, -720000, 480000, -280000, 200000],
-        'Q3_2023': [1100000, -660000, 440000, -270000, 170000],
-        'Q4_2023': [1300000, -780000, 520000, -300000, 220000]
+        "Account": ["Revenue", "COGS", "Gross Profit", "Operating Expenses", "EBITDA"],
+        "Q1_2023": [1000000, -600000, 400000, -250000, 150000],
+        "Q2_2023": [1200000, -720000, 480000, -280000, 200000],
+        "Q3_2023": [1100000, -660000, 440000, -270000, 170000],
+        "Q4_2023": [1300000, -780000, 520000, -300000, 220000],
     }
-    
+
     df = pd.DataFrame(data)
-    
+
     # Create temporary file
-    fd, file_path = tempfile.mkstemp(suffix='.xlsx')
+    fd, file_path = tempfile.mkstemp(suffix=".xlsx")
     os.close(fd)
-    
+
     # Write Excel file
     df.to_excel(file_path, index=False)
-    
+
     yield file_path
-    
+
     # Cleanup
     if os.path.exists(file_path):
         os.unlink(file_path)
@@ -277,8 +273,8 @@ def sample_excel_file():
 @pytest.fixture
 def mock_celery_task(mocker):
     """Mock Celery task execution for testing."""
-    return mocker.patch('app.tasks.file_processing.process_file_task.delay')
+    return mocker.patch("app.tasks.file_processing.process_file_task.delay")
 
 
 # Test markers and utilities
-pytestmark = pytest.mark.asyncio 
+pytestmark = pytest.mark.asyncio

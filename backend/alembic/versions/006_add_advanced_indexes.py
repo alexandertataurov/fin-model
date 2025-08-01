@@ -5,7 +5,6 @@ Revises: 005
 Create Date: 2024-12-20 11:00:00.000000
 
 """
-
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy import text
@@ -294,99 +293,110 @@ def upgrade():
 
     # Full-text search indexes (PostgreSQL specific)
     # Create GIN indexes for better text search on key fields
-    op.execute(
-        """
-        CREATE INDEX CONCURRENTLY ix_parameters_search_gin
-        ON parameters USING gin(to_tsvector('english',
-            COALESCE(name, '') || ' ' ||
-            COALESCE(display_name, '') || ' ' ||
-            COALESCE(description, '')
-        ))
-    """
-    )
 
-    op.execute(
+    with op.get_context().autocommit_block():
+        op.execute(
+            """
+            CREATE INDEX CONCURRENTLY ix_parameters_search_gin
+            ON parameters USING gin(to_tsvector('english',
+                COALESCE(name, '') || ' ' ||
+                COALESCE(display_name, '') || ' ' ||
+                COALESCE(description, '')
+            ))
         """
-        CREATE INDEX CONCURRENTLY ix_scenarios_search_gin
-        ON scenarios USING gin(to_tsvector('english',
-            COALESCE(name, '') || ' ' ||
-            COALESCE(description, '')
-        ))
-    """
-    )
+        )
 
-    op.execute(
+        op.execute(
+            """
+            CREATE INDEX CONCURRENTLY ix_scenarios_search_gin
+            ON scenarios USING gin(to_tsvector('english',
+                COALESCE(name, '') || ' ' ||
+                COALESCE(description, '')
+            ))
         """
-        CREATE INDEX CONCURRENTLY ix_files_search_gin
-        ON uploaded_files USING gin(to_tsvector('english',
-            COALESCE(filename, '') || ' ' ||
-            COALESCE(original_filename, '')
-        ))
-    """
-    )
+        )
 
-    op.execute(
+        op.execute(
+            """
+            CREATE INDEX CONCURRENTLY ix_files_search_gin
+            ON uploaded_files USING gin(to_tsvector('english',
+                COALESCE(filename, '') || ' ' ||
+                COALESCE(original_filename, '')
+            ))
         """
-        CREATE INDEX CONCURRENTLY ix_templates_search_gin
-        ON templates USING gin(to_tsvector('english',
-            COALESCE(name, '') || ' ' ||
-            COALESCE(description, '')
-        ))
-    """
-    )
+        )
 
-    # Partial indexes for common filtered queries
-    op.execute(
-        "CREATE INDEX CONCURRENTLY ix_users_active_only "
-        "ON users (id) WHERE is_active = true"
-    )
-    op.execute(
-        "CREATE INDEX CONCURRENTLY ix_files_processing ON uploaded_files (id, "
-        "created_at) WHERE status IN ('processing', 'uploaded')"
-    )
-    op.execute(
-        "CREATE INDEX CONCURRENTLY ix_scenarios_active ON scenarios (id, "
-        "updated_at) WHERE status = 'active'"
-    )
-    op.execute(
-        "CREATE INDEX CONCURRENTLY ix_calculations_pending ON calculations ("
-        "execution_order) WHERE is_active = true AND last_executed_at IS NULL"
-    )
-
-    # Covering indexes for common join patterns
-    op.execute(
+        op.execute(
+            """
+            CREATE INDEX CONCURRENTLY ix_templates_search_gin
+            ON templates USING gin(to_tsvector('english',
+                COALESCE(name, '') || ' ' ||
+                COALESCE(description, '')
+            ))
         """
-        CREATE INDEX CONCURRENTLY ix_parameter_values_covering
-        ON parameter_values (scenario_id, parameter_id)
-        INCLUDE (value, changed_at, is_valid)
-    """
-    )
+        )
 
-    op.execute(
+        # Partial indexes for common filtered queries
+        op.execute(
+            (
+                "CREATE INDEX CONCURRENTLY ix_users_active_only ON users (id) "
+                "WHERE is_active = true"
+            )
+        )
+        op.execute(
+            (
+                "CREATE INDEX CONCURRENTLY ix_files_processing ON uploaded_files "
+                "(id, created_at) WHERE status IN ('processing', 'uploaded')"
+            )
+        )
+        op.execute(
+            (
+                "CREATE INDEX CONCURRENTLY ix_scenarios_active ON scenarios (id, "
+                "updated_at) WHERE status = 'active'"
+            )
+        )
+        op.execute(
+            (
+                "CREATE INDEX CONCURRENTLY ix_calculations_pending ON calculations "
+                "(execution_order) WHERE is_active = true AND last_executed_at IS NULL"
+            )
+        )
+
+        # Covering indexes for common join patterns
+        op.execute(
+            """
+            CREATE INDEX CONCURRENTLY ix_parameter_values_covering
+            ON parameter_values (scenario_id, parameter_id)
+            INCLUDE (value, changed_at, is_valid)
         """
-        CREATE INDEX CONCURRENTLY ix_metrics_covering
-        ON metrics (scenario_id, metric_category)
-        INCLUDE (metric_name, value, period_start, period_end)
-    """
-    )
+        )
+
+        op.execute(
+            """
+            CREATE INDEX CONCURRENTLY ix_metrics_covering
+            ON metrics (scenario_id, metric_category)
+            INCLUDE (metric_name, value, period_start, period_end)
+        """
+        )
 
 
 def downgrade():
-    # Drop covering indexes
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_metrics_covering")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_parameter_values_covering")
+    # Drop covering and partial indexes
+    with op.get_context().autocommit_block():
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_metrics_covering")
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_parameter_values_covering")
 
-    # Drop partial indexes
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_calculations_pending")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_scenarios_active")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_files_processing")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_users_active_only")
+        # Drop partial indexes
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_calculations_pending")
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_scenarios_active")
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_files_processing")
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_users_active_only")
 
-    # Drop full-text search indexes
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_templates_search_gin")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_files_search_gin")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_scenarios_search_gin")
-    op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_parameters_search_gin")
+        # Drop full-text search indexes
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_templates_search_gin")
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_files_search_gin")
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_scenarios_search_gin")
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_parameters_search_gin")
 
     # Drop report indexes
     op.drop_index("ix_report_exports_user_format", table_name="report_exports")

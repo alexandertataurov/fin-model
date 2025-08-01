@@ -49,14 +49,17 @@ class ReportScheduleBase(BaseModel):
     email_recipients: Optional[List[str]] = None
     delivery_config: Optional[Dict[str, Any]] = None
 
-    @validator('email_recipients')
+    @validator("email_recipients")
     def validate_emails(cls, v):
         if v:
             import re
-            email_regex = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+
+            email_regex = re.compile(
+                r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+            )
             for email in v:
                 if not email_regex.match(email):
-                    raise ValueError(f'Invalid email address: {email}')
+                    raise ValueError(f"Invalid email address: {email}")
         return v
 
 
@@ -140,9 +143,7 @@ class GenerateReportRequest(BaseModel):
     export_format: ExportFormat = ExportFormat.PDF
     name: Optional[str] = None
     # Tests send `file_ids`; support that alias for backward compatibility.
-    source_file_ids: Optional[List[int]] = Field(
-        default=None, alias="file_ids"
-    )
+    source_file_ids: Optional[List[int]] = Field(default=None, alias="file_ids")
     data_period_start: Optional[datetime] = None
     data_period_end: Optional[datetime] = None
     custom_config: Optional[Dict[str, Any]] = None
@@ -154,7 +155,9 @@ class GenerateReportRequest(BaseModel):
 class ChartExportRequest(BaseModel):
     chart_type: str = Field(..., description="Type of chart to export")
     chart_data: Dict[str, Any] = Field(..., description="Chart data and configuration")
-    export_format: ExportFormat = Field(..., description="Export format (PNG, SVG, PDF)")
+    export_format: ExportFormat = Field(
+        ..., description="Export format (PNG, SVG, PDF)"
+    )
     width: Optional[int] = Field(800, ge=100, le=4000, description="Width in pixels")
     height: Optional[int] = Field(600, ge=100, le=4000, description="Height in pixels")
     title: Optional[str] = None
@@ -188,4 +191,4 @@ class ExportSummary(BaseModel):
     pending_exports: int
     total_file_size_bytes: int
     exports_by_format: Dict[str, int]
-    recent_exports: List[ReportExport] 
+    recent_exports: List[ReportExport]

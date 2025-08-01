@@ -19,7 +19,7 @@ class TestAuthEndpoints:
             "email": "test@example.com",
             "password": "TestPassword123!",
             "first_name": "Test",
-            "last_name": "User"
+            "last_name": "User",
         }
         response = client.post("/api/v1/auth/register", json=user_data)
         assert response.status_code == 201
@@ -36,7 +36,7 @@ class TestAuthEndpoints:
             email="existing@example.com",
             hashed_password=get_password_hash("password"),
             first_name="Existing",
-            last_name="User"
+            last_name="User",
         )
         db_session.add(existing_user)
         db_session.commit()
@@ -46,7 +46,7 @@ class TestAuthEndpoints:
             "username": "testuser",
             "email": "new@example.com",
             "password": "testpassword123",
-            "full_name": "New User"
+            "full_name": "New User",
         }
         response = client.post("/api/v1/auth/register", json=user_data)
         assert response.status_code == 400
@@ -60,7 +60,7 @@ class TestAuthEndpoints:
             email="test@example.com",
             hashed_password=get_password_hash(password),
             first_name="Test",
-            last_name="User"
+            last_name="User",
         )
         db_session.add(user)
         db_session.commit()
@@ -101,11 +101,17 @@ class TestFileEndpoints:
     def test_upload_file_success(self, authenticated_client, sample_excel_file):
         """Test successful file upload."""
         client, user = authenticated_client
-        
-        with open(sample_excel_file, 'rb') as f:
-            files = {"file": ("test.xlsx", f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+
+        with open(sample_excel_file, "rb") as f:
+            files = {
+                "file": (
+                    "test.xlsx",
+                    f,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+            }
             response = client.post("/api/v1/files/upload", files=files)
-        
+
         assert response.status_code == 201
         data = response.json()
         assert data["original_filename"] == "test.xlsx"
@@ -113,41 +119,47 @@ class TestFileEndpoints:
 
     def test_upload_file_unauthorized(self, client, sample_excel_file):
         """Test file upload without authentication."""
-        with open(sample_excel_file, 'rb') as f:
-            files = {"file": ("test.xlsx", f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+        with open(sample_excel_file, "rb") as f:
+            files = {
+                "file": (
+                    "test.xlsx",
+                    f,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+            }
             response = client.post("/api/v1/files/upload", files=files)
-        
+
         assert response.status_code == 401
 
     def test_upload_invalid_file_type(self, authenticated_client):
         """Test uploading invalid file type."""
         client, user = authenticated_client
-        
+
         # Create a text file
         content = b"This is not an Excel file"
         files = {"file": ("test.txt", content, "text/plain")}
         response = client.post("/api/v1/files/upload", files=files)
-        
+
         assert response.status_code == 400
 
     def test_get_user_files(self, authenticated_client, db_session):
         """Test getting user's files."""
         client, user = authenticated_client
-        
+
         # Create test files
         file1 = UploadedFile(
             original_filename="file1.xlsx",
             stored_filename="stored1.xlsx",
             file_path="/path/file1.xlsx",
             file_size=1024,
-            user_id=user.id
+            user_id=user.id,
         )
         file2 = UploadedFile(
             original_filename="file2.xlsx",
             stored_filename="stored2.xlsx",
             file_path="/path/file2.xlsx",
             file_size=2048,
-            user_id=user.id
+            user_id=user.id,
         )
         db_session.add_all([file1, file2])
         db_session.commit()
@@ -161,14 +173,14 @@ class TestFileEndpoints:
     def test_delete_file_success(self, authenticated_client, db_session):
         """Test successful file deletion."""
         client, user = authenticated_client
-        
+
         # Create test file
         file_upload = UploadedFile(
             original_filename="test.xlsx",
             stored_filename="stored.xlsx",
             file_path="/path/test.xlsx",
             file_size=1024,
-            user_id=user.id
+            user_id=user.id,
         )
         db_session.add(file_upload)
         db_session.commit()
@@ -183,29 +195,31 @@ class TestFileEndpoints:
         response = client.delete("/api/v1/files/999")
         assert response.status_code == 404
 
-    def test_delete_file_unauthorized(self, authenticated_client, db_session, test_user_data):
+    def test_delete_file_unauthorized(
+        self, authenticated_client, db_session, test_user_data
+    ):
         """Test deleting another user's file."""
         client, user = authenticated_client
-        
+
         # Create another user
         other_user = User(
             username="otheruser",
             email="other@example.com",
             hashed_password=get_password_hash("password"),
             first_name="Other",
-            last_name="User"
+            last_name="User",
         )
         db_session.add(other_user)
         db_session.commit()
         db_session.refresh(other_user)
-        
+
         # Create file owned by other user
         file_upload = UploadedFile(
             original_filename="test.xlsx",
             stored_filename="stored.xlsx",
             file_path="/path/test.xlsx",
             file_size=1024,
-            user_id=other_user.id
+            user_id=other_user.id,
         )
         db_session.add(file_upload)
         db_session.commit()
@@ -234,7 +248,7 @@ class TestParameterEndpoints:
             "name": "Growth Rate",
             "value": 0.15,
             "category": "assumptions",
-            "description": "Annual revenue growth rate"
+            "description": "Annual revenue growth rate",
         }
         response = client.post("/api/v1/parameters/", json=parameter_data)
         assert response.status_code == 201
@@ -245,14 +259,12 @@ class TestParameterEndpoints:
     def test_update_parameter(self, authenticated_client, db_session):
         """Test updating an existing parameter."""
         client, user = authenticated_client
-        
+
         # Create parameter first
         from app.models.parameter import Parameter
+
         parameter = Parameter(
-            name="Discount Rate",
-            value=0.10,
-            category="assumptions",
-            user_id=user.id
+            name="Discount Rate", value=0.10, category="assumptions", user_id=user.id
         )
         db_session.add(parameter)
         db_session.commit()
@@ -335,7 +347,7 @@ class TestValidationAndErrorHandling:
         response = client.post(
             "/api/v1/parameters/",
             data="invalid json",
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         assert response.status_code == 422
 
@@ -352,7 +364,7 @@ class TestValidationAndErrorHandling:
         invalid_data = {
             "name": "Test",
             "value": "not_a_number",  # Should be numeric
-            "category": "test"
+            "category": "test",
         }
         response = client.post("/api/v1/parameters/", json=invalid_data)
         assert response.status_code == 422
@@ -361,4 +373,4 @@ class TestValidationAndErrorHandling:
         """Test rate limiting (if implemented)."""
         # This would test rate limiting if implemented
         # For now, it's a placeholder
-        pass 
+        pass

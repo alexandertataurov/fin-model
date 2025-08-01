@@ -7,6 +7,7 @@ import uvicorn
 
 from app.core.config import settings
 from app.api.v1.api import api_router
+
 # from fastapi_cache import FastAPICache  # TODO: Fix fastapi-cache2 import
 # from fastapi_cache.backends.inmemory import InMemoryBackend  # TODO: Fix fastapi-cache2 import
 
@@ -52,6 +53,7 @@ async def validation_exception_handler(request, exc):
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={"detail": errors},
     )
+
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)

@@ -24,11 +24,7 @@ router = APIRouter()
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(
-        require_permissions(
-            Permission.USER_LIST
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.USER_LIST)),
     db: Session = Depends(get_db),
 ) -> Any:
     """List all users (Admin only)."""
@@ -51,11 +47,7 @@ def list_users(
 @router.get("/users/{user_id}", response_model=UserWithRoles)
 def get_user(
     user_id: int,
-    current_user: User = Depends(
-        require_permissions(
-            Permission.USER_READ
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.USER_READ)),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get user by ID."""
@@ -79,11 +71,7 @@ def get_user(
 def update_user(
     user_id: int,
     user_update: UserUpdate,
-    current_user: User = Depends(
-        require_permissions(
-            Permission.USER_UPDATE
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.USER_UPDATE)),
     db: Session = Depends(get_db),
 ) -> Any:
     """Update user information."""
@@ -117,11 +105,7 @@ def update_user(
 @router.delete("/users/{user_id}")
 def delete_user(
     user_id: int,
-    current_user: User = Depends(
-        require_permissions(
-            Permission.USER_DELETE
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.USER_DELETE)),
     db: Session = Depends(get_db),
 ) -> Any:
     """Delete user (Admin only)."""
@@ -159,11 +143,7 @@ def delete_user(
 def assign_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(
-        require_permissions(
-            Permission.ROLE_ASSIGN
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.ROLE_ASSIGN)),
     db: Session = Depends(get_db),
 ) -> Any:
     """Assign role to user."""
@@ -197,11 +177,7 @@ def assign_role(
 def remove_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(
-        require_permissions(
-            Permission.ROLE_REMOVE
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.ROLE_REMOVE)),
     db: Session = Depends(get_db),
 ) -> Any:
     """Remove role from user."""
@@ -262,11 +238,7 @@ def get_audit_logs(
     limit: int = Query(100, ge=1, le=1000),
     user_id: int = Query(None),
     action: str = Query(None),
-    current_user: User = Depends(
-        require_permissions(
-            Permission.AUDIT_LOGS
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.AUDIT_LOGS)),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get audit logs (Admin only)."""
@@ -300,11 +272,7 @@ def get_audit_logs(
 
 @router.get("/system/health")
 def system_health(
-    current_user: User = Depends(
-        require_permissions(
-            Permission.SYSTEM_HEALTH
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get system health information."""
@@ -368,11 +336,7 @@ def get_user_permissions(
 
 @router.get("/database/health", response_model=Dict[str, Any])
 async def get_database_health(
-    current_user: User = Depends(
-        require_permissions(
-            Permission.SYSTEM_HEALTH
-        )
-    )
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
 ):
     """
     Get comprehensive database health check.
@@ -393,11 +357,7 @@ async def get_database_health(
 @router.get("/database/performance", response_model=List[Dict[str, Any]])
 async def get_database_performance(
     limit: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(
-        require_permissions(
-            Permission.SYSTEM_HEALTH
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
 ):
     """
     Get database query performance analysis.
@@ -416,11 +376,7 @@ async def get_database_performance(
 
 @router.get("/database/tables", response_model=Dict[str, Dict[str, Any]])
 async def get_table_information(
-    current_user: User = Depends(
-        require_permissions(
-            Permission.SYSTEM_HEALTH
-        )
-    )
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
 ):
     """
     Get detailed table size and usage information.
@@ -438,11 +394,7 @@ async def get_table_information(
 @router.post("/database/cleanup", response_model=Dict[str, Any])
 async def cleanup_database(
     dry_run: bool = Query(True, description="Whether to perform a dry run"),
-    current_user: User = Depends(
-        require_permissions(
-            Permission.ADMIN_ACCESS
-        )
-    ),
+    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
 ):
     """
     Clean up stale database records based on retention policies.

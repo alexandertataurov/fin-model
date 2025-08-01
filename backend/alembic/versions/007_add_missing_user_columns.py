@@ -36,7 +36,7 @@ def upgrade() -> None:
     # Update existing users to populate full_name from first_name and last_name
     op.execute(
         """
-        UPDATE users
+        UPDATE users 
         SET full_name = COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')
         WHERE full_name = ''
     """
@@ -45,14 +45,12 @@ def upgrade() -> None:
     # Clean up any double spaces
     op.execute(
         """
-        UPDATE users
+        UPDATE users 
         SET full_name = TRIM(REGEXP_REPLACE(full_name, '\\s+', ' ', 'g'))
         WHERE full_name LIKE '%  %'
     """
     )
-
-    # Make first_name and last_name nullable.
-    # They were incorrectly set as NOT NULL in migration 001.
+    # Make first_name and last_name nullable (they were incorrectly set as NOT NULL in migration 001)
     op.alter_column("users", "first_name", nullable=True)
     op.alter_column("users", "last_name", nullable=True)
 

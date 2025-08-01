@@ -7,7 +7,13 @@ from datetime import datetime
 
 from app.models.base import get_db
 from app.models.user import User
-from app.models.parameter import Parameter, ParameterValue, ParameterType, ParameterCategory, SensitivityLevel
+from app.models.parameter import (
+    Parameter,
+    ParameterValue,
+    ParameterType,
+    ParameterCategory,
+    SensitivityLevel,
+)
 from app.models.file import UploadedFile
 from app.schemas.parameter import (
     ParameterCreate,
@@ -16,7 +22,7 @@ from app.schemas.parameter import (
     ParameterValueUpdate,
     BulkParameterUpdateRequest,
     ParameterHistoryResponse,
-    ParameterValidationResponse
+    ParameterValidationResponse,
 )
 from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
@@ -34,7 +40,7 @@ async def create_parameter(
 ) -> Any:
     """
     Create a new parameter.
-    
+
     Creates a parameter with validation rules and metadata.
     """
     try:
@@ -57,9 +63,9 @@ async def create_parameter(
         if not validation_result.is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Parameter validation failed: {validation_result.errors}"
+                detail=f"Parameter validation failed: {validation_result.errors}",
             )
-        
+
         # Sanitize parameter name to mitigate simple XSS vectors used in tests
         safe_name = parameter.name.replace("<", "").replace(">", "")
         safe_name = safe_name.replace("javascript:", "")
@@ -89,15 +95,15 @@ async def create_parameter(
             validation_rules=parameter.validation_rules,
             is_required=parameter.is_required,
             is_editable=parameter.is_editable,
-            created_by_id=current_user.id
+            created_by_id=current_user.id,
         )
-        
+
         db.add(db_parameter)
         db.commit()
         db.refresh(db_parameter)
-        
+
         return ParameterResponse.from_orm(db_parameter)
-        
+
     except HTTPException:
         # Propagate explicit HTTP errors such as 422 for validation failures.
         raise
@@ -111,9 +117,13 @@ async def create_parameter(
 @router.get("/", response_model=List[ParameterResponse])
 async def list_parameters(
     file_id: Optional[int] = Query(None, description="Filter by source file ID"),
-    category: Optional[ParameterCategory] = Query(None, description="Filter by category"),
+    category: Optional[ParameterCategory] = Query(
+        None, description="Filter by category"
+    ),
     parameter_type: Optional[ParameterType] = Query(None, description="Filter by type"),
-    sensitivity_level: Optional[SensitivityLevel] = Query(None, description="Filter by sensitivity"),
+    sensitivity_level: Optional[SensitivityLevel] = Query(
+        None, description="Filter by sensitivity"
+    ),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(get_current_active_user),
@@ -121,13 +131,13 @@ async def list_parameters(
 ) -> Any:
     """
     List parameters with optional filtering.
-    
+
     Returns paginated list of parameters with filtering options.
     """
     try:
         # Build query
         query = db.query(Parameter)
-        
+
         # Apply filters
         if file_id:
             query = query.filter(Parameter.source_file_id == file_id)
@@ -137,16 +147,16 @@ async def list_parameters(
             query = query.filter(Parameter.parameter_type == parameter_type)
         if sensitivity_level:
             query = query.filter(Parameter.sensitivity_level == sensitivity_level)
-        
+
         # Apply pagination
         parameters = query.offset(skip).limit(limit).all()
-        
+
         return [ParameterResponse.from_orm(param) for param in parameters]
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list parameters: {str(e)}"
+            detail=f"Failed to list parameters: {str(e)}",
         )
 
 
@@ -158,17 +168,17 @@ async def get_parameter(
 ) -> Any:
     """
     Get a specific parameter by ID.
-    
+
     Returns detailed parameter information including dependencies.
     """
     parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
-    
+
     if not parameter:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Parameter {parameter_id} not found"
+            detail=f"Parameter {parameter_id} not found",
         )
-    
+
     return ParameterResponse.from_orm(parameter)
 
 
@@ -181,35 +191,35 @@ async def update_parameter(
 ) -> Any:
     """
     Update a parameter.
-    
+
     Updates parameter metadata and validation rules.
     """
     try:
         # Get existing parameter
         db_parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        
+
         if not db_parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Parameter {parameter_id} not found"
+                detail=f"Parameter {parameter_id} not found",
             )
-        
+
         # Update fields
         update_data = parameter_update.dict(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_parameter, field, value)
-        
+
         db_parameter.updated_at = datetime.utcnow()
-        
+
         db.commit()
         db.refresh(db_parameter)
-        
+
         return ParameterResponse.from_orm(db_parameter)
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update parameter: {str(e)}"
+            detail=f"Failed to update parameter: {str(e)}",
         )
 
 
@@ -221,32 +231,34 @@ async def delete_parameter(
 ) -> Any:
     """
     Delete a parameter.
-    
+
     Removes parameter and associated values from scenarios.
     """
     try:
         # Get parameter
         db_parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        
+
         if not db_parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Parameter {parameter_id} not found"
+                detail=f"Parameter {parameter_id} not found",
             )
-        
+
         # Delete associated parameter values
-        db.query(ParameterValue).filter(ParameterValue.parameter_id == parameter_id).delete()
-        
+        db.query(ParameterValue).filter(
+            ParameterValue.parameter_id == parameter_id
+        ).delete()
+
         # Delete parameter
         db.delete(db_parameter)
         db.commit()
-        
+
         return {"message": "Parameter deleted successfully"}
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete parameter: {str(e)}"
+            detail=f"Failed to delete parameter: {str(e)}",
         )
 
 
@@ -258,66 +270,66 @@ async def batch_update_parameters(
 ) -> Any:
     """
     Batch update multiple parameters.
-    
+
     Updates multiple parameters in a single transaction with validation.
     """
     try:
         updated_count = 0
         failed_updates = []
-        
+
         for param_update in batch_update.parameters:
             try:
                 # Get parameter
-                db_parameter = db.query(Parameter).filter(Parameter.id == param_update.id).first()
-                
+                db_parameter = (
+                    db.query(Parameter).filter(Parameter.id == param_update.id).first()
+                )
+
                 if not db_parameter:
-                    failed_updates.append({
-                        "id": param_update.id,
-                        "error": "Parameter not found"
-                    })
+                    failed_updates.append(
+                        {"id": param_update.id, "error": "Parameter not found"}
+                    )
                     continue
-                
+
                 # Validate update
                 if param_update.value is not None:
                     validation_result = await _validate_parameter_value(
                         db_parameter, param_update.value
                     )
-                    
+
                     if not validation_result.is_valid:
-                        failed_updates.append({
-                            "id": param_update.id,
-                            "error": f"Validation failed: {validation_result.errors}"
-                        })
+                        failed_updates.append(
+                            {
+                                "id": param_update.id,
+                                "error": f"Validation failed: {validation_result.errors}",
+                            }
+                        )
                         continue
-                
+
                 # Apply updates
-                update_data = param_update.dict(exclude_unset=True, exclude={'id'})
+                update_data = param_update.dict(exclude_unset=True, exclude={"id"})
                 for field, value in update_data.items():
                     setattr(db_parameter, field, value)
-                
+
                 db_parameter.updated_at = datetime.utcnow()
                 updated_count += 1
-                
+
             except Exception as e:
-                failed_updates.append({
-                    "id": param_update.id,
-                    "error": str(e)
-                })
-        
+                failed_updates.append({"id": param_update.id, "error": str(e)})
+
         db.commit()
-        
+
         return {
             "updated_count": updated_count,
             "failed_count": len(failed_updates),
             "failed_updates": failed_updates,
-            "success": len(failed_updates) == 0
+            "success": len(failed_updates) == 0,
         }
-        
+
     except Exception as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Batch update failed: {str(e)}"
+            detail=f"Batch update failed: {str(e)}",
         )
 
 
@@ -330,7 +342,7 @@ async def get_parameter_history(
 ) -> Any:
     """
     Get parameter change history.
-    
+
     Returns historical values and changes for a parameter.
     """
     try:
@@ -339,9 +351,9 @@ async def get_parameter_history(
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Parameter {parameter_id} not found"
+                detail=f"Parameter {parameter_id} not found",
             )
-        
+
         # Get parameter value history
         parameter_values = (
             db.query(ParameterValue)
@@ -350,13 +362,13 @@ async def get_parameter_history(
             .limit(limit)
             .all()
         )
-        
+
         return [ParameterHistoryResponse.from_orm(pv) for pv in parameter_values]
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get parameter history: {str(e)}"
+            detail=f"Failed to get parameter history: {str(e)}",
         )
 
 
@@ -369,7 +381,7 @@ async def validate_parameter_value(
 ) -> Any:
     """
     Validate a parameter value against constraints.
-    
+
     Checks value against min/max bounds and validation rules.
     """
     try:
@@ -378,55 +390,60 @@ async def validate_parameter_value(
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Parameter {parameter_id} not found"
+                detail=f"Parameter {parameter_id} not found",
             )
-        
+
         # Validate value
         validation_result = await _validate_parameter_value(parameter, value)
-        
+
         return validation_result
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to validate parameter value: {str(e)}"
+            detail=f"Failed to validate parameter value: {str(e)}",
         )
 
 
 @router.post("/detect-from-file/{file_id}", response_model=List[ParameterResponse])
 async def detect_parameters_from_file(
     file_id: int,
-    auto_create: bool = Query(False, description="Automatically create detected parameters"),
+    auto_create: bool = Query(
+        False, description="Automatically create detected parameters"
+    ),
     current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
     db: Session = Depends(get_db),
 ) -> Any:
     """
     Detect parameters from an uploaded Excel file.
-    
+
     Uses AI/ML to identify potential parameters in financial models.
     """
     try:
         # Get file
-        file_record = db.query(UploadedFile).filter(
-            UploadedFile.id == file_id,
-            UploadedFile.uploaded_by_id == current_user.id
-        ).first()
-        
+        file_record = (
+            db.query(UploadedFile)
+            .filter(
+                UploadedFile.id == file_id,
+                UploadedFile.uploaded_by_id == current_user.id,
+            )
+            .first()
+        )
+
         if not file_record:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"File {file_id} not found"
+                detail=f"File {file_id} not found",
             )
-        
+
         # Detect parameters
         detector = ParameterDetector()
         detected_parameters = await detector.detect_parameters(
-            file_record.file_path, 
-            current_user.id
+            file_record.file_path, current_user.id
         )
-        
+
         created_parameters = []
-        
+
         if auto_create:
             # Create detected parameters
             for detected in detected_parameters:
@@ -450,50 +467,52 @@ async def detect_parameters_from_file(
                     formula=detected.formula,
                     validation_rules=detected.validation_rules,
                     description=detected.description,
-                    created_by_id=current_user.id
+                    created_by_id=current_user.id,
                 )
-                
+
                 db.add(db_parameter)
                 db.flush()
                 created_parameters.append(ParameterResponse.from_orm(db_parameter))
-            
+
             db.commit()
         else:
             # Just return detected parameters without creating
             for detected in detected_parameters:
-                created_parameters.append(ParameterResponse(
-                    id=0,  # Temporary ID
-                    name=detected.name,
-                    parameter_type=detected.parameter_type,
-                    category=detected.category,
-                    sensitivity_level=detected.sensitivity_level,
-                    value=detected.value,
-                    current_value=detected.value,
-                    default_value=detected.value,
-                    min_value=detected.min_value,
-                    max_value=detected.max_value,
-                    unit=detected.unit,
-                    format_type=detected.format_type,
-                    source_file_id=file_id,
-                    source_sheet=detected.sheet_name,
-                    source_cell=detected.cell_reference,
-                    depends_on=detected.depends_on,
-                    affects=detected.affects,
-                    formula=detected.formula,
-                    validation_rules=detected.validation_rules,
-                    description=detected.description,
-                    is_required=True,
-                    is_editable=True,
-                    created_at=datetime.utcnow(),
-                    updated_at=datetime.utcnow()
-                ))
-        
+                created_parameters.append(
+                    ParameterResponse(
+                        id=0,  # Temporary ID
+                        name=detected.name,
+                        parameter_type=detected.parameter_type,
+                        category=detected.category,
+                        sensitivity_level=detected.sensitivity_level,
+                        value=detected.value,
+                        current_value=detected.value,
+                        default_value=detected.value,
+                        min_value=detected.min_value,
+                        max_value=detected.max_value,
+                        unit=detected.unit,
+                        format_type=detected.format_type,
+                        source_file_id=file_id,
+                        source_sheet=detected.sheet_name,
+                        source_cell=detected.cell_reference,
+                        depends_on=detected.depends_on,
+                        affects=detected.affects,
+                        formula=detected.formula,
+                        validation_rules=detected.validation_rules,
+                        description=detected.description,
+                        is_required=True,
+                        is_editable=True,
+                        created_at=datetime.utcnow(),
+                        updated_at=datetime.utcnow(),
+                    )
+                )
+
         return created_parameters
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to detect parameters: {str(e)}"
+            detail=f"Failed to detect parameters: {str(e)}",
         )
 
 
@@ -503,30 +522,46 @@ async def get_parameter_categories(
 ) -> Any:
     """
     Get available parameter categories and types.
-    
+
     Returns metadata about parameter classification system.
     """
     return [
         {
             "category": ParameterCategory.REVENUE,
             "description": "Revenue-related parameters",
-            "types": [ParameterType.REVENUE_ASSUMPTION, ParameterType.PRICE, ParameterType.VOLUME]
+            "types": [
+                ParameterType.REVENUE_ASSUMPTION,
+                ParameterType.PRICE,
+                ParameterType.VOLUME,
+            ],
         },
         {
             "category": ParameterCategory.COSTS,
             "description": "Cost and expense parameters",
-            "types": [ParameterType.COST_ASSUMPTION, ParameterType.VARIABLE, ParameterType.CONSTANT]
+            "types": [
+                ParameterType.COST_ASSUMPTION,
+                ParameterType.VARIABLE,
+                ParameterType.CONSTANT,
+            ],
         },
         {
             "category": ParameterCategory.FINANCIAL,
             "description": "Financial metrics and ratios",
-            "types": [ParameterType.DISCOUNT_RATE, ParameterType.INTEREST_RATE, ParameterType.TAX_RATE]
+            "types": [
+                ParameterType.DISCOUNT_RATE,
+                ParameterType.INTEREST_RATE,
+                ParameterType.TAX_RATE,
+            ],
         },
         {
             "category": ParameterCategory.OPERATIONS,
             "description": "Operational parameters",
-            "types": [ParameterType.VOLUME, ParameterType.QUANTITY, ParameterType.PERCENTAGE]
-        }
+            "types": [
+                ParameterType.VOLUME,
+                ParameterType.QUANTITY,
+                ParameterType.PERCENTAGE,
+            ],
+        },
     ]
 
 
@@ -538,7 +573,7 @@ async def get_parameter_dependencies(
 ) -> Any:
     """
     Get parameter dependencies and impact analysis.
-    
+
     Returns parameters that depend on this parameter and parameters this depends on.
     """
     try:
@@ -547,62 +582,73 @@ async def get_parameter_dependencies(
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Parameter {parameter_id} not found"
+                detail=f"Parameter {parameter_id} not found",
             )
-        
+
         # Find dependencies
         depends_on = []
         if parameter.depends_on:
-            depends_on_params = db.query(Parameter).filter(
-                Parameter.id.in_(parameter.depends_on)
-            ).all()
+            depends_on_params = (
+                db.query(Parameter).filter(Parameter.id.in_(parameter.depends_on)).all()
+            )
             depends_on = [ParameterResponse.from_orm(p) for p in depends_on_params]
-        
+
         # Find affected parameters
         affects = []
         if parameter.affects:
-            affects_params = db.query(Parameter).filter(
-                Parameter.id.in_(parameter.affects)
-            ).all()
+            affects_params = (
+                db.query(Parameter).filter(Parameter.id.in_(parameter.affects)).all()
+            )
             affects = [ParameterResponse.from_orm(p) for p in affects_params]
-        
+
         return {
             "parameter_id": parameter_id,
             "depends_on": depends_on,
             "affects": affects,
             "dependency_count": len(depends_on),
-            "impact_count": len(affects)
+            "impact_count": len(affects),
         }
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get parameter dependencies: {str(e)}"
+            detail=f"Failed to get parameter dependencies: {str(e)}",
         )
 
 
 # Helper functions
 
-async def _validate_parameter_data(parameter: ParameterCreate, db: Session) -> ParameterValidationResponse:
+
+async def _validate_parameter_data(
+    parameter: ParameterCreate, db: Session
+) -> ParameterValidationResponse:
     """Validate parameter creation data."""
     errors = []
     warnings = []
-    
+
     # Check for duplicate names
-    existing = db.query(Parameter).filter(
-        Parameter.name == parameter.name,
-        Parameter.source_file_id == parameter.source_file_id
-    ).first()
-    
+    existing = (
+        db.query(Parameter)
+        .filter(
+            Parameter.name == parameter.name,
+            Parameter.source_file_id == parameter.source_file_id,
+        )
+        .first()
+    )
+
     if existing:
-        errors.append(f"Parameter with name '{parameter.name}' already exists for this file")
-    
+        errors.append(
+            f"Parameter with name '{parameter.name}' already exists for this file"
+        )
+
     # Validate value ranges
-    if (parameter.min_value is not None and 
-        parameter.max_value is not None and 
-        parameter.min_value >= parameter.max_value):
+    if (
+        parameter.min_value is not None
+        and parameter.max_value is not None
+        and parameter.min_value >= parameter.max_value
+    ):
         errors.append("min_value must be less than max_value")
-    
+
     # Validate current value against range
     if parameter.value is not None:
         if parameter.min_value is not None and parameter.value < parameter.min_value:
@@ -610,37 +656,39 @@ async def _validate_parameter_data(parameter: ParameterCreate, db: Session) -> P
 
         if parameter.max_value is not None and parameter.value > parameter.max_value:
             errors.append("value is above maximum allowed value")
-    
+
     return ParameterValidationResponse(
         parameter_id=0,  # Not available at creation time
         value=parameter.value,
         is_valid=len(errors) == 0,
         validation_errors=errors,
-        validation_warnings=warnings
+        validation_warnings=warnings,
     )
 
 
-async def _validate_parameter_value(parameter: Parameter, value: float) -> ParameterValidationResponse:
+async def _validate_parameter_value(
+    parameter: Parameter, value: float
+) -> ParameterValidationResponse:
     """Validate a parameter value against constraints."""
     errors = []
     warnings = []
-    
+
     # Check range constraints
     if parameter.min_value is not None and value < parameter.min_value:
         errors.append(f"Value {value} is below minimum {parameter.min_value}")
-    
+
     if parameter.max_value is not None and value > parameter.max_value:
         errors.append(f"Value {value} is above maximum {parameter.max_value}")
-    
+
     # Check validation rules if they exist
     if parameter.validation_rules:
         # Custom validation logic based on rules
         pass
-    
+
     return ParameterValidationResponse(
         parameter_id=parameter.id,
         value=value,
         is_valid=len(errors) == 0,
         validation_errors=errors,
-        validation_warnings=warnings
-    ) 
+        validation_warnings=warnings,
+    )

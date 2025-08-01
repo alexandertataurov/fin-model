@@ -16,7 +16,7 @@ def test_username_and_password_validation():
         username="valid_user",
         first_name="Val",
         last_name="User",
-        password="Strongpass123"
+        password="Strongpass123",
     )
     assert valid.username == "valid_user"
 
@@ -26,7 +26,7 @@ def test_username_and_password_validation():
             username="ab",
             first_name="Bad",
             last_name="User",
-            password="Strongpass123"
+            password="Strongpass123",
         )
 
     with pytest.raises(Exception):
@@ -35,7 +35,7 @@ def test_username_and_password_validation():
             username="bad*name",
             first_name="Bad",
             last_name="User",
-            password="Strongpass123"
+            password="Strongpass123",
         )
 
     with pytest.raises(Exception):
@@ -44,7 +44,7 @@ def test_username_and_password_validation():
             username="goodname",
             first_name="Bad",
             last_name="User",
-            password="short"
+            password="short",
         )
 
     with pytest.raises(Exception):
@@ -53,7 +53,7 @@ def test_username_and_password_validation():
             username="goodname",
             first_name="Bad",
             last_name="User",
-            password="nonumbershereabcdef"
+            password="nonumbershereabcdef",
         )
 
 
@@ -85,13 +85,28 @@ def test_file_service_helpers(tmp_path):
     fname2 = service.generate_unique_filename("orig.xlsx")
     assert fname1 != fname2 and fname1.endswith(".xlsx")
 
-    small = UploadFile(file=BytesIO(b"123"), filename="small.csv", size=3, headers={"content-type": "text/csv"})
+    small = UploadFile(
+        file=BytesIO(b"123"),
+        filename="small.csv",
+        size=3,
+        headers={"content-type": "text/csv"},
+    )
     service.validate_file(small)
 
-    big = UploadFile(file=BytesIO(b"data"), filename="big.csv", size=service.max_file_size + 1, headers={"content-type": "text/csv"})
+    big = UploadFile(
+        file=BytesIO(b"data"),
+        filename="big.csv",
+        size=service.max_file_size + 1,
+        headers={"content-type": "text/csv"},
+    )
     with pytest.raises(HTTPException):
         service.validate_file(big)
 
-    bad = UploadFile(file=BytesIO(b"123"), filename="bad.exe", size=3, headers={"content-type": "application/octet-stream"})
+    bad = UploadFile(
+        file=BytesIO(b"123"),
+        filename="bad.exe",
+        size=3,
+        headers={"content-type": "application/octet-stream"},
+    )
     with pytest.raises(HTTPException):
         service.validate_file(bad)

@@ -44,5 +44,6 @@ def test_user_repr_and_is_locked():
     user.account_locked_until = None
     assert user.is_locked is False
     from datetime import datetime, timedelta
+
     user.account_locked_until = datetime.utcnow() + timedelta(minutes=5)
     assert user.is_locked is True

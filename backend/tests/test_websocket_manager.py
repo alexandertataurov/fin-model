@@ -1,14 +1,18 @@
 import pytest
 from app.core.websocket import ConnectionManager
 
+
 class DummyWebSocket:
     def __init__(self):
         self.accepted = False
         self.sent = []
+
     async def accept(self):
         self.accepted = True
+
     async def send_text(self, text):
         self.sent.append(text)
+
 
 @pytest.mark.asyncio
 async def test_connection_manager_basic():
@@ -23,6 +27,7 @@ async def test_connection_manager_basic():
     assert manager.get_connected_users() == []
     assert manager.get_connection_count() == 0
 
+
 @pytest.mark.asyncio
 async def test_file_subscription_and_broadcast():
     manager = ConnectionManager()
@@ -33,6 +38,7 @@ async def test_file_subscription_and_broadcast():
     assert any("file_status_update" in msg for msg in ws.sent)
     await manager.unsubscribe_from_file(1, 42)
     manager.disconnect(ws, user_id=1)
+
 
 @pytest.mark.asyncio
 async def test_task_subscription_and_notification():

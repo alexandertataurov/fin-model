@@ -1,5 +1,11 @@
 import pytest
-from app.schemas.user import UserBase, UserCreate, UserUpdate, PasswordChange, PasswordResetConfirm
+from app.schemas.user import (
+    UserBase,
+    UserCreate,
+    UserUpdate,
+    PasswordChange,
+    PasswordResetConfirm,
+)
 
 
 def test_username_validations():
@@ -20,7 +26,9 @@ def test_username_validations():
 
 
 def test_name_validations():
-    ok = UserBase(username="user123", email="e@e.com", first_name=" John ", last_name=" Doe ")
+    ok = UserBase(
+        username="user123", email="e@e.com", first_name=" John ", last_name=" Doe "
+    )
     assert ok.first_name == "John"
     assert ok.last_name == "Doe"
 
@@ -46,6 +54,7 @@ def test_password_validations_create_change_reset():
 
     with pytest.raises(ValueError):
         PasswordResetConfirm(token="abc", new_password="NOLOWERS123456")
+
 
 def test_password_change_and_reset_nonumbers():
     with pytest.raises(ValueError):

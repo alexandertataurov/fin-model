@@ -4,8 +4,8 @@ from app.simple_module import add, subtract, divide
 import types
 import sys
 
-sys.modules.setdefault('scipy', types.ModuleType('scipy'))
-sys.modules['scipy'].stats = types.SimpleNamespace()
+sys.modules.setdefault("scipy", types.ModuleType("scipy"))
+sys.modules["scipy"].stats = types.SimpleNamespace()
 
 from app.services.sensitivity_analyzer import (
     SensitivityAnalyzer,
@@ -49,8 +49,10 @@ async def test_sensitivity_analyzer_helpers():
     mc = await analyzer._generate_monte_carlo_chart_data(
         np.array([1.0, 2.0, 3.0]),
         [np.array([1, 2, 3]), np.array([0.5, 1.0, 1.5])],
-        [SensitivityConfig(parameter_id=1, min_value=0, max_value=1),
-         SensitivityConfig(parameter_id=2, min_value=0, max_value=1)],
+        [
+            SensitivityConfig(parameter_id=1, min_value=0, max_value=1),
+            SensitivityConfig(parameter_id=2, min_value=0, max_value=1),
+        ],
     )
     assert mc["type"] == "monte_carlo"
     spider = await analyzer._generate_spider_chart_data(
@@ -68,7 +70,9 @@ async def test_basic_file_scanner(tmp_path):
     result = await scanner.scan_file(str(clean))
     assert result.is_clean
     eicar = tmp_path / "eicar.txt"
-    eicar.write_bytes(b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
+    eicar.write_bytes(
+        b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
+    )
     result2 = await scanner.scan_file(str(eicar))
     assert not result2.is_clean
 

@@ -26,7 +26,7 @@ class TestFileUploadWorkflow:
             username="testuser",
             email="test@example.com",
             hashed_password=get_password_hash("password123"),
-            full_name="Test User"
+            full_name="Test User",
         )
         db_session.add(user)
         db_session.commit()
@@ -35,25 +35,33 @@ class TestFileUploadWorkflow:
         # Login
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "testuser", "password": "password123"}
+            data={"username": "testuser", "password": "password123"},
         )
         assert login_response.status_code == 200
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
 
         # Upload file
-        with open(sample_excel_file, 'rb') as f:
+        with open(sample_excel_file, "rb") as f:
             upload_response = client.post(
                 "/api/v1/files/upload",
-                files={"file": ("test.xlsx", f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+                files={
+                    "file": (
+                        "test.xlsx",
+                        f,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    )
+                },
             )
-        
+
         assert upload_response.status_code == 201
         file_data = upload_response.json()
         file_id = file_data["id"]
 
         # Verify file was saved to database
-        uploaded_file = db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        uploaded_file = (
+            db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        )
         assert uploaded_file is not None
         assert uploaded_file.original_filename == "test.xlsx"
         assert uploaded_file.user_id == user.id
@@ -61,7 +69,7 @@ class TestFileUploadWorkflow:
         # Check file processing status
         status_response = client.get(f"/api/v1/files/{file_id}/status")
         assert status_response.status_code == 200
-        
+
         # Simulate file processing completion
         uploaded_file.processing_status = "completed"
         db_session.commit()
@@ -72,14 +80,16 @@ class TestFileUploadWorkflow:
         extracted_data = data_response.json()
         assert "financial_data" in extracted_data
 
-    def test_file_processing_with_parameters(self, client, db_session, sample_excel_file):
+    def test_file_processing_with_parameters(
+        self, client, db_session, sample_excel_file
+    ):
         """Test file processing with parameter detection and scenario creation."""
         # Setup authenticated user
         user = User(
             username="paramuser",
             email="param@example.com",
             hashed_password=get_password_hash("password123"),
-            full_name="Parameter User"
+            full_name="Parameter User",
         )
         db_session.add(user)
         db_session.commit()
@@ -87,24 +97,39 @@ class TestFileUploadWorkflow:
 
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "paramuser", "password": "password123"}
+            data={"username": "paramuser", "password": "password123"},
         )
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
 
         # Upload file with parameters
-        with open(sample_excel_file, 'rb') as f:
+        with open(sample_excel_file, "rb") as f:
             upload_response = client.post(
                 "/api/v1/files/upload",
-                files={"file": ("params.xlsx", f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+                files={
+                    "file": (
+                        "params.xlsx",
+                        f,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    )
+                },
             )
         file_id = upload_response.json()["id"]
 
         # Create some parameters
         parameters = [
-            Parameter(name="Growth Rate", value=0.15, category="assumptions", user_id=user.id),
-            Parameter(name="Discount Rate", value=0.10, category="assumptions", user_id=user.id),
-            Parameter(name="Tax Rate", value=0.25, category="assumptions", user_id=user.id)
+            Parameter(
+                name="Growth Rate", value=0.15, category="assumptions", user_id=user.id
+            ),
+            Parameter(
+                name="Discount Rate",
+                value=0.10,
+                category="assumptions",
+                user_id=user.id,
+            ),
+            Parameter(
+                name="Tax Rate", value=0.25, category="assumptions", user_id=user.id
+            ),
         ]
         db_session.add_all(parameters)
         db_session.commit()
@@ -117,9 +142,9 @@ class TestFileUploadWorkflow:
                 "scenarios": [
                     {"name": "Base Case", "parameters": {"Growth Rate": 0.15}},
                     {"name": "Optimistic", "parameters": {"Growth Rate": 0.20}},
-                    {"name": "Pessimistic", "parameters": {"Growth Rate": 0.10}}
-                ]
-            }
+                    {"name": "Pessimistic", "parameters": {"Growth Rate": 0.10}},
+                ],
+            },
         )
         assert scenario_response.status_code == 201
         scenario_results = scenario_response.json()
@@ -132,14 +157,14 @@ class TestFileUploadWorkflow:
             username="erroruser",
             email="error@example.com",
             hashed_password=get_password_hash("password123"),
-            full_name="Error User"
+            full_name="Error User",
         )
         db_session.add(user)
         db_session.commit()
 
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "erroruser", "password": "password123"}
+            data={"username": "erroruser", "password": "password123"},
         )
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
@@ -148,7 +173,7 @@ class TestFileUploadWorkflow:
         invalid_content = b"This is not an Excel file"
         upload_response = client.post(
             "/api/v1/files/upload",
-            files={"file": ("invalid.txt", invalid_content, "text/plain")}
+            files={"file": ("invalid.txt", invalid_content, "text/plain")},
         )
         assert upload_response.status_code == 400
 
@@ -168,7 +193,7 @@ class TestDashboardIntegration:
             username="dashuser",
             email="dash@example.com",
             hashed_password=get_password_hash("password123"),
-            full_name="Dashboard User"
+            full_name="Dashboard User",
         )
         db_session.add(user)
         db_session.commit()
@@ -182,7 +207,7 @@ class TestDashboardIntegration:
                 file_path="/path/file1.xlsx",
                 file_size=1024,
                 user_id=user.id,
-                processing_status="completed"
+                processing_status="completed",
             ),
             UploadedFile(
                 original_filename="file2.xlsx",
@@ -190,15 +215,19 @@ class TestDashboardIntegration:
                 file_path="/path/file2.xlsx",
                 file_size=2048,
                 user_id=user.id,
-                processing_status="processing"
-            )
+                processing_status="processing",
+            ),
         ]
         db_session.add_all(files)
 
         # Create test parameters
         parameters = [
-            Parameter(name="Revenue Growth", value=0.15, category="growth", user_id=user.id),
-            Parameter(name="Cost Inflation", value=0.08, category="costs", user_id=user.id)
+            Parameter(
+                name="Revenue Growth", value=0.15, category="growth", user_id=user.id
+            ),
+            Parameter(
+                name="Cost Inflation", value=0.08, category="costs", user_id=user.id
+            ),
         ]
         db_session.add_all(parameters)
 
@@ -209,7 +238,7 @@ class TestDashboardIntegration:
                 export_format="pdf",
                 file_path="/reports/q1.pdf",
                 status="completed",
-                user_id=user.id
+                user_id=user.id,
             )
         ]
         db_session.add_all(reports)
@@ -218,14 +247,14 @@ class TestDashboardIntegration:
         # Login and get dashboard metrics
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "dashuser", "password": "password123"}
+            data={"username": "dashuser", "password": "password123"},
         )
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
 
         metrics_response = client.get("/api/v1/dashboard/metrics")
         assert metrics_response.status_code == 200
-        
+
         metrics = metrics_response.json()
         assert metrics["total_files"] == 2
         assert metrics["total_parameters"] == 2
@@ -240,7 +269,7 @@ class TestDashboardIntegration:
             username="chartuser",
             email="chart@example.com",
             hashed_password=get_password_hash("password123"),
-            full_name="Chart User"
+            full_name="Chart User",
         )
         db_session.add(user)
         db_session.commit()
@@ -248,28 +277,36 @@ class TestDashboardIntegration:
 
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "chartuser", "password": "password123"}
+            data={"username": "chartuser", "password": "password123"},
         )
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
 
         # Upload and process file
-        with open(sample_excel_file, 'rb') as f:
+        with open(sample_excel_file, "rb") as f:
             upload_response = client.post(
                 "/api/v1/files/upload",
-                files={"file": ("chart_data.xlsx", f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+                files={
+                    "file": (
+                        "chart_data.xlsx",
+                        f,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    )
+                },
             )
         file_id = upload_response.json()["id"]
 
         # Simulate processing completion
-        uploaded_file = db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        uploaded_file = (
+            db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        )
         uploaded_file.processing_status = "completed"
         db_session.commit()
 
         # Get chart data
         charts_response = client.get("/api/v1/dashboard/charts")
         assert charts_response.status_code == 200
-        
+
         chart_data = charts_response.json()
         assert "revenue_trend" in chart_data
         assert "expense_breakdown" in chart_data
@@ -287,7 +324,7 @@ class TestReportGenerationWorkflow:
             username="reportuser",
             email="report@example.com",
             hashed_password=get_password_hash("password123"),
-            full_name="Report User"
+            full_name="Report User",
         )
         db_session.add(user)
         db_session.commit()
@@ -295,21 +332,29 @@ class TestReportGenerationWorkflow:
 
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "reportuser", "password": "password123"}
+            data={"username": "reportuser", "password": "password123"},
         )
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
 
         # Upload file
-        with open(sample_excel_file, 'rb') as f:
+        with open(sample_excel_file, "rb") as f:
             upload_response = client.post(
                 "/api/v1/files/upload",
-                files={"file": ("report_data.xlsx", f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+                files={
+                    "file": (
+                        "report_data.xlsx",
+                        f,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    )
+                },
             )
         file_id = upload_response.json()["id"]
 
         # Simulate processing completion
-        uploaded_file = db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        uploaded_file = (
+            db_session.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        )
         uploaded_file.processing_status = "completed"
         db_session.commit()
 
@@ -321,8 +366,8 @@ class TestReportGenerationWorkflow:
                 "report_type": "financial_analysis",
                 "title": "Test Financial Report",
                 "include_charts": True,
-                "include_scenarios": True
-            }
+                "include_scenarios": True,
+            },
         )
         assert report_response.status_code == 201
         report_data = report_response.json()
@@ -333,7 +378,9 @@ class TestReportGenerationWorkflow:
         assert status_response.status_code == 200
 
         # Simulate report completion
-        report = db_session.query(ReportExport).filter(ReportExport.id == report_id).first()
+        report = (
+            db_session.query(ReportExport).filter(ReportExport.id == report_id).first()
+        )
         report.status = "completed"
         report.file_path = f"/reports/{report_id}.pdf"
         db_session.commit()
@@ -354,7 +401,7 @@ class TestAuthenticationIntegration:
             "username": "newuser",
             "email": "new@example.com",
             "password": "newpassword123",
-            "full_name": "New User"
+            "full_name": "New User",
         }
         register_response = client.post("/api/v1/auth/register", json=register_data)
         assert register_response.status_code == 201
@@ -364,7 +411,7 @@ class TestAuthenticationIntegration:
         # Login with new user
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "newuser", "password": "newpassword123"}
+            data={"username": "newuser", "password": "newpassword123"},
         )
         assert login_response.status_code == 200
         token_data = login_response.json()
@@ -380,8 +427,7 @@ class TestAuthenticationIntegration:
 
         # Update profile
         update_response = client.put(
-            "/api/v1/auth/me",
-            json={"full_name": "Updated Name"}
+            "/api/v1/auth/me", json={"full_name": "Updated Name"}
         )
         assert update_response.status_code == 200
 
@@ -397,25 +443,25 @@ class TestAuthenticationIntegration:
             email="regular@example.com",
             hashed_password=get_password_hash("password123"),
             full_name="Regular User",
-            is_admin=False
+            is_admin=False,
         )
-        
+
         # Create admin user
         admin_user = User(
             username="admin",
             email="admin@example.com",
             hashed_password=get_password_hash("password123"),
             full_name="Admin User",
-            is_admin=True
+            is_admin=True,
         )
-        
+
         db_session.add_all([regular_user, admin_user])
         db_session.commit()
 
         # Test regular user cannot access admin endpoints
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "regular", "password": "password123"}
+            data={"username": "regular", "password": "password123"},
         )
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
@@ -425,8 +471,7 @@ class TestAuthenticationIntegration:
 
         # Test admin user can access admin endpoints
         admin_login = client.post(
-            "/api/v1/auth/login",
-            data={"username": "admin", "password": "password123"}
+            "/api/v1/auth/login", data={"username": "admin", "password": "password123"}
         )
         admin_token = admin_login.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {admin_token}"}
@@ -449,44 +494,50 @@ class TestPerformanceIntegration:
         """Test processing of large Excel files."""
         # Create large test file
         large_data = {
-            'Account': [f'Account_{i}' for i in range(1000)],
-            'Q1': [1000 + i for i in range(1000)],
-            'Q2': [1100 + i for i in range(1000)],
-            'Q3': [1200 + i for i in range(1000)],
-            'Q4': [1300 + i for i in range(1000)]
+            "Account": [f"Account_{i}" for i in range(1000)],
+            "Q1": [1000 + i for i in range(1000)],
+            "Q2": [1100 + i for i in range(1000)],
+            "Q3": [1200 + i for i in range(1000)],
+            "Q4": [1300 + i for i in range(1000)],
         }
-        
+
         df = pd.DataFrame(large_data)
-        
-        with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False) as f:
+
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as f:
             df.to_excel(f.name, index=False)
-            
+
             # Setup user and login
             user = User(
                 username="perfuser",
                 email="perf@example.com",
                 hashed_password=get_password_hash("password123"),
-                full_name="Performance User"
+                full_name="Performance User",
             )
             db_session.add(user)
             db_session.commit()
 
             login_response = client.post(
                 "/api/v1/auth/login",
-                data={"username": "perfuser", "password": "password123"}
+                data={"username": "perfuser", "password": "password123"},
             )
             token = login_response.json()["access_token"]
             client.headers = {"Authorization": f"Bearer {token}"}
 
             # Upload large file
-            with open(f.name, 'rb') as large_file:
+            with open(f.name, "rb") as large_file:
                 upload_response = client.post(
                     "/api/v1/files/upload",
-                    files={"file": ("large.xlsx", large_file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+                    files={
+                        "file": (
+                            "large.xlsx",
+                            large_file,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        )
+                    },
                 )
-            
+
             assert upload_response.status_code == 201
-            
+
             # Cleanup
             os.unlink(f.name)
 
@@ -495,14 +546,16 @@ class TestPerformanceIntegration:
 class TestDataConsistency:
     """Integration tests for data consistency across the system."""
 
-    def test_data_consistency_across_operations(self, client, db_session, sample_excel_file):
+    def test_data_consistency_across_operations(
+        self, client, db_session, sample_excel_file
+    ):
         """Test data consistency when performing multiple operations."""
         # Setup user
         user = User(
             username="consistuser",
             email="consist@example.com",
             hashed_password=get_password_hash("password123"),
-            full_name="Consistency User"
+            full_name="Consistency User",
         )
         db_session.add(user)
         db_session.commit()
@@ -510,30 +563,36 @@ class TestDataConsistency:
 
         login_response = client.post(
             "/api/v1/auth/login",
-            data={"username": "consistuser", "password": "password123"}
+            data={"username": "consistuser", "password": "password123"},
         )
         token = login_response.json()["access_token"]
         client.headers = {"Authorization": f"Bearer {token}"}
 
         # Upload file
-        with open(sample_excel_file, 'rb') as f:
+        with open(sample_excel_file, "rb") as f:
             upload_response = client.post(
                 "/api/v1/files/upload",
-                files={"file": ("consistency.xlsx", f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+                files={
+                    "file": (
+                        "consistency.xlsx",
+                        f,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    )
+                },
             )
         file_id = upload_response.json()["id"]
 
         # Create parameters
         param_response = client.post(
             "/api/v1/parameters/",
-            json={"name": "Test Parameter", "value": 0.15, "category": "test"}
+            json={"name": "Test Parameter", "value": 0.15, "category": "test"},
         )
         param_id = param_response.json()["id"]
 
         # Generate report
         report_response = client.post(
             "/api/v1/reports/generate",
-            json={"file_ids": [file_id], "report_type": "test_report"}
+            json={"file_ids": [file_id], "report_type": "test_report"},
         )
         report_id = report_response.json()["id"]
 
@@ -553,4 +612,4 @@ class TestDataConsistency:
 
         # Related data should be properly handled
         file_check_after = client.get(f"/api/v1/files/{file_id}")
-        assert file_check_after.status_code == 404 
+        assert file_check_after.status_code == 404

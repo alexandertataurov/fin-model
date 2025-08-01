@@ -7,10 +7,11 @@ def test_get_db_yields_session(monkeypatch):
     class DummySession:
         def __init__(self):
             events.append("created")
+
         def close(self):
             events.append("closed")
 
-    monkeypatch.setattr('app.models.base.SessionLocal', lambda: DummySession())
+    monkeypatch.setattr("app.models.base.SessionLocal", lambda: DummySession())
     gen = get_db()
     next(gen)
     assert events == ["created"]

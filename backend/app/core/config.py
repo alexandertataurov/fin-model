@@ -32,12 +32,16 @@ class Settings(BaseSettings):
         if isinstance(v, list):
             return ",".join(v)
         return str(v) if v else "http://localhost:3000,http://127.0.0.1:3000"
-    
+
     def get_cors_origins(self) -> List[str]:
         """Get CORS origins as a list."""
         if self.BACKEND_CORS_ORIGINS == "*":
             return ["*"]
-        return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",") if origin.strip()]
+        return [
+            origin.strip()
+            for origin in self.BACKEND_CORS_ORIGINS.split(",")
+            if origin.strip()
+        ]
 
     # JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30

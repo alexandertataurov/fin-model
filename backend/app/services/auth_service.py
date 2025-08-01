@@ -138,7 +138,6 @@ class AuthService:
             )
             return None
 
-
         # Verify password
         if not verify_password(password, user.hashed_password):
             # Increment failed login attempts
@@ -432,8 +431,14 @@ class AuthService:
         self.db.add(audit_log)
         # Note: commit is handled by the calling method
 
-    def create_user_tokens(self, user: User, expires_delta: timedelta | None = None) -> Dict[str, str]:
+    def create_user_tokens(
+        self, user: User, expires_delta: timedelta | None = None
+    ) -> Dict[str, str]:
         """Return access and refresh tokens for a user."""
         access = create_access_token(user.id, expires_delta=expires_delta)
         refresh = create_refresh_token(user.id)
-        return {"access_token": access, "refresh_token": refresh, "token_type": "bearer"}
+        return {
+            "access_token": access,
+            "refresh_token": refresh,
+            "token_type": "bearer",
+        }

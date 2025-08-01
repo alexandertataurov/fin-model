@@ -14,6 +14,7 @@ def test_get_processing_overview_basic():
     assert result["failed_files"] == 1
     assert result["processing_files"] == 1
 
+
 @pytest.mark.parametrize(
     "msg,expected",
     [

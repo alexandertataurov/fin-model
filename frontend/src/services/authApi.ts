@@ -153,8 +153,8 @@ export const authApi = {
     await api.post('/auth/change-password', passwordData);
   },
 
-  async requestPasswordReset(email: PasswordResetRequest): Promise<void> {
-    await api.post('/auth/request-password-reset', email);
+  async requestPasswordReset(email: string): Promise<void> {
+    await api.post('/auth/request-password-reset', { email });
   },
 
   async resetPassword(resetData: PasswordResetConfirmRequest): Promise<void> {

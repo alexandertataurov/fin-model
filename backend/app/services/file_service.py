@@ -143,9 +143,7 @@ class FileService:
         status_filter: Optional[FileStatus] = None,
     ) -> Dict[str, Any]:
         """Get files uploaded by user with pagination."""
-        query = self.db.query(UploadedFile).filter(
-            UploadedFile.user_id == user.id
-        )
+        query = self.db.query(UploadedFile).filter(UploadedFile.user_id == user.id)
 
         if status_filter:
             query = query.filter(UploadedFile.status == status_filter)
@@ -285,5 +283,6 @@ class FileService:
     def cleanup_expired_files(self) -> Dict[str, Any]:
         """Wrapper around FileCleanupService for scheduled tasks."""
         from app.services.file_cleanup import FileCleanupService
+
         cleanup_service = FileCleanupService(self.db, self)
         return asyncio.run(cleanup_service.cleanup_expired_files(dry_run=False))

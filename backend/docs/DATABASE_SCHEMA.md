@@ -678,5 +678,8 @@ REINDEX INDEX CONCURRENTLY ix_timeseries_scenario_type_date;
 2. Test migrations on copy of production data
 3. Plan rollback strategy
 4. Update documentation
+5. When deploying on Railway, ensure index creation is idempotent. Use a
+   `to_regclass` existence check or drop conflicting indexes prior to
+   running the migration to avoid repeated deploy failures.
 
 This comprehensive schema provides a robust foundation for the FinVision platform's financial modeling and analysis capabilities.

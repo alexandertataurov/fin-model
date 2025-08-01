@@ -20,7 +20,7 @@ def test_report_schedule_email_validation():
             name="r",
             cron_expression="* * * * *",
             template_id=1,
-            email_recipients=["bad-email"]
+            email_recipients=["bad-email"],
         )
 
     rs = ReportScheduleBase(
@@ -30,4 +30,3 @@ def test_report_schedule_email_validation():
         email_recipients=["valid@example.com"],
     )
     assert rs.email_recipients == ["valid@example.com"]
-

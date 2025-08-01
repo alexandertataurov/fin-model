@@ -1,5 +1,13 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Query, Body
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+    BackgroundTasks,
+    Query,
+    Body,
+)
 from fastapi.responses import Response, FileResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -18,11 +26,20 @@ from app.models.report import (
     ReportExport as ReportExportModel,
 )
 from app.schemas.report import (
-    ReportTemplate, ReportTemplateCreate, ReportTemplateUpdate,
-    ReportSchedule, ReportScheduleCreate, ReportScheduleUpdate,
-    ReportExport, ReportExportCreate, ReportExportUpdate,
-    GenerateReportRequest, ChartExportRequest, DataExportRequest,
-    ReportGenerationStatus, ExportSummary
+    ReportTemplate,
+    ReportTemplateCreate,
+    ReportTemplateUpdate,
+    ReportSchedule,
+    ReportScheduleCreate,
+    ReportScheduleUpdate,
+    ReportExport,
+    ReportExportCreate,
+    ReportExportUpdate,
+    GenerateReportRequest,
+    ChartExportRequest,
+    DataExportRequest,
+    ReportGenerationStatus,
+    ExportSummary,
 )
 from app.services.report_service import ReportService
 
@@ -47,17 +64,16 @@ async def create_template(
 ):
     """Create a new report template."""
     report_service = ReportService(db)
-    
+
     try:
         template = report_service.create_template(
-            user_id=current_user.id,
-            template_data=template_data.dict()
+            user_id=current_user.id, template_data=template_data.dict()
         )
         return template
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to create template: {str(e)}"
+            detail=f"Failed to create template: {str(e)}",
         )
 
 
@@ -70,13 +86,11 @@ async def get_templates(
 ):
     """Get available report templates."""
     report_service = ReportService(db)
-    
+
     templates = report_service.get_templates(
-        user_id=current_user.id,
-        report_type=report_type,
-        include_system=include_system
+        user_id=current_user.id, report_type=report_type, include_system=include_system
     )
-    
+
     return templates
 
 
@@ -88,14 +102,13 @@ async def get_template(
 ):
     """Get a specific report template."""
     report_service = ReportService(db)
-    
+
     template = report_service.get_template(template_id, current_user.id)
     if not template:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Template not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Template not found"
         )
-    
+
     return template
 
 
@@ -108,19 +121,19 @@ async def update_template(
 ):
     """Update a report template."""
     report_service = ReportService(db)
-    
+
     template = report_service.update_template(
         template_id=template_id,
         user_id=current_user.id,
-        update_data=template_data.dict(exclude_unset=True)
+        update_data=template_data.dict(exclude_unset=True),
     )
-    
+
     if not template:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Template not found or not authorized to update"
+            detail="Template not found or not authorized to update",
         )
-    
+
     return template
 
 
@@ -132,19 +145,21 @@ async def delete_template(
 ):
     """Delete a report template."""
     report_service = ReportService(db)
-    
+
     success = report_service.delete_template(template_id, current_user.id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Template not found or not authorized to delete"
+            detail="Template not found or not authorized to delete",
         )
-    
+
     return {"message": "Template deleted successfully"}
 
 
 # Report Generation Endpoints
-@router.post("/generate", response_model=ReportExport, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/generate", response_model=ReportExport, status_code=status.HTTP_201_CREATED
+)
 async def generate_report(
     background_tasks: BackgroundTasks,
     request: Optional[GenerateReportRequest] = Body(None),
@@ -154,9 +169,8 @@ async def generate_report(
     """Generate a report based on template and data."""
 
     try:
-        if (
-            not isinstance(request, GenerateReportRequest)
-            or (not request.source_file_ids and request.template_id is None)
+        if not isinstance(request, GenerateReportRequest) or (
+            not request.source_file_ids and request.template_id is None
         ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -179,13 +193,13 @@ async def generate_report(
         db.refresh(export_record)
 
         return export_record
-        
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate report: {str(e)}"
+            detail=f"Failed to generate report: {str(e)}",
         )
 
 
@@ -197,7 +211,7 @@ async def export_chart(
 ):
     """Export a single chart as an image file."""
     report_service = ReportService(db)
-    
+
     try:
         file_path = report_service.export_chart(
             user_id=current_user.id,
@@ -205,19 +219,19 @@ async def export_chart(
             export_format=request.export_format,
             width=request.width,
             height=request.height,
-            filename=request.filename
+            filename=request.filename,
         )
-        
+
         return {
             "message": "Chart exported successfully",
             "file_path": file_path,
-            "download_url": f"/api/v1/reports/download/{file_path.split('/')[-1]}"
+            "download_url": f"/api/v1/reports/download/{file_path.split('/')[-1]}",
         }
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to export chart: {str(e)}"
+            detail=f"Failed to export chart: {str(e)}",
         )
 
 
@@ -229,34 +243,33 @@ async def export_data(
 ):
     """Export raw financial data."""
     report_service = ReportService(db)
-    
+
     try:
         # For now, export as CSV - could extend for other formats
         if request.export_format != ExportFormat.CSV:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Only CSV export is currently supported for raw data"
+                detail="Only CSV export is currently supported for raw data",
             )
-        
+
         # Get data based on request parameters
         # This would need to be implemented based on your data structure
         raw_data = []  # TODO: Implement data gathering
-        
+
         file_path = report_service.excel_exporter.export_raw_data_csv(
-            data=raw_data,
-            include_metadata=request.include_metadata
+            data=raw_data, include_metadata=request.include_metadata
         )
-        
+
         return {
             "message": "Data exported successfully",
             "file_path": file_path,
-            "download_url": f"/api/v1/reports/download/{file_path.split('/')[-1]}"
+            "download_url": f"/api/v1/reports/download/{file_path.split('/')[-1]}",
         }
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to export data: {str(e)}"
+            detail=f"Failed to export data: {str(e)}",
         )
 
 
@@ -271,14 +284,11 @@ async def get_exports(
 ):
     """Get user's report exports."""
     report_service = ReportService(db)
-    
+
     exports = report_service.get_exports(
-        user_id=current_user.id,
-        status=status,
-        limit=limit,
-        offset=offset
+        user_id=current_user.id, status=status, limit=limit, offset=offset
     )
-    
+
     return exports
 
 
@@ -290,14 +300,13 @@ async def get_export(
 ):
     """Get a specific export."""
     report_service = ReportService(db)
-    
+
     export = report_service.get_export(export_id, current_user.id)
     if not export:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Export not found"
         )
-    
+
     return export
 
 
@@ -309,14 +318,14 @@ async def delete_export(
 ):
     """Delete an export."""
     report_service = ReportService(db)
-    
+
     success = report_service.delete_export(export_id, current_user.id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found or not authorized to delete"
+            detail="Export not found or not authorized to delete",
         )
-    
+
     return {"message": "Export deleted successfully"}
 
 
@@ -328,33 +337,36 @@ async def get_export_status(
 ):
     """Get the status of a report generation."""
     report_service = ReportService(db)
-    
+
     export = report_service.get_export(export_id, current_user.id)
     if not export:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Export not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Export not found"
         )
-    
+
     # Calculate progress percentage
     progress_percentage = None
     if export.status == ReportStatus.PROCESSING:
         # Simple progress estimation based on time elapsed
         if export.processing_started_at:
-            elapsed_seconds = (datetime.utcnow() - export.processing_started_at).total_seconds()
+            elapsed_seconds = (
+                datetime.utcnow() - export.processing_started_at
+            ).total_seconds()
             # Assume average processing time of 30 seconds
             progress_percentage = min(int((elapsed_seconds / 30) * 100), 95)
     elif export.status == ReportStatus.COMPLETED:
         progress_percentage = 100
     elif export.status == ReportStatus.FAILED:
         progress_percentage = 0
-    
+
     return ReportGenerationStatus(
         export_id=export.id,
         status=export.status,
         progress_percentage=progress_percentage,
-        current_step="Processing financial data" if export.status == ReportStatus.PROCESSING else None,
-        error_message=export.error_message
+        current_step="Processing financial data"
+        if export.status == ReportStatus.PROCESSING
+        else None,
+        error_message=export.error_message,
     )
 
 
@@ -380,8 +392,11 @@ async def get_report(
 ) -> ReportExport:
     report = db.query(ReportExportModel).filter_by(id=report_id).first()
     if not report:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Report not found"
+        )
     return report
+
 
 @router.get("/{report_id}/download")
 async def download_report(
@@ -400,7 +415,7 @@ async def get_export_summary(
 ):
     """Get export statistics summary."""
     report_service = ReportService(db)
-    
+
     summary = report_service.get_export_summary(current_user.id)
     return summary
 
@@ -413,14 +428,14 @@ async def initialize_system_templates(
 ):
     """Initialize default system templates (Admin only)."""
     report_service = ReportService(db)
-    
+
     try:
         report_service.initialize_system_templates()
         return {"message": "System templates initialized successfully"}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to initialize templates: {str(e)}"
+            detail=f"Failed to initialize templates: {str(e)}",
         )
 
 
@@ -431,15 +446,15 @@ async def cleanup_expired_exports(
 ):
     """Clean up expired exports (Admin only)."""
     report_service = ReportService(db)
-    
+
     try:
         deleted_count = report_service.cleanup_expired_exports()
         return {
             "message": f"Cleaned up {deleted_count} expired exports",
-            "deleted_count": deleted_count
+            "deleted_count": deleted_count,
         }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to cleanup exports: {str(e)}"
-        ) 
+            detail=f"Failed to cleanup exports: {str(e)}",
+        )

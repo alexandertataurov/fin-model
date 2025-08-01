@@ -14,6 +14,7 @@ from app.schemas.file import (
     ProcessingLogEntry,
     FileProcessingRequest,
 )
+from app.schemas.financial import FilePreviewResponse
 from app.services.file_service import FileService
 from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
@@ -27,7 +28,9 @@ def get_file_service(db: Session = Depends(get_db)) -> FileService:
     return FileService(db)
 
 
-@router.post("/upload", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/upload", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED
+)
 async def upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_active_user),
@@ -78,7 +81,9 @@ def get_file_info(
     Get information about a specific file.
     """
     if not file_id.isdigit():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file id")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file id"
+        )
     file_record = file_service.get_file_by_id(int(file_id), current_user)
 
     if not file_record:
@@ -327,4 +332,117 @@ def get_task_status(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get task status: {str(e)}",
+        )
+
+
+@router.get("/{file_id}/preview", response_model=FilePreviewResponse)
+def get_file_preview(
+    file_id: int,
+    max_rows: int = Query(
+        10, ge=1, le=100, description="Maximum rows to preview per sheet"
+    ),
+    current_user: User = Depends(get_current_active_user),
+    file_service: FileService = Depends(get_file_service),
+) -> Any:
+    """
+    Get a preview of the first few rows of an Excel file.
+    """
+    file_record = file_service.get_file_by_id(file_id, current_user)
+
+    if not file_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
+
+    # Check if file is Excel
+    if file_record.file_type not in ["excel"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File preview is only available for Excel files",
+        )
+
+    try:
+        from app.services.excel_parser import ExcelParser
+
+        parser = ExcelParser()
+
+        # Get basic file structure
+        sheets_data = parser.parse(file_record.file_path)
+
+        # Generate preview data
+        preview_sheets = []
+        detected_statements = []
+
+        for sheet_name, df in sheets_data.items():
+            # Get preview rows
+            preview_data = df.head(max_rows).to_dict("records") if not df.empty else []
+
+            sheet_info = {
+                "name": sheet_name,
+                "row_count": len(df),
+                "column_count": len(df.columns) if not df.empty else 0,
+                "columns": list(df.columns) if not df.empty else [],
+                "preview_data": preview_data,
+            }
+            preview_sheets.append(sheet_info)
+
+            # Try to detect statement type
+            try:
+                # Use simplified detection for preview
+                sheet_name_lower = sheet_name.lower()
+                if any(
+                    keyword in sheet_name_lower
+                    for keyword in ["profit", "loss", "income", "p&l", "pnl"]
+                ):
+                    detected_statements.append(
+                        {
+                            "sheet_name": sheet_name,
+                            "statement_type": "PROFIT_LOSS",
+                            "confidence": 0.8,
+                        }
+                    )
+                elif any(
+                    keyword in sheet_name_lower
+                    for keyword in ["balance", "sheet", "position"]
+                ):
+                    detected_statements.append(
+                        {
+                            "sheet_name": sheet_name,
+                            "statement_type": "BALANCE_SHEET",
+                            "confidence": 0.8,
+                        }
+                    )
+                elif any(
+                    keyword in sheet_name_lower for keyword in ["cash", "flow", "cf"]
+                ):
+                    detected_statements.append(
+                        {
+                            "sheet_name": sheet_name,
+                            "statement_type": "CASH_FLOW",
+                            "confidence": 0.8,
+                        }
+                    )
+            except Exception:
+                # Ignore detection errors in preview
+                pass
+
+        return FilePreviewResponse(
+            file_id=file_id,
+            file_name=file_record.original_filename,
+            sheets=preview_sheets,
+            preview_data={"max_rows_per_sheet": max_rows},
+            detected_statements=detected_statements,
+            metadata={
+                "file_size": file_record.file_size,
+                "upload_date": file_record.upload_date.isoformat()
+                if file_record.upload_date
+                else None,
+                "total_sheets": len(preview_sheets),
+            },
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate file preview: {str(e)}",
         )

@@ -29,11 +29,13 @@ from app.core.security import (
     create_email_verification_token,
 )
 from app.core.config import settings
+from app.core.rate_limiter import RateLimiter
 
 router = APIRouter()
 
 # Use HTTPBearer with auto_error disabled so we can return 401 instead of 403
 security = HTTPBearer(auto_error=False)
+
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -108,6 +110,16 @@ def register(
     user_in: UserRegister, request: Request, db: Session = Depends(get_db)
 ) -> Any:
     """Register a new user."""
+    # Apply rate limiting
+    rate_limiter = RateLimiter(db)
+    rate_limiter.check_rate_limit(
+        request=request,
+        endpoint="register",
+        max_attempts=3,  # More restrictive for registration
+        window_minutes=15,
+        block_minutes=60,
+    )
+
     auth_service = AuthService(db)
 
     # Get client info for audit logging
@@ -151,6 +163,16 @@ async def login(
     db: Session = Depends(get_db),
 ) -> Any:
     """Login user and return access token."""
+    # Apply rate limiting
+    rate_limiter = RateLimiter(db)
+    rate_limiter.check_rate_limit(
+        request=request,
+        endpoint="login",
+        max_attempts=5,
+        window_minutes=15,
+        block_minutes=30,
+    )
+
     auth_service = AuthService(db)
 
     # Support both JSON payloads and form data for tests
@@ -278,7 +300,9 @@ def update_users_me(
     auth_service = AuthService(db)
     updated = auth_service.update_user(current_user.id, user_update)
     if not updated:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return updated
 
 
@@ -337,9 +361,19 @@ def dev_verify_user(request: dict, db: Session = Depends(get_db)) -> Any:
 
 @router.post("/request-password-reset")
 def request_password_reset(
-    password_reset: PasswordReset, db: Session = Depends(get_db)
+    password_reset: PasswordReset, request: Request, db: Session = Depends(get_db)
 ) -> Any:
     """Request password reset."""
+    # Apply rate limiting
+    rate_limiter = RateLimiter(db)
+    rate_limiter.check_rate_limit(
+        request=request,
+        endpoint="password_reset",
+        max_attempts=3,
+        window_minutes=60,
+        block_minutes=120,
+    )
+
     auth_service = AuthService(db)
 
     # Always return success to prevent email enumeration

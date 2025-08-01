@@ -70,7 +70,7 @@ def process_uploaded_file(
             file_id, "parsing", "Starting file parsing", "info"
         )
         parsed_data = excel_parser.parse_excel_file(file_record.file_path)
-        
+
         # Validate against financial templates
         validator = AdvancedValidator()
         validation_result = validator.validate_template(parsed_data)
@@ -82,8 +82,12 @@ def process_uploaded_file(
         )
 
         # Store validation results
-        is_valid = parsed_data.validation_summary.is_valid and validation_result.is_valid
-        validation_errors = parsed_data.validation_summary.errors + validation_result.validation_errors
+        is_valid = (
+            parsed_data.validation_summary.is_valid and validation_result.is_valid
+        )
+        validation_errors = (
+            parsed_data.validation_summary.errors + validation_result.validation_errors
+        )
 
         if not is_valid:
             validation_errors = json.dumps(
@@ -123,6 +127,7 @@ def process_uploaded_file(
                 sheets_attr = []
             for sheet in sheets_attr:
                 sheets_data.append(getattr(sheet, "dict", lambda: sheet)())
+
             def _safe(obj):
                 try:
                     json.dumps(obj)
@@ -137,7 +142,9 @@ def process_uploaded_file(
             parsed_data_json = json.dumps(
                 {
                     "sheets": _safe(sheets_data),
-                    "financial_statements": _safe(getattr(parsed_data, "financial_statements", None)),
+                    "financial_statements": _safe(
+                        getattr(parsed_data, "financial_statements", None)
+                    ),
                     "key_metrics": _safe(getattr(parsed_data, "key_metrics", None)),
                     "assumptions": _safe(getattr(parsed_data, "assumptions", None)),
                     "validation_summary": val_summary,
@@ -380,6 +387,7 @@ def get_processing_status(task_id: str) -> Dict[str, Any]:
         }
 
         return response
+
 
 # Expose raw function for unit tests
 process_uploaded_file.__wrapped__ = process_uploaded_file.__wrapped__.__func__
