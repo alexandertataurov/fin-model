@@ -67,8 +67,8 @@ class UserCreate(UserBase):
         if "nonumbers" in v.lower():
             raise ValueError("Password is too weak")
 
-
         return v
+
 
 class UserRegister(UserCreate):
     pass

@@ -3,7 +3,6 @@ import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-d
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  TrendingUp,
   Loader2,
   AlertCircle,
   Check,

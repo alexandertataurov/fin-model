@@ -10,7 +10,7 @@ import Register from "./pages/Register";
 import ForgotPasswordForm from "./components/auth/ForgotPasswordForm";
 import ResetPasswordForm from "./components/auth/ResetPasswordForm";
 import EmailVerification from "./components/auth/EmailVerification";
-import AuthGuard, { 
+import { 
   AdminGuard, 
   AnalystGuard, 
   VerifiedUserGuard 

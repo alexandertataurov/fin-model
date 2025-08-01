@@ -30,11 +30,11 @@ class ParameterBase(BaseModel):
     is_required: bool = True
     is_editable: bool = True
 
-    @validator('min_value', 'max_value')
+    @validator("min_value", "max_value")
     def validate_range(cls, v, values):
-        if v is not None and 'min_value' in values and values['min_value'] is not None:
-            if v < values['min_value']:
-                raise ValueError('max_value must be greater than min_value')
+        if v is not None and "min_value" in values and values["min_value"] is not None:
+            if v < values["min_value"]:
+                raise ValueError("max_value must be greater than min_value")
         return v
 
 
@@ -142,7 +142,7 @@ class ScenarioVersionResponse(BaseModel):
     created_at: datetime
     created_by_id: int
     is_current: bool = False
-    
+
     class Config:
         from_attributes = True
 
@@ -366,7 +366,9 @@ class ParameterTemplateResponse(BaseModel):
 class ParameterSearchRequest(BaseModel):
     query: str
     filters: Optional[Dict[str, Any]] = None
-    sort_by: str = Field("name", pattern="^(name|created_at|updated_at|sensitivity_level)$")
+    sort_by: str = Field(
+        "name", pattern="^(name|created_at|updated_at|sensitivity_level)$"
+    )
     sort_order: str = Field("asc", pattern="^(asc|desc)$")
     limit: int = Field(50, ge=1, le=200)
     offset: int = Field(0, ge=0)
@@ -419,4 +421,4 @@ class ParameterAnalyticsResponse(BaseModel):
     statistics: ParameterStatistics
     trends: Dict[str, Any]
     recommendations: List[str]
-    data_quality_score: float 
+    data_quality_score: float

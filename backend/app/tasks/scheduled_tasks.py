@@ -48,8 +48,10 @@ def cleanup_expired_files(task=None, db_session: Session | None = None):
 
         results_dict = {
             "success": True,
-            "total_files_deleted": results.get("total_files_deleted") or results.get("files_deleted", 0),
-            "total_storage_freed_mb": results.get("total_storage_freed_mb") or results.get("storage_freed_mb", 0),
+            "total_files_deleted": results.get("total_files_deleted")
+            or results.get("files_deleted", 0),
+            "total_storage_freed_mb": results.get("total_storage_freed_mb")
+            or results.get("storage_freed_mb", 0),
             "error": None,
         }
         return results_dict
@@ -214,4 +216,3 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute=0),
     },
 }
-

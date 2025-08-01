@@ -36,6 +36,7 @@ router = APIRouter()
 # Use HTTPBearer with auto_error disabled so we can return 401 instead of 403
 security = HTTPBearer(auto_error=False)
 
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
@@ -116,9 +117,9 @@ def register(
         endpoint="register",
         max_attempts=3,  # More restrictive for registration
         window_minutes=15,
-        block_minutes=60
+        block_minutes=60,
     )
-    
+
     auth_service = AuthService(db)
 
     # Get client info for audit logging
@@ -169,9 +170,9 @@ async def login(
         endpoint="login",
         max_attempts=5,
         window_minutes=15,
-        block_minutes=30
+        block_minutes=30,
     )
-    
+
     auth_service = AuthService(db)
 
     # Support both JSON payloads and form data for tests
@@ -299,7 +300,9 @@ def update_users_me(
     auth_service = AuthService(db)
     updated = auth_service.update_user(current_user.id, user_update)
     if not updated:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return updated
 
 
@@ -368,9 +371,9 @@ def request_password_reset(
         endpoint="password_reset",
         max_attempts=3,
         window_minutes=60,
-        block_minutes=120
+        block_minutes=120,
     )
-    
+
     auth_service = AuthService(db)
 
     # Always return success to prevent email enumeration

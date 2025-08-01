@@ -1,5 +1,6 @@
 """Utility module for arithmetic operations used in tests."""
 
+
 def add(a: int, b: int) -> int:
     return a + b
 

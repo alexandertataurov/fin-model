@@ -76,7 +76,9 @@ class FileRetentionPolicy:
 class FileCleanupService:
     """Service for managing file cleanup and retention policies."""
 
-    def __init__(self, db_session: Session | None = None, file_service: FileService | None = None):
+    def __init__(
+        self, db_session: Session | None = None, file_service: FileService | None = None
+    ):
         self.db_session = db_session or SessionLocal()
         self.file_service = file_service or FileService(self.db_session)
         self.storage_manager = CloudStorageManager()

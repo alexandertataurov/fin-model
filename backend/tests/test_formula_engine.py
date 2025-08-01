@@ -8,13 +8,13 @@ from app.services.formula_engine import (
     ExcelFunction,
     CalculationResult,
     DependencyGraph,
-    safe_eval
+    safe_eval,
 )
 
 
 class TestExcelFunction:
     """Test Excel function implementations"""
-    
+
     def test_sum_function(self):
         """Test SUM function with various inputs"""
         assert ExcelFunction.SUM(1, 2, 3) == 6
@@ -84,7 +84,7 @@ class TestExcelFunction:
         assert ExcelFunction.POWER(10, 0) == 1.0
 
     def test_exp_function(self):
-        """Test EXP function"""  
+        """Test EXP function"""
         assert ExcelFunction.EXP(0) == 1.0
         assert ExcelFunction.EXP(1) == pytest.approx(2.718, rel=1e-3)
         assert ExcelFunction.EXP(2) == pytest.approx(7.389, rel=1e-3)
@@ -106,13 +106,13 @@ class TestExcelFunction:
         # NPV calculation: -1000 + 300/(1+0.1) + 400/(1+0.1)^2 + 500/(1+0.1)^3
         cash_flows = [-1000, 300, 400, 500]
         npv = ExcelFunction.NPV(0.1, *cash_flows)
-        expected = -1000 + 300/1.1 + 400/(1.1**2) + 500/(1.1**3)
+        expected = -1000 + 300 / 1.1 + 400 / (1.1**2) + 500 / (1.1**3)
         assert npv == pytest.approx(expected, rel=1e-10)
 
 
 class TestCalculationResult:
     """Test CalculationResult dataclass"""
-    
+
     def test_calculation_result_creation(self):
         """Test CalculationResult creation"""
         result = CalculationResult(
@@ -120,9 +120,9 @@ class TestCalculationResult:
             error=None,
             data_type="number",
             calculation_time=0.001,
-            dependencies_used=["A1", "B1"]
+            dependencies_used=["A1", "B1"],
         )
-        
+
         assert result.value == 42
         assert result.error is None
         assert result.data_type == "number"
@@ -136,9 +136,9 @@ class TestCalculationResult:
             error="Division by zero",
             data_type="error",
             calculation_time=0.0,
-            dependencies_used=[]
+            dependencies_used=[],
         )
-        
+
         assert result.value is None
         assert result.error == "Division by zero"
         assert result.data_type == "error"
@@ -146,16 +146,16 @@ class TestCalculationResult:
 
 class TestDependencyGraph:
     """Test DependencyGraph dataclass"""
-    
+
     def test_dependency_graph_creation(self):
         """Test DependencyGraph creation"""
         graph = DependencyGraph(
             nodes={"C1": {"A1", "B1"}, "D1": {"C1"}},
             reverse_nodes={"A1": {"C1"}, "B1": {"C1"}, "C1": {"D1"}},
             calculation_order=["A1", "B1", "C1", "D1"],
-            circular_references=[]
+            circular_references=[],
         )
-        
+
         assert "C1" in graph.nodes
         assert "A1" in graph.nodes["C1"]
         assert len(graph.calculation_order) == 4
@@ -167,9 +167,9 @@ class TestDependencyGraph:
             nodes={"A1": {"B1"}, "B1": {"A1"}},
             reverse_nodes={"A1": {"B1"}, "B1": {"A1"}},
             calculation_order=[],
-            circular_references=[["A1", "B1"]]
+            circular_references=[["A1", "B1"]],
         )
-        
+
         assert len(graph.circular_references) == 1
         assert "A1" in graph.circular_references[0]
         assert "B1" in graph.circular_references[0]
@@ -177,25 +177,25 @@ class TestDependencyGraph:
 
 class TestFormulaEngine:
     """Test FormulaEngine main functionality"""
-    
+
     @pytest.fixture
     def engine(self):
         return FormulaEngine()
 
     def test_formula_engine_initialization(self, engine):
         """Test FormulaEngine initialization"""
-        assert hasattr(engine, 'cell_values')
-        assert hasattr(engine, 'formulas')
-        assert hasattr(engine, 'dependency_graph')
+        assert hasattr(engine, "cell_values")
+        assert hasattr(engine, "formulas")
+        assert hasattr(engine, "dependency_graph")
 
     def test_safe_eval_simple_expression(self, engine):
         """Test safe evaluation of simple expressions"""
         result = engine._safe_eval("2 + 3")
         assert result == 5
-        
+
         result = engine._safe_eval("10 - 4")
         assert result == 6
-        
+
         result = engine._safe_eval("3 * 4")
         assert result == 12
 
@@ -219,18 +219,18 @@ class TestFormulaEngine:
         """Test module-level safe_eval function"""
         result = safe_eval("5 + 3")
         assert result == 8
-        
+
         context = {"x": 10, "y": 5}
         result = safe_eval("x * y", context)
         assert result == 50
 
-    @patch.object(FormulaEngine, '_safe_eval')
+    @patch.object(FormulaEngine, "_safe_eval")
     def test_evaluate_formula(self, mock_safe_eval, engine):
         """Test formula evaluation"""
         mock_safe_eval.return_value = 42
-        
+
         result = engine.evaluate_formula("=A1+B1")
-        
+
         assert result == 42
         mock_safe_eval.assert_called_once()
 
@@ -238,7 +238,7 @@ class TestFormulaEngine:
         """Test cell value storage and retrieval"""
         engine.set_cell_value("A1", 100)
         engine.set_cell_value("B1", 200)
-        
+
         assert engine.get_cell_value("A1") == 100
         assert engine.get_cell_value("B1") == 200
         assert engine.get_cell_value("C1") is None  # Non-existent cell
@@ -246,14 +246,14 @@ class TestFormulaEngine:
     def test_formula_storage(self, engine):
         """Test formula storage and retrieval"""
         engine.set_formula("C1", "=A1+B1")
-        
+
         assert engine.get_formula("C1") == "=A1+B1"
         assert engine.get_formula("D1") is None  # Non-existent formula
 
 
 class TestFormulaEngineIntegration:
     """Integration tests for FormulaEngine"""
-    
+
     @pytest.fixture
     def populated_engine(self):
         """Create engine with sample data"""
@@ -285,20 +285,20 @@ class TestFormulaEngineIntegration:
     def test_conditional_formulas(self, populated_engine):
         """Test IF conditions in formulas"""
         result = populated_engine.evaluate_formula("=IF(100>50, 'High', 'Low')")
-        assert result == 'High'
-        
+        assert result == "High"
+
         result = populated_engine.evaluate_formula("=IF(10>50, 'High', 'Low')")
-        assert result == 'Low'
+        assert result == "Low"
 
     @pytest.mark.integration
     def test_mathematical_formulas(self, populated_engine):
         """Test mathematical Excel functions"""
         result = populated_engine.evaluate_formula("=SQRT(16)")
         assert result == 4.0
-        
+
         result = populated_engine.evaluate_formula("=POWER(2,3)")
         assert result == 8.0
-        
+
         result = populated_engine.evaluate_formula("=ABS(-25)")
         assert result == 25
 
@@ -307,7 +307,7 @@ class TestFormulaEngineIntegration:
         """Test formula dependency tracking"""
         populated_engine.set_formula("C1", "=A1+B1")
         populated_engine.set_formula("C2", "=C1*2")
-        
+
         # C2 should depend on C1, which depends on A1 and B1
         dependencies = populated_engine.get_dependencies("C2")
         assert "C1" in dependencies or len(dependencies) > 0
@@ -329,29 +329,29 @@ class TestFormulaEngineIntegration:
         """Test batch calculation of multiple formulas"""
         formulas = {
             "C1": "=A1+B1",
-            "C2": "=A2+B2", 
+            "C2": "=A2+B2",
             "C3": "=A3+B3",
-            "D1": "=SUM(C1,C2,C3)"
+            "D1": "=SUM(C1,C2,C3)",
         }
-        
+
         results = populated_engine.evaluate_batch(formulas)
-        
+
         assert results["C1"] == 110  # 100 + 10
         assert results["C2"] == 220  # 200 + 20
         assert results["C3"] == 330  # 300 + 30
         assert results["D1"] == 660  # 110 + 220 + 330
 
-    @pytest.mark.integration 
+    @pytest.mark.integration
     def test_error_handling_in_formulas(self, populated_engine):
         """Test error handling in formula evaluation"""
         # Division by zero
         with pytest.raises(Exception):
             populated_engine.evaluate_formula("=10/0")
-        
+
         # Invalid function
         with pytest.raises(Exception):
             populated_engine.evaluate_formula("=INVALID_FUNCTION()")
-        
+
         # Missing cell reference
         with pytest.raises(Exception):
             populated_engine.evaluate_formula("=MISSING_CELL + 10")
@@ -361,25 +361,27 @@ class TestFormulaEngineIntegration:
         """Test financial calculation scenarios"""
         # NPV calculation
         cash_flows = [-1000, 300, 400, 500]
-        npv_result = populated_engine.evaluate_formula(f"=NPV(0.1, {','.join(map(str, cash_flows))})")
-        
+        npv_result = populated_engine.evaluate_formula(
+            f"=NPV(0.1, {','.join(map(str, cash_flows))})"
+        )
+
         # Should calculate proper NPV
-        expected_npv = sum(cf / (1.1 ** i) for i, cf in enumerate(cash_flows))
+        expected_npv = sum(cf / (1.1**i) for i, cf in enumerate(cash_flows))
         assert npv_result == pytest.approx(expected_npv, rel=1e-10)
 
     @pytest.mark.integration
     def test_performance_with_large_dataset(self, populated_engine):
         """Test performance with large number of calculations"""
         import time
-        
+
         # Add many cells
         for i in range(1, 101):  # 100 cells
             populated_engine.set_cell_value(f"E{i}", i)
-        
+
         start_time = time.time()
         result = populated_engine.evaluate_formula("=SUM(E1:E100)")
         end_time = time.time()
-        
+
         # Should complete within reasonable time
         assert end_time - start_time < 1.0  # Less than 1 second
         assert result == sum(range(1, 101))  # 5050

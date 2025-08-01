@@ -64,6 +64,49 @@ export interface UploadProgressCallback {
   (progress: number): void;
 }
 
+export interface FilePreviewResponse {
+  file_id: number;
+  file_name: string;
+  sheets: {
+    name: string;
+    row_count: number;
+    column_count: number;
+    columns: string[];
+    preview_data: Record<string, any>[];
+  }[];
+  preview_data: {
+    max_rows_per_sheet: number;
+  };
+  detected_statements: {
+    sheet_name: string;
+    statement_type: 'PROFIT_LOSS' | 'BALANCE_SHEET' | 'CASH_FLOW';
+    confidence: number;
+  }[];
+  metadata: {
+    file_size: number;
+    upload_date: string | null;
+    total_sheets: number;
+  };
+}
+
+export interface ProcessingOptions {
+  auto_detect_statements?: boolean;
+  preserve_formulas?: boolean;
+  validate_data?: boolean;
+  extract_metadata?: boolean;
+  generate_metrics?: boolean;
+  template_id?: number;
+}
+
+export interface TaskStatusResponse {
+  state: string;
+  current: number;
+  total: number;
+  status: string;
+  result?: any;
+  error?: string;
+}
+
 class FileApiService {
   private baseURL = API_BASE_URL;
 
@@ -207,7 +250,56 @@ class FileApiService {
   }
 
   /**
-   * Trigger file processing
+   * Get file preview
+   */
+  async getFilePreview(fileId: number, maxRows = 10): Promise<FilePreviewResponse> {
+    const response = await axios.get<FilePreviewResponse>(
+      `${this.baseURL}/files/${fileId}/preview`,
+      {
+        params: { max_rows: maxRows },
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Start file processing
+   */
+  async startProcessing(
+    fileId: number,
+    options?: ProcessingOptions
+  ): Promise<{ message: string; file_id: number; task_id: string }> {
+    const response = await axios.post(
+      `${this.baseURL}/files/${fileId}/process`,
+      {
+        processing_options: options || {},
+      },
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get task status
+   */
+  async getTaskStatus(taskId: string): Promise<TaskStatusResponse> {
+    const response = await axios.get<TaskStatusResponse>(
+      `${this.baseURL}/files/task/${taskId}/status`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Trigger file processing (legacy method)
    */
   async processFile(
     fileId: number,
