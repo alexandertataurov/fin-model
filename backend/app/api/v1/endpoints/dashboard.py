@@ -681,7 +681,7 @@ async def get_statement_key_metrics(
 
 @router.get("/export/{format}")
 async def export_dashboard_data(
-    format: str = Query(..., description="Export format (pdf, excel, json)"),
+    format: str = Path(..., description="Export format (pdf, excel, json)"),
     period: str = Query(PeriodFilter.YTD.value, description="Time period for export"),
     statement_ids: Optional[str] = Query(None, description="Comma-separated statement IDs"),
     current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
