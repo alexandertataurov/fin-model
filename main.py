@@ -54,6 +54,33 @@ try:
             traceback.print_exc()
             print("Continuing with startup despite migration errors...")
 
+    # Ensure important indexes exist with retry logic
+    try:
+        from fix_indexes import fix_indexes
+
+        import time
+
+        max_retries = int(os.environ.get("FIX_INDEX_MAX_RETRIES", 5))
+        delay = 2
+        for attempt in range(1, max_retries + 1):
+            try:
+                print(f"🔎 Ensuring indexes (attempt {attempt})")
+                fix_indexes()
+                print("✅ Index check completed")
+                break
+            except Exception as idx_error:  # pragma: no cover - runtime path
+                print(f"⚠️ Index check failed: {idx_error}")
+                if attempt == max_retries:
+                    print("❌ All index attempts failed, continuing startup")
+                else:
+                    time.sleep(delay)
+                    delay *= 2
+    except Exception as import_error:
+        print(f"⚠️ Could not run index fix: {import_error}")
+        import traceback
+
+        traceback.print_exc()
+
     # Import the FastAPI app
     from main import app
 

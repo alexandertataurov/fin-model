@@ -20,7 +20,7 @@ def upgrade():
     # Advanced indexes for users table
     conn = op.get_bind()
 
-    # Helper function to safely create indexes
+    # Helper function to safely create indexes - combines both approaches
     def safe_create_index(index_name, table_name, columns, unique=False, expression=None):
         try:
             if not conn.execute(text(f"SELECT to_regclass('{index_name}')")).scalar():
@@ -31,8 +31,13 @@ def upgrade():
         except Exception as e:
             print(f"⚠️ Skipping index {index_name}: {e}")
 
+    # ix_users_last_login
     safe_create_index("ix_users_last_login", "users", ["last_login"])
+
+    # ix_users_created_date - expression index (use raw SQL)
     safe_create_index("ix_users_created_date", "users", None, expression="(DATE(created_at))")
+
+    # ix_users_active_verified - compound index
     safe_create_index("ix_users_active_verified", "users", ["is_active", "is_verified"])
 
     # Advanced indexes for uploaded_files table
@@ -382,6 +387,6 @@ def downgrade():
     op.drop_index("ix_files_status_created", table_name="uploaded_files")
 
     # Drop user indexes
-    op.drop_index("ix_users_active_verified", table_name="users")
-    op.drop_index("ix_users_created_date", table_name="users")
-    op.drop_index("ix_users_last_login", table_name="users")
+    op.execute("DROP INDEX IF EXISTS ix_users_active_verified")
+    op.execute("DROP INDEX IF EXISTS ix_users_created_date")
+    op.execute("DROP INDEX IF EXISTS ix_users_last_login")
