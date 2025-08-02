@@ -75,8 +75,8 @@ export const Colors: StoryObj = {
               class: 'bg-destructive',
               text: 'text-destructive-foreground',
             },
-            { name: 'Success', class: 'bg-green-600', text: 'text-white' },
-            { name: 'Warning', class: 'bg-yellow-600', text: 'text-white' },
+            { name: 'Success', class: 'bg-green-700', text: 'text-white' },
+            { name: 'Warning', class: 'bg-amber-600', text: 'text-white' },
           ].map(color => (
             <div key={color.name} className="space-y-2">
               <div

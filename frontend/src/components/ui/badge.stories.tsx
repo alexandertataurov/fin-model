@@ -1,7 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Badge } from './badge';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
-import { CheckCircle, AlertTriangle, Clock, X, TrendingUp, TrendingDown } from 'lucide-react';
+import {
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  X,
+  TrendingUp,
+  TrendingDown,
+} from 'lucide-react';
 
 const meta: Meta<typeof Badge> = {
   title: 'Components/Badge',
@@ -88,7 +95,7 @@ export const StatusIndicators: Story = {
       <div>
         <h3 className="text-sm font-medium mb-2">Model Status</h3>
         <div className="flex gap-2 flex-wrap">
-          <Badge variant="default" className="bg-green-600 text-white">
+          <Badge variant="default" className="bg-green-700 text-white">
             <CheckCircle className="mr-1 h-3 w-3" />
             Complete
           </Badge>
@@ -169,7 +176,9 @@ export const NumberBadges: Story = {
       <div>
         <h3 className="text-sm font-medium mb-2">Performance Indicators</h3>
         <div className="flex gap-2 flex-wrap">
-          <Badge variant="default" className="bg-green-600 text-white">+12.5%</Badge>
+          <Badge variant="default" className="bg-green-700 text-white">
+            +12.5%
+          </Badge>
           <Badge variant="destructive">-3.2%</Badge>
           <Badge variant="secondary">$1.2M</Badge>
           <Badge variant="outline">Q4 2024</Badge>
@@ -234,15 +243,19 @@ export const ParameterCard: Story = {
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm">Current Value</span>
-            <Badge variant="secondary" className="font-mono">15.0%</Badge>
+            <Badge variant="secondary" className="font-mono">
+              15.0%
+            </Badge>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm">Default Value</span>
-            <Badge variant="outline" className="font-mono">10.0%</Badge>
+            <Badge variant="outline" className="font-mono">
+              10.0%
+            </Badge>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm">Impact</span>
-            <Badge variant="default" className="bg-green-600 text-white">
+            <Badge variant="default" className="bg-green-700 text-white">
               <TrendingUp className="mr-1 h-3 w-3" />
               +$2.1M
             </Badge>
@@ -254,7 +267,8 @@ export const ParameterCard: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Parameter card using badges to show category, status, and impact.',
+        story:
+          'Parameter card using badges to show category, status, and impact.',
       },
     },
   },
@@ -268,7 +282,7 @@ export const DashboardExample: Story = {
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
               <CardTitle className="text-sm">Model Status</CardTitle>
-              <Badge variant="default" className="bg-green-600 text-white">
+              <Badge variant="default" className="bg-green-700 text-white">
                 <CheckCircle className="mr-1 h-3 w-3" />
                 Active
               </Badge>
@@ -299,8 +313,7 @@ export const DashboardExample: Story = {
             <div className="flex justify-between items-center">
               <CardTitle className="text-sm">Last Update</CardTitle>
               <Badge variant="outline">
-                <Clock className="mr-1 h-3 w-3" />
-                5 min ago
+                <Clock className="mr-1 h-3 w-3" />5 min ago
               </Badge>
             </div>
           </CardHeader>
@@ -314,7 +327,8 @@ export const DashboardExample: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Dashboard example showing badges in context with cards and metrics.',
+        story:
+          'Dashboard example showing badges in context with cards and metrics.',
       },
     },
   },

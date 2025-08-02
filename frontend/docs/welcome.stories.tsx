@@ -424,7 +424,7 @@ export const ComponentStatus: Story = {
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
               <span>Ready for Production</span>
-              <Badge variant="default" className="bg-green-600 text-white">
+              <Badge variant="default" className="bg-green-700 text-white">
                 35 components
               </Badge>
             </div>
@@ -438,7 +438,7 @@ export const ComponentStatus: Story = {
             </div>
             <div className="pt-2 border-t">
               <div className="text-center">
-                <span className="text-2xl font-bold text-green-600">64%</span>
+                <span className="text-2xl font-bold text-green-700">64%</span>
                 <p className="text-sm text-muted-foreground">
                   Overall Progress
                 </p>
@@ -454,7 +454,7 @@ export const ComponentStatus: Story = {
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
               <span>Accessibility Score</span>
-              <Badge variant="default" className="bg-green-600 text-white">
+              <Badge variant="default" className="bg-green-700 text-white">
                 AA Compliant
               </Badge>
             </div>
@@ -464,13 +464,13 @@ export const ComponentStatus: Story = {
             </div>
             <div className="flex justify-between items-center">
               <span>Test Coverage</span>
-              <Badge variant="default" className="bg-green-600 text-white">
+              <Badge variant="default" className="bg-green-700 text-white">
                 89%
               </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span>Documentation</span>
-              <Badge variant="default" className="bg-green-600 text-white">
+              <Badge variant="default" className="bg-green-700 text-white">
                 Complete
               </Badge>
             </div>

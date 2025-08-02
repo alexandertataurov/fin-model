@@ -365,10 +365,10 @@ const Register: React.FC = () => {
                       <div
                         className={`h-full transition-all duration-300 ${
                           passwordStrength.strength === 'strong'
-                            ? 'bg-green-500'
+                            ? 'bg-green-700'
                             : passwordStrength.strength === 'medium'
-                            ? 'bg-yellow-500'
-                            : 'bg-red-500'
+                            ? 'bg-amber-600'
+                            : 'bg-red-700'
                         }`}
                         style={{
                           width: `${(passwordStrength.score / 5) * 100}%`,

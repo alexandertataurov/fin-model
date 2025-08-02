@@ -40,12 +40,9 @@ export default defineConfig({
     reportCompressedSize: false,
     emptyOutDir: true,
     rollupOptions: {
-      external: [
-        '@mui/material',
-        '@mui/icons-material',
-        '@emotion/react',
-        '@emotion/styled',
-      ],
+      external: id => {
+        return id.startsWith('@mui/') || id.startsWith('@emotion/');
+      },
       output: {
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',

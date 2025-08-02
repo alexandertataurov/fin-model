@@ -41,8 +41,8 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
 
     const getStrengthColor = (strength: number): string => {
       if (strength < 50) return 'bg-destructive';
-      if (strength < 75) return 'bg-yellow-500';
-      return 'bg-green-500';
+          if (strength < 75) return 'bg-amber-600';
+    return 'bg-green-700';
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

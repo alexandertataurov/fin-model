@@ -84,7 +84,7 @@ export const RevenueGrowthLine: Story = {
           {
             dataKey: 'profit',
             name: 'Profit',
-            color: '#059669',
+            color: '#15803d',
             strokeWidth: 2,
           },
         ]}
@@ -127,7 +127,7 @@ export const MonthlyComparison: Story = {
           {
             dataKey: 'forecast',
             name: 'Forecast',
-            color: '#059669',
+            color: '#15803d',
           },
         ]}
         title="Monthly Performance"
@@ -162,7 +162,7 @@ export const ExpenseBreakdown: Story = {
         currency="USD"
         showPercentage={true}
         showLegend={true}
-        colors={['#2563eb', '#7c3aed', '#059669', '#dc2626', '#ea580c']}
+        colors={['#2563eb', '#7c3aed', '#15803d', '#dc2626', '#ea580c']}
       />
     </div>
   ),
@@ -313,7 +313,7 @@ export const DashboardWidget: Story = {
             {
               dataKey: 'actual',
               name: 'Actual',
-              color: '#059669',
+              color: '#15803d',
             },
           ]}
           title="Performance"

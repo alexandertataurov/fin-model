@@ -469,9 +469,9 @@ export function DashboardOverview({
               <div className="w-full bg-muted rounded-full h-2">
                 <div 
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    overview.data_quality_score >= 0.8 ? 'bg-green-500' :
-                    overview.data_quality_score >= 0.6 ? 'bg-yellow-500' :
-                    'bg-red-500'
+                                      overview.data_quality_score >= 0.8 ? 'bg-green-700' :
+                  overview.data_quality_score >= 0.6 ? 'bg-amber-600' :
+                  'bg-red-700'
                   }`}
                   style={{ width: `${overview.data_quality_score * 100}%` }}
                 />
