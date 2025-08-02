@@ -1,31 +1,18 @@
 import React from 'react';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  Box,
-  Grid,
-  Chip,
-  Alert,
-  Paper,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
 import {
   CheckCircle,
-  Error,
-  Warning,
+  AlertTriangle,
   TrendingUp,
   TrendingDown,
-  AccountBalance,
-  MonetizationOn,
-  Assessment,
-  Remove,
-} from '@mui/icons-material';
+  Banknote,
+  DollarSign,
+  BarChart3,
+  Minus,
+} from 'lucide-react';
 import { BalanceSheetDashboardData } from '../../types/dashboard';
 
 interface BalanceSheetSummaryProps {
@@ -55,60 +42,51 @@ const MetricDisplay: React.FC<MetricDisplayProps> = ({ label, value, change, tre
   };
 
   const getTrendIcon = () => {
-    if (!trend && !change) return <Remove color="disabled" />;
+    if (!trend && !change) return <Minus className="text-gray-400" size={16} />;
     
     if (trend === 'up' || (change && change > 0)) {
       return category === 'liabilities' ? 
-        <TrendingUp color="warning" /> : 
-        <TrendingUp color="success" />;
+        <TrendingUp className="text-orange-500" size={16} /> : 
+        <TrendingUp className="text-green-500" size={16} />;
     } else if (trend === 'down' || (change && change < 0)) {
       return category === 'liabilities' ? 
-        <TrendingDown color="success" /> : 
-        <TrendingDown color="error" />;
+        <TrendingDown className="text-green-500" size={16} /> : 
+        <TrendingDown className="text-red-500" size={16} />;
     }
-    return <Remove color="disabled" />;
+    return <Minus className="text-gray-400" size={16} />;
   };
 
   const getCategoryIcon = () => {
     switch (category) {
       case 'assets':
-        return <MonetizationOn color="primary" />;
+        return <DollarSign className="text-blue-500" size={20} />;
       case 'liabilities':
-        return <Warning color="warning" />;
+        return <AlertTriangle className="text-orange-500" size={20} />;
       case 'equity':
-        return <AccountBalance color="success" />;
+        return <Banknote className="text-green-500" size={20} />;
     }
   };
 
   return (
-    <Paper sx={{ p: 2, height: '100%' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-        {getCategoryIcon()}
-        <Typography variant="body2" color="text.secondary">
-          {label}
-        </Typography>
-      </Box>
-      <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
-        {formatCurrency(value)}
-      </Typography>
-      {(change || trend) && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {getTrendIcon()}
-          {change && (
-            <Chip
-              label={formatPercentage(change)}
-              size="small"
-              color={
-                category === 'liabilities' 
-                  ? (change > 0 ? 'warning' : 'success')
-                  : (change > 0 ? 'success' : 'error')
-              }
-              variant="outlined"
-            />
-          )}
-        </Box>
-      )}
-    </Paper>
+    <Card className="h-full">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          {getCategoryIcon()}
+          <span className="text-sm text-muted-foreground">{label}</span>
+        </div>
+        <p className="text-2xl font-bold mb-2">{formatCurrency(value)}</p>
+        {(change || trend) && (
+          <div className="flex items-center gap-2">
+            {getTrendIcon()}
+            {change && (
+              <Badge variant={change > 0 ? 'default' : 'destructive'}>
+                {formatPercentage(change)}
+              </Badge>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
@@ -118,10 +96,6 @@ interface BalanceValidationProps {
 }
 
 const BalanceValidation: React.FC<BalanceValidationProps> = ({ assets, liabilitiesEquity }) => {
-  const difference = Math.abs(assets - liabilitiesEquity);
-  const isBalanced = difference < 1000; // Allow for small rounding differences
-  const percentageDifference = assets > 0 ? (difference / assets) * 100 : 0;
-
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -131,28 +105,27 @@ const BalanceValidation: React.FC<BalanceValidationProps> = ({ assets, liabiliti
     }).format(value);
   };
 
+  const difference = assets - liabilitiesEquity;
+  const isBalanced = Math.abs(difference) < 1000; // Tolerance of $1,000
+
   return (
-    <Alert 
-      severity={isBalanced ? 'success' : percentageDifference < 5 ? 'warning' : 'error'}
-      icon={isBalanced ? <CheckCircle /> : <Error />}
-      sx={{ mt: 2 }}
-    >
-      <Typography variant="subtitle2">
-        Balance Sheet Equation: Assets = Liabilities + Equity
-      </Typography>
-      <Typography variant="body2">
-        {formatCurrency(assets)} = {formatCurrency(liabilitiesEquity)}
-      </Typography>
-      {!isBalanced && (
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          <strong>Imbalance detected:</strong> {formatCurrency(difference)} difference ({percentageDifference.toFixed(2)}%)
-        </Typography>
-      )}
-      {isBalanced && (
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          ✓ Balance sheet equation is satisfied
-        </Typography>
-      )}
+    <Alert className={isBalanced ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+      <CheckCircle className={`h-4 w-4 ${isBalanced ? 'text-green-600' : 'text-red-600'}`} />
+      <AlertDescription>
+        <div className="space-y-1">
+          <p className="font-medium">
+            {isBalanced ? 'Balance Sheet is Balanced' : 'Balance Sheet Imbalance Detected'}
+          </p>
+          <p className="text-sm">
+            Assets: {formatCurrency(assets)} | Liabilities + Equity: {formatCurrency(liabilitiesEquity)}
+          </p>
+          {!isBalanced && (
+            <p className="text-sm font-medium text-red-600">
+              Difference: {formatCurrency(difference)}
+            </p>
+          )}
+        </div>
+      </AlertDescription>
     </Alert>
   );
 };
@@ -161,47 +134,38 @@ const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
   const calculateTotal = (category: 'assets' | 'liabilities' | 'equity'): number => {
     return data.metrics
       .filter(m => m.category === category)
-      .reduce((sum, m) => sum + m.value, 0);
+      .reduce((sum, metric) => sum + metric.value, 0);
   };
 
   const calculateChange = (category: 'assets' | 'liabilities' | 'equity'): number => {
-    const metrics = data.metrics.filter(m => m.category === category);
-    if (metrics.length === 0) return 0;
+    const currentTotal = calculateTotal(category);
+    const previousTotal = data.metrics
+      .filter(m => m.category === category)
+      .reduce((sum, metric) => sum + (metric.previousValue || 0), 0);
     
-    const weightedChange = metrics.reduce((sum, m) => {
-      const weight = m.value / calculateTotal(category);
-      return sum + (m.change_percentage || 0) * weight;
-    }, 0);
-    
-    return weightedChange;
+    if (previousTotal === 0) return 0;
+    return ((currentTotal - previousTotal) / previousTotal) * 100;
   };
 
-  const totalAssets = calculateTotal('assets');
-  const totalLiabilities = calculateTotal('liabilities');
-  const totalEquity = calculateTotal('equity');
-
-  const assetsChange = calculateChange('assets');
-  const liabilitiesChange = calculateChange('liabilities');
-  const equityChange = calculateChange('equity');
-
-  // Calculate key financial health indicators
-  const debtToEquityRatio = totalEquity > 0 ? totalLiabilities / totalEquity : 0;
-  const equityRatio = totalAssets > 0 ? (totalEquity / totalAssets) * 100 : 0;
-  const debtRatio = totalAssets > 0 ? (totalLiabilities / totalAssets) * 100 : 0;
-
-  // Assess financial health
   const getFinancialHealthColor = (): 'success' | 'warning' | 'error' => {
-    if (equityRatio >= 50 && debtToEquityRatio <= 1) return 'success';
-    if (equityRatio >= 30 && debtToEquityRatio <= 2) return 'warning';
+    const assets = calculateTotal('assets');
+    const liabilities = calculateTotal('liabilities');
+    const equity = calculateTotal('equity');
+    
+    const debtToEquityRatio = liabilities / equity;
+    const currentRatio = assets / liabilities;
+    
+    if (debtToEquityRatio < 0.5 && currentRatio > 1.5) return 'success';
+    if (debtToEquityRatio < 1.0 && currentRatio > 1.0) return 'warning';
     return 'error';
   };
 
   const getFinancialHealthLabel = (): string => {
-    const color = getFinancialHealthColor();
-    switch (color) {
-      case 'success': return 'Strong';
-      case 'warning': return 'Moderate';
-      case 'error': return 'Weak';
+    const health = getFinancialHealthColor();
+    switch (health) {
+      case 'success': return 'Excellent';
+      case 'warning': return 'Good';
+      case 'error': return 'Needs Attention';
     }
   };
 
@@ -215,165 +179,104 @@ const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
   };
 
   const formatPercentage = (value: number): string => {
-    return `${value.toFixed(1)}%`;
+    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
   const formatRatio = (value: number): string => {
     return value.toFixed(2);
   };
 
-  // Key insights
-  const insights = [
-    {
-      icon: <Assessment color="info" />,
-      text: `Total assets of ${formatCurrency(totalAssets)} represent the company's resource base`,
-    },
-    {
-      icon: debtToEquityRatio <= 1 ? <CheckCircle color="success" /> : <Warning color="warning" />,
-      text: `Debt-to-equity ratio of ${formatRatio(debtToEquityRatio)} indicates ${debtToEquityRatio <= 1 ? 'conservative' : 'aggressive'} leverage`,
-    },
-    {
-      icon: equityRatio >= 50 ? <CheckCircle color="success" /> : <Warning color="warning" />,
-      text: `Equity represents ${formatPercentage(equityRatio)} of total assets, indicating ${equityRatio >= 50 ? 'strong' : 'moderate'} ownership position`,
-    },
-  ];
+  const totalAssets = calculateTotal('assets');
+  const totalLiabilities = calculateTotal('liabilities');
+  const totalEquity = calculateTotal('equity');
+  const totalLiabilitiesEquity = totalLiabilities + totalEquity;
+
+  const assetsChange = calculateChange('assets');
+  const liabilitiesChange = calculateChange('liabilities');
+  const equityChange = calculateChange('equity');
+
+  const currentRatio = totalAssets / totalLiabilities;
+  const debtToEquityRatio = totalLiabilities / totalEquity;
+  const debtToAssetsRatio = totalLiabilities / totalAssets;
 
   return (
-    <Card>
-      <CardHeader>
-        <Typography variant="h6" component="div">
-          Balance Sheet Summary
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Financial position overview as of {data.last_updated ? new Date(data.last_updated).toLocaleDateString() : 'N/A'}
-        </Typography>
-      </CardHeader>
-      <CardContent>
-        {/* Main Balance Sheet Metrics */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={4}>
-            <MetricDisplay
-              label="Total Assets"
-              value={totalAssets}
-              change={assetsChange}
-              category="assets"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <MetricDisplay
-              label="Total Liabilities"
-              value={totalLiabilities}
-              change={liabilitiesChange}
-              category="liabilities"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <MetricDisplay
-              label="Total Equity"
-              value={totalEquity}
-              change={equityChange}
-              category="equity"
-            />
-          </Grid>
-        </Grid>
-
-        {/* Balance Sheet Validation */}
-        <BalanceValidation
-          assets={totalAssets}
-          liabilitiesEquity={totalLiabilities + totalEquity}
+    <div className="space-y-6">
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <MetricDisplay
+          label="Total Assets"
+          value={totalAssets}
+          change={assetsChange}
+          category="assets"
         />
+        <MetricDisplay
+          label="Total Liabilities"
+          value={totalLiabilities}
+          change={liabilitiesChange}
+          category="liabilities"
+        />
+        <MetricDisplay
+          label="Total Equity"
+          value={totalEquity}
+          change={equityChange}
+          category="equity"
+        />
+      </div>
 
-        <Divider sx={{ my: 3 }} />
+      {/* Balance Validation */}
+      <BalanceValidation assets={totalAssets} liabilitiesEquity={totalLiabilitiesEquity} />
 
-        {/* Financial Health Indicators */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Assessment color="primary" />
-            Financial Health Indicators
-          </Typography>
-          
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  Overall Health
-                </Typography>
-                <Chip
-                  label={getFinancialHealthLabel()}
-                  color={getFinancialHealthColor()}
-                  sx={{ mt: 1 }}
-                />
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  Debt-to-Equity
-                </Typography>
-                <Typography variant="h6">
-                  {formatRatio(debtToEquityRatio)}
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  Equity Ratio
-                </Typography>
-                <Typography variant="h6">
-                  {formatPercentage(equityRatio)}
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Paper sx={{ p: 2, textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  Debt Ratio
-                </Typography>
-                <Typography variant="h6">
-                  {formatPercentage(debtRatio)}
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Box>
+      {/* Financial Ratios */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">Financial Ratios</h3>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Current Ratio</p>
+              <p className="text-2xl font-bold">{formatRatio(currentRatio)}</p>
+              <p className="text-xs text-muted-foreground">
+                {currentRatio > 1.5 ? 'Excellent' : currentRatio > 1.0 ? 'Good' : 'Needs Attention'}
+              </p>
+            </div>
+            <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Debt-to-Equity</p>
+              <p className="text-2xl font-bold">{formatRatio(debtToEquityRatio)}</p>
+              <p className="text-xs text-muted-foreground">
+                {debtToEquityRatio < 0.5 ? 'Excellent' : debtToEquityRatio < 1.0 ? 'Good' : 'High Risk'}
+              </p>
+            </div>
+            <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Debt-to-Assets</p>
+              <p className="text-2xl font-bold">{formatRatio(debtToAssetsRatio)}</p>
+              <p className="text-xs text-muted-foreground">
+                {debtToAssetsRatio < 0.3 ? 'Excellent' : debtToAssetsRatio < 0.5 ? 'Good' : 'High Risk'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Divider sx={{ my: 3 }} />
-
-        {/* Key Insights */}
-        <Box>
-          <Typography variant="subtitle1" sx={{ mb: 2 }}>
-            Key Insights
-          </Typography>
-          <List dense>
-            {insights.map((insight, index) => (
-              <ListItem key={index} sx={{ px: 0 }}>
-                <ListItemIcon sx={{ minWidth: 36 }}>
-                  {insight.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Typography variant="body2">
-                      {insight.text}
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-
-        {/* Data Quality Note */}
-        {data.data_quality_score < 0.9 && (
-          <Alert severity="info" sx={{ mt: 2 }}>
-            <Typography variant="body2">
-              Data quality score: {(data.data_quality_score * 100).toFixed(0)}%. 
-              Some calculations may be based on estimated or incomplete data.
-            </Typography>
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
+      {/* Financial Health Summary */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">Financial Health</h3>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="text-blue-500" size={20} />
+              <span className="font-medium">Overall Health</span>
+            </div>
+            <Badge variant={getFinancialHealthColor() === 'success' ? 'default' : 
+                          getFinancialHealthColor() === 'warning' ? 'secondary' : 'destructive'}>
+              {getFinancialHealthLabel()}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

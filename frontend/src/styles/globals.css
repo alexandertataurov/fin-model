@@ -67,9 +67,9 @@
   --gray-200: #eeeeee;
   --gray-300: #e0e0e0;
   --gray-400: #bdbdbd;
-  --gray-500: #9e9e9e;
+  --gray-500: #6b7280;
   --gray-600: #757575;
-  --gray-700: #616161;
+  --gray-700: #374151;
   --gray-800: #424242;
   --gray-900: #212121;
 
@@ -212,5 +212,97 @@ html {
   .test-chart-bg {
     background-color: rgba(25, 118, 210, 0.5);
     border-color: rgba(25, 118, 210, 1);
+  }
+
+  /* Input and Select border styling */
+  .input-border {
+    @apply border border-border rounded-md;
+  }
+
+  .input-border:focus {
+    @apply border-ring outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  .select-border {
+    @apply border border-border rounded-md;
+  }
+
+  .select-border:focus {
+    @apply border-ring outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  /* Chart color utilities */
+  .chart-no-colors {
+    @apply text-muted-foreground;
+  }
+
+  .chart-contract {
+    /* Same as normal chart styling */
+  }
+
+  /* Missing background color utilities using @apply */
+  .bg-blue-600 {
+    @apply bg-[#2563eb];
+  }
+
+  .bg-blue-800 {
+    @apply bg-[#1e40af];
+  }
+
+  .bg-gray-700 {
+    @apply bg-[#374151];
+  }
+
+  .bg-gray-500 {
+    @apply bg-[#6b7280];
+  }
+
+  .bg-purple-700 {
+    @apply bg-[#7c3aed];
+  }
+
+  .bg-orange-700 {
+    @apply bg-[#c2410c];
+  }
+
+  .bg-yellow-300 {
+    @apply bg-[#fde047];
+  }
+
+  .bg-green-400 {
+    @apply bg-[#4ade80];
+  }
+
+  .bg-blue-400 {
+    @apply bg-[#60a5fa];
+  }
+
+  /* Missing text utilities */
+  .text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .font-semibold {
+    font-weight: 600;
+  }
+
+  .text-white {
+    color: #ffffff;
+  }
+
+  /* Padding utilities */
+  .p-6 {
+    padding: 1.5rem;
+  }
+
+  /* Text alignment */
+  .text-center {
+    text-align: center;
   }
 }

@@ -1,37 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  IconButton,
-  Box,
-  Typography,
-  Collapse,
-  Tooltip,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
-  Dashboard as DashboardIcon,
-  CloudUpload as UploadIcon,
-  Analytics as AnalyticsIcon,
-  Assessment as ReportsIcon,
-  AccountBalance as PLIcon,
-  TrendingUp as CashFlowIcon,
-  BarChart as BalanceSheetIcon,
-
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  ExpandLess,
-  ExpandMore,
-  AdminPanelSettings as AdminIcon,
-  ModelTraining as ModelsIcon,
-} from '@mui/icons-material';
+  LayoutDashboard,
+  Upload,
+  BarChart3,
+  FileText,
+  TrendingUp,
+  PieChart,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  Brain,
+} from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface SidebarProps {
@@ -55,30 +47,30 @@ const navigationItems: NavItem[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
-    icon: <DashboardIcon />,
+    icon: <LayoutDashboard className="h-4 w-4" />,
     path: '/dashboard',
   },
   {
     id: 'financial-dashboards',
     label: 'Financial Dashboards',
-    icon: <AnalyticsIcon />,
+    icon: <BarChart3 className="h-4 w-4" />,
     children: [
       {
         id: 'pl-dashboard',
         label: 'P&L Dashboard',
-        icon: <PLIcon />,
+        icon: <TrendingUp className="h-4 w-4" />,
         path: '/dashboards/pl',
       },
       {
         id: 'cashflow-dashboard',
         label: 'Cash Flow',
-        icon: <CashFlowIcon />,
+        icon: <TrendingUp className="h-4 w-4" />,
         path: '/dashboards/cashflow',
       },
       {
         id: 'balance-sheet',
         label: 'Balance Sheet',
-        icon: <BalanceSheetIcon />,
+        icon: <PieChart className="h-4 w-4" />,
         path: '/dashboards/balance-sheet',
       },
     ],
@@ -86,35 +78,33 @@ const navigationItems: NavItem[] = [
   {
     id: 'files',
     label: 'File Upload',
-    icon: <UploadIcon />,
+    icon: <Upload className="h-4 w-4" />,
     path: '/files',
   },
   {
     id: 'reports',
     label: 'Reports',
-    icon: <ReportsIcon />,
+    icon: <FileText className="h-4 w-4" />,
     path: '/reports',
   },
   {
     id: 'scenario-modeling',
     label: 'Scenario Modeling',
-    icon: <ModelsIcon />,
+    icon: <Brain className="h-4 w-4" />,
     path: '/scenarios',
-    roles: ['analyst', 'admin'],
   },
   {
     id: 'analytics',
     label: 'Analytics',
-    icon: <AnalyticsIcon />,
+    icon: <BarChart3 className="h-4 w-4" />,
     path: '/analytics',
   },
   {
     id: 'admin',
     label: 'Admin Panel',
-    icon: <AdminIcon />,
+    icon: <Shield className="h-4 w-4" />,
     path: '/admin',
     roles: ['admin'],
-    badge: 'Admin',
   },
 ];
 
@@ -126,226 +116,133 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user } = useAuth();
-  
-  const [expandedItems, setExpandedItems] = useState<string[]>(['financial-dashboards']);
-
-  const drawerWidth = open ? width : collapsedWidth;
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const handleItemClick = (item: NavItem) => {
     if (item.children) {
-      // Toggle expansion for parent items
-      setExpandedItems(prev =>
-        prev.includes(item.id)
-          ? prev.filter(id => id !== item.id)
-          : [...prev, item.id]
-      );
+      // Toggle expansion for items with children
+      setExpandedItems(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(item.id)) {
+          newSet.delete(item.id);
+        } else {
+          newSet.add(item.id);
+        }
+        return newSet;
+      });
     } else if (item.path) {
       // Navigate to the path
       navigate(item.path);
-      
-      // Close sidebar on mobile after navigation
-      if (isMobile && open) {
-        onToggle();
-      }
     }
   };
 
   const isItemActive = (item: NavItem): boolean => {
     if (item.path) {
-      return location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
+      return location.pathname === item.path;
     }
-    
     if (item.children) {
       return item.children.some(child => isItemActive(child));
     }
-    
     return false;
   };
 
   const hasPermission = (item: NavItem): boolean => {
-    if (!item.roles || !user?.roles) return true;
-    return item.roles.some(role => user.roles?.includes(role) ?? false);
+    if (!item.roles) return true;
+    return item.roles.some(role => user?.roles?.includes(role));
   };
 
   const renderNavItem = (item: NavItem, level = 0) => {
     if (!hasPermission(item)) return null;
 
     const isActive = isItemActive(item);
-    const isExpanded = expandedItems.includes(item.id);
+    const isExpanded = expandedItems.has(item.id);
     const hasChildren = item.children && item.children.length > 0;
 
-    return (
-      <React.Fragment key={item.id}>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <Tooltip title={!open ? item.label : ''} placement="right">
-            <ListItemButton
-              onClick={() => handleItemClick(item)}
-              selected={isActive && !hasChildren}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-                pl: level > 0 ? 4 : 2.5,
-                color: isActive ? 'primary.main' : 'inherit',
-                backgroundColor: isActive && !hasChildren ? 'action.selected' : 'transparent',
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                },
-                '&.Mui-selected': {
-                  backgroundColor: 'action.selected',
-                  '&:hover': {
-                    backgroundColor: 'action.selected',
-                  },
-                },
-              }}
+    if (hasChildren) {
+      return (
+        <Collapsible
+          key={item.id}
+          open={isExpanded}
+          onOpenChange={() => handleItemClick(item)}
+        >
+          <CollapsibleTrigger asChild>
+            <Button
+              variant={isActive ? 'secondary' : 'ghost'}
+              className={`w-full justify-between h-10 px-3 ${
+                level > 0 ? 'ml-4' : ''
+              }`}
             >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center',
-                  color: isActive ? 'primary.main' : 'inherit',
-                }}
-              >
+              <div className="flex items-center gap-3">
                 {item.icon}
-              </ListItemIcon>
-              
-              <ListItemText
-                primary={item.label}
-                sx={{
-                  opacity: open ? 1 : 0,
-                  '& .MuiListItemText-primary': {
-                    fontSize: '0.875rem',
-                    fontWeight: isActive ? 600 : 400,
-                  },
-                }}
-              />
-              
-              {item.badge && open && (
-                <Box
-                  sx={{
-                    fontSize: '0.75rem',
-                    px: 1,
-                    py: 0.25,
-                    borderRadius: 1,
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
-                  }}
-                >
-                  {item.badge}
-                </Box>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
               )}
-              
-              {hasChildren && open && (
-                isExpanded ? <ExpandLess /> : <ExpandMore />
-              )}
-            </ListItemButton>
-          </Tooltip>
-        </ListItem>
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-1">
+            {item.children?.map(child => renderNavItem(child, level + 1))}
+          </CollapsibleContent>
+        </Collapsible>
+      );
+    }
 
-        {hasChildren && (
-          <Collapse in={isExpanded && open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {item.children?.map(child => renderNavItem(child, level + 1))}
-            </List>
-          </Collapse>
+    return (
+      <Button
+        key={item.id}
+        variant={isActive ? 'secondary' : 'ghost'}
+        className={`w-full justify-start h-10 px-3 ${
+          level > 0 ? 'ml-4' : ''
+        }`}
+        onClick={() => handleItemClick(item)}
+      >
+        <div className="flex items-center gap-3">
+          {item.icon}
+          <span className="text-sm font-medium">{item.label}</span>
+        </div>
+        {item.badge && (
+          <Badge variant="secondary" className="ml-auto">
+            {item.badge}
+          </Badge>
         )}
-      </React.Fragment>
+      </Button>
     );
   };
 
-  const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: open ? 'space-between' : 'center',
-          px: 2,
-          py: 1.5,
-          minHeight: 64,
-        }}
-      >
-        {open && (
-          <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-            FinVision
-          </Typography>
-        )}
-        
-        {!isMobile && (
-          <IconButton onClick={onToggle} size="small">
-            {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        )}
-      </Box>
-
-      <Divider />
-
-      {/* Navigation */}
-      <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-        <List sx={{ pt: 1 }}>
-          {navigationItems.map(item => renderNavItem(item))}
-        </List>
-      </Box>
-
-      {/* Footer */}
-      {open && (
-        <>
-          <Divider />
-          <Box sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">
-              Version 1.0.0
-            </Typography>
-          </Box>
-        </>
-      )}
-    </Box>
-  );
-
-  if (isMobile) {
-    return (
-      <Drawer
-        variant="temporary"
-        open={open}
-        onClose={onToggle}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: width,
-            boxSizing: 'border-box',
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    );
-  }
-
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        whiteSpace: 'nowrap',
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          overflowX: 'hidden',
-        },
-      }}
+    <div
+      className={`border-r bg-background transition-all duration-300 ${
+        open ? 'w-64' : 'w-16'
+      }`}
     >
-      {drawerContent}
-    </Drawer>
+      <div className="flex h-16 items-center justify-between px-4 border-b">
+        {open && (
+          <h2 className="text-lg font-semibold">FinVision</h2>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggle}
+          className="h-8 w-8 p-0"
+        >
+          {open ? (
+            <ChevronLeft className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+
+      <ScrollArea className="h-[calc(100vh-4rem)]">
+        <div className="p-2 space-y-1">
+          {navigationItems.map(item => renderNavItem(item))}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
 

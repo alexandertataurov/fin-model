@@ -1,27 +1,17 @@
 import React from 'react';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Chip,
-  Grid,
-  LinearProgress,
-} from '@mui/material';
-import {
-  Warning,
+  AlertTriangle,
   CreditCard,
-  AccountBalance,
+  Banknote,
   Receipt,
   TrendingUp,
   TrendingDown,
-  Remove,
-} from '@mui/icons-material';
+  Minus,
+} from 'lucide-react';
 import { BarChart } from '../Charts';
 import { BalanceSheetMetric, DashboardChartData } from '../../types/dashboard';
 
@@ -51,24 +41,24 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
   const getLiabilityIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();
     if (category.includes('payable') || category.includes('account')) {
-      return <Receipt color="warning" />;
+      return <Receipt className="text-orange-500" size={20} />;
     } else if (category.includes('loan') || category.includes('debt') || category.includes('mortgage')) {
-      return <AccountBalance color="error" />;
+      return <Banknote className="text-red-500" size={20} />;
     } else if (category.includes('credit') || category.includes('card')) {
-      return <CreditCard color="info" />;
+      return <CreditCard className="text-blue-500" size={20} />;
     }
-    return <Warning color="action" />;
+    return <AlertTriangle className="text-gray-500" size={20} />;
   };
 
   const getTrendIcon = (trend?: string, changePercentage?: number) => {
-    if (!trend && !changePercentage) return <Remove color="disabled" />;
+    if (!trend && !changePercentage) return <Minus className="text-gray-400" size={16} />;
     
     if (trend === 'up' || (changePercentage && changePercentage > 0)) {
-      return <TrendingUp color="error" />; // Increasing liabilities is typically negative
+      return <TrendingUp className="text-red-500" size={16} />; // Increasing liabilities is typically negative
     } else if (trend === 'down' || (changePercentage && changePercentage < 0)) {
-      return <TrendingDown color="success" />; // Decreasing liabilities is typically positive
+      return <TrendingDown className="text-green-500" size={16} />; // Decreasing liabilities is typically positive
     }
-    return <Remove color="disabled" />;
+    return <Minus className="text-gray-400" size={16} />;
   };
 
   const getLiabilityRiskLevel = (percentage: number): { level: string; color: 'success' | 'warning' | 'error' } => {
@@ -98,12 +88,6 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
     [item.period]: item.value,
   }));
 
-  const series = [{
-    dataKey: 'value',
-    name: 'Liabilities',
-    color: 'var(--chart-2)',
-  }];
-
   // Group liabilities by subcategory
   const groupedLiabilities = liabilityMetrics.reduce((groups, liability) => {
     const category = liability.subcategory || 'Other Liabilities';
@@ -114,177 +98,108 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
     return groups;
   }, {} as Record<string, BalanceSheetMetric[]>);
 
-  // Categorize liabilities by term
-  const currentLiabilities = liabilityMetrics.filter(l => 
-    l.subcategory.toLowerCase().includes('current') || 
-    l.subcategory.toLowerCase().includes('payable') ||
-    l.subcategory.toLowerCase().includes('short')
-  );
-  
-  const longTermLiabilities = liabilityMetrics.filter(l => 
-    l.subcategory.toLowerCase().includes('long') || 
-    l.subcategory.toLowerCase().includes('term') ||
-    l.subcategory.toLowerCase().includes('mortgage')
-  );
-
-  const currentTotal = currentLiabilities.reduce((sum, l) => sum + l.value, 0);
-  const longTermTotal = longTermLiabilities.reduce((sum, l) => sum + l.value, 0);
-
   return (
     <Card>
       <CardHeader>
-        <Typography variant="h6" component="div">
-          Liabilities & Debt Analysis
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Total Liabilities: {formatCurrency(totalLiabilities)}
-        </Typography>
+        <h3 className="text-lg font-semibold">Liabilities Analysis</h3>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         {/* Risk Assessment */}
-        <Box sx={{ mb: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>
-            Debt Risk Assessment
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Debt-to-Asset Ratio
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={Math.min(debtToAssetRatio, 100)}
-                  color={riskAssessment.color}
-                  sx={{ flex: 1, height: 8, borderRadius: 4 }}
-                />
-                <Typography variant="body2" fontWeight="medium">
-                  {debtToAssetRatio.toFixed(1)}%
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Risk Level
-              </Typography>
-              <Chip
-                label={riskAssessment.level}
-                color={riskAssessment.color}
-                size="small"
-                sx={{ mt: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Current vs Long-term
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                {((currentTotal / totalLiabilities) * 100).toFixed(1)}% Current | {((longTermTotal / totalLiabilities) * 100).toFixed(1)}% Long-term
-              </Typography>
-            </Grid>
-          </Grid>
-        </Box>
+        <div className="p-4 bg-muted/50 rounded-lg">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="text-orange-500" size={20} />
+              <span className="font-medium">Debt Risk Assessment</span>
+            </div>
+            <Badge variant={riskAssessment.color === 'success' ? 'default' : 
+                          riskAssessment.color === 'warning' ? 'secondary' : 'destructive'}>
+              {riskAssessment.level}
+            </Badge>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Debt-to-Asset Ratio</span>
+              <span>{debtToAssetRatio.toFixed(1)}%</span>
+            </div>
+            <Progress value={Math.min(debtToAssetRatio, 100)} className="h-2" />
+            <p className="text-xs text-muted-foreground">
+              {debtToAssetRatio < 30 ? 'Low debt levels indicate strong financial position' :
+               debtToAssetRatio < 60 ? 'Moderate debt levels require monitoring' :
+               'High debt levels may indicate financial stress'}
+            </p>
+          </div>
+        </div>
 
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-          {/* Bar Chart */}
-          <Box sx={{ flex: 1, minHeight: 300 }}>
-            <BarChart
-              data={chartData}
-              series={series}
-              height={300}
-              xAxisKey="category"
-              currency="$"
-              layout="vertical"
-            />
-          </Box>
+        {/* Chart Section */}
+        <div className="h-64">
+          <BarChart data={chartData} />
+        </div>
 
-          {/* Liabilities List */}
-          <Box sx={{ flex: 1, maxHeight: 400, overflow: 'auto' }}>
-            {Object.entries(groupedLiabilities).map(([subcategory, liabilities]) => (
-              <Box key={subcategory} sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="error" sx={{ mb: 1 }}>
-                  {subcategory}
-                </Typography>
-                <List dense>
-                  {liabilities.map((liability) => (
-                    <ListItem key={liability.id} sx={{ py: 0.5 }}>
-                      <ListItemIcon sx={{ minWidth: 36 }}>
-                        {getLiabilityIcon(liability.subcategory)}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="body2">
-                              {liability.name}
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="body2" fontWeight="medium">
-                                {formatCurrency(liability.value)}
-                              </Typography>
-                              {getTrendIcon(liability.trend, liability.change_percentage)}
-                            </Box>
-                          </Box>
-                        }
-                        secondary={
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="caption" color="text.secondary">
-                              {((liability.value / totalLiabilities) * 100).toFixed(1)}% of total liabilities
-                            </Typography>
-                            {liability.change_percentage && (
-                              <Chip
-                                label={formatPercentage(liability.change_percentage)}
-                                size="small"
-                                color={liability.change_percentage > 0 ? 'error' : 'success'}
-                                variant="outlined"
-                              />
-                            )}
-                          </Box>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-            ))}
-            
-            {liabilityMetrics.length === 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                No liability data available
-              </Typography>
-            )}
-          </Box>
-        </Box>
+        {/* Liabilities Breakdown */}
+        <div className="space-y-4">
+          {Object.entries(groupedLiabilities).map(([category, liabilities]) => (
+            <div key={category} className="space-y-2">
+              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+                {category}
+              </h4>
+              <div className="space-y-2">
+                {liabilities.map((liability, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      {getLiabilityIcon(liability.subcategory || '')}
+                      <div>
+                        <p className="font-medium">{liability.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatCurrency(liability.value)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {liability.changePercentage !== undefined && (
+                        <div className="flex items-center space-x-1">
+                          {getTrendIcon(liability.trend, liability.changePercentage)}
+                          <span className={`text-sm ${
+                            liability.changePercentage > 0 ? 'text-red-600' : 
+                            liability.changePercentage < 0 ? 'text-green-600' : 'text-gray-600'
+                          }`}>
+                            {formatPercentage(liability.changePercentage)}
+                          </span>
+                        </div>
+                      )}
+                      <Badge variant="secondary">
+                        {((liability.value / totalLiabilities) * 100).toFixed(1)}%
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Separator />
+            </div>
+          ))}
+        </div>
 
-        {/* Liability Composition Summary */}
-        <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>
-            Liability Composition Analysis
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Current Liabilities (Due within 1 year)
-              </Typography>
-              <Typography variant="h6" color="warning.main">
-                {formatCurrency(currentTotal)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {((currentTotal / totalLiabilities) * 100).toFixed(1)}% of total liabilities
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Long-term Liabilities (Due after 1 year)
-              </Typography>
-              <Typography variant="h6" color="error.main">
-                {formatCurrency(longTermTotal)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {((longTermTotal / totalLiabilities) * 100).toFixed(1)}% of total liabilities
-              </Typography>
-            </Grid>
-          </Grid>
-        </Box>
+        {/* Summary Statistics */}
+        <Card>
+          <CardHeader>
+            <h4 className="text-md font-semibold">Liabilities Summary</h4>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Total Liabilities</p>
+                <p className="text-2xl font-bold">{formatCurrency(totalLiabilities)}</p>
+              </div>
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Debt-to-Asset Ratio</p>
+                <p className="text-2xl font-bold">{debtToAssetRatio.toFixed(1)}%</p>
+              </div>
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Liability Categories</p>
+                <p className="text-2xl font-bold">{Object.keys(groupedLiabilities).length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );

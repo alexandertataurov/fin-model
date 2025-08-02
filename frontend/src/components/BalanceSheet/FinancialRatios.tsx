@@ -1,49 +1,28 @@
 import React, { useState } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  Box,
-  Grid,
-  Chip,
-  Tabs,
-  Tab,
-  Paper,
-  LinearProgress,
-  Tooltip,
-  IconButton,
-} from '@mui/material';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import {
   Info,
   TrendingUp,
   TrendingDown,
-  Remove,
-  Speed,
-  Security,
-  Assessment,
-  MonetizationOn,
-} from '@mui/icons-material';
+  Minus,
+  Zap,
+  Shield,
+  BarChart3,
+  DollarSign,
+  HelpCircle,
+} from 'lucide-react';
 import { FinancialRatio } from '../../types/dashboard';
 
 interface FinancialRatiosProps {
   ratios: FinancialRatio[];
 }
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
-  <div hidden={value !== index}>
-    {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
-  </div>
-);
-
 const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
-  const [tabValue, setTabValue] = useState(0);
+  const [activeTab, setActiveTab] = useState('liquidity');
 
   const formatRatio = (value: number, category: string): string => {
     if (category === 'liquidity' || category === 'leverage') {
@@ -55,15 +34,18 @@ const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
     return `${value.toFixed(1)}%`;
   };
 
-  const getRatioColor = (ratio: FinancialRatio): 'success' | 'warning' | 'error' => {
+  const getRatioColor = (
+    ratio: FinancialRatio
+  ): 'success' | 'warning' | 'error' => {
     // Simplified ratio assessment - in practice, this would be more sophisticated
     if (ratio.benchmark) {
-      const deviation = Math.abs(ratio.value - ratio.benchmark) / ratio.benchmark;
+      const deviation =
+        Math.abs(ratio.value - ratio.benchmark) / ratio.benchmark;
       if (deviation < 0.1) return 'success';
       if (deviation < 0.3) return 'warning';
       return 'error';
     }
-    
+
     // Default assessment based on common ratio ranges
     switch (ratio.category) {
       case 'liquidity':
@@ -90,137 +72,120 @@ const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'liquidity':
-        return <Speed color="primary" />;
+        return <Zap className="text-blue-500" size={20} />;
       case 'leverage':
-        return <Security color="warning" />;
+        return <Shield className="text-orange-500" size={20} />;
       case 'efficiency':
-        return <Assessment color="info" />;
+        return <BarChart3 className="text-purple-500" size={20} />;
       case 'profitability':
-        return <MonetizationOn color="success" />;
+        return <DollarSign className="text-green-500" size={20} />;
       default:
-        return <Assessment color="action" />;
+        return <BarChart3 className="text-gray-500" size={20} />;
     }
   };
 
   const getRatioTrend = (ratio: FinancialRatio) => {
-    if (!ratio.benchmark) return <Remove color="disabled" />;
-    
-    if (ratio.value > ratio.benchmark) {
-      // For leverage ratios, higher is worse
-      if (ratio.category === 'leverage') {
-        return <TrendingUp color="error" />;
-      }
-      return <TrendingUp color="success" />;
-    } else if (ratio.value < ratio.benchmark) {
-      // For leverage ratios, lower is better
-      if (ratio.category === 'leverage') {
-        return <TrendingDown color="success" />;
-      }
-      return <TrendingDown color="error" />;
+    if (!ratio.previousValue)
+      return <Minus className="text-gray-400" size={16} />;
+
+    const change = ratio.value - ratio.previousValue;
+    if (change > 0) {
+      return <TrendingUp className="text-green-500" size={16} />;
+    } else if (change < 0) {
+      return <TrendingDown className="text-red-500" size={16} />;
     }
-    return <Remove color="disabled" />;
+    return <Minus className="text-gray-400" size={16} />;
   };
 
   const getProgressValue = (ratio: FinancialRatio): number => {
     if (ratio.benchmark) {
       return Math.min((ratio.value / ratio.benchmark) * 100, 100);
     }
-    
+
     // Default progress calculation based on category
     switch (ratio.category) {
       case 'liquidity':
-        return Math.min((ratio.value / 2.0) * 100, 100); // Max at 2.0 ratio
+        return Math.min((ratio.value / 2.0) * 100, 100);
       case 'leverage':
-        return Math.max(100 - (ratio.value * 100), 0); // Lower is better
+        return Math.min((ratio.value / 1.0) * 100, 100);
       case 'efficiency':
       case 'profitability':
-        return Math.min((ratio.value / 20) * 100, 100); // Max at 20%
+        return Math.min((ratio.value / 20.0) * 100, 100);
       default:
         return 50;
     }
   };
 
-  // Group ratios by category
-  const ratioCategories = [
-    { key: 'liquidity', label: 'Liquidity Ratios', description: 'Ability to meet short-term obligations' },
-    { key: 'leverage', label: 'Leverage Ratios', description: 'Financial leverage and debt management' },
-    { key: 'efficiency', label: 'Efficiency Ratios', description: 'Asset utilization and operational efficiency' },
-    { key: 'profitability', label: 'Profitability Ratios', description: 'Profit generation capability' },
-  ];
-
-  const getRatiosByCategory = (category: string) => 
+  const getRatiosByCategory = (category: string) =>
     ratios.filter(ratio => ratio.category === category);
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
 
   const RatioCard: React.FC<{ ratio: FinancialRatio }> = ({ ratio }) => {
     const color = getRatioColor(ratio);
     const progressValue = getProgressValue(ratio);
-    
+
     return (
-      <Card sx={{ height: '100%' }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" component="div">
+      <Card className="h-full">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              {getCategoryIcon(ratio.category)}
+              <div>
+                <h4 className="font-medium text-sm">{ratio.name}</h4>
+                <p className="text-xs text-muted-foreground">
+                  {ratio.description}
+                </p>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <HelpCircle className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl font-bold">
                 {formatRatio(ratio.value, ratio.category)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {ratio.name}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {getRatioTrend(ratio)}
-              <Tooltip title={ratio.interpretation}>
-                <IconButton size="small">
-                  <Info fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </Box>
+              </span>
+              <div className="flex items-center gap-1">
+                {getRatioTrend(ratio)}
+                <Badge
+                  variant={
+                    color === 'success'
+                      ? 'default'
+                      : color === 'warning'
+                        ? 'secondary'
+                        : 'destructive'
+                  }
+                >
+                  {color === 'success'
+                    ? 'Good'
+                    : color === 'warning'
+                      ? 'Fair'
+                      : 'Poor'}
+                </Badge>
+              </div>
+            </div>
 
-          {/* Progress Bar */}
-          <Box sx={{ mb: 2 }}>
-            <LinearProgress
-              variant="determinate"
-              value={progressValue}
-              color={color}
-              sx={{ height: 8, borderRadius: 4 }}
-            />
-          </Box>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Current</span>
+                <span>{formatRatio(ratio.value, ratio.category)}</span>
+              </div>
+              <Progress value={progressValue} className="h-2" />
+              {ratio.benchmark && (
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Benchmark</span>
+                  <span>{formatRatio(ratio.benchmark, ratio.category)}</span>
+                </div>
+              )}
+            </div>
 
-          {/* Benchmark Comparison */}
-          {ratio.benchmark && (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-              <Typography variant="caption" color="text.secondary">
-                Benchmark: {formatRatio(ratio.benchmark, ratio.category)}
-              </Typography>
-              <Chip
-                label={`${ratio.value > ratio.benchmark ? '+' : ''}${((ratio.value - ratio.benchmark) / ratio.benchmark * 100).toFixed(1)}%`}
-                size="small"
-                color={color}
-                variant="outlined"
-              />
-            </Box>
-          )}
-
-          {/* Performance Assessment */}
-          <Chip
-            label={
-              color === 'success' ? 'Good' : 
-              color === 'warning' ? 'Fair' : 'Poor'
-            }
-            size="small"
-            color={color}
-            sx={{ width: '100%' }}
-          />
-
-          {/* Interpretation */}
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            {ratio.interpretation}
-          </Typography>
+            {ratio.previousValue && (
+              <div className="text-xs text-muted-foreground">
+                Previous: {formatRatio(ratio.previousValue, ratio.category)}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     );
@@ -228,131 +193,73 @@ const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
 
   const CategorySummary: React.FC<{ category: string }> = ({ category }) => {
     const categoryRatios = getRatiosByCategory(category);
-    const avgPerformance = categoryRatios.reduce((sum, ratio) => {
-      const color = getRatioColor(ratio);
-      return sum + (color === 'success' ? 3 : color === 'warning' ? 2 : 1);
-    }, 0) / categoryRatios.length;
-
-    const performanceLabel = avgPerformance >= 2.5 ? 'Strong' : avgPerformance >= 2 ? 'Moderate' : 'Weak';
-    const performanceColor = avgPerformance >= 2.5 ? 'success' : avgPerformance >= 2 ? 'warning' : 'error';
+    const avgValue =
+      categoryRatios.reduce((sum, ratio) => sum + ratio.value, 0) /
+      categoryRatios.length;
+    const goodRatios = categoryRatios.filter(
+      ratio => getRatioColor(ratio) === 'success'
+    ).length;
+    const totalRatios = categoryRatios.length;
 
     return (
-      <Paper sx={{ p: 2, mb: 2, bgcolor: `${performanceColor}.50` }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {getCategoryIcon(category)}
-            <Typography variant="subtitle1" fontWeight="medium">
-              {ratioCategories.find(c => c.key === category)?.label}
-            </Typography>
-          </Box>
-          <Chip
-            label={`${performanceLabel} Performance`}
-            color={performanceColor}
-            size="small"
-          />
-        </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {ratioCategories.find(c => c.key === category)?.description}
-        </Typography>
-      </Paper>
+      <div className="text-center p-4 bg-muted/50 rounded-lg">
+        <div className="flex justify-center mb-2">
+          {getCategoryIcon(category)}
+        </div>
+        <p className="text-sm font-medium capitalize">{category}</p>
+        <p className="text-2xl font-bold">{formatRatio(avgValue, category)}</p>
+        <p className="text-xs text-muted-foreground">
+          {goodRatios}/{totalRatios} ratios in good standing
+        </p>
+      </div>
     );
   };
 
-  if (!ratios || ratios.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <Typography variant="h6" component="div">
-            Financial Ratios
-          </Typography>
-        </CardHeader>
-        <CardContent>
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-            No financial ratio data available
-          </Typography>
-        </CardContent>
-      </Card>
-    );
-  }
+  const categories = ['liquidity', 'leverage', 'efficiency', 'profitability'];
 
   return (
     <Card>
       <CardHeader>
-        <Typography variant="h6" component="div">
-          Financial Ratios Analysis
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {ratios.length} ratios across {ratioCategories.length} categories
-        </Typography>
+        <h3 className="text-lg font-semibold">Financial Ratios Analysis</h3>
       </CardHeader>
       <CardContent>
-        {/* Ratio Category Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={tabValue} onChange={handleTabChange}>
-            {ratioCategories.map((category) => (
-              <Tab 
-                key={category.key}
-                label={category.label}
-                icon={getCategoryIcon(category.key)}
-                iconPosition="start"
-                disabled={getRatiosByCategory(category.key).length === 0}
-              />
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-4"
+        >
+          <TabsList className="grid w-full grid-cols-4">
+            {categories.map(category => (
+              <TabsTrigger
+                key={category}
+                value={category}
+                className="capitalize"
+              >
+                {category}
+              </TabsTrigger>
             ))}
-          </Tabs>
-        </Box>
+          </TabsList>
 
-        {/* Tab Panels */}
-        {ratioCategories.map((category, index) => (
-          <TabPanel key={category.key} value={tabValue} index={index}>
-            <CategorySummary category={category.key} />
-            
-            <Grid container spacing={3}>
-              {getRatiosByCategory(category.key).map((ratio) => (
-                <Grid item xs={12} sm={6} md={4} key={ratio.name}>
-                  <RatioCard ratio={ratio} />
-                </Grid>
-              ))}
-            </Grid>
+          {categories.map(category => (
+            <TabsContent key={category} value={category} className="space-y-4">
+              {/* Category Summary */}
+              <CategorySummary category={category} />
 
-            {getRatiosByCategory(category.key).length === 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                No {category.label.toLowerCase()} available
-              </Typography>
-            )}
-          </TabPanel>
-        ))}
+              {/* Ratio Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {getRatiosByCategory(category).map(ratio => (
+                  <RatioCard key={ratio.id} ratio={ratio} />
+                ))}
+              </div>
 
-        {/* Overall Summary */}
-        <Box sx={{ mt: 4, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>
-            Ratio Analysis Summary
-          </Typography>
-          <Grid container spacing={2}>
-            {ratioCategories.map((category) => {
-              const categoryRatios = getRatiosByCategory(category.key);
-              if (categoryRatios.length === 0) return null;
-
-              const strongRatios = categoryRatios.filter(r => getRatioColor(r) === 'success').length;
-              // const weakRatios = categoryRatios.filter(r => getRatioColor(r) === 'error').length;
-
-              return (
-                <Grid item xs={12} sm={6} md={3} key={category.key}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {category.label}
-                    </Typography>
-                    <Typography variant="h6">
-                      {strongRatios}/{categoryRatios.length}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Strong ratios
-                    </Typography>
-                  </Box>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Box>
+              {getRatiosByCategory(category).length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No {category} ratios available
+                </div>
+              )}
+            </TabsContent>
+          ))}
+        </Tabs>
       </CardContent>
     </Card>
   );

@@ -1,25 +1,16 @@
 import React from 'react';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Chip,
-} from '@mui/material';
-import {
-  AccountBalance,
-  MonetizationOn,
-  Business,
-  Inventory,
+  Banknote,
+  DollarSign,
+  Building2,
+  Package,
   TrendingUp,
   TrendingDown,
-  Remove,
-} from '@mui/icons-material';
+  Minus,
+} from 'lucide-react';
 import { PieChart } from '../Charts';
 import { BalanceSheetMetric, DashboardChartData } from '../../types/dashboard';
 
@@ -49,24 +40,24 @@ const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
   const getAssetIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();
     if (category.includes('cash') || category.includes('bank')) {
-      return <MonetizationOn color="primary" />;
+      return <DollarSign className="text-primary" size={20} />;
     } else if (category.includes('inventory') || category.includes('stock')) {
-      return <Inventory color="warning" />;
+      return <Package className="text-orange-500" size={20} />;
     } else if (category.includes('property') || category.includes('equipment') || category.includes('asset')) {
-      return <Business color="info" />;
+      return <Building2 className="text-blue-500" size={20} />;
     }
-    return <AccountBalance color="action" />;
+    return <Banknote className="text-gray-500" size={20} />;
   };
 
   const getTrendIcon = (trend?: string, changePercentage?: number) => {
-    if (!trend && !changePercentage) return <Remove color="disabled" />;
+    if (!trend && !changePercentage) return <Minus className="text-gray-400" size={16} />;
     
     if (trend === 'up' || (changePercentage && changePercentage > 0)) {
-      return <TrendingUp color="success" />;
+      return <TrendingUp className="text-green-500" size={16} />;
     } else if (trend === 'down' || (changePercentage && changePercentage < 0)) {
-      return <TrendingDown color="error" />;
+      return <TrendingDown className="text-red-500" size={16} />;
     }
-    return <Remove color="disabled" />;
+    return <Minus className="text-gray-400" size={16} />;
   };
 
   // Filter and sort assets
@@ -95,108 +86,64 @@ const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
   return (
     <Card>
       <CardHeader>
-        <Typography variant="h6" component="div">
-          Assets Breakdown
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Total Assets: {formatCurrency(totalAssets)}
-        </Typography>
+        <h3 className="text-lg font-semibold">Assets Breakdown</h3>
       </CardHeader>
-      <CardContent>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-          {/* Pie Chart */}
-          <Box sx={{ flex: 1, minHeight: 300 }}>
-            <PieChart
-              data={chartData}
-              height={300}
-              currency="$"
-              showPercentages={true}
-              innerRadius={60}
-              centerLabel={{
-                title: 'Total Assets',
-                value: totalAssets,
-              }}
-            />
-          </Box>
+      <CardContent className="space-y-6">
+        {/* Chart Section */}
+        <div className="h-64">
+          <PieChart data={chartData} />
+        </div>
 
-          {/* Asset List */}
-          <Box sx={{ flex: 1, maxHeight: 400, overflow: 'auto' }}>
-            {Object.entries(groupedAssets).map(([subcategory, assets]) => (
-              <Box key={subcategory} sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="primary" sx={{ mb: 1 }}>
-                  {subcategory}
-                </Typography>
-                <List dense>
-                  {assets.map((asset) => (
-                    <ListItem key={asset.id} sx={{ py: 0.5 }}>
-                      <ListItemIcon sx={{ minWidth: 36 }}>
-                        {getAssetIcon(asset.subcategory)}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="body2">
-                              {asset.name}
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="body2" fontWeight="medium">
-                                {formatCurrency(asset.value)}
-                              </Typography>
-                              {getTrendIcon(asset.trend, asset.change_percentage)}
-                            </Box>
-                          </Box>
-                        }
-                        secondary={
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="caption" color="text.secondary">
-                              {((asset.value / totalAssets) * 100).toFixed(1)}% of total assets
-                            </Typography>
-                            {asset.change_percentage && (
-                              <Chip
-                                label={formatPercentage(asset.change_percentage)}
-                                size="small"
-                                color={asset.change_percentage > 0 ? 'success' : 'error'}
-                                variant="outlined"
-                              />
-                            )}
-                          </Box>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-            ))}
-            
-            {assetMetrics.length === 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                No asset data available
-              </Typography>
-            )}
-          </Box>
-        </Box>
+        {/* Assets List */}
+        <div className="space-y-4">
+          {Object.entries(groupedAssets).map(([category, assets]) => (
+            <div key={category} className="space-y-2">
+              <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+                {category}
+              </h4>
+              <div className="space-y-2">
+                {assets.map((asset, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      {getAssetIcon(asset.subcategory || '')}
+                      <div>
+                        <p className="font-medium">{asset.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatCurrency(asset.value)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {asset.changePercentage !== undefined && (
+                        <div className="flex items-center space-x-1">
+                          {getTrendIcon(asset.trend, asset.changePercentage)}
+                          <span className={`text-sm ${
+                            asset.changePercentage > 0 ? 'text-green-600' : 
+                            asset.changePercentage < 0 ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            {formatPercentage(asset.changePercentage)}
+                          </span>
+                        </div>
+                      )}
+                      <Badge variant="secondary">
+                        {((asset.value / totalAssets) * 100).toFixed(1)}%
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Separator />
+            </div>
+          ))}
+        </div>
 
-        {/* Summary Statistics */}
-        <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Asset Composition Summary
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {Object.entries(groupedAssets).map(([subcategory, assets]) => {
-              const categoryTotal = assets.reduce((sum, asset) => sum + asset.value, 0);
-              const percentage = ((categoryTotal / totalAssets) * 100).toFixed(1);
-              
-              return (
-                <Chip
-                  key={subcategory}
-                  label={`${subcategory}: ${percentage}%`}
-                  size="small"
-                  variant="outlined"
-                />
-              );
-            })}
-          </Box>
-        </Box>
+        {/* Summary */}
+        <div className="bg-primary/5 p-4 rounded-lg">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold">Total Assets</span>
+            <span className="text-xl font-bold">{formatCurrency(totalAssets)}</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

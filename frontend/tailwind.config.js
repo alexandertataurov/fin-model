@@ -1,7 +1,43 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: ['./src/**/*.{ts,tsx}', './index.html'],
+  content: [
+    './src/**/*.{ts,tsx}', 
+    './index.html',
+    './.storybook/**/*.{js,ts,jsx,tsx}',
+  ],
+  safelist: [
+    'bg-blue-600',
+    'bg-blue-800',
+    'bg-gray-700',
+    'bg-gray-500',
+    'bg-purple-700',
+    'bg-orange-700',
+    'bg-yellow-300',
+    'bg-green-400',
+    'bg-blue-400',
+    'text-lg',
+    'text-sm',
+    'font-semibold',
+    'text-white',
+    'p-6',
+    'text-center',
+    {
+      pattern: /bg-(blue|gray|purple|orange|yellow|green)-(400|500|600|700|800|300)/,
+    },
+    {
+      pattern: /text-(lg|sm|white)/,
+    },
+    {
+      pattern: /font-(semibold)/,
+    },
+    {
+      pattern: /p-6/,
+    },
+    {
+      pattern: /text-center/,
+    },
+  ],
   theme: {
     container: {
       center: true,
@@ -67,6 +103,10 @@ export default {
           border: 'var(--sidebar-border)',
           ring: 'var(--sidebar-ring)',
         },
+        // Extended color palette for charts
+        'chart-6': 'var(--chart-6)',
+        'chart-7': 'var(--chart-7)',
+        'chart-8': 'var(--chart-8)',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -76,6 +116,7 @@ export default {
       fontWeight: {
         normal: 'var(--font-weight-normal)',
         medium: 'var(--font-weight-medium)',
+        semibold: '600',
       },
       fontSize: {
         'text-xs': 'var(--text-xs)',

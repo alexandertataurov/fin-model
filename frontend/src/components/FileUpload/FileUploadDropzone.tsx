@@ -1,26 +1,18 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
 import {
-  Box,
-  Typography,
-  LinearProgress,
-  Alert,
-  Paper,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Chip,
-  Button,
-} from '@mui/material';
-import {
-  CloudUpload,
-  InsertDriveFile,
-  Delete,
+  Upload,
+  FileText,
+  Trash2,
   CheckCircle,
-  Error,
-} from '@mui/icons-material';
+  AlertCircle,
+} from 'lucide-react';
 import {
   fileApi,
   FileUploadResponse,
@@ -67,7 +59,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           const reasons = file.errors.map(error => {
             switch (error.code) {
               case 'file-too-large':
-                return `File is too large (max ${fileApi.formatFileSize(maxSize)})`;
+                return `File is too large (max ${(maxSize / 1024 / 1024).toFixed(1)}MB)`;
               case 'file-invalid-type':
                 return 'File type not supported';
               case 'too-many-files':
@@ -98,88 +90,62 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
 
       setUploadingFiles(initialUploadingFiles);
 
-      // Upload files sequentially to avoid overwhelming the server
-      const uploadedFiles: FileUploadResponse[] = [];
-
-      for (let i = 0; i < acceptedFiles.length; i++) {
-        const file = acceptedFiles[i];
+      // Upload files
+      const uploadPromises = acceptedFiles.map(async (file, index) => {
+        const progressCallback: UploadProgressCallback = (progress) => {
+          setUploadingFiles(prev => 
+            prev.map((uploadingFile, i) => 
+              i === index 
+                ? { ...uploadingFile, progress }
+                : uploadingFile
+            )
+          );
+        };
 
         try {
-          const onProgress: UploadProgressCallback = progress => {
-            setUploadingFiles(prev =>
-              prev.map((uf, index) => (index === i ? { ...uf, progress } : uf))
-            );
-          };
-
-          const uploadedFile = await fileApi.uploadFile(file, onProgress);
-
-          setUploadingFiles(prev =>
-            prev.map((uf, index) =>
-              index === i
-                ? {
-                    ...uf,
-                    progress: 100,
-                    status: 'completed',
-                    uploadedInfo: uploadedFile,
-                  }
-                : uf
+          const result = await fileApi.uploadFile(file, progressCallback);
+          
+          setUploadingFiles(prev => 
+            prev.map((uploadingFile, i) => 
+              i === index 
+                ? { ...uploadingFile, status: 'completed', uploadedInfo: result }
+                : uploadingFile
             )
           );
 
-          uploadedFiles.push(uploadedFile);
-        } catch (error: unknown) {
-          let errorMessage = 'Upload failed';
-          if ((error as Error)?.message) {
-            errorMessage = (error as Error).message;
-          } else if (
-            typeof error === 'object' &&
-            error !== null &&
-            'response' in error
-          ) {
-            const httpError = error as {
-              response?: { data?: { detail?: string } };
-            };
-            errorMessage = httpError?.response?.data?.detail || 'Upload failed';
-          }
-
-          setUploadingFiles(prev =>
-            prev.map((uf, index) =>
-              index === i
-                ? {
-                    ...uf,
-                    status: 'error',
-                    error: errorMessage,
-                  }
-                : uf
+          return result;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+          
+          setUploadingFiles(prev => 
+            prev.map((uploadingFile, i) => 
+              i === index 
+                ? { ...uploadingFile, status: 'error', error: errorMessage }
+                : uploadingFile
             )
           );
 
-          onUploadError?.(errorMessage);
+          throw error;
         }
-      }
+      });
 
-      setIsUploading(false);
-
-      if (uploadedFiles.length > 0) {
-        onUploadComplete?.(uploadedFiles);
+      try {
+        const results = await Promise.all(uploadPromises);
+        onUploadComplete?.(results);
+      } catch (error) {
+        onUploadError?.(error instanceof Error ? error.message : 'Upload failed');
+      } finally {
+        setIsUploading(false);
       }
     },
     [maxFiles, maxSize, onUploadComplete, onUploadError]
   );
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept,
     maxFiles,
     maxSize,
-    multiple: true,
-    disabled: isUploading,
   });
 
   const removeUploadingFile = (index: number) => {
@@ -190,197 +156,128 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
     setUploadingFiles(prev => prev.filter(file => file.status !== 'completed'));
   };
 
-  // DESIGN_FIX: replace hardcoded colors with design tokens
-  const getDropzoneStyles = () => {
-    let borderColor = 'var(--border)';
-    let backgroundColor = 'var(--muted)';
-
-    if (isDragAccept) {
-      borderColor = 'var(--success)';
-      backgroundColor = 'var(--success)';
-    } else if (isDragReject) {
-      borderColor = 'var(--destructive)';
-      backgroundColor = 'var(--destructive)';
-    } else if (isDragActive) {
-      borderColor = 'var(--primary)';
-      backgroundColor = 'var(--primary)';
-    }
-
-    return {
-      borderColor,
-      backgroundColor,
-      borderWidth: 2,
-      borderStyle: 'dashed',
-      borderRadius: '8px',
-      padding: '40px 20px',
-      textAlign: 'center' as const,
-      cursor: isUploading ? 'not-allowed' : 'pointer',
-      transition: 'all 0.3s ease',
-      opacity: isUploading ? 0.6 : 1,
-    };
-  };
-
   const getStatusIcon = (status: UploadingFile['status']) => {
     switch (status) {
-      case 'completed':
-        return <CheckCircle color="success" />;
-      case 'error':
-        return <Error color="error" />;
       case 'uploading':
-        return <CloudUpload color="primary" />;
-      default:
-        return <InsertDriveFile />;
+        return <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>;
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'error':
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
     }
   };
 
   const getStatusColor = (status: UploadingFile['status']) => {
     switch (status) {
-      case 'completed':
-        return 'success' as const;
-      case 'error':
-        return 'error' as const;
       case 'uploading':
-        return 'primary' as const;
-      default:
-        return 'default' as const;
+        return 'text-blue-600';
+      case 'completed':
+        return 'text-green-600';
+      case 'error':
+        return 'text-red-600';
     }
   };
 
   return (
-    <Box>
+    <div className="space-y-4">
       {/* Dropzone */}
-      <Paper elevation={1} sx={getDropzoneStyles()}>
-        <div data-testid="dropzone" {...getRootProps()}>
-          <input
-            aria-label="file input"
-            data-testid="file-input"
-            {...getInputProps()}
-          />
-          <CloudUpload
-            sx={{ fontSize: 48, color: 'var(--muted-foreground)', mb: 2 }}
-          />
-
-          {isDragActive ? (
-            isDragAccept ? (
-              <Typography variant="h6" color="success.main">
-                Drop files here to upload
-              </Typography>
-            ) : (
-              <Typography variant="h6" color="error.main">
-                Some files are not supported
-              </Typography>
-            )
-          ) : (
-            <>
-              <Typography variant="h6" gutterBottom>
-                Drag & drop Excel files here, or click to select files
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Supported formats: .xlsx, .xls, .csv (max{' '}
-                {fileApi.formatFileSize(maxSize)} each)
-              </Typography>
-              <Button variant="outlined" disabled={isUploading}>
-                Choose Files
-              </Button>
-            </>
-          )}
-        </div>
-      </Paper>
+      <Card>
+        <CardContent className="p-6">
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+              isDragActive 
+                ? 'border-primary bg-primary/5' 
+                : 'border-muted-foreground/25 hover:border-primary/50'
+            }`}
+          >
+            <input {...getInputProps()} />
+            <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium mb-2">
+              {isDragActive ? 'Drop files here' : 'Drag & drop files here'}
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              or click to select files
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Supported formats: Excel (.xlsx, .xls), CSV (.csv)
+              <br />
+              Max file size: {(maxSize / 1024 / 1024).toFixed(1)}MB | Max files: {maxFiles}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Upload Progress */}
       {uploadingFiles.length > 0 && (
-        <Box sx={{ mt: 3 }}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 2,
-            }}
-          >
-            <Typography variant="h6">
-              Upload Progress (
-              {uploadingFiles.filter(f => f.status === 'completed').length}/
-              {uploadingFiles.length})
-            </Typography>
-            {uploadingFiles.some(f => f.status === 'completed') && (
-              <Button variant="outlined" size="small" onClick={clearCompleted}>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Upload Progress</h3>
+              <Button variant="outline" size="sm" onClick={clearCompleted}>
                 Clear Completed
               </Button>
-            )}
-          </Box>
-
-          <List>
-            {uploadingFiles.map((uploadingFile, index) => (
-              <ListItem key={`${uploadingFile.file.name}-${index}`}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-                  {getStatusIcon(uploadingFile.status)}
-                </Box>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body1">
-                        {uploadingFile.file.name}
-                      </Typography>
-                      <Chip
-                        size="small"
-                        label={uploadingFile.status}
-                        color={getStatusColor(uploadingFile.status)}
-                        variant="outlined"
-                      />
-                    </Box>
-                  }
-                  secondary={
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {fileApi.formatFileSize(uploadingFile.file.size)}
-                      </Typography>
-
-                      {uploadingFile.status === 'uploading' && (
-                        <Box sx={{ mt: 1 }}>
-                          <LinearProgress
-                            variant="determinate"
-                            value={uploadingFile.progress}
-                            sx={{ borderRadius: 1 }}
-                          />
-                          <Typography variant="caption" color="text.secondary">
-                            {uploadingFile.progress}%
-                          </Typography>
-                        </Box>
+            </div>
+            
+            <div className="space-y-4">
+              {uploadingFiles.map((uploadingFile, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium text-sm">{uploadingFile.file.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(uploadingFile.file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(uploadingFile.status)}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeUploadingFile(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {uploadingFile.status === 'uploading' && (
+                    <Progress value={uploadingFile.progress} className="h-2" />
+                  )}
+                  
+                  {uploadingFile.status === 'completed' && (
+                    <div className="flex items-center gap-2">
+                      <Badge variant="default" className="bg-green-100 text-green-800">
+                        Uploaded successfully
+                      </Badge>
+                      {uploadingFile.uploadedInfo && (
+                        <span className="text-xs text-muted-foreground">
+                          ID: {uploadingFile.uploadedInfo.id}
+                        </span>
                       )}
-
-                      {uploadingFile.status === 'error' &&
-                        uploadingFile.error && (
-                          <Alert severity="error" sx={{ mt: 1 }}>
-                            {uploadingFile.error}
-                          </Alert>
-                        )}
-
-                      {uploadingFile.status === 'completed' &&
-                        uploadingFile.uploadedInfo && (
-                          <Typography variant="caption" color="success.main">
-                            ✓ Uploaded successfully (ID:{' '}
-                            {uploadingFile.uploadedInfo.id})
-                          </Typography>
-                        )}
-                    </Box>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge="end"
-                    onClick={() => removeUploadingFile(index)}
-                    disabled={uploadingFile.status === 'uploading'}
-                  >
-                    <Delete />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
+                    </div>
+                  )}
+                  
+                  {uploadingFile.status === 'error' && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        {uploadingFile.error || 'Upload failed'}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {index < uploadingFiles.length - 1 && <Separator />}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </Box>
+    </div>
   );
 };
 

@@ -1,15 +1,21 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Box, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { 
   Responsive, 
   WidthProvider,
   Layout as LayoutItem 
 } from 'react-grid-layout';
 import {
-  Add as AddIcon,
-  FullscreenExit as ExitFullscreenIcon,
-  Fullscreen as FullscreenIcon,
-} from '@mui/icons-material';
+  Plus,
+  Maximize2,
+  Minimize2,
+} from 'lucide-react';
 
 // React Grid Layout CSS should be imported at the app level or in index.html
 
@@ -70,7 +76,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenWidget, setFullscreenWidget] = useState<string | null>(null);
-  const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
 
   // Generate layouts if not provided
   const defaultLayouts = useMemo(() => {
@@ -98,196 +103,125 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   }, [onLayoutChange]);
 
   const handleWidgetFullscreen = useCallback((widgetId: string) => {
-    setFullscreenWidget(widgetId);
-    setIsFullscreen(true);
-  }, []);
+    if (fullscreenWidget === widgetId) {
+      setFullscreenWidget(null);
+      setIsFullscreen(false);
+    } else {
+      setFullscreenWidget(widgetId);
+      setIsFullscreen(true);
+    }
+  }, [fullscreenWidget]);
 
-  const handleExitFullscreen = useCallback(() => {
-    setIsFullscreen(false);
-    setFullscreenWidget(null);
-  }, []);
-
-  const handleAddWidget = useCallback((_widget: DashboardWidget) => {
-    setAddMenuAnchor(null);
+  const handleAddWidget = useCallback((widgetId: string) => {
     if (onAddWidget) {
       onAddWidget();
     }
   }, [onAddWidget]);
 
-  // Render fullscreen widget
-  if (isFullscreen && fullscreenWidget) {
-    const widget = widgets.find(w => w.id === fullscreenWidget);
-    if (widget) {
-      const WidgetComponent = widget.component;
-      return (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9999,
-            backgroundColor: 'background.default',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              p: 2,
-              borderBottom: 1,
-              borderColor: 'divider',
-            }}
-          >
-            <Typography variant="h6">{widget.title}</Typography>
-            <IconButton onClick={handleExitFullscreen}>
-              <ExitFullscreenIcon />
-            </IconButton>
-          </Box>
-          <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
-            <WidgetComponent
-              {...widget.props}
-              onFullscreen={() => handleExitFullscreen()}
-              isFullscreen={true}
-            />
-          </Box>
-        </Box>
-      );
+  const handleRemoveWidget = useCallback((widgetId: string) => {
+    if (onRemoveWidget) {
+      onRemoveWidget(widgetId);
     }
+  }, [onRemoveWidget]);
+
+  const renderWidget = useCallback((widget: DashboardWidget) => {
+    const WidgetComponent = widget.component;
+    const isFullscreen = fullscreenWidget === widget.id;
+
+    return (
+      <div key={widget.id} className="h-full w-full">
+        <div className="flex items-center justify-between p-3 border-b bg-muted/50">
+          <h3 className="font-medium text-sm">{widget.title}</h3>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleWidgetFullscreen(widget.id)}
+              className="h-6 w-6 p-0"
+            >
+              {isFullscreen ? (
+                <Minimize2 className="h-3 w-3" />
+              ) : (
+                <Maximize2 className="h-3 w-3" />
+              )}
+            </Button>
+            {editable && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {availableWidgets.map((availableWidget) => (
+                    <DropdownMenuItem
+                      key={availableWidget.id}
+                      onClick={() => handleAddWidget(availableWidget.id)}
+                    >
+                      {availableWidget.title}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </div>
+        <div className="p-3">
+          <WidgetComponent
+            height={isFullscreen ? 600 : undefined}
+            isFullscreen={isFullscreen}
+            onFullscreen={() => handleWidgetFullscreen(widget.id)}
+            {...widget.props}
+          />
+        </div>
+      </div>
+    );
+  }, [fullscreenWidget, editable, availableWidgets, handleWidgetFullscreen, handleAddWidget]);
+
+  if (isFullscreen && fullscreenWidget) {
+    const fullscreenWidgetData = widgets.find(w => w.id === fullscreenWidget);
+    if (!fullscreenWidgetData) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 bg-background">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold">{fullscreenWidgetData.title}</h2>
+          <Button
+            variant="outline"
+            onClick={() => handleWidgetFullscreen(fullscreenWidget)}
+          >
+            <Minimize2 className="h-4 w-4 mr-2" />
+            Exit Fullscreen
+          </Button>
+        </div>
+        <div className="p-4 h-[calc(100vh-80px)]">
+          {renderWidget(fullscreenWidgetData)}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <Box className={className} sx={{ position: 'relative' }}>
-      {/* Add Widget Button */}
-      {editable && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: -8,
-            right: 16,
-            zIndex: 10,
-          }}
-        >
-          <IconButton
-            onClick={(e) => setAddMenuAnchor(e.currentTarget)}
-            sx={{
-              backgroundColor: 'primary.main',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            }}
-          >
-            <AddIcon />
-          </IconButton>
-          
-          <Menu
-            anchorEl={addMenuAnchor}
-            open={Boolean(addMenuAnchor)}
-            onClose={() => setAddMenuAnchor(null)}
-          >
-            {availableWidgets.map((widget) => (
-              <MenuItem
-                key={widget.id}
-                onClick={() => handleAddWidget(widget)}
-              >
-                {widget.title}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-      )}
-
-      {/* Grid Layout */}
+    <div className={className}>
       <ResponsiveGridLayout
-        className="dashboard-grid"
+        className="layout"
         layouts={defaultLayouts}
         breakpoints={defaultBreakpoints}
         cols={defaultCols}
-        rowHeight={60}
-        onLayoutChange={handleLayoutChange}
+        rowHeight={100}
         isDraggable={editable}
         isResizable={editable}
+        onLayoutChange={handleLayoutChange}
         margin={[16, 16]}
-        containerPadding={[0, 0]}
-        useCSSTransforms={true}
-        preventCollision={false}
-        compactType="vertical"
+        containerPadding={[16, 16]}
       >
-        {widgets.map((widget) => {
-          const WidgetComponent = widget.component;
-          return (
-            <Box
-              key={widget.id}
-              sx={{
-                backgroundColor: 'background.paper',
-                borderRadius: 1,
-                overflow: 'hidden',
-                border: 1,
-                borderColor: 'divider',
-                position: 'relative',
-                '&:hover .widget-actions': {
-                  opacity: 1,
-                },
-              }}
-            >
-              {/* Widget Actions */}
-              {editable && (
-                <Box
-                  className="widget-actions"
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    zIndex: 10,
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease-in-out',
-                    display: 'flex',
-                    gap: 0.5,
-                  }}
-                >
-                  <IconButton
-                    size="small"
-                    onClick={() => handleWidgetFullscreen(widget.id)}
-                    sx={{
-                      backgroundColor: 'background.paper',
-                      boxShadow: 1,
-                    }}
-                  >
-                    <FullscreenIcon fontSize="small" />
-                  </IconButton>
-                  {onRemoveWidget && (
-                    <IconButton
-                      size="small"
-                      onClick={() => onRemoveWidget(widget.id)}
-                      sx={{
-                        backgroundColor: 'background.paper',
-                        boxShadow: 1,
-                        color: 'error.main',
-                      }}
-                    >
-                      ×
-                    </IconButton>
-                  )}
-                </Box>
-              )}
-
-              {/* Widget Content */}
-              <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <WidgetComponent
-                  {...widget.props}
-                  onFullscreen={() => handleWidgetFullscreen(widget.id)}
-                />
-              </Box>
-            </Box>
-          );
-        })}
+        {widgets.map((widget) => (
+          <div key={widget.id}>
+            {renderWidget(widget)}
+          </div>
+        ))}
       </ResponsiveGridLayout>
-    </Box>
+    </div>
   );
 };
 

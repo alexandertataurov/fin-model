@@ -5,16 +5,9 @@
  */
 
 import React from 'react';
-import {
-  Box,
-  CircularProgress,
-  Skeleton,
-  Card,
-  CardContent,
-  Grid,
-  Typography,
-  LinearProgress,
-} from '@mui/material';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 
 interface LoadingProps {
   height?: number | string;
@@ -39,105 +32,93 @@ export const DashboardLoading: React.FC<LoadingProps> = ({
 
   if (variant === 'linear') {
     return (
-      <Box sx={{ width: '100%', height }}>
-        <LinearProgress />
+      <div className="w-full" style={{ height }}>
+        <Progress value={undefined} className="h-2" />
         {message && (
-          <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
+          <p className="text-sm text-center mt-2 text-muted-foreground">
             {message}
-          </Typography>
+          </p>
         )}
-      </Box>
+      </div>
     );
   }
 
   if (variant === 'skeleton') {
     return (
-      <Box sx={{ height }}>
-        <Skeleton variant="rectangular" width="100%" height={200} />
-        <Box sx={{ mt: 1 }}>
-          <Skeleton variant="text" />
-          <Skeleton variant="text" width="60%" />
-        </Box>
-      </Box>
+      <div style={{ height }}>
+        <Skeleton className="w-full h-48" />
+        <div className="mt-2 space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/5" />
+        </div>
+      </div>
     );
   }
 
   if (variant === 'card') {
     return (
-      <Card sx={{ height }}>
+      <Card style={{ height }}>
         <CardContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
-            <CircularProgress size={getSize()} sx={{ mb: 2 }} />
+          <div className="flex flex-col items-center py-8">
+            <div 
+              className="animate-spin rounded-full border-b-2 border-primary"
+              style={{ width: getSize(), height: getSize() }}
+            />
             {message && (
-              <Typography variant="body2" color="text.secondary">
+              <p className="text-sm text-muted-foreground mt-4">
                 {message}
-              </Typography>
+              </p>
             )}
-          </Box>
+          </div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        justifyContent: 'center', 
-        alignItems: 'center',
-        height,
-        p: 2 
-      }}
+    <div 
+      className="flex flex-col justify-center items-center p-4"
+      style={{ height }}
     >
-      <CircularProgress size={getSize()} />
+      <div 
+        className="animate-spin rounded-full border-b-2 border-primary"
+        style={{ width: getSize(), height: getSize() }}
+      />
       {message && (
-        <Typography variant="body2" sx={{ mt: 2 }} color="text.secondary">
+        <p className="text-sm text-muted-foreground mt-4">
           {message}
-        </Typography>
+        </p>
       )}
-    </Box>
+    </div>
   );
 };
 
 export const MetricCardSkeleton: React.FC = () => (
   <Card>
-    <CardContent sx={{ textAlign: 'center' }}>
-      <Skeleton variant="circular" width={40} height={40} sx={{ mx: 'auto', mb: 1 }} />
-      <Skeleton variant="text" height={32} />
-      <Skeleton variant="text" width="80%" />
-      <Skeleton variant="text" width="60%" />
+    <CardContent className="p-6">
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-3 w-16" />
+      </div>
     </CardContent>
   </Card>
 );
 
 export const ChartSkeleton: React.FC<{ height?: number }> = ({ height = 300 }) => (
-  <Box sx={{ p: 2 }}>
-    <Skeleton variant="text" width="40%" height={24} sx={{ mb: 2 }} />
-    <Skeleton variant="rectangular" width="100%" height={height} />
-  </Box>
+  <Card>
+    <CardContent className="p-6">
+      <Skeleton className="w-full" style={{ height }} />
+    </CardContent>
+  </Card>
 );
 
 export const DashboardGridSkeleton: React.FC = () => (
-  <Grid container spacing={3}>
-    {[1, 2, 3].map((i) => (
-      <Grid item xs={12} sm={4} key={i}>
-        <MetricCardSkeleton />
-      </Grid>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {Array.from({ length: 8 }).map((_, index) => (
+      <MetricCardSkeleton key={index} />
     ))}
-    <Grid item xs={12} md={8}>
-      <ChartSkeleton height={400} />
-    </Grid>
-    <Grid item xs={12} md={4}>
-      <ChartSkeleton height={400} />
-    </Grid>
-    <Grid item xs={12} md={6}>
-      <ChartSkeleton height={300} />
-    </Grid>
-    <Grid item xs={12} md={6}>
-      <ChartSkeleton height={300} />
-    </Grid>
-  </Grid>
+  </div>
 );
 
 export default DashboardLoading;
