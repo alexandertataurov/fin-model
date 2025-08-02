@@ -72,3 +72,4 @@ faker>=19.0.0  # Generate fake data for tests
 networkx>=3.0  # Graph algorithms for recalculation engine
 scipy>=1.10.0  # Scientific computations for Monte Carlo service
 pyotp>=2.9.0
+qrcode[pil]==8.2
