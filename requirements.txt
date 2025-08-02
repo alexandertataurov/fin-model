@@ -27,9 +27,6 @@ weasyprint==61.2
 Pillow>=10.1.0
 matplotlib>=3.8.0
 
-# Graph algorithms
-networkx>=3.2.1
-
 # Background tasks
 celery==5.3.4
 redis==5.0.1
@@ -72,3 +69,5 @@ pytest-xdist>=3.3.0  # Parallel test execution
 httpx>=0.24.0  # For async client testing
 factory-boy>=3.3.0  # Test data factories
 faker>=19.0.0  # Generate fake data for tests
+networkx>=3.0  # Graph algorithms for recalculation engine
+scipy>=1.10.0  # Scientific computations for Monte Carlo service
