@@ -317,7 +317,7 @@ class DataQuality(BaseModel):
 
 class HealthCheckResult(BaseModel):
     """Dashboard health check result."""
-    status: str = Field(..., regex="^(healthy|warning|unhealthy)$")
+    status: str = Field(..., pattern="^(healthy|warning|unhealthy)$")
     database: str = "connected"
     cache: str = "healthy"
     data_availability: Dict[str, Any]
