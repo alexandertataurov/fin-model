@@ -88,7 +88,7 @@ class RechartsWaterfallDataPoint(BaseModel):
     """Recharts waterfall chart data point."""
     name: str
     value: float
-    type: str = Field(..., regex="^(start|positive|negative|total)$")
+    type: str = Field(..., pattern="^(start|positive|negative|total)$")
     cumulative: float
     fill: Optional[str] = None
     label: Optional[str] = None
