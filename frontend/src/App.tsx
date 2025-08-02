@@ -31,6 +31,7 @@ const Analytics = React.lazy(() => import('./pages/Analytics'));
 const FileUpload = React.lazy(() => import('./pages/FileUpload'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const ScenarioModeling = React.lazy(() => import('./pages/ScenarioModeling'));
+const BalanceSheetDashboard = React.lazy(() => import('./pages/BalanceSheetDashboard'));
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<
@@ -145,6 +146,15 @@ export default function App() {
                     element={
                       <ProtectedLayout>
                         <Analytics />
+                      </ProtectedLayout>
+                    }
+                  />
+
+                  <Route
+                    path="/dashboards/balance-sheet"
+                    element={
+                      <ProtectedLayout>
+                        <BalanceSheetDashboard />
                       </ProtectedLayout>
                     }
                   />

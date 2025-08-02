@@ -8,7 +8,9 @@ import { apiClient } from './api';
 import { 
   DashboardData, 
   CashFlowDashboardData, 
-  DashboardPeriod 
+  BalanceSheetDashboardData,
+  FinancialRatio,
+  DashboardPeriod,
 } from '../types/dashboard';
 import type { PLDashboardData as PLDashboardDataType } from '../types/dashboard';
 
@@ -216,6 +218,40 @@ export class DashboardApiService {
       params
     });
     return response.data;
+  }
+
+  /**
+   * Get Balance Sheet dashboard metrics with real backend data
+   */
+  static async getBalanceSheetMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<BalanceSheetDashboardData> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    
+    const response = await apiClient.get('/dashboard/metrics/balance-sheet', {
+      params
+    });
+    return response.data;
+  }
+
+  /**
+   * Get financial ratios with filtering
+   */
+  static async getFinancialRatios(
+    period: DashboardPeriod,
+    category?: string,
+    fileId?: number
+  ): Promise<FinancialRatio[]> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    if (category) params.ratio_category = category;
+    
+    const response = await apiClient.get('/dashboard/metrics/ratios', {
+      params
+    });
+    return response.data.ratios || [];
   }
 
   /**

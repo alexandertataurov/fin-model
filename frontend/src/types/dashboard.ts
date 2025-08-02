@@ -101,3 +101,46 @@ export interface BarChartDataPoint {
   value: number;
   [key: string]: string | number | undefined; // Dynamic keys for Recharts
 }
+
+// Balance Sheet specific types
+export interface BalanceSheetMetric {
+  id: string;
+  name: string;
+  value: number;
+  unit: string;
+  format_type: "currency" | "percentage" | "number";
+  category: "assets" | "liabilities" | "equity";
+  subcategory: string;
+  period: string;
+  last_updated: string;
+  display_order: number;
+  change_percentage?: number;
+  trend?: "up" | "down" | "stable";
+}
+
+export interface FinancialRatio {
+  name: string;
+  value: number;
+  category: "liquidity" | "leverage" | "efficiency" | "profitability";
+  benchmark?: number;
+  interpretation: string;
+}
+
+export interface BalanceSheetDashboardData extends DashboardData {
+  metrics: BalanceSheetMetric[];
+  ratios: FinancialRatio[];
+  charts: {
+    assets_breakdown: DashboardChartData[];
+    liabilities_breakdown: DashboardChartData[];
+    equity_trend: DashboardChartData[];
+    liquidity_ratios: DashboardChartData[];
+  };
+  data_quality_score: number;
+  period_info: {
+    period: string;
+    start_date: string;
+    end_date: string;
+    description?: string;
+  };
+  last_updated: string;
+}
