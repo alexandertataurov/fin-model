@@ -75,6 +75,8 @@ const Login: React.FC = () => {
           setError(
             'Account is locked due to multiple failed login attempts. Please try again later.'
           );
+        } else if (error.response?.status === 429) {
+          setError('Too many login attempts. Please try again later.');
         } else if (error.response?.data?.detail === 'Email not verified') {
           setError('Please verify your email address before logging in.');
         } else {
@@ -101,9 +103,7 @@ const Login: React.FC = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">
-                FinVision
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground">FinVision</h1>
               <p className="text-muted-foreground">
                 Financial Modeling & Analysis Platform
               </p>
@@ -113,7 +113,11 @@ const Login: React.FC = () => {
           <CardContent className="space-y-6 pt-0">
             <form onSubmit={formik.handleSubmit} className="space-y-4">
               {error && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                <div
+                  className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <AlertCircle className="h-4 w-4" />
                   {error}
                 </div>
@@ -230,7 +234,9 @@ const Login: React.FC = () => {
                   <span className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-4 py-1 text-muted-foreground">or</span>
+                  <span className="bg-background px-4 py-1 text-muted-foreground">
+                    or
+                  </span>
                 </div>
               </div>
 

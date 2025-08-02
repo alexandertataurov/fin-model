@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from app.models.user import User
 from app.models.role import Role, UserRole, RoleType
 from app.models.audit import AuditLog, AuditAction
-from app.schemas.user import UserCreate, UserUpdate, UserLogin
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import (
     verify_password,
     get_password_hash,
@@ -42,11 +42,19 @@ class AuthService:
 
     def get_user_by_username(self, username: str) -> Optional[User]:
         """Get user by username."""
-        return self.db.query(User).filter(User.username == username).first()
+        return (
+            self.db.query(User)
+            .filter(User.username == username)
+            .first()
+        )
 
     def get_user_by_id(self, user_id: int) -> Optional[User]:
         """Get user by ID."""
-        return self.db.query(User).filter(User.id == user_id).first()
+        return (
+            self.db.query(User)
+            .filter(User.id == user_id)
+            .first()
+        )
 
     def create_user(
         self, user_create: UserCreate, role: RoleType = RoleType.VIEWER

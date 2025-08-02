@@ -92,6 +92,12 @@ const ResetPasswordForm: React.FC = () => {
           setError(
             'Invalid or expired reset token. Please request a new password reset.'
           );
+        } else if (error.response?.status === 429) {
+          setError('Too many password reset attempts. Please try again later.');
+        } else if (error.response?.status === 423) {
+          setError(
+            'Account is locked due to multiple failed attempts. Please try again later.'
+          );
         } else {
           setError('An error occurred. Please try again later.');
         }
@@ -138,14 +144,22 @@ const ResetPasswordForm: React.FC = () => {
           <CardContent className="space-y-6 pt-0">
             <form onSubmit={formik.handleSubmit} className="space-y-4">
               {error && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                <div
+                  className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <AlertCircle className="h-4 w-4" />
                   {error}
                 </div>
               )}
 
               {success && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
+                <div
+                  className="flex items-center gap-2 p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <Check className="h-4 w-4" />
                   {success}
                 </div>
@@ -311,7 +325,7 @@ const ResetPasswordForm: React.FC = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Resetting Password...
+                    Resetting...
                   </>
                 ) : (
                   'Reset Password'

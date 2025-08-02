@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Check,
   X,
+  Loader2,
 } from 'lucide-react';
 import {
   Box,
@@ -130,6 +131,12 @@ const Register: React.FC = () => {
                 'Registration failed. Please check your information and try again.'
             );
           }
+        } else if (error.response?.status === 429) {
+          setError('Too many registration attempts. Please try again later.');
+        } else if (error.response?.status === 423) {
+          setError(
+            'Account is locked due to multiple failed registration attempts. Please try again later.'
+          );
         } else {
           setError('An error occurred. Please try again later.');
         }
@@ -172,14 +179,22 @@ const Register: React.FC = () => {
           <CardContent className="space-y-6 pt-0">
             <form onSubmit={formik.handleSubmit} className="space-y-4">
               {error && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                <div
+                  className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <AlertCircle className="h-4 w-4" />
                   {error}
                 </div>
               )}
 
               {success && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
+                <div
+                  className="flex items-center gap-2 p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <Check className="h-4 w-4" />
                   {success}
                 </div>
@@ -444,16 +459,16 @@ const Register: React.FC = () => {
               <Button
                 type="submit"
                 disabled={isLoading || !passwordStrength.isValid}
-                className="w-full mt-6"
+                className="w-full"
                 size="lg"
               >
                 {isLoading ? (
                   <>
-                    <CircularProgress size={20} sx={{ mr: 1 }} />
-                    Creating Account...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Registering...
                   </>
                 ) : (
-                  'Create Account'
+                  'Register'
                 )}
               </Button>
 
