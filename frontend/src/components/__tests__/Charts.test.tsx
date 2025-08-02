@@ -97,12 +97,12 @@ describe('LineChart', () => {
 
   it('supports custom colors', () => {
     const customSeries = [
-      { dataKey: 'revenue', name: 'Revenue', color: '#ff5722' },
+      { dataKey: 'revenue', name: 'Revenue', color: 'var(--chart-3)' },
     ];
     render(<LineChart data={mockLineData} series={customSeries} />);
 
     const line = screen.getByTestId('line');
-    expect(line).toHaveAttribute('stroke', '#ff5722');
+    expect(line).toHaveAttribute('stroke', 'var(--chart-3)');
   });
 
   it('shows tooltip on hover', async () => {
@@ -135,7 +135,7 @@ describe('LineChart', () => {
       { period: 'B', value: 200 },
     ];
     const initialSeries = [
-      { dataKey: 'value', name: 'Value', color: '#8884d8' },
+      { dataKey: 'value', name: 'Value', color: 'var(--chart-1)' },
     ];
 
     const { rerender } = render(
@@ -208,13 +208,13 @@ describe('BarChart', () => {
       {
         dataKey: 'revenue',
         name: 'Revenue',
-        color: '#1976d2',
+        color: 'var(--chart-1)',
         stackId: 'stack',
       },
       {
         dataKey: 'expenses',
         name: 'Expenses',
-        color: '#dc004e',
+        color: 'var(--chart-2)',
         stackId: 'stack',
       },
     ];
@@ -227,13 +227,13 @@ describe('BarChart', () => {
 
   it('shows custom bar colors', () => {
     const customSeries = [
-      { dataKey: 'revenue', name: 'Revenue', color: '#1976d2' },
-      { dataKey: 'expenses', name: 'Expenses', color: '#dc004e' },
+      { dataKey: 'revenue', name: 'Revenue', color: 'var(--chart-1)' },
+      { dataKey: 'expenses', name: 'Expenses', color: 'var(--chart-2)' },
     ];
     render(<BarChart data={mockBarData} series={customSeries} />);
 
     const bars = screen.getAllByTestId('bar');
-    expect(bars[0]).toHaveAttribute('fill', '#1976d2');
+    expect(bars[0]).toHaveAttribute('fill', 'var(--chart-1)');
   });
 
   it('handles bar interaction', async () => {
@@ -295,7 +295,7 @@ describe('PieChart', () => {
   it('supports custom colors for segments', () => {
     const dataWithColors = pieData.map((item, index) => ({
       ...item,
-      color: ['#1976d2', '#dc004e', '#2e7d32'][index],
+      color: ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)'][index],
     }));
     render(<PieChart data={dataWithColors} />);
 
@@ -355,10 +355,10 @@ describe('WaterfallChart', () => {
     render(
       <WaterfallChart
         data={waterfallData}
-        positiveColor="#4caf50"
-        negativeColor="#f44336"
-        totalColor="#2196f3"
-        startColor="#666666"
+        positiveColor="var(--success)"
+        negativeColor="var(--destructive)"
+        totalColor="var(--chart-1)"
+        startColor="var(--muted-foreground)"
       />
     );
 

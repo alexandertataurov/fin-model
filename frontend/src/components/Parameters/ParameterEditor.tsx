@@ -27,7 +27,6 @@ import {
   TrendingDown as TrendingDownIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tokens } from '@/theme';
 
 // Types
 interface Parameter {
@@ -62,7 +61,11 @@ interface ParameterValidation {
 
 interface ParameterEditorProps {
   parameter: Parameter;
-  onValueChange?: (parameterId: number, newValue: number, changeReason?: string) => void;
+  onValueChange?: (
+    parameterId: number,
+    newValue: number,
+    changeReason?: string
+  ) => void;
   readonly?: boolean;
   showDependencies?: boolean;
   compact?: boolean;
@@ -99,7 +102,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
       });
 
       if (!response.ok) throw new Error('Validation failed');
-      return await response.json() as ParameterValidation;
+      return (await response.json()) as ParameterValidation;
     },
     enabled: isEditing && editValue !== parameter.current_value,
     staleTime: 1000, // 1 second
@@ -107,7 +110,13 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
 
   // Update parameter mutation
   const updateParameterMutation = useMutation({
-    mutationFn: async ({ value, reason }: { value: number; reason?: string }) => {
+    mutationFn: async ({
+      value,
+      reason,
+    }: {
+      value: number;
+      reason?: string;
+    }) => {
       const response = await fetch(`/api/v1/parameters/${parameter.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -129,33 +138,36 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
   });
 
   // Format value display
-  const formatValue = useCallback((value: number) => {
-    switch (parameter.format_type) {
-      case 'currency':
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(value);
-      case 'percentage':
-        return `${(value * 100).toFixed(2)}%`;
-      default:
-        return value.toLocaleString();
-    }
-  }, [parameter.format_type]);
+  const formatValue = useCallback(
+    (value: number) => {
+      switch (parameter.format_type) {
+        case 'currency':
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }).format(value);
+        case 'percentage':
+          return `${(value * 100).toFixed(2)}%`;
+        default:
+          return value.toLocaleString();
+      }
+    },
+    [parameter.format_type]
+  );
 
   // DESIGN_FIX: use design tokens for sensitivity colors
   const getSensitivityColor = (level: string) => {
     switch (level) {
       case 'critical':
-        return tokens.colors.error[500];
+        return 'var(--destructive)';
       case 'high':
-        return tokens.colors.warning[500];
+        return 'var(--warning)';
       case 'medium':
-        return tokens.colors.primary[500];
+        return 'var(--primary)';
       case 'low':
-        return tokens.colors.success[500];
+        return 'var(--success)';
       default:
-        return tokens.colors.grey[600];
+        return 'var(--muted-foreground)';
     }
   };
 
@@ -192,7 +204,9 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
         });
       }
     } catch (error) {
-      setValidationError(error instanceof Error ? error.message : 'Update failed');
+      setValidationError(
+        error instanceof Error ? error.message : 'Update failed'
+      );
     }
   };
 
@@ -224,7 +238,11 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
     return (
       <Card variant="outlined" sx={{ mb: 1 }}>
         <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-          <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             <Box>
               <Typography variant="body2" fontWeight="medium">
                 {parameter.display_name || parameter.name}
@@ -239,7 +257,9 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                 size="small"
                 label={parameter.sensitivity_level}
                 sx={{
-                  backgroundColor: getSensitivityColor(parameter.sensitivity_level),
+                  backgroundColor: getSensitivityColor(
+                    parameter.sensitivity_level
+                  ),
                   color: 'white',
                   fontSize: '0.7rem',
                 }}
@@ -262,7 +282,12 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
     <Card variant="outlined" sx={{ mb: 2 }}>
       <CardContent>
         {/* Header */}
-        <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
           <Box>
             <Typography variant="h6" component="h3">
               {parameter.display_name || parameter.name}
@@ -279,13 +304,17 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
               size="small"
               label={parameter.sensitivity_level}
               sx={{
-                backgroundColor: getSensitivityColor(parameter.sensitivity_level),
+                backgroundColor: getSensitivityColor(
+                  parameter.sensitivity_level
+                ),
                 color: 'white',
               }}
             />
 
             {parameter.source_cell && (
-              <Tooltip title={`Source: ${parameter.source_sheet}!${parameter.source_cell}`}>
+              <Tooltip
+                title={`Source: ${parameter.source_sheet}!${parameter.source_cell}`}
+              >
                 <Chip
                   size="small"
                   label={parameter.source_cell}
@@ -307,43 +336,51 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   label="Value"
                   type="number"
                   value={editValue}
-                  onChange={(e) => handleValueChange(Number(e.target.value))}
-                  error={!!validationError || (validation ? !validation.is_valid : false)}
+                  onChange={e => handleValueChange(Number(e.target.value))}
+                  error={
+                    !!validationError ||
+                    (validation ? !validation.is_valid : false)
+                  }
                   helperText={
                     validationError ||
                     (validation && !validation.is_valid
                       ? validation.validation_errors.join(', ')
-                      : `Current: ${formatValue(parameter.current_value)}`
-                    )
+                      : `Current: ${formatValue(parameter.current_value)}`)
                   }
                   InputProps={{
                     startAdornment: parameter.unit && (
-                      <InputAdornment position="start">{parameter.unit}</InputAdornment>
+                      <InputAdornment position="start">
+                        {parameter.unit}
+                      </InputAdornment>
                     ),
                     endAdornment: getTrendIndicator() && (
-                      <InputAdornment position="end">{getTrendIndicator()}</InputAdornment>
+                      <InputAdornment position="end">
+                        {getTrendIndicator()}
+                      </InputAdornment>
                     ),
                   }}
                 />
               </Grid>
 
               {/* Slider for range inputs */}
-              {parameter.min_value !== undefined && parameter.max_value !== undefined && (
-                <Grid item xs={12} md={6}>
-                  <Typography variant="caption" gutterBottom>
-                    Range: {formatValue(parameter.min_value)} - {formatValue(parameter.max_value)}
-                  </Typography>
-                  <Slider
-                    value={editValue}
-                    onChange={handleSliderChange}
-                    min={parameter.min_value}
-                    max={parameter.max_value}
-                    step={(parameter.max_value - parameter.min_value) / 100}
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={formatValue}
-                  />
-                </Grid>
-              )}
+              {parameter.min_value !== undefined &&
+                parameter.max_value !== undefined && (
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="caption" gutterBottom>
+                      Range: {formatValue(parameter.min_value)} -{' '}
+                      {formatValue(parameter.max_value)}
+                    </Typography>
+                    <Slider
+                      value={editValue}
+                      onChange={handleSliderChange}
+                      min={parameter.min_value}
+                      max={parameter.max_value}
+                      step={(parameter.max_value - parameter.min_value) / 100}
+                      valueLabelDisplay="auto"
+                      valueLabelFormat={formatValue}
+                    />
+                  </Grid>
+                )}
 
               {/* Change Reason */}
               <Grid item xs={12}>
@@ -351,7 +388,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   fullWidth
                   label="Change Reason (Optional)"
                   value={changeReason}
-                  onChange={(e) => setChangeReason(e.target.value)}
+                  onChange={e => setChangeReason(e.target.value)}
                   placeholder="Why are you changing this value?"
                   size="small"
                 />
@@ -383,7 +420,9 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   {validation && validation.suggested_value !== undefined && (
                     <Button
                       variant="text"
-                      onClick={() => handleValueChange(validation.suggested_value ?? 0)}
+                      onClick={() =>
+                        handleValueChange(validation.suggested_value ?? 0)
+                      }
                     >
                       Use Suggested: {formatValue(validation.suggested_value)}
                     </Button>
@@ -392,7 +431,11 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
               </Grid>
             </Grid>
           ) : (
-            <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
               <Typography variant="h4" component="div">
                 {formatValue(parameter.current_value)}
               </Typography>
@@ -411,75 +454,95 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
         </Box>
 
         {/* Advanced Information */}
-        {showDependencies && (parameter.depends_on?.length || parameter.affects?.length || parameter.formula) && (
-          <Accordion expanded={showAdvanced} onChange={() => setShowAdvanced(!showAdvanced)}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="subtitle2">Advanced Information</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={2}>
-                {/* Formula */}
-                {parameter.formula && (
-                  <Grid item xs={12}>
-                    <Typography variant="caption" color="text.secondary">
-                      Formula:
-                    </Typography>
-                    <Typography variant="body2" fontFamily="monospace">
-                      {parameter.formula}
-                    </Typography>
-                  </Grid>
-                )}
+        {showDependencies &&
+          (parameter.depends_on?.length ||
+            parameter.affects?.length ||
+            parameter.formula) && (
+            <Accordion
+              expanded={showAdvanced}
+              onChange={() => setShowAdvanced(!showAdvanced)}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle2">
+                  Advanced Information
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={2}>
+                  {/* Formula */}
+                  {parameter.formula && (
+                    <Grid item xs={12}>
+                      <Typography variant="caption" color="text.secondary">
+                        Formula:
+                      </Typography>
+                      <Typography variant="body2" fontFamily="monospace">
+                        {parameter.formula}
+                      </Typography>
+                    </Grid>
+                  )}
 
-                {/* Dependencies */}
-                {parameter.depends_on?.length && (
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="caption" color="text.secondary">
-                      Depends On:
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
-                      {parameter.depends_on.map((dep, index) => (
-                        <Chip key={index} size="small" label={dep} variant="outlined" />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
+                  {/* Dependencies */}
+                  {parameter.depends_on?.length && (
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="caption" color="text.secondary">
+                        Depends On:
+                      </Typography>
+                      <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
+                        {parameter.depends_on.map((dep, index) => (
+                          <Chip
+                            key={index}
+                            size="small"
+                            label={dep}
+                            variant="outlined"
+                          />
+                        ))}
+                      </Box>
+                    </Grid>
+                  )}
 
-                {/* Affects */}
-                {parameter.affects?.length && (
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="caption" color="text.secondary">
-                      Affects:
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
-                      {parameter.affects?.map((affect, index) => (
-                        <Chip key={index} size="small" label={affect} variant="outlined" />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
+                  {/* Affects */}
+                  {parameter.affects?.length && (
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="caption" color="text.secondary">
+                        Affects:
+                      </Typography>
+                      <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
+                        {parameter.affects?.map((affect, index) => (
+                          <Chip
+                            key={index}
+                            size="small"
+                            label={affect}
+                            variant="outlined"
+                          />
+                        ))}
+                      </Box>
+                    </Grid>
+                  )}
 
-                {/* Validation Rules */}
-                {parameter.validation_rules && (
-                  <Grid item xs={12}>
-                    <Typography variant="caption" color="text.secondary">
-                      Validation Rules:
-                    </Typography>
-                    <Typography variant="body2" fontFamily="monospace">
-                      {JSON.stringify(parameter.validation_rules, null, 2)}
-                    </Typography>
-                  </Grid>
-                )}
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        )}
+                  {/* Validation Rules */}
+                  {parameter.validation_rules && (
+                    <Grid item xs={12}>
+                      <Typography variant="caption" color="text.secondary">
+                        Validation Rules:
+                      </Typography>
+                      <Typography variant="body2" fontFamily="monospace">
+                        {JSON.stringify(parameter.validation_rules, null, 2)}
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          )}
 
         {/* Validation Warnings */}
-        {validation && validation.is_valid && editValue !== parameter.current_value && (
-          <Alert severity="info" sx={{ mt: 1 }}>
-            Value change is valid. Impact will be calculated after save.
-          </Alert>
-        )}
+        {validation &&
+          validation.is_valid &&
+          editValue !== parameter.current_value && (
+            <Alert severity="info" sx={{ mt: 1 }}>
+              Value change is valid. Impact will be calculated after save.
+            </Alert>
+          )}
 
         {validation && !validation.is_valid && (
           <Alert severity="warning" sx={{ mt: 1 }}>

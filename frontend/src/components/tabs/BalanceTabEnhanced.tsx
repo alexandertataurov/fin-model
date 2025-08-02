@@ -1,6 +1,6 @@
 /**
  * Enhanced Balance Sheet Tab with Real Data Integration
- * 
+ *
  * Displays real balance sheet data with composition charts and financial ratios
  */
 
@@ -10,18 +10,53 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Skeleton } from '../ui/skeleton';
-import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { TrendingUp, TrendingDown, Plus, AlertCircle, RefreshCw, Download, Percent, Shield } from 'lucide-react';
-import { useBalanceSheetDashboard, useActiveStatement, useExportDashboard, useRefreshDashboard } from '../../hooks/useDashboard';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
+import {
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  AlertCircle,
+  RefreshCw,
+  Download,
+  Percent,
+  Shield,
+} from 'lucide-react';
+import {
+  useBalanceSheetDashboard,
+  useActiveStatement,
+  useExportDashboard,
+  useRefreshDashboard,
+} from '../../hooks/useDashboard';
 import { PeriodFilter } from '../../services/dashboardApi';
 
 interface BalanceTabEnhancedProps {
   period?: PeriodFilter;
 }
 
-export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnhancedProps) {
+export function BalanceTabEnhanced({
+  period = PeriodFilter.YTD,
+}: BalanceTabEnhancedProps) {
   const { activeStatementId, activeStatement } = useActiveStatement();
-  const { data: balanceData, isLoading, error, refetch } = useBalanceSheetDashboard(activeStatementId);
+  const {
+    data: balanceData,
+    isLoading,
+    error,
+    refetch,
+  } = useBalanceSheetDashboard(activeStatementId);
   const refreshMutation = useRefreshDashboard();
   const exportMutation = useExportDashboard();
 
@@ -29,7 +64,7 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
     'financial-ratios',
     'asset-composition',
     'liability-breakdown',
-    'equity-structure'
+    'equity-structure',
   ]);
 
   const removeWidget = (widgetId: string) => {
@@ -37,7 +72,11 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
   };
 
   const addWidget = () => {
-    const availableWidgets = ['liquidity-trend', 'leverage-analysis', 'working-capital'];
+    const availableWidgets = [
+      'liquidity-trend',
+      'leverage-analysis',
+      'working-capital',
+    ];
     const unusedWidgets = availableWidgets.filter(w => !widgets.includes(w));
     if (unusedWidgets.length > 0) {
       setWidgets(prev => [...prev, unusedWidgets[0]]);
@@ -52,7 +91,7 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
     exportMutation.mutate({
       format: 'excel',
       period: period,
-      statement_ids: activeStatementId ? [activeStatementId] : undefined
+      statement_ids: activeStatementId ? [activeStatementId] : undefined,
     });
   };
 
@@ -62,7 +101,7 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
       style: 'currency',
       currency: 'USD',
       notation: 'compact',
-      maximumFractionDigits: 1
+      maximumFractionDigits: 1,
     }).format(value);
   };
 
@@ -117,7 +156,8 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load Balance Sheet data. Please try refreshing or contact support if the problem persists.
+            Failed to load Balance Sheet data. Please try refreshing or contact
+            support if the problem persists.
           </AlertDescription>
         </Alert>
       </div>
@@ -134,7 +174,8 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No Balance Sheet data available. Upload a financial statement to get started.
+            No Balance Sheet data available. Upload a financial statement to get
+            started.
           </AlertDescription>
         </Alert>
       </div>
@@ -151,18 +192,20 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={handleRefresh} 
-            variant="outline" 
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
             size="sm"
             disabled={refreshMutation.isPending}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshMutation.isPending ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshMutation.isPending ? 'animate-spin' : ''}`}
+            />
             Refresh
           </Button>
-          <Button 
-            onClick={handleExport} 
-            variant="outline" 
+          <Button
+            onClick={handleExport}
+            variant="outline"
             size="sm"
             disabled={exportMutation.isPending}
           >
@@ -186,61 +229,97 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  (balanceData.leverage_metrics.current_ratio?.current || 0) >= 2 ? 'text-green-600' : 'text-yellow-600'
-                }`}>
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    (balanceData.leverage_metrics.current_ratio?.current ||
+                      0) >= 2
+                      ? 'text-green-600'
+                      : 'text-yellow-600'
+                  }`}
+                >
                   <Shield className="h-4 w-4" />
                   <span className="text-xs">Liquidity</span>
                 </div>
                 <p className="text-2xl font-bold">
-                  {formatRatio(balanceData.leverage_metrics.current_ratio?.current || 0)}
+                  {formatRatio(
+                    balanceData.leverage_metrics.current_ratio?.current || 0
+                  )}
                 </p>
                 <p className="text-sm text-muted-foreground">Current Ratio</p>
               </div>
 
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  (balanceData.leverage_metrics.debt_to_equity?.current || 0) <= 1 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    (balanceData.leverage_metrics.debt_to_equity?.current ||
+                      0) <= 1
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
                   <Percent className="h-4 w-4" />
                   <span className="text-xs">Leverage</span>
                 </div>
                 <p className="text-2xl font-bold">
-                  {formatRatio(balanceData.leverage_metrics.debt_to_equity?.current || 0)}
+                  {formatRatio(
+                    balanceData.leverage_metrics.debt_to_equity?.current || 0
+                  )}
                 </p>
                 <p className="text-sm text-muted-foreground">Debt-to-Equity</p>
               </div>
 
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  (balanceData.leverage_metrics.return_on_assets?.change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {(balanceData.leverage_metrics.return_on_assets?.change_percent || 0) >= 0 ? 
-                    <TrendingUp className="h-4 w-4" /> : 
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    (balanceData.leverage_metrics.return_on_assets
+                      ?.change_percent || 0) >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {(balanceData.leverage_metrics.return_on_assets
+                    ?.change_percent || 0) >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
                     <TrendingDown className="h-4 w-4" />
-                  }
+                  )}
                   <span className="text-xs">ROA</span>
                 </div>
                 <p className="text-2xl font-bold">
-                  {formatPercent(balanceData.leverage_metrics.return_on_assets?.current || 0)}
+                  {formatPercent(
+                    balanceData.leverage_metrics.return_on_assets?.current || 0
+                  )}
                 </p>
-                <p className="text-sm text-muted-foreground">Return on Assets</p>
+                <p className="text-sm text-muted-foreground">
+                  Return on Assets
+                </p>
               </div>
 
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  (balanceData.leverage_metrics.return_on_equity?.change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {(balanceData.leverage_metrics.return_on_equity?.change_percent || 0) >= 0 ? 
-                    <TrendingUp className="h-4 w-4" /> : 
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    (balanceData.leverage_metrics.return_on_equity
+                      ?.change_percent || 0) >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {(balanceData.leverage_metrics.return_on_equity
+                    ?.change_percent || 0) >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
                     <TrendingDown className="h-4 w-4" />
-                  }
+                  )}
                   <span className="text-xs">ROE</span>
                 </div>
                 <p className="text-2xl font-bold">
-                  {formatPercent(balanceData.leverage_metrics.return_on_equity?.current || 0)}
+                  {formatPercent(
+                    balanceData.leverage_metrics.return_on_equity?.current || 0
+                  )}
                 </p>
-                <p className="text-sm text-muted-foreground">Return on Equity</p>
+                <p className="text-sm text-muted-foreground">
+                  Return on Equity
+                </p>
               </div>
             </div>
           </DraggableWidget>
@@ -262,21 +341,26 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
                   outerRadius={80}
                   fill="var(--chart-1)"
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {balanceData.asset_composition.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.color || `var(--chart-${(index % 5) + 1})`} 
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color || `var(--chart-${(index % 5) + 1})`}
                     />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), 'Value']}
+                <Tooltip
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    'Value',
+                  ]}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
               </PieChart>
@@ -294,27 +378,30 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={balanceData.liability_breakdown}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  className="text-xs" 
+                <XAxis
+                  dataKey="name"
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  className="text-xs" 
+                <YAxis
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={value => formatCurrency(value)}
                 />
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), 'Amount']}
+                <Tooltip
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    'Amount',
+                  ]}
                   labelClassName="text-foreground"
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
-                <Bar 
-                  dataKey="value" 
+                <Bar
+                  dataKey="value"
                   fill="var(--chart-4)"
                   radius={[4, 4, 0, 0]}
                 />
@@ -340,21 +427,26 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
                   outerRadius={80}
                   fill="var(--chart-3)"
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {balanceData.equity_structure.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.color || `var(--chart-${(index % 5) + 1})`} 
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color || `var(--chart-${(index % 5) + 1})`}
                     />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), 'Value']}
+                <Tooltip
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    'Value',
+                  ]}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
               </PieChart>
@@ -373,44 +465,47 @@ export function BalanceTabEnhanced({ period = PeriodFilter.YTD }: BalanceTabEnha
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={balanceData.liquidity_ratios}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  className="text-xs" 
+                <XAxis
+                  dataKey="name"
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  className="text-xs" 
+                <YAxis
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => formatRatio(value)}
+                  tickFormatter={value => formatRatio(value)}
                 />
-                <Tooltip 
-                  formatter={(value: number, name: string) => [formatRatio(value), name]}
+                <Tooltip
+                  formatter={(value: number, name: string) => [
+                    formatRatio(value),
+                    name,
+                  ]}
                   labelClassName="text-foreground"
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="current_ratio" 
-                  stroke="var(--chart-2)" 
+                <Line
+                  type="monotone"
+                  dataKey="current_ratio"
+                  stroke="var(--chart-2)"
                   strokeWidth={2}
                   name="Current Ratio"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="quick_ratio" 
-                  stroke="var(--chart-3)" 
+                <Line
+                  type="monotone"
+                  dataKey="quick_ratio"
+                  stroke="var(--chart-3)"
                   strokeWidth={2}
                   name="Quick Ratio"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="cash_ratio" 
-                  stroke="var(--chart-4)" 
+                <Line
+                  type="monotone"
+                  dataKey="cash_ratio"
+                  stroke="var(--chart-4)"
                   strokeWidth={2}
                   name="Cash Ratio"
                 />

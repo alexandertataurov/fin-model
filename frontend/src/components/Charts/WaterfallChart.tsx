@@ -11,9 +11,8 @@ import {
   Tooltip,
 } from 'recharts';
 import { Box } from '@mui/material';
-import { tokens } from '@/theme';
-import BaseChart from './BaseChart';
 
+import BaseChart from './BaseChart';
 
 export interface WaterfallDataPoint {
   name: string;
@@ -52,10 +51,10 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   currency = '$',
   showGrid = true,
   // DESIGN_FIX: use design tokens for default colors
-  positiveColor = tokens.colors.financial.positive,
-  negativeColor = tokens.colors.financial.negative,
-  totalColor = tokens.colors.financial.currency,
-  startColor = tokens.colors.financial.neutral,
+  positiveColor = 'var(--success)',
+  negativeColor = 'var(--destructive)',
+  totalColor = 'var(--chart-1)',
+  startColor = 'var(--muted-foreground)',
   onExport,
   onFullscreen,
   formatXAxisTick,
@@ -134,7 +133,15 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
     return value;
   };
 
-  const customTooltip = ({ active, payload, label }: { active?: boolean; payload?: unknown[]; label?: string }) => {
+  const customTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: unknown[];
+    label?: string;
+  }) => {
     if (!active || !payload || payload.length === 0) {
       return null;
     }
@@ -160,9 +167,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           minWidth: 200,
         }}
       >
-        <Box sx={{ fontSize: '0.875rem', fontWeight: 600, mb: 1 }}>
-          {label}
-        </Box>
+        <Box sx={{ fontSize: '0.875rem', fontWeight: 600, mb: 1 }}>{label}</Box>
 
         {!isStart && !isTotal && (
           <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>
@@ -212,7 +217,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         {showGrid && (
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke={tokens.colors.grey[300]} // DESIGN_FIX: tokenized grid color
+            stroke="var(--border)" // DESIGN_FIX: tokenized grid color
             opacity={0.5}
           />
         )}
@@ -231,22 +236,15 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
 
         <ReferenceLine
           y={0}
-          stroke={tokens.colors.grey[700]} // DESIGN_FIX: tokenized line color
+          stroke="var(--foreground)" // DESIGN_FIX: tokenized line color
           strokeWidth={1}
         />
 
         {/* Invisible bars for stacking */}
-        <Bar
-          dataKey="invisibleBottom"
-          fill="transparent"
-          strokeWidth={0}
-        />
+        <Bar dataKey="invisibleBottom" fill="transparent" strokeWidth={0} />
 
         {/* Visible bars */}
-        <Bar
-          dataKey="visibleHeight"
-          stackId="waterfall"
-        >
+        <Bar dataKey="visibleHeight" stackId="waterfall">
           {processedData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}

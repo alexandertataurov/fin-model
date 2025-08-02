@@ -21,8 +21,11 @@ import {
   CheckCircle,
   Error,
 } from '@mui/icons-material';
-import { fileApi, FileUploadResponse, UploadProgressCallback } from '../../services/fileApi';
-import { tokens } from '@/theme';
+import {
+  fileApi,
+  FileUploadResponse,
+  UploadProgressCallback,
+} from '../../services/fileApi';
 
 interface UploadingFile {
   file: File;
@@ -46,7 +49,9 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   maxFiles = 5,
   maxSize = 10 * 1024 * 1024, // 10MB default
   accept = {
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
+      '.xlsx',
+    ],
     'application/vnd.ms-excel': ['.xls'],
     'text/csv': ['.csv'],
   },
@@ -58,8 +63,8 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
     async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       // Handle rejected files
       if (rejectedFiles.length > 0) {
-        const errors = rejectedFiles.map((file) => {
-          const reasons = file.errors.map((error) => {
+        const errors = rejectedFiles.map(file => {
+          const reasons = file.errors.map(error => {
             switch (error.code) {
               case 'file-too-large':
                 return `File is too large (max ${fileApi.formatFileSize(maxSize)})`;
@@ -83,11 +88,13 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       setIsUploading(true);
 
       // Initialize uploading files state
-      const initialUploadingFiles: UploadingFile[] = acceptedFiles.map((file) => ({
-        file,
-        progress: 0,
-        status: 'uploading',
-      }));
+      const initialUploadingFiles: UploadingFile[] = acceptedFiles.map(
+        file => ({
+          file,
+          progress: 0,
+          status: 'uploading',
+        })
+      );
 
       setUploadingFiles(initialUploadingFiles);
 
@@ -98,17 +105,15 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
         const file = acceptedFiles[i];
 
         try {
-          const onProgress: UploadProgressCallback = (progress) => {
-            setUploadingFiles((prev) =>
-              prev.map((uf, index) =>
-                index === i ? { ...uf, progress } : uf
-              )
+          const onProgress: UploadProgressCallback = progress => {
+            setUploadingFiles(prev =>
+              prev.map((uf, index) => (index === i ? { ...uf, progress } : uf))
             );
           };
 
           const uploadedFile = await fileApi.uploadFile(file, onProgress);
 
-          setUploadingFiles((prev) =>
+          setUploadingFiles(prev =>
             prev.map((uf, index) =>
               index === i
                 ? {
@@ -126,12 +131,18 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           let errorMessage = 'Upload failed';
           if ((error as Error)?.message) {
             errorMessage = (error as Error).message;
-          } else if (typeof error === 'object' && error !== null && 'response' in error) {
-            const httpError = error as { response?: { data?: { detail?: string } } };
+          } else if (
+            typeof error === 'object' &&
+            error !== null &&
+            'response' in error
+          ) {
+            const httpError = error as {
+              response?: { data?: { detail?: string } };
+            };
             errorMessage = httpError?.response?.data?.detail || 'Upload failed';
           }
 
-          setUploadingFiles((prev) =>
+          setUploadingFiles(prev =>
             prev.map((uf, index) =>
               index === i
                 ? {
@@ -156,7 +167,13 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
     [maxFiles, maxSize, onUploadComplete, onUploadError]
   );
 
-  const { getRootProps, getInputProps, isDragActive, isDragAccept, isDragReject } = useDropzone({
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
     onDrop,
     accept,
     maxFiles,
@@ -166,27 +183,27 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   });
 
   const removeUploadingFile = (index: number) => {
-    setUploadingFiles((prev) => prev.filter((_, i) => i !== index));
+    setUploadingFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const clearCompleted = () => {
-    setUploadingFiles((prev) => prev.filter((file) => file.status !== 'completed'));
+    setUploadingFiles(prev => prev.filter(file => file.status !== 'completed'));
   };
 
   // DESIGN_FIX: replace hardcoded colors with design tokens
   const getDropzoneStyles = () => {
-    let borderColor = tokens.colors.grey[400];
-    let backgroundColor = tokens.colors.grey[50];
+    let borderColor = 'var(--border)';
+    let backgroundColor = 'var(--muted)';
 
     if (isDragAccept) {
-      borderColor = tokens.colors.success[500];
-      backgroundColor = tokens.colors.success[50];
+      borderColor = 'var(--success)';
+      backgroundColor = 'var(--success)';
     } else if (isDragReject) {
-      borderColor = tokens.colors.error[500];
-      backgroundColor = tokens.colors.error[50];
+      borderColor = 'var(--destructive)';
+      backgroundColor = 'var(--destructive)';
     } else if (isDragActive) {
-      borderColor = tokens.colors.primary[500];
-      backgroundColor = tokens.colors.primary[50];
+      borderColor = 'var(--primary)';
+      backgroundColor = 'var(--primary)';
     }
 
     return {
@@ -234,9 +251,13 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       {/* Dropzone */}
       <Paper elevation={1} sx={getDropzoneStyles()}>
         <div data-testid="dropzone" {...getRootProps()}>
-          <input aria-label="file input" data-testid="file-input" {...getInputProps()} />
+          <input
+            aria-label="file input"
+            data-testid="file-input"
+            {...getInputProps()}
+          />
           <CloudUpload
-            sx={{ fontSize: 48, color: tokens.colors.grey[600], mb: 2 }}
+            sx={{ fontSize: 48, color: 'var(--muted-foreground)', mb: 2 }}
           />
 
           {isDragActive ? (
@@ -255,7 +276,8 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                 Drag & drop Excel files here, or click to select files
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Supported formats: .xlsx, .xls, .csv (max {fileApi.formatFileSize(maxSize)} each)
+                Supported formats: .xlsx, .xls, .csv (max{' '}
+                {fileApi.formatFileSize(maxSize)} each)
               </Typography>
               <Button variant="outlined" disabled={isUploading}>
                 Choose Files
@@ -268,9 +290,18 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       {/* Upload Progress */}
       {uploadingFiles.length > 0 && (
         <Box sx={{ mt: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+            }}
+          >
             <Typography variant="h6">
-              Upload Progress ({uploadingFiles.filter(f => f.status === 'completed').length}/{uploadingFiles.length})
+              Upload Progress (
+              {uploadingFiles.filter(f => f.status === 'completed').length}/
+              {uploadingFiles.length})
             </Typography>
             {uploadingFiles.some(f => f.status === 'completed') && (
               <Button variant="outlined" size="small" onClick={clearCompleted}>
@@ -288,7 +319,9 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                 <ListItemText
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body1">{uploadingFile.file.name}</Typography>
+                      <Typography variant="body1">
+                        {uploadingFile.file.name}
+                      </Typography>
                       <Chip
                         size="small"
                         label={uploadingFile.status}
@@ -316,17 +349,20 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                         </Box>
                       )}
 
-                      {uploadingFile.status === 'error' && uploadingFile.error && (
-                        <Alert severity="error" sx={{ mt: 1 }}>
-                          {uploadingFile.error}
-                        </Alert>
-                      )}
+                      {uploadingFile.status === 'error' &&
+                        uploadingFile.error && (
+                          <Alert severity="error" sx={{ mt: 1 }}>
+                            {uploadingFile.error}
+                          </Alert>
+                        )}
 
-                      {uploadingFile.status === 'completed' && uploadingFile.uploadedInfo && (
-                        <Typography variant="caption" color="success.main">
-                          ✓ Uploaded successfully (ID: {uploadingFile.uploadedInfo.id})
-                        </Typography>
-                      )}
+                      {uploadingFile.status === 'completed' &&
+                        uploadingFile.uploadedInfo && (
+                          <Typography variant="caption" color="success.main">
+                            ✓ Uploaded successfully (ID:{' '}
+                            {uploadingFile.uploadedInfo.id})
+                          </Typography>
+                        )}
                     </Box>
                   }
                 />

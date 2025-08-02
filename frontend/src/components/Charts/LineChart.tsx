@@ -54,17 +54,10 @@ interface LineChartProps {
   formatYAxisTick?: (value: number) => string;
 }
 
-// DESIGN_FIX: use design system chart color tokens instead of hex values
-const defaultColors = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-];
+import { DEFAULT_CHART_COLORS } from '../../constants/colors';
+
+// Use centralized chart color constants
+const defaultColors = DEFAULT_CHART_COLORS;
 
 export const LineChart: React.FC<LineChartProps> = ({
   data,

@@ -16,6 +16,12 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 PyJWT>=2.0.0
 
+# Enhanced Authentication Features
+pyotp==2.9.0  # TOTP for MFA
+qrcode[pil]==7.4.2  # QR code generation for MFA setup
+authlib==1.3.1  # OAuth 2.0 integration
+webauthn==2.0.0  # WebAuthn/FIDO2 support
+
 # Excel processing
 pandas>=2.3.1
 openpyxl==3.1.2

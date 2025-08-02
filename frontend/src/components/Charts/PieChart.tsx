@@ -38,18 +38,10 @@ interface PieChartProps {
   formatTooltip?: (value: number | string, name: string) => [string, string];
 }
 
-// DESIGN_FIX: use chart color tokens instead of hex values
-const defaultColors = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-];
+import { DEFAULT_CHART_COLORS } from '../../constants/colors';
+
+// Use centralized chart color constants
+const defaultColors = DEFAULT_CHART_COLORS;
 
 export const PieChart: React.FC<PieChartProps> = ({
   data,
@@ -101,7 +93,13 @@ export const PieChart: React.FC<PieChartProps> = ({
     return entry.name;
   };
 
-  const customTooltip = ({ active, payload }: { active?: boolean; payload?: unknown[] }) => {
+  const customTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: unknown[];
+  }) => {
     if (!active || !payload || payload.length === 0) {
       return null;
     }
@@ -111,9 +109,7 @@ export const PieChart: React.FC<PieChartProps> = ({
 
     return (
       <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
-        <h4 className="font-semibold mb-2 text-foreground">
-          {data.name}
-        </h4>
+        <h4 className="font-semibold mb-2 text-foreground">{data.name}</h4>
         <p className="text-sm text-muted-foreground">
           Value: {formatCurrency(data.value)}
         </p>
@@ -156,7 +152,9 @@ export const PieChart: React.FC<PieChartProps> = ({
               fontSize: '14px',
             }}
             formatter={(value: unknown, entry: Record<string, unknown>) => {
-              const percentageValue = formatPercentage((entry.payload as { value: number }).value);
+              const percentageValue = formatPercentage(
+                (entry.payload as { value: number }).value
+              );
               return `${value} (${percentageValue})`;
             }}
           />
@@ -184,8 +182,7 @@ export const PieChart: React.FC<PieChartProps> = ({
             <div className="text-lg font-bold text-primary leading-tight">
               {typeof centerLabel.value === 'number'
                 ? formatCurrency(centerLabel.value)
-                : centerLabel.value
-              }
+                : centerLabel.value}
             </div>
             <div className="text-sm text-muted-foreground font-medium mt-1">
               {centerLabel.title}

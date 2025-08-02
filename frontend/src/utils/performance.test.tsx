@@ -58,7 +58,9 @@ describe('Performance Tests', () => {
       render(
         <LineChart
           data={largeDataset}
-          series={[{ dataKey: 'value', name: 'Value', color: '#8884d8' }]}
+          series={[
+            { dataKey: 'value', name: 'Value', color: 'var(--chart-1)' },
+          ]}
         />
       );
 
@@ -80,7 +82,9 @@ describe('Performance Tests', () => {
 
       // Simulate 10 rapid re-renders
       for (let i = 0; i < 10; i++) {
-        rerender(<div data-testid="analytics-mock">Mock Analytics Dashboard {i}</div>);
+        rerender(
+          <div data-testid="analytics-mock">Mock Analytics Dashboard {i}</div>
+        );
       }
 
       const endTime = performance.now();
@@ -95,7 +99,9 @@ describe('Performance Tests', () => {
 
   describe('Memory Usage', () => {
     it('should not leak memory during multiple renders', () => {
-      const initialMemory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize || 0;
+      const initialMemory =
+        (performance as unknown as { memory?: { usedJSHeapSize: number } })
+          .memory?.usedJSHeapSize || 0;
 
       // Render and unmount components multiple times
       for (let i = 0; i < 50; i++) {
@@ -114,7 +120,9 @@ describe('Performance Tests', () => {
         global.gc();
       }
 
-      const finalMemory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize || 0;
+      const finalMemory =
+        (performance as unknown as { memory?: { usedJSHeapSize: number } })
+          .memory?.usedJSHeapSize || 0;
       const memoryIncrease = finalMemory - initialMemory;
 
       // Memory increase should be reasonable (less than 10MB)
@@ -321,7 +329,11 @@ describe('Performance Tests', () => {
       render(
         <MemoryRouter>
           <AuthProvider>
-            <div role="application" aria-label="Financial dashboard" tabIndex={0}>
+            <div
+              role="application"
+              aria-label="Financial dashboard"
+              tabIndex={0}
+            >
               <Dashboard />
             </div>
           </AuthProvider>

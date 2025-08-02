@@ -1,6 +1,6 @@
 /**
  * Dashboard Overview Component
- * 
+ *
  * Main dashboard view showing overview of all financial statements and key metrics
  */
 
@@ -10,23 +10,36 @@ import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  FileText, 
-  DollarSign, 
+import {
+  TrendingUp,
+  TrendingDown,
+  FileText,
+  DollarSign,
   Percent,
   AlertCircle,
   RefreshCw,
   Download,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { 
-  useDashboardOverview, 
-  useRefreshDashboard, 
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts';
+import {
+  useDashboardOverview,
+  useRefreshDashboard,
   useExportDashboard,
-  useUserStatements 
+  useUserStatements,
 } from '../hooks/useDashboard';
 import { PeriodFilter } from '../services/dashboardApi';
 
@@ -35,11 +48,16 @@ interface DashboardOverviewProps {
   onStatementSelect?: (statementId: string) => void;
 }
 
-export function DashboardOverview({ 
+export function DashboardOverview({
   period = PeriodFilter.YTD,
-  onStatementSelect 
+  onStatementSelect,
 }: DashboardOverviewProps) {
-  const { data: overview, isLoading, error, refetch } = useDashboardOverview(period);
+  const {
+    data: overview,
+    isLoading,
+    error,
+    refetch,
+  } = useDashboardOverview(period);
   const { data: statements } = useUserStatements();
   const refreshMutation = useRefreshDashboard();
   const exportMutation = useExportDashboard();
@@ -53,7 +71,7 @@ export function DashboardOverview({
   const handleExport = () => {
     exportMutation.mutate({
       format: 'excel',
-      period: selectedPeriod
+      period: selectedPeriod,
     });
   };
 
@@ -69,7 +87,7 @@ export function DashboardOverview({
       style: 'currency',
       currency: 'USD',
       notation: 'compact',
-      maximumFractionDigits: 1
+      maximumFractionDigits: 1,
     }).format(value);
   };
 
@@ -103,7 +121,7 @@ export function DashboardOverview({
             <Skeleton className="h-9 w-24" />
           </div>
         </div>
-        
+
         {/* Key Metrics Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -150,7 +168,8 @@ export function DashboardOverview({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load dashboard data. Please try refreshing or contact support if the problem persists.
+            Failed to load dashboard data. Please try refreshing or contact
+            support if the problem persists.
           </AlertDescription>
         </Alert>
       </div>
@@ -167,7 +186,8 @@ export function DashboardOverview({
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No financial data available. Upload financial statements to get started with your dashboard.
+            No financial data available. Upload financial statements to get
+            started with your dashboard.
           </AlertDescription>
         </Alert>
       </div>
@@ -181,22 +201,25 @@ export function DashboardOverview({
         <div>
           <h1 className="text-3xl font-bold">Dashboard Overview</h1>
           <p className="text-muted-foreground">
-            {overview.period_info.description} • Last updated: {new Date(overview.last_updated).toLocaleString()}
+            {overview.period_info.description} • Last updated:{' '}
+            {new Date(overview.last_updated).toLocaleString()}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={handleRefresh} 
-            variant="outline" 
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
             size="sm"
             disabled={refreshMutation.isPending}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshMutation.isPending ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshMutation.isPending ? 'animate-spin' : ''}`}
+            />
             Refresh
           </Button>
-          <Button 
-            onClick={handleExport} 
-            variant="outline" 
+          <Button
+            onClick={handleExport}
+            variant="outline"
             size="sm"
             disabled={exportMutation.isPending}
           >
@@ -217,14 +240,20 @@ export function DashboardOverview({
             <div className="text-2xl font-bold">
               {formatCurrency(overview.key_metrics.revenue?.current || 0)}
             </div>
-            <div className={`flex items-center text-xs ${
-              (overview.key_metrics.revenue?.change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {(overview.key_metrics.revenue?.change_percent || 0) >= 0 ? 
-                <TrendingUp className="h-3 w-3 mr-1" /> : 
+            <div
+              className={`flex items-center text-xs ${
+                (overview.key_metrics.revenue?.change_percent || 0) >= 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              }`}
+            >
+              {(overview.key_metrics.revenue?.change_percent || 0) >= 0 ? (
+                <TrendingUp className="h-3 w-3 mr-1" />
+              ) : (
                 <TrendingDown className="h-3 w-3 mr-1" />
-              }
-              {formatPercent(overview.key_metrics.revenue?.change_percent || 0)} from last period
+              )}
+              {formatPercent(overview.key_metrics.revenue?.change_percent || 0)}{' '}
+              from last period
             </div>
           </CardContent>
         </Card>
@@ -238,14 +267,22 @@ export function DashboardOverview({
             <div className="text-2xl font-bold">
               {formatCurrency(overview.key_metrics.net_income?.current || 0)}
             </div>
-            <div className={`flex items-center text-xs ${
-              (overview.key_metrics.net_income?.change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {(overview.key_metrics.net_income?.change_percent || 0) >= 0 ? 
-                <TrendingUp className="h-3 w-3 mr-1" /> : 
+            <div
+              className={`flex items-center text-xs ${
+                (overview.key_metrics.net_income?.change_percent || 0) >= 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              }`}
+            >
+              {(overview.key_metrics.net_income?.change_percent || 0) >= 0 ? (
+                <TrendingUp className="h-3 w-3 mr-1" />
+              ) : (
                 <TrendingDown className="h-3 w-3 mr-1" />
-              }
-              {formatPercent(overview.key_metrics.net_income?.change_percent || 0)} from last period
+              )}
+              {formatPercent(
+                overview.key_metrics.net_income?.change_percent || 0
+              )}{' '}
+              from last period
             </div>
           </CardContent>
         </Card>
@@ -259,14 +296,22 @@ export function DashboardOverview({
             <div className="text-2xl font-bold">
               {formatPercent(overview.key_metrics.gross_margin?.current || 0)}
             </div>
-            <div className={`flex items-center text-xs ${
-              (overview.key_metrics.gross_margin?.change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {(overview.key_metrics.gross_margin?.change_percent || 0) >= 0 ? 
-                <TrendingUp className="h-3 w-3 mr-1" /> : 
+            <div
+              className={`flex items-center text-xs ${
+                (overview.key_metrics.gross_margin?.change_percent || 0) >= 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              }`}
+            >
+              {(overview.key_metrics.gross_margin?.change_percent || 0) >= 0 ? (
+                <TrendingUp className="h-3 w-3 mr-1" />
+              ) : (
                 <TrendingDown className="h-3 w-3 mr-1" />
-              }
-              {formatPercent(overview.key_metrics.gross_margin?.change_percent || 0)} from last period
+              )}
+              {formatPercent(
+                overview.key_metrics.gross_margin?.change_percent || 0
+              )}{' '}
+              from last period
             </div>
           </CardContent>
         </Card>
@@ -280,14 +325,23 @@ export function DashboardOverview({
             <div className="text-2xl font-bold">
               {(overview.key_metrics.current_ratio?.current || 0).toFixed(2)}
             </div>
-            <div className={`flex items-center text-xs ${
-              (overview.key_metrics.current_ratio?.change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {(overview.key_metrics.current_ratio?.change_percent || 0) >= 0 ? 
-                <TrendingUp className="h-3 w-3 mr-1" /> : 
+            <div
+              className={`flex items-center text-xs ${
+                (overview.key_metrics.current_ratio?.change_percent || 0) >= 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              }`}
+            >
+              {(overview.key_metrics.current_ratio?.change_percent || 0) >=
+              0 ? (
+                <TrendingUp className="h-3 w-3 mr-1" />
+              ) : (
                 <TrendingDown className="h-3 w-3 mr-1" />
-              }
-              {formatPercent(overview.key_metrics.current_ratio?.change_percent || 0)} from last period
+              )}
+              {formatPercent(
+                overview.key_metrics.current_ratio?.change_percent || 0
+              )}{' '}
+              from last period
             </div>
           </CardContent>
         </Card>
@@ -304,29 +358,32 @@ export function DashboardOverview({
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={overview.chart_data.revenue_trend}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  className="text-xs" 
+                <XAxis
+                  dataKey="name"
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  className="text-xs" 
+                <YAxis
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={value => formatCurrency(value)}
                 />
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), 'Revenue']}
+                <Tooltip
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    'Revenue',
+                  ]}
                   labelClassName="text-foreground"
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="var(--chart-1)" 
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--chart-1)"
                   strokeWidth={2}
                   dot={{ fill: 'var(--chart-1)', strokeWidth: 2, r: 4 }}
                 />
@@ -350,21 +407,26 @@ export function DashboardOverview({
                   outerRadius={80}
                   fill="var(--chart-1)"
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {overview.chart_data.expense_breakdown.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.color || `var(--chart-${(index % 5) + 1})`} 
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color || `var(--chart-${(index % 5) + 1})`}
                     />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), 'Amount']}
+                <Tooltip
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    'Amount',
+                  ]}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
               </PieChart>
@@ -381,27 +443,27 @@ export function DashboardOverview({
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={overview.chart_data.profit_margins}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  className="text-xs" 
+                <XAxis
+                  dataKey="name"
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  className="text-xs" 
+                <YAxis
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `${value}%`}
+                  tickFormatter={value => `${value}%`}
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: number) => [`${value}%`, 'Margin']}
                   labelClassName="text-foreground"
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
-                <Bar 
-                  dataKey="value" 
+                <Bar
+                  dataKey="value"
                   fill="var(--chart-3)"
                   radius={[4, 4, 0, 0]}
                 />
@@ -417,10 +479,10 @@ export function DashboardOverview({
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {overview.statements.map((statement) => {
+              {overview.statements.map(statement => {
                 const badgeInfo = getStatementTypeBadge(statement.type);
                 return (
-                  <div 
+                  <div
                     key={statement.id}
                     className="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-muted/50"
                     onClick={() => handleStatementClick(statement.id)}
@@ -440,7 +502,8 @@ export function DashboardOverview({
                       </Badge>
                       <div className="text-right">
                         <p className="text-sm font-medium">
-                          Score: {(statement.data_quality_score * 100).toFixed(0)}%
+                          Score:{' '}
+                          {(statement.data_quality_score * 100).toFixed(0)}%
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {statement.line_items_count} items
@@ -467,11 +530,13 @@ export function DashboardOverview({
           <div className="flex items-center gap-4">
             <div className="flex-1">
               <div className="w-full bg-muted rounded-full h-2">
-                <div 
+                <div
                   className={`h-2 rounded-full transition-all duration-300 ${
-                                      overview.data_quality_score >= 0.8 ? 'bg-green-700' :
-                  overview.data_quality_score >= 0.6 ? 'bg-amber-600' :
-                  'bg-red-700'
+                    overview.data_quality_score >= 0.8
+                      ? 'bg-green-700'
+                      : overview.data_quality_score >= 0.6
+                        ? 'bg-amber-600'
+                        : 'bg-red-700'
                   }`}
                   style={{ width: `${overview.data_quality_score * 100}%` }}
                 />
@@ -482,7 +547,8 @@ export function DashboardOverview({
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            Overall data quality based on completeness, consistency, and accuracy of financial data.
+            Overall data quality based on completeness, consistency, and
+            accuracy of financial data.
           </p>
         </CardContent>
       </Card>

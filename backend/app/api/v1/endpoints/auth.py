@@ -21,6 +21,7 @@ from app.schemas.user import (
     PasswordChange,
     EmailVerification,
 )
+from app.schemas.mfa import AuthenticationFlowResponse
 from app.services.auth_service import AuthService
 from app.core.security import (
     create_access_token,

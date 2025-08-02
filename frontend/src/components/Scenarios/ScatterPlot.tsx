@@ -20,13 +20,13 @@ interface ScatterPlotProps {
 
 export const ScatterPlot: React.FC<ScatterPlotProps> = ({
   data,
-  xLabel = "X Values",
-  yLabel = "Y Values", 
-  title = "Scatter Plot",
+  xLabel = 'X Values',
+  yLabel = 'Y Values',
+  title = 'Scatter Plot',
   correlation,
-  className = "",
+  className = '',
   width = 400,
-  height = 300
+  height = 300,
 }) => {
   if (!data || data.length === 0) {
     return (
@@ -46,23 +46,23 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
   // Calculate data bounds
   const xValues = data.map(d => d.x);
   const yValues = data.map(d => d.y);
-  
+
   const xMin = Math.min(...xValues);
   const xMax = Math.max(...xValues);
   const yMin = Math.min(...yValues);
   const yMax = Math.max(...yValues);
-  
+
   // Add padding
   const xRange = xMax - xMin;
   const yRange = yMax - yMin;
   const xPadding = xRange * 0.1;
   const yPadding = yRange * 0.1;
-  
+
   const plotXMin = xMin - xPadding;
   const plotXMax = xMax + xPadding;
   const plotYMin = yMin - yPadding;
   const plotYMax = yMax + yPadding;
-  
+
   const plotXRange = plotXMax - plotXMin;
   const plotYRange = plotYMax - plotYMin;
 
@@ -73,7 +73,8 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
 
   // Scale functions
   const scaleX = (x: number) => ((x - plotXMin) / plotXRange) * chartWidth;
-  const scaleY = (y: number) => chartHeight - ((y - plotYMin) / plotYRange) * chartHeight;
+  const scaleY = (y: number) =>
+    chartHeight - ((y - plotYMin) / plotYRange) * chartHeight;
 
   const formatValue = (value: number): string => {
     if (Math.abs(value) >= 1000000) {
@@ -106,27 +107,27 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
   // Generate trend line if correlation exists
   const getTrendLine = () => {
     if (!correlation || Math.abs(correlation) < 0.1) return null;
-    
+
     // Calculate simple linear regression
     const n = data.length;
     const sumX = xValues.reduce((a, b) => a + b, 0);
     const sumY = yValues.reduce((a, b) => a + b, 0);
     const sumXY = data.reduce((sum, point) => sum + point.x * point.y, 0);
     const sumXX = xValues.reduce((sum, x) => sum + x * x, 0);
-    
+
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
-    
+
     const trendStartX = plotXMin;
     const trendEndX = plotXMax;
     const trendStartY = slope * trendStartX + intercept;
     const trendEndY = slope * trendEndX + intercept;
-    
+
     return {
       x1: scaleX(trendStartX),
       y1: scaleY(trendStartY),
       x2: scaleX(trendEndX),
-      y2: scaleY(trendEndY)
+      y2: scaleY(trendEndY),
     };
   };
 
@@ -138,11 +139,12 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg">{title}</CardTitle>
           <div className="flex space-x-2">
-            <Badge variant="secondary">
-              {data.length} points
-            </Badge>
+            <Badge variant="secondary">{data.length} points</Badge>
             {correlation !== undefined && (
-              <Badge variant="outline" className={getCorrelationColor(correlation)}>
+              <Badge
+                variant="outline"
+                className={getCorrelationColor(correlation)}
+              >
                 r = {correlation.toFixed(3)}
               </Badge>
             )}
@@ -157,7 +159,8 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
               <div className="text-sm">
                 <span className="font-medium">Correlation:</span>{' '}
                 <span className={getCorrelationColor(correlation)}>
-                  {getCorrelationStrength(correlation)} ({correlation >= 0 ? 'Positive' : 'Negative'})
+                  {getCorrelationStrength(correlation)} (
+                  {correlation >= 0 ? 'Positive' : 'Negative'})
                 </span>
               </div>
             </div>
@@ -168,19 +171,50 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
             <svg width={width} height={height} className="border rounded">
               {/* Grid lines */}
               <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e5e7eb" strokeWidth="1" opacity="0.5"/>
+                <pattern
+                  id="grid"
+                  width="40"
+                  height="40"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 40 0 L 0 0 0 40"
+                    fill="none"
+                    stroke="var(--border)"
+                    strokeWidth="1"
+                    opacity="0.5"
+                  />
                 </pattern>
               </defs>
-              <rect width={chartWidth} height={chartHeight} x={margin.left} y={margin.top} fill="url(#grid)" />
+              <rect
+                width={chartWidth}
+                height={chartHeight}
+                x={margin.left}
+                y={margin.top}
+                fill="url(#grid)"
+              />
 
               {/* Axes */}
               <g transform={`translate(${margin.left}, ${margin.top})`}>
                 {/* X-axis */}
-                <line x1={0} y1={chartHeight} x2={chartWidth} y2={chartHeight} stroke="#374151" strokeWidth={2} />
-                
+                <line
+                  x1={0}
+                  y1={chartHeight}
+                  x2={chartWidth}
+                  y2={chartHeight}
+                  stroke="var(--foreground)"
+                  strokeWidth={2}
+                />
+
                 {/* Y-axis */}
-                <line x1={0} y1={0} x2={0} y2={chartHeight} stroke="#374151" strokeWidth={2} />
+                <line
+                  x1={0}
+                  y1={0}
+                  x2={0}
+                  y2={chartHeight}
+                  stroke="var(--foreground)"
+                  strokeWidth={2}
+                />
 
                 {/* X-axis ticks and labels */}
                 {[0, 0.25, 0.5, 0.75, 1].map(fraction => {
@@ -188,8 +222,21 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                   const value = plotXMin + fraction * plotXRange;
                   return (
                     <g key={fraction}>
-                      <line x1={x} y1={chartHeight} x2={x} y2={chartHeight + 5} stroke="#374151" strokeWidth={1} />
-                      <text x={x} y={chartHeight + 20} textAnchor="middle" fontSize="12" fill="#6b7280">
+                      <line
+                        x1={x}
+                        y1={chartHeight}
+                        x2={x}
+                        y2={chartHeight + 5}
+                        stroke="var(--foreground)"
+                        strokeWidth={1}
+                      />
+                      <text
+                        x={x}
+                        y={chartHeight + 20}
+                        textAnchor="middle"
+                        fontSize="12"
+                        fill="var(--muted-foreground)"
+                      >
                         {formatValue(value)}
                       </text>
                     </g>
@@ -202,8 +249,21 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                   const value = plotYMin + fraction * plotYRange;
                   return (
                     <g key={fraction}>
-                      <line x1={0} y1={y} x2={-5} y2={y} stroke="#374151" strokeWidth={1} />
-                      <text x={-10} y={y + 4} textAnchor="end" fontSize="12" fill="#6b7280">
+                      <line
+                        x1={0}
+                        y1={y}
+                        x2={-5}
+                        y2={y}
+                        stroke="var(--foreground)"
+                        strokeWidth={1}
+                      />
+                      <text
+                        x={-10}
+                        y={y + 4}
+                        textAnchor="end"
+                        fontSize="12"
+                        fill="var(--muted-foreground)"
+                      >
                         {formatValue(value)}
                       </text>
                     </g>
@@ -217,7 +277,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                     y1={trendLine.y1}
                     x2={trendLine.x2}
                     y2={trendLine.y2}
-                    stroke="#ef4444"
+                    stroke="var(--destructive)"
                     strokeWidth={2}
                     strokeDasharray="5,5"
                     opacity={0.7}
@@ -231,9 +291,9 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                     cx={scaleX(point.x)}
                     cy={scaleY(point.y)}
                     r={3}
-                    fill="#3b82f6"
+                    fill="var(--chart-1)"
                     fillOpacity={0.7}
-                    stroke="#1d4ed8"
+                    stroke="var(--chart-2)"
                     strokeWidth={1}
                     className="hover:r-4 hover:fill-opacity-100 transition-all cursor-pointer"
                   >
@@ -248,7 +308,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                 y={height - 5}
                 textAnchor="middle"
                 fontSize="14"
-                fill="#374151"
+                fill="var(--foreground)"
                 fontWeight="500"
               >
                 {xLabel}
@@ -258,7 +318,7 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
                 y={height / 2}
                 textAnchor="middle"
                 fontSize="14"
-                fill="#374151"
+                fill="var(--foreground)"
                 fontWeight="500"
                 transform={`rotate(-90 15 ${height / 2})`}
               >
@@ -270,12 +330,20 @@ export const ScatterPlot: React.FC<ScatterPlotProps> = ({
           {/* Summary statistics */}
           <div className="grid grid-cols-2 gap-4 pt-4 border-t text-sm">
             <div>
-              <div className="font-medium text-muted-foreground">{xLabel} Range</div>
-              <div>{formatValue(xMin)} - {formatValue(xMax)}</div>
+              <div className="font-medium text-muted-foreground">
+                {xLabel} Range
+              </div>
+              <div>
+                {formatValue(xMin)} - {formatValue(xMax)}
+              </div>
             </div>
             <div>
-              <div className="font-medium text-muted-foreground">{yLabel} Range</div>
-              <div>{formatValue(yMin)} - {formatValue(yMax)}</div>
+              <div className="font-medium text-muted-foreground">
+                {yLabel} Range
+              </div>
+              <div>
+                {formatValue(yMin)} - {formatValue(yMax)}
+              </div>
             </div>
           </div>
         </div>

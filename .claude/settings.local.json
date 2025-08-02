@@ -54,7 +54,11 @@
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\e55cf976aaaa_add_monte_carlo_simulation_tables.py\")",
       "Bash(timeout 30 npm test -- dashboard-integration.test.tsx --run)",
       "Bash(mkdir:*)",
-      "Bash(timeout 30 npm run build)"
+      "Bash(timeout 30 npm run build)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m alembic revision -m \"add_enhanced_authentication_features\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\951cd05e0ae0_add_enhanced_authentication_features.py\")",
+      "Bash(set TEST_DATABASE_URL=sqlite:///./test.db)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.core.config import settings; print(''TEST_DB:'', settings.TEST_DATABASE_URL)\")"
     ],
     "deny": []
   }

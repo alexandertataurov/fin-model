@@ -157,11 +157,9 @@ export const ExpenseBreakdown: Story = {
         data={categoryData}
         title="Expense Breakdown"
         subtitle="Operating expenses by category"
-
         currency="USD"
         showPercentages={true}
         showLegend={true}
-
       />
     </div>
   ),
@@ -435,10 +433,8 @@ export const ExtendedColorPalette: Story = {
           data={extendedData}
           title="Extended Color Palette"
           subtitle="Showcasing the full range of chart colors"
-
           showPercentages={true}
           showLegend={true}
-
         />
       </div>
     );
@@ -462,13 +458,13 @@ export const HighContrastChart: Story = {
           {
             dataKey: 'revenue',
             name: 'Revenue',
-            color: '#ffffff',
+            color: 'var(--background)',
             strokeWidth: 3,
           },
           {
             dataKey: 'profit',
             name: 'Profit',
-            color: '#fbbf24',
+            color: 'var(--warning)',
             strokeWidth: 2,
           },
         ]}
