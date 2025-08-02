@@ -20,116 +20,44 @@ def upgrade():
     # Advanced indexes for users table
     conn = op.get_bind()
 
-    if not conn.execute(text("SELECT to_regclass('ix_users_last_login')")).scalar():
-        op.create_index("ix_users_last_login", "users", ["last_login"], unique=False)
+    # Helper function to safely create indexes
+    def safe_create_index(index_name, table_name, columns, unique=False, expression=None):
+        try:
+            if not conn.execute(text(f"SELECT to_regclass('{index_name}')")).scalar():
+                if expression:
+                    conn.execute(text(f"CREATE INDEX {index_name} ON {table_name} {expression}"))
+                else:
+                    op.create_index(index_name, table_name, columns, unique=unique)
+        except Exception as e:
+            print(f"⚠️ Skipping index {index_name}: {e}")
 
-    if not conn.execute(text("SELECT to_regclass('ix_users_created_date')")).scalar():
-        op.execute("CREATE INDEX ix_users_created_date ON users (DATE(created_at))")
-
-    op.create_index(
-        "ix_users_active_verified", "users", ["is_active", "is_verified"], unique=False
-    )
+    safe_create_index("ix_users_last_login", "users", ["last_login"])
+    safe_create_index("ix_users_created_date", "users", None, expression="(DATE(created_at))")
+    safe_create_index("ix_users_active_verified", "users", ["is_active", "is_verified"])
 
     # Advanced indexes for uploaded_files table
-    op.create_index(
-        "ix_files_status_created",
-        "uploaded_files",
-        ["status", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_files_size_type", "uploaded_files", ["file_size", "file_type"], unique=False
-    )
-    op.create_index(
-        "ix_files_processing_times",
-        "uploaded_files",
-        ["processing_started_at", "processing_completed_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_files_user_status",
-        "uploaded_files",
-        ["uploaded_by_id", "status"],
-        unique=False,
-    )
+    safe_create_index("ix_files_status_created", "uploaded_files", ["status", "created_at"])
+    safe_create_index("ix_files_size_type", "uploaded_files", ["file_size", "file_type"])
+    safe_create_index("ix_files_processing_times", "uploaded_files", ["processing_started_at", "processing_completed_at"])
+    safe_create_index("ix_files_user_status", "uploaded_files", ["uploaded_by_id", "status"])
 
     # Advanced indexes for parameters table
-    op.create_index(
-        "ix_parameters_type_category",
-        "parameters",
-        ["parameter_type", "category"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_parameters_sensitivity_editable",
-        "parameters",
-        ["sensitivity_level", "is_editable"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_parameters_file_sheet",
-        "parameters",
-        ["source_file_id", "source_sheet"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_parameters_updated_recently",
-        "parameters",
-        [sa.text("updated_at DESC")],
-        unique=False,
-    )
+    safe_create_index("ix_parameters_type_category", "parameters", ["parameter_type", "category"])
+    safe_create_index("ix_parameters_sensitivity_editable", "parameters", ["sensitivity_level", "is_editable"])
+    safe_create_index("ix_parameters_file_sheet", "parameters", ["source_file_id", "source_sheet"])
+    safe_create_index("ix_parameters_updated_recently", "parameters", None, expression="(updated_at DESC)")
 
     # Advanced indexes for scenarios table
-    op.create_index(
-        "ix_scenarios_status_baseline",
-        "scenarios",
-        ["status", "is_baseline"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_scenarios_file_created",
-        "scenarios",
-        ["base_file_id", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_scenarios_calculation_status",
-        "scenarios",
-        ["calculation_status", "last_calculated_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_scenarios_user_active",
-        "scenarios",
-        ["created_by_id", "status"],
-        unique=False,
-    )
+    safe_create_index("ix_scenarios_status_baseline", "scenarios", ["status", "is_baseline"])
+    safe_create_index("ix_scenarios_file_created", "scenarios", ["base_file_id", "created_at"])
+    safe_create_index("ix_scenarios_calculation_status", "scenarios", ["calculation_status", "last_calculated_at"])
+    safe_create_index("ix_scenarios_user_active", "scenarios", ["created_by_id", "status"])
 
     # Advanced indexes for financial_statements table
-    op.create_index(
-        "ix_statements_period_range",
-        "financial_statements",
-        ["period_start", "period_end", "statement_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_statements_scenario_type",
-        "financial_statements",
-        ["scenario_id", "statement_type", "period_start"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_statements_currency_period",
-        "financial_statements",
-        ["currency", "period_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_statements_baseline_version",
-        "financial_statements",
-        ["is_baseline", "version"],
-        unique=False,
-    )
+    safe_create_index("ix_statements_period_range", "financial_statements", ["period_start", "period_end", "statement_type"])
+    safe_create_index("ix_statements_scenario_type", "financial_statements", ["scenario_id", "statement_type", "period_start"])
+    safe_create_index("ix_statements_currency_period", "financial_statements", ["currency", "period_type"])
+    safe_create_index("ix_statements_baseline_version", "financial_statements", ["is_baseline", "version"])
 
     # Advanced indexes for metrics table
     op.create_index(

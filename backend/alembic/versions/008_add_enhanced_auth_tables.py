@@ -7,6 +7,7 @@ Create Date: 2025-01-01 12:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -71,13 +72,20 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("key"),
     )
-    op.create_index(op.f("ix_rate_limits_key"), "rate_limits", ["key"], unique=False)
-    op.create_index(
-        op.f("ix_rate_limits_window_start"),
-        "rate_limits",
-        ["window_start"],
-        unique=False,
-    )
+    # Safely create indexes with existence check
+    conn = op.get_bind()
+    
+    try:
+        if not conn.execute(text("SELECT to_regclass('ix_rate_limits_key')")).scalar():
+            op.create_index(op.f("ix_rate_limits_key"), "rate_limits", ["key"], unique=False)
+    except Exception as e:
+        print(f"⚠️ Skipping ix_rate_limits_key: {e}")
+        
+    try:
+        if not conn.execute(text("SELECT to_regclass('ix_rate_limits_window_start')")).scalar():
+            op.create_index(op.f("ix_rate_limits_window_start"), "rate_limits", ["window_start"], unique=False)
+    except Exception as e:
+        print(f"⚠️ Skipping ix_rate_limits_window_start: {e}")
 
 
 def downgrade() -> None:
