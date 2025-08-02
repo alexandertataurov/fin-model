@@ -1,3 +1,15 @@
+from fastapi import Body
+@router.post("/batch_update", response_model=List[ParameterResponse])
+async def batch_update_parameters(
+    updates: List[ParameterValueUpdate] = Body(...),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    service = ParameterService(db)
+    results = service.batch_update_parameters(updates, current_user)
+    if not results:
+        raise HTTPException(status_code=400, detail="Batch update failed")
+    return results
 from typing import Any, List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 import math
@@ -28,6 +40,8 @@ from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
 from app.services.parameter_detector import ParameterDetector
+from app.services.parameter_service import ParameterService
+from app.services.recalculation_engine import IncrementalCalculator
 
 router = APIRouter()
 
@@ -692,3 +706,332 @@ async def _validate_parameter_value(
         validation_errors=errors,
         validation_warnings=warnings,
     )
+
+
+# NEW Task 04 Enhanced Endpoints
+
+@router.put("/{parameter_id}/value", response_model=Dict[str, Any])
+async def update_parameter_value(
+    parameter_id: int,
+    value: float = Body(..., description="New parameter value"),
+    reason: str = Body(None, description="Reason for change"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Update parameter value and trigger real-time recalculation.
+    
+    Updates parameter value, records change history, and recalculates affected model cells.
+    """
+    try:
+        service = ParameterService(db)
+        result = service.update_parameter_value(parameter_id, value, current_user.id, reason)
+        
+        return {
+            "success": result.success,
+            "parameter_id": parameter_id,
+            "new_value": value,
+            "affected_cells": result.affected_cells,
+            "calculation_time": result.calculation_time,
+            "error": result.error
+        }
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update parameter value: {str(e)}"
+        )
+
+
+@router.post("/models/{model_id}/parameters/batch", response_model=Dict[str, Any])
+async def batch_update_parameter_values(
+    model_id: str,
+    updates: List[Dict[str, Any]] = Body(..., description="List of parameter updates"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Batch update multiple parameter values with intelligent recalculation.
+    
+    Updates multiple parameters efficiently and recalculates affected cells once.
+    """
+    try:
+        service = ParameterService(db)
+        result = service.batch_update_parameters(updates, current_user.id)
+        
+        return {
+            "success": result.success,
+            "model_id": model_id,
+            "affected_cells": result.affected_cells,
+            "calculation_time": result.calculation_time,
+            "updated_values": result.updated_values,
+            "error": result.error
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to batch update parameters: {str(e)}"
+        )
+
+
+@router.post("/models/{model_id}/recalculate", response_model=Dict[str, Any])
+async def trigger_model_recalculation(
+    model_id: str,
+    changed_params: Dict[str, float] = Body(..., description="Changed parameter values"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Trigger full model recalculation with changed parameters.
+    
+    Forces recalculation of the entire model with new parameter values.
+    """
+    try:
+        service = ParameterService(db)
+        result = service.recalculate_model(model_id, changed_params)
+        
+        return {
+            "success": result.success,
+            "model_id": model_id,
+            "affected_cells": result.affected_cells,
+            "calculation_time": result.calculation_time,
+            "updated_values": result.updated_values,
+            "error": result.error
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to recalculate model: {str(e)}"
+        )
+
+
+@router.get("/models/{model_id}/calculation-status", response_model=Dict[str, Any])
+async def get_calculation_status(
+    model_id: str,
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Get current calculation status for a model.
+    
+    Returns status of ongoing or recent calculations.
+    """
+    # This would typically check a cache or calculation queue
+    # For now, return a simple status
+    return {
+        "model_id": model_id,
+        "status": "idle",  # idle, calculating, completed, error
+        "last_calculation": None,
+        "calculation_time": None,
+        "affected_cells": 0
+    }
+
+
+@router.post("/{parameter_id}/impact", response_model=Dict[str, Any])
+async def calculate_parameter_impact(
+    parameter_id: int,
+    value_range: Dict[str, float] = Body(..., description="Min and max values for analysis"),
+    steps: int = Body(10, description="Number of analysis steps"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Calculate impact analysis for parameter across value range.
+    
+    Performs sensitivity analysis showing how parameter changes affect model outputs.
+    """
+    try:
+        # Get parameter and model info
+        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        if not parameter:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Parameter {parameter_id} not found"
+            )
+        
+        # Get model file
+        model = db.query(UploadedFile).filter(UploadedFile.id == parameter.source_file_id).first()
+        if not model:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Model file not found"
+            )
+        
+        # Perform impact analysis
+        calculator = IncrementalCalculator()
+        result = calculator.calculate_impact_analysis(
+            model.id, 
+            model.file_path, 
+            str(parameter_id),
+            (value_range['min'], value_range['max']),
+            steps
+        )
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate parameter impact: {str(e)}"
+        )
+
+
+@router.post("/models/{model_id}/reset-parameters", response_model=Dict[str, Any])
+async def reset_parameters_to_default(
+    model_id: str,
+    parameter_ids: List[str] = Body(..., description="List of parameter IDs to reset"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Reset specified parameters to their default values.
+    
+    Resets parameters and triggers recalculation of affected cells.
+    """
+    try:
+        service = ParameterService(db)
+        success = service.reset_parameters_to_default(model_id, parameter_ids, current_user.id)
+        
+        return {
+            "success": success,
+            "model_id": model_id,
+            "reset_count": len(parameter_ids),
+            "parameter_ids": parameter_ids
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to reset parameters: {str(e)}"
+        )
+
+
+# Parameter Groups Endpoints
+
+@router.get("/models/{model_id}/parameter-groups", response_model=List[Dict[str, Any]])
+async def list_parameter_groups(
+    model_id: str,
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    List parameter groups for a model.
+    
+    Returns organized parameter groups with their parameters.
+    """
+    try:
+        service = ParameterService(db)
+        result = service.get_model_parameters(model_id, grouped=True)
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list parameter groups: {str(e)}"
+        )
+
+
+@router.post("/models/{model_id}/parameter-groups", response_model=Dict[str, Any])
+async def create_parameter_group(
+    model_id: str,
+    name: str = Body(..., description="Group name"),
+    description: str = Body(None, description="Group description"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Create a new parameter group.
+    
+    Creates a logical grouping for organizing parameters.
+    """
+    try:
+        service = ParameterService(db)
+        group = service.create_parameter_group(model_id, name, description)
+        
+        return {
+            "id": group.id,
+            "name": group.name,
+            "description": group.description,
+            "model_id": model_id,
+            "display_order": group.display_order
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create parameter group: {str(e)}"
+        )
+
+
+@router.get("/parameter-templates", response_model=List[Dict[str, Any]])
+async def list_parameter_templates(
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+) -> Any:
+    """
+    List available parameter templates.
+    
+    Returns pre-built parameter configurations for common model types.
+    """
+    # Return sample templates - in production, these would be stored in database
+    templates = [
+        {
+            "id": "revenue_growth",
+            "name": "Revenue Growth Model",
+            "description": "Standard revenue growth parameters",
+            "parameters": [
+                {"name": "annual_growth_rate", "type": "growth_rate", "default": 0.05},
+                {"name": "market_size", "type": "currency", "default": 1000000},
+                {"name": "market_share", "type": "percentage", "default": 0.1}
+            ]
+        },
+        {
+            "id": "dcf_valuation",
+            "name": "DCF Valuation",
+            "description": "Discounted cash flow model parameters",
+            "parameters": [
+                {"name": "discount_rate", "type": "discount_rate", "default": 0.1},
+                {"name": "terminal_growth", "type": "growth_rate", "default": 0.03},
+                {"name": "tax_rate", "type": "tax_rate", "default": 0.25}
+            ]
+        }
+    ]
+    
+    return templates
+
+
+@router.post("/models/{model_id}/apply-template", response_model=Dict[str, Any])
+async def apply_parameter_template(
+    model_id: str,
+    template_id: str = Body(..., description="Template ID to apply"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Apply a parameter template to a model.
+    
+    Creates parameters based on a predefined template.
+    """
+    try:
+        # This would implement template application logic
+        # For now, return a placeholder response
+        return {
+            "success": True,
+            "model_id": model_id,
+            "template_id": template_id,
+            "created_parameters": 0,
+            "message": "Template application not yet implemented"
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to apply template: {str(e)}"
+        )
