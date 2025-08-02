@@ -20,13 +20,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
-import {
-  Box,
-  Typography,
-  Divider,
-  Link,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Typography, Divider, Link } from '@mui/material';
 
 const validationSchema = yup.object({
   email: yup

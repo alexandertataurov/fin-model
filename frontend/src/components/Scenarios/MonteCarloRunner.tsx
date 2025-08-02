@@ -1,25 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Play, 
-  Settings, 
-  TrendingUp, 
-  BarChart3, 
-  AlertCircle, 
+import {
+  Play,
+  Settings,
+  AlertCircle,
   CheckCircle,
   Plus,
   Trash2,
-  Clock
+  Clock,
 } from 'lucide-react';
 
 interface Parameter {
@@ -79,26 +89,29 @@ interface MonteCarloRunnerProps {
 export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
   scenarioId,
   parameters,
-  onClose
+  onClose,
 }) => {
-  const [parameterDistributions, setParameterDistributions] = useState<ParameterDistribution[]>([]);
+  const [parameterDistributions, setParameterDistributions] = useState<
+    ParameterDistribution[]
+  >([]);
   const [outputMetrics, setOutputMetrics] = useState<string[]>([]);
   const [newOutputMetric, setNewOutputMetric] = useState('');
   const [iterations, setIterations] = useState(10000);
   const [simulationName, setSimulationName] = useState('');
   const [randomSeed, setRandomSeed] = useState<number | undefined>();
-  
+
   const [simulationId, setSimulationId] = useState<string | null>(null);
-  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  const [simulationResult, setSimulationResult] =
+    useState<SimulationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
   const addParameterDistribution = () => {
-    const availableParams = parameters.filter(p => 
-      !parameterDistributions.some(pd => pd.parameter_id === p.id)
+    const availableParams = parameters.filter(
+      p => !parameterDistributions.some(pd => pd.parameter_id === p.id)
     );
-    
+
     if (availableParams.length === 0) return;
 
     const param = availableParams[0];
@@ -108,17 +121,20 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
       distribution: {
         type: 'normal',
         mean: param.current_value,
-        std_dev: Math.abs(param.current_value * 0.1) || 1
-      }
+        std_dev: Math.abs(param.current_value * 0.1) || 1,
+      },
     };
 
     setParameterDistributions(prev => [...prev, newDistribution]);
   };
 
-  const updateParameterDistribution = (index: number, updates: Partial<ParameterDistribution>) => {
-    setParameterDistributions(prev => prev.map((pd, i) => 
-      i === index ? { ...pd, ...updates } : pd
-    ));
+  const updateParameterDistribution = (
+    index: number,
+    updates: Partial<ParameterDistribution>
+  ) => {
+    setParameterDistributions(prev =>
+      prev.map((pd, i) => (i === index ? { ...pd, ...updates } : pd))
+    );
   };
 
   const removeParameterDistribution = (index: number) => {
@@ -151,18 +167,22 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
         iterations,
         distributions,
         output_metrics: outputMetrics,
-        name: simulationName || `Monte Carlo - ${new Date().toLocaleDateString()}`,
-        random_seed: randomSeed
+        name:
+          simulationName || `Monte Carlo - ${new Date().toLocaleDateString()}`,
+        random_seed: randomSeed,
       };
 
-      const response = await fetch(`/api/v1/scenarios/${scenarioId}/monte-carlo/setup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(config)
-      });
+      const response = await fetch(
+        `/api/v1/scenarios/${scenarioId}/monte-carlo/setup`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(config),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to setup simulation');
@@ -174,10 +194,12 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
         simulation_id: result.simulation_id,
         scenario_id: scenarioId,
         status: 'configured',
-        iterations
+        iterations,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to setup simulation');
+      setError(
+        err instanceof Error ? err.message : 'Failed to setup simulation'
+      );
     } finally {
       setLoading(false);
     }
@@ -192,16 +214,19 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
       setProgress(0);
 
       // Start simulation
-      const response = await fetch(`/api/v1/scenarios/${scenarioId}/monte-carlo/run`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          simulation_id: simulationId
-        })
-      });
+      const response = await fetch(
+        `/api/v1/scenarios/${scenarioId}/monte-carlo/run`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            simulation_id: simulationId,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to run simulation');
@@ -216,7 +241,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
       }, 500);
 
       const result = await response.json();
-      
+
       clearInterval(progressInterval);
       setProgress(100);
       setSimulationResult(result);
@@ -227,7 +252,10 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
     }
   };
 
-  const getDistributionFields = (distribution: Distribution, onChange: (updates: Partial<Distribution>) => void) => {
+  const getDistributionFields = (
+    distribution: Distribution,
+    onChange: (updates: Partial<Distribution>) => void
+  ) => {
     switch (distribution.type) {
       case 'normal':
         return (
@@ -237,7 +265,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.mean || 0}
-                onChange={(e) => onChange({ mean: Number(e.target.value) })}
+                onChange={e => onChange({ mean: Number(e.target.value) })}
               />
             </div>
             <div>
@@ -245,7 +273,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.std_dev || 0}
-                onChange={(e) => onChange({ std_dev: Number(e.target.value) })}
+                onChange={e => onChange({ std_dev: Number(e.target.value) })}
               />
             </div>
           </div>
@@ -259,7 +287,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.min || 0}
-                onChange={(e) => onChange({ min: Number(e.target.value) })}
+                onChange={e => onChange({ min: Number(e.target.value) })}
               />
             </div>
             <div>
@@ -267,7 +295,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.max || 0}
-                onChange={(e) => onChange({ max: Number(e.target.value) })}
+                onChange={e => onChange({ max: Number(e.target.value) })}
               />
             </div>
           </div>
@@ -281,7 +309,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.min || 0}
-                onChange={(e) => onChange({ min: Number(e.target.value) })}
+                onChange={e => onChange({ min: Number(e.target.value) })}
               />
             </div>
             <div>
@@ -289,7 +317,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.mode || 0}
-                onChange={(e) => onChange({ mode: Number(e.target.value) })}
+                onChange={e => onChange({ mode: Number(e.target.value) })}
               />
             </div>
             <div>
@@ -297,7 +325,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.max || 0}
-                onChange={(e) => onChange({ max: Number(e.target.value) })}
+                onChange={e => onChange({ max: Number(e.target.value) })}
               />
             </div>
           </div>
@@ -311,7 +339,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.mu || 0}
-                onChange={(e) => onChange({ mu: Number(e.target.value) })}
+                onChange={e => onChange({ mu: Number(e.target.value) })}
               />
             </div>
             <div>
@@ -319,7 +347,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <Input
                 type="number"
                 value={distribution.sigma || 0}
-                onChange={(e) => onChange({ sigma: Number(e.target.value) })}
+                onChange={e => onChange({ sigma: Number(e.target.value) })}
               />
             </div>
           </div>
@@ -366,7 +394,9 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
       <Tabs defaultValue="setup" className="w-full">
         <TabsList>
           <TabsTrigger value="setup">Setup</TabsTrigger>
-          <TabsTrigger value="results" disabled={!simulationResult}>Results</TabsTrigger>
+          <TabsTrigger value="results" disabled={!simulationResult}>
+            Results
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="setup" className="space-y-6">
@@ -385,7 +415,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                   <Input
                     id="name"
                     value={simulationName}
-                    onChange={(e) => setSimulationName(e.target.value)}
+                    onChange={e => setSimulationName(e.target.value)}
                     placeholder="e.g., Quarterly Forecast"
                   />
                 </div>
@@ -395,7 +425,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                     id="iterations"
                     type="number"
                     value={iterations}
-                    onChange={(e) => setIterations(Number(e.target.value))}
+                    onChange={e => setIterations(Number(e.target.value))}
                     min={1000}
                     max={100000}
                   />
@@ -406,7 +436,11 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                     id="seed"
                     type="number"
                     value={randomSeed || ''}
-                    onChange={(e) => setRandomSeed(e.target.value ? Number(e.target.value) : undefined)}
+                    onChange={e =>
+                      setRandomSeed(
+                        e.target.value ? Number(e.target.value) : undefined
+                      )
+                    }
                     placeholder="For reproducible results"
                   />
                 </div>
@@ -457,9 +491,12 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                             <Label>Distribution Type</Label>
                             <Select
                               value={pd.distribution.type}
-                              onValueChange={(value: any) => 
+                              onValueChange={(value: any) =>
                                 updateParameterDistribution(index, {
-                                  distribution: { ...pd.distribution, type: value }
+                                  distribution: {
+                                    ...pd.distribution,
+                                    type: value,
+                                  },
                                 })
                               }
                             >
@@ -469,15 +506,19 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                               <SelectContent>
                                 <SelectItem value="normal">Normal</SelectItem>
                                 <SelectItem value="uniform">Uniform</SelectItem>
-                                <SelectItem value="triangular">Triangular</SelectItem>
-                                <SelectItem value="lognormal">Log-Normal</SelectItem>
+                                <SelectItem value="triangular">
+                                  Triangular
+                                </SelectItem>
+                                <SelectItem value="lognormal">
+                                  Log-Normal
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
 
-                          {getDistributionFields(pd.distribution, (updates) =>
+                          {getDistributionFields(pd.distribution, updates =>
                             updateParameterDistribution(index, {
-                              distribution: { ...pd.distribution, ...updates }
+                              distribution: { ...pd.distribution, ...updates },
                             })
                           )}
                         </div>
@@ -509,7 +550,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               <div className="flex space-x-2">
                 <Input
                   value={newOutputMetric}
-                  onChange={(e) => setNewOutputMetric(e.target.value)}
+                  onChange={e => setNewOutputMetric(e.target.value)}
                   placeholder="e.g., Sheet1!D10, NPV, Revenue"
                 />
                 <Button onClick={addOutputMetric}>
@@ -519,7 +560,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {outputMetrics.map((metric) => (
+                {outputMetrics.map(metric => (
                   <Badge
                     key={metric}
                     variant="secondary"
@@ -534,7 +575,8 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
 
               {outputMetrics.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No output metrics defined. Add cell references or metric names to track.
+                  No output metrics defined. Add cell references or metric names
+                  to track.
                 </p>
               )}
             </CardContent>
@@ -547,16 +589,17 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                 {!simulationId ? (
                   <Button
                     onClick={setupSimulation}
-                    disabled={parameterDistributions.length === 0 || outputMetrics.length === 0 || loading}
+                    disabled={
+                      parameterDistributions.length === 0 ||
+                      outputMetrics.length === 0 ||
+                      loading
+                    }
                   >
                     <Settings className="h-4 w-4 mr-2" />
                     Setup Simulation
                   </Button>
                 ) : (
-                  <Button
-                    onClick={runSimulation}
-                    disabled={loading}
-                  >
+                  <Button onClick={runSimulation} disabled={loading}>
                     <Play className="h-4 w-4 mr-2" />
                     {loading ? 'Running...' : 'Run Simulation'}
                   </Button>
@@ -567,7 +610,9 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                 <div className="mt-4 space-y-2">
                   <Progress value={progress} className="w-full" />
                   <p className="text-sm text-center text-muted-foreground">
-                    {progress < 100 ? `Running simulation... ${Math.round(progress)}%` : 'Completing...'}
+                    {progress < 100
+                      ? `Running simulation... ${Math.round(progress)}%`
+                      : 'Completing...'}
                   </p>
                 </div>
               )}
@@ -592,7 +637,8 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                 <CardHeader>
                   <CardTitle>Simulation Summary</CardTitle>
                   <CardDescription>
-                    Results from {simulationResult.iterations.toLocaleString()} iterations
+                    Results from {simulationResult.iterations.toLocaleString()}{' '}
+                    iterations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -602,7 +648,9 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                         <div className="text-2xl font-bold">
                           {simulationResult.iterations.toLocaleString()}
                         </div>
-                        <div className="text-sm text-muted-foreground">Iterations</div>
+                        <div className="text-sm text-muted-foreground">
+                          Iterations
+                        </div>
                       </CardContent>
                     </Card>
                     <Card>
@@ -610,15 +658,22 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                         <div className="text-2xl font-bold">
                           {simulationResult.execution_time?.toFixed(2)}s
                         </div>
-                        <div className="text-sm text-muted-foreground">Execution Time</div>
+                        <div className="text-sm text-muted-foreground">
+                          Execution Time
+                        </div>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4 text-center">
                         <div className="text-2xl font-bold">
-                          {Object.keys(simulationResult.results_summary || {}).length}
+                          {
+                            Object.keys(simulationResult.results_summary || {})
+                              .length
+                          }
                         </div>
-                        <div className="text-sm text-muted-foreground">Output Metrics</div>
+                        <div className="text-sm text-muted-foreground">
+                          Output Metrics
+                        </div>
                       </CardContent>
                     </Card>
                     <Card>
@@ -626,7 +681,9 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                         <div className="text-2xl font-bold">
                           {parameterDistributions.length}
                         </div>
-                        <div className="text-sm text-muted-foreground">Variables</div>
+                        <div className="text-sm text-muted-foreground">
+                          Variables
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -642,41 +699,49 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                   <CardContent>
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-4">
-                        {Object.entries(simulationResult.results_summary).map(([metric, stats]) => (
-                          <Card key={metric}>
-                            <CardHeader>
-                              <CardTitle className="text-lg">{metric}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                <div>
-                                  <div className="font-medium">Mean</div>
-                                  <div className="text-muted-foreground">
-                                    {formatValue(stats.mean)}
+                        {Object.entries(simulationResult.results_summary).map(
+                          ([metric, stats]) => (
+                            <Card key={metric}>
+                              <CardHeader>
+                                <CardTitle className="text-lg">
+                                  {metric}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                  <div>
+                                    <div className="font-medium">Mean</div>
+                                    <div className="text-muted-foreground">
+                                      {formatValue(stats.mean)}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">Std Dev</div>
+                                    <div className="text-muted-foreground">
+                                      {formatValue(stats.std_dev)}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">
+                                      5th Percentile
+                                    </div>
+                                    <div className="text-muted-foreground">
+                                      {formatValue(stats.percentile_5)}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">
+                                      95th Percentile
+                                    </div>
+                                    <div className="text-muted-foreground">
+                                      {formatValue(stats.percentile_95)}
+                                    </div>
                                   </div>
                                 </div>
-                                <div>
-                                  <div className="font-medium">Std Dev</div>
-                                  <div className="text-muted-foreground">
-                                    {formatValue(stats.std_dev)}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="font-medium">5th Percentile</div>
-                                  <div className="text-muted-foreground">
-                                    {formatValue(stats.percentile_5)}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="font-medium">95th Percentile</div>
-                                  <div className="text-muted-foreground">
-                                    {formatValue(stats.percentile_95)}
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                              </CardContent>
+                            </Card>
+                          )
+                        )}
                       </div>
                     </ScrollArea>
                   </CardContent>
@@ -691,7 +756,8 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
                 <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-lg font-medium mb-2">Simulation Ready</h3>
                 <p className="text-muted-foreground mb-4">
-                  Configuration complete. Switch to the Setup tab to run the simulation.
+                  Configuration complete. Switch to the Setup tab to run the
+                  simulation.
                 </p>
               </CardContent>
             </Card>

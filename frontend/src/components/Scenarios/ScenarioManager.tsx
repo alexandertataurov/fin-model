@@ -1,28 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Copy, 
-  Edit, 
-  Trash2, 
-  Plus, 
-  Play, 
-  BarChart3, 
-  TrendingUp, 
-  Settings, 
-  FileText,
+import {
+  Copy,
+  Trash2,
+  Plus,
+  Play,
   AlertCircle,
   CheckCircle,
-  Clock
+  Clock,
 } from 'lucide-react';
 
 interface Scenario {
@@ -47,10 +63,12 @@ interface ScenarioManagerProps {
 
 export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
   baseFileId,
-  onScenarioSelect
+  onScenarioSelect,
 }) => {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -62,12 +80,12 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
     name: '',
     description: '',
     scenario_type: 'custom' as const,
-    is_baseline: false
+    is_baseline: false,
   });
 
   const [cloneScenario, setCloneScenario] = useState({
     name: '',
-    description: ''
+    description: '',
   });
 
   useEffect(() => {
@@ -77,11 +95,14 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
   const fetchScenarios = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/scenarios/?base_file_id=${baseFileId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await fetch(
+        `/api/v1/scenarios/?base_file_id=${baseFileId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch scenarios');
@@ -103,12 +124,12 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           ...newScenario,
-          base_file_id: baseFileId
-        })
+          base_file_id: baseFileId,
+        }),
       });
 
       if (!response.ok) {
@@ -122,10 +143,12 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         name: '',
         description: '',
         scenario_type: 'custom',
-        is_baseline: false
+        is_baseline: false,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create scenario');
+      setError(
+        err instanceof Error ? err.message : 'Failed to create scenario'
+      );
     }
   };
 
@@ -133,17 +156,20 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
     if (!scenarioToClone) return;
 
     try {
-      const response = await fetch(`/api/v1/scenarios/${scenarioToClone.id}/clone`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          name: cloneScenario.name,
-          description: cloneScenario.description
-        })
-      });
+      const response = await fetch(
+        `/api/v1/scenarios/${scenarioToClone.id}/clone`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            name: cloneScenario.name,
+            description: cloneScenario.description,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to clone scenario');
@@ -168,8 +194,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
       const response = await fetch(`/api/v1/scenarios/${scenarioId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
 
       if (!response.ok) {
@@ -181,40 +207,47 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         setSelectedScenario(null);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete scenario');
+      setError(
+        err instanceof Error ? err.message : 'Failed to delete scenario'
+      );
     }
   };
 
   const calculateScenario = async (scenarioId: number) => {
     try {
-      const response = await fetch(`/api/v1/scenarios/${scenarioId}/calculate`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await fetch(
+        `/api/v1/scenarios/${scenarioId}/calculate`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to calculate scenario');
       }
 
       // Update scenario status
-      setScenarios(prev => prev.map(s => 
-        s.id === scenarioId 
-          ? { ...s, calculation_status: 'calculating' }
-          : s
-      ));
+      setScenarios(prev =>
+        prev.map(s =>
+          s.id === scenarioId ? { ...s, calculation_status: 'calculating' } : s
+        )
+      );
 
       // Poll for completion (simplified)
       setTimeout(() => {
-        setScenarios(prev => prev.map(s => 
-          s.id === scenarioId 
-            ? { ...s, calculation_status: 'completed' }
-            : s
-        ));
+        setScenarios(prev =>
+          prev.map(s =>
+            s.id === scenarioId ? { ...s, calculation_status: 'completed' } : s
+          )
+        );
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to calculate scenario');
+      setError(
+        err instanceof Error ? err.message : 'Failed to calculate scenario'
+      );
     }
   };
 
@@ -290,7 +323,9 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                 <Input
                   id="name"
                   value={newScenario.name}
-                  onChange={(e) => setNewScenario(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={e =>
+                    setNewScenario(prev => ({ ...prev, name: e.target.value }))
+                  }
                   placeholder="e.g., High Growth Scenario"
                 />
               </div>
@@ -299,15 +334,23 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                 <Input
                   id="description"
                   value={newScenario.description}
-                  onChange={(e) => setNewScenario(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={e =>
+                    setNewScenario(prev => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="Describe this scenario..."
                 />
               </div>
               <div>
                 <Label htmlFor="type">Scenario Type</Label>
-                <Select value={newScenario.scenario_type} onValueChange={(value: any) => 
-                  setNewScenario(prev => ({ ...prev, scenario_type: value }))
-                }>
+                <Select
+                  value={newScenario.scenario_type}
+                  onValueChange={(value: any) =>
+                    setNewScenario(prev => ({ ...prev, scenario_type: value }))
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -321,7 +364,10 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsCreateDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button onClick={createScenario} disabled={!newScenario.name}>
@@ -340,11 +386,13 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
 
         <TabsContent value="grid" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {scenarios.map((scenario) => (
-              <Card 
-                key={scenario.id} 
+            {scenarios.map(scenario => (
+              <Card
+                key={scenario.id}
                 className={`cursor-pointer transition-colors hover:bg-muted/50 ${
-                  selectedScenario?.id === scenario.id ? 'ring-2 ring-primary' : ''
+                  selectedScenario?.id === scenario.id
+                    ? 'ring-2 ring-primary'
+                    : ''
                 }`}
                 onClick={() => {
                   setSelectedScenario(scenario);
@@ -361,7 +409,9 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     </div>
                     <div className="flex items-center space-x-1">
                       {getStatusIcon(scenario.calculation_status)}
-                      <Badge className={getScenarioTypeColor(scenario.scenario_type)}>
+                      <Badge
+                        className={getScenarioTypeColor(scenario.scenario_type)}
+                      >
                         {scenario.scenario_type}
                       </Badge>
                     </div>
@@ -379,7 +429,9 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Updated:</span>
-                      <span>{new Date(scenario.updated_at).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(scenario.updated_at).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -388,7 +440,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         calculateScenario(scenario.id);
                       }}
@@ -399,12 +451,12 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setScenarioToClone(scenario);
                         setCloneScenario({
                           name: `${scenario.name} (Copy)`,
-                          description: scenario.description || ''
+                          description: scenario.description || '',
                         });
                         setIsCloneDialogOpen(true);
                       }}
@@ -415,7 +467,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         deleteScenario(scenario.id);
                       }}
@@ -434,7 +486,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <CardContent className="p-0">
               <ScrollArea className="h-[600px]">
                 <div className="divide-y">
-                  {scenarios.map((scenario) => (
+                  {scenarios.map(scenario => (
                     <div
                       key={scenario.id}
                       className={`p-4 cursor-pointer hover:bg-muted/50 ${
@@ -449,7 +501,11 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
                             <h3 className="font-medium">{scenario.name}</h3>
-                            <Badge className={getScenarioTypeColor(scenario.scenario_type)}>
+                            <Badge
+                              className={getScenarioTypeColor(
+                                scenario.scenario_type
+                              )}
+                            >
                               {scenario.scenario_type}
                             </Badge>
                             {scenario.is_baseline && (
@@ -461,10 +517,17 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                           </p>
                           <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                             <span>Version {scenario.version}</span>
-                            <span>Updated {new Date(scenario.updated_at).toLocaleDateString()}</span>
+                            <span>
+                              Updated{' '}
+                              {new Date(
+                                scenario.updated_at
+                              ).toLocaleDateString()}
+                            </span>
                             <div className="flex items-center space-x-1">
                               {getStatusIcon(scenario.calculation_status)}
-                              <span className="capitalize">{scenario.calculation_status}</span>
+                              <span className="capitalize">
+                                {scenario.calculation_status}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -472,7 +535,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               calculateScenario(scenario.id);
                             }}
@@ -482,12 +545,12 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               setScenarioToClone(scenario);
                               setCloneScenario({
                                 name: `${scenario.name} (Copy)`,
-                                description: scenario.description || ''
+                                description: scenario.description || '',
                               });
                               setIsCloneDialogOpen(true);
                             }}
@@ -497,7 +560,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               deleteScenario(scenario.id);
                             }}
@@ -521,7 +584,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
           <DialogHeader>
             <DialogTitle>Clone Scenario</DialogTitle>
             <DialogDescription>
-              Create a copy of "{scenarioToClone?.name}" with all parameter values
+              Create a copy of "{scenarioToClone?.name}" with all parameter
+              values
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -530,7 +594,9 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <Input
                 id="clone-name"
                 value={cloneScenario.name}
-                onChange={(e) => setCloneScenario(prev => ({ ...prev, name: e.target.value }))}
+                onChange={e =>
+                  setCloneScenario(prev => ({ ...prev, name: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -538,15 +604,26 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <Input
                 id="clone-description"
                 value={cloneScenario.description}
-                onChange={(e) => setCloneScenario(prev => ({ ...prev, description: e.target.value }))}
+                onChange={e =>
+                  setCloneScenario(prev => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCloneDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsCloneDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={cloneScenarioHandler} disabled={!cloneScenario.name}>
+            <Button
+              onClick={cloneScenarioHandler}
+              disabled={!cloneScenario.name}
+            >
               Clone Scenario
             </Button>
           </DialogFooter>

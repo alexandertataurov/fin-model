@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { DistributionChart } from './DistributionChart';
 import { ScatterPlot } from './ScatterPlot';
-import { TornadoChart } from './TornadoChart';
-import { 
-  Download, 
-  AlertCircle, 
-  TrendingUp, 
-  TrendingDown, 
-  Target,
-  PieChart,
-  BarChart3
-} from 'lucide-react';
+
+import { Download, AlertCircle, Target, BarChart3 } from 'lucide-react';
 
 interface SimulationResult {
   simulation_id: string;
@@ -35,18 +33,6 @@ interface SimulationResult {
   completed_at: string;
 }
 
-interface RiskMetrics {
-  VaR_95: number;
-  VaR_99: number;
-  CVaR_95: number;
-  CVaR_99: number;
-  probability_of_loss: number;
-  expected_shortfall: number;
-  maximum_loss: number;
-  maximum_gain: number;
-  downside_deviation: number;
-}
-
 interface SimulationResultsProps {
   simulationId: string;
   onClose?: () => void;
@@ -54,7 +40,7 @@ interface SimulationResultsProps {
 
 export const SimulationResults: React.FC<SimulationResultsProps> = ({
   simulationId,
-  onClose
+  onClose,
 }) => {
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,11 +60,14 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
   const fetchResults = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/scenarios/monte-carlo/${simulationId}/results`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await fetch(
+        `/api/v1/scenarios/monte-carlo/${simulationId}/results`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch simulation results');
@@ -96,11 +85,14 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
 
   const exportResults = async () => {
     try {
-      const response = await fetch(`/api/v1/scenarios/monte-carlo/${simulationId}/export`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await fetch(
+        `/api/v1/scenarios/monte-carlo/${simulationId}/export`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to export results');
@@ -134,10 +126,15 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
     return `${(value * 100).toFixed(1)}%`;
   };
 
-  const getRiskLevel = (probability: number): { color: string; label: string } => {
-    if (probability >= 0.3) return { color: 'text-red-600', label: 'High Risk' };
-    if (probability >= 0.15) return { color: 'text-orange-600', label: 'Medium Risk' };
-    if (probability >= 0.05) return { color: 'text-yellow-600', label: 'Low Risk' };
+  const getRiskLevel = (
+    probability: number
+  ): { color: string; label: string } => {
+    if (probability >= 0.3)
+      return { color: 'text-red-600', label: 'High Risk' };
+    if (probability >= 0.15)
+      return { color: 'text-orange-600', label: 'Medium Risk' };
+    if (probability >= 0.05)
+      return { color: 'text-yellow-600', label: 'Low Risk' };
     return { color: 'text-green-600', label: 'Very Low Risk' };
   };
 
@@ -164,14 +161,20 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="text-center text-muted-foreground">No results available</div>
+          <div className="text-center text-muted-foreground">
+            No results available
+          </div>
         </CardContent>
       </Card>
     );
   }
 
-  const selectedStats = selectedMetric ? result.statistics[selectedMetric] : null;
-  const selectedRiskMetrics = selectedMetric ? result.risk_metrics[selectedMetric] : null;
+  const selectedStats = selectedMetric
+    ? result.statistics[selectedMetric]
+    : null;
+  const selectedRiskMetrics = selectedMetric
+    ? result.risk_metrics[selectedMetric]
+    : null;
   const selectedData = selectedMetric ? result.results[selectedMetric] : null;
 
   return (
@@ -249,10 +252,10 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {result.output_metrics?.map((metric) => (
+                {result.output_metrics?.map(metric => (
                   <Button
                     key={metric}
-                    variant={selectedMetric === metric ? "default" : "outline"}
+                    variant={selectedMetric === metric ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSelectedMetric(metric)}
                   >
@@ -278,19 +281,33 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-sm text-muted-foreground">Mean</div>
-                      <div className="text-lg font-semibold">{formatValue(selectedStats.mean)}</div>
+                      <div className="text-lg font-semibold">
+                        {formatValue(selectedStats.mean)}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-sm text-muted-foreground">Std Dev</div>
-                      <div className="text-lg font-semibold">{formatValue(selectedStats.std_dev)}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Std Dev
+                      </div>
+                      <div className="text-lg font-semibold">
+                        {formatValue(selectedStats.std_dev)}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-sm text-muted-foreground">Minimum</div>
-                      <div className="text-lg font-semibold text-red-600">{formatValue(selectedStats.min)}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Minimum
+                      </div>
+                      <div className="text-lg font-semibold text-red-600">
+                        {formatValue(selectedStats.min)}
+                      </div>
                     </div>
                     <div>
-                      <div className="text-sm text-muted-foreground">Maximum</div>
-                      <div className="text-lg font-semibold text-green-600">{formatValue(selectedStats.max)}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Maximum
+                      </div>
+                      <div className="text-lg font-semibold text-green-600">
+                        {formatValue(selectedStats.max)}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -306,15 +323,42 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
                 <CardContent>
                   <div className="space-y-3">
                     {[
-                      { label: '5th Percentile', value: selectedStats.percentile_5, color: 'text-red-600' },
-                      { label: '25th Percentile', value: selectedStats.percentile_25, color: 'text-orange-600' },
-                      { label: '50th Percentile (Median)', value: selectedStats.percentile_50, color: 'text-blue-600' },
-                      { label: '75th Percentile', value: selectedStats.percentile_75, color: 'text-green-600' },
-                      { label: '95th Percentile', value: selectedStats.percentile_95, color: 'text-green-700' }
+                      {
+                        label: '5th Percentile',
+                        value: selectedStats.percentile_5,
+                        color: 'text-red-600',
+                      },
+                      {
+                        label: '25th Percentile',
+                        value: selectedStats.percentile_25,
+                        color: 'text-orange-600',
+                      },
+                      {
+                        label: '50th Percentile (Median)',
+                        value: selectedStats.percentile_50,
+                        color: 'text-blue-600',
+                      },
+                      {
+                        label: '75th Percentile',
+                        value: selectedStats.percentile_75,
+                        color: 'text-green-600',
+                      },
+                      {
+                        label: '95th Percentile',
+                        value: selectedStats.percentile_95,
+                        color: 'text-green-700',
+                      },
                     ].map(({ label, value, color }) => (
-                      <div key={label} className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">{label}</span>
-                        <span className={`font-semibold ${color}`}>{formatValue(value)}</span>
+                      <div
+                        key={label}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-sm text-muted-foreground">
+                          {label}
+                        </span>
+                        <span className={`font-semibold ${color}`}>
+                          {formatValue(value)}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -329,10 +373,13 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
             <DistributionChart
               data={{
                 values: selectedData.slice(0, 50), // Sample for visualization
-                bin_edges: Array.from({ length: 51 }, (_, i) => 
-                  selectedStats.min + (i / 50) * (selectedStats.max - selectedStats.min)
+                bin_edges: Array.from(
+                  { length: 51 },
+                  (_, i) =>
+                    selectedStats.min +
+                    (i / 50) * (selectedStats.max - selectedStats.min)
                 ),
-                title: selectedMetric
+                title: selectedMetric,
               }}
               stats={selectedStats}
               title={`Distribution: ${selectedMetric}`}
@@ -342,14 +389,17 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
 
         <TabsContent value="correlations" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {result.output_metrics?.map((metric) => {
+            {result.output_metrics?.map(metric => {
               const correlation = result.correlations?.[`1,${metric}`] || 0; // Simplified correlation lookup
-              const xData = Array.from({ length: 100 }, (_, i) => Math.random() * 100);
+              const xData = Array.from(
+                { length: 100 },
+                () => Math.random() * 100
+              );
               const yData = result.results[metric]?.slice(0, 100) || [];
-              
+
               const scatterData = xData.map((x, i) => ({
                 x,
-                y: yData[i] || 0
+                y: yData[i] || 0,
               }));
 
               return (
@@ -375,17 +425,23 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg text-red-600">Value at Risk</CardTitle>
+                    <CardTitle className="text-lg text-red-600">
+                      Value at Risk
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">VaR (95%)</span>
-                        <span className="font-semibold">{formatValue(selectedRiskMetrics.VaR_95)}</span>
+                        <span className="font-semibold">
+                          {formatValue(selectedRiskMetrics.VaR_95)}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">VaR (99%)</span>
-                        <span className="font-semibold">{formatValue(selectedRiskMetrics.VaR_99)}</span>
+                        <span className="font-semibold">
+                          {formatValue(selectedRiskMetrics.VaR_99)}
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -393,17 +449,23 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg text-orange-600">Expected Shortfall</CardTitle>
+                    <CardTitle className="text-lg text-orange-600">
+                      Expected Shortfall
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">CVaR (95%)</span>
-                        <span className="font-semibold">{formatValue(selectedRiskMetrics.CVaR_95)}</span>
+                        <span className="font-semibold">
+                          {formatValue(selectedRiskMetrics.CVaR_95)}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">CVaR (99%)</span>
-                        <span className="font-semibold">{formatValue(selectedRiskMetrics.CVaR_99)}</span>
+                        <span className="font-semibold">
+                          {formatValue(selectedRiskMetrics.CVaR_99)}
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -411,7 +473,9 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg text-blue-600">Loss Probability</CardTitle>
+                    <CardTitle className="text-lg text-blue-600">
+                      Loss Probability
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-center">
@@ -421,11 +485,17 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
                       <div className="text-sm text-muted-foreground">
                         Probability of Loss
                       </div>
-                      <Badge 
-                        className={`mt-2 ${getRiskLevel(selectedRiskMetrics.probability_of_loss).color}`}
+                      <Badge
+                        className={`mt-2 ${
+                          getRiskLevel(selectedRiskMetrics.probability_of_loss)
+                            .color
+                        }`}
                         variant="outline"
                       >
-                        {getRiskLevel(selectedRiskMetrics.probability_of_loss).label}
+                        {
+                          getRiskLevel(selectedRiskMetrics.probability_of_loss)
+                            .label
+                        }
                       </Badge>
                     </div>
                   </CardContent>
@@ -451,13 +521,17 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
                         <div className="flex justify-between">
                           <span>Expected Shortfall</span>
                           <span className="font-semibold text-red-500">
-                            {formatValue(selectedRiskMetrics.expected_shortfall)}
+                            {formatValue(
+                              selectedRiskMetrics.expected_shortfall
+                            )}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span>Downside Deviation</span>
                           <span className="font-semibold">
-                            {formatValue(selectedRiskMetrics.downside_deviation)}
+                            {formatValue(
+                              selectedRiskMetrics.downside_deviation
+                            )}
                           </span>
                         </div>
                       </div>
@@ -475,7 +549,9 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
                         <div className="flex justify-between">
                           <span>Probability of Gain</span>
                           <span className="font-semibold text-green-500">
-                            {formatPercent(1 - selectedRiskMetrics.probability_of_loss)}
+                            {formatPercent(
+                              1 - selectedRiskMetrics.probability_of_loss
+                            )}
                           </span>
                         </div>
                       </div>

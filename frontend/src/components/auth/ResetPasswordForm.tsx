@@ -159,6 +159,7 @@ const ResetPasswordForm: React.FC = () => {
                   className="flex items-center gap-2 p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm"
                   role="alert"
                   aria-live="polite"
+                  data-testid="reset-success-message"
                 >
                   <Check className="h-4 w-4" />
                   {success}
@@ -190,6 +191,7 @@ const ResetPasswordForm: React.FC = () => {
                     autoComplete="new-password"
                     className="pl-9 pr-10"
                     disabled={success !== null}
+                    data-testid="reset-password-input"
                   />
                   <button
                     type="button"
@@ -298,6 +300,7 @@ const ResetPasswordForm: React.FC = () => {
                     autoComplete="new-password"
                     className="pl-9 pr-10"
                     disabled={success !== null}
+                    data-testid="reset-confirm-password-input"
                   />
                   <button
                     type="button"
@@ -321,6 +324,7 @@ const ResetPasswordForm: React.FC = () => {
                 }
                 className="w-full"
                 size="lg"
+                data-testid="reset-password-submit"
               >
                 {isLoading ? (
                   <>

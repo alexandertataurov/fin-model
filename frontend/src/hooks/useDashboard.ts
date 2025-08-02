@@ -1,6 +1,6 @@
 /**
  * Dashboard Data Hooks
- * 
+ *
  * React Query hooks for dashboard data fetching and state management
  */
 
@@ -17,20 +17,27 @@ import DashboardApiService, {
   PeriodFilter,
   TimeSeriesParams,
   ComparisonParams,
-  ExportParams
+  ExportParams,
 } from '../services/dashboardApi';
 
 // Query keys for cache management
 export const dashboardKeys = {
   all: ['dashboard'] as const,
-  overview: (period: PeriodFilter) => ['dashboard', 'overview', period] as const,
+  overview: (period: PeriodFilter) =>
+    ['dashboard', 'overview', period] as const,
   plData: (statementId: string) => ['dashboard', 'pl', statementId] as const,
-  balanceData: (statementId: string) => ['dashboard', 'balance', statementId] as const,
-  cashflowData: (statementId: string) => ['dashboard', 'cashflow', statementId] as const,
-  metrics: (statementId: string) => ['dashboard', 'metrics', statementId] as const,
-  statements: (type?: string, limit?: number) => ['dashboard', 'statements', type, limit] as const,
-  timeSeries: (params: TimeSeriesParams) => ['dashboard', 'timeSeries', params] as const,
-  comparisons: (params: ComparisonParams) => ['dashboard', 'comparisons', params] as const,
+  balanceData: (statementId: string) =>
+    ['dashboard', 'balance', statementId] as const,
+  cashflowData: (statementId: string) =>
+    ['dashboard', 'cashflow', statementId] as const,
+  metrics: (statementId: string) =>
+    ['dashboard', 'metrics', statementId] as const,
+  statements: (type?: string, limit?: number) =>
+    ['dashboard', 'statements', type, limit] as const,
+  timeSeries: (params: TimeSeriesParams) =>
+    ['dashboard', 'timeSeries', params] as const,
+  comparisons: (params: ComparisonParams) =>
+    ['dashboard', 'comparisons', params] as const,
 };
 
 /**
@@ -44,8 +51,8 @@ export function useDashboardOverview(period: PeriodFilter = PeriodFilter.YTD) {
     refetchOnWindowFocus: false,
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load dashboard overview'
-    }
+      errorMessage: 'Failed to load dashboard overview',
+    },
   });
 }
 
@@ -60,8 +67,8 @@ export function usePLDashboard(statementId: string | null) {
     staleTime: 3 * 60 * 1000, // 3 minutes
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load P&L dashboard data'
-    }
+      errorMessage: 'Failed to load P&L dashboard data',
+    },
   });
 }
 
@@ -76,8 +83,8 @@ export function useBalanceSheetDashboard(statementId: string | null) {
     staleTime: 3 * 60 * 1000, // 3 minutes
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load Balance Sheet dashboard data'
-    }
+      errorMessage: 'Failed to load Balance Sheet dashboard data',
+    },
   });
 }
 
@@ -92,8 +99,8 @@ export function useCashFlowDashboard(statementId: string | null) {
     staleTime: 3 * 60 * 1000, // 3 minutes
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load Cash Flow dashboard data'
-    }
+      errorMessage: 'Failed to load Cash Flow dashboard data',
+    },
   });
 }
 
@@ -108,8 +115,8 @@ export function useStatementMetrics(statementId: string | null) {
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load statement metrics'
-    }
+      errorMessage: 'Failed to load statement metrics',
+    },
   });
 }
 
@@ -123,8 +130,8 @@ export function useUserStatements(statementType?: string, limit = 10) {
     staleTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load financial statements'
-    }
+      errorMessage: 'Failed to load financial statements',
+    },
   });
 }
 
@@ -139,8 +146,8 @@ export function useTimeSeriesData(params: TimeSeriesParams, enabled = true) {
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load time series data'
-    }
+      errorMessage: 'Failed to load time series data',
+    },
   });
 }
 
@@ -155,8 +162,8 @@ export function usePeriodComparisons(params: ComparisonParams, enabled = true) {
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
     meta: {
-      errorMessage: 'Failed to load period comparisons'
-    }
+      errorMessage: 'Failed to load period comparisons',
+    },
   });
 }
 
@@ -174,8 +181,10 @@ export function useRefreshDashboard() {
       toast.success('Dashboard data refreshed successfully');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to refresh dashboard');
-    }
+      toast.error(
+        error.response?.data?.detail || 'Failed to refresh dashboard'
+      );
+    },
   });
 }
 
@@ -184,8 +193,9 @@ export function useRefreshDashboard() {
  */
 export function useExportDashboard() {
   return useMutation({
-    mutationFn: (params: ExportParams) => DashboardApiService.exportDashboardData(params),
-    onSuccess: (data) => {
+    mutationFn: (params: ExportParams) =>
+      DashboardApiService.exportDashboardData(params),
+    onSuccess: data => {
       if (data.download_url) {
         // For file downloads, trigger download
         window.open(data.download_url, '_blank');
@@ -193,12 +203,14 @@ export function useExportDashboard() {
       } else if (data.data) {
         // For JSON exports, handle inline data
         const blob = new Blob([JSON.stringify(data.data, null, 2)], {
-          type: 'application/json'
+          type: 'application/json',
         });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `dashboard-export-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `dashboard-export-${
+          new Date().toISOString().split('T')[0]
+        }.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -209,8 +221,10 @@ export function useExportDashboard() {
       }
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to export dashboard data');
-    }
+      toast.error(
+        error.response?.data?.detail || 'Failed to export dashboard data'
+      );
+    },
   });
 }
 
@@ -226,20 +240,26 @@ export function useActiveStatement(defaultStatementId?: string) {
 
   // Auto-select first statement if none selected
   useEffect(() => {
-    if (!activeStatementId && statements?.statements?.length > 0) {
+    if (
+      !activeStatementId &&
+      statements?.statements &&
+      statements.statements.length > 0
+    ) {
       setActiveStatementId(statements.statements[0].id);
     }
   }, [activeStatementId, statements]);
 
   const activeStatement = useMemo(() => {
-    return statements?.statements?.find(s => s.id === activeStatementId) || null;
+    return (
+      statements?.statements?.find(s => s.id === activeStatementId) || null
+    );
   }, [statements, activeStatementId]);
 
   return {
     activeStatementId,
     setActiveStatementId,
     activeStatement,
-    statements: statements?.statements || []
+    statements: statements?.statements || [],
   };
 }
 
@@ -249,17 +269,20 @@ export function useActiveStatement(defaultStatementId?: string) {
 export function useDashboardLoading() {
   const overviewQuery = useQuery({
     queryKey: dashboardKeys.overview(PeriodFilter.YTD),
-    enabled: false // We'll control this manually
+    enabled: false, // We'll control this manually
   });
 
   const statementsQuery = useQuery({
     queryKey: dashboardKeys.statements(),
-    enabled: false
+    queryFn: () => DashboardApiService.getUserStatements(),
+    enabled: false,
   });
 
   const isLoading = overviewQuery.isLoading || statementsQuery.isLoading;
   const hasError = overviewQuery.isError || statementsQuery.isError;
-  const isEmpty = !statementsQuery.data?.statements?.length;
+  const isEmpty =
+    !statementsQuery.data?.statements ||
+    statementsQuery.data.statements.length === 0;
 
   return {
     isLoading,
@@ -268,7 +291,7 @@ export function useDashboardLoading() {
     refetch: () => {
       overviewQuery.refetch();
       statementsQuery.refetch();
-    }
+    },
   };
 }
 
@@ -280,5 +303,5 @@ export type {
   CashFlowData,
   KeyMetrics,
   FinancialStatement,
-  PeriodFilter
+  PeriodFilter,
 };

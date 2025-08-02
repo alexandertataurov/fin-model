@@ -1,6 +1,6 @@
 /**
  * Enhanced Cash Flow Tab with Real Data Integration
- * 
+ *
  * Displays real cash flow data with waterfall charts and trends
  */
 
@@ -10,18 +10,51 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Skeleton } from '../ui/skeleton';
-import { LineChart, Line, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, Area, AreaChart } from 'recharts';
-import { TrendingUp, TrendingDown, Plus, AlertCircle, RefreshCw, Download, DollarSign } from 'lucide-react';
-import { useCashFlowDashboard, useActiveStatement, useExportDashboard, useRefreshDashboard } from '../../hooks/useDashboard';
+import {
+  Line,
+  BarChart,
+  Bar,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ComposedChart,
+  Area,
+  AreaChart,
+} from 'recharts';
+import {
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  AlertCircle,
+  RefreshCw,
+  Download,
+  DollarSign,
+} from 'lucide-react';
+import {
+  useCashFlowDashboard,
+  useActiveStatement,
+  useExportDashboard,
+  useRefreshDashboard,
+} from '../../hooks/useDashboard';
 import { PeriodFilter } from '../../services/dashboardApi';
 
 interface CashFlowTabEnhancedProps {
   period?: PeriodFilter;
 }
 
-export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEnhancedProps) {
+export function CashFlowTabEnhanced({
+  period = PeriodFilter.YTD,
+}: CashFlowTabEnhancedProps) {
   const { activeStatementId, activeStatement } = useActiveStatement();
-  const { data: cashFlowData, isLoading, error, refetch } = useCashFlowDashboard(activeStatementId);
+  const {
+    data: cashFlowData,
+    isLoading,
+    error,
+    refetch,
+  } = useCashFlowDashboard(activeStatementId);
   const refreshMutation = useRefreshDashboard();
   const exportMutation = useExportDashboard();
 
@@ -29,7 +62,7 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
     'cash-position',
     'waterfall-chart',
     'operating-cf',
-    'cf-components'
+    'cf-components',
   ]);
 
   const removeWidget = (widgetId: string) => {
@@ -52,7 +85,7 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
     exportMutation.mutate({
       format: 'excel',
       period: period,
-      statement_ids: activeStatementId ? [activeStatementId] : undefined
+      statement_ids: activeStatementId ? [activeStatementId] : undefined,
     });
   };
 
@@ -62,7 +95,7 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
       style: 'currency',
       currency: 'USD',
       notation: 'compact',
-      maximumFractionDigits: 1
+      maximumFractionDigits: 1,
     }).format(value);
   };
 
@@ -70,16 +103,25 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
   const calculateCashFlowMetrics = () => {
     if (!cashFlowData) return null;
 
-    const operatingCF = cashFlowData.operating_cash_flow.reduce((sum, item) => sum + item.value, 0);
-    const investingCF = cashFlowData.investing_cash_flow.reduce((sum, item) => sum + item.value, 0);
-    const financingCF = cashFlowData.financing_cash_flow.reduce((sum, item) => sum + item.value, 0);
+    const operatingCF = cashFlowData.operating_cash_flow.reduce(
+      (sum, item) => sum + item.value,
+      0
+    );
+    const investingCF = cashFlowData.investing_cash_flow.reduce(
+      (sum, item) => sum + item.value,
+      0
+    );
+    const financingCF = cashFlowData.financing_cash_flow.reduce(
+      (sum, item) => sum + item.value,
+      0
+    );
     const netCashFlow = operatingCF + investingCF + financingCF;
 
     return {
       operatingCF,
       investingCF,
       financingCF,
-      netCashFlow
+      netCashFlow,
     };
   };
 
@@ -126,7 +168,8 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load Cash Flow data. Please try refreshing or contact support if the problem persists.
+            Failed to load Cash Flow data. Please try refreshing or contact
+            support if the problem persists.
           </AlertDescription>
         </Alert>
       </div>
@@ -143,7 +186,8 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No Cash Flow data available. Upload a financial statement to get started.
+            No Cash Flow data available. Upload a financial statement to get
+            started.
           </AlertDescription>
         </Alert>
       </div>
@@ -160,18 +204,22 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={handleRefresh} 
-            variant="outline" 
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
             size="sm"
             disabled={refreshMutation.isPending}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshMutation.isPending ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${
+                refreshMutation.isPending ? 'animate-spin' : ''
+              }`}
+            />
             Refresh
           </Button>
-          <Button 
-            onClick={handleExport} 
-            variant="outline" 
+          <Button
+            onClick={handleExport}
+            variant="outline"
             size="sm"
             disabled={exportMutation.isPending}
           >
@@ -195,13 +243,16 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  metrics.operatingCF >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {metrics.operatingCF >= 0 ? 
-                    <TrendingUp className="h-4 w-4" /> : 
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    metrics.operatingCF >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {metrics.operatingCF >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
                     <TrendingDown className="h-4 w-4" />
-                  }
+                  )}
                   <span className="text-xs">Operating</span>
                 </div>
                 <p className="text-2xl font-bold">
@@ -211,13 +262,16 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
               </div>
 
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  metrics.investingCF >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {metrics.investingCF >= 0 ? 
-                    <TrendingUp className="h-4 w-4" /> : 
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    metrics.investingCF >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {metrics.investingCF >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
                     <TrendingDown className="h-4 w-4" />
-                  }
+                  )}
                   <span className="text-xs">Investing</span>
                 </div>
                 <p className="text-2xl font-bold">
@@ -227,13 +281,16 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
               </div>
 
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  metrics.financingCF >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {metrics.financingCF >= 0 ? 
-                    <TrendingUp className="h-4 w-4" /> : 
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    metrics.financingCF >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {metrics.financingCF >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
                     <TrendingDown className="h-4 w-4" />
-                  }
+                  )}
                   <span className="text-xs">Financing</span>
                 </div>
                 <p className="text-2xl font-bold">
@@ -243,9 +300,11 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
               </div>
 
               <div className="text-center">
-                <div className={`flex items-center justify-center gap-1 mb-1 ${
-                  metrics.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div
+                  className={`flex items-center justify-center gap-1 mb-1 ${
+                    metrics.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
                   <DollarSign className="h-4 w-4" />
                   <span className="text-xs">Net Change</span>
                 </div>
@@ -269,29 +328,32 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={cashFlowData.waterfall_data}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  className="text-xs" 
+                <XAxis
+                  dataKey="name"
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  className="text-xs" 
+                <YAxis
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={value => formatCurrency(value)}
                 />
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), 'Cash Flow']}
+                <Tooltip
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    'Cash Flow',
+                  ]}
                   labelClassName="text-foreground"
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
                 <Legend />
-                <Bar 
-                  dataKey="value" 
-                  fill={(entry: any) => entry.value >= 0 ? 'var(--chart-2)' : 'var(--chart-5)'}
+                <Bar
+                  dataKey="value"
+                  fill="var(--chart-2)"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -309,23 +371,26 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={cashFlowData.operating_cash_flow}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  className="text-xs" 
+                <XAxis
+                  dataKey="name"
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  className="text-xs" 
+                <YAxis
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={value => formatCurrency(value)}
                 />
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), 'Operating CF']}
+                <Tooltip
+                  formatter={(value: number) => [
+                    formatCurrency(value),
+                    'Operating CF',
+                  ]}
                   labelClassName="text-foreground"
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
                 <Area
@@ -350,33 +415,36 @@ export function CashFlowTabEnhanced({ period = PeriodFilter.YTD }: CashFlowTabEn
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={cashFlowData.cash_position_trend}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  className="text-xs" 
+                <XAxis
+                  dataKey="name"
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  className="text-xs" 
+                <YAxis
+                  className="text-xs"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={value => formatCurrency(value)}
                 />
-                <Tooltip 
-                  formatter={(value: number, name: string) => [formatCurrency(value), name]}
+                <Tooltip
+                  formatter={(value: number, name: string) => [
+                    formatCurrency(value),
+                    name,
+                  ]}
                   labelClassName="text-foreground"
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
                   }}
                 />
                 <Legend />
                 <Bar dataKey="operating" stackId="cf" fill="var(--chart-2)" />
                 <Bar dataKey="investing" stackId="cf" fill="var(--chart-3)" />
                 <Bar dataKey="financing" stackId="cf" fill="var(--chart-4)" />
-                <Line 
-                  type="monotone" 
-                  dataKey="net" 
-                  stroke="var(--chart-1)" 
+                <Line
+                  type="monotone"
+                  dataKey="net"
+                  stroke="var(--chart-1)"
                   strokeWidth={2}
                 />
               </ComposedChart>

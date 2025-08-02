@@ -1,19 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  ArrowRight, 
-  AlertCircle, 
+import {
+  TrendingUp,
+  TrendingDown,
+  ArrowRight,
+  AlertCircle,
   BarChart3,
-  Minus
+  Minus,
 } from 'lucide-react';
 
 interface Scenario {
@@ -49,14 +68,21 @@ interface ScenarioComparisonProps {
 
 export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
   scenarios,
-  onClose
+  onClose,
 }) => {
-  const [selectedScenario1, setSelectedScenario1] = useState<number | null>(null);
-  const [selectedScenario2, setSelectedScenario2] = useState<number | null>(null);
-  const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
+  const [selectedScenario1, setSelectedScenario1] = useState<number | null>(
+    null
+  );
+  const [selectedScenario2, setSelectedScenario2] = useState<number | null>(
+    null
+  );
+  const [comparisonResult, setComparisonResult] =
+    useState<ComparisonResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'name' | 'absolute' | 'percent'>('percent');
+  const [sortBy, setSortBy] = useState<'name' | 'absolute' | 'percent'>(
+    'percent'
+  );
   const [filterSignificant, setFilterSignificant] = useState(false);
 
   const compareScenarios = async () => {
@@ -70,11 +96,11 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
-          scenario_ids: [selectedScenario1, selectedScenario2]
-        })
+          scenario_ids: [selectedScenario1, selectedScenario2],
+        }),
       });
 
       if (!response.ok) {
@@ -84,7 +110,9 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
       const result = await response.json();
       setComparisonResult(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to compare scenarios');
+      setError(
+        err instanceof Error ? err.message : 'Failed to compare scenarios'
+      );
     } finally {
       setLoading(false);
     }
@@ -97,21 +125,32 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
 
     // Apply significance filter
     if (filterSignificant) {
-      differences = differences.filter(diff => Math.abs(diff.percent_change) >= 5);
+      differences = differences.filter(
+        diff => Math.abs(diff.percent_change) >= 5
+      );
     }
 
     // Sort by selected criteria
     switch (sortBy) {
       case 'name':
-        differences.sort((a, b) => a.parameter_name.localeCompare(b.parameter_name));
+        differences.sort((a, b) =>
+          a.parameter_name.localeCompare(b.parameter_name)
+        );
         break;
       case 'absolute':
-        differences.sort((a, b) => Math.abs(b.absolute_difference) - Math.abs(a.absolute_difference));
+        differences.sort(
+          (a, b) =>
+            Math.abs(b.absolute_difference) - Math.abs(a.absolute_difference)
+        );
         break;
       case 'percent':
         differences.sort((a, b) => {
-          const aPercent = Math.abs(a.percent_change === Infinity ? 999 : a.percent_change);
-          const bPercent = Math.abs(b.percent_change === Infinity ? 999 : b.percent_change);
+          const aPercent = Math.abs(
+            a.percent_change === Infinity ? 999 : a.percent_change
+          );
+          const bPercent = Math.abs(
+            b.percent_change === Infinity ? 999 : b.percent_change
+          );
           return bPercent - aPercent;
         });
         break;
@@ -193,14 +232,22 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
-              <label className="text-sm font-medium mb-2 block">First Scenario</label>
-              <Select value={selectedScenario1?.toString()} onValueChange={(value) => setSelectedScenario1(Number(value))}>
+              <label className="text-sm font-medium mb-2 block">
+                First Scenario
+              </label>
+              <Select
+                value={selectedScenario1?.toString()}
+                onValueChange={value => setSelectedScenario1(Number(value))}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select first scenario" />
                 </SelectTrigger>
                 <SelectContent>
-                  {scenarios.map((scenario) => (
-                    <SelectItem key={scenario.id} value={scenario.id.toString()}>
+                  {scenarios.map(scenario => (
+                    <SelectItem
+                      key={scenario.id}
+                      value={scenario.id.toString()}
+                    >
                       {scenario.name}
                     </SelectItem>
                   ))}
@@ -213,17 +260,27 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Second Scenario</label>
-              <Select value={selectedScenario2?.toString()} onValueChange={(value) => setSelectedScenario2(Number(value))}>
+              <label className="text-sm font-medium mb-2 block">
+                Second Scenario
+              </label>
+              <Select
+                value={selectedScenario2?.toString()}
+                onValueChange={value => setSelectedScenario2(Number(value))}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select second scenario" />
                 </SelectTrigger>
                 <SelectContent>
-                  {scenarios.filter(s => s.id !== selectedScenario1).map((scenario) => (
-                    <SelectItem key={scenario.id} value={scenario.id.toString()}>
-                      {scenario.name}
-                    </SelectItem>
-                  ))}
+                  {scenarios
+                    .filter(s => s.id !== selectedScenario1)
+                    .map(scenario => (
+                      <SelectItem
+                        key={scenario.id}
+                        value={scenario.id.toString()}
+                      >
+                        {scenario.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -278,7 +335,12 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
               <Card>
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-center">
-                    {Math.round((comparisonResult.total_differences / comparisonResult.total_parameters_compared) * 100)}%
+                    {Math.round(
+                      (comparisonResult.total_differences /
+                        comparisonResult.total_parameters_compared) *
+                        100
+                    )}
+                    %
                   </div>
                   <div className="text-sm text-muted-foreground text-center">
                     Parameters Affected
@@ -288,7 +350,11 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
               <Card>
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-center">
-                    {sortedDifferences.filter(d => Math.abs(d.percent_change) >= 10).length}
+                    {
+                      sortedDifferences.filter(
+                        d => Math.abs(d.percent_change) >= 10
+                      ).length
+                    }
                   </div>
                   <div className="text-sm text-muted-foreground text-center">
                     Significant Changes (≥10%)
@@ -304,7 +370,10 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
               <div className="flex space-x-4">
                 <div>
                   <label className="text-sm font-medium mr-2">Sort by:</label>
-                  <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value: any) => setSortBy(value)}
+                  >
                     <SelectTrigger className="w-40">
                       <SelectValue />
                     </SelectTrigger>
@@ -320,7 +389,7 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
                     type="checkbox"
                     id="significant"
                     checked={filterSignificant}
-                    onChange={(e) => setFilterSignificant(e.target.checked)}
+                    onChange={e => setFilterSignificant(e.target.checked)}
                     className="rounded"
                   />
                   <label htmlFor="significant" className="text-sm">
@@ -336,20 +405,25 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Parameter</TableHead>
-                    <TableHead className="text-right">{scenario1?.name}</TableHead>
+                    <TableHead className="text-right">
+                      {scenario1?.name}
+                    </TableHead>
                     <TableHead className="text-center">Change</TableHead>
-                    <TableHead className="text-right">{scenario2?.name}</TableHead>
+                    <TableHead className="text-right">
+                      {scenario2?.name}
+                    </TableHead>
                     <TableHead className="text-right">Difference</TableHead>
                     <TableHead className="text-right">% Change</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedDifferences.map((diff) => (
+                  {sortedDifferences.map(diff => (
                     <TableRow key={diff.parameter_id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-2">
                           <span>{diff.parameter_name}</span>
-                          {(diff.scenario_1_has_override || diff.scenario_2_has_override) && (
+                          {(diff.scenario_1_has_override ||
+                            diff.scenario_2_has_override) && (
                             <Badge variant="secondary" className="text-xs">
                               Override
                             </Badge>
@@ -366,7 +440,13 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
                         {formatValue(diff.scenario_2_value)}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        <span className={diff.absolute_difference >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        <span
+                          className={
+                            diff.absolute_difference >= 0
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                          }
+                        >
                           {diff.absolute_difference >= 0 ? '+' : ''}
                           {formatValue(diff.absolute_difference)}
                         </span>
@@ -383,19 +463,20 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
               </Table>
             </ScrollArea>
 
-            {sortedDifferences.length === 0 && comparisonResult.total_differences > 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                No differences match the current filters.
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="ml-2"
-                  onClick={() => setFilterSignificant(false)}
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            )}
+            {sortedDifferences.length === 0 &&
+              comparisonResult.total_differences > 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No differences match the current filters.
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2"
+                    onClick={() => setFilterSignificant(false)}
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
 
             {comparisonResult.total_differences === 0 && (
               <div className="text-center py-8 text-muted-foreground">
