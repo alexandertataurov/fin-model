@@ -1,23 +1,27 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
-  Typography,
-  Grid,
-  Chip,
-} from '@mui/material';
-import {
   TrendingUp,
-  AccountBalance,
-  AttachMoney,
-  Assessment,
-  CloudUpload,
-  Analytics,
-  ArrowForward,
-  Timeline,
-} from '@mui/icons-material';
-import { Card, Button } from '../components/ui';
+  DollarSign,
+  CreditCard,
+  BarChart3,
+  Upload as CloudUpload,
+  BarChart3 as Analytics,
+  ArrowRight as ArrowForward,
+  Activity as Timeline,
+} from 'lucide-react';
+import { Card, Button, Badge } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
+
+/**
+ * Main Dashboard/Home Page
+ *
+ * This component serves as the application's landing page after login, providing:
+ * - Navigation cards to different app sections
+ * - Quick action buttons for common tasks
+ * - Getting started guide for new users
+ * - User welcome message and overview
+ */
 
 interface DashboardCardProps {
   title: string;
@@ -32,67 +36,41 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   title,
   subtitle,
   icon,
-  color,
   onClick,
   badge,
 }) => {
   return (
     <Card
-      hover
-      sx={{
-        cursor: 'pointer',
-        background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
-        border: `1px solid ${color}30`,
-        '&:hover': {
-          borderColor: color,
-        },
-      }}
+      className="cursor-pointer hover:shadow-lg transition-all duration-200 border-border/50 hover:border-primary/50"
       onClick={onClick}
     >
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 48,
-              height: 48,
-              borderRadius: 2,
-              backgroundColor: `${color}20`,
-              color: color,
-            }}
-          >
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 text-primary">
             {icon}
-          </Box>
+          </div>
           {badge && (
-            <Chip
-              label={badge}
-              size="small"
-              sx={{
-                backgroundColor: `${color}20`,
-                color: color,
-                fontWeight: 600,
-              }}
-            />
+            <Badge variant="secondary" className="text-xs font-semibold">
+              {badge}
+            </Badge>
           )}
-        </Box>
+        </div>
 
-        <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 1 }}>
+        <h3 className="text-lg font-semibold mb-2">
           {title}
-        </Typography>
+        </h3>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <p className="text-sm text-muted-foreground mb-4">
           {subtitle}
-        </Typography>
+        </p>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', color: color }}>
-          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+        <div className="flex items-center text-primary">
+          <span className="text-sm font-semibold">
             Open Dashboard
-          </Typography>
-          <ArrowForward sx={{ ml: 0.5, fontSize: 16 }} />
-        </Box>
-      </Box>
+          </span>
+          <ArrowForward className="ml-2 h-4 w-4" />
+        </div>
+      </div>
     </Card>
   );
 };
@@ -104,7 +82,8 @@ const Dashboard = () => {
   const dashboardCards = [
     {
       title: 'P&L Dashboard',
-      subtitle: 'Analyze profit & loss statements with interactive charts and key metrics',
+      subtitle:
+        'Analyze profit & loss statements with interactive charts and key metrics',
       icon: <TrendingUp />,
       color: 'var(--chart-3)', // DESIGN_FIX
       path: '/dashboards/pl',
@@ -113,7 +92,7 @@ const Dashboard = () => {
     {
       title: 'Cash Flow',
       subtitle: 'Track cash inflows and outflows with waterfall visualizations',
-      icon: <AttachMoney />,
+      icon: <DollarSign />,
       color: 'var(--chart-1)', // DESIGN_FIX
       path: '/dashboards/cashflow',
       badge: 'Financial',
@@ -121,7 +100,7 @@ const Dashboard = () => {
     {
       title: 'Balance Sheet',
       subtitle: 'Monitor assets, liabilities, and equity positions',
-      icon: <AccountBalance />,
+      icon: <CreditCard />,
       color: 'var(--chart-5)', // DESIGN_FIX
       path: '/dashboards/balance-sheet',
       badge: 'Coming Soon',
@@ -129,7 +108,7 @@ const Dashboard = () => {
     {
       title: 'Reports',
       subtitle: 'Generate and export comprehensive financial reports',
-      icon: <Assessment />,
+      icon: <BarChart3 />,
       color: 'var(--chart-4)', // DESIGN_FIX
       path: '/reports',
     },
@@ -149,27 +128,28 @@ const Dashboard = () => {
     },
   ];
 
-  const hasAnalystAccess = user?.roles?.includes('analyst') || user?.roles?.includes('admin');
+  const hasAnalystAccess =
+    user?.roles?.includes('analyst') || user?.roles?.includes('admin');
 
   return (
-    <Box>
+    <div className="space-y-8">
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">
           Welcome back, {user?.first_name || 'User'}
-        </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
+        </h1>
+        <p className="text-lg text-muted-foreground">
           Transform your Excel financial models into interactive web dashboards
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
       {/* Quick Actions */}
-      {/* DESIGN_FIX: replaced Paper with Card and removed inline colors */}
-      <Card className="mb-4 bg-primary text-primary-foreground p-3" hover={false}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-          Quick Actions
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+      <Card className="bg-primary text-primary-foreground">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-4">
+            Quick Actions
+          </h2>
+          <div className="flex gap-3 flex-wrap">
           <Button
             type="button"
             variant="default"
@@ -199,18 +179,20 @@ const Dashboard = () => {
               Scenario Modeling
             </Button>
           )}
-        </Box>
+          </div>
+        </div>
       </Card>
 
       {/* Dashboard Cards */}
-      <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 3 }}>
-        Dashboards & Tools
-      </Typography>
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">
+          Dashboards & Tools
+        </h2>
 
-      <Grid container spacing={3}>
-        {dashboardCards.map((card) => (
-          <Grid item xs={12} sm={6} md={4} key={card.title}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {dashboardCards.map(card => (
             <DashboardCard
+              key={card.title}
               title={card.title}
               subtitle={card.subtitle}
               icon={card.icon}
@@ -218,68 +200,79 @@ const Dashboard = () => {
               badge={card.badge}
               onClick={() => navigate(card.path)}
             />
-          </Grid>
-        ))}
-      </Grid>
+          ))}
+        </div>
+      </div>
 
-      {/* Recent Activity Section */}
-      <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 3 }}>
+      {/* Getting Started Section */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">
           Getting Started
-        </Typography>
+        </h2>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            <Card title="Steps to Get Started">
-              <Box sx={{ '& > *': { mb: 2 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                    1
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Card>
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Steps to Get Started</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
+                      1
+                    </div>
+                    <p className="text-sm">
+                      Upload your Excel financial model files
+                    </p>
                   </div>
-                  <Typography>Upload your Excel financial model files</Typography>
-                </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                    2
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
+                      2
+                    </div>
+                    <p className="text-sm">
+                      Review and validate extracted parameters
+                    </p>
                   </div>
-                  <Typography>Review and validate extracted parameters</Typography>
-                </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                    3
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
+                      3
+                    </div>
+                    <p className="text-sm">
+                      Explore interactive dashboards and visualizations
+                    </p>
                   </div>
-                  <Typography>Explore interactive dashboards and visualizations</Typography>
-                </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {/* DESIGN_FIX: use utility classes instead of inline styles */}
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                    4
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
+                      4
+                    </div>
+                    <p className="text-sm">
+                      Generate and export comprehensive reports
+                    </p>
                   </div>
-                  <Typography>Generate and export comprehensive reports</Typography>
-                </Box>
-              </Box>
+                </div>
+              </div>
             </Card>
-          </Grid>
+          </div>
 
-          <Grid item xs={12} md={4}>
-            <Card title="Need Help?">
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Get started quickly with our documentation and support resources.
-              </Typography>
-              <Button type="button" variant="outline" className="w-full">
-                View Documentation
-              </Button>
+          <div>
+            <Card>
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-2">Need Help?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Get started quickly with our documentation and support
+                  resources.
+                </p>
+                <Button type="button" variant="outline" className="w-full">
+                  View Documentation
+                </Button>
+              </div>
             </Card>
-          </Grid>
-        </Grid>
-      </Box>
-    </Box>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -137,7 +137,7 @@ const Layout = () => {
 
                       {/* Theme Toggle, Help, and User Menu */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <HelpButton size="medium" />
+            <HelpButton size="default" />
             <ThemeToggle />
             <IconButton
                 size="large"

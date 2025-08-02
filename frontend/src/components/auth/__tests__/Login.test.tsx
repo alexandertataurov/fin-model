@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import Login from '../../../pages/Login';
@@ -10,9 +10,23 @@ const mockLogin = jest.fn();
 const mockAuthContext = {
   login: mockLogin,
   logout: jest.fn(),
+  register: jest.fn(),
+  requestPasswordReset: jest.fn(),
+  resetPassword: jest.fn(),
+  refreshAuthToken: jest.fn(),
+  refreshToken: jest.fn().mockResolvedValue(false),
+  updateUser: jest.fn(),
+  hasPermission: jest.fn().mockReturnValue(false),
+  hasRole: jest.fn().mockReturnValue(false),
+  isAdmin: jest.fn().mockReturnValue(false),
+  isAnalyst: jest.fn().mockReturnValue(false),
   user: null,
+  token: null,
   loading: false,
   isAuthenticated: false,
+  permissions: [],
+  roles: [],
+  isLoading: false,
 };
 
 // Mock WebAuthn

@@ -11,6 +11,7 @@ export class DashboardCacheManager {
   private static readonly CACHE_KEYS = {
     CASH_FLOW: 'cash-flow-dashboard',
     PL: 'pl-dashboard',
+    BALANCE_SHEET: 'balance-sheet-dashboard',
     RATIOS: 'ratio-metrics',
     VARIANCE: 'variance-metrics',
   } as const;
@@ -47,6 +48,7 @@ export class DashboardCacheManager {
       await Promise.all([
         queryClient.invalidateQueries([this.CACHE_KEYS.CASH_FLOW]),
         queryClient.invalidateQueries([this.CACHE_KEYS.PL]),
+        queryClient.invalidateQueries([this.CACHE_KEYS.BALANCE_SHEET]),
         queryClient.invalidateQueries([this.CACHE_KEYS.RATIOS]),
         queryClient.invalidateQueries([this.CACHE_KEYS.VARIANCE]),
       ]);

@@ -167,7 +167,7 @@ export const WithIcons: Story = {
 };
 
 export const PasswordWithToggle: Story = {
-  render: () => {
+  render: function PasswordWithToggleStory() {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
@@ -270,6 +270,38 @@ export const ParameterInputExample: Story = {
       description: {
         story:
           'Example usage for financial parameter inputs in the modeling interface.',
+      },
+    },
+  },
+};
+
+export const BorderStyling: Story = {
+  render: () => (
+    <div className="w-80 space-y-4">
+      <div className="space-y-2">
+        <Label>Default Border</Label>
+        <Input placeholder="Default input styling" />
+      </div>
+      <div className="space-y-2">
+        <Label>Focused State</Label>
+        <Input placeholder="Focus to see ring effect" autoFocus />
+      </div>
+      <div className="space-y-2">
+        <Label>Error State</Label>
+        <Input placeholder="Error state with red border" aria-invalid="true" />
+        <p className="text-sm text-destructive">This field has an error</p>
+      </div>
+      <div className="space-y-2">
+        <Label>Disabled State</Label>
+        <Input placeholder="Disabled input" disabled />
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstration of improved border styling with consistent focus states and error indicators.',
       },
     },
   },

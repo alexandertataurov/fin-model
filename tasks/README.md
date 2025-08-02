@@ -191,11 +191,137 @@ This directory contains detailed task breakdowns for the FinVision Financial Mod
 
 ---
 
+### [11 - Pages Functional Improvement](./11-pages-functional-improvement.md)
+
+**Total Estimated Time: 95-125 hours**
+
+- Remove mock data from dashboard pages
+- Complete backend API integration
+- Implement unified data flow patterns
+- Performance optimization and caching
+
+**Key Deliverables:**
+
+- Production-ready dashboards with real data
+- Consistent API service layer
+- Error handling and loading states
+- Comprehensive test coverage
+
+---
+
+### [12 - Design System Consolidation](./12-design-system-consolidation.md)
+
+**Total Estimated Time: 45-60 hours**
+
+- Complete Radix UI component implementation
+- Migrate from Material-UI to unified design system
+- CVA variant system consistency
+- Component library optimization
+
+**Key Deliverables:**
+
+- Unified Radix UI + Tailwind design system
+- Complete Material-UI migration
+- Consistent component variants
+- Reduced bundle size
+
+---
+
+### [13 - Balance Sheet Dashboard](./13-balance-sheet-dashboard.md)
+
+**Total Estimated Time: 55-75 hours**
+
+- Balance sheet dashboard implementation
+- Advanced financial ratio analysis
+- Asset, liability, and equity breakdowns
+- Real-time balance sheet validation
+
+**Key Deliverables:**
+
+- Complete balance sheet analysis tool
+- Financial ratio calculations
+- Interactive balance sheet visualizations
+- Data quality validation
+
+---
+
+### [14 - Enhanced Authentication](./14-enhanced-authentication.md)
+
+**Total Estimated Time: 85-115 hours**
+
+- Multi-Factor Authentication (TOTP/SMS)
+- Social Login (Google, Microsoft OAuth)
+- Biometric Authentication (WebAuthn)
+- Advanced session management
+
+**Key Deliverables:**
+
+- MFA with backup codes
+- OAuth social login integration
+- Passwordless biometric authentication
+- Enhanced security features
+
+---
+
+### [15 - Advanced Reporting](./15-advanced-reporting.md)
+
+**Total Estimated Time: 95-125 hours**
+
+- Drag-and-drop template builder
+- Real-time collaborative reporting
+- AI-powered insights generation
+- Smart report recommendations
+
+**Key Deliverables:**
+
+- Visual report template builder
+- Multi-user collaboration features
+- AI-generated financial insights
+- Advanced reporting automation
+
+---
+
+### [16 - Real-time Features](./16-real-time-features.md)
+
+**Total Estimated Time: 65-85 hours**
+
+- Enhanced WebSocket infrastructure
+- Real-time dashboard updates
+- Live notification system
+- Collaborative editing features
+
+**Key Deliverables:**
+
+- Real-time data synchronization
+- Live dashboard metrics
+- Push notification system
+- WebSocket-based collaboration
+
+---
+
+### [17 - Performance Monitoring](./17-performance-monitoring.md)
+
+**Total Estimated Time: 45-60 hours**
+
+- Application Performance Monitoring (APM)
+- Real User Monitoring (RUM)
+- Data quality monitoring
+- Performance analytics dashboard
+
+**Key Deliverables:**
+
+- Comprehensive performance tracking
+- Core Web Vitals monitoring
+- Data quality scoring system
+- Performance optimization insights
+
+---
+
 ## Project Summary
 
 ### Total Estimated Development Time
 
-**647-868 hours** (approximately 16-22 weeks for a full-time developer)
+**1,105-1,484 hours** (approximately 28-37 weeks for a full-time developer)
 
 ### Critical Path Dependencies
 

@@ -7,7 +7,7 @@ import {
   Legend,
   Tooltip,
 } from 'recharts';
-import { Box, Typography } from '@mui/material';
+// Removed Material-UI imports - using Tailwind for layout
 import BaseChart from './BaseChart';
 
 export interface PieChartDataPoint {
@@ -110,26 +110,17 @@ export const PieChart: React.FC<PieChartProps> = ({
     const percentage = ((data.value / total) * 100).toFixed(1);
 
     return (
-      <Box
-        sx={{
-          backgroundColor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 1,
-          p: 2,
-          boxShadow: 2,
-        }}
-      >
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+      <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+        <h4 className="font-semibold mb-2 text-foreground">
           {data.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+        </h4>
+        <p className="text-sm text-muted-foreground">
           Value: {formatCurrency(data.value)}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+        </p>
+        <p className="text-sm text-muted-foreground">
           Percentage: {percentage}%
-        </Typography>
-      </Box>
+        </p>
+      </div>
     );
   };
 
@@ -184,47 +175,24 @@ export const PieChart: React.FC<PieChartProps> = ({
       onExport={onExport}
       onFullscreen={onFullscreen}
     >
-      <Box sx={{ position: 'relative', height: '100%' }}>
+      <div className="relative h-full">
         {chartContent}
 
         {/* Center Label for Donut Charts */}
         {isDonut && centerLabel && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center',
-              pointerEvents: 'none',
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                color: 'primary.main',
-                lineHeight: 1,
-              }}
-            >
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+            <div className="text-lg font-bold text-primary leading-tight">
               {typeof centerLabel.value === 'number'
                 ? formatCurrency(centerLabel.value)
                 : centerLabel.value
               }
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                fontWeight: 500,
-                mt: 0.5,
-              }}
-            >
+            </div>
+            <div className="text-sm text-muted-foreground font-medium mt-1">
               {centerLabel.title}
-            </Typography>
-          </Box>
+            </div>
+          </div>
         )}
-      </Box>
+      </div>
     </BaseChart>
   );
 };

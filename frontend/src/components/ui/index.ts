@@ -70,6 +70,54 @@ export {
   CollapsibleTrigger,
 } from './collapsible';
 
+// Newly added Radix UI components
+export {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from './menubar';
+export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  NavigationMenuViewport,
+} from './navigation-menu';
+export { Popover, PopoverContent, PopoverTrigger } from './popover';
+export { Toggle, toggleVariants } from './toggle';
+export { ToggleGroup, ToggleGroupItem } from './toggle-group';
+export {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './tooltip';
+export {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuCheckboxItem,
+  ContextMenuRadioItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuGroup,
+  ContextMenuPortal,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuRadioGroup,
+  ContextMenuTrigger,
+} from './context-menu';
+
 // Re-export design system ThemeToggle component
 export { ThemeToggle } from '../theme-toggle';
 export { default as TextField } from './TextField';

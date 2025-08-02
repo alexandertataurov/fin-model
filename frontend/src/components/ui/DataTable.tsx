@@ -86,7 +86,7 @@ export const DataTable = <T extends Record<string, unknown>>({
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof T>(columns[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<Record<string, unknown>>({});
+  const [filters] = useState<Record<string, unknown>>({});
   const [selected, setSelected] = useState<T[]>([]);
 
   // Filter and search data
@@ -157,8 +157,8 @@ export const DataTable = <T extends Record<string, unknown>>({
     setOrderBy(columnId);
   };
 
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    if (checked === true) {
       setSelected(paginatedData);
       onSelectionChange?.(paginatedData);
     } else {

@@ -5,8 +5,8 @@
  */
 
 import React, { Component, ReactNode } from 'react';
-import { Alert, Box, Button, Typography } from '@mui/material';
-import { Refresh, BugReport } from '@mui/icons-material';
+import { Alert, AlertDescription, Button } from '../ui';
+import { RefreshCw, Bug } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -48,36 +48,42 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              {this.props.title || 'Dashboard Error'}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {this.state.error?.message || 'Something went wrong while loading this component.'}
-            </Typography>
+        <div className="p-6 text-center space-y-4">
+          <Alert variant="destructive">
+            <AlertDescription>
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg">
+                  {this.props.title || 'Dashboard Error'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {this.state.error?.message || 'Something went wrong while loading this component.'}
+                </p>
+              </div>
+            </AlertDescription>
           </Alert>
           
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+          <div className="flex gap-3 justify-center">
             <Button
-              variant="outlined"
-              startIcon={<Refresh />}
+              variant="outline"
               onClick={this.handleRetry}
+              className="flex items-center gap-2"
             >
+              <RefreshCw className="h-4 w-4" />
               Retry
             </Button>
             <Button
-              variant="text"
-              startIcon={<BugReport />}
+              variant="ghost"
               onClick={() => {
                 // Could open support modal or copy error details
                 console.error('Error details:', this.state.error);
               }}
+              className="flex items-center gap-2"
             >
+              <Bug className="h-4 w-4" />
               Report Issue
             </Button>
-          </Box>
-        </Box>
+          </div>
+        </div>
       );
     }
 

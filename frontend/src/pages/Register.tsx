@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -21,6 +21,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Separator } from '../components/ui/separator';
+
 
 const validationSchema = yup.object({
   email: yup
@@ -466,36 +467,30 @@ const Register: React.FC = () => {
                 )}
               </Button>
 
-              <Divider sx={{ mb: 3 }}>
-                <Typography variant="body2" color="text.secondary">
-                  or
-                </Typography>
-              </Divider>
+              <Separator className="mb-3" />
 
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
                   Already have an account?{' '}
-                  <Link
-                    component={RouterLink}
-                    to="/login"
-                    color="primary"
-                    sx={{ fontWeight: 'bold', textDecoration: 'none' }}
+                  <a
+                    href="/login"
+                    className="font-bold text-primary hover:underline"
                   >
                     Sign in here
-                  </Link>
-                </Typography>
-              </Box>
+                  </a>
+                </p>
+              </div>
             </form>
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <Box sx={{ textAlign: 'center', mt: 3 }}>
+        <div className="text-center mt-3">
           {/* DESIGN_FIX: replaced hard-coded footer color with token */}
-          <Typography variant="body2" className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             © 2024 FinVision. All rights reserved.
-          </Typography>
-        </Box>
+          </p>
+        </div>
       </div>
     </div>
   );

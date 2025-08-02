@@ -12,7 +12,7 @@ export interface PLTabEnhancedProps {
   period?: 'mtd' | 'qtd' | 'ytd' | 'last_30_days' | 'last_90_days' | 'last_12_months';
 }
 
-export function PLTabEnhanced({ period = 'ytd' }: PLTabEnhancedProps) {
+export function PLTabEnhanced() {
   // Component temporarily disabled during dashboard API migration
   return (
     <div className="p-4">

@@ -78,13 +78,13 @@ export const RevenueGrowthLine: Story = {
           {
             dataKey: 'revenue',
             name: 'Revenue',
-            color: '#2563eb',
+            color: 'var(--chart-1)',
             strokeWidth: 3,
           },
           {
             dataKey: 'profit',
             name: 'Profit',
-            color: '#15803d',
+            color: 'var(--chart-2)',
             strokeWidth: 2,
           },
         ]}
@@ -117,17 +117,17 @@ export const MonthlyComparison: Story = {
           {
             dataKey: 'actual',
             name: 'Actual',
-            color: '#2563eb',
+            color: 'var(--chart-1)',
           },
           {
             dataKey: 'budget',
             name: 'Budget',
-            color: '#7c3aed',
+            color: 'var(--chart-2)',
           },
           {
             dataKey: 'forecast',
             name: 'Forecast',
-            color: '#15803d',
+            color: 'var(--chart-3)',
           },
         ]}
         title="Monthly Performance"
@@ -157,12 +157,11 @@ export const ExpenseBreakdown: Story = {
         data={categoryData}
         title="Expense Breakdown"
         subtitle="Operating expenses by category"
-        dataKey="value"
-        nameKey="name"
+
         currency="USD"
-        showPercentage={true}
+        showPercentages={true}
         showLegend={true}
-        colors={['#2563eb', '#7c3aed', '#15803d', '#dc2626', '#ea580c']}
+
       />
     </div>
   ),
@@ -227,7 +226,7 @@ export const MinimalChart: Story = {
           {
             dataKey: 'revenue',
             name: 'Revenue',
-            color: '#2563eb',
+            color: 'var(--chart-1)',
             strokeWidth: 2,
           },
         ]}
@@ -256,13 +255,13 @@ export const StackedBarChart: Story = {
           {
             dataKey: 'revenue',
             name: 'Revenue',
-            color: '#2563eb',
+            color: 'var(--chart-1)',
             stackId: 'a',
           },
           {
             dataKey: 'expenses',
             name: 'Expenses',
-            color: '#dc2626',
+            color: 'var(--chart-4)',
             stackId: 'a',
           },
         ]}
@@ -296,7 +295,7 @@ export const DashboardWidget: Story = {
             {
               dataKey: 'actual',
               name: 'Revenue',
-              color: '#2563eb',
+              color: 'var(--chart-1)',
               strokeWidth: 2,
             },
           ]}
@@ -313,7 +312,7 @@ export const DashboardWidget: Story = {
             {
               dataKey: 'actual',
               name: 'Actual',
-              color: '#15803d',
+              color: 'var(--chart-2)',
             },
           ]}
           title="Performance"
@@ -328,6 +327,167 @@ export const DashboardWidget: Story = {
     docs: {
       description: {
         story: 'Charts configured as dashboard widgets with compact styling.',
+      },
+    },
+  },
+};
+
+// Advanced Chart Stories
+
+export const AccessibleChart: Story = {
+  render: () => (
+    <div className="w-full h-96">
+      <LineChart
+        data={revenueData}
+        series={[
+          {
+            dataKey: 'revenue',
+            name: 'Revenue',
+            color: 'var(--chart-1)',
+            strokeWidth: 3,
+          },
+          {
+            dataKey: 'profit',
+            name: 'Profit',
+            color: 'var(--chart-2)',
+            strokeWidth: 2,
+          },
+        ]}
+        title="Accessible Revenue Chart"
+        subtitle="Chart optimized for screen readers and high contrast"
+        xAxisKey="period"
+        yAxisLabel="Amount ($)"
+        currency="USD"
+        showGrid={true}
+        showLegend={true}
+        showDots={true}
+      />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Chart with enhanced accessibility features including high contrast colors and visible data points.',
+      },
+    },
+  },
+};
+
+export const GrayscaleChart: Story = {
+  render: () => (
+    <div className="w-full h-96">
+      <BarChart
+        data={monthlyData}
+        series={[
+          {
+            dataKey: 'actual',
+            name: 'Actual',
+            color: 'var(--gray-700)',
+          },
+          {
+            dataKey: 'budget',
+            name: 'Budget',
+            color: 'var(--gray-500)',
+          },
+          {
+            dataKey: 'forecast',
+            name: 'Forecast',
+            color: 'var(--gray-300)',
+          },
+        ]}
+        title="Grayscale Performance Chart"
+        subtitle="Using design system grayscale colors"
+        xAxisKey="month"
+        yAxisLabel="Revenue ($)"
+        currency="USD"
+        showGrid={true}
+        showLegend={true}
+      />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Chart demonstrating the new grayscale color tokens for print-friendly or monochromatic displays.',
+      },
+    },
+  },
+};
+
+export const ExtendedColorPalette: Story = {
+  render: () => {
+    const extendedData = [
+      { name: 'Category 1', value: 25 },
+      { name: 'Category 2', value: 20 },
+      { name: 'Category 3', value: 15 },
+      { name: 'Category 4', value: 12 },
+      { name: 'Category 5', value: 10 },
+      { name: 'Category 6', value: 8 },
+      { name: 'Category 7', value: 6 },
+      { name: 'Category 8', value: 4 },
+    ];
+
+    return (
+      <div className="w-full h-96">
+        <PieChart
+          data={extendedData}
+          title="Extended Color Palette"
+          subtitle="Showcasing the full range of chart colors"
+
+          showPercentages={true}
+          showLegend={true}
+
+        />
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Chart demonstrating the extended color palette with 8 distinct chart colors.',
+      },
+    },
+  },
+};
+
+export const HighContrastChart: Story = {
+  render: () => (
+    <div className="w-full h-96 bg-gray-900 p-4 rounded-lg">
+      <LineChart
+        data={revenueData}
+        series={[
+          {
+            dataKey: 'revenue',
+            name: 'Revenue',
+            color: '#ffffff',
+            strokeWidth: 3,
+          },
+          {
+            dataKey: 'profit',
+            name: 'Profit',
+            color: '#fbbf24',
+            strokeWidth: 2,
+          },
+        ]}
+        title="High Contrast Chart"
+        subtitle="Optimized for accessibility and dark backgrounds"
+        xAxisKey="period"
+        yAxisLabel="Amount ($)"
+        currency="USD"
+        showGrid={true}
+        showLegend={true}
+        showDots={true}
+      />
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'High contrast chart design for users with visual impairments or dark mode environments.',
       },
     },
   },

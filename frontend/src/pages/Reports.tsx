@@ -69,18 +69,7 @@ interface ReportTemplate {
   updated_at?: string;
 }
 
-interface ReportExport {
-  id: number;
-  name: string;
-  export_format: string;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-  file_path?: string;
-  file_size?: number;
-  processing_duration_seconds?: number;
-  error_message?: string;
-  created_at: string;
-  expires_at?: string;
-}
+
 
 const Reports: React.FC = () => {
   const [activeTab, setActiveTab] = useState('generate');
@@ -519,7 +508,7 @@ const Reports: React.FC = () => {
                     'FAILED',
                     'CANCELLED',
                   ],
-                  format: (value, row) => (
+                  format: (value) => (
                     <div className="flex items-center gap-2">
                       <Badge variant={getStatusVariant(String(value))}>
                         {String(value)}
@@ -553,7 +542,7 @@ const Reports: React.FC = () => {
                 },
               ]}
               data={exports || []}
-              actions={row => (
+              actions={(row: any) => (
                 <div className="flex items-center gap-1">
                   {row.status === 'COMPLETED' && row.file_path && (
                     <Button variant="ghost" size="icon">

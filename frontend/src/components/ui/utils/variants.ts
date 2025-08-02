@@ -9,7 +9,7 @@ export const inputVariants = cva(
       variant: {
         default: 'border-input',
         error: 'border-destructive focus-visible:ring-destructive',
-        success: 'border-green-500 focus-visible:ring-green-500',
+        success: 'border-success focus-visible:ring-success',
       },
       size: {
         default: 'h-9 px-3 py-1',
@@ -60,9 +60,9 @@ export const badgeVariants = cva(
           'border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80',
         outline: 'text-foreground border-border',
         success:
-          'border-transparent bg-green-500 text-white shadow hover:bg-green-500/80',
+          'border-transparent bg-success text-success-foreground shadow hover:bg-success/80',
         warning:
-          'border-transparent bg-yellow-500 text-white shadow hover:bg-yellow-500/80',
+          'border-transparent bg-warning text-warning-foreground shadow hover:bg-warning/80',
       },
       size: {
         default: 'px-2.5 py-0.5 text-xs',
@@ -86,10 +86,10 @@ export const alertVariants = cva(
         destructive:
           'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
         success:
-          'border-green-500/50 text-green-700 dark:text-green-400 [&>svg]:text-green-600',
+          'border-success/50 text-success dark:text-success-foreground [&>svg]:text-success',
         warning:
-          'border-yellow-500/50 text-yellow-700 dark:text-yellow-400 [&>svg]:text-yellow-600',
-        info: 'border-blue-500/50 text-blue-700 dark:text-blue-400 [&>svg]:text-blue-600',
+          'border-warning/50 text-warning dark:text-warning-foreground [&>svg]:text-warning',
+        info: 'border-info/50 text-info dark:text-info-foreground [&>svg]:text-info',
       },
     },
     defaultVariants: {

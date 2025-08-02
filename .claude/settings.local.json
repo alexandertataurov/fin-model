@@ -51,7 +51,10 @@
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m alembic upgrade head)",
       "Bash(git stash:*)",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m alembic revision -m \"add_monte_carlo_simulation_tables\")",
-      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\e55cf976aaaa_add_monte_carlo_simulation_tables.py\")"
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\e55cf976aaaa_add_monte_carlo_simulation_tables.py\")",
+      "Bash(timeout 30 npm test -- dashboard-integration.test.tsx --run)",
+      "Bash(mkdir:*)",
+      "Bash(timeout 30 npm run build)"
     ],
     "deny": []
   }

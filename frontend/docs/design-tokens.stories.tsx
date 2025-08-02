@@ -75,8 +75,16 @@ export const Colors: StoryObj = {
               class: 'bg-destructive',
               text: 'text-destructive-foreground',
             },
-            { name: 'Success', class: 'bg-green-700', text: 'text-white' },
-            { name: 'Warning', class: 'bg-amber-600', text: 'text-white' },
+            {
+              name: 'Success',
+              class: 'bg-success',
+              text: 'text-success-foreground',
+            },
+            {
+              name: 'Warning',
+              class: 'bg-warning',
+              text: 'text-warning-foreground',
+            },
           ].map(color => (
             <div key={color.name} className="space-y-2">
               <div
@@ -85,6 +93,53 @@ export const Colors: StoryObj = {
                 {color.name}
               </div>
               <p className="text-sm text-muted-foreground">{color.class}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Grayscale Colors</h3>
+        <div className="grid grid-cols-5 gap-4">
+          {[
+            { name: 'Gray 100', css: 'var(--gray-100)', class: 'bg-gray-100' },
+            { name: 'Gray 300', css: 'var(--gray-300)', class: 'bg-gray-300' },
+            { name: 'Gray 500', css: 'var(--gray-500)', class: 'bg-gray-500' },
+            { name: 'Gray 700', css: 'var(--gray-700)', class: 'bg-gray-700' },
+            { name: 'Gray 900', css: 'var(--gray-900)', class: 'bg-gray-900' },
+          ].map(color => (
+            <div key={color.name} className="space-y-2">
+              <div
+                className={`h-16 rounded-md border`}
+                style={{ backgroundColor: color.css }}
+              />
+              <p className="text-sm font-medium">{color.name}</p>
+              <p className="text-xs text-muted-foreground">{color.css}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Chart Colors</h3>
+        <div className="grid grid-cols-4 gap-4">
+          {[
+            { name: 'Chart 1', css: 'var(--chart-1)' },
+            { name: 'Chart 2', css: 'var(--chart-2)' },
+            { name: 'Chart 3', css: 'var(--chart-3)' },
+            { name: 'Chart 4', css: 'var(--chart-4)' },
+            { name: 'Chart 5', css: 'var(--chart-5)' },
+            { name: 'Chart 6', css: 'var(--chart-6)' },
+            { name: 'Chart 7', css: 'var(--chart-7)' },
+            { name: 'Chart 8', css: 'var(--chart-8)' },
+          ].map(color => (
+            <div key={color.name} className="space-y-2">
+              <div
+                className="h-16 rounded-md border"
+                style={{ backgroundColor: color.css }}
+              />
+              <p className="text-sm font-medium">{color.name}</p>
+              <p className="text-xs text-muted-foreground">{color.css}</p>
             </div>
           ))}
         </div>

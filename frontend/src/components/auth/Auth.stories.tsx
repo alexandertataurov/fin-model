@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ForgotPasswordForm } from './ForgotPasswordForm';
-import { ResetPasswordForm } from './ResetPasswordForm';
-import { EmailVerification } from './EmailVerification';
-import { BiometricLogin } from './BiometricLogin';
+// import ForgotPasswordForm from './ForgotPasswordForm';
+// import ResetPasswordForm from './ResetPasswordForm';
+// import EmailVerification from './EmailVerification';
+// import { BiometricLogin } from './BiometricLogin';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -58,7 +58,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const LoginForm: Story = {
-  render: () => {
+  render: function LoginFormStory() {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
