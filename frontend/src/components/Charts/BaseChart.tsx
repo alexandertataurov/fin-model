@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, IconButton, Tooltip, Menu, MenuItem } from '@mui/material';
-import { Download as DownloadIcon, Fullscreen as FullscreenIcon } from '@mui/icons-material';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/utils/cn';
+import {
+  Download as DownloadIcon,
+  Maximize as FullscreenIcon,
+} from 'lucide-react';
 
 interface BaseChartProps {
   title?: string;
@@ -25,7 +36,9 @@ export const BaseChart: React.FC<BaseChartProps> = ({
   onFullscreen,
   actions,
 }) => {
-  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
+  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
   return (
     <Paper
       elevation={2}
@@ -60,7 +73,7 @@ export const BaseChart: React.FC<BaseChartProps> = ({
               </Typography>
             )}
           </Box>
-          
+
           <Box
             className="chart-actions"
             sx={{
@@ -74,9 +87,9 @@ export const BaseChart: React.FC<BaseChartProps> = ({
             {onExport && (
               <>
                 <Tooltip title="Export Chart">
-                  <IconButton 
-                    size="small" 
-                    onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+                  <IconButton
+                    size="small"
+                    onClick={e => setExportMenuAnchor(e.currentTarget)}
                   >
                     <DownloadIcon fontSize="small" />
                   </IconButton>
@@ -86,22 +99,28 @@ export const BaseChart: React.FC<BaseChartProps> = ({
                   open={Boolean(exportMenuAnchor)}
                   onClose={() => setExportMenuAnchor(null)}
                 >
-                  <MenuItem onClick={() => {
-                    onExport('PNG');
-                    setExportMenuAnchor(null);
-                  }}>
+                  <MenuItem
+                    onClick={() => {
+                      onExport('PNG');
+                      setExportMenuAnchor(null);
+                    }}
+                  >
                     Export as PNG
                   </MenuItem>
-                  <MenuItem onClick={() => {
-                    onExport('SVG');
-                    setExportMenuAnchor(null);
-                  }}>
+                  <MenuItem
+                    onClick={() => {
+                      onExport('SVG');
+                      setExportMenuAnchor(null);
+                    }}
+                  >
                     Export as SVG
                   </MenuItem>
-                  <MenuItem onClick={() => {
-                    onExport('PDF');
-                    setExportMenuAnchor(null);
-                  }}>
+                  <MenuItem
+                    onClick={() => {
+                      onExport('PDF');
+                      setExportMenuAnchor(null);
+                    }}
+                  >
                     Export as PDF
                   </MenuItem>
                 </Menu>
@@ -148,7 +167,7 @@ export const BaseChart: React.FC<BaseChartProps> = ({
             </Typography>
           </Box>
         )}
-        
+
         {error && (
           <Box
             sx={{
@@ -164,11 +183,11 @@ export const BaseChart: React.FC<BaseChartProps> = ({
             </Typography>
           </Box>
         )}
-        
+
         {!loading && !error && children}
       </Box>
     </Paper>
   );
 };
 
-export default BaseChart; 
+export default BaseChart;

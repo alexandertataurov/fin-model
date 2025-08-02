@@ -1,31 +1,41 @@
 import React, { useState, useMemo } from 'react';
+import { cn } from '@/utils/cn';
+import { Button } from './button';
+import { Input } from './input';
+import { Checkbox } from './checkbox';
+import { Badge } from './badge';
+import { Card, CardContent, CardHeader, CardTitle } from './card';
 import {
-  Box,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  TablePagination,
-  TableSortLabel,
-  Paper,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Chip,
-  Typography,
-  Checkbox,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Button,
-} from '@mui/material';
+} from './table';
 import {
-  Search as SearchIcon,
-  FilterList as FilterIcon,
-  GetApp as ExportIcon,
-} from '@mui/icons-material';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './select';
+import { Separator } from './separator';
+import { Skeleton } from './skeleton';
+import {
+  Search,
+  Filter,
+  Download,
+  ChevronUp,
+  ChevronDown,
+  MoreHorizontal,
+} from 'lucide-react';
 
 export interface DataTableColumn<T = Record<string, unknown>> {
   id: keyof T;
@@ -78,7 +88,6 @@ export const DataTable = <T extends Record<string, unknown>>({
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [selected, setSelected] = useState<T[]>([]);
-  const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
 
   // Filter and search data
   const filteredData = useMemo(() => {
@@ -99,7 +108,7 @@ export const DataTable = <T extends Record<string, unknown>>({
         result = result.filter(row => {
           const cellValue = row[columnId];
           const column = columns.find(col => col.id === columnId);
-          
+
           switch (column?.filterType) {
             case 'select':
               return cellValue === filterValue;
@@ -107,7 +116,9 @@ export const DataTable = <T extends Record<string, unknown>>({
               return Number(cellValue) === Number(filterValue);
             case 'text':
             default:
-              return String(cellValue).toLowerCase().includes(String(filterValue).toLowerCase());
+              return String(cellValue)
+                .toLowerCase()
+                .includes(String(filterValue).toLowerCase());
           }
         });
       }
@@ -156,301 +167,285 @@ export const DataTable = <T extends Record<string, unknown>>({
     }
   };
 
-  const handleSelectRow = (row: T) => {
-    const selectedIndex = selected.findIndex(item => 
-      JSON.stringify(item) === JSON.stringify(row)
-    );
-    
-    let newSelected: T[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = [...selected, row];
+  const handleSelectRow = (row: T, checked: boolean) => {
+    if (checked) {
+      const newSelected = [...selected, row];
+      setSelected(newSelected);
+      onSelectionChange?.(newSelected);
     } else {
-      newSelected = selected.filter((_, index) => index !== selectedIndex);
-    }
-
-    setSelected(newSelected);
-    onSelectionChange?.(newSelected);
-  };
-
-  const isSelected = (row: T) => {
-    return selected.some(item => JSON.stringify(item) === JSON.stringify(row));
-  };
-
-  const handleFilterChange = (columnId: string, value: unknown) => {
-    setFilters(prev => ({
-      ...prev,
-      [columnId]: value || undefined,
-    }));
-  };
-
-  const clearFilter = (columnId: string) => {
-    setFilters(prev => {
-      const newFilters = { ...prev };
-      delete newFilters[columnId];
-      return newFilters;
-    });
-  };
-
-  const getActiveFiltersCount = () => {
-    return Object.values(filters).filter(Boolean).length;
-  };
-
-  const renderFilter = (column: DataTableColumn<T>) => {
-    const currentFilter = filters[column.id as string];
-
-    switch (column.filterType) {
-      case 'select':
-        return (
-          <TextField
-            select
-            size="small"
-            value={currentFilter || ''}
-            onChange={(e) => handleFilterChange(column.id as string, e.target.value)}
-            placeholder={`Filter ${column.label}`}
-            sx={{ minWidth: 120 }}
-          >
-            <MenuItem value="">All</MenuItem>
-            {column.filterOptions?.map(option => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
-        );
-      case 'number':
-        return (
-          <TextField
-            type="number"
-            size="small"
-            value={currentFilter || ''}
-            onChange={(e) => handleFilterChange(column.id as string, e.target.value)}
-            placeholder={`Filter ${column.label}`}
-            sx={{ minWidth: 120 }}
-          />
-        );
-      case 'text':
-      default:
-        return (
-          <TextField
-            size="small"
-            value={currentFilter || ''}
-            onChange={(e) => handleFilterChange(column.id as string, e.target.value)}
-            placeholder={`Filter ${column.label}`}
-            sx={{ minWidth: 120 }}
-          />
-        );
+      const newSelected = selected.filter(item => item !== row);
+      setSelected(newSelected);
+      onSelectionChange?.(newSelected);
     }
   };
+
+  const isSelected = (row: T) => selected.includes(row);
+  const isIndeterminate =
+    selected.length > 0 && selected.length < paginatedData.length;
+  const isAllSelected =
+    paginatedData.length > 0 && selected.length === paginatedData.length;
+
+  if (loading) {
+    return (
+      <Card>
+        {title && (
+          <CardHeader>
+            <CardTitle>{title}</CardTitle>
+          </CardHeader>
+        )}
+        <CardContent>
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      {/* Toolbar */}
-      <Toolbar sx={{ pl: { sm: 2 }, pr: { xs: 1, sm: 1 } }}>
-        <Box sx={{ flex: '1 1 100%' }}>
-          {title && (
-            <Typography variant="h6" component="div">
-              {title}
-            </Typography>
-          )}
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* Search */}
-          {searchable && (
-            <TextField
-              size="small"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ minWidth: 200 }}
-            />
-          )}
-
-          {/* Filter Menu */}
-          <IconButton
-            onClick={(e) => setFilterAnchorEl(e.currentTarget)}
-            color={getActiveFiltersCount() > 0 ? 'primary' : 'default'}
-          >
-            <FilterIcon />
-            {getActiveFiltersCount() > 0 && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: -8,
-                  right: -8,
-                  backgroundColor: 'primary.main',
-                  color: 'white',
-                  borderRadius: '50%',
-                  width: 16,
-                  height: 16,
-                  fontSize: '0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {getActiveFiltersCount()}
-              </Box>
-            )}
-          </IconButton>
-
-          {/* Export */}
-          {exportable && (
-            <Button
-              startIcon={<ExportIcon />}
-              onClick={() => onExport?.(selected.length > 0 ? selected : filteredData)}
-              size="small"
-            >
-              Export
-            </Button>
-          )}
-        </Box>
-      </Toolbar>
-
-      {/* Active Filters */}
-      {getActiveFiltersCount() > 0 && (
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-          <Typography variant="caption" sx={{ mr: 1 }}>
-            Active filters:
-          </Typography>
-          {Object.entries(filters).map(([columnId, value]) => {
-            if (!value) return null;
-            const column = columns.find(col => col.id === columnId);
-            return (
-              <Chip
-                key={columnId}
-                label={`${column?.label}: ${value}`}
-                size="small"
-                onDelete={() => clearFilter(columnId)}
-                sx={{ mr: 1 }}
-              />
-            );
-          })}
-        </Box>
+    <Card>
+      {title && (
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
       )}
-
-      {/* Table */}
-      <TableContainer sx={{ maxHeight }}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              {selectable && (
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    indeterminate={selected.length > 0 && selected.length < paginatedData.length}
-                    checked={paginatedData.length > 0 && selected.length === paginatedData.length}
-                    onChange={handleSelectAll}
-                  />
-                </TableCell>
-              )}
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id as string}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}
-                  sortDirection={orderBy === column.id ? order : false}
-                >
-                  {column.sortable ? (
-                    <TableSortLabel
-                      active={orderBy === column.id}
-                      direction={orderBy === column.id ? order : 'asc'}
-                      onClick={() => handleSort(column.id)}
-                    >
-                      {column.label}
-                    </TableSortLabel>
-                  ) : (
-                    column.label
-                  )}
-                </TableCell>
-              ))}
-              {actions && <TableCell align="center">Actions</TableCell>}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              Array.from({ length: rowsPerPage }, (_, index) => (
-                <TableRow key={index}>
-                  {selectable && <TableCell />}
-                  {columns.map((column) => (
-                    <TableCell key={column.id as string}>
-                      <Box sx={{ height: 20, backgroundColor: 'grey.200', borderRadius: 1 }} />
-                    </TableCell>
-                  ))}
-                  {actions && <TableCell />}
-                </TableRow>
-              ))
-            ) : (
-              paginatedData.map((row, index) => (
-                <TableRow
-                  hover
-                  key={index}
-                  selected={isSelected(row)}
-                  onClick={selectable ? () => handleSelectRow(row) : undefined}
-                  sx={{ cursor: selectable ? 'pointer' : 'default' }}
-                >
-                  {selectable && (
-                    <TableCell padding="checkbox">
-                      <Checkbox checked={isSelected(row)} />
-                    </TableCell>
-                  )}
-                  {columns.map((column) => (
-                    <TableCell key={column.id as string} align={column.align}>
-                      {column.format ? column.format(row[column.id], row) : String(row[column.id] ?? '')}
-                    </TableCell>
-                  ))}
-                  {actions && (
-                    <TableCell align="center">
-                      {actions(row)}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))
+      <CardContent className="space-y-4">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            {searchable && (
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="pl-8 w-64"
+                />
+              </div>
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
 
-      {/* Pagination */}
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        component="div"
-        count={sortedData.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={(_, newPage) => setPage(newPage)}
-        onRowsPerPageChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value, 10));
-          setPage(0);
-        }}
-      />
+            {/* Filter dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4" />
+                  Filter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {columns
+                  .filter(col => col.filterable)
+                  .map(column => (
+                    <DropdownMenuItem key={String(column.id)}>
+                      {column.label}
+                    </DropdownMenuItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-      {/* Filter Menu */}
-      <Menu
-        anchorEl={filterAnchorEl}
-        open={Boolean(filterAnchorEl)}
-        onClose={() => setFilterAnchorEl(null)}
-      >
-        {columns
-          .filter(column => column.filterable)
-          .map((column) => (
-            <MenuItem key={column.id as string} sx={{ flexDirection: 'column', alignItems: 'stretch' }}>
-              <Typography variant="caption" sx={{ mb: 1 }}>
-                {column.label}
-              </Typography>
-              {renderFilter(column)}
-            </MenuItem>
-          ))}
-      </Menu>
-    </Paper>
+          <div className="flex items-center space-x-2">
+            {selected.length > 0 && (
+              <Badge variant="secondary">{selected.length} selected</Badge>
+            )}
+
+            {exportable && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  onExport?.(selected.length > 0 ? selected : data)
+                }
+              >
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Table */}
+        <div className="rounded-md border" style={{ maxHeight }}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {selectable && (
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={isAllSelected}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all"
+                      className={cn(
+                        isIndeterminate && 'data-[state=checked]:bg-primary'
+                      )}
+                    />
+                  </TableHead>
+                )}
+
+                {columns.map(column => (
+                  <TableHead
+                    key={String(column.id)}
+                    className={cn(
+                      column.align === 'center' && 'text-center',
+                      column.align === 'right' && 'text-right',
+                      column.sortable && 'cursor-pointer hover:bg-muted/50'
+                    )}
+                    style={{
+                      minWidth: column.minWidth,
+                      maxWidth: column.maxWidth,
+                    }}
+                    onClick={() => column.sortable && handleSort(column.id)}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>{column.label}</span>
+                      {column.sortable && (
+                        <div className="flex flex-col">
+                          <ChevronUp
+                            className={cn(
+                              'h-3 w-3',
+                              orderBy === column.id && order === 'asc'
+                                ? 'text-foreground'
+                                : 'text-muted-foreground'
+                            )}
+                          />
+                          <ChevronDown
+                            className={cn(
+                              'h-3 w-3',
+                              orderBy === column.id && order === 'desc'
+                                ? 'text-foreground'
+                                : 'text-muted-foreground'
+                            )}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </TableHead>
+                ))}
+
+                {actions && <TableHead className="w-12">Actions</TableHead>}
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {paginatedData.map((row, index) => (
+                <TableRow key={index} className="hover:bg-muted/50">
+                  {selectable && (
+                    <TableCell>
+                      <Checkbox
+                        checked={isSelected(row)}
+                        onCheckedChange={checked =>
+                          handleSelectRow(row, checked as boolean)
+                        }
+                        aria-label={`Select row ${index + 1}`}
+                      />
+                    </TableCell>
+                  )}
+
+                  {columns.map(column => {
+                    const value = row[column.id];
+                    const formatted = column.format
+                      ? column.format(value, row)
+                      : String(value);
+
+                    return (
+                      <TableCell
+                        key={String(column.id)}
+                        className={cn(
+                          column.align === 'center' && 'text-center',
+                          column.align === 'right' && 'text-right'
+                        )}
+                      >
+                        {formatted}
+                      </TableCell>
+                    );
+                  })}
+
+                  {actions && (
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          {actions(row)}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">
+              Showing {page * rowsPerPage + 1} to{' '}
+              {Math.min((page + 1) * rowsPerPage, filteredData.length)} of{' '}
+              {filteredData.length} entries
+            </span>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">
+              Rows per page:
+            </span>
+            <Select
+              value={String(rowsPerPage)}
+              onValueChange={value => {
+                setRowsPerPage(Number(value));
+                setPage(0);
+              }}
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 25, 50, 100].map(size => (
+                  <SelectItem key={size} value={String(size)}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 0}
+              >
+                Previous
+              </Button>
+
+              <span className="text-sm text-muted-foreground px-2">
+                Page {page + 1} of{' '}
+                {Math.ceil(filteredData.length / rowsPerPage)}
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={
+                  page >= Math.ceil(filteredData.length / rowsPerPage) - 1
+                }
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
-
-export default DataTable; 

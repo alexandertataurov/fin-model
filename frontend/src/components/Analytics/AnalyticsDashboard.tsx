@@ -19,7 +19,7 @@ import {
   Divider,
   LinearProgress,
 } from '@mui/material';
-import { Speed, Error, CloudUpload, CheckCircle } from '@mui/icons-material';
+import { Gauge, AlertCircle, Upload, CheckCircle } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -185,7 +185,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CloudUpload color="primary" sx={{ mr: 2 }} />
+                  <Upload color="primary" sx={{ mr: 2 }} />
                   <Box>
                     <Typography color="text.secondary" gutterBottom>
                       Total Files
@@ -219,7 +219,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Speed color="info" sx={{ mr: 2 }} />
+                  <Gauge color="info" sx={{ mr: 2 }} />
                   <Box>
                     <Typography color="text.secondary" gutterBottom>
                       Avg Processing Time
@@ -237,7 +237,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Error color="error" sx={{ mr: 2 }} />
+                  <AlertCircle color="error" sx={{ mr: 2 }} />
                   <Box>
                     <Typography color="text.secondary" gutterBottom>
                       Failed Files
@@ -345,13 +345,15 @@ const AnalyticsDashboard: React.FC = () => {
                                 </Typography>
                                 <Chip
                                   size="small"
-                                  label={`${user.success_rate.toFixed(1)}% success`}
+                                  label={`${user.success_rate.toFixed(
+                                    1
+                                  )}% success`}
                                   color={
                                     user.success_rate > 90
                                       ? 'success'
                                       : user.success_rate > 70
-                                        ? 'warning'
-                                        : 'error'
+                                      ? 'warning'
+                                      : 'error'
                                   }
                                   variant="outlined"
                                 />
@@ -370,14 +372,14 @@ const AnalyticsDashboard: React.FC = () => {
             </Grid>
           )}
 
-          {/* Error Summary */}
+          {/* AlertCircle Summary */}
           <Grid item xs={12} md={6}>
             <Card>
               <CardHeader title="Common Issues" />
               <CardContent>
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="h6" color="error">
-                    {errorSummary.total_errors} Total Errors
+                    {errorSummary.total_errors} Total AlertCircles
                   </Typography>
                 </Box>
                 <List>
