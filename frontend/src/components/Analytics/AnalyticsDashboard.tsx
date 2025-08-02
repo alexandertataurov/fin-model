@@ -185,7 +185,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Upload color="primary" sx={{ mr: 2 }} />
+                  <Upload className="text-primary mr-2" size={24} />
                   <Box>
                     <Typography color="text.secondary" gutterBottom>
                       Total Files
@@ -201,7 +201,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CheckCircle color="success" sx={{ mr: 2 }} />
+                  <CheckCircle className="text-green-600 mr-2" size={24} />
                   <Box>
                     <Typography color="text.secondary" gutterBottom>
                       Success Rate
@@ -219,7 +219,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Gauge color="info" sx={{ mr: 2 }} />
+                  <Gauge className="text-blue-600 mr-2" size={24} />
                   <Box>
                     <Typography color="text.secondary" gutterBottom>
                       Avg Processing Time
@@ -237,7 +237,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AlertCircle color="error" sx={{ mr: 2 }} />
+                  <AlertCircle className="text-red-600 mr-2" size={24} />
                   <Box>
                     <Typography color="text.secondary" gutterBottom>
                       Failed Files

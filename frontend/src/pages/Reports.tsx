@@ -3,53 +3,56 @@ import {
   CreateTemplateRequest,
   GenerateReportRequest,
 } from '../services/reportApi';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Container,
-  Grid,
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
-  Button,
-  Typography,
-  Box,
-  Tabs,
-  Tab,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
-  IconButton,
-  Tooltip,
-  Alert,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  CircularProgress,
-} from '@mui/material';
+  CardTitle,
+} from '@/components/ui/card';
 import {
-  Add as AddIcon,
-  Download as DownloadIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Description as ReportIcon,
-  GetApp as ExportIcon,
-  Refresh as RefreshIcon,
-} from '@mui/icons-material';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DataTable } from '@/components/ui/DataTable';
+import { Progress } from '@/components/ui/progress';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Plus,
+  Download,
+  Trash2,
+  Edit,
+  FileText,
+  MoreVertical,
+  RefreshCw,
+  Loader2,
+  History,
+} from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { SelectChangeEvent } from '@mui/material/Select';
+
 import axios from 'axios';
 
 // Types
@@ -79,29 +82,8 @@ interface ReportExport {
   expires_at?: string;
 }
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`reports-tabpanel-${index}`}
-      aria-labelledby={`reports-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
-
 const Reports: React.FC = () => {
-  const [tabValue, setTabValue] = useState(0);
+  const [activeTab, setActiveTab] = useState('generate');
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
@@ -186,10 +168,6 @@ const Reports: React.FC = () => {
     setSelectedTemplate(null);
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-
   const handleTextFieldChange =
     (field: string) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -199,10 +177,10 @@ const Reports: React.FC = () => {
       }));
     };
 
-  const handleSelectChange = (field: string) => (event: SelectChangeEvent) => {
+  const handleSelectChange = (field: string) => (value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: event.target.value,
+      [field]: value,
     }));
   };
 
@@ -233,76 +211,74 @@ const Reports: React.FC = () => {
     return `${kb.toFixed(2)} KB`;
   };
 
-  const getStatusColor = (
-    status: string
-  ): 'success' | 'warning' | 'error' | 'default' => {
+  const getStatusVariant = (status: string) => {
     switch (status) {
       case 'COMPLETED':
-        return 'success';
+        return 'default';
       case 'PROCESSING':
       case 'PENDING':
-        return 'warning';
+        return 'secondary';
       case 'FAILED':
       case 'CANCELLED':
-        return 'error';
+        return 'destructive';
       default:
-        return 'default';
+        return 'outline';
     }
   };
 
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Reports & Export
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Reports & Export</h1>
+        <p className="text-muted-foreground">
           Generate financial reports, manage templates, and export data
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
-      <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 3 }}>
-        <Tab
-          label="Generate Reports"
-          icon={<ReportIcon />}
-          iconPosition="start"
-        />
-        <Tab label="Templates" icon={<EditIcon />} iconPosition="start" />
-        <Tab
-          label="Export History"
-          icon={<DownloadIcon />}
-          iconPosition="start"
-        />
-      </Tabs>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="generate" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Generate Reports
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-2">
+            <Edit className="h-4 w-4" />
+            Templates
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Export History
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Generate Reports Tab */}
-      <TabPanel value={tabValue} index={0}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+        <TabsContent value="generate" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card>
-              <CardHeader
-                title="Quick Report Generation"
-                action={
-                  <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => setGenerateDialogOpen(true)}
-                  >
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Quick Report Generation</CardTitle>
+                    <CardDescription>
+                      Select a template and generate a comprehensive financial
+                      report.
+                    </CardDescription>
+                  </div>
+                  <Button onClick={() => setGenerateDialogOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
                     Generate Report
                   </Button>
-                }
-              />
-              <CardContent>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  Select a template and generate a comprehensive financial
-                  report. Reports include charts, tables, and key metrics.
-                </Typography>
-
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="h6" gutterBottom>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">
                     Available Report Types
-                  </Typography>
-                  <Grid container spacing={2}>
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {[
                       {
                         type: 'FINANCIAL_SUMMARY',
@@ -325,388 +301,429 @@ const Reports: React.FC = () => {
                         desc: 'Cash movement analysis',
                       },
                     ].map(reportType => (
-                      <Grid item xs={12} sm={6} key={reportType.type}>
-                        <Paper
-                          sx={{
-                            p: 2,
-                            cursor: 'pointer',
-                            '&:hover': { bgcolor: 'action.hover' },
-                          }}
-                          onClick={() => {
-                            setFormData(prev => ({
-                              ...prev,
-                              report_type: reportType.type,
-                            }));
-                            setGenerateDialogOpen(true);
-                          }}
-                        >
-                          <Typography variant="subtitle2">
-                            {reportType.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {reportType.desc}
-                          </Typography>
-                        </Paper>
-                      </Grid>
+                      <div
+                        key={reportType.type}
+                        className="p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            report_type: reportType.type,
+                          }));
+                          setGenerateDialogOpen(true);
+                        }}
+                      >
+                        <div className="font-medium">{reportType.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {reportType.desc}
+                        </div>
+                      </div>
                     ))}
-                  </Grid>
-                </Box>
+                  </div>
+                </div>
               </CardContent>
             </Card>
-          </Grid>
 
-          <Grid item xs={12} md={6}>
             <Card>
-              <CardHeader title="Export Options" />
-              <CardContent>
-                <Typography variant="body2" color="text.secondary" paragraph>
+              <CardHeader>
+                <CardTitle>Export Options</CardTitle>
+                <CardDescription>
                   Export charts and data in various formats for presentations
                   and analysis.
-                </Typography>
-
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="h6" gutterBottom>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">
                     Supported Formats
-                  </Typography>
-                  <List dense>
-                    <ListItem>
-                      <ListItemText
-                        primary="PDF Reports"
-                        secondary="Professional reports with charts and tables"
-                      />
-                      <Chip label="Most Popular" size="small" color="primary" />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText
-                        primary="Excel Workbooks"
-                        secondary="Interactive spreadsheets with formulas"
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText
-                        primary="CSV Data"
-                        secondary="Raw data for further analysis"
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText
-                        primary="Chart Images"
-                        secondary="PNG/SVG charts for presentations"
-                      />
-                    </ListItem>
-                  </List>
-                </Box>
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      {
+                        title: 'PDF Reports',
+                        desc: 'Professional reports with charts and tables',
+                        popular: true,
+                      },
+                      {
+                        title: 'Excel Workbooks',
+                        desc: 'Interactive spreadsheets with formulas',
+                      },
+                      {
+                        title: 'CSV Data',
+                        desc: 'Raw data for further analysis',
+                      },
+                      {
+                        title: 'Chart Images',
+                        desc: 'PNG/SVG charts for presentations',
+                      },
+                    ].map((format, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-2"
+                      >
+                        <div>
+                          <div className="font-medium">{format.title}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {format.desc}
+                          </div>
+                        </div>
+                        {format.popular && (
+                          <Badge variant="default">Most Popular</Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
-      </TabPanel>
+          </div>
+        </TabsContent>
 
-      {/* Templates Tab */}
-      <TabPanel value={tabValue} index={1}>
-        <Box
-          sx={{
-            mb: 3,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="h6">Report Templates</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setTemplateDialogOpen(true)}
-          >
-            Create Template
-          </Button>
-        </Box>
+        <TabsContent value="templates" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Report Templates
+              </h2>
+              <p className="text-muted-foreground">
+                Create and manage reusable report templates
+              </p>
+            </div>
+            <Button onClick={() => setTemplateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Template
+            </Button>
+          </div>
 
-        {templatesLoading ? (
-          <Box display="flex" justifyContent="center" p={4}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Grid container spacing={3}>
-            {templates?.map((template: ReportTemplate) => (
-              <Grid item xs={12} md={6} lg={4} key={template.id}>
-                <Card>
-                  <CardHeader
-                    title={template.name}
-                    subheader={
-                      template.is_system ? 'System Template' : 'Custom Template'
-                    }
-                    action={
-                      <Box>
-                        <Tooltip title="Generate Report">
-                          <IconButton
+          {templatesLoading ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {templates?.map((template: ReportTemplate) => (
+                <Card key={template.id} className="relative group">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg">
+                          {template.name}
+                        </CardTitle>
+                        <CardDescription>
+                          {template.description || 'No description available'}
+                        </CardDescription>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
                             onClick={() => {
                               setSelectedTemplate(template);
                               setGenerateDialogOpen(true);
                             }}
                           >
-                            <ExportIcon />
-                          </IconButton>
-                        </Tooltip>
-                        {!template.is_system && (
-                          <Tooltip title="Edit Template">
-                            <IconButton>
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
-                    }
-                  />
+                            <Download className="mr-2 h-4 w-4" />
+                            Generate Report
+                          </DropdownMenuItem>
+                          {!template.is_system && (
+                            <DropdownMenuItem>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Template
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardHeader>
                   <CardContent>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      paragraph
-                    >
-                      {template.description || 'No description available'}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      <Chip
-                        label={template.report_type.replace('_', ' ')}
-                        size="small"
-                        variant="outlined"
-                      />
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">
+                        {template.report_type.replace('_', ' ')}
+                      </Badge>
                       {template.is_system && (
-                        <Chip label="System" size="small" color="primary" />
+                        <Badge variant="secondary">System</Badge>
                       )}
                       {template.is_active && (
-                        <Chip label="Active" size="small" color="success" />
+                        <Badge variant="default">Active</Badge>
                       )}
-                    </Box>
+                    </div>
                   </CardContent>
                 </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </TabPanel>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
-      {/* Export History Tab */}
-      <TabPanel value={tabValue} index={2}>
-        <Box
-          sx={{
-            mb: 3,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="h6">Export History</Typography>
-          <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={() =>
-              queryClient.invalidateQueries({ queryKey: ['report-exports'] })
-            }
-          >
-            Refresh
-          </Button>
-        </Box>
+        <TabsContent value="history" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Export History
+              </h2>
+              <p className="text-muted-foreground">
+                Track and manage your report exports
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() =>
+                queryClient.invalidateQueries({ queryKey: ['report-exports'] })
+              }
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
 
-        {exportsLoading ? (
-          <Box display="flex" justifyContent="center" p={4}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Format</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>File Size</TableCell>
-                  <TableCell>Created</TableCell>
-                  <TableCell>Duration</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {exports?.map((exportItem: ReportExport) => (
-                  <TableRow key={exportItem.id}>
-                    <TableCell>{exportItem.name}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={exportItem.export_format}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                      >
-                        <Chip
-                          label={exportItem.status}
-                          size="small"
-                          color={getStatusColor(exportItem.status)}
-                        />
-                        {exportItem.status === 'PROCESSING' && (
-                          <CircularProgress size={16} />
-                        )}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      {formatFileSize(exportItem.file_size)}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(exportItem.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {exportItem.processing_duration_seconds
-                        ? `${exportItem.processing_duration_seconds}s`
-                        : 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        {exportItem.status === 'COMPLETED' &&
-                          exportItem.file_path && (
-                            <Tooltip title="Download">
-                              <IconButton size="small">
-                                <DownloadIcon />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        <Tooltip title="Delete">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() =>
-                              deleteExportMutation.mutate(exportItem.id)
-                            }
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </TabPanel>
-
-      {/* Generate Report Dialog */}
-      <Dialog
-        open={generateDialogOpen}
-        onClose={() => setGenerateDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Generate Report</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TextField
-              label="Report Name"
-              value={formData.name}
-              onChange={handleTextFieldChange('name')}
-              fullWidth
-              placeholder="Enter report name"
+          {exportsLoading ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
+            <DataTable
+              columns={[
+                {
+                  id: 'name',
+                  label: 'Name',
+                  sortable: true,
+                  format: value => (
+                    <div className="font-medium">{String(value)}</div>
+                  ),
+                },
+                {
+                  id: 'export_format',
+                  label: 'Format',
+                  filterable: true,
+                  filterType: 'select',
+                  filterOptions: ['PDF', 'EXCEL', 'CSV'],
+                  format: value => (
+                    <Badge variant="outline">{String(value)}</Badge>
+                  ),
+                },
+                {
+                  id: 'status',
+                  label: 'Status',
+                  filterable: true,
+                  filterType: 'select',
+                  filterOptions: [
+                    'COMPLETED',
+                    'PROCESSING',
+                    'PENDING',
+                    'FAILED',
+                    'CANCELLED',
+                  ],
+                  format: (value, row) => (
+                    <div className="flex items-center gap-2">
+                      <Badge variant={getStatusVariant(String(value))}>
+                        {String(value)}
+                      </Badge>
+                      {value === 'PROCESSING' && (
+                        <Progress value={65} className="w-16 h-2" />
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  id: 'file_size',
+                  label: 'Size',
+                  sortable: true,
+                  format: value => formatFileSize(Number(value)),
+                },
+                {
+                  id: 'created_at',
+                  label: 'Created',
+                  sortable: true,
+                  format: value => (
+                    <div className="text-sm text-muted-foreground">
+                      {new Date(String(value)).toLocaleDateString()}
+                    </div>
+                  ),
+                },
+                {
+                  id: 'processing_duration_seconds',
+                  label: 'Duration',
+                  format: value => (value ? `${value}s` : 'N/A'),
+                },
+              ]}
+              data={exports || []}
+              actions={row => (
+                <div className="flex items-center gap-1">
+                  {row.status === 'COMPLETED' && row.file_path && (
+                    <Button variant="ghost" size="icon">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => deleteExportMutation.mutate(Number(row.id))}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              searchable
+              exportable
             />
+          )}
+        </TabsContent>
 
-            <FormControl fullWidth>
-              <InputLabel>Export Format</InputLabel>
-              <Select
-                value={formData.export_format}
-                onChange={handleSelectChange('export_format')}
-                label="Export Format"
+        <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Generate Report</DialogTitle>
+              <DialogDescription>
+                Create a new report with your selected configuration.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="report-name">Report Name</Label>
+                <Input
+                  id="report-name"
+                  value={formData.name}
+                  onChange={handleTextFieldChange('name')}
+                  placeholder="Enter report name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Export Format</Label>
+                <Select
+                  value={formData.export_format}
+                  onValueChange={handleSelectChange('export_format')}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PDF">PDF Report</SelectItem>
+                    <SelectItem value="EXCEL">Excel Workbook</SelectItem>
+                    <SelectItem value="CSV">CSV Data</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedTemplate && (
+                <Alert>
+                  <AlertDescription>
+                    Using template: <strong>{selectedTemplate.name}</strong>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setGenerateDialogOpen(false)}
               >
-                <MenuItem value="PDF">PDF Report</MenuItem>
-                <MenuItem value="EXCEL">Excel Workbook</MenuItem>
-                <MenuItem value="CSV">CSV Data</MenuItem>
-              </Select>
-            </FormControl>
-
-            {selectedTemplate && (
-              <Alert severity="info">
-                Using template: <strong>{selectedTemplate.name}</strong>
-              </Alert>
-            )}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setGenerateDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleGenerateReport}
-            disabled={generateReportMutation.isPending}
-          >
-            {generateReportMutation.isPending ? (
-              <CircularProgress size={20} />
-            ) : (
-              'Generate'
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Create Template Dialog */}
-      <Dialog
-        open={templateDialogOpen}
-        onClose={() => setTemplateDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Create Report Template</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TextField
-              label="Template Name"
-              value={formData.name}
-              onChange={handleTextFieldChange('name')}
-              fullWidth
-              required
-            />
-
-            <TextField
-              label="Description"
-              value={formData.description}
-              onChange={handleTextFieldChange('description')}
-              fullWidth
-              multiline
-              rows={3}
-            />
-
-            <FormControl fullWidth>
-              <InputLabel>Report Type</InputLabel>
-              <Select
-                value={formData.report_type}
-                onChange={handleSelectChange('report_type')}
-                label="Report Type"
+                Cancel
+              </Button>
+              <Button
+                onClick={handleGenerateReport}
+                disabled={generateReportMutation.isPending}
               >
-                <MenuItem value="FINANCIAL_SUMMARY">Financial Summary</MenuItem>
-                <MenuItem value="PROFIT_LOSS">Profit & Loss</MenuItem>
-                <MenuItem value="BALANCE_SHEET">Balance Sheet</MenuItem>
-                <MenuItem value="CASH_FLOW">Cash Flow</MenuItem>
-                <MenuItem value="CUSTOM">Custom</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTemplateDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleCreateTemplate}
-            disabled={createTemplateMutation.isPending || !formData.name}
-          >
-            {createTemplateMutation.isPending ? (
-              <CircularProgress size={20} />
-            ) : (
-              'Create'
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+                {generateReportMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  'Generate'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create Report Template</DialogTitle>
+              <DialogDescription>
+                Create a reusable template for generating reports.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="template-name">Template Name</Label>
+                <Input
+                  id="template-name"
+                  value={formData.name}
+                  onChange={handleTextFieldChange('name')}
+                  placeholder="Enter template name"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="template-description">Description</Label>
+                <Textarea
+                  id="template-description"
+                  value={formData.description}
+                  onChange={handleTextFieldChange('description')}
+                  placeholder="Describe this template (optional)"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Report Type</Label>
+                <Select
+                  value={formData.report_type}
+                  onValueChange={handleSelectChange('report_type')}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select report type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FINANCIAL_SUMMARY">
+                      Financial Summary
+                    </SelectItem>
+                    <SelectItem value="PROFIT_LOSS">Profit & Loss</SelectItem>
+                    <SelectItem value="BALANCE_SHEET">Balance Sheet</SelectItem>
+                    <SelectItem value="CASH_FLOW">Cash Flow</SelectItem>
+                    <SelectItem value="CUSTOM">Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setTemplateDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateTemplate}
+                disabled={createTemplateMutation.isPending || !formData.name}
+              >
+                {createTemplateMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Template'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </Tabs>
+    </div>
   );
 };
 

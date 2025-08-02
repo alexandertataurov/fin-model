@@ -20,7 +20,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
-import { Box, Typography, Divider, Link } from '@mui/material';
+import { Separator } from '../components/ui/separator';
 
 const validationSchema = yup.object({
   email: yup

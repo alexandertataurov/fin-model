@@ -1,29 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
+import { Button } from './button';
+import { Input } from './input';
+import { Badge } from './badge';
+import { Checkbox } from './checkbox';
+import { Label } from './label';
 import {
-  Box,
-  TextField,
-  Chip,
-  Paper,
-  MenuItem,
-  MenuList,
-  ClickAwayListener,
-  Popper,
-  Checkbox,
-  Typography,
-  InputAdornment,
-  IconButton,
-} from '@mui/material';
-import {
-  ExpandMore as ExpandMoreIcon,
-  Clear as ClearIcon,
-  Search as SearchIcon,
-} from '@mui/icons-material';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './dropdown-menu';
+import { ChevronDown, X, Search, Check } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 export interface MultiSelectOption {
   value: string | number;
   label: string;
   disabled?: boolean;
-  group?: string;
 }
 
 export interface MultiSelectProps {
@@ -59,229 +52,182 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const anchorRef = useRef<HTMLDivElement>(null);
 
-  // Filter options based on search term
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOptions = searchable
+    ? options.filter(option =>
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : options;
+
+  const selectedOptions = options.filter(option =>
+    value.includes(option.value)
   );
 
-  // Group options if they have groups
-  const groupedOptions = filteredOptions.reduce((groups, option) => {
-    const group = option.group || 'ungrouped';
-    if (!groups[group]) {
-      groups[group] = [];
-    }
-    groups[group].push(option);
-    return groups;
-  }, {} as Record<string, MultiSelectOption[]>);
-
-  const handleToggle = () => {
-    if (!disabled) {
-      setOpen(prev => !prev);
-    }
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setSearchTerm('');
-  };
-
-  const handleOptionClick = (optionValue: string | number) => {
+  const handleToggleOption = (optionValue: string | number) => {
     if (disabled) return;
 
-    let newValue: (string | number)[];
-    
-    if (value.includes(optionValue)) {
-      // Remove item
-      newValue = value.filter(v => v !== optionValue);
-    } else {
-      // Add item (check max limit)
-      if (maxItems && value.length >= maxItems) {
-        return; // Don't add if max reached
-      }
-      newValue = [...value, optionValue];
-    }
+    const newValue = value.includes(optionValue)
+      ? value.filter(v => v !== optionValue)
+      : maxItems && value.length >= maxItems
+      ? value
+      : [...value, optionValue];
 
     onChange?.(newValue);
   };
 
-  const handleRemoveChip = (optionValue: string | number) => {
-    if (disabled) return;
-    const newValue = value.filter(v => v !== optionValue);
-    onChange?.(newValue);
-  };
-
-  const handleClearAll = () => {
+  const handleClear = () => {
     if (disabled) return;
     onChange?.([]);
   };
 
-  const getSelectedLabels = () => {
-    return value.map(val => {
-      const option = options.find(opt => opt.value === val);
-      return option?.label || String(val);
-    });
-  };
-
-  const renderChips = () => {
-    const selectedLabels = getSelectedLabels();
-    
-    if (selectedLabels.length === 0) {
-      return (
-        <Typography variant="body1" color="text.secondary">
-          {placeholder}
-        </Typography>
-      );
-    }
-
-    return (
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-        {selectedLabels.map((label, index) => (
-          <Chip
-            key={`${value[index]}-${index}`}
-            label={label}
-            size={size}
-            onDelete={disabled ? undefined : () => handleRemoveChip(value[index])}
-            sx={{ maxWidth: 200 }}
-          />
-        ))}
-      </Box>
-    );
-  };
-
-  const renderOptions = () => {
-    if (Object.keys(groupedOptions).length === 0) {
-      return (
-        <MenuItem disabled>
-          <Typography variant="body2" color="text.secondary">
-            No options available
-          </Typography>
-        </MenuItem>
-      );
-    }
-
-    return Object.entries(groupedOptions).map(([groupName, groupOptions]) => (
-      <React.Fragment key={groupName}>
-        {groupName !== 'ungrouped' && (
-          <MenuItem disabled sx={{ fontWeight: 'bold', fontSize: '0.875rem' }}>
-            {groupName}
-          </MenuItem>
-        )}
-        {groupOptions.map((option) => (
-          <MenuItem
-            key={option.value}
-            onClick={() => handleOptionClick(option.value)}
-            disabled={option.disabled}
-            sx={{ pl: groupName !== 'ungrouped' ? 4 : 2 }}
-          >
-            <Checkbox
-              checked={value.includes(option.value)}
-              size="small"
-              sx={{ mr: 1 }}
-            />
-            <Typography variant="body2">{option.label}</Typography>
-          </MenuItem>
-        ))}
-      </React.Fragment>
-    ));
+  const getDisplayValue = () => {
+    if (selectedOptions.length === 0) return placeholder;
+    if (selectedOptions.length === 1) return selectedOptions[0].label;
+    return `${selectedOptions.length} items selected`;
   };
 
   return (
-    <Box sx={{ width: fullWidth ? '100%' : 'auto' }}>
-      <TextField
-        ref={anchorRef}
-        label={label}
-        value="" // Always empty for display
-        onClick={handleToggle}
-        error={error}
-        helperText={helperText}
-        disabled={disabled}
-        size={size}
-        fullWidth={fullWidth}
-        InputProps={{
-          readOnly: true,
-          startAdornment: (
-            <Box sx={{ width: '100%', minHeight: size === 'small' ? 32 : 40 }}>
-              {renderChips()}
-            </Box>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              {clearable && value.length > 0 && !disabled && (
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
+    <div className={cn('w-full', !fullWidth && 'w-auto')}>
+      {label && (
+        <Label
+          className={cn(
+            'text-sm font-medium mb-2 block',
+            error && 'text-destructive'
+          )}
+        >
+          {label}
+        </Label>
+      )}
+
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={cn(
+              'w-full justify-between',
+              size === 'small' && 'h-8 text-sm',
+              size === 'medium' && 'h-9',
+              error && 'border-destructive focus-visible:ring-destructive'
+            )}
+          >
+            <span className="truncate">{getDisplayValue()}</span>
+            <div className="flex items-center gap-1">
+              {clearable && selectedOptions.length > 0 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-transparent"
+                  onClick={e => {
                     e.stopPropagation();
-                    handleClearAll();
+                    handleClear();
                   }}
                 >
-                  <ClearIcon fontSize="small" />
-                </IconButton>
+                  <X className="h-3 w-3" />
+                </Button>
               )}
-              <IconButton size="small" disabled={disabled}>
-                <ExpandMoreIcon 
-                  fontSize="small"
-                  sx={{
-                    transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s',
-                  }}
-                />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          '& .MuiInputBase-input': {
-            cursor: 'pointer',
-          },
-        }}
-      />
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
 
-      <Popper
-        open={open}
-        anchorEl={anchorRef.current}
-        placement="bottom-start"
-        style={{ width: anchorRef.current?.offsetWidth, zIndex: 1300 }}
-      >
-        <ClickAwayListener onClickAway={handleClose}>
-          <Paper elevation={8} sx={{ maxHeight: 300, overflow: 'auto' }}>
-            {searchable && (
-              <Box sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}>
-                <TextField
-                  size="small"
-                  placeholder="Search options..."
+        <DropdownMenuContent
+          className="w-[--radix-dropdown-menu-trigger-width] p-0"
+          align="start"
+        >
+          {searchable && (
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+                <Input
+                  placeholder="Search..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon fontSize="small" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  fullWidth
-                  autoFocus
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="pl-8 h-8"
                 />
-              </Box>
+              </div>
+            </div>
+          )}
+
+          <div className="max-h-[300px] overflow-auto">
+            {filteredOptions.length === 0 ? (
+              <div className="p-2 text-sm text-muted-foreground">
+                No options available
+              </div>
+            ) : (
+              filteredOptions.map(option => {
+                const isSelected = value.includes(option.value);
+                const isDisabled = option.disabled || disabled;
+                const canSelect =
+                  !maxItems || value.length < maxItems || isSelected;
+
+                return (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() =>
+                      canSelect && handleToggleOption(option.value)
+                    }
+                    disabled={isDisabled || !canSelect}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      disabled={isDisabled || !canSelect}
+                      onChange={() =>
+                        canSelect && handleToggleOption(option.value)
+                      }
+                      onClick={e => e.stopPropagation()}
+                    />
+                    <span className="flex-1">{option.label}</span>
+                    {isSelected && <Check className="h-4 w-4" />}
+                  </DropdownMenuItem>
+                );
+              })
             )}
-            
-            <MenuList dense>
-              {renderOptions()}
-            </MenuList>
-            
-            {maxItems && (
-              <Box sx={{ p: 1, borderTop: 1, borderColor: 'divider', textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">
-                  {value.length} of {maxItems} selected
-                </Typography>
-              </Box>
-            )}
-          </Paper>
-        </ClickAwayListener>
-      </Popper>
-    </Box>
+          </div>
+
+          {selectedOptions.length > 0 && (
+            <div className="p-2 border-t">
+              <div className="flex flex-wrap gap-1">
+                {selectedOptions.map(option => (
+                  <Badge
+                    key={option.value}
+                    variant="secondary"
+                    className="text-xs"
+                  >
+                    {option.label}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-3 w-3 p-0 ml-1 hover:bg-transparent"
+                      onClick={() => handleToggleOption(option.value)}
+                    >
+                      <X className="h-2 w-2" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {helperText && (
+        <p
+          className={cn(
+            'text-sm mt-1',
+            error ? 'text-destructive' : 'text-muted-foreground'
+          )}
+        >
+          {helperText}
+        </p>
+      )}
+    </div>
   );
 };
 
-export default MultiSelect; 
+export default MultiSelect;

@@ -1,27 +1,36 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      jsxImportSource: 'react',
+      plugins: [
+        ['@swc/plugin-styled-components', { displayName: false, ssr: false }],
+      ],
+    }),
+  ],
   optimizeDeps: {
     include: [
       'react/jsx-runtime',
-      'react-hook-form',
-      '@hookform/resolvers/zod',
-      'zod',
+      'react-dom/client',
+      'react-router-dom',
+      '@tanstack/react-query',
+      'axios',
+      'recharts',
       'lucide-react',
-      '@radix-ui/react-slot',
-      '@radix-ui/react-form',
-      '@radix-ui/react-progress',
-      '@radix-ui/react-checkbox',
-      '@radix-ui/react-label',
-      '@radix-ui/react-toast',
       'class-variance-authority',
       'clsx',
       'tailwind-merge',
     ],
-    force: true,
+    exclude: [
+      '@mui/material',
+      '@mui/icons-material',
+      '@emotion/react',
+      '@emotion/styled',
+    ],
+    force: false,
   },
   resolve: {
     alias: {
@@ -32,38 +41,34 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     minify: 'esbuild',
-    target: 'esnext',
+    target: 'es2022',
+    cssTarget: 'chrome80',
+    cssMinify: 'esbuild',
+    reportCompressedSize: false,
+    emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'radix';
-            }
-            if (id.includes('react-hook-form') || id.includes('zod')) {
-              return 'forms';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons';
-            }
-            return 'vendor';
-          }
-        },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+      treeshake: {
+        preset: 'recommended',
+        moduleSideEffects: false,
       },
     },
-    chunkSizeWarningLimit: 1000,
-    reportCompressedSize: false,
+    chunkSizeWarningLimit: 800,
   },
   esbuild: {
+    legalComments: 'none',
     drop: ['console', 'debugger'],
+    minifyIdentifiers: true,
+    minifySyntax: true,
+    minifyWhitespace: true,
+    treeShaking: true,
   },
   define: {
     'process.env.NODE_ENV': '"production"',
+    __DEV__: false,
   },
 });
