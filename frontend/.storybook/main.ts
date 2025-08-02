@@ -36,15 +36,25 @@ const config: StorybookConfig = {
       };
     }
 
-    // Ensure CSS is properly handled
+    // Ensure CSS is properly handled with Tailwind
     config.css = {
       ...config.css,
       postcss: {
         plugins: [
-          require('tailwindcss'),
+          require('tailwindcss')(resolve(__dirname, '../tailwind.config.js')),
           require('autoprefixer'),
         ],
       },
+    };
+
+    // Add optimizeDeps to include Tailwind
+    config.optimizeDeps = {
+      ...config.optimizeDeps,
+      include: [
+        ...(config.optimizeDeps?.include || []),
+        'tailwindcss',
+        'autoprefixer',
+      ],
     };
 
     return config;

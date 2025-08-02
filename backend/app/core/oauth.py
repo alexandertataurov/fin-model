@@ -1,4 +1,4 @@
-from authlib.integrations.fastapi_oauth2 import OAuth
+from authlib.integrations.starlette_client import OAuth
 from app.core.config import settings
 
 # Initialize OAuth
@@ -9,7 +9,9 @@ google = oauth.register(
     name='google',
     client_id=settings.GOOGLE_CLIENT_ID,
     client_secret=settings.GOOGLE_CLIENT_SECRET,
-    server_metadata_url='https://accounts.google.com/.well-known/openid_configuration',
+    server_metadata_url=(
+        'https://accounts.google.com/.well-known/openid_configuration'
+    ),
     client_kwargs={
         'scope': 'openid email profile'
     }
@@ -20,11 +22,15 @@ microsoft = oauth.register(
     name='microsoft',
     client_id=settings.MICROSOFT_CLIENT_ID,
     client_secret=settings.MICROSOFT_CLIENT_SECRET,
-    server_metadata_url='https://login.microsoftonline.com/common/v2.0/.well-known/openid_configuration',
+    server_metadata_url=(
+        'https://login.microsoftonline.com/common/v2.0/.well-known/'
+        'openid_configuration'
+    ),
     client_kwargs={
         'scope': 'openid email profile'
     }
 )
+
 
 def get_oauth_client(provider: str):
     """Get OAuth client by provider name."""
