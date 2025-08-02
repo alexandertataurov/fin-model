@@ -5,17 +5,22 @@ import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { Sun, Moon, Menu } from 'lucide-react'
 import { PLTab } from './tabs/PLTab'
+import { PLTabEnhanced } from './tabs/PLTabEnhanced'
 import { CashFlowTab } from './tabs/CashFlowTab'
+import { CashFlowTabEnhanced } from './tabs/CashFlowTabEnhanced'
 import { BalanceTab } from './tabs/BalanceTab'
+import { BalanceTabEnhanced } from './tabs/BalanceTabEnhanced'
 import { ParametersTab } from './tabs/ParametersTab'
 import { SalesTab } from './tabs/SalesTab'
+import { DashboardOverview } from './DashboardOverview'
 import { FilterSidebar } from './filter-sidebar'
 import { FileUpload } from './file-upload'
 
 export function DashboardLayout() {
   const { theme, toggleTheme } = useTheme()
-  const [activeTab, setActiveTab] = useState('pl')
+  const [activeTab, setActiveTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [useEnhancedTabs, setUseEnhancedTabs] = useState(true)
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,7 +69,8 @@ export function DashboardLayout() {
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6">
+            <TabsList className="grid w-full grid-cols-6 mb-6">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="pl">P&L</TabsTrigger>
               <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
               <TabsTrigger value="balance">Balance</TabsTrigger>
@@ -72,14 +78,17 @@ export function DashboardLayout() {
               <TabsTrigger value="sales">Sales</TabsTrigger>
             </TabsList>
 
+            <TabsContent value="overview" className="mt-0">
+              <DashboardOverview />
+            </TabsContent>
             <TabsContent value="pl" className="mt-0">
-              <PLTab />
+              {useEnhancedTabs ? <PLTabEnhanced /> : <PLTab />}
             </TabsContent>
             <TabsContent value="cashflow" className="mt-0">
-              <CashFlowTab />
+              {useEnhancedTabs ? <CashFlowTabEnhanced /> : <CashFlowTab />}
             </TabsContent>
             <TabsContent value="balance" className="mt-0">
-              <BalanceTab />
+              {useEnhancedTabs ? <BalanceTabEnhanced /> : <BalanceTab />}
             </TabsContent>
             <TabsContent value="params" className="mt-0">
               <ParametersTab />

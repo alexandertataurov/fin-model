@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./contexts/AuthContext";
-import { Toaster } from "./components/ui/sonner";
 
 // Authentication Components
 import Login from "./pages/Login";
@@ -77,12 +78,24 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   </VerifiedUserGuard>
 );
 
+// Create QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 export default function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <Router>
-          <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <Router>
+            <AuthProvider>
             <div className="min-h-screen bg-background text-foreground">
               <Routes>
                 {/* Public Authentication Routes */}
@@ -166,6 +179,7 @@ export default function App() {
           </AuthProvider>
         </Router>
       </ThemeProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
