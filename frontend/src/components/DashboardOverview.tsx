@@ -19,10 +19,9 @@ import {
   AlertCircle,
   RefreshCw,
   Download,
-  Calendar,
   BarChart3
 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { 
   useDashboardOverview, 
   useRefreshDashboard, 
@@ -45,7 +44,7 @@ export function DashboardOverview({
   const refreshMutation = useRefreshDashboard();
   const exportMutation = useExportDashboard();
 
-  const [selectedPeriod, setSelectedPeriod] = useState(period);
+  const [selectedPeriod] = useState(period);
 
   const handleRefresh = () => {
     refreshMutation.mutate();

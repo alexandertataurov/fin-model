@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -18,7 +18,6 @@ import {
 import { 
   Download, 
   Upload, 
-  FileText, 
   Database, 
   CheckCircle, 
   AlertTriangle,
@@ -61,7 +60,6 @@ export function ParameterExport({
   })
   const [importing, setImporting] = useState(false)
   const [exporting, setExporting] = useState(false)
-  const [importFile, setImportFile] = useState<File | null>(null)
   const [importPreview, setImportPreview] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -170,7 +168,7 @@ export function ParameterExport({
     const file = event.target.files?.[0]
     if (!file) return
 
-    setImportFile(file)
+    // setImportFile(file) // Remove this unused line
     setError(null)
 
     const reader = new FileReader()

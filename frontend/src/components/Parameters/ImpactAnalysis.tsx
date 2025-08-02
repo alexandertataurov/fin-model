@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -33,7 +33,7 @@ interface AnalysisData {
   }
 }
 
-export function ImpactAnalysis({ parameter, modelId, onClose }: ImpactAnalysisProps) {
+export function ImpactAnalysis({ parameter, onClose }: ImpactAnalysisProps) {
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

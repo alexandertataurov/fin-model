@@ -4,10 +4,10 @@
  * Displays real financial data from processed Excel files
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { DraggableWidget } from '../draggable-widget';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardHeader } from '../ui/card';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Skeleton } from '../ui/skeleton';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
@@ -20,7 +20,7 @@ interface PLTabEnhancedProps {
 }
 
 export function PLTabEnhanced({ period = PeriodFilter.YTD }: PLTabEnhancedProps) {
-  const { activeStatementId, activeStatement, statements } = useActiveStatement();
+  const { activeStatementId, activeStatement } = useActiveStatement();
   const { data: plData, isLoading, error, refetch } = usePLDashboard(activeStatementId);
   const refreshMutation = useRefreshDashboard();
   const exportMutation = useExportDashboard();

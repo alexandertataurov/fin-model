@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -20,7 +20,7 @@ import {
   TableHeader, 
   TableRow 
 } from '../ui/table'
-import { Template, Download, CheckCircle, AlertTriangle } from 'lucide-react'
+import { LayoutTemplate, Download, CheckCircle, AlertTriangle } from 'lucide-react'
 
 interface ParameterTemplatesProps {
   modelId: string
@@ -164,7 +164,7 @@ export function ParameterTemplates({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Template className="h-5 w-5" />
+                <LayoutTemplate className="h-5 w-5" />
                 Parameter Templates
               </CardTitle>
               <Button variant="outline" onClick={onClose}>×</Button>

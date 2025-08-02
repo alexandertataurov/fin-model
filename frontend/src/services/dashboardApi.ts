@@ -185,7 +185,7 @@ export class DashboardApiService {
    */
   static async getUserStatements(
     statementType?: string,
-    limit: number = 10
+    limit = 10
   ): Promise<{statements: FinancialStatement[], total_count: number}> {
     const response = await apiClient.get('/dashboard/statements', {
       params: { statement_type: statementType, limit }

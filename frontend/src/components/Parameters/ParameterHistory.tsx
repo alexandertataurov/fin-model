@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -45,11 +45,7 @@ export function ParameterHistory({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadHistory()
-  }, [parameter.id])
-
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     try {
       const response = await fetch(`/api/v1/parameters/${parameter.id}/history?limit=50`)
       if (response.ok) {
@@ -63,7 +59,11 @@ export function ParameterHistory({
     } finally {
       setLoading(false)
     }
-  }
+  }, [parameter.id])
+
+  useEffect(() => {
+    loadHistory()
+  }, [loadHistory])
 
   const formatValue = (value: number) => {
     switch (parameter.display_format) {
@@ -140,7 +140,7 @@ export function ParameterHistory({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {history.map((entry, index) => {
+                  {history.map((entry, _index) => {
                     const change = calculateChange(entry.original_value, entry.value)
                     const isIncrease = change > 0
                     const isCurrentValue = Math.abs(entry.value - parameter.value) < 0.0001

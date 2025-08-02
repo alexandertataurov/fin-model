@@ -1,25 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
 import { Badge } from '../ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion'
 import { Progress } from '../ui/progress'
 import { Alert, AlertDescription } from '../ui/alert'
 import { 
   Search, 
   RotateCcw, 
-  Save, 
-  AlertTriangle, 
   CheckCircle, 
-  Clock,
   Settings,
-  TrendingUp,
   Calculator,
-  BarChart,
-  History,
-  Template,
+  LayoutTemplate,
   Download,
   Undo,
   Redo
@@ -149,8 +141,6 @@ export function ParameterPanel({
     setCalculationProgress(0)
 
     try {
-      const startTime = Date.now()
-      
       const response = await fetch(`/api/v1/parameters/${parameterId}/value`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -199,7 +189,7 @@ export function ParameterPanel({
     } finally {
       setIsRecalculating(false)
     }
-  }, [readOnly, onParameterChange, loadParameterData, modelId])
+  }, [readOnly, onParameterChange, loadParameterData, parameterGroups, ungroupedParameters])
 
   // Handle bulk parameter updates
   const handleBulkUpdate = useCallback(async (updates: Array<{id: string, value: number}>) => {
@@ -353,7 +343,7 @@ export function ParameterPanel({
                 size="sm"
                 onClick={() => setShowTemplates(true)}
               >
-                <Template className="h-4 w-4 mr-2" />
+                <LayoutTemplate className="h-4 w-4 mr-2" />
                 Templates
               </Button>
               <Button

@@ -116,7 +116,7 @@ export function useStatementMetrics(statementId: string | null) {
 /**
  * Hook to get user's financial statements
  */
-export function useUserStatements(statementType?: string, limit: number = 10) {
+export function useUserStatements(statementType?: string, limit = 10) {
   return useQuery({
     queryKey: dashboardKeys.statements(statementType, limit),
     queryFn: () => DashboardApiService.getUserStatements(statementType, limit),
@@ -131,7 +131,7 @@ export function useUserStatements(statementType?: string, limit: number = 10) {
 /**
  * Hook to get time series data
  */
-export function useTimeSeriesData(params: TimeSeriesParams, enabled: boolean = true) {
+export function useTimeSeriesData(params: TimeSeriesParams, enabled = true) {
   return useQuery({
     queryKey: dashboardKeys.timeSeries(params),
     queryFn: () => DashboardApiService.getTimeSeriesData(params),
@@ -147,7 +147,7 @@ export function useTimeSeriesData(params: TimeSeriesParams, enabled: boolean = t
 /**
  * Hook to get period comparisons
  */
-export function usePeriodComparisons(params: ComparisonParams, enabled: boolean = true) {
+export function usePeriodComparisons(params: ComparisonParams, enabled = true) {
   return useQuery({
     queryKey: dashboardKeys.comparisons(params),
     queryFn: () => DashboardApiService.getPeriodComparisons(params),

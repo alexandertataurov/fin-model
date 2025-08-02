@@ -20,7 +20,7 @@ export function DashboardLayout() {
   const { theme, toggleTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [useEnhancedTabs, setUseEnhancedTabs] = useState(true)
+  const [useEnhancedTabs] = useState(true)
 
   return (
     <div className="min-h-screen bg-background">

@@ -1,5 +1,3 @@
-import React from 'react'
-import { Card, CardContent } from '../ui/card'
 import { ParameterControl } from './ParameterControl'
 import type { Parameter } from './ParameterPanel'
 

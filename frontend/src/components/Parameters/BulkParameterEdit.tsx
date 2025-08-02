@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { 
   Dialog, 
   DialogContent, 
@@ -113,7 +113,7 @@ export function BulkParameterEdit({
       
       return { ...update, newValue }
     }))
-  }, [globalMultiplier, applyMode, updates])
+  }, [globalMultiplier, applyMode])
 
   const handleSave = useCallback(() => {
     const changedUpdates = updates.filter(u => 
