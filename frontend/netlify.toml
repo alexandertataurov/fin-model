@@ -1,4 +1,4 @@
-# Netlify Configuration for FinVision Frontend
+# Netlify Configuration for FinVision Frontend - Optimized Build
 
 [build]
   base = "frontend"
@@ -6,7 +6,7 @@
   publish = "dist"
 
   [build.environment]
-    NODE_VERSION = "18"
+    NODE_VERSION = "20"
     # Enable build performance optimizations
     NODE_OPTIONS = "--max-old-space-size=8192"
     # Skip npm operations for faster builds
@@ -17,6 +17,7 @@
     # Optimize npm performance
     NPM_CONFIG_MAXSOCKETS = "20"
     NPM_CONFIG_PREFER_ONLINE = "true"
+    NPM_CONFIG_INSTALL_STRATEGY = "shallow"
 
 # Build optimizations
 [build.processing]
@@ -54,7 +55,7 @@
   status = 200
   force = false
 
-# Security headers
+# Security headers with optimizations
 [[headers]]
   for = "/*"
   [headers.values]
@@ -62,23 +63,28 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.railway.app wss://*.railway.app; frame-src 'self' https://app.netlify.com;"
 
-# Caching
+# Optimized caching for build assets
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
 
 [[headers]]
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
 
 [[headers]]
   for = "/*.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
 
 [[headers]]
   for = "/*.png"

@@ -39,15 +39,18 @@ export default defineConfig(({ mode }) => {
         '@radix-ui/react-toggle',
         '@radix-ui/react-toggle-group',
         '@radix-ui/react-tooltip',
+        '@radix-ui/react-form',
+        '@radix-ui/react-toast',
         '@mui/material',
         '@mui/icons-material',
         '@tanstack/react-query',
         'react-router-dom',
+        'react-hook-form',
+        '@hookform/resolvers/zod',
+        'zod',
         'axios',
         'date-fns',
         'recharts',
-        'formik',
-        'yup',
         'class-variance-authority',
         'clsx',
         'tailwind-merge',
@@ -81,15 +84,29 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       sourcemap: mode === 'development',
       minify: mode === 'production' ? 'esbuild' : false,
+      target: 'esnext',
       rollupOptions: {
-        // Don't externalize packages in production - bundle them all
         external: [],
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            mui: ['@mui/material', '@mui/icons-material'],
-            charts: ['recharts'],
-            utils: ['axios', 'date-fns', 'yup', 'lucide-react'],
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'vendor';
+              }
+              if (id.includes('@radix-ui')) {
+                return 'radix';
+              }
+              if (id.includes('@mui')) {
+                return 'mui';
+              }
+              if (id.includes('recharts')) {
+                return 'charts';
+              }
+              if (id.includes('react-hook-form') || id.includes('zod')) {
+                return 'forms';
+              }
+              return 'vendor';
+            }
           },
         },
       },
