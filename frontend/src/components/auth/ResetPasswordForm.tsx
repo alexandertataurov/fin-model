@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { checkPasswordStrength } from '../../services/authApi';
@@ -40,7 +44,7 @@ const ResetPasswordForm: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +66,7 @@ const ResetPasswordForm: React.FC = () => {
     validationSchema: validationSchema,
     onSubmit: async values => {
       if (!token) return;
-      
+
       setIsLoading(true);
       setError(null);
       setSuccess(null);
@@ -72,9 +76,9 @@ const ResetPasswordForm: React.FC = () => {
           token,
           new_password: values.password,
         });
-        
+
         setSuccess('Password reset successfully! Redirecting to login...');
-        
+
         // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate('/login');
@@ -83,9 +87,11 @@ const ResetPasswordForm: React.FC = () => {
         const error = err as {
           response?: { status?: number; data?: { detail?: string } };
         };
-        
+
         if (error.response?.status === 400) {
-          setError('Invalid or expired reset token. Please request a new password reset.');
+          setError(
+            'Invalid or expired reset token. Please request a new password reset.'
+          );
         } else {
           setError('An error occurred. Please try again later.');
         }
@@ -163,7 +169,9 @@ const ResetPasswordForm: React.FC = () => {
                       formik.touched.password && Boolean(formik.errors.password)
                     }
                     helperText={
-                      formik.touched.password ? formik.errors.password : undefined
+                      formik.touched.password
+                        ? formik.errors.password
+                        : undefined
                     }
                     autoComplete="new-password"
                     className="pl-9 pr-10"
@@ -218,23 +226,32 @@ const ResetPasswordForm: React.FC = () => {
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {Object.entries(passwordStrength.checks).map(
-                        ([key, passed]) => (
-                          <span
-                            key={key}
-                            className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                              passed
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-600'
-                            }`}
-                          >
-                            {passed ? (
-                              <Check className="h-3 w-3" />
-                            ) : (
-                              <X className="h-3 w-3" />
-                            )}
-                            {key}
-                          </span>
-                        )
+                        ([key, passed]) => {
+                          const labels = {
+                            length: 'At least 8 characters',
+                            uppercase: 'At least one uppercase letter (A–Z)',
+                            lowercase: 'At least one lowercase letter (a–z)',
+                            number: 'At least one number (0–9)',
+                            special: 'At least one special character (!@#$...)',
+                          };
+                          return (
+                            <span
+                              key={key}
+                              className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
+                                passed
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {passed ? (
+                                <Check className="h-3 w-3" />
+                              ) : (
+                                <X className="h-3 w-3" />
+                              )}
+                              {labels[key as keyof typeof labels]}
+                            </span>
+                          );
+                        }
                       )}
                     </div>
                   </div>
@@ -285,7 +302,9 @@ const ResetPasswordForm: React.FC = () => {
 
               <Button
                 type="submit"
-                disabled={isLoading || !passwordStrength.isValid || success !== null}
+                disabled={
+                  isLoading || !passwordStrength.isValid || success !== null
+                }
                 className="w-full"
                 size="lg"
               >

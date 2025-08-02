@@ -205,7 +205,9 @@ class Scenario(Base):
     description = Column(Text, nullable=True)
 
     # Scenario Properties
+    scenario_type = Column(String(50), default="custom")  # base, optimistic, pessimistic, custom
     is_baseline = Column(Boolean, default=False)
+    is_base_case = Column(Boolean, default=False)
     is_template = Column(Boolean, default=False)
     status = Column(String(50), default="draft")  # draft, active, archived
 
@@ -388,6 +390,52 @@ class CalculationAudit(Base):
 
     # Metadata
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Relationships
+    scenario = relationship("Scenario")
+    created_by = relationship("User")
+
+
+class ScenarioParameter(Base):
+    """Model for parameter values in specific scenarios."""
+
+    __tablename__ = "scenario_parameters"
+
+    id = Column(String(50), primary_key=True)
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
+    parameter_id = Column(Integer, ForeignKey("parameters.id"), nullable=False)
+    parameter_value = Column(Float, nullable=False)
+    override_default = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    scenario = relationship("Scenario")
+    parameter = relationship("Parameter")
+
+
+class MonteCarloSimulation(Base):
+    """Model for Monte Carlo simulation configurations and results."""
+
+    __tablename__ = "monte_carlo_simulations"
+
+    id = Column(String(50), primary_key=True)
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    iterations = Column(Integer, nullable=False)
+    distributions = Column(JSON, nullable=False)
+    correlations = Column(JSON, nullable=True)
+    output_metrics = Column(JSON, nullable=False)
+    results = Column(JSON, nullable=True)
+    statistics = Column(JSON, nullable=True)
+    risk_metrics = Column(JSON, nullable=True)
+    execution_time = Column(Float, nullable=True)
+    status = Column(String(50), default="pending")
+    error_message = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     # Relationships
     scenario = relationship("Scenario")

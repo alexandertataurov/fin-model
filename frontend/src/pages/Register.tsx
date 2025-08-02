@@ -141,7 +141,6 @@ const Register: React.FC = () => {
 
   const passwordStrength = checkPasswordStrength(formik.values.password);
 
-
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -285,7 +284,9 @@ const Register: React.FC = () => {
                       formik.touched.username && Boolean(formik.errors.username)
                     }
                     helperText={
-                      formik.touched.username ? formik.errors.username : undefined
+                      formik.touched.username
+                        ? formik.errors.username
+                        : undefined
                     }
                     autoComplete="username"
                     className="pl-9"
@@ -311,7 +312,9 @@ const Register: React.FC = () => {
                       formik.touched.password && Boolean(formik.errors.password)
                     }
                     helperText={
-                      formik.touched.password ? formik.errors.password : undefined
+                      formik.touched.password
+                        ? formik.errors.password
+                        : undefined
                     }
                     autoComplete="new-password"
                     className="pl-9 pr-10"
@@ -321,7 +324,7 @@ const Register: React.FC = () => {
                     onClick={handleClickShowPassword}
                     className="absolute right-3 top-[10px] text-muted-foreground hover:text-foreground transition-colors z-10"
                     aria-label="toggle password visibility"
->
+                  >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
                     ) : (
@@ -365,23 +368,32 @@ const Register: React.FC = () => {
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {Object.entries(passwordStrength.checks).map(
-                        ([key, passed]) => (
-                          <span
-                            key={key}
-                            className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                              passed
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-600'
-                            }`}
-                          >
-                            {passed ? (
-                              <Check className="h-3 w-3" />
-                            ) : (
-                              <X className="h-3 w-3" />
-                            )}
-                            {key}
-                          </span>
-                        )
+                        ([key, passed]) => {
+                          const labels = {
+                            length: 'At least 8 characters',
+                            uppercase: 'At least one uppercase letter (A–Z)',
+                            lowercase: 'At least one lowercase letter (a–z)',
+                            number: 'At least one number (0–9)',
+                            special: 'At least one special character (!@#$...)',
+                          };
+                          return (
+                            <span
+                              key={key}
+                              className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
+                                passed
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {passed ? (
+                                <Check className="h-3 w-3" />
+                              ) : (
+                                <X className="h-3 w-3" />
+                              )}
+                              {labels[key as keyof typeof labels]}
+                            </span>
+                          );
+                        }
                       )}
                     </div>
                   </div>
@@ -434,37 +446,37 @@ const Register: React.FC = () => {
                 disabled={isLoading || !passwordStrength.isValid}
                 className="w-full mt-6"
                 size="lg"
-            >
-              {isLoading ? (
-                <>
-                  <CircularProgress size={20} sx={{ mr: 1 }} />
-                  Creating Account...
-                </>
-              ) : (
-                'Create Account'
-              )}
-            </Button>
+              >
+                {isLoading ? (
+                  <>
+                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
+              </Button>
 
-            <Divider sx={{ mb: 3 }}>
-              <Typography variant="body2" color="text.secondary">
-                or
-              </Typography>
-            </Divider>
+              <Divider sx={{ mb: 3 }}>
+                <Typography variant="body2" color="text.secondary">
+                  or
+                </Typography>
+              </Divider>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                Already have an account?{' '}
-                <Link
-                  component={RouterLink}
-                  to="/login"
-                  color="primary"
-                  sx={{ fontWeight: 'bold', textDecoration: 'none' }}
-                >
-                  Sign in here
-                </Link>
-              </Typography>
-            </Box>
-          </form>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  Already have an account?{' '}
+                  <Link
+                    component={RouterLink}
+                    to="/login"
+                    color="primary"
+                    sx={{ fontWeight: 'bold', textDecoration: 'none' }}
+                  >
+                    Sign in here
+                  </Link>
+                </Typography>
+              </Box>
+            </form>
           </CardContent>
         </Card>
 
