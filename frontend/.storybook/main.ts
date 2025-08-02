@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-vite';
+import { resolve } from 'path';
 
 const config: StorybookConfig = {
   stories: [
@@ -25,6 +26,28 @@ const config: StorybookConfig = {
   typescript: {
     check: false,
     reactDocgen: 'react-docgen-typescript',
+  },
+  viteFinal: async (config) => {
+    // Add path resolution
+    if (config.resolve) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@': resolve(__dirname, '../src'),
+      };
+    }
+
+    // Ensure CSS is properly handled
+    config.css = {
+      ...config.css,
+      postcss: {
+        plugins: [
+          require('tailwindcss'),
+          require('autoprefixer'),
+        ],
+      },
+    };
+
+    return config;
   },
 };
 

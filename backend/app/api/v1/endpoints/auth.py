@@ -234,6 +234,129 @@ async def login(
     }
 
 
+@router.post("/login-enhanced", response_model=AuthenticationFlowResponse)
+async def login_enhanced(
+    request: Request,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Enhanced login endpoint with multi-step authentication support.
+    Returns different responses based on user's authentication setup.
+    """
+    # Apply rate limiting
+    rate_limiter = RateLimiter(db)
+    rate_limiter.check_rate_limit(
+        request=request,
+        endpoint="login_enhanced",
+        max_attempts=5,
+        window_minutes=15,
+        block_minutes=30,
+    )
+
+    auth_service = AuthService(db)
+
+    # Support both JSON payloads and form data
+    json_request = request.headers.get("content-type", "").startswith(
+        "application/json"
+    )
+    if json_request:
+        data = await request.json()
+    else:
+        form = await request.form()
+        data = dict(form)
+
+    identifier = data.get("username") or data.get("email")
+    password = data.get("password")
+
+    if not identifier or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username/email and password are required"
+        )
+
+    remember_me = data.get("remember_me", False)
+
+    # Get client info for audit logging
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
+    user = auth_service.authenticate_user(
+        identifier=identifier,
+        password=password,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password"
+        )
+
+    # Check email verification for JSON requests
+    if json_request and not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email not verified"
+        )
+
+    # Check what authentication methods are available/required
+    from app.services.mfa_service import MFAService
+    from app.services.webauthn_service import WebAuthnService
+    
+    mfa_service = MFAService(db)
+    webauthn_service = WebAuthnService(db)
+    
+    has_mfa = mfa_service.is_mfa_enabled(user)
+    has_webauthn = webauthn_service.has_webauthn_credentials(user)
+    
+    available_methods = []
+    if has_mfa:
+        available_methods.append("totp")
+    if has_webauthn:
+        available_methods.append("webauthn")
+    
+    # If no additional authentication is required, issue token
+    if not has_mfa and not has_webauthn:
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        if remember_me:
+            access_token_expires = timedelta(days=30)
+
+        access_token = create_access_token(
+            subject=user.id, expires_delta=access_token_expires
+        )
+        
+        return AuthenticationFlowResponse(
+            status="success",
+            access_token=access_token,
+            token_type="bearer",
+            message="Authentication successful"
+        )
+    
+    # Create challenge for second factor
+    challenge_id = None
+    if has_mfa or has_webauthn:
+        challenge_id = mfa_service.create_mfa_challenge(
+            user=user,
+            challenge_type="login",
+            challenge_data={
+                "user_id": user.id,
+                "step": "second_factor",
+                "remember_me": remember_me
+            }
+        )
+    
+    # Determine the primary recommended method
+    primary_method = "webauthn" if has_webauthn else "totp"
+    
+    return AuthenticationFlowResponse(
+        status="mfa_required",
+        challenge_id=challenge_id,
+        available_methods=available_methods,
+        message=f"Second factor authentication required. Available methods: {', '.join(available_methods)}"
+    )
+
+
 @router.post("/logout")
 def logout(
     request: Request,
