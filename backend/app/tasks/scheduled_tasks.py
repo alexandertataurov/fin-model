@@ -178,8 +178,11 @@ def update_analytics_cache(self):
                 "performance_metrics": analytics_service.get_performance_metrics(30),
             }
 
-            # TODO: Store in Redis cache for faster retrieval
-            # redis_client.setex("analytics_cache", 3600, json.dumps(cache_data))
+            # Store in Redis cache for faster retrieval
+            import json
+            from app.core.celery_app import redis_client
+            
+            redis_client.setex("analytics_cache", 3600, json.dumps(cache_data))
 
             return {
                 "success": True,

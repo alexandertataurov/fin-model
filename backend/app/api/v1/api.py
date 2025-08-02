@@ -14,6 +14,7 @@ from app.api.v1.endpoints import (
     scenarios,
     reports,
     statements,
+    monitoring,
 )
 from app.core.config import settings
 
@@ -64,6 +65,9 @@ api_router.include_router(
 
 # Include WebSocket routes
 api_router.include_router(websocket.router, tags=["websocket"])
+
+# Include monitoring routes
+api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
 
 try:
     from app.api.v1.endpoints import test_utils
