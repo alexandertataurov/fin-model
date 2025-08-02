@@ -1,21 +1,19 @@
-from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
 from enum import Enum
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Float,
-    DateTime,
-    Text,
-    Boolean,
-    ForeignKey,
-    JSON,
-)
-from sqlalchemy.orm import relationship, synonym
-from sqlalchemy.ext.declarative import declarative_base
 
 from app.models.base import Base
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
+from sqlalchemy.orm import relationship, synonym
 
 
 class ParameterType(str, Enum):
@@ -115,8 +113,10 @@ class Parameter(Base):
     # UI Configuration - enhanced for Task 04
     control_type = Column(String(50), default="input")  # slider, input, dropdown
     step_size = Column(Float, nullable=True)
-    display_format = Column(String(50), default="number")  # number, percentage, currency
-    
+    display_format = Column(
+        String(50), default="number"
+    )  # number, percentage, currency
+
     # Grouping
     group_id = Column(String(50), ForeignKey("parameter_groups.id"), nullable=True)
 
@@ -156,20 +156,20 @@ class Parameter(Base):
 
 class ParameterGroup(Base):
     """Model for grouping parameters by category or function."""
-    
+
     __tablename__ = "parameter_groups"
-    
+
     id = Column(String(50), primary_key=True)
-    model_id = Column(String(50), ForeignKey("uploaded_files.id"), nullable=False)
+    model_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     display_order = Column(Integer, nullable=True)
     is_expanded = Column(Boolean, default=True)
-    
+
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     parameters = relationship("Parameter", back_populates="group")
     model = relationship("UploadedFile")
@@ -177,9 +177,9 @@ class ParameterGroup(Base):
 
 class ParameterHistory(Base):
     """Model for tracking parameter value changes."""
-    
+
     __tablename__ = "parameter_history"
-    
+
     id = Column(String(50), primary_key=True)
     parameter_id = Column(Integer, ForeignKey("parameters.id"), nullable=False)
     old_value = Column(Float, nullable=True)
@@ -187,7 +187,7 @@ class ParameterHistory(Base):
     changed_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     changed_at = Column(DateTime, default=datetime.utcnow)
     change_reason = Column(String(255), nullable=True)
-    
+
     # Relationships
     parameter = relationship("Parameter", back_populates="history")
     user = relationship("User")
