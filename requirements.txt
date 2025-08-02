@@ -27,6 +27,9 @@ weasyprint==61.2
 Pillow>=10.1.0
 matplotlib>=3.8.0
 
+# Graph algorithms
+networkx>=3.2.1
+
 # Background tasks
 celery==5.3.4
 redis==5.0.1
