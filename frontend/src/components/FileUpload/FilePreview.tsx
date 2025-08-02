@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -62,7 +62,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [expandedSheets, setExpandedSheets] = useState<Set<string>>(new Set());
 
-  const loadPreview = async () => {
+  const loadPreview = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -74,11 +74,11 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [fileId]);
 
   useEffect(() => {
     loadPreview();
-  }, [fileId]);
+  }, [loadPreview]);
 
   const toggleSheetExpansion = (sheetName: string) => {
     setExpandedSheets(prev => {

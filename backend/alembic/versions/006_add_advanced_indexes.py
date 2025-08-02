@@ -11,7 +11,7 @@ from sqlalchemy import text
 
 # revision identifiers, used by Alembic.
 revision = "006"
-down_revision = "005"
+down_revision = "9dd5d1ac7ef0"
 branch_labels = None
 depends_on = None
 
@@ -20,364 +20,173 @@ def upgrade():
     # Advanced indexes for users table
     conn = op.get_bind()
 
+    # Helper function to safely create indexes - combines both approaches
+    def safe_create_index(index_name, table_name, columns, unique=False, expression=None):
+        try:
+            # Check if index already exists
+            result = conn.execute(text(f"SELECT to_regclass('{index_name}')")).scalar()
+            if result is None:
+                if expression:
+                    conn.execute(text(f"CREATE INDEX {index_name} ON {table_name} {expression}"))
+                else:
+                    op.create_index(index_name, table_name, columns, unique=unique)
+                print(f"✅ Created index {index_name}")
+            else:
+                print(f"⚠️ Skipping index {index_name}: already exists")
+        except Exception as e:
+            print(f"⚠️ Skipping index {index_name}: {e}")
+
     # ix_users_last_login
-    if not conn.execute(text("SELECT to_regclass('ix_users_last_login')")).scalar():
-        op.create_index("ix_users_last_login", "users", ["last_login"], unique=False)
+    safe_create_index("ix_users_last_login", "users", ["last_login"])
 
     # ix_users_created_date - expression index (use raw SQL)
-    if not conn.execute(text("SELECT to_regclass('ix_users_created_date')")).scalar():
-        op.execute("CREATE INDEX ix_users_created_date ON users (DATE(created_at))")
+    safe_create_index("ix_users_created_date", "users", None, expression="(DATE(created_at))")
 
     # ix_users_active_verified - compound index
-    if not conn.execute(
-        text("SELECT to_regclass('ix_users_active_verified')")
-    ).scalar():
-        op.create_index(
-            "ix_users_active_verified",
-            "users",
-            ["is_active", "is_verified"],
-            unique=False,
-        )
+    safe_create_index("ix_users_active_verified", "users", ["is_active", "is_verified"])
 
     # Advanced indexes for uploaded_files table
-    op.create_index(
-        "ix_files_status_created",
-        "uploaded_files",
-        ["status", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_files_size_type", "uploaded_files", ["file_size", "file_type"], unique=False
-    )
-    op.create_index(
-        "ix_files_processing_times",
-        "uploaded_files",
-        ["processing_started_at", "processing_completed_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_files_user_status",
-        "uploaded_files",
-        ["uploaded_by_id", "status"],
-        unique=False,
-    )
+    safe_create_index("ix_files_status_created", "uploaded_files", ["status", "created_at"])
+    safe_create_index("ix_files_size_type", "uploaded_files", ["file_size", "file_type"])
+    safe_create_index("ix_files_processing_times", "uploaded_files", ["processing_started_at", "processing_completed_at"])
+    safe_create_index("ix_files_user_status", "uploaded_files", ["uploaded_by_id", "status"])
 
     # Advanced indexes for parameters table
-    op.create_index(
-        "ix_parameters_type_category",
-        "parameters",
-        ["parameter_type", "category"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_parameters_sensitivity_editable",
-        "parameters",
-        ["sensitivity_level", "is_editable"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_parameters_file_sheet",
-        "parameters",
-        ["source_file_id", "source_sheet"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_parameters_updated_recently",
-        "parameters",
-        [sa.text("updated_at DESC")],
-        unique=False,
-    )
+    safe_create_index("ix_parameters_type_category", "parameters", ["parameter_type", "category"])
+    safe_create_index("ix_parameters_sensitivity_editable", "parameters", ["sensitivity_level", "is_editable"])
+    safe_create_index("ix_parameters_file_sheet", "parameters", ["source_file_id", "source_sheet"])
+    safe_create_index("ix_parameters_updated_recently", "parameters", None, expression="(updated_at DESC)")
 
     # Advanced indexes for scenarios table
-    op.create_index(
-        "ix_scenarios_status_baseline",
-        "scenarios",
-        ["status", "is_baseline"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_scenarios_file_created",
-        "scenarios",
-        ["base_file_id", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_scenarios_calculation_status",
-        "scenarios",
-        ["calculation_status", "last_calculated_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_scenarios_user_active",
-        "scenarios",
-        ["created_by_id", "status"],
-        unique=False,
-    )
+    safe_create_index("ix_scenarios_status_baseline", "scenarios", ["status", "is_baseline"])
+    safe_create_index("ix_scenarios_file_created", "scenarios", ["base_file_id", "created_at"])
+    safe_create_index("ix_scenarios_calculation_status", "scenarios", ["calculation_status", "last_calculated_at"])
+    safe_create_index("ix_scenarios_user_active", "scenarios", ["created_by_id", "status"])
 
     # Advanced indexes for financial_statements table
-    op.create_index(
-        "ix_statements_period_range",
-        "financial_statements",
-        ["period_start", "period_end", "statement_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_statements_scenario_type",
-        "financial_statements",
-        ["scenario_id", "statement_type", "period_start"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_statements_currency_period",
-        "financial_statements",
-        ["currency", "period_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_statements_baseline_version",
-        "financial_statements",
-        ["is_baseline", "version"],
-        unique=False,
-    )
+    safe_create_index("ix_statements_period_range", "financial_statements", ["period_start", "period_end", "statement_type"])
+    safe_create_index("ix_statements_scenario_type", "financial_statements", ["scenario_id", "statement_type", "period_start"])
+    safe_create_index("ix_statements_currency_period", "financial_statements", ["currency", "period_type"])
+    safe_create_index("ix_statements_baseline_version", "financial_statements", ["is_baseline", "version"])
 
     # Advanced indexes for metrics table
-    op.create_index(
-        "ix_metrics_name_period",
-        "metrics",
-        ["metric_name", "period_start", "period_end"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_metrics_category_type",
-        "metrics",
-        ["metric_category", "metric_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_metrics_scenario_category",
-        "metrics",
-        ["scenario_id", "metric_category"],
-        unique=False,
-    )
-    op.create_index("ix_metrics_value_range", "metrics", ["value"], unique=False)
+    safe_create_index("ix_metrics_name_period", "metrics", ["metric_name", "period_start", "period_end"])
+    safe_create_index("ix_metrics_category_type", "metrics", ["metric_category", "metric_type"])
+    safe_create_index("ix_metrics_scenario_category", "metrics", ["scenario_id", "metric_category"])
+    safe_create_index("ix_metrics_value_range", "metrics", ["value"])
 
     # Advanced indexes for time_series table (critical for performance)
-    op.create_index(
-        "ix_timeseries_type_date",
-        "time_series",
-        ["data_type", "period_date"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_scenario_type_date",
-        "time_series",
-        ["scenario_id", "data_type", "period_date"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_frequency_actual",
-        "time_series",
-        ["frequency", "is_actual"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_date_range",
-        "time_series",
-        [sa.text("period_date DESC")],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_subtype_date",
-        "time_series",
-        ["data_subtype", "period_date"],
-        unique=False,
-    )
+    safe_create_index("ix_timeseries_type_date", "time_series", ["data_type", "period_date"])
+    safe_create_index("ix_timeseries_scenario_type_date", "time_series", ["scenario_id", "data_type", "period_date"])
+    safe_create_index("ix_timeseries_frequency_actual", "time_series", ["frequency", "is_actual"])
+    safe_create_index("ix_timeseries_date_range", "time_series", None, expression="(period_date DESC)")
+    safe_create_index("ix_timeseries_subtype_date", "time_series", ["data_subtype", "period_date"])
 
     # Advanced indexes for calculations table
-    op.create_index(
-        "ix_calculations_order_active",
-        "calculations",
-        ["execution_order", "is_active"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_calculations_type_scenario",
-        "calculations",
-        ["calculation_type", "scenario_id"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_calculations_executed_recently",
-        "calculations",
-        [sa.text("last_executed_at DESC NULLS LAST")],
-        unique=False,
-    )
+    safe_create_index("ix_calculations_order_active", "calculations", ["execution_order", "is_active"])
+    safe_create_index("ix_calculations_type_scenario", "calculations", ["calculation_type", "scenario_id"])
+    safe_create_index("ix_calculations_executed_recently", "calculations", None, expression="(last_executed_at DESC NULLS LAST)")
 
     # Advanced indexes for templates table
-    op.create_index(
-        "ix_templates_type_active",
-        "templates",
-        ["template_type", "is_active"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_templates_system_usage",
-        "templates",
-        ["is_system_template", "usage_count"],
-        unique=False,
-    )
+    safe_create_index("ix_templates_type_active", "templates", ["template_type", "is_active"])
+    safe_create_index("ix_templates_system_usage", "templates", ["is_system_template", "usage_count"])
 
     # Advanced indexes for file_versions table
-    op.create_index(
-        "ix_versions_file_current",
-        "file_versions",
-        ["file_id", "is_current"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_versions_hash_lookup", "file_versions", ["file_hash"], unique=False
-    )
-    op.create_index(
-        "ix_versions_change_type",
-        "file_versions",
-        ["change_type", "created_at"],
-        unique=False,
-    )
+    safe_create_index("ix_versions_file_current", "file_versions", ["file_id", "is_current"])
+    safe_create_index("ix_versions_hash_lookup", "file_versions", ["file_hash"])
+    safe_create_index("ix_versions_change_type", "file_versions", ["change_type", "created_at"])
 
     # Advanced indexes for audit_logs table (for security and monitoring)
-    op.create_index(
-        "ix_audit_action_time", "audit_logs", ["action", "created_at"], unique=False
-    )
-    op.create_index(
-        "ix_audit_user_success",
-        "audit_logs",
-        ["user_id", "success", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_audit_resource_type",
-        "audit_logs",
-        ["resource", "resource_id"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_audit_recent", "audit_logs", [sa.text("created_at DESC")], unique=False
-    )
-    op.create_index("ix_audit_ip_address", "audit_logs", ["ip_address"], unique=False)
+    safe_create_index("ix_audit_action_time", "audit_logs", ["action", "created_at"])
+    safe_create_index("ix_audit_user_success", "audit_logs", ["user_id", "success", "created_at"])
+    safe_create_index("ix_audit_resource_type", "audit_logs", ["resource", "resource_id"])
+    safe_create_index("ix_audit_recent", "audit_logs", None, expression="(created_at DESC)")
+    safe_create_index("ix_audit_ip_address", "audit_logs", ["ip_address"])
 
     # Advanced indexes for reports
-    op.create_index(
-        "ix_report_templates_active",
-        "report_templates",
-        ["is_active", "report_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_report_schedules_next_run",
-        "report_schedules",
-        ["next_run_at", "is_active"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_report_exports_status_created",
-        "report_exports",
-        ["status", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_report_exports_user_format",
-        "report_exports",
-        ["created_by", "export_format"],
-        unique=False,
-    )
+    safe_create_index("ix_report_templates_active", "report_templates", ["is_active", "report_type"])
+    safe_create_index("ix_report_schedules_next_run", "report_schedules", ["next_run_at", "is_active"])
+    safe_create_index("ix_report_exports_status_created", "report_exports", ["status", "created_at"])
+    safe_create_index("ix_report_exports_user_format", "report_exports", ["created_by", "export_format"])
 
     # Full-text search indexes (PostgreSQL specific)
     # Create GIN indexes for better text search on key fields
 
     with op.get_context().autocommit_block():
-        op.execute(
-            """
+        conn_autocommit = op.get_bind()
+        
+        # Helper function for concurrent index creation
+        def safe_create_concurrent_index(index_name, sql):
+            try:
+                # Check if index already exists
+                result = conn_autocommit.execute(text(f"SELECT to_regclass('{index_name}')")).scalar()
+                if result is None:
+                    conn_autocommit.execute(text(sql))
+                    print(f"✅ Created concurrent index {index_name}")
+                else:
+                    print(f"⚠️ Skipping concurrent index {index_name}: already exists")
+            except Exception as e:
+                print(f"⚠️ Could not create concurrent index {index_name}: {e}")
+        
+        safe_create_concurrent_index("ix_parameters_search_gin", """
             CREATE INDEX CONCURRENTLY ix_parameters_search_gin
             ON parameters USING gin(to_tsvector('english',
                 COALESCE(name, '') || ' ' ||
                 COALESCE(display_name, '') || ' ' ||
                 COALESCE(description, '')
             ))
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_scenarios_search_gin", """
             CREATE INDEX CONCURRENTLY ix_scenarios_search_gin
             ON scenarios USING gin(to_tsvector('english',
                 COALESCE(name, '') || ' ' ||
                 COALESCE(description, '')
             ))
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_files_search_gin", """
             CREATE INDEX CONCURRENTLY ix_files_search_gin
             ON uploaded_files USING gin(to_tsvector('english',
                 COALESCE(filename, '') || ' ' ||
                 COALESCE(original_filename, '')
             ))
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_templates_search_gin", """
             CREATE INDEX CONCURRENTLY ix_templates_search_gin
             ON templates USING gin(to_tsvector('english',
                 COALESCE(name, '') || ' ' ||
                 COALESCE(description, '')
             ))
-        """
-        )
+        """)
 
         # Partial indexes for common filtered queries
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_users_active_only ON users (id) "
-                "WHERE is_active = true"
-            )
+        safe_create_concurrent_index("ix_users_active_only", 
+            "CREATE INDEX CONCURRENTLY ix_users_active_only ON users (id) WHERE is_active = true"
         )
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_files_processing ON uploaded_files "
-                "(id, created_at) WHERE status IN ('processing', 'uploaded')"
-            )
+        safe_create_concurrent_index("ix_files_processing", 
+            "CREATE INDEX CONCURRENTLY ix_files_processing ON uploaded_files (id, created_at) WHERE status IN ('processing', 'uploaded')"
         )
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_scenarios_active ON scenarios (id, "
-                "updated_at) WHERE status = 'active'"
-            )
+        safe_create_concurrent_index("ix_scenarios_active", 
+            "CREATE INDEX CONCURRENTLY ix_scenarios_active ON scenarios (id, updated_at) WHERE status = 'active'"
         )
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_calculations_pending ON calculations "
-                "(execution_order) WHERE is_active = true AND last_executed_at IS NULL"
-            )
+        safe_create_concurrent_index("ix_calculations_pending", 
+            "CREATE INDEX CONCURRENTLY ix_calculations_pending ON calculations (execution_order) WHERE is_active = true AND last_executed_at IS NULL"
         )
 
         # Covering indexes for common join patterns
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_parameter_values_covering", """
             CREATE INDEX CONCURRENTLY ix_parameter_values_covering
             ON parameter_values (scenario_id, parameter_id)
             INCLUDE (value, changed_at, is_valid)
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_metrics_covering", """
             CREATE INDEX CONCURRENTLY ix_metrics_covering
             ON metrics (scenario_id, metric_category)
             INCLUDE (metric_name, value, period_start, period_end)
-        """
-        )
+        """)
 
 
 def downgrade():

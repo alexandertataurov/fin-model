@@ -9,7 +9,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { CloudUpload, List } from '@mui/icons-material';
+import { Upload, List } from 'lucide-react';
 import FileUploadDropzone from '../components/FileUpload/FileUploadDropzone';
 import FileList from '../components/FileUpload/FileList';
 import { FileUploadResponse } from '../services/fileApi';
@@ -54,10 +54,11 @@ const FileUpload: React.FC = () => {
   };
 
   const handleUploadComplete = (files: FileUploadResponse[]) => {
-    const message = files.length === 1 
-      ? `File "${files[0].original_filename}" uploaded successfully!`
-      : `${files.length} files uploaded successfully!`;
-    
+    const message =
+      files.length === 1
+        ? `File "${files[0].original_filename}" uploaded successfully!`
+        : `${files.length} files uploaded successfully!`;
+
     setSnackbar({
       open: true,
       message,
@@ -66,7 +67,7 @@ const FileUpload: React.FC = () => {
 
     // Trigger refresh of file list
     setRefreshTrigger(prev => prev + 1);
-    
+
     // Auto-switch to file list tab
     setActiveTab(1);
   };
@@ -91,28 +92,28 @@ const FileUpload: React.FC = () => {
           File Upload & Processing
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Upload Excel files to transform them into interactive financial models.
-          Supported formats: .xlsx, .xls, .csv
+          Upload Excel files to transform them into interactive financial
+          models. Supported formats: .xlsx, .xls, .csv
         </Typography>
       </Box>
 
       {/* Tabs */}
       <Paper sx={{ mb: 3 }}>
-        <Tabs 
-          value={activeTab} 
+        <Tabs
+          value={activeTab}
           onChange={handleTabChange}
           aria-label="file upload tabs"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          <Tab 
-            icon={<CloudUpload />} 
-            label="Upload Files" 
+          <Tab
+            icon={<Upload />}
+            label="Upload Files"
             id="file-upload-tab-0"
             aria-controls="file-upload-tabpanel-0"
           />
-          <Tab 
-            icon={<List />} 
-            label="Manage Files" 
+          <Tab
+            icon={<List />}
+            label="Manage Files"
             id="file-upload-tab-1"
             aria-controls="file-upload-tabpanel-1"
           />
@@ -128,10 +129,10 @@ const FileUpload: React.FC = () => {
                 Upload New Files
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Select Excel or CSV files to upload and process. Files will be validated 
-                and parsed to extract financial data.
+                Select Excel or CSV files to upload and process. Files will be
+                validated and parsed to extract financial data.
               </Typography>
-              
+
               <FileUploadDropzone
                 onUploadComplete={handleUploadComplete}
                 onUploadError={handleUploadError}
@@ -152,26 +153,30 @@ const FileUpload: React.FC = () => {
               <Box component="ol" sx={{ pl: 2 }}>
                 <Box component="li" sx={{ mb: 1 }}>
                   <Typography variant="body2">
-                    <strong>Use structured Excel templates</strong> - Ensure your financial statements 
-                    have clear headers and organized data
+                    <strong>Use structured Excel templates</strong> - Ensure
+                    your financial statements have clear headers and organized
+                    data
                   </Typography>
                 </Box>
                 <Box component="li" sx={{ mb: 1 }}>
                   <Typography variant="body2">
-                    <strong>Include P&L, Balance Sheet, or Cash Flow data</strong> - The system 
-                    automatically detects and validates financial statement types
+                    <strong>
+                      Include P&L, Balance Sheet, or Cash Flow data
+                    </strong>{' '}
+                    - The system automatically detects and validates financial
+                    statement types
                   </Typography>
                 </Box>
                 <Box component="li" sx={{ mb: 1 }}>
                   <Typography variant="body2">
-                    <strong>Keep file sizes reasonable</strong> - Files up to 10MB are supported 
-                    for optimal processing performance
+                    <strong>Keep file sizes reasonable</strong> - Files up to
+                    10MB are supported for optimal processing performance
                   </Typography>
                 </Box>
                 <Box component="li">
                   <Typography variant="body2">
-                    <strong>Review validation results</strong> - Check processing logs to understand 
-                    any issues or recommendations
+                    <strong>Review validation results</strong> - Check
+                    processing logs to understand any issues or recommendations
                   </Typography>
                 </Box>
               </Box>
@@ -201,4 +206,4 @@ const FileUpload: React.FC = () => {
   );
 };
 
-export default FileUpload; 
+export default FileUpload;

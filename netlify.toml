@@ -2,21 +2,44 @@
 
 [build]
   base = "frontend"
-  command = "npm ci && npm run build"
+  command = "npm ci --omit=optional --omit=dev --prefer-offline --no-audit --no-fund --silent && npm run build:optimized"
   publish = "dist"
 
   [build.environment]
-    NODE_VERSION = "18"
-    # Enable build performance optimizations
-    NODE_OPTIONS = "--max-old-space-size=4096"
-    # Skip npm audit for faster builds
+    NODE_VERSION = "20.11.0"
+    # Aggressive build performance optimizations
+    NODE_OPTIONS = "--max-old-space-size=8192 --experimental-vm-modules"
+    # Skip all unnecessary npm operations
     NPM_CONFIG_AUDIT = "false"
-    # Use faster package manager if available
     NPM_CONFIG_FUND = "false"
+    NPM_CONFIG_OPTIONAL = "false"
+    NPM_CONFIG_PROGRESS = "false"
+    NPM_CONFIG_LOGLEVEL = "error"
+    NPM_CONFIG_UPDATE_NOTIFIER = "false"
+    # Optimize npm performance
+    NPM_CONFIG_MAXSOCKETS = "50"
+    NPM_CONFIG_NETWORK_TIMEOUT = "60000"
+    NPM_CONFIG_PREFER_OFFLINE = "true"
+    # Vite optimizations
+    VITE_CJS_IGNORE_WARNING = "true"
+    # Build cache optimizations
+    CI = "true"
+    NETLIFY_CACHE_VERSION = "v2"
 
-# Skip Netlify's post-processing since Vite already optimizes everything
+# Build optimizations
 [build.processing]
   skip_processing = true
+
+[build.processing.css]
+  bundle = false
+  minify = false
+
+[build.processing.js]
+  bundle = false
+  minify = false
+
+[build.processing.html]
+  pretty_urls = false
 
 # SPA routing
 [[redirects]]
@@ -82,22 +105,28 @@
 
 # Environment-specific configs
 [context.production]
-  command = "npm ci && npm run build"
+  command = "npm ci --omit=optional --omit=dev --prefer-offline --no-audit --no-fund --silent && npm run build:optimized"
   [context.production.environment]
     NODE_ENV = "production"
+    NODE_OPTIONS = "--max-old-space-size=8192"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
+    VITE_BUILD_ANALYZE = "false"
+    VITE_LEGACY_BUILD = "false"
+    NETLIFY_USE_PNPM = "false"
 
 [context.deploy-preview]
-  command = "npm ci && npm run build"
+  command = "npm ci --omit=optional --prefer-offline --no-audit --no-fund --silent && npm run build:fast"
   [context.deploy-preview.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
+    VITE_DEV_SOURCEMAP = "false"
 
 [context.branch-deploy]
-  command = "npm ci && npm run build"
+  command = "npm ci --omit=optional --prefer-offline --no-audit --no-fund --silent && npm run build:fast"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
+    VITE_DEV_SOURCEMAP = "false"
 
 # Netlify Functions config
 [functions]

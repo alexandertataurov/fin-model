@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
@@ -76,7 +76,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
     return processingSteps[0];
   };
 
-  const pollTaskStatus = async () => {
+  const pollTaskStatus = useCallback(async () => {
     if (!taskId || !isPolling) return;
 
     try {
@@ -102,7 +102,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       console.error('Failed to poll task status:', error);
       // Continue polling on error, might be temporary
     }
-  };
+  }, [taskId, isPolling, onComplete, onError]);
 
   useEffect(() => {
     if (autoRefresh && taskId && job.status === 'processing') {
@@ -110,7 +110,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       const interval = setInterval(pollTaskStatus, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [taskId, autoRefresh, refreshInterval, job.status, isPolling]);
+  }, [taskId, autoRefresh, refreshInterval, job.status, isPolling, pollTaskStatus]);
 
   const startProcessing = async () => {
     try {

@@ -5,18 +5,31 @@ from fastapi import HTTPException, status
 from app.models.user import User
 from app.models.role import Role, UserRole, RoleType
 from app.models.audit import AuditLog, AuditAction
-from app.schemas.user import UserCreate, UserUpdate, UserLogin
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import (
     verify_password,
     get_password_hash,
     create_access_token,
     create_refresh_token,
-    create_email_verification_token,
-    create_password_reset_token,
-    verify_email_verification_token,
-    verify_password_reset_token,
     generate_secure_token,
 )
+
+
+def _validate_password_requirements(password: str):
+    import re
+    requirements = [
+        (len(password) >= 8, 'at least 8 characters'),
+        (re.search(r'[A-Z]', password), 'an uppercase letter (A-Z)'),
+        (re.search(r'[a-z]', password), 'a lowercase letter (a-z)'),
+        (re.search(r'\d', password), 'a number (0-9)'),
+        (re.search(r'[!@#$%^&*()_+=\[\]{}|;:,.<>?-]', password), 'a special character (!@#$...)'),
+    ]
+    failed = [desc for ok, desc in requirements if not ok]
+    if failed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Password must contain: {', '.join(failed)}."
+        )
 
 
 class AuthService:
@@ -29,11 +42,19 @@ class AuthService:
 
     def get_user_by_username(self, username: str) -> Optional[User]:
         """Get user by username."""
-        return self.db.query(User).filter(User.username == username).first()
+        return (
+            self.db.query(User)
+            .filter(User.username == username)
+            .first()
+        )
 
     def get_user_by_id(self, user_id: int) -> Optional[User]:
         """Get user by ID."""
-        return self.db.query(User).filter(User.id == user_id).first()
+        return (
+            self.db.query(User)
+            .filter(User.id == user_id)
+            .first()
+        )
 
     def create_user(
         self, user_create: UserCreate, role: RoleType = RoleType.VIEWER
@@ -51,6 +72,9 @@ class AuthService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="User already registered",
             )
+
+        # Validate password requirements
+        _validate_password_requirements(user_create.password)
 
         # Create new user
         hashed_password = get_password_hash(user_create.password)
@@ -235,6 +259,9 @@ class AuthService:
         ):
             return False
 
+        # Validate password requirements
+        _validate_password_requirements(new_password)
+
         # Update password
         user.hashed_password = get_password_hash(new_password)
         user.password_reset_token = None
@@ -317,7 +344,7 @@ class AuthService:
             .filter(
                 UserRole.user_id == user_id,
                 UserRole.role_id == role_obj.id,
-                UserRole.is_active == True,
+                UserRole.is_active,
             )
             .first()
         )

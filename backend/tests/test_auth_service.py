@@ -84,7 +84,7 @@ class TestAuthService:
             username="newuser",
             first_name="New",
             last_name="User",
-            password="password123456",
+            password="Password123!",
         )
 
         result = auth_service.create_user(user_create)
@@ -97,7 +97,7 @@ class TestAuthService:
         mock_db.query.return_value.filter.return_value.first.return_value = sample_user
 
         user_create = UserCreate(
-            email="test@example.com", username="newuser", password="password123456"
+            email="test@example.com", username="newuser", password="Password123!"
         )
 
         with pytest.raises(HTTPException) as exc_info:
@@ -113,7 +113,7 @@ class TestAuthService:
         ]
 
         user_create = UserCreate(
-            email="new@example.com", username="testuser", password="password123456"
+            email="new@example.com", username="testuser", password="Password123!"
         )
 
         with pytest.raises(HTTPException) as exc_info:
@@ -191,7 +191,7 @@ class TestAuthService:
                 username="newuser",
                 first_name="John",
                 last_name="Doe",
-                password="password123456",
+                password="Password123!",
             )
 
             auth_service.create_user(user_create)
@@ -213,7 +213,7 @@ class TestAuthService:
             ]
 
             user_create = UserCreate(
-                email="new@example.com", username="newuser", password="password123456"
+                email="new@example.com", username="newuser", password="Password123!"
             )
 
             auth_service.create_user(user_create, RoleType.ADMIN)
@@ -242,7 +242,7 @@ class TestAuthServiceIntegration:
             username="integrationuser",
             first_name="Integration",
             last_name="Test",
-            password="securepassword123",
+            password="SecurePassword123!",
         )
 
         # Create user
@@ -253,7 +253,7 @@ class TestAuthServiceIntegration:
 
         # Authenticate user
         authenticated_user = auth_service.authenticate_user(
-            "integrationuser", "securepassword123"
+            "integrationuser", "SecurePassword123!"
         )
         assert authenticated_user is not None
         assert authenticated_user.id == created_user.id
@@ -274,7 +274,7 @@ class TestAuthServiceIntegration:
         db_session.commit()
 
         user_create = UserCreate(
-            email="admin@test.com", username="adminuser", password="password123456"
+            email="admin@test.com", username="adminuser", password="Password123!"
         )
 
         # Create user with admin role

@@ -34,9 +34,7 @@ const TestComponent = () => <div>Protected Content</div>;
 const renderWithRouter = (component: React.ReactElement) => {
   return render(
     <BrowserRouter>
-      <AuthProvider>
-        {component}
-      </AuthProvider>
+      <AuthProvider>{component}</AuthProvider>
     </BrowserRouter>
   );
 };
@@ -77,7 +75,7 @@ describe('AuthGuard', () => {
   it('renders children when user is authenticated and verified', () => {
     mockAuthContext.isLoading = false;
     mockAuthContext.isAuthenticated = true;
-    mockAuthContext.user = {
+    (mockAuthContext.user as any) = {
       id: 1,
       email: 'test@example.com',
       username: 'testuser',
@@ -103,7 +101,7 @@ describe('AuthGuard', () => {
   it('shows verification required message when user is not verified', () => {
     mockAuthContext.isLoading = false;
     mockAuthContext.isAuthenticated = true;
-    mockAuthContext.user = {
+    (mockAuthContext.user as any) = {
       id: 1,
       email: 'test@example.com',
       username: 'testuser',
@@ -131,7 +129,7 @@ describe('AuthGuard', () => {
     mockAuthContext.isLoading = false;
     mockAuthContext.isAuthenticated = true;
     mockAuthContext.hasRole = jest.fn().mockReturnValue(false);
-    mockAuthContext.user = {
+    (mockAuthContext.user as any) = {
       id: 1,
       email: 'test@example.com',
       username: 'testuser',

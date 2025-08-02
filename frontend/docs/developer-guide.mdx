@@ -1,0 +1,251 @@
+# FinVision Design System Developer Guide
+
+## Overview
+
+The FinVision design system is built on three core technologies:
+
+- **Radix UI**: Unstyled, accessible component primitives
+- **Class Variance Authority (CVA)**: Type-safe variant management
+- **Tailwind CSS**: Utility-first styling with semantic design tokens
+
+## Component Creation Guidelines
+
+### 1. Component Structure
+
+Every component should follow this structure:
+
+```typescript
+import * as React from 'react';
+import { Primitive } from '@radix-ui/react-primitive';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+
+// Define variants using CVA
+const componentVariants = cva(
+  'base-classes', // Base styles that always apply
+  {
+    variants: {
+      variant: {
+        default: 'variant-specific-classes',
+        secondary: 'variant-specific-classes',
+      },
+      size: {
+        default: 'size-specific-classes',
+        sm: 'size-specific-classes',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+
+// Define component props interface
+export interface ComponentProps
+  extends React.ComponentPropsWithoutRef<typeof Primitive>,
+    VariantProps<typeof componentVariants> {
+  // Additional component-specific props
+}
+
+// Component implementation
+export const Component = React.forwardRef<
+  React.ElementRef<typeof Primitive>,
+  ComponentProps
+>(({ className, variant, size, ...props }, ref) => (
+  <Primitive
+    ref={ref}
+    className={cn(componentVariants({ variant, size }), className)}
+    {...props}
+  />
+));
+
+Component.displayName = 'Component';
+```
+
+### 2. Styling Guidelines
+
+#### Use Semantic Classes
+
+```typescript
+// ✅ Good - semantic classes
+'bg-primary text-primary-foreground';
+'border-destructive text-destructive';
+
+// ❌ Bad - hardcoded colors
+'bg-blue-600 text-white';
+'border-red-500 text-red-500';
+```
+
+#### Follow Design Token Patterns
+
+```typescript
+// ✅ Good - consistent with design tokens
+'focus-visible:ring-ring focus-visible:ring-2';
+'disabled:opacity-50 disabled:pointer-events-none';
+
+// ❌ Bad - inconsistent patterns
+'focus:outline-blue-500 focus:outline-2';
+'disabled:opacity-40 disabled:cursor-not-allowed';
+```
+
+### 3. Accessibility Requirements
+
+Every component must:
+
+- Include proper ARIA attributes
+- Support keyboard navigation
+- Work with screen readers
+- Maintain focus management
+- Follow WCAG 2.1 AA guidelines
+
+#### Example Implementation
+
+```typescript
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
+
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size }), className)}
+        ref={ref}
+        // Accessibility attributes
+        role={asChild ? undefined : 'button'}
+        aria-disabled={props.disabled}
+        tabIndex={props.disabled ? -1 : 0}
+        {...props}
+      />
+    );
+  }
+);
+```
+
+### 4. Testing Standards
+
+Every component requires:
+
+- Unit tests for all variants
+- Accessibility tests
+- Visual regression tests
+- Integration tests for complex components
+
+#### Test Template
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { Button } from './button';
+
+expect.extend(toHaveNoViolations);
+
+describe('Button', () => {
+  it('renders correctly', () => {
+    render(<Button>Click me</Button>);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('applies variants correctly', () => {
+    const { rerender } = render(<Button variant="destructive">Button</Button>);
+    expect(screen.getByRole('button')).toHaveClass('bg-destructive');
+
+    rerender(<Button variant="outline">Button</Button>);
+    expect(screen.getByRole('button')).toHaveClass('border');
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<Button>Accessible button</Button>);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('supports keyboard navigation', async () => {
+    const handleClick = jest.fn();
+    render(<Button onClick={handleClick}>Button</Button>);
+
+    const button = screen.getByRole('button');
+    button.focus();
+    expect(button).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+    expect(handleClick).toHaveBeenCalled();
+  });
+});
+```
+
+## Component Status and Roadmap
+
+### ✅ Completed Components
+
+- Button (variants: default, destructive, outline, secondary, ghost, link)
+- Input (with validation states and icons)
+- Label (with required indicator support)
+- Checkbox (with indeterminate state)
+- Dialog (with proper focus management)
+- Tabs (with keyboard navigation)
+- Card (with header, content, footer variants)
+- Badge (with status variants)
+- Alert (with icon and variant support)
+
+### 🚧 In Progress
+
+- DataTable (sorting, filtering, pagination)
+- Form (with validation integration)
+- Select (with search and multi-select)
+- DatePicker (with range selection)
+
+### 📋 Planned
+
+- Command (command palette)
+- NavigationMenu (complex navigation)
+- Sheet (slide-out panels)
+- Popover (with arrow positioning)
+- ContextMenu (right-click menus)
+
+## Migration Patterns
+
+### From Material-UI to Radix UI
+
+```typescript
+// Before: Material-UI
+import { Button as MuiButton } from '@mui/material';
+<MuiButton variant="contained" color="primary">
+  Click me
+</MuiButton>;
+
+// After: Radix UI + CVA
+import { Button } from '@/components/ui/button';
+<Button variant="default">Click me</Button>;
+```
+
+### Form Migration Pattern
+
+```typescript
+// Before: Material-UI forms
+import { TextField, FormControl, FormHelperText } from '@mui/material';
+
+// After: Radix UI forms
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+<FormField
+  control={form.control}
+  name="email"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Email</FormLabel>
+      <FormControl>
+        <Input type="email" placeholder="Enter email" {...field} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>;
+```

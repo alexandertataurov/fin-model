@@ -1,2 +1,3 @@
 web: python3 main.py
-worker: cd backend && celery -A app.core.celery_app worker --loglevel=info 
+worker: python3 -c "import os; os.chdir('backend'); import sys; sys.path.insert(0, '.'); from celery_worker import app; app.worker_main(['worker', '--loglevel=info'])"
+release: python3 backend/run_migrations.py 

@@ -12,6 +12,7 @@ from app.api.v1.endpoints import (
     reports,
     statements,
 )
+from app.core.config import settings
 
 api_router = APIRouter()
 
@@ -51,6 +52,13 @@ api_router.include_router(
 
 # Include WebSocket routes
 api_router.include_router(websocket.router, tags=["websocket"])
+
+try:
+    from app.api.v1.endpoints import test_utils
+    if getattr(settings, 'ENV', 'development') in ['development', 'dev', 'test', 'testing']:
+        api_router.include_router(test_utils.router, prefix="", tags=["test-utils"])
+except ImportError:
+    pass
 
 
 @api_router.get("/")

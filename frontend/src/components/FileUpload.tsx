@@ -50,7 +50,7 @@ export function FileUpload() {
     return null
   }
 
-  const processFile = (file: File) => {
+  const processFile = useCallback((file: File) => {
     const error = validateFile(file)
     if (error) {
       setUploadState({
@@ -85,7 +85,7 @@ export function FileUpload() {
         }
       })
     }, 200)
-  }
+  }, [])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
