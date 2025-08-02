@@ -449,3 +449,5 @@ export const DataTable = <T extends Record<string, unknown>>({
     </Card>
   );
 };
+
+export default DataTable;

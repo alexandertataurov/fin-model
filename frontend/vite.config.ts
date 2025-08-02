@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
         '@radix-ui/react-toggle',
         '@radix-ui/react-toggle-group',
         '@radix-ui/react-tooltip',
-        '@radix-ui/react-form',
+
         '@radix-ui/react-toast',
         '@mui/material',
         '@mui/icons-material',

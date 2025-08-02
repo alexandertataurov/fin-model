@@ -18,14 +18,13 @@ import {
 } from './accordion';
 import { Input } from './input';
 import { Badge } from './badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card';
+import { Card, CardContent, CardDescription, CardTitle } from './card';
 import {
   HelpCircle,
   Search,
   PlayCircle,
   FileText,
   MessageSquare,
-  X,
   ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -44,7 +43,8 @@ const helpContent: HelpItem[] = [
   {
     id: '1',
     title: 'How to upload financial models',
-    content: 'Learn how to upload Excel financial models to FinVision and start creating interactive dashboards.',
+    content:
+      'Learn how to upload Excel financial models to FinVision and start creating interactive dashboards.',
     category: 'tutorial',
     tags: ['upload', 'excel', 'models'],
     type: 'text',
@@ -52,7 +52,8 @@ const helpContent: HelpItem[] = [
   {
     id: '2',
     title: 'Understanding P&L dashboards',
-    content: 'Profit & Loss dashboards help you visualize revenue, expenses, and profitability trends over time.',
+    content:
+      'Profit & Loss dashboards help you visualize revenue, expenses, and profitability trends over time.',
     category: 'guide',
     tags: ['dashboard', 'p&l', 'visualization'],
     type: 'text',
@@ -60,7 +61,8 @@ const helpContent: HelpItem[] = [
   {
     id: '3',
     title: 'Creating custom parameters',
-    content: 'Custom parameters allow you to modify assumptions and see real-time impact on your financial models.',
+    content:
+      'Custom parameters allow you to modify assumptions and see real-time impact on your financial models.',
     category: 'tutorial',
     tags: ['parameters', 'modeling', 'assumptions'],
     type: 'text',
@@ -68,7 +70,8 @@ const helpContent: HelpItem[] = [
   {
     id: '4',
     title: 'Troubleshooting upload errors',
-    content: 'Common issues when uploading files and how to resolve them quickly.',
+    content:
+      'Common issues when uploading files and how to resolve them quickly.',
     category: 'troubleshooting',
     tags: ['error', 'upload', 'troubleshooting'],
     type: 'text',
@@ -76,7 +79,8 @@ const helpContent: HelpItem[] = [
   {
     id: '5',
     title: 'Video: Getting started with FinVision',
-    content: 'A comprehensive video walkthrough of FinVision features and capabilities.',
+    content:
+      'A comprehensive video walkthrough of FinVision features and capabilities.',
     category: 'tutorial',
     tags: ['video', 'tutorial', 'getting-started'],
     type: 'video',
@@ -85,7 +89,8 @@ const helpContent: HelpItem[] = [
   {
     id: '6',
     title: 'Advanced modeling techniques',
-    content: 'Learn advanced techniques for building complex financial models in FinVision.',
+    content:
+      'Learn advanced techniques for building complex financial models in FinVision.',
     category: 'guide',
     tags: ['advanced', 'modeling', 'techniques'],
     type: 'link',
@@ -98,21 +103,23 @@ interface HelpCenterProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export const HelpCenter: React.FC<HelpCenterProps> = ({ 
-  open, 
-  onOpenChange 
+export const HelpCenter: React.FC<HelpCenterProps> = ({
+  open,
+  onOpenChange,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
 
   const filteredContent = helpContent.filter(item => {
-    const matchesSearch = 
+    const matchesSearch =
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+      item.tags.some(tag =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
     const matchesCategory = activeTab === 'all' || item.category === activeTab;
-    
+
     return matchesSearch && matchesCategory;
   });
 
@@ -157,7 +164,8 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({
             Help Center
           </DialogTitle>
           <DialogDescription>
-            Find answers to common questions and learn how to use FinVision effectively.
+            Find answers to common questions and learn how to use FinVision
+            effectively.
           </DialogDescription>
         </DialogHeader>
 
@@ -168,7 +176,7 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({
             <Input
               placeholder="Search help articles..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -189,27 +197,40 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({
                   <Card>
                     <CardContent className="flex flex-col items-center justify-center py-8">
                       <Search className="h-12 w-12 text-muted-foreground mb-4" />
-                      <CardTitle className="text-lg mb-2">No results found</CardTitle>
+                      <CardTitle className="text-lg mb-2">
+                        No results found
+                      </CardTitle>
                       <CardDescription>
-                        Try adjusting your search terms or browse different categories.
+                        Try adjusting your search terms or browse different
+                        categories.
                       </CardDescription>
                     </CardContent>
                   </Card>
                 ) : (
                   <Accordion type="single" collapsible className="space-y-2">
-                    {filteredContent.map((item) => (
-                      <AccordionItem key={item.id} value={item.id} className="border rounded-lg">
+                    {filteredContent.map(item => (
+                      <AccordionItem
+                        key={item.id}
+                        value={item.id}
+                        className="border rounded-lg"
+                      >
                         <AccordionTrigger className="px-4 hover:no-underline">
                           <div className="flex items-center gap-3 text-left">
                             {getCategoryIcon(item.category)}
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium">{item.title}</span>
+                                <span className="font-medium">
+                                  {item.title}
+                                </span>
                                 {getTypeIcon(item.type)}
                               </div>
                               <div className="flex flex-wrap gap-1">
-                                {item.tags.map((tag) => (
-                                  <Badge key={tag} variant="secondary" className="text-xs">
+                                {item.tags.map(tag => (
+                                  <Badge
+                                    key={tag}
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     {tag}
                                   </Badge>
                                 ))}
@@ -219,27 +240,30 @@ export const HelpCenter: React.FC<HelpCenterProps> = ({
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
                           <div className="space-y-3">
-                            <p className="text-muted-foreground">{item.content}</p>
-                            {(item.type === 'video' || item.type === 'link') && item.url && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleItemAction(item)}
-                                className="w-fit"
-                              >
-                                {item.type === 'video' ? (
-                                  <>
-                                    <PlayCircle className="mr-2 h-4 w-4" />
-                                    Watch Video
-                                  </>
-                                ) : (
-                                  <>
-                                    <ExternalLink className="mr-2 h-4 w-4" />
-                                    Open Link
-                                  </>
-                                )}
-                              </Button>
-                            )}
+                            <p className="text-muted-foreground">
+                              {item.content}
+                            </p>
+                            {(item.type === 'video' || item.type === 'link') &&
+                              item.url && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleItemAction(item)}
+                                  className="w-fit"
+                                >
+                                  {item.type === 'video' ? (
+                                    <>
+                                      <PlayCircle className="mr-2 h-4 w-4" />
+                                      Watch Video
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ExternalLink className="mr-2 h-4 w-4" />
+                                      Open Link
+                                    </>
+                                  )}
+                                </Button>
+                              )}
                           </div>
                         </AccordionContent>
                       </AccordionItem>
@@ -275,9 +299,9 @@ interface HelpButtonProps {
   size?: 'sm' | 'default' | 'lg';
 }
 
-export const HelpButton: React.FC<HelpButtonProps> = ({ 
-  className, 
-  size = 'default' 
+export const HelpButton: React.FC<HelpButtonProps> = ({
+  className,
+  size = 'default',
 }) => {
   const [open, setOpen] = useState(false);
 

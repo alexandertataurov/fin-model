@@ -1,16 +1,9 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [
-    react({
-      jsxImportSource: 'react',
-      plugins: [
-        ['@swc/plugin-styled-components', { displayName: false, ssr: false }],
-      ],
-    }),
-  ],
+  plugins: [react()],
   optimizeDeps: {
     include: [
       'react/jsx-runtime',

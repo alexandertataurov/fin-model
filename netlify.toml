@@ -6,7 +6,7 @@
   publish = "dist"
 
   [build.environment]
-    NODE_VERSION = "20"
+    NODE_VERSION = "20.11.0"
     # Aggressive build performance optimizations
     NODE_OPTIONS = "--max-old-space-size=8192 --experimental-vm-modules"
     # Skip all unnecessary npm operations
