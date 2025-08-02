@@ -23,11 +23,16 @@ def upgrade():
     # Helper function to safely create indexes - combines both approaches
     def safe_create_index(index_name, table_name, columns, unique=False, expression=None):
         try:
-            if not conn.execute(text(f"SELECT to_regclass('{index_name}')")).scalar():
+            # Check if index already exists
+            result = conn.execute(text(f"SELECT to_regclass('{index_name}')")).scalar()
+            if result is None:
                 if expression:
                     conn.execute(text(f"CREATE INDEX {index_name} ON {table_name} {expression}"))
                 else:
                     op.create_index(index_name, table_name, columns, unique=unique)
+                print(f"✅ Created index {index_name}")
+            else:
+                print(f"⚠️ Skipping index {index_name}: already exists")
         except Exception as e:
             print(f"⚠️ Skipping index {index_name}: {e}")
 
@@ -108,89 +113,80 @@ def upgrade():
     # Create GIN indexes for better text search on key fields
 
     with op.get_context().autocommit_block():
-        op.execute(
-            """
+        conn_autocommit = op.get_bind()
+        
+        # Helper function for concurrent index creation
+        def safe_create_concurrent_index(index_name, sql):
+            try:
+                # Check if index already exists
+                result = conn_autocommit.execute(text(f"SELECT to_regclass('{index_name}')")).scalar()
+                if result is None:
+                    conn_autocommit.execute(text(sql))
+                    print(f"✅ Created concurrent index {index_name}")
+                else:
+                    print(f"⚠️ Skipping concurrent index {index_name}: already exists")
+            except Exception as e:
+                print(f"⚠️ Could not create concurrent index {index_name}: {e}")
+        
+        safe_create_concurrent_index("ix_parameters_search_gin", """
             CREATE INDEX CONCURRENTLY ix_parameters_search_gin
             ON parameters USING gin(to_tsvector('english',
                 COALESCE(name, '') || ' ' ||
                 COALESCE(display_name, '') || ' ' ||
                 COALESCE(description, '')
             ))
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_scenarios_search_gin", """
             CREATE INDEX CONCURRENTLY ix_scenarios_search_gin
             ON scenarios USING gin(to_tsvector('english',
                 COALESCE(name, '') || ' ' ||
                 COALESCE(description, '')
             ))
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_files_search_gin", """
             CREATE INDEX CONCURRENTLY ix_files_search_gin
             ON uploaded_files USING gin(to_tsvector('english',
                 COALESCE(filename, '') || ' ' ||
                 COALESCE(original_filename, '')
             ))
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_templates_search_gin", """
             CREATE INDEX CONCURRENTLY ix_templates_search_gin
             ON templates USING gin(to_tsvector('english',
                 COALESCE(name, '') || ' ' ||
                 COALESCE(description, '')
             ))
-        """
-        )
+        """)
 
         # Partial indexes for common filtered queries
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_users_active_only ON users (id) "
-                "WHERE is_active = true"
-            )
+        safe_create_concurrent_index("ix_users_active_only", 
+            "CREATE INDEX CONCURRENTLY ix_users_active_only ON users (id) WHERE is_active = true"
         )
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_files_processing ON uploaded_files "
-                "(id, created_at) WHERE status IN ('processing', 'uploaded')"
-            )
+        safe_create_concurrent_index("ix_files_processing", 
+            "CREATE INDEX CONCURRENTLY ix_files_processing ON uploaded_files (id, created_at) WHERE status IN ('processing', 'uploaded')"
         )
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_scenarios_active ON scenarios (id, "
-                "updated_at) WHERE status = 'active'"
-            )
+        safe_create_concurrent_index("ix_scenarios_active", 
+            "CREATE INDEX CONCURRENTLY ix_scenarios_active ON scenarios (id, updated_at) WHERE status = 'active'"
         )
-        op.execute(
-            (
-                "CREATE INDEX CONCURRENTLY ix_calculations_pending ON calculations "
-                "(execution_order) WHERE is_active = true AND last_executed_at IS NULL"
-            )
+        safe_create_concurrent_index("ix_calculations_pending", 
+            "CREATE INDEX CONCURRENTLY ix_calculations_pending ON calculations (execution_order) WHERE is_active = true AND last_executed_at IS NULL"
         )
 
         # Covering indexes for common join patterns
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_parameter_values_covering", """
             CREATE INDEX CONCURRENTLY ix_parameter_values_covering
             ON parameter_values (scenario_id, parameter_id)
             INCLUDE (value, changed_at, is_valid)
-        """
-        )
+        """)
 
-        op.execute(
-            """
+        safe_create_concurrent_index("ix_metrics_covering", """
             CREATE INDEX CONCURRENTLY ix_metrics_covering
             ON metrics (scenario_id, metric_category)
             INCLUDE (metric_name, value, period_start, period_end)
-        """
-        )
+        """)
 
 
 def downgrade():
