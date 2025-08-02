@@ -213,7 +213,7 @@ class CashFlowDashboardData(BaseModel):
 
 class ExportData(BaseModel):
     """Data export model."""
-    export_format: str = Field(..., regex="^(PDF|EXCEL|JSON)$")
+    export_format: str = Field(..., pattern="^(PDF|EXCEL|JSON)$")
     period: str
     statements: List[FinancialStatementSummary]
     key_metrics: KeyMetrics

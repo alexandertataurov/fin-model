@@ -41,7 +41,11 @@
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"import alembic.versions.006_add_advanced_indexes; import alembic.versions.007_add_missing_user_columns; import alembic.versions.9dd5d1ac7ef0_fix_duplicate_indexes; print(''✅ All migrations syntax is valid'')\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\006_add_advanced_indexes.py\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\007_add_missing_user_columns.py\")",
-      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\9dd5d1ac7ef0_fix_duplicate_indexes.py\")"
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\9dd5d1ac7ef0_fix_duplicate_indexes.py\")",
+      "Bash(railway status:*)",
+      "Bash(railway deploy:*)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\008_add_enhanced_auth_tables.py\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"import alembic.versions.006_add_advanced_indexes; import alembic.versions.007_add_missing_user_columns; import alembic.versions.9dd5d1ac7ef0_fix_duplicate_indexes; import alembic.versions.008_add_enhanced_auth_tables; print(''✅ All migrations syntax is valid'')\")"
     ],
     "deny": []
   }
