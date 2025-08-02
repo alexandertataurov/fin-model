@@ -23,57 +23,22 @@ import {
   Refresh,
   PictureAsPdf,
 } from '@mui/icons-material';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { DashboardGrid, DashboardWidget } from '../components/Dashboard';
 import { LineChart, BarChart, PieChart, LineChartDataPoint, BarChartDataPoint } from '../components/Charts';
 import { ReportApi } from '../services/reportApi';
+import { usePLDashboard, useDashboardRefresh } from '../hooks/useDashboardData';
+import { DashboardPeriod } from '../types/dashboard';
+import ErrorBoundary from '../components/Dashboard/ErrorBoundary';
+import { DashboardLoading } from '../components/Dashboard/LoadingStates';
+import type { PLDashboardData } from '../types/dashboard';
 
-interface PLMetric {
-  name: string;
-  value: number;
-  category: string;
-  period: string;
-  unit: string;
-  format_type: string;
-  change?: number;
-  change_percentage?: number;
-  trend?: string;
-  description?: string;
-  display_order: number;
-}
-
-interface ChartDataPoint {
-  period: string;
-  value: number;
-  date: string;
-  label?: string;
-  category?: string;
-}
-
-interface PLDashboardData {
-  metrics: PLMetric[];
-  charts: {
-    revenue_trend: ChartDataPoint[];
-    profit_margins: ChartDataPoint[];
-    expense_breakdown: ChartDataPoint[];
-  };
-  period_info: {
-    period: string;
-    start_date: string;
-    end_date: string;
-  };
-  last_updated: string;
-  data_quality_score: number;
-}
-
-type DashboardPeriod = 'mtd' | 'qtd' | 'ytd' | 'last_30_days' | 'last_90_days' | 'last_12_months';
 
 const PLDashboard: React.FC = () => {
   const [period, setPeriod] = useState<DashboardPeriod>('ytd');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const queryClient = useQueryClient();
+  const { refreshDashboard } = useDashboardRefresh();
 
   // Chart export handler
   const handleChartExport = async (format: 'PNG' | 'SVG' | 'PDF', _chartTitle: string) => {
@@ -117,26 +82,7 @@ const PLDashboard: React.FC = () => {
     isLoading,
     error,
     refetch,
-  } = useQuery<PLDashboardData>({
-    queryKey: ['pl-dashboard', period],
-    queryFn: async () => {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/v1/dashboard/metrics/pl?period=${period}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch P&L dashboard data');
-      }
-      
-      return response.json();
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
-  });
+  } = usePLDashboard(period);
 
   const handlePeriodChange = (event: SelectChangeEvent<DashboardPeriod>) => {
     setPeriod(event.target.value as DashboardPeriod);
@@ -146,7 +92,7 @@ const PLDashboard: React.FC = () => {
     setIsRefreshing(true);
     try {
       await refetch();
-      await queryClient.invalidateQueries(['pl-dashboard']);
+      await refreshDashboard('pl');
     } finally {
       setIsRefreshing(false);
     }
@@ -165,7 +111,7 @@ const PLDashboard: React.FC = () => {
     return `${value.toFixed(1)}%`;
   };
 
-  const getValueDisplay = (metric: PLMetric): string => {
+  const getValueDisplay = (metric: PLDashboardData['metrics'][0]): string => {
     switch (metric.format_type) {
       case 'currency':
         return formatCurrency(metric.value);
@@ -362,8 +308,12 @@ const PLDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container maxWidth="xl" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
+      <Container maxWidth="xl" sx={{ mt: 4 }}>
+        <DashboardLoading 
+          variant="card" 
+          height={400}
+          message="Loading P&L dashboard..."
+        />
       </Container>
     );
   }
@@ -371,9 +321,18 @@ const PLDashboard: React.FC = () => {
   if (error) {
     return (
       <Container maxWidth="xl" sx={{ mt: 4 }}>
-        <Alert severity="error">
-          Failed to load P&L dashboard data. Please try refreshing the page.
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error.message || 'Failed to load P&L dashboard data. Please try refreshing or contact support.'}
         </Alert>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={handleRefresh}
+          >
+            Retry
+          </Button>
+        </Box>
       </Container>
     );
   }
@@ -442,10 +401,15 @@ const PLDashboard: React.FC = () => {
       </Paper>
 
       {/* Dashboard Grid */}
-      <DashboardGrid
-        widgets={widgets}
-        editable={false}
-      />
+      <ErrorBoundary 
+        title="P&L Dashboard Error"
+        onRetry={handleRefresh}
+      >
+        <DashboardGrid
+          widgets={widgets}
+          editable={false}
+        />
+      </ErrorBoundary>
     </Container>
   );
 };

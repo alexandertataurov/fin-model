@@ -22,80 +22,27 @@ import {
   AccountBalance,
   Refresh,
 } from '@mui/icons-material';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { DashboardGrid, DashboardWidget } from '../components/Dashboard';
 import { LineChart, BarChart, WaterfallChart, LineChartDataPoint, BarChartDataPoint, WaterfallDataPoint } from '../components/Charts';
+import { useCashFlowDashboard, useDashboardRefresh } from '../hooks/useDashboardData';
+import { DashboardPeriod } from '../types/dashboard';
+import ErrorBoundary from '../components/Dashboard/ErrorBoundary';
+import { DashboardLoading } from '../components/Dashboard/LoadingStates';
+import type { CashFlowDashboardData } from '../types/dashboard';
 
-interface CFMetric {
-  name: string;
-  value: number;
-  category: string;
-  period: string;
-  unit: string;
-  format_type: string;
-  change?: number;
-  change_percentage?: number;
-  trend?: string;
-  description?: string;
-  display_order: number;
-}
-
-interface ChartDataPoint {
-  period: string;
-  value: number;
-  date: string;
-  label?: string;
-  category?: string;
-}
-
-interface CFDashboardData {
-  metrics: CFMetric[];
-  charts: {
-    cash_waterfall: ChartDataPoint[];
-    cash_position: ChartDataPoint[];
-  };
-  period_info: {
-    period: string;
-    start_date: string;
-    end_date: string;
-  };
-  last_updated: string;
-  data_quality_score: number;
-}
-
-type DashboardPeriod = 'mtd' | 'qtd' | 'ytd' | 'last_30_days' | 'last_90_days' | 'last_12_months';
 
 const CashFlowDashboard: React.FC = () => {
   const [period, setPeriod] = useState<DashboardPeriod>('ytd');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const queryClient = useQueryClient();
+  const { refreshDashboard } = useDashboardRefresh();
 
   const {
     data: dashboardData,
     isLoading,
     error,
     refetch,
-  } = useQuery<CFDashboardData>({
-    queryKey: ['cash-flow-dashboard', period],
-    queryFn: async () => {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/v1/dashboard/metrics/cash-flow?period=${period}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch cash flow dashboard data');
-      }
-      
-      return response.json();
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
-  });
+  } = useCashFlowDashboard(period);
 
   const handlePeriodChange = (event: SelectChangeEvent<DashboardPeriod>) => {
     setPeriod(event.target.value as DashboardPeriod);
@@ -105,7 +52,7 @@ const CashFlowDashboard: React.FC = () => {
     setIsRefreshing(true);
     try {
       await refetch();
-      await queryClient.invalidateQueries(['cash-flow-dashboard']);
+      await refreshDashboard('cash-flow');
     } finally {
       setIsRefreshing(false);
     }
@@ -120,7 +67,7 @@ const CashFlowDashboard: React.FC = () => {
     }).format(value);
   };
 
-  const getValueDisplay = (metric: CFMetric): string => {
+  const getValueDisplay = (metric: CashFlowDashboardData['metrics'][0]): string => {
     switch (metric.format_type) {
       case 'currency':
         return formatCurrency(metric.value);
@@ -140,14 +87,18 @@ const CashFlowDashboard: React.FC = () => {
     }
   };
 
-  // Create sample data for demonstration
-  const sampleWaterfallData: WaterfallDataPoint[] = [
-    { name: 'Starting Cash', value: 100000, type: 'start' },
-    { name: 'Operating CF', value: 25000, type: 'positive' },
-    { name: 'Investing CF', value: -15000, type: 'negative' },
-    { name: 'Financing CF', value: -5000, type: 'negative' },
-    { name: 'Ending Cash', value: 105000, type: 'total' },
-  ];
+  // Convert backend waterfall data to chart format
+  const getWaterfallData = (): WaterfallDataPoint[] => {
+    if (!dashboardData?.charts?.cash_waterfall?.length) {
+      return [];
+    }
+    
+    return dashboardData.charts.cash_waterfall.map(item => ({
+      name: item.label || item.period,
+      value: item.value,
+      type: item.category as 'start' | 'positive' | 'negative' | 'total' || 'positive'
+    }));
+  };
 
   // Create dashboard widgets
   const widgets: DashboardWidget[] = [
@@ -181,23 +132,7 @@ const CashFlowDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-            )) || [1, 2, 3].map((i) => (
-              <Grid item xs={12} sm={4} key={i}>
-                <Card>
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                      <AccountBalance color="action" />
-                      <Typography variant="h6" sx={{ ml: 1 }}>
-                        ${(Math.random() * 100000).toFixed(0)}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Sample Metric {i}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+))}
           </Grid>
         </Box>
       ),
@@ -209,15 +144,18 @@ const CashFlowDashboard: React.FC = () => {
     {
       id: 'cash-waterfall',
       title: 'Cash Flow Waterfall',
-      component: ({ height }: { height?: number }) => (
-        <WaterfallChart
-          data={sampleWaterfallData}
-          height={height || 400}
-          currency="$"
-          title="Cash Flow Analysis"
-          subtitle="Breaking down cash flow components"
-        />
-      ),
+      component: ({ height }: { height?: number }) => {
+        const waterfallData = getWaterfallData();
+        return (
+          <WaterfallChart
+            data={waterfallData}
+            height={height || 400}
+            currency="$"
+            title="Cash Flow Analysis"
+            subtitle="Breaking down cash flow components"
+          />
+        );
+      },
       defaultWidth: 8,
       defaultHeight: 5,
       minWidth: 6,
@@ -269,17 +207,17 @@ const CashFlowDashboard: React.FC = () => {
       id: 'operating-cash-flow',
       title: 'Operating Cash Flow',
       component: ({ height }: { height?: number }) => {
-        const chartData: BarChartDataPoint[] = [
-          { month: 'Jan', value: 8000, 'Jan': 8000 },
-          { month: 'Feb', value: 12000, 'Feb': 12000 },
-          { month: 'Mar', value: 5000, 'Mar': 5000 },
-          { month: 'Apr', value: 15000, 'Apr': 15000 },
-        ];
+        const rawData = dashboardData?.charts?.operating_cash_flow || [];
+        const chartData: BarChartDataPoint[] = rawData.map(item => ({
+          month: item.period,
+          value: item.value,
+          [item.period]: item.value,
+        }));
         
         const series = [{
           dataKey: 'value',
           name: 'Operating CF',
-          color: 'var(--chart-2)', // DESIGN_FIX
+          color: 'var(--chart-2)',
         }];
 
         return (
@@ -302,17 +240,17 @@ const CashFlowDashboard: React.FC = () => {
       id: 'free-cash-flow',
       title: 'Free Cash Flow',
       component: ({ height }: { height?: number }) => {
-        const chartData: BarChartDataPoint[] = [
-          { month: 'Jan', value: 5000, 'Jan': 5000 },
-          { month: 'Feb', value: 8000, 'Feb': 8000 },
-          { month: 'Mar', value: 2000, 'Mar': 2000 },
-          { month: 'Apr', value: 10000, 'Apr': 10000 },
-        ];
+        const rawData = dashboardData?.charts?.financing_cash_flow || [];
+        const chartData: BarChartDataPoint[] = rawData.map(item => ({
+          month: item.period,
+          value: item.value,
+          [item.period]: item.value,
+        }));
         
         const series = [{
           dataKey: 'value',
           name: 'Free CF',
-          color: 'var(--chart-1)', // DESIGN_FIX
+          color: 'var(--chart-1)',
         }];
 
         return (
@@ -335,8 +273,12 @@ const CashFlowDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container maxWidth="xl" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
+      <Container maxWidth="xl" sx={{ mt: 4 }}>
+        <DashboardLoading 
+          variant="card" 
+          height={400}
+          message="Loading cash flow dashboard..."
+        />
       </Container>
     );
   }
@@ -344,9 +286,18 @@ const CashFlowDashboard: React.FC = () => {
   if (error) {
     return (
       <Container maxWidth="xl" sx={{ mt: 4 }}>
-        <Alert severity="info">
-          Cash Flow dashboard is in demo mode. Connect your financial data to see real metrics.
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error.message || 'Failed to load cash flow dashboard data. Please try refreshing or contact support.'}
         </Alert>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={handleRefresh}
+          >
+            Retry
+          </Button>
+        </Box>
       </Container>
     );
   }
@@ -387,15 +338,18 @@ const CashFlowDashboard: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Demo Notice */}
-      <Alert severity="info" sx={{ mb: 3 }}>
-        📊 This is a live demo of the Cash Flow Dashboard. Charts show sample data to demonstrate functionality.
-      </Alert>
+      {/* Data Quality Indicator */}
+      {dashboardData && dashboardData.data_quality_score < 0.8 && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Data quality score: {(dashboardData.data_quality_score * 100).toFixed(0)}%. 
+          Some metrics may be estimated or incomplete.
+        </Alert>
+      )}
 
       {/* Period Info */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="body2" color="text.secondary">
-          Period: {dashboardData?.period_info.start_date || 'Demo Period'} to {dashboardData?.period_info.end_date || 'Current'}
+          Period: {dashboardData?.period_info.start_date} to {dashboardData?.period_info.end_date}
           {dashboardData?.last_updated && (
             <> • Last updated: {new Date(dashboardData.last_updated).toLocaleString()}</>
           )}
@@ -403,10 +357,15 @@ const CashFlowDashboard: React.FC = () => {
       </Paper>
 
       {/* Dashboard Grid */}
-      <DashboardGrid
-        widgets={widgets}
-        editable={false}
-      />
+      <ErrorBoundary 
+        title="Cash Flow Dashboard Error"
+        onRetry={handleRefresh}
+      >
+        <DashboardGrid
+          widgets={widgets}
+          editable={false}
+        />
+      </ErrorBoundary>
     </Container>
   );
 };

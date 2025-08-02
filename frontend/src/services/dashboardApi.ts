@@ -5,6 +5,12 @@
  */
 
 import { apiClient } from './api';
+import { 
+  DashboardData, 
+  CashFlowDashboardData, 
+  DashboardPeriod 
+} from '../types/dashboard';
+import type { PLDashboardData as PLDashboardDataType } from '../types/dashboard';
 
 export interface DashboardOverview {
   statements: FinancialStatement[];
@@ -144,6 +150,70 @@ export class DashboardApiService {
   static async getDashboardOverview(period: PeriodFilter = PeriodFilter.YTD): Promise<DashboardOverview> {
     const response = await apiClient.get('/dashboard/overview', {
       params: { period }
+    });
+    return response.data;
+  }
+
+  /**
+   * Get Cash Flow dashboard metrics with real backend data
+   */
+  static async getCashFlowMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<CashFlowDashboardData> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    
+    const response = await apiClient.get('/dashboard/metrics/cash-flow', {
+      params
+    });
+    return response.data;
+  }
+
+  /**
+   * Get P&L dashboard metrics with real backend data
+   */
+  static async getPLMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<PLDashboardDataType> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    
+    const response = await apiClient.get('/dashboard/metrics/pl', {
+      params
+    });
+    return response.data;
+  }
+
+  /**
+   * Get ratio metrics for analysis
+   */
+  static async getRatioMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<DashboardData> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    
+    const response = await apiClient.get('/dashboard/metrics/ratios', {
+      params
+    });
+    return response.data;
+  }
+
+  /**
+   * Get variance analysis metrics
+   */
+  static async getVarianceMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<DashboardData> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    
+    const response = await apiClient.get('/dashboard/metrics/variance', {
+      params
     });
     return response.data;
   }
