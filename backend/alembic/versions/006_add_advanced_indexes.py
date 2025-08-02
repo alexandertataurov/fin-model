@@ -65,155 +65,44 @@ def upgrade():
     safe_create_index("ix_statements_baseline_version", "financial_statements", ["is_baseline", "version"])
 
     # Advanced indexes for metrics table
-    op.create_index(
-        "ix_metrics_name_period",
-        "metrics",
-        ["metric_name", "period_start", "period_end"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_metrics_category_type",
-        "metrics",
-        ["metric_category", "metric_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_metrics_scenario_category",
-        "metrics",
-        ["scenario_id", "metric_category"],
-        unique=False,
-    )
-    op.create_index("ix_metrics_value_range", "metrics", ["value"], unique=False)
+    safe_create_index("ix_metrics_name_period", "metrics", ["metric_name", "period_start", "period_end"])
+    safe_create_index("ix_metrics_category_type", "metrics", ["metric_category", "metric_type"])
+    safe_create_index("ix_metrics_scenario_category", "metrics", ["scenario_id", "metric_category"])
+    safe_create_index("ix_metrics_value_range", "metrics", ["value"])
 
     # Advanced indexes for time_series table (critical for performance)
-    op.create_index(
-        "ix_timeseries_type_date",
-        "time_series",
-        ["data_type", "period_date"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_scenario_type_date",
-        "time_series",
-        ["scenario_id", "data_type", "period_date"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_frequency_actual",
-        "time_series",
-        ["frequency", "is_actual"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_date_range",
-        "time_series",
-        [sa.text("period_date DESC")],
-        unique=False,
-    )
-    op.create_index(
-        "ix_timeseries_subtype_date",
-        "time_series",
-        ["data_subtype", "period_date"],
-        unique=False,
-    )
+    safe_create_index("ix_timeseries_type_date", "time_series", ["data_type", "period_date"])
+    safe_create_index("ix_timeseries_scenario_type_date", "time_series", ["scenario_id", "data_type", "period_date"])
+    safe_create_index("ix_timeseries_frequency_actual", "time_series", ["frequency", "is_actual"])
+    safe_create_index("ix_timeseries_date_range", "time_series", None, expression="(period_date DESC)")
+    safe_create_index("ix_timeseries_subtype_date", "time_series", ["data_subtype", "period_date"])
 
     # Advanced indexes for calculations table
-    op.create_index(
-        "ix_calculations_order_active",
-        "calculations",
-        ["execution_order", "is_active"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_calculations_type_scenario",
-        "calculations",
-        ["calculation_type", "scenario_id"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_calculations_executed_recently",
-        "calculations",
-        [sa.text("last_executed_at DESC NULLS LAST")],
-        unique=False,
-    )
+    safe_create_index("ix_calculations_order_active", "calculations", ["execution_order", "is_active"])
+    safe_create_index("ix_calculations_type_scenario", "calculations", ["calculation_type", "scenario_id"])
+    safe_create_index("ix_calculations_executed_recently", "calculations", None, expression="(last_executed_at DESC NULLS LAST)")
 
     # Advanced indexes for templates table
-    op.create_index(
-        "ix_templates_type_active",
-        "templates",
-        ["template_type", "is_active"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_templates_system_usage",
-        "templates",
-        ["is_system_template", "usage_count"],
-        unique=False,
-    )
+    safe_create_index("ix_templates_type_active", "templates", ["template_type", "is_active"])
+    safe_create_index("ix_templates_system_usage", "templates", ["is_system_template", "usage_count"])
 
     # Advanced indexes for file_versions table
-    op.create_index(
-        "ix_versions_file_current",
-        "file_versions",
-        ["file_id", "is_current"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_versions_hash_lookup", "file_versions", ["file_hash"], unique=False
-    )
-    op.create_index(
-        "ix_versions_change_type",
-        "file_versions",
-        ["change_type", "created_at"],
-        unique=False,
-    )
+    safe_create_index("ix_versions_file_current", "file_versions", ["file_id", "is_current"])
+    safe_create_index("ix_versions_hash_lookup", "file_versions", ["file_hash"])
+    safe_create_index("ix_versions_change_type", "file_versions", ["change_type", "created_at"])
 
     # Advanced indexes for audit_logs table (for security and monitoring)
-    op.create_index(
-        "ix_audit_action_time", "audit_logs", ["action", "created_at"], unique=False
-    )
-    op.create_index(
-        "ix_audit_user_success",
-        "audit_logs",
-        ["user_id", "success", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_audit_resource_type",
-        "audit_logs",
-        ["resource", "resource_id"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_audit_recent", "audit_logs", [sa.text("created_at DESC")], unique=False
-    )
-    op.create_index("ix_audit_ip_address", "audit_logs", ["ip_address"], unique=False)
+    safe_create_index("ix_audit_action_time", "audit_logs", ["action", "created_at"])
+    safe_create_index("ix_audit_user_success", "audit_logs", ["user_id", "success", "created_at"])
+    safe_create_index("ix_audit_resource_type", "audit_logs", ["resource", "resource_id"])
+    safe_create_index("ix_audit_recent", "audit_logs", None, expression="(created_at DESC)")
+    safe_create_index("ix_audit_ip_address", "audit_logs", ["ip_address"])
 
     # Advanced indexes for reports
-    op.create_index(
-        "ix_report_templates_active",
-        "report_templates",
-        ["is_active", "report_type"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_report_schedules_next_run",
-        "report_schedules",
-        ["next_run_at", "is_active"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_report_exports_status_created",
-        "report_exports",
-        ["status", "created_at"],
-        unique=False,
-    )
-    op.create_index(
-        "ix_report_exports_user_format",
-        "report_exports",
-        ["created_by", "export_format"],
-        unique=False,
-    )
+    safe_create_index("ix_report_templates_active", "report_templates", ["is_active", "report_type"])
+    safe_create_index("ix_report_schedules_next_run", "report_schedules", ["next_run_at", "is_active"])
+    safe_create_index("ix_report_exports_status_created", "report_exports", ["status", "created_at"])
+    safe_create_index("ix_report_exports_user_format", "report_exports", ["created_by", "export_format"])
 
     # Full-text search indexes (PostgreSQL specific)
     # Create GIN indexes for better text search on key fields
