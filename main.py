@@ -41,10 +41,11 @@ try:
             print("Continuing with startup anyway...")
 
     # Automatically run Alembic migrations unless disabled
+    # Only run migrations if database is available (runtime, not build phase)
     auto_migrate = (
         os.environ.get("AUTO_MIGRATE_DATABASE", "true").lower() == "true"
     )
-    if auto_migrate:
+    if auto_migrate and os.environ.get("DATABASE_URL"):
         try:
             # Import from backend directory
             sys.path.insert(0, backend_path)
@@ -59,33 +60,39 @@ try:
 
             traceback.print_exc()
             print("Continuing with startup despite migration errors...")
+    elif not os.environ.get("DATABASE_URL"):
+        print("🔄 Skipping migrations - DATABASE_URL not available (likely build phase)")
 
     # Ensure important indexes exist with retry logic
-    try:
-        from fix_indexes import fix_indexes
+    # Only run if database is available
+    if os.environ.get("DATABASE_URL"):
+        try:
+            from fix_indexes import fix_indexes
 
-        import time
+            import time
 
-        max_retries = int(os.environ.get("FIX_INDEX_MAX_RETRIES", 5))
-        delay = 2
-        for attempt in range(1, max_retries + 1):
-            try:
-                print(f"🔎 Ensuring indexes (attempt {attempt})")
-                fix_indexes()
-                print("✅ Index check completed")
-                break
-            except Exception as idx_error:  # pragma: no cover - runtime path
-                print(f"⚠️ Index check failed: {idx_error}")
-                if attempt == max_retries:
-                    print("❌ All index attempts failed, continuing startup")
-                else:
-                    time.sleep(delay)
-                    delay *= 2
-    except Exception as import_error:
-        print(f"⚠️ Could not run index fix: {import_error}")
-        import traceback
+            max_retries = int(os.environ.get("FIX_INDEX_MAX_RETRIES", 5))
+            delay = 2
+            for attempt in range(1, max_retries + 1):
+                try:
+                    print(f"🔎 Ensuring indexes (attempt {attempt})")
+                    fix_indexes()
+                    print("✅ Index check completed")
+                    break
+                except Exception as idx_error:  # pragma: no cover - runtime path
+                    print(f"⚠️ Index check failed: {idx_error}")
+                    if attempt == max_retries:
+                        print("❌ All index attempts failed, continuing startup")
+                    else:
+                        time.sleep(delay)
+                        delay *= 2
+        except Exception as import_error:
+            print(f"⚠️ Could not run index fix: {import_error}")
+            import traceback
 
-        traceback.print_exc()
+            traceback.print_exc()
+    else:
+        print("🔄 Skipping index check - DATABASE_URL not available")
 
     # Import the FastAPI app
     from app.main import app
