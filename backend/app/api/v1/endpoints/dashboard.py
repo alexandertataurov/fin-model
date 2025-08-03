@@ -1,16 +1,16 @@
-from typing import Any, List, Optional, Dict
+from typing import Any, Optional, Dict
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 
-# from fastapi_cache2.decorator import cache
+from app.core.cache import safe_cache
 
 from app.models.base import get_db
 from app.models.user import User
 from app.models.file import UploadedFile, FileStatus
 from app.models.parameter import Parameter
 from app.models.report import ReportExport
-from app.api.v1.endpoints.auth import get_current_active_user
+
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
 from app.services.dashboard_metrics import DashboardMetricsService
@@ -87,7 +87,7 @@ class DashboardPeriod:
 
 
 @router.get("/metrics/overview")
-# @cache(expire=300)
+@safe_cache(expire=300)
 async def get_overview_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -121,7 +121,7 @@ async def get_overview_metrics(
 
 
 @router.get("/metrics/pl")
-# @cache(expire=300)
+@safe_cache(expire=300)
 async def get_pl_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -157,7 +157,7 @@ async def get_pl_metrics(
 
 
 @router.get("/metrics/cash-flow")
-# @cache(expire=300)
+@safe_cache(expire=300)
 async def get_cash_flow_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -194,7 +194,7 @@ async def get_cash_flow_metrics(
 
 
 @router.get("/metrics/balance-sheet")
-# @cache(expire=300)
+@safe_cache(expire=300)
 async def get_balance_sheet_metrics(
     period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
     file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
@@ -231,7 +231,7 @@ async def get_balance_sheet_metrics(
 
 
 @router.get("/metrics/trends")
-# @cache(expire=300)
+@safe_cache(expire=300)
 async def get_financial_trends(
     metric_type: str = Query(
         ..., description="Type of metric (revenue, expenses, cash_flow, etc.)"
@@ -276,7 +276,7 @@ async def get_financial_trends(
 
 
 @router.get("/metrics/kpis")
-# @cache(expire=300)
+@safe_cache(expire=300)
 async def get_key_performance_indicators(
     period: str = Query(DashboardPeriod.YTD, description="Time period for KPIs"),
     industry: Optional[str] = Query(None, description="Industry for benchmarking"),

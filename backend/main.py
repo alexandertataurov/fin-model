@@ -5,19 +5,50 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 import uvicorn
+import logging
 
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.middleware.monitoring_middleware import MonitoringMiddleware
 
-# from fastapi_cache2 import FastAPICache
-# from fastapi_cache2.backends.inmemory import InMemoryBackend
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Try to import fastapi_cache2, fallback gracefully if not available
+try:
+    from fastapi_cache2 import FastAPICache
+    from fastapi_cache2.backends.inmemory import InMemoryBackend
+    CACHE_AVAILABLE = True
+    logger.info("fastapi_cache2 is available and will be used for caching")
+except ImportError as e:
+    CACHE_AVAILABLE = False
+    logger.warning(
+        f"fastapi_cache2 not available: {e}. Caching will be disabled."
+    )
+    # Create dummy classes for fallback
+
+    class FastAPICache:
+        @staticmethod
+        def init(*args, **kwargs):
+            logger.warning(
+                "Cache initialization skipped - fastapi_cache2 not available"
+            )
+
+    class InMemoryBackend:
+        pass
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Initialize FastAPI cache on startup."""
-    # FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")
+    if CACHE_AVAILABLE:
+        try:
+            FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")
+            logger.info("FastAPI cache initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize cache: {e}")
+    else:
+        logger.info("Cache initialization skipped")
     yield
 
 
@@ -68,14 +99,18 @@ async def root():
         content={
             "message": "FinVision API", 
             "version": "1.0.0", 
-            "docs": "/docs"
+            "docs": "/docs",
+            "cache_available": CACHE_AVAILABLE
         }
     )
 
 
 @app.get("/health")
 async def health_check():
-    return JSONResponse(content={"status": "healthy"})
+    return JSONResponse(content={
+        "status": "healthy",
+        "cache_available": CACHE_AVAILABLE
+    })
 
 
 if __name__ == "__main__":
