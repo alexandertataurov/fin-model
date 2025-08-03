@@ -1,21 +1,17 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-  Responsive, 
-  WidthProvider,
-  Layout as LayoutItem 
-} from 'react-grid-layout';
 import {
-  Plus,
-  Maximize2,
-  Minimize2,
-} from 'lucide-react';
+  Responsive,
+  WidthProvider,
+  Layout as LayoutItem,
+} from 'react-grid-layout';
+import { Plus, Maximize2, Minimize2 } from 'lucide-react';
 
 // React Grid Layout CSS should be imported at the app level or in index.html
 
@@ -24,7 +20,11 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 export interface DashboardWidget {
   id: string;
   title: string;
-  component: React.ComponentType<{ height?: number; isFullscreen?: boolean; onFullscreen?: () => void }>;
+  component: React.ComponentType<{
+    height?: number;
+    isFullscreen?: boolean;
+    onFullscreen?: () => void;
+  }>;
   props?: Record<string, unknown>;
   minWidth?: number;
   minHeight?: number;
@@ -40,7 +40,10 @@ export interface DashboardLayout {
 interface DashboardGridProps {
   widgets: DashboardWidget[];
   layouts?: { [key: string]: LayoutItem[] };
-  onLayoutChange?: (layout: LayoutItem[], layouts: { [key: string]: LayoutItem[] }) => void;
+  onLayoutChange?: (
+    layout: LayoutItem[],
+    layouts: { [key: string]: LayoutItem[] }
+  ) => void;
   editable?: boolean;
   onAddWidget?: () => void;
   onRemoveWidget?: (widgetId: string) => void;
@@ -70,7 +73,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   onLayoutChange,
   editable = false,
   onAddWidget,
-  onRemoveWidget,
   availableWidgets = [],
   className,
 }) => {
@@ -80,13 +82,16 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   // Generate layouts if not provided
   const defaultLayouts = useMemo(() => {
     if (layouts) return layouts;
-    
+
     const generatedLayouts: { [key: string]: LayoutItem[] } = {};
     Object.keys(defaultCols).forEach(breakpoint => {
       generatedLayouts[breakpoint] = widgets.map((widget, index) => ({
         i: widget.id,
         x: (index * 2) % defaultCols[breakpoint as keyof typeof defaultCols],
-        y: Math.floor((index * 2) / defaultCols[breakpoint as keyof typeof defaultCols]) * 2,
+        y:
+          Math.floor(
+            (index * 2) / defaultCols[breakpoint as keyof typeof defaultCols]
+          ) * 2,
         w: widget.defaultWidth || 4,
         h: widget.defaultHeight || 4,
         minW: widget.minWidth || 2,
@@ -96,87 +101,96 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
     return generatedLayouts;
   }, [widgets, layouts]);
 
-  const handleLayoutChange = useCallback((layout: LayoutItem[], layouts: { [key: string]: LayoutItem[] }) => {
-    if (onLayoutChange) {
-      onLayoutChange(layout, layouts);
-    }
-  }, [onLayoutChange]);
+  const handleLayoutChange = useCallback(
+    (layout: LayoutItem[], layouts: { [key: string]: LayoutItem[] }) => {
+      if (onLayoutChange) {
+        onLayoutChange(layout, layouts);
+      }
+    },
+    [onLayoutChange]
+  );
 
-  const handleWidgetFullscreen = useCallback((widgetId: string) => {
-    if (fullscreenWidget === widgetId) {
-      setFullscreenWidget(null);
-      setIsFullscreen(false);
-    } else {
-      setFullscreenWidget(widgetId);
-      setIsFullscreen(true);
-    }
-  }, [fullscreenWidget]);
+  const handleWidgetFullscreen = useCallback(
+    (widgetId: string) => {
+      if (fullscreenWidget === widgetId) {
+        setFullscreenWidget(null);
+        setIsFullscreen(false);
+      } else {
+        setFullscreenWidget(widgetId);
+        setIsFullscreen(true);
+      }
+    },
+    [fullscreenWidget]
+  );
 
-  const handleAddWidget = useCallback((widgetId: string) => {
+  const handleAddWidget = useCallback(() => {
     if (onAddWidget) {
       onAddWidget();
     }
   }, [onAddWidget]);
 
-  const handleRemoveWidget = useCallback((widgetId: string) => {
-    if (onRemoveWidget) {
-      onRemoveWidget(widgetId);
-    }
-  }, [onRemoveWidget]);
+  const renderWidget = useCallback(
+    (widget: DashboardWidget) => {
+      const WidgetComponent = widget.component;
+      const isFullscreen = fullscreenWidget === widget.id;
 
-  const renderWidget = useCallback((widget: DashboardWidget) => {
-    const WidgetComponent = widget.component;
-    const isFullscreen = fullscreenWidget === widget.id;
-
-    return (
-      <div key={widget.id} className="h-full w-full">
-        <div className="flex items-center justify-between p-3 border-b bg-muted/50">
-          <h3 className="font-medium text-sm">{widget.title}</h3>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleWidgetFullscreen(widget.id)}
-              className="h-6 w-6 p-0"
-            >
-              {isFullscreen ? (
-                <Minimize2 className="h-3 w-3" />
-              ) : (
-                <Maximize2 className="h-3 w-3" />
+      return (
+        <div key={widget.id} className="h-full w-full">
+          <div className="flex items-center justify-between p-3 border-b bg-muted/50">
+            <h3 className="font-medium text-sm">{widget.title}</h3>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleWidgetFullscreen(widget.id)}
+                className="h-6 w-6 p-0"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-3 w-3" />
+                ) : (
+                  <Maximize2 className="h-3 w-3" />
+                )}
+              </Button>
+              {editable && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {availableWidgets.map(availableWidget => (
+                      <DropdownMenuItem
+                        key={availableWidget.id}
+                        onClick={handleAddWidget}
+                      >
+                        {availableWidget.title}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
-            </Button>
-            {editable && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {availableWidgets.map((availableWidget) => (
-                    <DropdownMenuItem
-                      key={availableWidget.id}
-                      onClick={() => handleAddWidget(availableWidget.id)}
-                    >
-                      {availableWidget.title}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            </div>
+          </div>
+          <div className="p-3">
+            <WidgetComponent
+              height={isFullscreen ? 600 : undefined}
+              isFullscreen={isFullscreen}
+              onFullscreen={() => handleWidgetFullscreen(widget.id)}
+              {...widget.props}
+            />
           </div>
         </div>
-        <div className="p-3">
-          <WidgetComponent
-            height={isFullscreen ? 600 : undefined}
-            isFullscreen={isFullscreen}
-            onFullscreen={() => handleWidgetFullscreen(widget.id)}
-            {...widget.props}
-          />
-        </div>
-      </div>
-    );
-  }, [fullscreenWidget, editable, availableWidgets, handleWidgetFullscreen, handleAddWidget]);
+      );
+    },
+    [
+      fullscreenWidget,
+      editable,
+      availableWidgets,
+      handleWidgetFullscreen,
+      handleAddWidget,
+    ]
+  );
 
   if (isFullscreen && fullscreenWidget) {
     const fullscreenWidgetData = widgets.find(w => w.id === fullscreenWidget);
@@ -185,7 +199,9 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
     return (
       <div className="fixed inset-0 z-50 bg-background">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">{fullscreenWidgetData.title}</h2>
+          <h2 className="text-lg font-semibold">
+            {fullscreenWidgetData.title}
+          </h2>
           <Button
             variant="outline"
             onClick={() => handleWidgetFullscreen(fullscreenWidget)}
@@ -215,14 +231,12 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
         margin={[16, 16]}
         containerPadding={[16, 16]}
       >
-        {widgets.map((widget) => (
-          <div key={widget.id}>
-            {renderWidget(widget)}
-          </div>
+        {widgets.map(widget => (
+          <div key={widget.id}>{renderWidget(widget)}</div>
         ))}
       </ResponsiveGridLayout>
     </div>
   );
 };
 
-export default DashboardGrid; 
+export default DashboardGrid;

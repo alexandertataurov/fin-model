@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import { Gauge, AlertCircle, Upload, CheckCircle } from 'lucide-react';
 import {
   LineChart,
@@ -114,7 +118,6 @@ const AnalyticsDashboard: React.FC = () => {
   const dailyTrends = dashboardData?.daily_trends || [];
   const fileTypeDistribution =
     dashboardData?.file_type_distribution?.distribution || [];
-  const topUsers = dashboardData?.top_users || [];
   const errorSummary = dashboardData?.error_summary || {
     total_errors: 0,
     top_error_categories: [],
@@ -176,8 +179,12 @@ const AnalyticsDashboard: React.FC = () => {
               <div className="flex items-center">
                 <CheckCircle className="text-green-500 mr-2" size={24} />
                 <div>
-                  <p className="text-sm text-muted-foreground">Completed Files</p>
-                  <p className="text-2xl font-bold">{overview.completed_files}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Completed Files
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {overview.completed_files}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -201,7 +208,9 @@ const AnalyticsDashboard: React.FC = () => {
                 <Gauge className="text-blue-500 mr-2" size={24} />
                 <div>
                   <p className="text-sm text-muted-foreground">Success Rate</p>
-                  <p className="text-2xl font-bold">{overview.success_rate.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold">
+                    {overview.success_rate.toFixed(1)}%
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -225,7 +234,11 @@ const AnalyticsDashboard: React.FC = () => {
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="total_files" stroke="#8884d8" />
-                <Line type="monotone" dataKey="completed_files" stroke="#82ca9d" />
+                <Line
+                  type="monotone"
+                  dataKey="completed_files"
+                  stroke="#82ca9d"
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -244,13 +257,18 @@ const AnalyticsDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="count"
                 >
                   {fileTypeDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={chartColors[index % chartColors.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -271,14 +289,21 @@ const AnalyticsDashboard: React.FC = () => {
               <span>Average Processing Time</span>
               <span>{performanceSummary.avg_processing_time.toFixed(2)}s</span>
             </div>
-            <Progress value={Math.min((performanceSummary.avg_processing_time / 60) * 100, 100)} />
+            <Progress
+              value={Math.min(
+                (performanceSummary.avg_processing_time / 60) * 100,
+                100
+              )}
+            />
           </div>
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span>Throughput (files/hour)</span>
               <span>{performanceSummary.throughput.toFixed(1)}</span>
             </div>
-            <Progress value={Math.min((performanceSummary.throughput / 100) * 100, 100)} />
+            <Progress
+              value={Math.min((performanceSummary.throughput / 100) * 100, 100)}
+            />
           </div>
         </CardContent>
       </Card>

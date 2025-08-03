@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Collapsible,
@@ -16,7 +15,6 @@ import {
   FileText,
   TrendingUp,
   PieChart,
-  Settings,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -29,8 +27,6 @@ import { useAuth } from '../../contexts/AuthContext';
 interface SidebarProps {
   open: boolean;
   onToggle: () => void;
-  width?: number;
-  collapsedWidth?: number;
 }
 
 interface NavItem {
@@ -108,12 +104,7 @@ const navigationItems: NavItem[] = [
   },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  open,
-  onToggle,
-  width = 280,
-  collapsedWidth = 64,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -195,9 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <Button
         key={item.id}
         variant={isActive ? 'secondary' : 'ghost'}
-        className={`w-full justify-start h-10 px-3 ${
-          level > 0 ? 'ml-4' : ''
-        }`}
+        className={`w-full justify-start h-10 px-3 ${level > 0 ? 'ml-4' : ''}`}
         onClick={() => handleItemClick(item)}
       >
         <div className="flex items-center gap-3">
@@ -220,9 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       }`}
     >
       <div className="flex h-16 items-center justify-between px-4 border-b">
-        {open && (
-          <h2 className="text-lg font-semibold">FinVision</h2>
-        )}
+        {open && <h2 className="text-lg font-semibold">FinVision</h2>}
         <Button
           variant="ghost"
           size="sm"
@@ -246,4 +233,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
