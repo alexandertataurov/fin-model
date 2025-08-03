@@ -12,12 +12,12 @@ logger = logging.getLogger(__name__)
 
 # Try to import fastapi_cache decorator
 try:
-    from fastapi_cache.decorator import cache
+    from fastapi_cache2.decorator import cache
     CACHE_DECORATOR_AVAILABLE = True
-    logger.info("fastapi_cache decorator is available")
+    logger.info("fastapi_cache2 decorator is available")
 except ImportError:
     CACHE_DECORATOR_AVAILABLE = False
-    logger.warning("fastapi_cache decorator not available")
+    logger.warning("fastapi_cache2 decorator not available")
 
 
 def safe_cache(expire: int = 300, key_builder: Optional[Callable] = None):
@@ -110,6 +110,6 @@ def get_cache_status() -> dict:
     """
     return {
         "available": CACHE_DECORATOR_AVAILABLE,
-        "backend": "fastapi_cache" if CACHE_DECORATOR_AVAILABLE else "none",
+        "backend": "fastapi_cache2" if CACHE_DECORATOR_AVAILABLE else "none",
         "status": "enabled" if CACHE_DECORATOR_AVAILABLE else "disabled"
     } 

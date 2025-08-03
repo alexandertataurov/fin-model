@@ -16,21 +16,14 @@ logger = logging.getLogger(__name__)
 
 # Try to import fastapi_cache, fallback gracefully if not available
 try:
-    # Try different import patterns for different fastapi_cache versions
-    try:
-        from fastapi_cache import FastAPICache
-        from fastapi_cache.backends.inmemory import InMemoryBackend
-    except ImportError:
-        # Fallback for alternative package structure
-        from fastapi_cache.core import FastAPICache
-        from fastapi_cache.backends.inmemory import InMemoryBackend
-    
+    from fastapi_cache2 import FastAPICache
+    from fastapi_cache2.backends.inmemory import InMemoryBackend
     CACHE_AVAILABLE = True
-    logger.info("fastapi_cache is available and will be used for caching")
+    logger.info("fastapi_cache2 is available and will be used for caching")
 except ImportError as e:
     CACHE_AVAILABLE = False
     logger.warning(
-        f"fastapi_cache not available: {e}. Caching will be disabled."
+        f"fastapi_cache2 not available: {e}. Caching will be disabled."
     )
     # Create dummy classes for fallback
 
