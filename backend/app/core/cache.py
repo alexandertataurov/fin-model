@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import fastapi_cache decorator
 try:
-    from fastapi_cache.decorator import cache
+    from fastapi_cache2.decorator import cache
     CACHE_DECORATOR_AVAILABLE = True
     logger.info("fastapi_cache decorator is available")
 except ImportError:
