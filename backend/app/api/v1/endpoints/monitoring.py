@@ -16,7 +16,7 @@ router = APIRouter()
 @router.get("/metrics")
 async def get_performance_metrics(
     hours: int = Query(24, ge=1, le=168, description="Hours to look back"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
 ) -> Dict[str, Any]:
     """Get performance metrics summary."""
     return performance_monitor.get_metrics_summary(hours=hours)
@@ -24,7 +24,7 @@ async def get_performance_metrics(
 
 @router.get("/system")
 async def get_system_metrics(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
 ) -> Dict[str, Any]:
     """Get current system resource metrics."""
     import psutil
@@ -63,7 +63,7 @@ async def get_system_metrics(
 @router.post("/clear-metrics")
 async def clear_old_metrics(
     hours: int = Query(24, ge=1, le=168, description="Clear metrics older than N hours"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_WRITE)),
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_SETTINGS)),
 ) -> Dict[str, Any]:
     """Clear old performance metrics."""
     performance_monitor.clear_old_metrics(hours=hours)
@@ -72,7 +72,7 @@ async def clear_old_metrics(
 
 @router.get("/health")
 async def monitoring_health_check(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
 ) -> Dict[str, Any]:
     """Health check for monitoring system."""
     try:

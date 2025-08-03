@@ -16,6 +16,7 @@ from app.api.v1.endpoints import (
     statements,
     monitoring,
     collaboration,
+    notifications,
 )
 from app.core.config import settings
 
@@ -72,6 +73,9 @@ api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monito
 
 # Include collaboration routes
 api_router.include_router(collaboration.router, prefix="/collaboration", tags=["collaboration"])
+
+# Include notification routes
+api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 
 try:
     from app.api.v1.endpoints import test_utils

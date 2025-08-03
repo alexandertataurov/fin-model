@@ -4,7 +4,8 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from sqlalchemy.orm import Session
 
-from ..models.collaboration import AIInsight, ReportElementSuggestion, ReportTemplate
+from ..models.collaboration import AIInsight, ReportElementSuggestion
+from ..models.report import ReportTemplate
 from ..core.config import settings
 
 

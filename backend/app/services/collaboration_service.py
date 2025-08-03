@@ -6,9 +6,10 @@ import json
 import uuid
 
 from ..models.collaboration import (
-    ReportTemplate, ReportCollaboration, ReportEdit, 
+    ReportCollaboration, ReportEdit, 
     CollaborationSession, CollaborationPermission
 )
+from ..models.report import ReportTemplate
 from ..models.user import User
 
 
