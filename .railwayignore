@@ -1,8 +1,24 @@
-# Ignore frontend files during backend deployment
+# Ignore ALL frontend files during backend deployment
 frontend/
 frontend/**
+frontend/*
+
+# Ignore ALL Node.js related files
+package.json
+package-lock.json
+node_modules/
+node_modules/**
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npmrc
+.yarnrc
+
+# Ignore frontend deployment files
 netlify.toml
 .netlify/
+_headers
+_redirects
 
 # Ignore development files
 .git/
@@ -16,14 +32,6 @@ tasks/
 docker-compose*.yml
 Dockerfile*
 
-# Ignore Node.js files (frontend only)
-frontend/package.json
-frontend/package-lock.json
-frontend/node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
 # Ignore test files
 **/__pycache__/
 **/.pytest_cache/
@@ -32,4 +40,10 @@ yarn-error.log*
 
 # Ignore local environment
 .env
-.env.local 
+.env.local
+
+# Ignore frontend build artifacts
+dist/
+build/
+coverage/
+storybook-static/ 
