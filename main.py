@@ -13,9 +13,6 @@ import os
 backend_path = os.path.join(os.path.dirname(__file__), "backend")
 sys.path.insert(0, backend_path)
 
-# Change working directory to backend
-os.chdir(backend_path)
-
 try:
     # Auto-fix database schema if needed
     auto_fix_enabled = (
@@ -49,6 +46,8 @@ try:
     )
     if auto_migrate:
         try:
+            # Import from backend directory
+            sys.path.insert(0, backend_path)
             from run_migrations import run_migrations
 
             print("🚀 Running database migrations...")
@@ -89,7 +88,7 @@ try:
         traceback.print_exc()
 
     # Import the FastAPI app
-    from backend.main import app
+    from app.main import app
 
     if __name__ == "__main__":
         import uvicorn
