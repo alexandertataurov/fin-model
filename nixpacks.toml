@@ -1,7 +1,8 @@
 [variables]
 NIXPACKS_PYTHON_VERSION = "3.11"
 
-providers = ["python"]
+[providers]
+python = {}
 
 [phases.setup]
 nixpkgs = ["python311", "python311Packages.pip"]
