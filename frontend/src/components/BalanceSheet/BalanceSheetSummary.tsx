@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
 import {
   CheckCircle,
   AlertTriangle,
@@ -27,7 +26,13 @@ interface MetricDisplayProps {
   category: 'assets' | 'liabilities' | 'equity';
 }
 
-const MetricDisplay: React.FC<MetricDisplayProps> = ({ label, value, change, trend, category }) => {
+const MetricDisplay: React.FC<MetricDisplayProps> = ({
+  label,
+  value,
+  change,
+  trend,
+  category,
+}) => {
   const formatCurrency = (val: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -43,15 +48,19 @@ const MetricDisplay: React.FC<MetricDisplayProps> = ({ label, value, change, tre
 
   const getTrendIcon = () => {
     if (!trend && !change) return <Minus className="text-gray-400" size={16} />;
-    
+
     if (trend === 'up' || (change && change > 0)) {
-      return category === 'liabilities' ? 
-        <TrendingUp className="text-orange-500" size={16} /> : 
-        <TrendingUp className="text-green-500" size={16} />;
+      return category === 'liabilities' ? (
+        <TrendingUp className="text-orange-500" size={16} />
+      ) : (
+        <TrendingUp className="text-green-500" size={16} />
+      );
     } else if (trend === 'down' || (change && change < 0)) {
-      return category === 'liabilities' ? 
-        <TrendingDown className="text-green-500" size={16} /> : 
-        <TrendingDown className="text-red-500" size={16} />;
+      return category === 'liabilities' ? (
+        <TrendingDown className="text-green-500" size={16} />
+      ) : (
+        <TrendingDown className="text-red-500" size={16} />
+      );
     }
     return <Minus className="text-gray-400" size={16} />;
   };
@@ -95,7 +104,10 @@ interface BalanceValidationProps {
   liabilitiesEquity: number;
 }
 
-const BalanceValidation: React.FC<BalanceValidationProps> = ({ assets, liabilitiesEquity }) => {
+const BalanceValidation: React.FC<BalanceValidationProps> = ({
+  assets,
+  liabilitiesEquity,
+}) => {
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -109,15 +121,24 @@ const BalanceValidation: React.FC<BalanceValidationProps> = ({ assets, liabiliti
   const isBalanced = Math.abs(difference) < 1000; // Tolerance of $1,000
 
   return (
-    <Alert className={isBalanced ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
-      <CheckCircle className={`h-4 w-4 ${isBalanced ? 'text-green-600' : 'text-red-600'}`} />
+    <Alert
+      className={
+        isBalanced ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+      }
+    >
+      <CheckCircle
+        className={`h-4 w-4 ${isBalanced ? 'text-green-600' : 'text-red-600'}`}
+      />
       <AlertDescription>
         <div className="space-y-1">
           <p className="font-medium">
-            {isBalanced ? 'Balance Sheet is Balanced' : 'Balance Sheet Imbalance Detected'}
+            {isBalanced
+              ? 'Balance Sheet is Balanced'
+              : 'Balance Sheet Imbalance Detected'}
           </p>
           <p className="text-sm">
-            Assets: {formatCurrency(assets)} | Liabilities + Equity: {formatCurrency(liabilitiesEquity)}
+            Assets: {formatCurrency(assets)} | Liabilities + Equity:{' '}
+            {formatCurrency(liabilitiesEquity)}
           </p>
           {!isBalanced && (
             <p className="text-sm font-medium text-red-600">
@@ -131,30 +152,35 @@ const BalanceValidation: React.FC<BalanceValidationProps> = ({ assets, liabiliti
 };
 
 const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
-  const calculateTotal = (category: 'assets' | 'liabilities' | 'equity'): number => {
+  const calculateTotal = (
+    category: 'assets' | 'liabilities' | 'equity'
+  ): number => {
     return data.metrics
       .filter(m => m.category === category)
       .reduce((sum, metric) => sum + metric.value, 0);
   };
 
-  const calculateChange = (category: 'assets' | 'liabilities' | 'equity'): number => {
-    const currentTotal = calculateTotal(category);
-    const previousTotal = data.metrics
-      .filter(m => m.category === category)
-      .reduce((sum, metric) => sum + (metric.previousValue || 0), 0);
-    
-    if (previousTotal === 0) return 0;
-    return ((currentTotal - previousTotal) / previousTotal) * 100;
+  const calculateChange = (
+    category: 'assets' | 'liabilities' | 'equity'
+  ): number => {
+    const metrics = data.metrics.filter(m => m.category === category);
+    const total = metrics.length;
+    if (total === 0) return 0;
+    const sumChange = metrics.reduce(
+      (sum, m) => sum + (m.change_percentage ?? 0),
+      0
+    );
+    return sumChange / total;
   };
 
   const getFinancialHealthColor = (): 'success' | 'warning' | 'error' => {
     const assets = calculateTotal('assets');
     const liabilities = calculateTotal('liabilities');
     const equity = calculateTotal('equity');
-    
+
     const debtToEquityRatio = liabilities / equity;
     const currentRatio = assets / liabilities;
-    
+
     if (debtToEquityRatio < 0.5 && currentRatio > 1.5) return 'success';
     if (debtToEquityRatio < 1.0 && currentRatio > 1.0) return 'warning';
     return 'error';
@@ -163,23 +189,13 @@ const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
   const getFinancialHealthLabel = (): string => {
     const health = getFinancialHealthColor();
     switch (health) {
-      case 'success': return 'Excellent';
-      case 'warning': return 'Good';
-      case 'error': return 'Needs Attention';
+      case 'success':
+        return 'Excellent';
+      case 'warning':
+        return 'Good';
+      case 'error':
+        return 'Needs Attention';
     }
-  };
-
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const formatPercentage = (value: number): string => {
-    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
   const formatRatio = (value: number): string => {
@@ -224,7 +240,10 @@ const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
       </div>
 
       {/* Balance Validation */}
-      <BalanceValidation assets={totalAssets} liabilitiesEquity={totalLiabilitiesEquity} />
+      <BalanceValidation
+        assets={totalAssets}
+        liabilitiesEquity={totalLiabilitiesEquity}
+      />
 
       {/* Financial Ratios */}
       <Card>
@@ -237,21 +256,37 @@ const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
               <p className="text-sm text-muted-foreground">Current Ratio</p>
               <p className="text-2xl font-bold">{formatRatio(currentRatio)}</p>
               <p className="text-xs text-muted-foreground">
-                {currentRatio > 1.5 ? 'Excellent' : currentRatio > 1.0 ? 'Good' : 'Needs Attention'}
+                {currentRatio > 1.5
+                  ? 'Excellent'
+                  : currentRatio > 1.0
+                    ? 'Good'
+                    : 'Needs Attention'}
               </p>
             </div>
             <div className="text-center p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">Debt-to-Equity</p>
-              <p className="text-2xl font-bold">{formatRatio(debtToEquityRatio)}</p>
+              <p className="text-2xl font-bold">
+                {formatRatio(debtToEquityRatio)}
+              </p>
               <p className="text-xs text-muted-foreground">
-                {debtToEquityRatio < 0.5 ? 'Excellent' : debtToEquityRatio < 1.0 ? 'Good' : 'High Risk'}
+                {debtToEquityRatio < 0.5
+                  ? 'Excellent'
+                  : debtToEquityRatio < 1.0
+                    ? 'Good'
+                    : 'High Risk'}
               </p>
             </div>
             <div className="text-center p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">Debt-to-Assets</p>
-              <p className="text-2xl font-bold">{formatRatio(debtToAssetsRatio)}</p>
+              <p className="text-2xl font-bold">
+                {formatRatio(debtToAssetsRatio)}
+              </p>
               <p className="text-xs text-muted-foreground">
-                {debtToAssetsRatio < 0.3 ? 'Excellent' : debtToAssetsRatio < 0.5 ? 'Good' : 'High Risk'}
+                {debtToAssetsRatio < 0.3
+                  ? 'Excellent'
+                  : debtToAssetsRatio < 0.5
+                    ? 'Good'
+                    : 'High Risk'}
               </p>
             </div>
           </div>
@@ -269,8 +304,15 @@ const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
               <BarChart3 className="text-blue-500" size={20} />
               <span className="font-medium">Overall Health</span>
             </div>
-            <Badge variant={getFinancialHealthColor() === 'success' ? 'default' : 
-                          getFinancialHealthColor() === 'warning' ? 'secondary' : 'destructive'}>
+            <Badge
+              variant={
+                getFinancialHealthColor() === 'success'
+                  ? 'default'
+                  : getFinancialHealthColor() === 'warning'
+                    ? 'secondary'
+                    : 'destructive'
+              }
+            >
               {getFinancialHealthLabel()}
             </Badge>
           </div>

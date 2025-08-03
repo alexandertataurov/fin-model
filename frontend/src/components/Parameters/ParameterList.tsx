@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,15 +33,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  Edit,
-  Trash2,
-  Plus,
-  RefreshCw,
-  Info,
-  History,
-  BarChart3,
-} from 'lucide-react';
+import { Edit, Trash2, RefreshCw, History } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Types
@@ -101,11 +93,7 @@ const ParameterList: React.FC<ParameterListProps> = ({
   const [editingParameter, setEditingParameter] = useState<Parameter | null>(
     null
   );
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
-  const [selectedParameterId, setSelectedParameterId] = useState<number | null>(
-    null
-  );
 
   const queryClient = useQueryClient();
 

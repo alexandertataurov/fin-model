@@ -5,7 +5,6 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
-  Info,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -85,10 +84,10 @@ const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
   };
 
   const getRatioTrend = (ratio: FinancialRatio) => {
-    if (!ratio.previousValue)
+    if (ratio.benchmark === undefined) {
       return <Minus className="text-gray-400" size={16} />;
-
-    const change = ratio.value - ratio.previousValue;
+    }
+    const change = ratio.value - ratio.benchmark;
     if (change > 0) {
       return <TrendingUp className="text-green-500" size={16} />;
     } else if (change < 0) {
@@ -132,7 +131,7 @@ const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
               <div>
                 <h4 className="font-medium text-sm">{ratio.name}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {ratio.description}
+                  {ratio.interpretation}
                 </p>
               </div>
             </div>
@@ -179,12 +178,6 @@ const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
                 </div>
               )}
             </div>
-
-            {ratio.previousValue && (
-              <div className="text-xs text-muted-foreground">
-                Previous: {formatRatio(ratio.previousValue, ratio.category)}
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -248,7 +241,7 @@ const FinancialRatios: React.FC<FinancialRatiosProps> = ({ ratios }) => {
               {/* Ratio Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {getRatiosByCategory(category).map(ratio => (
-                  <RatioCard key={ratio.id} ratio={ratio} />
+                  <RatioCard key={ratio.name} ratio={ratio} />
                 ))}
               </div>
 

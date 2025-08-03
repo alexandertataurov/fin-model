@@ -42,7 +42,11 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
     const category = subcategory.toLowerCase();
     if (category.includes('payable') || category.includes('account')) {
       return <Receipt className="text-orange-500" size={20} />;
-    } else if (category.includes('loan') || category.includes('debt') || category.includes('mortgage')) {
+    } else if (
+      category.includes('loan') ||
+      category.includes('debt') ||
+      category.includes('mortgage')
+    ) {
       return <Banknote className="text-red-500" size={20} />;
     } else if (category.includes('credit') || category.includes('card')) {
       return <CreditCard className="text-blue-500" size={20} />;
@@ -50,18 +54,22 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
     return <AlertTriangle className="text-gray-500" size={20} />;
   };
 
-  const getTrendIcon = (trend?: string, changePercentage?: number) => {
-    if (!trend && !changePercentage) return <Minus className="text-gray-400" size={16} />;
-    
-    if (trend === 'up' || (changePercentage && changePercentage > 0)) {
+  const getTrendIcon = (trend?: string, changePercent?: number) => {
+    if (!trend && !changePercent) {
+      return <Minus className="text-gray-400" size={16} />;
+    }
+
+    if (trend === 'up' || (changePercent && changePercent > 0)) {
       return <TrendingUp className="text-red-500" size={16} />; // Increasing liabilities is typically negative
-    } else if (trend === 'down' || (changePercentage && changePercentage < 0)) {
+    } else if (trend === 'down' || (changePercent && changePercent < 0)) {
       return <TrendingDown className="text-green-500" size={16} />; // Decreasing liabilities is typically positive
     }
     return <Minus className="text-gray-400" size={16} />;
   };
 
-  const getLiabilityRiskLevel = (percentage: number): { level: string; color: 'success' | 'warning' | 'error' } => {
+  const getLiabilityRiskLevel = (
+    percentage: number
+  ): { level: string; color: 'success' | 'warning' | 'error' } => {
     if (percentage < 30) return { level: 'Low Risk', color: 'success' };
     if (percentage < 60) return { level: 'Moderate Risk', color: 'warning' };
     return { level: 'High Risk', color: 'error' };
@@ -77,8 +85,12 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
     .filter(m => m.category === 'assets')
     .reduce((sum, m) => sum + m.value, 0);
 
-  const totalLiabilities = liabilityMetrics.reduce((sum, m) => sum + m.value, 0);
-  const debtToAssetRatio = totalAssets > 0 ? (totalLiabilities / totalAssets) * 100 : 0;
+  const totalLiabilities = liabilityMetrics.reduce(
+    (sum, m) => sum + m.value,
+    0
+  );
+  const debtToAssetRatio =
+    totalAssets > 0 ? (totalLiabilities / totalAssets) * 100 : 0;
   const riskAssessment = getLiabilityRiskLevel(debtToAssetRatio);
 
   // Prepare chart data
@@ -87,16 +99,22 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
     value: item.value,
     [item.period]: item.value,
   }));
+  const chartSeries = [
+    { dataKey: 'value', name: 'Liabilities', color: 'var(--chart-1)' },
+  ];
 
   // Group liabilities by subcategory
-  const groupedLiabilities = liabilityMetrics.reduce((groups, liability) => {
-    const category = liability.subcategory || 'Other Liabilities';
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(liability);
-    return groups;
-  }, {} as Record<string, BalanceSheetMetric[]>);
+  const groupedLiabilities = liabilityMetrics.reduce(
+    (groups, liability) => {
+      const category = liability.subcategory || 'Other Liabilities';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(liability);
+      return groups;
+    },
+    {} as Record<string, BalanceSheetMetric[]>
+  );
 
   return (
     <Card>
@@ -111,8 +129,15 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
               <AlertTriangle className="text-orange-500" size={20} />
               <span className="font-medium">Debt Risk Assessment</span>
             </div>
-            <Badge variant={riskAssessment.color === 'success' ? 'default' : 
-                          riskAssessment.color === 'warning' ? 'secondary' : 'destructive'}>
+            <Badge
+              variant={
+                riskAssessment.color === 'success'
+                  ? 'default'
+                  : riskAssessment.color === 'warning'
+                    ? 'secondary'
+                    : 'destructive'
+              }
+            >
               {riskAssessment.level}
             </Badge>
           </div>
@@ -123,16 +148,18 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
             </div>
             <Progress value={Math.min(debtToAssetRatio, 100)} className="h-2" />
             <p className="text-xs text-muted-foreground">
-              {debtToAssetRatio < 30 ? 'Low debt levels indicate strong financial position' :
-               debtToAssetRatio < 60 ? 'Moderate debt levels require monitoring' :
-               'High debt levels may indicate financial stress'}
+              {debtToAssetRatio < 30
+                ? 'Low debt levels indicate strong financial position'
+                : debtToAssetRatio < 60
+                  ? 'Moderate debt levels require monitoring'
+                  : 'High debt levels may indicate financial stress'}
             </p>
           </div>
         </div>
 
         {/* Chart Section */}
         <div className="h-64">
-          <BarChart data={chartData} />
+          <BarChart data={chartData} series={chartSeries} />
         </div>
 
         {/* Liabilities Breakdown */}
@@ -144,7 +171,10 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
               </h4>
               <div className="space-y-2">
                 {liabilities.map((liability, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
                       {getLiabilityIcon(liability.subcategory || '')}
                       <div>
@@ -155,19 +185,30 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {liability.changePercentage !== undefined && (
+                      {liability.change_percentage !== undefined && (
                         <div className="flex items-center space-x-1">
-                          {getTrendIcon(liability.trend, liability.changePercentage)}
-                          <span className={`text-sm ${
-                            liability.changePercentage > 0 ? 'text-red-600' : 
-                            liability.changePercentage < 0 ? 'text-green-600' : 'text-gray-600'
-                          }`}>
-                            {formatPercentage(liability.changePercentage)}
+                          {getTrendIcon(
+                            liability.trend,
+                            liability.change_percentage
+                          )}
+                          <span
+                            className={`text-sm ${
+                              liability.change_percentage > 0
+                                ? 'text-red-600'
+                                : liability.change_percentage < 0
+                                  ? 'text-green-600'
+                                  : 'text-gray-600'
+                            }`}
+                          >
+                            {formatPercentage(liability.change_percentage)}
                           </span>
                         </div>
                       )}
                       <Badge variant="secondary">
-                        {((liability.value / totalLiabilities) * 100).toFixed(1)}%
+                        {((liability.value / totalLiabilities) * 100).toFixed(
+                          1
+                        )}
+                        %
                       </Badge>
                     </div>
                   </div>
@@ -186,16 +227,28 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <p className="text-sm text-muted-foreground">Total Liabilities</p>
-                <p className="text-2xl font-bold">{formatCurrency(totalLiabilities)}</p>
+                <p className="text-sm text-muted-foreground">
+                  Total Liabilities
+                </p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(totalLiabilities)}
+                </p>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <p className="text-sm text-muted-foreground">Debt-to-Asset Ratio</p>
-                <p className="text-2xl font-bold">{debtToAssetRatio.toFixed(1)}%</p>
+                <p className="text-sm text-muted-foreground">
+                  Debt-to-Asset Ratio
+                </p>
+                <p className="text-2xl font-bold">
+                  {debtToAssetRatio.toFixed(1)}%
+                </p>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <p className="text-sm text-muted-foreground">Liability Categories</p>
-                <p className="text-2xl font-bold">{Object.keys(groupedLiabilities).length}</p>
+                <p className="text-sm text-muted-foreground">
+                  Liability Categories
+                </p>
+                <p className="text-2xl font-bold">
+                  {Object.keys(groupedLiabilities).length}
+                </p>
               </div>
             </div>
           </CardContent>

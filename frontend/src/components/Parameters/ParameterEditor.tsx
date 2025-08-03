@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,21 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
-  ChevronDown,
-  Edit,
-  Save,
-  X,
-  Info,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react';
+import { Edit, Save, X, Info, TrendingUp, TrendingDown } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Types
@@ -69,7 +55,6 @@ interface ParameterEditorProps {
     changeReason?: string
   ) => void;
   readonly?: boolean;
-  showDependencies?: boolean;
   compact?: boolean;
 }
 
@@ -77,14 +62,12 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
   parameter,
   onValueChange,
   readonly = false,
-  showDependencies = true,
   compact = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(parameter.current_value);
   const [changeReason, setChangeReason] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -132,8 +115,10 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
       setIsEditing(false);
       setValidationError(null);
     },
-    onError: (error) => {
-      setValidationError(error instanceof Error ? error.message : 'Update failed');
+    onError: error => {
+      setValidationError(
+        error instanceof Error ? error.message : 'Update failed'
+      );
     },
   });
 
@@ -214,15 +199,24 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div>
-              <p className="font-medium text-sm">{parameter.display_name || parameter.name}</p>
-              <p className="text-xs text-muted-foreground">{parameter.description}</p>
+              <p className="font-medium text-sm">
+                {parameter.display_name || parameter.name}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {parameter.description}
+              </p>
             </div>
-            <Badge variant="secondary" className={getSensitivityColor(parameter.sensitivity_level)}>
+            <Badge
+              variant="secondary"
+              className={getSensitivityColor(parameter.sensitivity_level)}
+            >
               {parameter.sensitivity_level}
             </Badge>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{formatValue(parameter.current_value)}</span>
+            <span className="text-sm font-medium">
+              {formatValue(parameter.current_value)}
+            </span>
             {getTrendIndicator()}
             {!readonly && parameter.is_editable && (
               <Button variant="ghost" size="sm" onClick={handleEditStart}>
@@ -243,7 +237,10 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
             <h3 className="text-lg font-semibold">
               {parameter.display_name || parameter.name}
             </h3>
-            <Badge variant="secondary" className={getSensitivityColor(parameter.sensitivity_level)}>
+            <Badge
+              variant="secondary"
+              className={getSensitivityColor(parameter.sensitivity_level)}
+            >
               {parameter.sensitivity_level}
             </Badge>
           </div>
@@ -261,14 +258,18 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
       <CardContent className="space-y-4">
         {/* Description */}
         {parameter.description && (
-          <p className="text-sm text-muted-foreground">{parameter.description}</p>
+          <p className="text-sm text-muted-foreground">
+            {parameter.description}
+          </p>
         )}
 
         {/* Current Value Display */}
         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
           <div>
             <Label className="text-sm font-medium">Current Value</Label>
-            <p className="text-2xl font-bold">{formatValue(parameter.current_value)}</p>
+            <p className="text-2xl font-bold">
+              {formatValue(parameter.current_value)}
+            </p>
           </div>
           {parameter.default_value !== undefined && (
             <div className="text-right">
@@ -288,33 +289,36 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
                   id="value"
                   type="number"
                   value={editValue}
-                  onChange={(e) => handleValueChange(Number(e.target.value))}
+                  onChange={e => handleValueChange(Number(e.target.value))}
                   className="flex-1"
                 />
                 {parameter.unit && (
-                  <span className="text-sm text-muted-foreground">{parameter.unit}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {parameter.unit}
+                  </span>
                 )}
               </div>
             </div>
 
             {/* Slider for range */}
-            {parameter.min_value !== undefined && parameter.max_value !== undefined && (
-              <div className="space-y-2">
-                <Label>Adjust Value</Label>
-                <Slider
-                  value={[editValue]}
-                  onValueChange={handleSliderChange}
-                  min={parameter.min_value}
-                  max={parameter.max_value}
-                  step={0.01}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{formatValue(parameter.min_value)}</span>
-                  <span>{formatValue(parameter.max_value)}</span>
+            {parameter.min_value !== undefined &&
+              parameter.max_value !== undefined && (
+                <div className="space-y-2">
+                  <Label>Adjust Value</Label>
+                  <Slider
+                    value={[editValue]}
+                    onValueChange={handleSliderChange}
+                    min={parameter.min_value}
+                    max={parameter.max_value}
+                    step={0.01}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{formatValue(parameter.min_value)}</span>
+                    <span>{formatValue(parameter.max_value)}</span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Change Reason */}
             <div className="space-y-2">
@@ -322,7 +326,7 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
               <Textarea
                 id="reason"
                 value={changeReason}
-                onChange={(e) => setChangeReason(e.target.value)}
+                onChange={e => setChangeReason(e.target.value)}
                 placeholder="Explain why this value is being changed..."
                 rows={2}
               />
@@ -337,7 +341,10 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
-              <Button onClick={handleEditSave} disabled={validating || updateMutation.isPending}>
+              <Button
+                onClick={handleEditSave}
+                disabled={validating || updateMutation.isPending}
+              >
                 <Save className="h-4 w-4 mr-2" />
                 {updateMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
@@ -361,29 +368,41 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
             <AccordionContent>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Parameter Type</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Parameter Type
+                  </Label>
                   <p>{parameter.parameter_type}</p>
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Category</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    Category
+                  </Label>
                   <p>{parameter.category}</p>
                 </div>
                 {parameter.source_sheet && (
                   <div>
-                    <Label className="text-xs text-muted-foreground">Source Sheet</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      Source Sheet
+                    </Label>
                     <p>{parameter.source_sheet}</p>
                   </div>
                 )}
                 {parameter.source_cell && (
                   <div>
-                    <Label className="text-xs text-muted-foreground">Source Cell</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      Source Cell
+                    </Label>
                     <p>{parameter.source_cell}</p>
                   </div>
                 )}
                 {parameter.formula && (
                   <div className="col-span-2">
-                    <Label className="text-xs text-muted-foreground">Formula</Label>
-                    <p className="font-mono text-xs bg-muted p-2 rounded">{parameter.formula}</p>
+                    <Label className="text-xs text-muted-foreground">
+                      Formula
+                    </Label>
+                    <p className="font-mono text-xs bg-muted p-2 rounded">
+                      {parameter.formula}
+                    </p>
                   </div>
                 )}
               </div>
