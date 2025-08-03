@@ -3,9 +3,7 @@ frontend/
 frontend/**
 frontend/*
 
-# Ignore ALL Node.js related files (including moved ones)
-package.json
-package-lock.json
+# Ignore ALL Node.js related files
 node_modules/
 node_modules/**
 npm-debug.log*
@@ -13,6 +11,9 @@ yarn-debug.log*
 yarn-error.log*
 .npmrc
 .yarnrc
+
+# Don't ignore these specific files that might be needed
+# package.json and package-lock.json are now in frontend/
 
 # Ignore frontend deployment files
 netlify.toml
