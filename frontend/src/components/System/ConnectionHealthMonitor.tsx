@@ -11,18 +11,18 @@ import {
   Clock,
   RefreshCw,
   WifiOff,
-  XCircle
+  XCircle,
 } from 'lucide-react';
 import {
   globalWebSocketErrorHandler,
   type WebSocketError,
-  type ConnectionState
+  type ConnectionState,
 } from '../../utils/websocket-error-handler';
 import {
   dashboardWebSocketService,
   notificationsWebSocketService,
   financialDataWebSocketService,
-  parametersWebSocketService
+  parametersWebSocketService,
 } from '../../services/websocket';
 
 interface ServiceStatus {
@@ -39,13 +39,13 @@ interface ConnectionHealthMonitorProps {
   className?: string;
 }
 
-export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = ({
-  showDetails = false,
-  compact = false,
-  className
-}) => {
+export const ConnectionHealthMonitor: React.FC<
+  ConnectionHealthMonitorProps
+> = ({ showDetails = false, compact = false, className }) => {
   const [services, setServices] = useState<ServiceStatus[]>([]);
-  const [overallHealth, setOverallHealth] = useState<'good' | 'warning' | 'error'>('good');
+  const [overallHealth, setOverallHealth] = useState<
+    'good' | 'warning' | 'error'
+  >('good');
   const [errorHistory, setErrorHistory] = useState<WebSocketError[]>([]);
   const [showHealthWarning, setShowHealthWarning] = useState(false);
 
@@ -56,26 +56,26 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
         name: 'Dashboard',
         service: dashboardWebSocketService,
         isConnected: false,
-        reconnectAttempts: 0
+        reconnectAttempts: 0,
       },
       {
         name: 'Notifications',
         service: notificationsWebSocketService,
         isConnected: false,
-        reconnectAttempts: 0
+        reconnectAttempts: 0,
       },
       {
         name: 'Financial Data',
         service: financialDataWebSocketService,
         isConnected: false,
-        reconnectAttempts: 0
+        reconnectAttempts: 0,
       },
       {
         name: 'Parameters',
         service: parametersWebSocketService,
         isConnected: false,
-        reconnectAttempts: 0
-      }
+        reconnectAttempts: 0,
+      },
     ];
 
     setServices(initialServices);
@@ -84,15 +84,19 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
   // Monitor connection states
   useEffect(() => {
     const updateServiceStates = () => {
-      setServices(prev => prev.map(service => ({
-        ...service,
-        isConnected: service.service.isConnectionReady(),
-        reconnectAttempts: service.service.getReconnectAttempts()
-      })));
+      setServices(prev =>
+        prev.map(service => ({
+          ...service,
+          isConnected: service.service.isConnectionReady(),
+          reconnectAttempts: service.service.getReconnectAttempts(),
+        }))
+      );
 
       // Update error history
       setErrorHistory(globalWebSocketErrorHandler.getErrorHistory());
-      setShowHealthWarning(globalWebSocketErrorHandler.shouldShowHealthWarning());
+      setShowHealthWarning(
+        globalWebSocketErrorHandler.shouldShowHealthWarning()
+      );
     };
 
     // Initial update
@@ -102,9 +106,11 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
     const interval = setInterval(updateServiceStates, 2000);
 
     // Listen for connection state changes
-    const unsubscribe = globalWebSocketErrorHandler.addConnectionListener((state: ConnectionState) => {
-      updateServiceStates();
-    });
+    const unsubscribe = globalWebSocketErrorHandler.addConnectionListener(
+      (_state: ConnectionState) => {
+        updateServiceStates();
+      }
+    );
 
     return () => {
       clearInterval(interval);
@@ -116,7 +122,9 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
   useEffect(() => {
     const connectedServices = services.filter(s => s.isConnected).length;
     const totalServices = services.length;
-    const reconnectingServices = services.filter(s => s.reconnectAttempts > 0).length;
+    const reconnectingServices = services.filter(
+      s => s.reconnectAttempts > 0
+    ).length;
 
     if (connectedServices === totalServices) {
       setOverallHealth('good');
@@ -167,7 +175,7 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
     services.forEach(service => {
       if (!service.isConnected) {
         // Trigger reconnection (this would depend on the specific service implementation)
-        console.log(`Attempting to reconnect ${service.name} service`);
+        // Attempting to reconnect service
       }
     });
   };
@@ -181,11 +189,15 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
 
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
-        <Badge variant={overallHealth === 'good' ? 'default' : 'destructive'} className="text-xs">
+      <div className={cn('flex items-center gap-2', className)}>
+        <Badge
+          variant={overallHealth === 'good' ? 'default' : 'destructive'}
+          className="text-xs"
+        >
           {getHealthIcon(overallHealth)}
           <span className="ml-1">
-            {services.filter(s => s.isConnected).length}/{services.length} Connected
+            {services.filter(s => s.isConnected).length}/{services.length}{' '}
+            Connected
           </span>
         </Badge>
         {showHealthWarning && (
@@ -196,7 +208,7 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
   }
 
   return (
-    <Card className={cn("", className)}>
+    <Card className={cn('', className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
@@ -216,7 +228,8 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Multiple connection issues detected. Real-time features may be degraded.
+              Multiple connection issues detected. Real-time features may be
+              degraded.
             </AlertDescription>
           </Alert>
         )}
@@ -225,7 +238,7 @@ export const ConnectionHealthMonitor: React.FC<ConnectionHealthMonitorProps> = (
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Services</h4>
           <div className="grid grid-cols-1 gap-2">
-            {services.map((service) => (
+            {services.map(service => (
               <div
                 key={service.name}
                 className="flex items-center justify-between p-2 rounded-lg bg-muted/30"

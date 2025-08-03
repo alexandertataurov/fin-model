@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { X, Bell, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { X, Bell, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 import { type Notification } from '../../contexts/NotificationContext';
@@ -17,7 +17,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
   onClose,
   onAction,
   duration = 5000,
-  position = 'top-right'
+  position = 'top-right',
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
@@ -39,14 +39,14 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
       clearTimeout(showTimer);
       if (closeTimer) clearTimeout(closeTimer);
     };
-  }, [duration]);
+  }, [duration, handleClose]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsLeaving(true);
     setTimeout(() => {
       onClose();
     }, 300); // Match animation duration
-  };
+  }, [onClose]);
 
   const getIcon = () => {
     switch (notification.priority) {
@@ -64,19 +64,23 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
   };
 
   const getStyles = () => {
-    const baseStyles = "flex items-start gap-3 p-4 rounded-lg shadow-lg border backdrop-blur-sm";
-    
+    const baseStyles =
+      'flex items-start gap-3 p-4 rounded-lg shadow-lg border backdrop-blur-sm';
+
     switch (notification.priority) {
       case 'urgent':
-        return cn(baseStyles, "bg-red-50/95 border-red-200 text-red-900");
+        return cn(baseStyles, 'bg-red-50/95 border-red-200 text-red-900');
       case 'high':
-        return cn(baseStyles, "bg-orange-50/95 border-orange-200 text-orange-900");
+        return cn(
+          baseStyles,
+          'bg-orange-50/95 border-orange-200 text-orange-900'
+        );
       case 'normal':
-        return cn(baseStyles, "bg-blue-50/95 border-blue-200 text-blue-900");
+        return cn(baseStyles, 'bg-blue-50/95 border-blue-200 text-blue-900');
       case 'low':
-        return cn(baseStyles, "bg-gray-50/95 border-gray-200 text-gray-900");
+        return cn(baseStyles, 'bg-gray-50/95 border-gray-200 text-gray-900');
       default:
-        return cn(baseStyles, "bg-white/95 border-gray-200");
+        return cn(baseStyles, 'bg-white/95 border-gray-200');
     }
   };
 
@@ -110,18 +114,14 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
     <div className={getPositionStyles()}>
       <div className={getStyles()}>
         {/* Icon */}
-        <div className="flex-shrink-0 mt-0.5">
-          {getIcon()}
-        </div>
+        <div className="flex-shrink-0 mt-0.5">{getIcon()}</div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-sm leading-5 mb-1">
             {notification.title}
           </h4>
-          <p className="text-sm leading-5 opacity-90">
-            {notification.message}
-          </p>
+          <p className="text-sm leading-5 opacity-90">{notification.message}</p>
 
           {/* Actions */}
           {actions.length > 0 && (
@@ -130,7 +130,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
                 <Button
                   key={index}
                   size="sm"
-                  variant={action.primary ? "default" : "outline"}
+                  variant={action.primary ? 'default' : 'outline'}
                   className="h-7 px-3 text-xs"
                   onClick={() => {
                     onAction?.(action.key);
@@ -160,11 +160,11 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
       {/* Progress bar for auto-close */}
       {duration > 0 && (
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/10 rounded-b-lg overflow-hidden">
-          <div 
+          <div
             className="h-full bg-current opacity-30 transition-all ease-linear"
             style={{
               width: isVisible ? '0%' : '100%',
-              transitionDuration: `${duration}ms`
+              transitionDuration: `${duration}ms`,
             }}
           />
         </div>
@@ -186,12 +186,14 @@ interface NotificationToastContainerProps {
   maxToasts?: number;
 }
 
-export const NotificationToastContainer: React.FC<NotificationToastContainerProps> = ({
+export const NotificationToastContainer: React.FC<
+  NotificationToastContainerProps
+> = ({
   toasts,
   onRemoveToast,
   onToastAction,
   position = 'top-right',
-  maxToasts = 5
+  maxToasts = 5,
 }) => {
   // Limit number of visible toasts
   const visibleToasts = toasts.slice(0, maxToasts);
@@ -199,11 +201,11 @@ export const NotificationToastContainer: React.FC<NotificationToastContainerProp
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
       {visibleToasts.map((toast, index) => (
-        <div 
+        <div
           key={toast.id}
           style={{
             transform: `translateY(${index * 10}px)`,
-            zIndex: 50 - index
+            zIndex: 50 - index,
           }}
         >
           <NotificationToast
@@ -211,7 +213,7 @@ export const NotificationToastContainer: React.FC<NotificationToastContainerProp
             duration={toast.duration}
             position={position}
             onClose={() => onRemoveToast(toast.id)}
-            onAction={(action) => onToastAction?.(toast.id, action)}
+            onAction={action => onToastAction?.(toast.id, action)}
           />
         </div>
       ))}

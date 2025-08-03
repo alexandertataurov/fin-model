@@ -146,7 +146,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
   dataContext,
   onAddElement,
-  templateId
+  _templateId
 }) => {
   const [recommendations, setRecommendations] = useState<ReportElementSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);

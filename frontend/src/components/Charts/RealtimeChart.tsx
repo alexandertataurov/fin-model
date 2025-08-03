@@ -54,57 +54,65 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
   const pendingUpdateRef = useRef<any>(null);
 
   // Throttled update function
-  const throttledUpdate = useCallback((newData: any) => {
-    if (updateTimeoutRef.current) {
-      // Store the latest update and wait for throttle period
-      pendingUpdateRef.current = newData;
-      return;
-    }
-
-    // Apply the update immediately
-    setChartData(prevData => {
-      let updatedData;
-      
-      if (Array.isArray(newData)) {
-        // Replace entire dataset
-        updatedData = maxDataPoints > 0 ? newData.slice(-maxDataPoints) : newData;
-      } else {
-        // Append new data point
-        const combined = [...prevData, newData];
-        updatedData = maxDataPoints > 0 ? combined.slice(-maxDataPoints) : combined;
+  const throttledUpdate = useCallback(
+    (newData: any) => {
+      if (updateTimeoutRef.current) {
+        // Store the latest update and wait for throttle period
+        pendingUpdateRef.current = newData;
+        return;
       }
-      
-      onDataUpdate?.(updatedData);
-      return updatedData;
-    });
 
-    setLastUpdate(new Date());
-    setUpdateCount(prev => prev + 1);
+      // Apply the update immediately
+      setChartData(prevData => {
+        let updatedData;
 
-    // Set throttle timeout
-    updateTimeoutRef.current = setTimeout(() => {
-      updateTimeoutRef.current = null;
-      
-      // Apply any pending update
-      if (pendingUpdateRef.current) {
-        const pendingData = pendingUpdateRef.current;
-        pendingUpdateRef.current = null;
-        throttledUpdate(pendingData);
-      }
-    }, updateInterval);
-  }, [updateInterval, maxDataPoints, onDataUpdate]);
+        if (Array.isArray(newData)) {
+          // Replace entire dataset
+          updatedData =
+            maxDataPoints > 0 ? newData.slice(-maxDataPoints) : newData;
+        } else {
+          // Append new data point
+          const combined = [...prevData, newData];
+          updatedData =
+            maxDataPoints > 0 ? combined.slice(-maxDataPoints) : combined;
+        }
+
+        onDataUpdate?.(updatedData);
+        return updatedData;
+      });
+
+      setLastUpdate(new Date());
+      setUpdateCount(prev => prev + 1);
+
+      // Set throttle timeout
+      updateTimeoutRef.current = setTimeout(() => {
+        updateTimeoutRef.current = null;
+
+        // Apply any pending update
+        if (pendingUpdateRef.current) {
+          const pendingData = pendingUpdateRef.current;
+          pendingUpdateRef.current = null;
+          throttledUpdate(pendingData);
+        }
+      }, updateInterval);
+    },
+    [updateInterval, maxDataPoints, onDataUpdate]
+  );
 
   // Handle real-time chart updates
-  const handleChartUpdate = useCallback((updateData: ChartUpdateData) => {
-    if (!isLive) return;
-    
-    if (
-      updateData.file_id === fileId.toString() && 
-      updateData.chart_type === chartType
-    ) {
-      throttledUpdate(updateData.chart_data);
-    }
-  }, [fileId, chartType, isLive, throttledUpdate]);
+  const handleChartUpdate = useCallback(
+    (updateData: ChartUpdateData) => {
+      if (!isLive) return;
+
+      if (
+        updateData.file_id === fileId.toString() &&
+        updateData.chart_type === chartType
+      ) {
+        throttledUpdate(updateData.chart_data);
+      }
+    },
+    [fileId, chartType, isLive, throttledUpdate]
+  );
 
   // WebSocket subscription management
   useEffect(() => {
@@ -126,14 +134,14 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
         // Send subscription message for this specific chart
         websocketService.send({
           type: 'subscribe_chart',
-          data: { 
-            file_id: fileId, 
+          data: {
+            file_id: fileId,
             chart_type: chartType,
-            max_points: maxDataPoints
-          }
+            max_points: maxDataPoints,
+          },
         });
 
-        console.log(`Subscribed to real-time updates for chart: ${chartType}`);
+        // Subscribed to real-time updates for chart
       }
     };
 
@@ -145,7 +153,7 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
       if (wsConnected !== isConnected) {
         setIsConnected(wsConnected);
         onConnectionChange?.(wsConnected);
-        
+
         if (wsConnected && !unsubscribeRef.current) {
           setupWebSocketSubscription();
         }
@@ -160,13 +168,13 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
       }
     };
   }, [
-    isLive, 
-    fileId, 
-    chartType, 
-    maxDataPoints, 
-    handleChartUpdate, 
-    isConnected, 
-    onConnectionChange
+    isLive,
+    fileId,
+    chartType,
+    maxDataPoints,
+    handleChartUpdate,
+    isConnected,
+    onConnectionChange,
   ]);
 
   // Cleanup on unmount
@@ -185,13 +193,13 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
   const toggleLiveUpdates = useCallback(() => {
     setIsLive(prev => {
       const newState = !prev;
-      
+
       if (!newState && unsubscribeRef.current) {
         // Unsubscribe when pausing
         unsubscribeRef.current();
         unsubscribeRef.current = null;
       }
-      
+
       return newState;
     });
   }, []);
@@ -203,28 +211,17 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
     setLastUpdate(null);
   }, [initialData]);
 
-  // Request latest data from server
-  const refreshData = useCallback(() => {
-    if (isConnected && websocketService.isConnectionReady()) {
-      websocketService.send({
-        type: 'request_chart_data',
-        data: { 
-          file_id: fileId, 
-          chart_type: chartType 
-        }
-      });
-    }
-  }, [isConnected, fileId, chartType]);
-
   // Chart actions
   const chartActions = (
     <div className="flex items-center gap-1">
       {/* Connection status */}
-      <Badge 
-        variant={isConnected ? "default" : "secondary"} 
+      <Badge
+        variant={isConnected ? 'default' : 'secondary'}
         className={cn(
-          "flex items-center gap-1 text-xs",
-          isConnected ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
+          'flex items-center gap-1 text-xs',
+          isConnected
+            ? 'bg-green-100 text-green-800'
+            : 'bg-gray-100 text-gray-600'
         )}
       >
         {isConnected ? (
@@ -246,13 +243,9 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
         size="sm"
         onClick={toggleLiveUpdates}
         className="h-8 w-8 p-0"
-        title={isLive ? "Pause live updates" : "Resume live updates"}
+        title={isLive ? 'Pause live updates' : 'Resume live updates'}
       >
-        {isLive ? (
-          <Pause className="h-4 w-4" />
-        ) : (
-          <Play className="h-4 w-4" />
-        )}
+        {isLive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
       </Button>
 
       {/* Reset button */}
@@ -272,11 +265,13 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
   const enhancedSubtitle = [
     subtitle,
     lastUpdate && `Last updated: ${lastUpdate.toLocaleTimeString()}`,
-    updateCount > 0 && `Updates: ${updateCount}`
-  ].filter(Boolean).join(' • ');
+    updateCount > 0 && `Updates: ${updateCount}`,
+  ]
+    .filter(Boolean)
+    .join(' • ');
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn('relative', className)}>
       {/* Live indicator overlay */}
       {isLive && isConnected && (
         <div className="absolute top-2 right-2 z-10">
@@ -296,17 +291,19 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
         height={height}
         actions={chartActions}
         className={cn(
-          "transition-all duration-200",
-          isLive && isConnected && "border-green-200 shadow-green-100/50"
+          'transition-all duration-200',
+          isLive && isConnected && 'border-green-200 shadow-green-100/50'
         )}
       >
         {React.cloneElement(children as React.ReactElement, {
           data: chartData,
           // Pass through any animation props for smooth updates
-          animation: isLive ? {
-            duration: 750,
-            easing: 'ease-out'
-          } : false
+          animation: isLive
+            ? {
+                duration: 750,
+                easing: 'ease-out',
+              }
+            : false,
         })}
       </BaseChart>
     </div>

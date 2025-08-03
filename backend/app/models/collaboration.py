@@ -24,11 +24,11 @@ class ReportCollaboration(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     report_template_id = Column(Integer, ForeignKey("report_templates.id"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     permission = Column(Enum(CollaborationPermission), nullable=False)
     
     # Invitation tracking
-    invited_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    invited_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     invited_at = Column(DateTime, default=datetime.utcnow)
     accepted_at = Column(DateTime)
     
@@ -51,7 +51,7 @@ class ReportEdit(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     report_template_id = Column(Integer, ForeignKey("report_templates.id"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
     # Edit details
     edit_type = Column(String, nullable=False)  # 'element_add', 'element_update', 'element_delete', 'template_update'
@@ -76,7 +76,7 @@ class AIInsight(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     report_template_id = Column(Integer, ForeignKey("report_templates.id"))
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
     # Insight details
     insight_type = Column(String, nullable=False)  # 'trend_analysis', 'ratio_analysis', 'risk_assessment', etc.
@@ -106,8 +106,8 @@ class ReportElementSuggestion(Base):
     __tablename__ = "report_element_suggestions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    report_template_id = Column(UUID(as_uuid=True), ForeignKey("report_templates.id"))
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    report_template_id = Column(Integer, ForeignKey("report_templates.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
     # Suggestion details
     element_type = Column(String, nullable=False)  # 'chart', 'table', 'metric', etc.
@@ -139,7 +139,7 @@ class CollaborationSession(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     report_template_id = Column(Integer, ForeignKey("report_templates.id"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
     # Session details
     session_start = Column(DateTime, default=datetime.utcnow)

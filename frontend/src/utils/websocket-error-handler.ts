@@ -21,7 +21,8 @@ export interface ConnectionState {
 
 export class WebSocketErrorHandler {
   private listeners: Set<(error: WebSocketError) => void> = new Set();
-  private connectionListeners: Set<(state: ConnectionState) => void> = new Set();
+  private connectionListeners: Set<(state: ConnectionState) => void> =
+    new Set();
   private errorHistory: WebSocketError[] = [];
   private maxErrorHistory = 50;
 
@@ -43,7 +44,7 @@ export class WebSocketErrorHandler {
     4002: 'Authorization Failed',
     4003: 'Rate Limited',
     4004: 'Invalid Request',
-    4005: 'Service Unavailable'
+    4005: 'Service Unavailable',
   };
 
   constructor(private showToasts = true) {}
@@ -54,10 +55,11 @@ export class WebSocketErrorHandler {
   handleError(error: Event | Error, endpoint?: string) {
     const wsError: WebSocketError = {
       code: -1,
-      reason: error instanceof Error ? error.message : 'Unknown WebSocket error',
+      reason:
+        error instanceof Error ? error.message : 'Unknown WebSocket error',
       wasClean: false,
       timestamp: new Date(),
-      endpoint
+      endpoint,
     };
 
     this.recordError(wsError);
@@ -66,36 +68,32 @@ export class WebSocketErrorHandler {
     if (this.showToasts) {
       this.showErrorToast(wsError);
     }
-
-    console.error('WebSocket Error:', wsError);
   }
 
   /**
    * Handle WebSocket close event
    */
-  handleClose(
-    event: CloseEvent, 
-    endpoint?: string, 
-    reconnectAttempt?: number
-  ) {
+  handleClose(event: CloseEvent, endpoint?: string, reconnectAttempt?: number) {
     const wsError: WebSocketError = {
       code: event.code,
       reason: event.reason || this.getErrorMessage(event.code),
       wasClean: event.wasClean,
       timestamp: new Date(),
       endpoint,
-      reconnectAttempt
+      reconnectAttempt,
     };
 
     this.recordError(wsError);
     this.notifyListeners(wsError);
 
     // Only show toast for abnormal closures
-    if (!event.wasClean && this.showToasts && !this.isReconnectableError(event.code)) {
+    if (
+      !event.wasClean &&
+      this.showToasts &&
+      !this.isReconnectableError(event.code)
+    ) {
       this.showErrorToast(wsError);
     }
-
-    console.warn('WebSocket Closed:', wsError);
   }
 
   /**
@@ -106,7 +104,7 @@ export class WebSocketErrorHandler {
       try {
         listener(state);
       } catch (error) {
-        console.error('Error in connection state listener:', error);
+        // console.error('Error in connection state listener:', error);
       }
     });
 
@@ -114,12 +112,16 @@ export class WebSocketErrorHandler {
     if (this.showToasts) {
       if (state.isConnected && state.reconnectAttempts > 0) {
         toast.success('Connection restored', {
-          description: 'Real-time updates are now active'
+          description: 'Real-time updates are now active',
         });
-      } else if (!state.isConnected && state.reconnectAttempts >= state.maxReconnectAttempts) {
+      } else if (
+        !state.isConnected &&
+        state.reconnectAttempts >= state.maxReconnectAttempts
+      ) {
         toast.error('Connection failed', {
-          description: 'Real-time updates are unavailable. Please refresh the page.',
-          duration: 10000
+          description:
+            'Real-time updates are unavailable. Please refresh the page.',
+          duration: 10000,
         });
       }
     }
@@ -136,7 +138,9 @@ export class WebSocketErrorHandler {
   /**
    * Add connection state listener
    */
-  addConnectionListener(listener: (state: ConnectionState) => void): () => void {
+  addConnectionListener(
+    listener: (state: ConnectionState) => void
+  ): () => void {
     this.connectionListeners.add(listener);
     return () => this.connectionListeners.delete(listener);
   }
@@ -163,20 +167,27 @@ export class WebSocketErrorHandler {
     const lastHour = new Date(now.getTime() - 60 * 60 * 1000);
     const lastMinute = new Date(now.getTime() - 60 * 1000);
 
-    const errorsLastHour = this.errorHistory.filter(e => e.timestamp >= lastHour);
-    const errorsLastMinute = this.errorHistory.filter(e => e.timestamp >= lastMinute);
+    const errorsLastHour = this.errorHistory.filter(
+      e => e.timestamp >= lastHour
+    );
+    const errorsLastMinute = this.errorHistory.filter(
+      e => e.timestamp >= lastMinute
+    );
 
-    const errorsByCode = this.errorHistory.reduce((acc, error) => {
-      acc[error.code] = (acc[error.code] || 0) + 1;
-      return acc;
-    }, {} as Record<number, number>);
+    const errorsByCode = this.errorHistory.reduce(
+      (acc, error) => {
+        acc[error.code] = (acc[error.code] || 0) + 1;
+        return acc;
+      },
+      {} as Record<number, number>
+    );
 
     return {
       total: this.errorHistory.length,
       lastHour: errorsLastHour.length,
       lastMinute: errorsLastMinute.length,
       byCode: errorsByCode,
-      mostRecent: this.errorHistory[this.errorHistory.length - 1]
+      mostRecent: this.errorHistory[this.errorHistory.length - 1],
     };
   }
 
@@ -186,10 +197,10 @@ export class WebSocketErrorHandler {
   isReconnectableError(code: number): boolean {
     // Don't reconnect for authentication/authorization errors
     if (code === 4001 || code === 4002) return false;
-    
+
     // Don't reconnect for policy violations
     if (code === 1008) return false;
-    
+
     // Reconnect for network issues, server errors, etc.
     return code !== 1000; // Normal closure
   }
@@ -198,7 +209,10 @@ export class WebSocketErrorHandler {
    * Get retry delay with exponential backoff and jitter
    */
   getRetryDelay(attempt: number, baseDelay = 1000, maxDelay = 30000): number {
-    const exponentialDelay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
+    const exponentialDelay = Math.min(
+      baseDelay * Math.pow(2, attempt),
+      maxDelay
+    );
     const jitter = Math.random() * 0.3; // 30% jitter
     return Math.floor(exponentialDelay * (1 + jitter));
   }
@@ -241,7 +255,7 @@ export class WebSocketErrorHandler {
 
   private recordError(error: WebSocketError) {
     this.errorHistory.push(error);
-    
+
     // Limit history size
     if (this.errorHistory.length > this.maxErrorHistory) {
       this.errorHistory = this.errorHistory.slice(-this.maxErrorHistory);
@@ -253,37 +267,39 @@ export class WebSocketErrorHandler {
       try {
         listener(error);
       } catch (listenerError) {
-        console.error('Error in WebSocket error listener:', listenerError);
+        // console.error('Error in WebSocket error listener:', listenerError);
       }
     });
   }
 
   private showErrorToast(error: WebSocketError) {
     const message = this.getUserFriendlyMessage(error);
-    
+
     if (error.code === 4001 || error.code === 4002) {
       // Authentication/authorization errors
       toast.error('Connection Error', {
         description: message,
-        duration: 10000
+        duration: 10000,
       });
     } else if (error.code >= 4000) {
       // Other client errors
       toast.warning('Connection Issue', {
         description: message,
-        duration: 5000
+        duration: 5000,
       });
     } else {
       // Network/server errors - less intrusive
       toast('Connection Status', {
         description: message,
-        duration: 3000
+        duration: 3000,
       });
     }
   }
 
   private getErrorMessage(code: number): string {
-    return WebSocketErrorHandler.ERROR_CODES[code] || `Unknown error code: ${code}`;
+    return (
+      WebSocketErrorHandler.ERROR_CODES[code] || `Unknown error code: ${code}`
+    );
   }
 }
 
@@ -300,7 +316,7 @@ export class EnhancedConnectionManager {
     isConnecting: false,
     reconnectAttempts: 0,
     maxReconnectAttempts: 5,
-    backoffDelay: 1000
+    backoffDelay: 1000,
   };
 
   constructor(errorHandler?: WebSocketErrorHandler) {
@@ -310,14 +326,14 @@ export class EnhancedConnectionManager {
   /**
    * Handle WebSocket connection events
    */
-  handleConnectionOpen(endpoint: string) {
+  handleConnectionOpen(_endpoint: string) {
     this.connectionState = {
       ...this.connectionState,
       isConnected: true,
       isConnecting: false,
       reconnectAttempts: 0,
       lastSuccessfulConnection: new Date(),
-      lastError: undefined
+      lastError: undefined,
     };
 
     this.errorHandler.handleConnectionStateChange(this.connectionState);
@@ -330,7 +346,7 @@ export class EnhancedConnectionManager {
     this.connectionState = {
       ...this.connectionState,
       isConnected: false,
-      isConnecting: false
+      isConnecting: false,
     };
 
     const wsError: WebSocketError = {
@@ -338,7 +354,7 @@ export class EnhancedConnectionManager {
       reason: event.reason,
       wasClean: event.wasClean,
       timestamp: new Date(),
-      endpoint
+      endpoint,
     };
 
     this.connectionState.lastError = wsError;
@@ -353,7 +369,7 @@ export class EnhancedConnectionManager {
   handleConnectionError(error: Event | Error, endpoint: string) {
     this.connectionState = {
       ...this.connectionState,
-      isConnecting: false
+      isConnecting: false,
     };
 
     this.errorHandler.handleError(error, endpoint);
@@ -367,7 +383,7 @@ export class EnhancedConnectionManager {
     this.connectionState = {
       ...this.connectionState,
       isConnecting: true,
-      reconnectAttempts: attempt
+      reconnectAttempts: attempt,
     };
 
     this.errorHandler.handleConnectionStateChange(this.connectionState);
@@ -409,9 +425,12 @@ export class EnhancedConnectionManager {
    */
   shouldReconnect(): boolean {
     return (
-      this.connectionState.reconnectAttempts < this.connectionState.maxReconnectAttempts &&
-      (!this.connectionState.lastError || 
-       this.errorHandler.isReconnectableError(this.connectionState.lastError.code))
+      this.connectionState.reconnectAttempts <
+        this.connectionState.maxReconnectAttempts &&
+      (!this.connectionState.lastError ||
+        this.errorHandler.isReconnectableError(
+          this.connectionState.lastError.code
+        ))
     );
   }
 }

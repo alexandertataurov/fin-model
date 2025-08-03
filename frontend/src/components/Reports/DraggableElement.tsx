@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
 import { Button } from '@/components/ui/button';
-import { Trash2, Move, RotateCcw } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { ReportElement } from '@/types/template-builder';
 import { ElementRenderer } from './ElementRenderer';
 
@@ -28,7 +28,7 @@ const resizeHandles: ResizeHandle[] = [
   { position: 'n', cursor: 'n-resize' },
   { position: 's', cursor: 's-resize' },
   { position: 'e', cursor: 'e-resize' },
-  { position: 'w', cursor: 'w-resize' }
+  { position: 'w', cursor: 'w-resize' },
 ];
 
 export const DraggableElement: React.FC<DraggableElementProps> = ({
@@ -38,12 +38,14 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
   onUpdate,
   onDelete,
   previewMode,
-  readonly = false
+  readonly = false,
 }) => {
   const elementRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [resizeStart, setResizeStart] = useState<{
     x: number;
     y: number;
@@ -52,47 +54,53 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
     handle: string;
   } | null>(null);
 
-  const [{ isDragInProgress }, drag, dragPreview] = useDrag({
+  const [{ isDragInProgress }] = useDrag({
     type: 'canvas-element',
     item: { id: element.id, type: element.type },
-    collect: (monitor) => ({
-      isDragInProgress: monitor.isDragging()
+    collect: monitor => ({
+      isDragInProgress: monitor.isDragging(),
     }),
-    canDrag: !readonly && !previewMode
+    canDrag: !readonly && !previewMode,
   });
 
   // Handle mouse down for dragging
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (readonly || previewMode || isResizing) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    onSelect();
-    
-    const startX = e.clientX - element.position.x;
-    const startY = e.clientY - element.position.y;
-    
-    setDragStart({ x: startX, y: startY });
-    setIsDragging(true);
-  }, [element.position, onSelect, readonly, previewMode, isResizing]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (readonly || previewMode || isResizing) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      onSelect();
+
+      const startX = e.clientX - element.position.x;
+      const startY = e.clientY - element.position.y;
+
+      setDragStart({ x: startX, y: startY });
+      setIsDragging(true);
+    },
+    [element.position, onSelect, readonly, previewMode, isResizing]
+  );
 
   // Handle resize start
-  const handleResizeStart = useCallback((e: React.MouseEvent, handle: string) => {
-    if (readonly || previewMode) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    setResizeStart({
-      x: e.clientX,
-      y: e.clientY,
-      width: element.size.width,
-      height: element.size.height,
-      handle
-    });
-    setIsResizing(true);
-  }, [element.size, readonly, previewMode]);
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent, handle: string) => {
+      if (readonly || previewMode) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      setResizeStart({
+        x: e.clientX,
+        y: e.clientY,
+        width: element.size.width,
+        height: element.size.height,
+        handle,
+      });
+      setIsResizing(true);
+    },
+    [element.size, readonly, previewMode]
+  );
 
   // Handle mouse move for dragging and resizing
   useEffect(() => {
@@ -100,23 +108,23 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
       if (isDragging && dragStart) {
         const newX = e.clientX - dragStart.x;
         const newY = e.clientY - dragStart.y;
-        
+
         onUpdate({
           ...element,
           position: {
             x: Math.max(0, newX),
-            y: Math.max(0, newY)
-          }
+            y: Math.max(0, newY),
+          },
         });
       } else if (isResizing && resizeStart) {
         const deltaX = e.clientX - resizeStart.x;
         const deltaY = e.clientY - resizeStart.y;
-        
+
         let newWidth = resizeStart.width;
         let newHeight = resizeStart.height;
         let newX = element.position.x;
         let newY = element.position.y;
-        
+
         switch (resizeStart.handle) {
           case 'se':
             newWidth = Math.max(50, resizeStart.width + deltaX);
@@ -153,11 +161,11 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
             newY = element.position.y + (resizeStart.height - newHeight);
             break;
         }
-        
+
         onUpdate({
           ...element,
           position: { x: Math.max(0, newX), y: Math.max(0, newY) },
-          size: { width: newWidth, height: newHeight }
+          size: { width: newWidth, height: newHeight },
         });
       }
     };
@@ -172,7 +180,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
@@ -181,16 +189,22 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
   }, [isDragging, isResizing, dragStart, resizeStart, element, onUpdate]);
 
   // Handle element click
-  const handleElementClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelect();
-  }, [onSelect]);
+  const handleElementClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onSelect();
+    },
+    [onSelect]
+  );
 
   // Handle delete
-  const handleDelete = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete();
-  }, [onDelete]);
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onDelete();
+    },
+    [onDelete]
+  );
 
   if (previewMode) {
     return (
@@ -201,7 +215,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
           top: element.position.y,
           width: element.size.width,
           height: element.size.height,
-          ...element.style
+          ...element.style,
         }}
       >
         <ElementRenderer element={element} />
@@ -221,14 +235,14 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
         width: element.size.width,
         height: element.size.height,
         cursor: isDragging ? 'grabbing' : 'grab',
-        ...element.style
+        ...element.style,
       }}
       onClick={handleElementClick}
       onMouseDown={handleMouseDown}
     >
       <div className="w-full h-full relative">
         <ElementRenderer element={element} />
-        
+
         {/* Selection overlay */}
         {isSelected && !readonly && (
           <>
@@ -243,15 +257,27 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
                   ...(handle.position.includes('s') && { bottom: -4 }),
                   ...(handle.position.includes('w') && { left: -4 }),
                   ...(handle.position.includes('e') && { right: -4 }),
-                  ...(handle.position === 'n' && { left: '50%', transform: 'translateX(-50%)' }),
-                  ...(handle.position === 's' && { left: '50%', transform: 'translateX(-50%)' }),
-                  ...(handle.position === 'w' && { top: '50%', transform: 'translateY(-50%)' }),
-                  ...(handle.position === 'e' && { top: '50%', transform: 'translateY(-50%)' })
+                  ...(handle.position === 'n' && {
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                  }),
+                  ...(handle.position === 's' && {
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                  }),
+                  ...(handle.position === 'w' && {
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                  }),
+                  ...(handle.position === 'e' && {
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                  }),
                 }}
-                onMouseDown={(e) => handleResizeStart(e, handle.position)}
+                onMouseDown={e => handleResizeStart(e, handle.position)}
               />
             ))}
-            
+
             {/* Action buttons */}
             <div className="absolute -top-8 left-0 flex space-x-1">
               <Button

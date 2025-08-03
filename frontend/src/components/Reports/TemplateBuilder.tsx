@@ -2,12 +2,11 @@ import React, { useState, useCallback } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Save, Eye, Grid, Download, Share } from 'lucide-react';
+import { Save, Download, Share } from 'lucide-react';
 import { ReportTemplate, ReportElement } from '@/types/template-builder';
 import { TemplateCanvas } from './TemplateCanvas';
 import { ElementPalette } from './ElementPalette';
@@ -22,14 +21,14 @@ const defaultTemplate: ReportTemplate = {
   layout: {
     pageSize: 'A4',
     orientation: 'portrait',
-    margins: { top: 20, right: 20, bottom: 20, left: 20 }
+    margins: { top: 20, right: 20, bottom: 20, left: 20 },
   },
   metadata: {
     created_by: '',
     created_at: new Date().toISOString(),
     last_modified: new Date().toISOString(),
-    version: 1
-  }
+    version: 1,
+  },
 };
 
 interface TemplateBuilderProps {
@@ -43,7 +42,7 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
   initialTemplate = defaultTemplate,
   onSave,
   onExport,
-  readonly = false
+  readonly = false,
 }) => {
   const [template, setTemplate] = useState<ReportTemplate>(initialTemplate);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
@@ -51,15 +50,18 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
   const [showGrid, setShowGrid] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleTemplateChange = useCallback((updatedTemplate: ReportTemplate) => {
-    setTemplate({
-      ...updatedTemplate,
-      metadata: {
-        ...updatedTemplate.metadata,
-        last_modified: new Date().toISOString()
-      }
-    });
-  }, []);
+  const handleTemplateChange = useCallback(
+    (updatedTemplate: ReportTemplate) => {
+      setTemplate({
+        ...updatedTemplate,
+        metadata: {
+          ...updatedTemplate.metadata,
+          last_modified: new Date().toISOString(),
+        },
+      });
+    },
+    []
+  );
 
   const handleElementSelect = useCallback((elementId: string | null) => {
     setSelectedElement(elementId);
@@ -68,13 +70,13 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
   const handleElementUpdate = useCallback((updatedElement: ReportElement) => {
     setTemplate(prev => ({
       ...prev,
-      elements: prev.elements.map(el => 
+      elements: prev.elements.map(el =>
         el.id === updatedElement.id ? updatedElement : el
       ),
       metadata: {
         ...prev.metadata,
-        last_modified: new Date().toISOString()
-      }
+        last_modified: new Date().toISOString(),
+      },
     }));
   }, []);
 
@@ -90,8 +92,8 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
         borderColor: '#e2e8f0',
         borderWidth: 1,
         borderRadius: 4,
-        padding: 8
-      }
+        padding: 8,
+      },
     };
 
     setTemplate(prev => ({
@@ -99,8 +101,8 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
       elements: [...prev.elements, newElement],
       metadata: {
         ...prev.metadata,
-        last_modified: new Date().toISOString()
-      }
+        last_modified: new Date().toISOString(),
+      },
     }));
 
     setSelectedElement(newElement.id);
@@ -108,7 +110,7 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
 
   const handleSave = async () => {
     if (!onSave) return;
-    
+
     setIsSaving(true);
     try {
       await onSave(template);
@@ -123,8 +125,8 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
     }
   };
 
-  const selectedElementData = selectedElement 
-    ? template.elements.find(el => el.id === selectedElement) || null 
+  const selectedElementData = selectedElement
+    ? template.elements.find(el => el.id === selectedElement) || null
     : null;
 
   return (
@@ -137,22 +139,32 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
               <div className="flex flex-col">
                 <Input
                   value={template.name}
-                  onChange={(e) => setTemplate(prev => ({ 
-                    ...prev, 
-                    name: e.target.value,
-                    metadata: { ...prev.metadata, last_modified: new Date().toISOString() }
-                  }))}
+                  onChange={e =>
+                    setTemplate(prev => ({
+                      ...prev,
+                      name: e.target.value,
+                      metadata: {
+                        ...prev.metadata,
+                        last_modified: new Date().toISOString(),
+                      },
+                    }))
+                  }
                   className="text-lg font-medium border-none p-0 h-auto"
                   placeholder="Report name"
                   disabled={readonly}
                 />
                 <Input
                   value={template.description}
-                  onChange={(e) => setTemplate(prev => ({ 
-                    ...prev, 
-                    description: e.target.value,
-                    metadata: { ...prev.metadata, last_modified: new Date().toISOString() }
-                  }))}
+                  onChange={e =>
+                    setTemplate(prev => ({
+                      ...prev,
+                      description: e.target.value,
+                      metadata: {
+                        ...prev.metadata,
+                        last_modified: new Date().toISOString(),
+                      },
+                    }))
+                  }
                   className="text-sm text-gray-600 border-none p-0 h-auto mt-1"
                   placeholder="Add a description..."
                   disabled={readonly}
@@ -162,7 +174,9 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
 
             <div className="flex items-center space-x-2">
               <div className="flex items-center space-x-2">
-                <Label htmlFor="show-grid" className="text-sm">Grid</Label>
+                <Label htmlFor="show-grid" className="text-sm">
+                  Grid
+                </Label>
                 <Switch
                   id="show-grid"
                   checked={showGrid}
@@ -171,7 +185,9 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
               </div>
 
               <div className="flex items-center space-x-2">
-                <Label htmlFor="preview-mode" className="text-sm">Preview</Label>
+                <Label htmlFor="preview-mode" className="text-sm">
+                  Preview
+                </Label>
                 <Switch
                   id="preview-mode"
                   checked={previewMode}
@@ -211,7 +227,9 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
             templateId={template.id}
             collaborators={[]}
             isConnected={false}
-            onInviteCollaborator={() => {}}
+            onInviteCollaborator={() => {
+              // Handle invite collaborator
+            }}
           />
         )}
 

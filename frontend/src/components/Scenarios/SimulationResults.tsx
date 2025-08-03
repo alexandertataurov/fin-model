@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -47,17 +47,7 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
 
-  useEffect(() => {
-    fetchResults();
-  }, [simulationId]);
-
-  useEffect(() => {
-    if (result?.output_metrics && result.output_metrics.length > 0) {
-      setSelectedMetric(result.output_metrics[0]);
-    }
-  }, [result]);
-
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -81,7 +71,17 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [simulationId]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [simulationId, fetchResults]);
+
+  useEffect(() => {
+    if (result?.output_metrics && result.output_metrics.length > 0) {
+      setSelectedMetric(result.output_metrics[0]);
+    }
+  }, [result]);
 
   const exportResults = async () => {
     try {

@@ -47,30 +47,35 @@ interface UseRealtimeDashboardReturn {
 export const useRealtimeDashboard = ({
   fileId,
   period,
-  enabled = true
+  enabled = true,
 }: UseRealtimeDashboardProps): UseRealtimeDashboardReturn => {
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
+  const [connectionState, setConnectionState] = useState<
+    'connecting' | 'connected' | 'disconnected'
+  >('disconnected');
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [isLiveEnabled, setIsLiveEnabled] = useState(true);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
-  
+
   const queryClient = useQueryClient();
   const unsubscribeRefs = useRef<Array<() => void>>([]);
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch dashboard data from API
   const fetchDashboardData = async (): Promise<DashboardData> => {
-    const response = await fetch(`/api/v1/dashboard/${fileId}?period=${period}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    const response = await fetch(
+      `/api/v1/dashboard/${fileId}?period=${period}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
       }
-    });
-    
+    );
+
     if (!response.ok) {
       throw new Error(`Failed to fetch dashboard data: ${response.statusText}`);
     }
-    
+
     return response.json();
   };
 
@@ -79,106 +84,118 @@ export const useRealtimeDashboard = ({
     data: dashboardData,
     isLoading,
     error,
-    refetch: refreshData
+    refetch: refreshData,
   } = useQuery({
     queryKey: ['dashboard', fileId, period],
     queryFn: fetchDashboardData,
     enabled: enabled && !!fileId,
     staleTime: 30000, // Consider data stale after 30 seconds
     refetchOnWindowFocus: false, // Rely on real-time updates instead
-    retry: 3
+    retry: 3,
   });
 
   // Handle real-time financial data updates
-  const handleFinancialDataUpdate = useCallback((updateData: any) => {
-    if (!isLiveEnabled) return;
-    
-    const { data } = updateData;
-    
-    if (data.file_id === fileId.toString()) {
-      // Invalidate and refetch dashboard data for comprehensive updates
-      queryClient.invalidateQueries({ queryKey: ['dashboard', fileId, period] });
-      setLastUpdate(new Date());
-      
-      console.log('Financial data updated:', data);
-    }
-  }, [fileId, period, queryClient, isLiveEnabled]);
+  const handleFinancialDataUpdate = useCallback(
+    (updateData: any) => {
+      if (!isLiveEnabled) return;
+
+      const { data } = updateData;
+
+      if (data.file_id === fileId.toString()) {
+        // Invalidate and refetch dashboard data for comprehensive updates
+        queryClient.invalidateQueries({
+          queryKey: ['dashboard', fileId, period],
+        });
+        setLastUpdate(new Date());
+      }
+    },
+    [fileId, period, queryClient, isLiveEnabled]
+  );
 
   // Handle real-time metrics updates
-  const handleMetricUpdate = useCallback((updateData: any) => {
-    if (!isLiveEnabled) return;
-    
-    const { data } = updateData;
-    
-    if (data.file_id === fileId.toString()) {
-      // Update specific metrics in the cache optimistically
-      queryClient.setQueryData(['dashboard', fileId, period], (oldData: DashboardData | undefined) => {
-        if (!oldData) return oldData;
+  const handleMetricUpdate = useCallback(
+    (updateData: any) => {
+      if (!isLiveEnabled) return;
 
-        return {
-          ...oldData,
-          metrics: oldData.metrics.map((metric: DashboardMetric) =>
-            metric.id === data.metric_id
-              ? { ...metric, ...data.updates }
-              : metric
-          ),
-          last_updated: data.updated_at,
-        };
-      });
-      
-      setLastUpdate(new Date());
-      console.log('Metric updated:', data);
-    }
-  }, [fileId, period, queryClient, isLiveEnabled]);
+      const { data } = updateData;
+
+      if (data.file_id === fileId.toString()) {
+        // Update specific metrics in the cache optimistically
+        queryClient.setQueryData(
+          ['dashboard', fileId, period],
+          (oldData: DashboardData | undefined) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              metrics: oldData.metrics.map((metric: DashboardMetric) =>
+                metric.id === data.metric_id
+                  ? { ...metric, ...data.updates }
+                  : metric
+              ),
+              last_updated: data.updated_at,
+            };
+          }
+        );
+
+        setLastUpdate(new Date());
+      }
+    },
+    [fileId, period, queryClient, isLiveEnabled]
+  );
 
   // Handle real-time chart data updates
-  const handleChartDataUpdate = useCallback((updateData: any) => {
-    if (!isLiveEnabled) return;
-    
-    const { data } = updateData;
-    
-    if (data.file_id === fileId.toString()) {
-      // Update chart data in cache
-      queryClient.setQueryData(['dashboard', fileId, period], (oldData: DashboardData | undefined) => {
-        if (!oldData) return oldData;
+  const handleChartDataUpdate = useCallback(
+    (updateData: any) => {
+      if (!isLiveEnabled) return;
 
-        return {
-          ...oldData,
-          charts: {
-            ...oldData.charts,
-            [data.chart_type]: data.chart_data,
-          },
-          last_updated: data.updated_at,
-        };
-      });
-      
-      setLastUpdate(new Date());
-      console.log('Chart data updated:', data);
-    }
-  }, [fileId, period, queryClient, isLiveEnabled]);
+      const { data } = updateData;
+
+      if (data.file_id === fileId.toString()) {
+        // Update chart data in cache
+        queryClient.setQueryData(
+          ['dashboard', fileId, period],
+          (oldData: DashboardData | undefined) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              charts: {
+                ...oldData.charts,
+                [data.chart_type]: data.chart_data,
+              },
+              last_updated: data.updated_at,
+            };
+          }
+        );
+
+        setLastUpdate(new Date());
+      }
+    },
+    [fileId, period, queryClient, isLiveEnabled]
+  );
 
   // Handle metrics recalculation
-  const handleMetricsRecalculation = useCallback((updateData: any) => {
-    if (!isLiveEnabled) return;
-    
-    const { data } = updateData;
-    
-    if (data.file_id === fileId.toString()) {
-      // Trigger a full refresh for comprehensive recalculation
-      refreshData();
-      setLastUpdate(new Date());
-      
-      console.log('Metrics recalculated:', data);
-    }
-  }, [fileId, refreshData, isLiveEnabled]);
+  const handleMetricsRecalculation = useCallback(
+    (updateData: any) => {
+      if (!isLiveEnabled) return;
+
+      const { data } = updateData;
+
+      if (data.file_id === fileId.toString()) {
+        // Trigger a full refresh for comprehensive recalculation
+        refreshData();
+        setLastUpdate(new Date());
+      }
+    },
+    [fileId, refreshData, isLiveEnabled]
+  );
 
   // Handle connection state changes
   const handleConnectionLost = useCallback((data: any) => {
     setIsConnected(false);
     setConnectionState('disconnected');
     setReconnectAttempts(data.attempts || 0);
-    
-    console.warn('WebSocket connection lost after max attempts');
   }, []);
 
   // WebSocket connection management
@@ -187,14 +204,14 @@ export const useRealtimeDashboard = ({
 
     try {
       setConnectionState('connecting');
-      
+
       // Clear any existing timeout
       if (connectionTimeoutRef.current) {
         clearTimeout(connectionTimeoutRef.current);
       }
 
       await dashboardWebSocketService.connect(`/dashboard/${fileId}`);
-      
+
       setIsConnected(true);
       setConnectionState('connected');
       setReconnectAttempts(dashboardWebSocketService.getReconnectAttempts());
@@ -205,11 +222,26 @@ export const useRealtimeDashboard = ({
 
       // Subscribe to different types of updates
       const subscriptions = [
-        dashboardWebSocketService.subscribe('financial_data_update', handleFinancialDataUpdate),
-        dashboardWebSocketService.subscribe('metric_update', handleMetricUpdate),
-        dashboardWebSocketService.subscribe('chart_data_update', handleChartDataUpdate),
-        dashboardWebSocketService.subscribe('metrics_recalculation', handleMetricsRecalculation),
-        dashboardWebSocketService.subscribe('connection_lost', handleConnectionLost)
+        dashboardWebSocketService.subscribe(
+          'financial_data_update',
+          handleFinancialDataUpdate
+        ),
+        dashboardWebSocketService.subscribe(
+          'metric_update',
+          handleMetricUpdate
+        ),
+        dashboardWebSocketService.subscribe(
+          'chart_data_update',
+          handleChartDataUpdate
+        ),
+        dashboardWebSocketService.subscribe(
+          'metrics_recalculation',
+          handleMetricsRecalculation
+        ),
+        dashboardWebSocketService.subscribe(
+          'connection_lost',
+          handleConnectionLost
+        ),
       ];
 
       unsubscribeRefs.current = subscriptions;
@@ -217,16 +249,13 @@ export const useRealtimeDashboard = ({
       // Send initial subscription message
       dashboardWebSocketService.send({
         type: 'subscribe_metrics',
-        data: { file_id: fileId, period }
+        data: { file_id: fileId, period },
       });
-
-      console.log(`Connected to dashboard WebSocket for file ${fileId}`);
-
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error);
       setIsConnected(false);
       setConnectionState('disconnected');
-      
+
       // Retry connection after a delay
       connectionTimeoutRef.current = setTimeout(() => {
         if (enabled && isLiveEnabled) {
@@ -243,14 +272,14 @@ export const useRealtimeDashboard = ({
     handleMetricUpdate,
     handleChartDataUpdate,
     handleMetricsRecalculation,
-    handleConnectionLost
+    handleConnectionLost,
   ]);
 
   // Toggle live updates
   const toggleLiveUpdates = useCallback(() => {
     setIsLiveEnabled(prev => {
       const newState = !prev;
-      
+
       if (newState && !isConnected) {
         // Re-connect when enabling live updates
         connectWebSocket();
@@ -260,7 +289,7 @@ export const useRealtimeDashboard = ({
         setIsConnected(false);
         setConnectionState('disconnected');
       }
-      
+
       return newState;
     });
   }, [isConnected, connectWebSocket]);
@@ -276,11 +305,11 @@ export const useRealtimeDashboard = ({
       if (connectionTimeoutRef.current) {
         clearTimeout(connectionTimeoutRef.current);
       }
-      
+
       // Unsubscribe from all
       unsubscribeRefs.current.forEach(unsub => unsub());
       unsubscribeRefs.current = [];
-      
+
       // Disconnect WebSocket
       if (isConnected) {
         dashboardWebSocketService.disconnect();
@@ -315,6 +344,6 @@ export const useRealtimeDashboard = ({
     reconnectAttempts,
     refreshData,
     toggleLiveUpdates,
-    isLiveEnabled
+    isLiveEnabled,
   };
 };

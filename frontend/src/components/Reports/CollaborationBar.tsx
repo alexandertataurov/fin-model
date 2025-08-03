@@ -2,12 +2,27 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { UserPlus, Users, Wifi, WifiOff } from 'lucide-react';
-import { Collaborator, CollaborationPermission } from '@/types/template-builder';
+import {
+  Collaborator,
+  CollaborationPermission,
+} from '@/types/template-builder';
 
 interface CollaborationBarProps {
   templateId: string;
@@ -17,14 +32,15 @@ interface CollaborationBarProps {
 }
 
 export const CollaborationBar: React.FC<CollaborationBarProps> = ({
-  templateId,
+  _templateId,
   collaborators,
   isConnected,
-  onInviteCollaborator
+  onInviteCollaborator,
 }) => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [invitePermission, setInvitePermission] = useState<CollaborationPermission>(CollaborationPermission.EDIT);
+  const [invitePermission, setInvitePermission] =
+    useState<CollaborationPermission>(CollaborationPermission.EDIT);
   const [isInviting, setIsInviting] = useState(false);
 
   const handleInvite = async () => {
@@ -34,12 +50,12 @@ export const CollaborationBar: React.FC<CollaborationBarProps> = ({
     try {
       // In a real implementation, this would call an API
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      
+
       // Reset form
       setInviteEmail('');
       setInvitePermission(CollaborationPermission.EDIT);
       setIsInviteDialogOpen(false);
-      
+
       onInviteCollaborator();
     } catch (error) {
       console.error('Failed to invite collaborator:', error);
@@ -88,7 +104,10 @@ export const CollaborationBar: React.FC<CollaborationBarProps> = ({
         {/* Collaborator avatars */}
         <div className="flex -space-x-2">
           {activeCollaborators.slice(0, 5).map(collaborator => (
-            <Avatar key={collaborator.id} className="w-8 h-8 border-2 border-white">
+            <Avatar
+              key={collaborator.id}
+              className="w-8 h-8 border-2 border-white"
+            >
               <AvatarImage src={collaborator.avatar} alt={collaborator.name} />
               <AvatarFallback className="text-xs">
                 {collaborator.initials || getInitials(collaborator.name)}
@@ -124,15 +143,17 @@ export const CollaborationBar: React.FC<CollaborationBarProps> = ({
                   type="email"
                   placeholder="colleague@company.com"
                   value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
+                  onChange={e => setInviteEmail(e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="invite-permission">Permission Level</Label>
                 <Select
                   value={invitePermission}
-                  onValueChange={(value) => setInvitePermission(value as CollaborationPermission)}
+                  onValueChange={value =>
+                    setInvitePermission(value as CollaborationPermission)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />

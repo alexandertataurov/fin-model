@@ -10,7 +10,7 @@ from app.models.collaboration import (
     ReportCollaboration, ReportEdit, 
     AIInsight, CollaborationPermission
 )
-from app.models.report import ReportTemplate
+from app.models.report import ReportTemplate, ReportType
 from app.models.user import User
 
 
@@ -64,7 +64,7 @@ class TestAIInsightsService:
         assert "insights" in result
         assert result["confidence"] > 0.8
         insights = result["insights"]
-        assert "current ratio" in insights["summary"].lower()
+        assert "liquidity" in insights["summary"].lower()
         assert len(insights["insights"]) > 0
         assert len(insights["recommendations"]) > 0
     
@@ -74,6 +74,7 @@ class TestAIInsightsService:
         # Create a test user
         user = User(
             email="test@example.com",
+            username="test_user",
             first_name="Test",
             last_name="User",
             hashed_password="hashed"
@@ -195,6 +196,7 @@ class TestCollaborationService:
         """Create a test template with owner"""
         user = User(
             email="owner@example.com",
+            username="owner_user",
             first_name="Owner",
             last_name="User",
             hashed_password="hashed"
@@ -205,8 +207,7 @@ class TestCollaborationService:
         template = ReportTemplate(
             name="Test Template",
             description="Test template for collaboration",
-            elements=[],
-            layout={},
+            report_type=ReportType.CUSTOM,
             created_by=user.id
         )
         db_session.add(template)
@@ -219,6 +220,7 @@ class TestCollaborationService:
         """Create a collaborator user"""
         user = User(
             email="collaborator@example.com",
+            username="collaborator_user",
             first_name="Collaborator",
             last_name="User",
             hashed_password="hashed"

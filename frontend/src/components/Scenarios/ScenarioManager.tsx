@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -88,11 +88,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
     description: '',
   });
 
-  useEffect(() => {
-    fetchScenarios();
-  }, [baseFileId]);
-
-  const fetchScenarios = async () => {
+  const fetchScenarios = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -116,7 +112,11 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [baseFileId]);
+
+  useEffect(() => {
+    fetchScenarios();
+  }, [baseFileId, fetchScenarios]);
 
   const createScenario = async () => {
     try {

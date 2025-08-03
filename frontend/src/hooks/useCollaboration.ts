@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Collaborator, CollaborationMessage, ReportElement } from '@/types/template-builder';
+import {
+  Collaborator,
+  CollaborationMessage,
+  ReportElement,
+} from '@/types/template-builder';
 
 interface UseCollaborationProps {
   templateId: string;
@@ -12,13 +16,15 @@ export const useCollaboration = ({
   templateId,
   userId,
   onElementUpdate,
-  onTemplateUpdate
+  onTemplateUpdate,
 }: UseCollaborationProps) => {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<
+    'connecting' | 'connected' | 'disconnected'
+  >('disconnected');
   const [lastActivity, setLastActivity] = useState<Date | null>(null);
-  
+
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
@@ -30,33 +36,34 @@ export const useCollaboration = ({
     }
 
     setConnectionStatus('connecting');
-    
+
     const token = localStorage.getItem('authToken');
     const wsUrl = `ws://localhost:8000/api/v1/collaboration/ws/template/${templateId}?token=${token}`;
-    
+
     ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => {
-      console.log('WebSocket connected for template:', templateId);
+      // WebSocket connected for template
       setIsConnected(true);
       setConnectionStatus('connected');
       reconnectAttempts.current = 0;
       reconnectDelay.current = 1000;
-      
       // Send initial presence
       sendMessage({
         type: 'user_activity',
-        data: { action: 'joined' }
+        data: { action: 'joined' },
       });
     };
 
-    ws.current.onclose = (event) => {
-      console.log('WebSocket disconnected:', event.code, event.reason);
+    ws.current.onclose = event => {
+      // WebSocket disconnected
       setIsConnected(false);
       setConnectionStatus('disconnected');
-      
       // Attempt to reconnect if not manually closed
-      if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
+      if (
+        event.code !== 1000 &&
+        reconnectAttempts.current < maxReconnectAttempts
+      ) {
         setTimeout(() => {
           reconnectAttempts.current++;
           reconnectDelay.current *= 2; // Exponential backoff
@@ -65,12 +72,12 @@ export const useCollaboration = ({
       }
     };
 
-    ws.current.onerror = (error) => {
+    ws.current.onerror = error => {
       console.error('WebSocket error:', error);
       setConnectionStatus('disconnected');
     };
 
-    ws.current.onmessage = (event) => {
+    ws.current.onmessage = event => {
       try {
         const message: CollaborationMessage = JSON.parse(event.data);
         handleCollaborationMessage(message);
@@ -78,7 +85,7 @@ export const useCollaboration = ({
         console.error('Failed to parse WebSocket message:', error);
       }
     };
-  }, [templateId]);
+  }, [templateId, handleCollaborationMessage, sendMessage]);
 
   const disconnect = useCallback(() => {
     if (ws.current) {
@@ -89,119 +96,133 @@ export const useCollaboration = ({
     setConnectionStatus('disconnected');
   }, []);
 
-  const sendMessage = useCallback((message: Partial<CollaborationMessage>) => {
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({
-        ...message,
-        sender_id: userId,
-        timestamp: new Date().toISOString()
-      }));
-      return true;
-    }
-    return false;
-  }, [userId]);
+  const sendMessage = useCallback(
+    (message: Partial<CollaborationMessage>) => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.send(
+          JSON.stringify({
+            ...message,
+            sender_id: userId,
+            timestamp: new Date().toISOString(),
+          })
+        );
+        return true;
+      }
+      return false;
+    },
+    [userId]
+  );
 
-  const sendEdit = useCallback((editData: {
-    edit_type: string;
-    element_id?: string;
-    changes: any;
-  }) => {
-    const success = sendMessage({
-      type: 'template_edit',
-      data: editData
-    });
-    
-    if (success) {
-      setLastActivity(new Date());
-    }
-    
-    return success;
-  }, [sendMessage]);
+  const sendEdit = useCallback(
+    (editData: { edit_type: string; element_id?: string; changes: any }) => {
+      const success = sendMessage({
+        type: 'template_edit',
+        data: editData,
+      });
 
-  const sendCursorMove = useCallback((position: { x: number; y: number; elementId?: string }) => {
-    sendMessage({
-      type: 'cursor_move',
-      data: position
-    });
-  }, [sendMessage]);
+      if (success) {
+        setLastActivity(new Date());
+      }
 
-  const handleCollaborationMessage = useCallback((message: CollaborationMessage) => {
-    switch (message.type) {
-      case 'template_edit':
-        if (message.sender_id !== userId) {
-          const editData = message.data;
-          
-          switch (editData.edit_type) {
-            case 'element_update':
-              if (onElementUpdate && editData.element_id) {
-                onElementUpdate(editData.changes);
-              }
-              break;
-            case 'element_add':
-              if (onTemplateUpdate) {
-                onTemplateUpdate({
-                  type: 'add_element',
-                  element: editData.changes
-                });
-              }
-              break;
-            case 'element_delete':
-              if (onTemplateUpdate) {
-                onTemplateUpdate({
-                  type: 'delete_element',
-                  elementId: editData.element_id
-                });
-              }
-              break;
-            case 'template_update':
-              if (onTemplateUpdate) {
-                onTemplateUpdate({
-                  type: 'template_update',
-                  changes: editData.changes
-                });
-              }
-              break;
+      return success;
+    },
+    [sendMessage]
+  );
+
+  const sendCursorMove = useCallback(
+    (position: { x: number; y: number; elementId?: string }) => {
+      sendMessage({
+        type: 'cursor_move',
+        data: position,
+      });
+    },
+    [sendMessage]
+  );
+
+  const handleCollaborationMessage = useCallback(
+    (message: CollaborationMessage) => {
+      switch (message.type) {
+        case 'template_edit':
+          if (message.sender_id !== userId) {
+            const editData = message.data;
+
+            switch (editData.edit_type) {
+              case 'element_update':
+                if (onElementUpdate && editData.element_id) {
+                  onElementUpdate(editData.changes);
+                }
+                break;
+              case 'element_add':
+                if (onTemplateUpdate) {
+                  onTemplateUpdate({
+                    type: 'add_element',
+                    element: editData.changes,
+                  });
+                }
+                break;
+              case 'element_delete':
+                if (onTemplateUpdate) {
+                  onTemplateUpdate({
+                    type: 'delete_element',
+                    elementId: editData.element_id,
+                  });
+                }
+                break;
+              case 'template_update':
+                if (onTemplateUpdate) {
+                  onTemplateUpdate({
+                    type: 'template_update',
+                    changes: editData.changes,
+                  });
+                }
+                break;
+            }
           }
-        }
-        break;
+          break;
 
-      case 'user_presence':
-        const { user_id, action } = message.data;
-        setCollaborators(prev => {
-          const existing = prev.find(c => c.id === user_id);
-          
-          if (action === 'joined') {
-            if (!existing) {
-              // In a real app, you'd fetch user details from an API
-              return [...prev, {
-                id: user_id,
-                name: 'Unknown User',
-                email: '',
-                initials: 'U',
-                permission: 'edit' as any,
-                isActive: true
-              }];
-            } else {
-              return prev.map(c => 
-                c.id === user_id ? { ...c, isActive: true } : c
+        case 'user_presence': {
+          const { user_id, action } = message.data;
+          setCollaborators(prev => {
+            const existing = prev.find(c => c.id === user_id);
+
+            if (action === 'joined') {
+              if (!existing) {
+                // In a real app, you'd fetch user details from an API
+                return [
+                  ...prev,
+                  {
+                    id: user_id,
+                    name: 'Unknown User',
+                    email: '',
+                    initials: 'U',
+                    permission: 'edit' as any,
+                    isActive: true,
+                  },
+                ];
+              } else {
+                return prev.map(c =>
+                  c.id === user_id ? { ...c, isActive: true } : c
+                );
+              }
+            } else if (action === 'left') {
+              return prev.map(c =>
+                c.id === user_id ? { ...c, isActive: false } : c
               );
             }
-          } else if (action === 'left') {
-            return prev.map(c => 
-              c.id === user_id ? { ...c, isActive: false } : c
-            );
-          }
-          
-          return prev;
-        });
-        break;
 
-      case 'cursor_move':
-        // Handle cursor position updates from other users
-        // This could be used to show cursor positions on the canvas
-        break;
-    }
-  }, [userId, onElementUpdate, onTemplateUpdate]);
+            return prev;
+          });
+          break;
+        }
+
+        case 'cursor_move':
+          // Handle cursor position updates from other users
+          // This could be used to show cursor positions on the canvas
+          break;
+      }
+    },
+    [userId, onElementUpdate, onTemplateUpdate]
+  );
 
   // Send periodic activity updates
   useEffect(() => {
@@ -210,7 +231,7 @@ export const useCollaboration = ({
     const activityInterval = setInterval(() => {
       sendMessage({
         type: 'user_activity',
-        data: { action: 'active' }
+        data: { action: 'active' },
       });
     }, 30000); // Every 30 seconds
 
@@ -220,7 +241,7 @@ export const useCollaboration = ({
   // Auto-connect when component mounts
   useEffect(() => {
     connect();
-    
+
     return () => {
       disconnect();
     };
@@ -240,7 +261,7 @@ export const useCollaboration = ({
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -255,6 +276,6 @@ export const useCollaboration = ({
     disconnect,
     sendEdit,
     sendCursorMove,
-    sendMessage
+    sendMessage,
   };
 };

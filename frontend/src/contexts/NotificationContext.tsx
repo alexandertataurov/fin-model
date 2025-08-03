@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
 import { toast } from 'sonner';
 import { notificationsWebSocketService } from '../services/websocket';
 
@@ -47,21 +54,27 @@ interface NotificationContextType {
   removeNotification: (id: string) => void;
   refreshNotifications: () => Promise<void>;
   loadMore: () => Promise<void>;
-  
+
   // Preferences
-  updatePreferences: (updates: Partial<NotificationPreferences>) => Promise<boolean>;
-  
+  updatePreferences: (
+    updates: Partial<NotificationPreferences>
+  ) => Promise<boolean>;
+
   // Connection management
   connect: () => Promise<void>;
   disconnect: () => void;
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+const NotificationContext = createContext<NotificationContextType | undefined>(
+  undefined
+);
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
+    throw new Error(
+      'useNotifications must be used within a NotificationProvider'
+    );
   }
   return context;
 };
@@ -77,13 +90,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
   autoConnect = true,
   showToasts = true,
-  maxNotifications = 100
+  maxNotifications = 100,
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
+  const [preferences, setPreferences] =
+    useState<NotificationPreferences | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -96,45 +110,51 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   }, []);
 
   // API calls
-  const apiCall = useCallback(async (endpoint: string, options: RequestInit = {}) => {
-    const token = getAuthToken();
-    const response = await fetch(`/api/v1/notifications${endpoint}`, {
-      ...options,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
+  const apiCall = useCallback(
+    async (endpoint: string, options: RequestInit = {}) => {
+      const token = getAuthToken();
+      const response = await fetch(`/api/v1/notifications${endpoint}`, {
+        ...options,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error(`API call failed: ${response.statusText}`);
-    }
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.statusText}`);
+      }
 
-    return response.json();
-  }, [getAuthToken]);
+      return response.json();
+    },
+    [getAuthToken]
+  );
 
   // Load notifications from API
-  const loadNotifications = useCallback(async (page = 1, append = false) => {
-    try {
-      setIsLoading(true);
-      const data = await apiCall(`/?page=${page}&limit=20`);
-      
-      if (append) {
-        setNotifications(prev => [...prev, ...data.notifications]);
-      } else {
-        setNotifications(data.notifications);
+  const loadNotifications = useCallback(
+    async (page = 1, append = false) => {
+      try {
+        setIsLoading(true);
+        const data = await apiCall(`/?page=${page}&limit=20`);
+
+        if (append) {
+          setNotifications(prev => [...prev, ...data.notifications]);
+        } else {
+          setNotifications(data.notifications);
+        }
+
+        setUnreadCount(data.unread_count);
+        setHasMore(data.pagination.page < data.pagination.pages);
+        setCurrentPage(page);
+      } catch (error) {
+        console.error('Failed to load notifications:', error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setUnreadCount(data.unread_count);
-      setHasMore(data.pagination.page < data.pagination.pages);
-      setCurrentPage(page);
-    } catch (error) {
-      console.error('Failed to load notifications:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [apiCall]);
+    },
+    [apiCall]
+  );
 
   // Load user preferences
   const loadPreferences = useCallback(async () => {
@@ -147,64 +167,62 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   }, [apiCall]);
 
   // Handle real-time notification
-  const handleNewNotification = useCallback((data: any) => {
-    const notification = data as Notification;
-    
-    // Add to notifications list
-    setNotifications(prev => {
-      const updated = [notification, ...prev];
-      return updated.slice(0, maxNotifications); // Limit size
-    });
+  const handleNewNotification = useCallback(
+    (data: any) => {
+      const notification = data as Notification;
 
-    // Update unread count
-    if (!notification.is_read) {
-      setUnreadCount(prev => prev + 1);
-    }
+      // Add to notifications list
+      setNotifications(prev => {
+        const updated = [notification, ...prev];
+        return updated.slice(0, maxNotifications); // Limit size
+      });
 
-    // Show toast for high priority notifications
-    if (showToasts && (notification.priority === 'high' || notification.priority === 'urgent')) {
-      const toastConfig = {
-        title: notification.title,
-        description: notification.message,
-        duration: notification.priority === 'urgent' ? 10000 : 5000,
-      };
-
-      if (notification.priority === 'urgent') {
-        toast.error(notification.title, {
-          description: notification.message,
-          duration: 10000,
-        });
-      } else {
-        toast(notification.title, {
-          description: notification.message,
-          duration: 5000,
-        });
+      // Update unread count
+      if (!notification.is_read) {
+        setUnreadCount(prev => prev + 1);
       }
-    }
 
-    console.log('New notification received:', notification);
-  }, [maxNotifications, showToasts]);
+      // Show toast for high priority notifications
+      if (
+        showToasts &&
+        (notification.priority === 'high' || notification.priority === 'urgent')
+      ) {
+        if (notification.priority === 'urgent') {
+          toast.error(notification.title, {
+            description: notification.message,
+            duration: 10000,
+          });
+        } else {
+          toast(notification.title, {
+            description: notification.message,
+            duration: 5000,
+          });
+        }
+      }
+    },
+    [maxNotifications, showToasts]
+  );
 
   // Handle notification updates
   const handleNotificationUpdate = useCallback((data: any) => {
     const { id, action, status } = data;
-    
-    setNotifications(prev => 
+
+    setNotifications(prev =>
       prev.map(notif => {
         if (notif.id === id) {
           const updated = { ...notif };
-          
+
           if (action === 'read') {
             updated.is_read = true;
             updated.read_at = new Date().toISOString();
           } else if (action === 'dismissed') {
             updated.is_dismissed = true;
           }
-          
+
           if (status) {
             updated.status = status;
           }
-          
+
           return updated;
         }
         return notif;
@@ -219,7 +237,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   // Handle bulk read update
   const handleBulkRead = useCallback((data: any) => {
-    setNotifications(prev => 
+    setNotifications(prev =>
       prev.map(notif => ({ ...notif, is_read: true, read_at: data.timestamp }))
     );
     setUnreadCount(0);
@@ -239,80 +257,107 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
       // Subscribe to real-time events
       const subscriptions = [
-        notificationsWebSocketService.subscribe('notification', handleNewNotification),
-        notificationsWebSocketService.subscribe('notification_update', handleNotificationUpdate),
-        notificationsWebSocketService.subscribe('notifications_bulk_read', handleBulkRead)
+        notificationsWebSocketService.subscribe(
+          'notification',
+          handleNewNotification
+        ),
+        notificationsWebSocketService.subscribe(
+          'notification_update',
+          handleNotificationUpdate
+        ),
+        notificationsWebSocketService.subscribe(
+          'notifications_bulk_read',
+          handleBulkRead
+        ),
       ];
 
       unsubscribeRefs.current = subscriptions;
-      console.log('Connected to notifications WebSocket');
-
     } catch (error) {
       console.error('Failed to connect to notifications WebSocket:', error);
       setIsConnected(false);
     }
-  }, [isConnected, handleNewNotification, handleNotificationUpdate, handleBulkRead]);
+  }, [
+    isConnected,
+    handleNewNotification,
+    handleNotificationUpdate,
+    handleBulkRead,
+  ]);
 
   const disconnect = useCallback(() => {
     unsubscribeRefs.current.forEach(unsub => unsub());
     unsubscribeRefs.current = [];
-    
+
     notificationsWebSocketService.disconnect();
     setIsConnected(false);
   }, []);
 
   // Actions
-  const addNotification = useCallback((notification: Notification) => {
-    setNotifications(prev => {
-      const updated = [notification, ...prev];
-      return updated.slice(0, maxNotifications);
-    });
-    
-    if (!notification.is_read) {
-      setUnreadCount(prev => prev + 1);
-    }
-  }, [maxNotifications]);
+  const addNotification = useCallback(
+    (notification: Notification) => {
+      setNotifications(prev => {
+        const updated = [notification, ...prev];
+        return updated.slice(0, maxNotifications);
+      });
 
-  const markAsReadOptimistic = useCallback((id: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id && !notif.is_read
-          ? { ...notif, is_read: true, read_at: new Date().toISOString() }
-          : notif
-      )
-    );
+      if (!notification.is_read) {
+        setUnreadCount(prev => prev + 1);
+      }
+    },
+    [maxNotifications]
+  );
 
-    // Optimistically update unread count
-    setUnreadCount(prev => {
-      const notification = notifications.find(n => n.id === id);
-      return notification && !notification.is_read ? Math.max(0, prev - 1) : prev;
-    });
-  }, [notifications]);
+  const markAsReadOptimistic = useCallback(
+    (id: string) => {
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif.id === id && !notif.is_read
+            ? { ...notif, is_read: true, read_at: new Date().toISOString() }
+            : notif
+        )
+      );
 
-  const markAsRead = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      await apiCall(`/${id}/read`, { method: 'POST' });
-      
-      // Update handled by WebSocket, but also update optimistically
-      markAsReadOptimistic(id);
-      
-      return true;
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-      return false;
-    }
-  }, [apiCall, markAsReadOptimistic]);
+      // Optimistically update unread count
+      setUnreadCount(prev => {
+        const notification = notifications.find(n => n.id === id);
+        return notification && !notification.is_read
+          ? Math.max(0, prev - 1)
+          : prev;
+      });
+    },
+    [notifications]
+  );
+
+  const markAsRead = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        await apiCall(`/${id}/read`, { method: 'POST' });
+
+        // Update handled by WebSocket, but also update optimistically
+        markAsReadOptimistic(id);
+
+        return true;
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+        return false;
+      }
+    },
+    [apiCall, markAsReadOptimistic]
+  );
 
   const markAllAsRead = useCallback(async (): Promise<boolean> => {
     try {
       await apiCall('/mark-all-read', { method: 'POST' });
-      
+
       // Update optimistically
-      setNotifications(prev => 
-        prev.map(notif => ({ ...notif, is_read: true, read_at: new Date().toISOString() }))
+      setNotifications(prev =>
+        prev.map(notif => ({
+          ...notif,
+          is_read: true,
+          read_at: new Date().toISOString(),
+        }))
       );
       setUnreadCount(0);
-      
+
       return true;
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
@@ -320,34 +365,37 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
   }, [apiCall]);
 
-  const dismissNotification = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      await apiCall(`/${id}/dismiss`, { method: 'POST' });
-      
-      // Update optimistically
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif.id === id ? { ...notif, is_dismissed: true } : notif
-        )
-      );
-      
-      return true;
-    } catch (error) {
-      console.error('Failed to dismiss notification:', error);
-      return false;
-    }
-  }, [apiCall]);
+  const dismissNotification = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        await apiCall(`/${id}/dismiss`, { method: 'POST' });
+
+        // Update optimistically
+        setNotifications(prev =>
+          prev.map(notif =>
+            notif.id === id ? { ...notif, is_dismissed: true } : notif
+          )
+        );
+
+        return true;
+      } catch (error) {
+        console.error('Failed to dismiss notification:', error);
+        return false;
+      }
+    },
+    [apiCall]
+  );
 
   const removeNotification = useCallback((id: string) => {
     setNotifications(prev => {
       const notification = prev.find(n => n.id === id);
       const filtered = prev.filter(notif => notif.id !== id);
-      
+
       // Update unread count if removed notification was unread
       if (notification && !notification.is_read) {
         setUnreadCount(prevCount => Math.max(0, prevCount - 1));
       }
-      
+
       return filtered;
     });
   }, []);
@@ -362,32 +410,35 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
   }, [hasMore, isLoading, currentPage, loadNotifications]);
 
-  const updatePreferences = useCallback(async (updates: Partial<NotificationPreferences>): Promise<boolean> => {
-    try {
-      await apiCall('/preferences', {
-        method: 'PUT',
-        body: JSON.stringify(updates),
-      });
-      
-      // Update local preferences
-      setPreferences(prev => prev ? { ...prev, ...updates } : null);
-      
-      return true;
-    } catch (error) {
-      console.error('Failed to update notification preferences:', error);
-      return false;
-    }
-  }, [apiCall]);
+  const updatePreferences = useCallback(
+    async (updates: Partial<NotificationPreferences>): Promise<boolean> => {
+      try {
+        await apiCall('/preferences', {
+          method: 'PUT',
+          body: JSON.stringify(updates),
+        });
+
+        // Update local preferences
+        setPreferences(prev => (prev ? { ...prev, ...updates } : null));
+
+        return true;
+      } catch (error) {
+        console.error('Failed to update notification preferences:', error);
+        return false;
+      }
+    },
+    [apiCall]
+  );
 
   // Initialize
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      
+
       // Load initial data
       loadNotifications();
       loadPreferences();
-      
+
       // Connect WebSocket if enabled
       if (autoConnect) {
         connect();

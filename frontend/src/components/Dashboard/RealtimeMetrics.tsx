@@ -3,16 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
-  Activity, 
-  Wifi, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Activity,
+  Wifi,
   WifiOff,
   Play,
   Pause,
-  RotateCcw 
+  RotateCcw,
 } from 'lucide-react';
 import { websocketService } from '../../services/websocket';
 
@@ -55,11 +55,11 @@ interface MetricCardProps {
   isUpdating?: boolean;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({ 
-  metric, 
-  lastUpdated, 
+const MetricCard: React.FC<MetricCardProps> = ({
+  metric,
+  lastUpdated,
   showAnimation = true,
-  isUpdating = false 
+  isUpdating = false,
 }) => {
   const [isFlashing, setIsFlashing] = useState(false);
 
@@ -72,7 +72,11 @@ const MetricCard: React.FC<MetricCardProps> = ({
     }
   }, [isUpdating, showAnimation]);
 
-  const formatValue = (value: number, format: string, unit?: string): string => {
+  const formatValue = (
+    value: number,
+    format: string,
+    unit?: string
+  ): string => {
     switch (format) {
       case 'currency':
         if (Math.abs(value) >= 1000000) {
@@ -81,18 +85,20 @@ const MetricCard: React.FC<MetricCardProps> = ({
           return `$${(value / 1000).toFixed(1)}K`;
         }
         return `$${value.toLocaleString()}`;
-      
+
       case 'percentage':
         return `${value.toFixed(2)}%`;
-      
-      case 'number':
-        const formattedNumber = Math.abs(value) >= 1000000 
-          ? `${(value / 1000000).toFixed(1)}M`
-          : Math.abs(value) >= 1000 
-          ? `${(value / 1000).toFixed(1)}K`
-          : value.toLocaleString();
+
+      case 'number': {
+        const formattedNumber =
+          Math.abs(value) >= 1000000
+            ? `${(value / 1000000).toFixed(1)}M`
+            : Math.abs(value) >= 1000
+              ? `${(value / 1000).toFixed(1)}K`
+              : value.toLocaleString();
         return unit ? `${formattedNumber} ${unit}` : formattedNumber;
-      
+      }
+
       default:
         return value.toString();
     }
@@ -111,11 +117,13 @@ const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   return (
-    <Card className={cn(
-      "relative transition-all duration-300",
-      isFlashing && "ring-2 ring-blue-200 shadow-lg scale-105",
-      isUpdating && "border-blue-200"
-    )}>
+    <Card
+      className={cn(
+        'relative transition-all duration-300',
+        isFlashing && 'ring-2 ring-blue-200 shadow-lg scale-105',
+        isUpdating && 'border-blue-200'
+      )}
+    >
       {/* Update indicator */}
       {isUpdating && (
         <div className="absolute -top-1 -right-1">
@@ -146,11 +154,17 @@ const MetricCard: React.FC<MetricCardProps> = ({
           {/* Change indicator */}
           <div className="flex items-center gap-2">
             {getTrendIcon(metric.change)}
-            <span className={cn("text-sm font-medium", getTrendColor(metric.change))}>
+            <span
+              className={cn(
+                'text-sm font-medium',
+                getTrendColor(metric.change)
+              )}
+            >
               {formatValue(Math.abs(metric.change), metric.format, metric.unit)}
               {metric.change_percentage !== 0 && (
                 <span className="ml-1">
-                  ({metric.change_percentage > 0 ? '+' : ''}{metric.change_percentage.toFixed(1)}%)
+                  ({metric.change_percentage > 0 ? '+' : ''}
+                  {metric.change_percentage.toFixed(1)}%)
                 </span>
               )}
             </span>
@@ -171,70 +185,82 @@ const MetricCard: React.FC<MetricCardProps> = ({
 export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
   fileId,
   initialMetrics,
-  title = "Key Metrics",
+  title = 'Key Metrics',
   columns = 4,
   showLiveIndicator = true,
   updateAnimation = true,
   className,
   onMetricUpdate,
-  onConnectionChange
+  onConnectionChange,
 }) => {
   const [metrics, setMetrics] = useState<MetricData[]>(initialMetrics);
   const [isLive, setIsLive] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
-  const [updateTimestamps, setUpdateTimestamps] = useState<Map<string, Date>>(new Map());
-  const [updatingMetrics, setUpdatingMetrics] = useState<Set<string>>(new Set());
+  const [updateTimestamps, setUpdateTimestamps] = useState<Map<string, Date>>(
+    new Map()
+  );
+  const [updatingMetrics, setUpdatingMetrics] = useState<Set<string>>(
+    new Set()
+  );
   const [totalUpdates, setTotalUpdates] = useState(0);
 
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Handle metric updates from WebSocket
-  const handleMetricUpdate = useCallback((updateData: MetricUpdateData) => {
-    if (!isLive) return;
-    
-    if (updateData.file_id === fileId.toString()) {
-      setMetrics(prevMetrics => {
-        const updatedMetrics = prevMetrics.map(metric => {
-          if (metric.id === updateData.metric_id) {
-            const updatedMetric = { ...metric, ...updateData.updates };
-            onMetricUpdate?.(updatedMetric);
-            return updatedMetric;
-          }
-          return metric;
-        });
-        return updatedMetrics;
-      });
+  const handleMetricUpdate = useCallback(
+    (updateData: MetricUpdateData) => {
+      if (!isLive) return;
 
-      // Track update timestamp and animation
-      setUpdateTimestamps(prev => new Map(prev.set(updateData.metric_id, new Date())));
-      
-      if (updateAnimation) {
-        setUpdatingMetrics(prev => new Set(prev.add(updateData.metric_id)));
-        setTimeout(() => {
-          setUpdatingMetrics(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(updateData.metric_id);
-            return newSet;
+      if (updateData.file_id === fileId.toString()) {
+        setMetrics(prevMetrics => {
+          const updatedMetrics = prevMetrics.map(metric => {
+            if (metric.id === updateData.metric_id) {
+              const updatedMetric = { ...metric, ...updateData.updates };
+              onMetricUpdate?.(updatedMetric);
+              return updatedMetric;
+            }
+            return metric;
           });
-        }, 1000);
-      }
+          return updatedMetrics;
+        });
 
-      setTotalUpdates(prev => prev + 1);
-      console.log('Metric updated:', updateData);
-    }
-  }, [fileId, isLive, onMetricUpdate, updateAnimation]);
+        // Track update timestamp and animation
+        setUpdateTimestamps(
+          prev => new Map(prev.set(updateData.metric_id, new Date()))
+        );
+
+        if (updateAnimation) {
+          setUpdatingMetrics(prev => new Set(prev.add(updateData.metric_id)));
+          setTimeout(() => {
+            setUpdatingMetrics(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(updateData.metric_id);
+              return newSet;
+            });
+          }, 1000);
+        }
+
+        setTotalUpdates(prev => prev + 1);
+        // Metric updated
+      }
+    },
+    [fileId, isLive, onMetricUpdate, updateAnimation]
+  );
 
   // Handle comprehensive metrics recalculation
-  const handleMetricsRecalculation = useCallback((updateData: any) => {
-    if (!isLive) return;
-    
-    if (updateData.file_id === fileId.toString()) {
-      // Trigger a full refresh of metrics data
-      // This would typically refetch from the API
-      console.log('Metrics recalculation triggered:', updateData);
-      setTotalUpdates(prev => prev + 1);
-    }
-  }, [fileId, isLive]);
+  const handleMetricsRecalculation = useCallback(
+    (updateData: any) => {
+      if (!isLive) return;
+
+      if (updateData.file_id === fileId.toString()) {
+        // Trigger a full refresh of metrics data
+        // This would typically refetch from the API
+        // Metrics recalculation triggered
+        setTotalUpdates(prev => prev + 1);
+      }
+    },
+    [fileId, isLive]
+  );
 
   // WebSocket subscription management
   useEffect(() => {
@@ -266,10 +292,10 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
         // Send subscription message for metrics
         websocketService.send({
           type: 'subscribe_metrics',
-          data: { file_id: fileId }
+          data: { file_id: fileId },
         });
 
-        console.log(`Subscribed to real-time metrics for file ${fileId}`);
+        // Subscribed to real-time metrics
       }
     };
 
@@ -281,7 +307,7 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
       if (wsConnected !== isConnected) {
         setIsConnected(wsConnected);
         onConnectionChange?.(wsConnected);
-        
+
         if (wsConnected && !unsubscribeRef.current) {
           setupWebSocketSubscription();
         }
@@ -296,24 +322,24 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
       }
     };
   }, [
-    isLive, 
-    fileId, 
-    handleMetricUpdate, 
-    handleMetricsRecalculation, 
-    isConnected, 
-    onConnectionChange
+    isLive,
+    fileId,
+    handleMetricUpdate,
+    handleMetricsRecalculation,
+    isConnected,
+    onConnectionChange,
   ]);
 
   // Toggle live updates
   const toggleLiveUpdates = useCallback(() => {
     setIsLive(prev => {
       const newState = !prev;
-      
+
       if (!newState && unsubscribeRef.current) {
         unsubscribeRef.current();
         unsubscribeRef.current = null;
       }
-      
+
       return newState;
     });
   }, []);
@@ -326,29 +352,30 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
     setTotalUpdates(0);
   }, [initialMetrics]);
 
-  const gridCols = {
-    2: 'grid-cols-2',
-    3: 'grid-cols-3',
-    4: 'grid-cols-2 md:grid-cols-4',
-    5: 'grid-cols-2 md:grid-cols-5',
-    6: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'
-  }[columns] || 'grid-cols-2 md:grid-cols-4';
+  const gridCols =
+    {
+      2: 'grid-cols-2',
+      3: 'grid-cols-3',
+      4: 'grid-cols-2 md:grid-cols-4',
+      5: 'grid-cols-2 md:grid-cols-5',
+      6: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6',
+    }[columns] || 'grid-cols-2 md:grid-cols-4';
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn('space-y-4', className)}>
       {/* Header with controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h3 className="text-lg font-semibold">{title}</h3>
           {showLiveIndicator && (
             <div className="flex items-center gap-2">
-              <Badge 
-                variant={isConnected && isLive ? "default" : "secondary"} 
+              <Badge
+                variant={isConnected && isLive ? 'default' : 'secondary'}
                 className={cn(
-                  "flex items-center gap-1 text-xs",
-                  isConnected && isLive 
-                    ? "bg-green-100 text-green-800" 
-                    : "bg-gray-100 text-gray-600"
+                  'flex items-center gap-1 text-xs',
+                  isConnected && isLive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-600'
                 )}
               >
                 {isConnected ? (
@@ -380,7 +407,7 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
             size="sm"
             onClick={toggleLiveUpdates}
             className="h-8 w-8 p-0"
-            title={isLive ? "Pause live updates" : "Resume live updates"}
+            title={isLive ? 'Pause live updates' : 'Resume live updates'}
           >
             {isLive ? (
               <Pause className="h-4 w-4" />
@@ -402,7 +429,7 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
       </div>
 
       {/* Metrics grid */}
-      <div className={cn("grid gap-4", gridCols)}>
+      <div className={cn('grid gap-4', gridCols)}>
         {metrics.map(metric => (
           <MetricCard
             key={metric.id}
