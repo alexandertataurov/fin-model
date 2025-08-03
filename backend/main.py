@@ -23,7 +23,7 @@ try:
 except ImportError as e:
     CACHE_AVAILABLE = False
     logger.info(
-        f"fastapi_cache2 not available: {e}. Caching will be disabled (this is expected in Railway environment)."
+        f"fastapi_cache2 not available: {e}. Using Redis caching instead."
     )
     # Create dummy classes for fallback
 

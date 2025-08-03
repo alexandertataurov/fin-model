@@ -1,52 +1,112 @@
 """
 Cache utilities for FastAPI application.
 
-This module provides a safe wrapper around fastapi_cache decorators
-with fallback functionality when caching is not available.
+This module provides caching functionality using Redis as the backend,
+with fallback functionality when Redis is not available.
 """
 
+import json
 import logging
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
+from functools import wraps
 
 logger = logging.getLogger(__name__)
 
-# Try to import fastapi_cache decorator
+# Try to import Redis client
 try:
-    from fastapi_cache2.decorator import cache
-    CACHE_DECORATOR_AVAILABLE = True
-    logger.info("fastapi_cache2 decorator is available")
+    from app.core.celery_app import redis_client
+    REDIS_AVAILABLE = True
+    logger.info("Redis caching is available")
 except ImportError:
-    CACHE_DECORATOR_AVAILABLE = False
-    logger.info("fastapi_cache2 decorator not available (this is expected in Railway environment)")
+    REDIS_AVAILABLE = False
+    redis_client = None
+    logger.info("Redis caching not available")
+
+
+def redis_cache(expire: int = 300, key_prefix: str = "cache"):
+    """
+    Redis-based cache decorator.
+    
+    Args:
+        expire: Cache expiration time in seconds
+        key_prefix: Prefix for cache keys
+    
+    Returns:
+        Decorator function
+    """
+    def decorator(func):
+        @wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            if not REDIS_AVAILABLE:
+                return await func(*args, **kwargs)
+            
+            # Build cache key
+            cache_key = f"{key_prefix}:{func.__name__}:{hash(str(args) + str(sorted(kwargs.items())))}"
+            
+            try:
+                # Try to get from cache
+                cached_result = redis_client.get(cache_key)
+                if cached_result:
+                    logger.debug(f"Cache hit for {cache_key}")
+                    return json.loads(cached_result)
+                
+                # Execute function and cache result
+                result = await func(*args, **kwargs)
+                redis_client.setex(cache_key, expire, json.dumps(result, default=str))
+                logger.debug(f"Cached result for {cache_key}")
+                return result
+                
+            except Exception as e:
+                logger.warning(f"Cache error for {cache_key}: {e}, executing without cache")
+                return await func(*args, **kwargs)
+        
+        @wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            if not REDIS_AVAILABLE:
+                return func(*args, **kwargs)
+            
+            # Build cache key
+            cache_key = f"{key_prefix}:{func.__name__}:{hash(str(args) + str(sorted(kwargs.items())))}"
+            
+            try:
+                # Try to get from cache
+                cached_result = redis_client.get(cache_key)
+                if cached_result:
+                    logger.debug(f"Cache hit for {cache_key}")
+                    return json.loads(cached_result)
+                
+                # Execute function and cache result
+                result = func(*args, **kwargs)
+                redis_client.setex(cache_key, expire, json.dumps(result, default=str))
+                logger.debug(f"Cached result for {cache_key}")
+                return result
+                
+            except Exception as e:
+                logger.warning(f"Cache error for {cache_key}: {e}, executing without cache")
+                return func(*args, **kwargs)
+        
+        # Return appropriate wrapper based on function type
+        import asyncio
+        if asyncio.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return sync_wrapper
+    
+    return decorator
 
 
 def safe_cache(expire: int = 300, key_builder: Optional[Callable] = None):
     """
-    Safe cache decorator that works with or without fastapi_cache.
+    Safe cache decorator that uses Redis caching.
     
     Args:
         expire: Cache expiration time in seconds
-        key_builder: Optional function to build cache keys
+        key_builder: Function to build cache keys (not used in Redis implementation)
     
     Returns:
-        Decorated function with caching if available, otherwise no-op
+        Decorator function
     """
-    def decorator(func: Callable) -> Callable:
-        if CACHE_DECORATOR_AVAILABLE:
-            try:
-                if key_builder:
-                    return cache(expire=expire, key_builder=key_builder)(func)
-                else:
-                    return cache(expire=expire)(func)
-            except Exception as e:
-                logger.error(f"Failed to apply cache decorator: {e}")
-                return func
-        else:
-            # Return function unchanged if caching is not available
-            logger.debug(f"Caching disabled for {func.__name__}")
-            return func
-    
-    return decorator
+    return redis_cache(expire=expire, key_prefix="safe_cache")
 
 
 def cache_key_builder(func: Callable, *args, **kwargs) -> str:
@@ -88,16 +148,18 @@ def clear_cache_pattern(pattern: str) -> bool:
     Returns:
         True if cache clearing was attempted, False if not available
     """
-    if CACHE_DECORATOR_AVAILABLE:
+    if REDIS_AVAILABLE:
         try:
-            # This would need to be implemented based on the cache backend
-            logger.info(f"Cache clear pattern '{pattern}' requested")
+            keys = redis_client.keys(pattern)
+            if keys:
+                redis_client.delete(*keys)
+                logger.info(f"Cleared {len(keys)} cache entries matching pattern '{pattern}'")
             return True
         except Exception as e:
             logger.error(f"Failed to clear cache: {e}")
             return False
     else:
-        logger.debug("Cache clearing skipped - caching not available")
+        logger.debug("Redis cache not available - no cache to clear")
         return False
 
 
@@ -109,7 +171,7 @@ def get_cache_status() -> dict:
         Dictionary with cache status information
     """
     return {
-        "available": CACHE_DECORATOR_AVAILABLE,
-        "backend": "fastapi_cache2" if CACHE_DECORATOR_AVAILABLE else "none",
-        "status": "enabled" if CACHE_DECORATOR_AVAILABLE else "disabled"
+        "available": REDIS_AVAILABLE,
+        "backend": "redis" if REDIS_AVAILABLE else "none",
+        "status": "enabled" if REDIS_AVAILABLE else "disabled"
     } 
