@@ -1,31 +1,32 @@
-from typing import Dict, Any
+from typing import Any, Dict
+from datetime import datetime
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.models.base import get_db
+from app.models.user import User
 from app.core.monitoring import performance_monitor
-from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
-from datetime import datetime
-from app.models.user import User
 
 router = APIRouter()
 
 
-@router.get("/metrics")
+@router.get("/metrics", response_model=Dict[str, Any])
 async def get_performance_metrics(
     hours: int = Query(24, ge=1, le=168, description="Hours to look back"),
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
-) -> Dict[str, Any]:
+    db: Session = Depends(get_db),
+) -> Any:
     """Get performance metrics summary."""
     return performance_monitor.get_metrics_summary(hours=hours)
 
 
-@router.get("/system")
+@router.get("/system", response_model=Dict[str, Any])
 async def get_system_metrics(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
-) -> Dict[str, Any]:
+    db: Session = Depends(get_db),
+) -> Any:
     """Get current system resource metrics."""
     import psutil
     
@@ -60,20 +61,22 @@ async def get_system_metrics(
     }
 
 
-@router.post("/clear-metrics")
+@router.post("/clear-metrics", response_model=Dict[str, Any])
 async def clear_old_metrics(
     hours: int = Query(24, ge=1, le=168, description="Clear metrics older than N hours"),
     current_user: User = Depends(require_permissions(Permission.SYSTEM_SETTINGS)),
-) -> Dict[str, Any]:
+    db: Session = Depends(get_db),
+) -> Any:
     """Clear old performance metrics."""
     performance_monitor.clear_old_metrics(hours=hours)
     return {"message": f"Cleared metrics older than {hours} hours"}
 
 
-@router.get("/health")
+@router.get("/health", response_model=Dict[str, Any])
 async def monitoring_health_check(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
-) -> Dict[str, Any]:
+    db: Session = Depends(get_db),
+) -> Any:
     """Health check for monitoring system."""
     try:
         # Test basic functionality

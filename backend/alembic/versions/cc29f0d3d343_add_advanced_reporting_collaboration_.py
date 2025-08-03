@@ -33,7 +33,7 @@ def upgrade() -> None:
             sa.Column('description', sa.String(), nullable=True),
             sa.Column('elements', sa.JSON(), nullable=True),
             sa.Column('layout', sa.JSON(), nullable=True),
-            sa.Column('created_by', sa.UUID(), nullable=False),
+            sa.Column('created_by', sa.Integer(), nullable=False),
             sa.Column('created_at', sa.DateTime(), nullable=True),
             sa.Column('last_modified', sa.DateTime(), nullable=True),
             sa.Column('version', sa.Integer(), nullable=True),
@@ -49,13 +49,13 @@ def upgrade() -> None:
             'report_collaborations',
             sa.Column('id', sa.UUID(), nullable=False),
             sa.Column('report_template_id', sa.UUID(), nullable=False),
-            sa.Column('user_id', sa.UUID(), nullable=False),
+            sa.Column('user_id', sa.Integer(), nullable=False),
             sa.Column(
                 'permission',
                 sa.Enum('VIEW', 'EDIT', 'ADMIN', name='collaborationpermission'),
                 nullable=False
             ),
-            sa.Column('invited_by', sa.UUID(), nullable=False),
+            sa.Column('invited_by', sa.Integer(), nullable=False),  # UUID->Integer
             sa.Column('invited_at', sa.DateTime(), nullable=True),
             sa.Column('accepted_at', sa.DateTime(), nullable=True),
             sa.Column('is_active', sa.Boolean(), nullable=True),
@@ -72,7 +72,7 @@ def upgrade() -> None:
             'report_edits',
             sa.Column('id', sa.UUID(), nullable=False),
             sa.Column('report_template_id', sa.UUID(), nullable=False),
-            sa.Column('user_id', sa.UUID(), nullable=False),
+            sa.Column('user_id', sa.Integer(), nullable=False),  # Changed from UUID to Integer
             sa.Column('edit_type', sa.String(), nullable=False),
             sa.Column('element_id', sa.String(), nullable=True),
             sa.Column('changes', sa.JSON(), nullable=False),
@@ -89,7 +89,7 @@ def upgrade() -> None:
             'ai_insights',
             sa.Column('id', sa.UUID(), nullable=False),
             sa.Column('report_template_id', sa.UUID(), nullable=True),
-            sa.Column('user_id', sa.UUID(), nullable=False),
+            sa.Column('user_id', sa.Integer(), nullable=False),  # Changed from UUID to Integer
             sa.Column('insight_type', sa.String(), nullable=False),
             sa.Column('input_data', sa.JSON(), nullable=False),
             sa.Column('ai_response', sa.JSON(), nullable=False),
@@ -110,7 +110,7 @@ def upgrade() -> None:
             'report_element_suggestions',
             sa.Column('id', sa.UUID(), nullable=False),
             sa.Column('report_template_id', sa.UUID(), nullable=True),
-            sa.Column('user_id', sa.UUID(), nullable=False),
+            sa.Column('user_id', sa.Integer(), nullable=False),  # Changed from UUID to Integer
             sa.Column('element_type', sa.String(), nullable=False),
             sa.Column('element_subtype', sa.String(), nullable=True),
             sa.Column('title', sa.String(), nullable=False),
@@ -132,7 +132,7 @@ def upgrade() -> None:
             'collaboration_sessions',
             sa.Column('id', sa.UUID(), nullable=False),
             sa.Column('report_template_id', sa.UUID(), nullable=False),
-            sa.Column('user_id', sa.UUID(), nullable=False),
+            sa.Column('user_id', sa.Integer(), nullable=False),  # Changed from UUID to Integer
             sa.Column('session_start', sa.DateTime(), nullable=True),
             sa.Column('last_activity', sa.DateTime(), nullable=True),
             sa.Column('session_end', sa.DateTime(), nullable=True),

@@ -14,16 +14,16 @@ from app.middleware.monitoring_middleware import MonitoringMiddleware
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Try to import fastapi_cache2, fallback gracefully if not available
+# Try to import fastapi_cache, fallback gracefully if not available
 try:
-    from fastapi_cache2 import FastAPICache
-    from fastapi_cache2.backends.inmemory import InMemoryBackend
+    from fastapi_cache import FastAPICache
+    from fastapi_cache.backends.inmemory import InMemoryBackend
     CACHE_AVAILABLE = True
-    logger.info("fastapi_cache2 is available and will be used for caching")
+    logger.info("fastapi_cache is available and will be used for caching")
 except ImportError as e:
     CACHE_AVAILABLE = False
     logger.warning(
-        f"fastapi_cache2 not available: {e}. Caching will be disabled."
+        f"fastapi_cache not available: {e}. Caching will be disabled."
     )
     # Create dummy classes for fallback
 
@@ -31,7 +31,7 @@ except ImportError as e:
         @staticmethod
         def init(*args, **kwargs):
             logger.warning(
-                "Cache initialization skipped - fastapi_cache2 not available"
+                "Cache initialization skipped - fastapi_cache not available"
             )
 
     class InMemoryBackend:
@@ -98,20 +98,29 @@ async def root():
     return JSONResponse(
         content={
             "message": "FinVision API", 
-            "version": "1.0.0", 
-            "docs": "/docs",
-            "cache_available": CACHE_AVAILABLE
+            "version": "1.0.0",
+            "status": "running",
+            "cache_status": "enabled" if CACHE_AVAILABLE else "disabled"
         }
     )
 
 
 @app.get("/health")
 async def health_check():
-    return JSONResponse(content={
-        "status": "healthy",
-        "cache_available": CACHE_AVAILABLE
-    })
+    return JSONResponse(
+        content={
+            "status": "healthy",
+            "cache_available": CACHE_AVAILABLE,
+            "timestamp": "2025-08-03T13:42:50.867Z"
+        }
+    )
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info",
+    )

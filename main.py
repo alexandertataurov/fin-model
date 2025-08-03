@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
 Railway entry point for FinVision Backend
+
+Requirements are loaded from backend/requirements.txt
+This ensures consistency across Railway, Docker, and CI/CD pipelines.
 """
 
 import sys
@@ -15,7 +18,9 @@ os.chdir(backend_path)
 
 try:
     # Auto-fix database schema if needed
-    auto_fix_enabled = os.environ.get("AUTO_FIX_DATABASE", "true").lower() == "true"
+    auto_fix_enabled = (
+        os.environ.get("AUTO_FIX_DATABASE", "true").lower() == "true"
+    )
     if auto_fix_enabled:
         print("🔧 Auto-fix database enabled, checking schema...")
         try:
@@ -39,7 +44,9 @@ try:
             print("Continuing with startup anyway...")
 
     # Automatically run Alembic migrations unless disabled
-    auto_migrate = os.environ.get("AUTO_MIGRATE_DATABASE", "true").lower() == "true"
+    auto_migrate = (
+        os.environ.get("AUTO_MIGRATE_DATABASE", "true").lower() == "true"
+    )
     if auto_migrate:
         try:
             from run_migrations import run_migrations
