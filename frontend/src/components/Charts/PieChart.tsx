@@ -172,6 +172,8 @@ export const PieChart: React.FC<PieChartProps> = ({
       error={error}
       onExport={onExport}
       onFullscreen={onFullscreen}
+      aria-label={title || 'Pie Chart'}
+      aria-describedby={subtitle ? undefined : undefined}
     >
       <div className="relative h-full">
         {chartContent}

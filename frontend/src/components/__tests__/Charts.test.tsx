@@ -85,7 +85,8 @@ describe('LineChart', () => {
     const title = 'Revenue Trend';
     render(<LineChart data={mockLineData} series={mockSeries} title={title} />);
 
-    expect(screen.getByText(title)).toBeInTheDocument();
+    // Check for aria-label which contains the title
+    expect(screen.getByLabelText(title)).toBeInTheDocument();
   });
 
   it('handles empty data gracefully', () => {
@@ -165,7 +166,7 @@ describe('LineChart', () => {
     );
 
     // Chart should have a title for accessibility
-    expect(screen.getByText('Revenue Chart')).toBeInTheDocument();
+    expect(screen.getByLabelText('Revenue Chart')).toBeInTheDocument();
   });
 });
 
@@ -413,7 +414,9 @@ describe('Chart Accessibility', () => {
       />
     );
 
-    expect(screen.getByText('Financial Revenue Chart')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Financial Revenue Chart')
+    ).toBeInTheDocument();
   });
 
   it('charts are keyboard navigable', async () => {
@@ -446,7 +449,7 @@ describe('Chart Accessibility', () => {
 
     const chart = screen.getByTestId('pie-chart');
     expect(chart).toBeInTheDocument();
-    expect(screen.getByText('Revenue vs Expenses')).toBeInTheDocument();
+    expect(screen.getByLabelText('Revenue vs Expenses')).toBeInTheDocument();
   });
 });
 

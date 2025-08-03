@@ -21,6 +21,8 @@ interface BaseChartProps {
   onFullscreen?: () => void;
   actions?: React.ReactNode;
   className?: string;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
 }
 
 export const BaseChart: React.FC<BaseChartProps> = ({
@@ -34,22 +36,24 @@ export const BaseChart: React.FC<BaseChartProps> = ({
   onFullscreen,
   actions,
   className,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedby,
 }) => {
-  return (
-    <Card className={cn('relative group', className)}>
-      {/* Header */}
-      {(title || subtitle || onExport || onFullscreen || actions) && (
-        <CardHeader>
-          <div className="flex flex-row items-start justify-between space-y-0">
-            <div className="space-y-1">
-              {title && (
-                <CardTitle className="text-base font-medium">{title}</CardTitle>
-              )}
-              {subtitle && (
-                <p className="text-sm text-muted-foreground">{subtitle}</p>
-              )}
-            </div>
+  const chartId = React.useId();
+  const titleId = title ? `${chartId}-title` : undefined;
+  const subtitleId = subtitle ? `${chartId}-subtitle` : undefined;
 
+  return (
+    <Card 
+      className={cn('relative group', className)}
+      aria-label={ariaLabel || title}
+      aria-describedby={ariaDescribedby || subtitleId}
+      role="region"
+    >
+      {/* Header */}
+      {title && (
+        <CardHeader
+          actions={
             <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
               {actions}
               {onExport && (
@@ -83,6 +87,27 @@ export const BaseChart: React.FC<BaseChartProps> = ({
                 </Button>
               )}
             </div>
+          }
+        >
+          <div className="space-y-1">
+            {title && (
+              <CardTitle 
+                id={titleId}
+                className="text-base font-medium"
+                data-testid="chart-title"
+              >
+                {title}
+              </CardTitle>
+            )}
+            {subtitle && (
+              <p 
+                id={subtitleId}
+                className="text-sm text-muted-foreground"
+                data-testid="chart-subtitle"
+              >
+                {subtitle}
+              </p>
+            )}
           </div>
         </CardHeader>
       )}
@@ -92,6 +117,9 @@ export const BaseChart: React.FC<BaseChartProps> = ({
         <div
           className="relative flex items-center justify-center"
           style={{ height }}
+          role="img"
+          aria-labelledby={titleId}
+          aria-describedby={subtitleId}
         >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">

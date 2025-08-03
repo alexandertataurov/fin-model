@@ -130,12 +130,36 @@ export const mockApiResponses = {
   files: [
     {
       id: 1,
+      filename: 'test.xlsx',
       original_filename: 'test.xlsx',
       stored_filename: 'stored-test.xlsx',
-      file_size: 1024,
+      file_size: 1024 * 1024, // 1MB
       file_type: 'xlsx',
       created_at: '2023-01-01T00:00:00Z',
+      status: 'completed',
       processing_status: 'completed',
+    },
+    {
+      id: 2,
+      filename: 'sample.xlsx',
+      original_filename: 'sample.xlsx',
+      stored_filename: 'stored-sample.xlsx',
+      file_size: 2048 * 1024, // 2MB
+      file_type: 'xlsx',
+      created_at: '2023-01-02T00:00:00Z',
+      status: 'pending',
+      processing_status: 'pending',
+    },
+    {
+      id: 3,
+      filename: 'data.xlsx',
+      original_filename: 'data.xlsx',
+      stored_filename: 'stored-data.xlsx',
+      file_size: 512 * 1024, // 512KB
+      file_type: 'xlsx',
+      created_at: '2023-01-03T00:00:00Z',
+      status: 'processing',
+      processing_status: 'processing',
     },
   ],
   parameters: [

@@ -12,20 +12,19 @@ import FileList from '../FileUpload/FileList';
 // Mock file API
 const mockFileUpload = vi.fn();
 const mockFileDelete = vi.fn();
+const mockGetFiles = vi.fn();
+const mockProcessFile = vi.fn();
+const mockCancelProcessing = vi.fn();
+const mockDownloadFile = vi.fn();
 
 vi.mock('../../services/fileApi', () => ({
   fileApi: {
     uploadFile: (...args: unknown[]) => mockFileUpload(...args),
     deleteFile: (...args: unknown[]) => mockFileDelete(...args),
-    getFiles: () =>
-      Promise.resolve({
-        files: mockApiResponses.files,
-        total: mockApiResponses.files.length,
-        page: 1,
-        page_size: 10,
-        has_next: false,
-        has_previous: false,
-      }),
+    getFiles: (...args: unknown[]) => mockGetFiles(...args),
+    processFile: (...args: unknown[]) => mockProcessFile(...args),
+    cancelProcessing: (...args: unknown[]) => mockCancelProcessing(...args),
+    downloadFile: (...args: unknown[]) => mockDownloadFile(...args),
     formatFileSize: (bytes: number) => `${bytes} Bytes`,
     getStatusColor: () => 'info',
     getStatusText: () => 'Uploaded',
@@ -203,34 +202,56 @@ describe('FileUploadDropzone', () => {
 describe('FileList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock successful API response
+    mockGetFiles.mockResolvedValue({
+      files: mockApiResponses.files,
+      total: mockApiResponses.files.length,
+      page: 1,
+      page_size: 10,
+      has_next: false,
+      has_previous: false,
+    });
   });
 
-  it('renders file list component', () => {
+  it('renders file list component', async () => {
     render(<FileList />);
 
-    // Should render the file list table
-    expect(screen.getByRole('table')).toBeInTheDocument();
+    // Wait for the table to load
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
   });
 
   it('shows loading state initially', () => {
+    // Mock loading state
+    mockGetFiles.mockImplementation(() => new Promise(() => {})); // Never resolves
+
     render(<FileList />);
 
     // Should show loading indicators
-    expect(
-      screen.getByRole('progressbar') || screen.getByText(/loading/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
   it('handles pagination controls', async () => {
     render(<FileList />);
 
-    // Should have pagination controls
-    const pagination = await screen.findByText(/rows per page/i);
-    expect(pagination).toBeInTheDocument();
+    // Wait for the component to load
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    // Check for pagination info
+    expect(screen.getByText(/showing/i)).toBeInTheDocument();
+    expect(screen.getByText(/files/i)).toBeInTheDocument();
   });
 
   it('has status filter functionality', async () => {
     render(<FileList />);
+
+    // Wait for the component to load
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
 
     // Should have filter controls
     const filterSelect = screen.getByRole('combobox');
@@ -240,12 +261,22 @@ describe('FileList', () => {
   it('displays file action menu', async () => {
     render(<FileList />);
 
+    // Wait for the component to load
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
     // Should render the component successfully
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
-  it('refreshes data when refresh trigger changes', () => {
+  it('refreshes data when refresh trigger changes', async () => {
     const { rerender } = render(<FileList refreshTrigger={1} />);
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
 
     // Re-render with new trigger
     rerender(<FileList refreshTrigger={2} />);

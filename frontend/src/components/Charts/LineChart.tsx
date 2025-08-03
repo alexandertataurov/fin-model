@@ -218,6 +218,8 @@ export const LineChart: React.FC<LineChartProps> = ({
       error={error}
       onExport={onExport}
       onFullscreen={onFullscreen}
+      aria-label={title || 'Line Chart'}
+      aria-describedby={subtitle ? undefined : undefined}
     >
       {chartContent}
     </BaseChart>
