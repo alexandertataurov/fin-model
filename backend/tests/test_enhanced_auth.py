@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from unittest.mock import Mock, patch
 
-from app.main import app
+from main import app
 from app.models.user import User
 from app.models.mfa import MFAToken, OAuthAccount, WebAuthnCredential
 from app.services.mfa_service import MFAService

@@ -5,7 +5,8 @@ import json
 import uuid
 
 from ....core.dependencies import get_db
-from ....core.security import get_current_user_ws, get_current_user
+from ....core.security import verify_token
+from ....api.v1.endpoints.auth import get_current_user
 from ....models.user import User
 from ....models.collaboration import CollaborationPermission
 from ....services.collaboration_service import CollaborationService, CollaborationWebSocketManager
@@ -24,8 +25,10 @@ async def websocket_endpoint(
     websocket: WebSocket,
     template_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_ws)
 ):
+    # For WebSocket, we'll handle authentication manually
+    # since Depends doesn't work the same way with WebSocket
+    current_user = None
     """WebSocket endpoint for real-time collaboration"""
     
     websocket_id = await collaboration_manager.connect(

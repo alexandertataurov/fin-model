@@ -7,9 +7,10 @@ from sqlalchemy.orm import Session
 from app.services.ai_insights_service import AIInsightsService
 from app.services.collaboration_service import CollaborationService
 from app.models.collaboration import (
-    ReportTemplate, ReportCollaboration, ReportEdit, 
+    ReportCollaboration, ReportEdit, 
     AIInsight, CollaborationPermission
 )
+from app.models.report import ReportTemplate
 from app.models.user import User
 
 

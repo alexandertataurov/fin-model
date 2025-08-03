@@ -14,34 +14,8 @@ class CollaborationPermission(enum.Enum):
     ADMIN = "admin"
 
 
-class ReportTemplate(Base):
-    """Report template model for collaborative report building"""
-    __tablename__ = "report_templates"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    name = Column(String, nullable=False)
-    description = Column(String)
-    elements = Column(JSON, default=list)  # JSON array of report elements
-    layout = Column(JSON, default=dict)  # Page layout configuration
-    
-    # Metadata
-    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    last_modified = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    version = Column(Integer, default=1)
-    
-    # Status
-    is_published = Column(String, default=False)  # Whether template is available for use
-    is_archived = Column(String, default=False)
-    
-    # Relationships
-    creator = relationship("User", foreign_keys=[created_by])
-    collaborations = relationship("ReportCollaboration", back_populates="template", cascade="all, delete-orphan")
-    edits = relationship("ReportEdit", back_populates="template", cascade="all, delete-orphan")
-    ai_insights = relationship("AIInsight", back_populates="template", cascade="all, delete-orphan")
-
-    def __repr__(self):
-        return f"<ReportTemplate(id={self.id}, name='{self.name}')>"
+# ReportTemplate is already defined in report.py
+# This class is removed to avoid table conflicts
 
 
 class ReportCollaboration(Base):
@@ -49,7 +23,7 @@ class ReportCollaboration(Base):
     __tablename__ = "report_collaborations"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    report_template_id = Column(UUID(as_uuid=True), ForeignKey("report_templates.id"), nullable=False)
+    report_template_id = Column(Integer, ForeignKey("report_templates.id"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     permission = Column(Enum(CollaborationPermission), nullable=False)
     
@@ -76,7 +50,7 @@ class ReportEdit(Base):
     __tablename__ = "report_edits"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    report_template_id = Column(UUID(as_uuid=True), ForeignKey("report_templates.id"), nullable=False)
+    report_template_id = Column(Integer, ForeignKey("report_templates.id"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     
     # Edit details
@@ -101,7 +75,7 @@ class AIInsight(Base):
     __tablename__ = "ai_insights"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    report_template_id = Column(UUID(as_uuid=True), ForeignKey("report_templates.id"))
+    report_template_id = Column(Integer, ForeignKey("report_templates.id"))
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     
     # Insight details
@@ -164,7 +138,7 @@ class CollaborationSession(Base):
     __tablename__ = "collaboration_sessions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    report_template_id = Column(UUID(as_uuid=True), ForeignKey("report_templates.id"), nullable=False)
+    report_template_id = Column(Integer, ForeignKey("report_templates.id"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     
     # Session details
