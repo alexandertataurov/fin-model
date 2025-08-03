@@ -20,6 +20,12 @@ const Layout = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
 
+  const userInitial =
+    user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U';
+  const fullName = user
+    ? `${user.first_name} ${user.last_name}`.trim() || user.username
+    : '';
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleSidebarToggle = () => {
@@ -109,9 +115,9 @@ const Layout = () => {
                     className="relative h-8 w-8 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.avatar} alt={user?.name} />
+                      <AvatarImage src="" alt={fullName} />
                       <AvatarFallback>
-                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                        {userInitial.toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -119,7 +125,7 @@ const Layout = () => {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <div className="flex items-center justify-start gap-2 p-2">
                     <div className="flex flex-col space-y-1 leading-none">
-                      {user?.name && <p className="font-medium">{user.name}</p>}
+                      {fullName && <p className="font-medium">{fullName}</p>}
                       {user?.email && (
                         <p className="w-[200px] truncate text-sm text-muted-foreground">
                           {user.email}

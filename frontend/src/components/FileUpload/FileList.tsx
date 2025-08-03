@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -12,7 +18,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,9 +50,8 @@ interface FileListProps {
 
 const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const rowsPerPage = 10;
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [selectedFile, setSelectedFile] = useState<FileInfo | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<FileInfo | null>(null);
 
@@ -53,7 +65,8 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
     refetch,
   } = useQuery<FileListResponse, Error>({
     queryKey: ['files', page + 1, rowsPerPage, statusFilter],
-    queryFn: () => fileApi.getFiles(page + 1, rowsPerPage, statusFilter || undefined),
+    queryFn: () =>
+      fileApi.getFiles(page + 1, rowsPerPage, statusFilter || undefined),
     refetchInterval: 5000, // Refresh every 5 seconds for status updates
   });
 
@@ -90,15 +103,6 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
     },
   });
 
-  const handlePageChange = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value);
     setPage(0);
@@ -106,15 +110,7 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
 
   const handleDownload = async (file: FileInfo) => {
     try {
-      const response = await fileApi.downloadFile(file.id);
-      const url = window.URL.createObjectURL(new Blob([response]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', file.filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      await fileApi.downloadFile(file.id, file.original_filename);
     } catch (error) {
       console.error('Download failed:', error);
     }
@@ -153,7 +149,13 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
     };
 
     return (
-      <Badge variant="secondary" className={statusColors[file.status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'}>
+      <Badge
+        variant="secondary"
+        className={
+          statusColors[file.status as keyof typeof statusColors] ||
+          'bg-gray-100 text-gray-800'
+        }
+      >
         {file.status}
       </Badge>
     );
@@ -225,12 +227,16 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filesData?.files.map((file) => (
+                {filesData?.files.map(file => (
                   <TableRow key={file.id}>
-                    <TableCell className="font-medium">{file.filename}</TableCell>
+                    <TableCell className="font-medium">
+                      {file.filename}
+                    </TableCell>
                     <TableCell>{getStatusChip(file)}</TableCell>
-                    <TableCell>{(file.size / 1024 / 1024).toFixed(2)} MB</TableCell>
-                    <TableCell>{formatDate(file.uploaded_at)}</TableCell>
+                    <TableCell>
+                      {(file.file_size / 1024 / 1024).toFixed(2)} MB
+                    </TableCell>
+                    <TableCell>{formatDate(file.created_at)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
@@ -265,7 +271,9 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => handleDeleteClick(file)}>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClick(file)}
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
@@ -285,7 +293,9 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
       {filesData && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {page * rowsPerPage + 1} to {Math.min((page + 1) * rowsPerPage, filesData.total)} of {filesData.total} files
+            Showing {page * rowsPerPage + 1} to{' '}
+            {Math.min((page + 1) * rowsPerPage, filesData.total)} of{' '}
+            {filesData.total} files
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -296,7 +306,9 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
             >
               Previous
             </Button>
-            <span className="text-sm">Page {page + 1} of {Math.ceil(filesData.total / rowsPerPage)}</span>
+            <span className="text-sm">
+              Page {page + 1} of {Math.ceil(filesData.total / rowsPerPage)}
+            </span>
             <Button
               variant="outline"
               size="sm"
@@ -315,15 +327,19 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
           <DialogHeader>
             <DialogTitle>Delete File</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{fileToDelete?.filename}"? This action cannot be undone.
+              Are you sure you want to delete "{fileToDelete?.filename}"? This
+              action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deleteFileMutation.isPending}
             >
@@ -336,4 +352,4 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
   );
 };
 
-export default FileList; 
+export default FileList;

@@ -49,7 +49,6 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   },
 }) => {
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
@@ -77,8 +76,6 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
 
       if (acceptedFiles.length === 0) return;
 
-      setIsUploading(true);
-
       // Initialize uploading files state
       const initialUploadingFiles: UploadingFile[] = acceptedFiles.map(
         file => ({
@@ -92,34 +89,37 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
 
       // Upload files
       const uploadPromises = acceptedFiles.map(async (file, index) => {
-        const progressCallback: UploadProgressCallback = (progress) => {
-          setUploadingFiles(prev => 
-            prev.map((uploadingFile, i) => 
-              i === index 
-                ? { ...uploadingFile, progress }
-                : uploadingFile
+        const progressCallback: UploadProgressCallback = progress => {
+          setUploadingFiles(prev =>
+            prev.map((uploadingFile, i) =>
+              i === index ? { ...uploadingFile, progress } : uploadingFile
             )
           );
         };
 
         try {
           const result = await fileApi.uploadFile(file, progressCallback);
-          
-          setUploadingFiles(prev => 
-            prev.map((uploadingFile, i) => 
-              i === index 
-                ? { ...uploadingFile, status: 'completed', uploadedInfo: result }
+
+          setUploadingFiles(prev =>
+            prev.map((uploadingFile, i) =>
+              i === index
+                ? {
+                    ...uploadingFile,
+                    status: 'completed',
+                    uploadedInfo: result,
+                  }
                 : uploadingFile
             )
           );
 
           return result;
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Upload failed';
-          
-          setUploadingFiles(prev => 
-            prev.map((uploadingFile, i) => 
-              i === index 
+          const errorMessage =
+            error instanceof Error ? error.message : 'Upload failed';
+
+          setUploadingFiles(prev =>
+            prev.map((uploadingFile, i) =>
+              i === index
                 ? { ...uploadingFile, status: 'error', error: errorMessage }
                 : uploadingFile
             )
@@ -133,9 +133,9 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
         const results = await Promise.all(uploadPromises);
         onUploadComplete?.(results);
       } catch (error) {
-        onUploadError?.(error instanceof Error ? error.message : 'Upload failed');
-      } finally {
-        setIsUploading(false);
+        onUploadError?.(
+          error instanceof Error ? error.message : 'Upload failed'
+        );
       }
     },
     [maxFiles, maxSize, onUploadComplete, onUploadError]
@@ -159,22 +159,13 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   const getStatusIcon = (status: UploadingFile['status']) => {
     switch (status) {
       case 'uploading':
-        return <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>;
+        return (
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+        );
       case 'completed':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'error':
         return <AlertCircle className="h-4 w-4 text-red-500" />;
-    }
-  };
-
-  const getStatusColor = (status: UploadingFile['status']) => {
-    switch (status) {
-      case 'uploading':
-        return 'text-blue-600';
-      case 'completed':
-        return 'text-green-600';
-      case 'error':
-        return 'text-red-600';
     }
   };
 
@@ -186,8 +177,8 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragActive 
-                ? 'border-primary bg-primary/5' 
+              isDragActive
+                ? 'border-primary bg-primary/5'
                 : 'border-muted-foreground/25 hover:border-primary/50'
             }`}
           >
@@ -202,7 +193,8 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
             <p className="text-xs text-muted-foreground">
               Supported formats: Excel (.xlsx, .xls), CSV (.csv)
               <br />
-              Max file size: {(maxSize / 1024 / 1024).toFixed(1)}MB | Max files: {maxFiles}
+              Max file size: {(maxSize / 1024 / 1024).toFixed(1)}MB | Max files:{' '}
+              {maxFiles}
             </p>
           </div>
         </CardContent>
@@ -218,7 +210,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                 Clear Completed
               </Button>
             </div>
-            
+
             <div className="space-y-4">
               {uploadingFiles.map((uploadingFile, index) => (
                 <div key={index} className="space-y-2">
@@ -226,9 +218,12 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium text-sm">{uploadingFile.file.name}</p>
+                        <p className="font-medium text-sm">
+                          {uploadingFile.file.name}
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          {(uploadingFile.file.size / 1024 / 1024).toFixed(2)} MB
+                          {(uploadingFile.file.size / 1024 / 1024).toFixed(2)}{' '}
+                          MB
                         </p>
                       </div>
                     </div>
@@ -243,14 +238,17 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                       </Button>
                     </div>
                   </div>
-                  
+
                   {uploadingFile.status === 'uploading' && (
                     <Progress value={uploadingFile.progress} className="h-2" />
                   )}
-                  
+
                   {uploadingFile.status === 'completed' && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="default" className="bg-green-100 text-green-800">
+                      <Badge
+                        variant="default"
+                        className="bg-green-100 text-green-800"
+                      >
                         Uploaded successfully
                       </Badge>
                       {uploadingFile.uploadedInfo && (
@@ -260,7 +258,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                       )}
                     </div>
                   )}
-                  
+
                   {uploadingFile.status === 'error' && (
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
@@ -269,7 +267,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
                       </AlertDescription>
                     </Alert>
                   )}
-                  
+
                   {index < uploadingFiles.length - 1 && <Separator />}
                 </div>
               ))}

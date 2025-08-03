@@ -150,7 +150,7 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
           </p>
           {item.type !== 'start' && item.type !== 'total' && (
             <p className="text-sm text-muted-foreground">
-              Cumulative: {formatYAxis(item.cumulative)}
+              Cumulative: {formatYAxis(item.cumulative ?? 0)}
             </p>
           )}
         </div>
