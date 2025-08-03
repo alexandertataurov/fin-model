@@ -161,3 +161,4 @@ pyotp>=2.9.0
 qrcode[pil]==8.2
 Authlib==1.6.1
 webauthn==2.6.0
+prometheus_client==0.21.1
