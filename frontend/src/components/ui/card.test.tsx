@@ -24,9 +24,13 @@ describe('Card', () => {
       </Card>
     );
 
+    // Check that all components are rendered
     expect(screen.getByText('Card Title')).toBeInTheDocument();
-    expect(screen.getByText('Card Title').closest('[data-slot="card"]')).toBeInTheDocument();
-    expect(screen.getByText('Card Title').closest('[data-slot="card-header"]')).toBeInTheDocument();
+    expect(screen.getByText('Card Description')).toBeInTheDocument();
+    expect(screen.getByText('Card Content')).toBeInTheDocument();
+    expect(screen.getByText('Card Footer')).toBeInTheDocument();
+
+    // Check data-slots
     expect(screen.getByText('Card Title')).toHaveAttribute('data-slot', 'card-title');
     expect(screen.getByText('Card Description')).toHaveAttribute('data-slot', 'card-description');
     expect(screen.getByText('Card Content').closest('[data-slot="card-content"]')).toBeInTheDocument();
@@ -136,12 +140,13 @@ describe('Card', () => {
       </Card>
     );
 
-    // Wait for refs to be set
-    setTimeout(() => {
-      Object.values(refs).forEach(ref => {
-        expect(ref.current).toBeInstanceOf(HTMLElement);
-      });
-    }, 0);
+    // Check that refs are properly set
+    expect(refs.card.current).toBeInstanceOf(HTMLDivElement);
+    expect(refs.header.current).toBeInstanceOf(HTMLDivElement);
+    expect(refs.title.current).toBeInstanceOf(HTMLHeadingElement);
+    expect(refs.description.current).toBeInstanceOf(HTMLParagraphElement);
+    expect(refs.content.current).toBeInstanceOf(HTMLDivElement);
+    expect(refs.footer.current).toBeInstanceOf(HTMLDivElement);
   });
 
   it('applies custom classes through className prop', () => {

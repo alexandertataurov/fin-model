@@ -37,7 +37,7 @@ interface CardHeaderProps extends React.ComponentProps<'div'> {
 }
 
 const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
-  ({ className, actions, ...props }, ref) => {
+  ({ className, actions, children, ...props }, ref) => {
     return (
       <div
         data-slot="card-header"
@@ -48,6 +48,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
         ref={ref}
         {...props}
       >
+        {children}
         {actions && (
           <div data-slot="card-actions" className="flex justify-end">
             {actions}

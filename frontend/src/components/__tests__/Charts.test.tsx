@@ -83,10 +83,12 @@ describe('LineChart', () => {
 
   it('shows title when provided', () => {
     const title = 'Revenue Trend';
-    render(<LineChart data={mockLineData} series={mockSeries} title={title} />);
+    render(<LineChart data={mockLineData} title={title} />);
+
+    expect(screen.getByTestId('chart-title')).toHaveTextContent(title);
 
     // Check for aria-label which contains the title
-    expect(screen.getByLabelText(title)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(title)).toHaveLength(2); // Card and chart both have the label
   });
 
   it('handles empty data gracefully', () => {
@@ -157,16 +159,10 @@ describe('LineChart', () => {
   });
 
   it('supports accessibility features', () => {
-    render(
-      <LineChart
-        data={mockLineData}
-        series={mockSeries}
-        title="Revenue Chart"
-      />
-    );
+    render(<LineChart data={mockLineData} title="Revenue Chart" />);
 
     // Chart should have a title for accessibility
-    expect(screen.getByLabelText('Revenue Chart')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Revenue Chart')).toHaveLength(2); // Card and chart both have the label
   });
 });
 
@@ -404,19 +400,16 @@ const mockBarSeries = [
   { dataKey: 'expenses', name: 'Expenses', color: '#82ca9d' },
 ];
 
+const mockPieData = [
+  { name: 'Revenue', value: 1000000 },
+  { name: 'Expenses', value: 600000 },
+];
+
 describe('Chart Accessibility', () => {
   it('charts have proper titles for accessibility', () => {
-    render(
-      <LineChart
-        data={mockLineData}
-        series={mockSeries}
-        title="Financial Revenue Chart"
-      />
-    );
+    render(<LineChart data={mockLineData} title="Financial Revenue Chart" />);
 
-    expect(
-      screen.getByLabelText('Financial Revenue Chart')
-    ).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Financial Revenue Chart')).toHaveLength(2); // Card and chart both have the label
   });
 
   it('charts are keyboard navigable', async () => {
@@ -437,19 +430,11 @@ describe('Chart Accessibility', () => {
   });
 
   it('charts provide meaningful content for screen readers', () => {
-    render(
-      <PieChart
-        data={[
-          { name: 'Revenue', value: 1000000 },
-          { name: 'Expenses', value: 600000 },
-        ]}
-        title="Revenue vs Expenses"
-      />
-    );
+    render(<PieChart data={mockPieData} title="Revenue vs Expenses" />);
 
     const chart = screen.getByTestId('pie-chart');
     expect(chart).toBeInTheDocument();
-    expect(screen.getByLabelText('Revenue vs Expenses')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Revenue vs Expenses')).toHaveLength(2); // Card and chart both have the label
   });
 });
 

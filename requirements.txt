@@ -4,7 +4,7 @@ starlette==0.27.0
 uvicorn==0.24.0
 gunicorn==21.2.0
 python-multipart==0.0.6
-# fastapi-cache2==0.2.2  # Disabled - not available in Railway environment
+fastapi-cache2==0.2.2
 
 # Database and ORM
 alembic==1.12.1

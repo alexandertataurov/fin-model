@@ -24,26 +24,30 @@ vi.mock('../services/dashboardApi', () => ({
 }));
 
 // Mock the cache manager
-vi.mock('../utils/dashboardCache', () => ({
-  DashboardCacheManager: {
-    getCacheKey: vi.fn((type, period, fileId) => {
-      const keys = {
-        CASH_FLOW: 'cash-flow-dashboard',
-        PL: 'pl-dashboard',
-        BALANCE_SHEET: 'balance-sheet-dashboard',
-      };
-      return [keys[type] || type, period, fileId?.toString()].filter(Boolean);
-    }),
-    getQueryConfig: vi.fn(() => ({ staleTime: 300000, cacheTime: 600000 })),
-    optimizeChartData: vi.fn(data => data),
-    compressData: vi.fn(data => data),
-    invalidateCache: vi.fn(),
-    prefetchDashboard: vi.fn(),
-    getCachedData: vi.fn(),
-    isDataStale: vi.fn(),
-    cleanup: vi.fn(),
-  },
-}));
+vi.mock('../utils/dashboardCache', async () => {
+  const actual = await vi.importActual('../utils/dashboardCache');
+  return {
+    ...actual,
+    DashboardCacheManager: {
+      getCacheKey: vi.fn((type, period, fileId) => {
+        const keys = {
+          CASH_FLOW: 'cash-flow-dashboard',
+          PL: 'pl-dashboard',
+          BALANCE_SHEET: 'balance-sheet-dashboard',
+        };
+        return [keys[type] || type, period, fileId?.toString()].filter(Boolean);
+      }),
+      getQueryConfig: vi.fn(() => ({ staleTime: 300000, cacheTime: 600000 })),
+      optimizeChartData: vi.fn(data => data),
+      compressData: vi.fn(data => data),
+      invalidateCache: vi.fn(),
+      prefetchDashboard: vi.fn(),
+      getCachedData: vi.fn(),
+      isDataStale: vi.fn(),
+      cleanup: vi.fn(),
+    },
+  };
+});
 
 describe('Dashboard Integration', () => {
   let queryClient: QueryClient;
