@@ -52,7 +52,7 @@ export const TemplateCanvas: React.FC<TemplateCanvasProps> = ({
 
   const [{ isOver }, drop] = useDrop({
     accept: 'palette-element',
-    drop: (item: DragItem, monitor) => {
+    drop: (item: DragItem, monitor: any) => {
       if (!canvasRef.current) return;
 
       const clientOffset = monitor.getClientOffset();
@@ -66,7 +66,7 @@ export const TemplateCanvas: React.FC<TemplateCanvasProps> = ({
         addElementToCanvas(item, position);
       }
     },
-    collect: (monitor) => ({
+    collect: (monitor: any) => ({
       isOver: monitor.isOver()
     })
   });

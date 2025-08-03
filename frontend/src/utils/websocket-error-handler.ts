@@ -298,7 +298,7 @@ export class WebSocketErrorHandler {
 
   private getErrorMessage(code: number): string {
     return (
-      WebSocketErrorHandler.ERROR_CODES[code] || `Unknown error code: ${code}`
+      (WebSocketErrorHandler.ERROR_CODES as Record<number, string>)[code] || `Unknown error code: ${code}`
     );
   }
 }

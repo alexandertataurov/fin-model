@@ -32,7 +32,6 @@ interface CollaborationBarProps {
 }
 
 export const CollaborationBar: React.FC<CollaborationBarProps> = ({
-  _templateId,
   collaborators,
   isConnected,
   onInviteCollaborator,

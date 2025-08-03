@@ -3,7 +3,7 @@ frontend/
 frontend/**
 frontend/*
 
-# Ignore ALL Node.js related files
+# Ignore ALL Node.js related files (including moved ones)
 package.json
 package-lock.json
 node_modules/

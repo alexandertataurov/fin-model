@@ -57,7 +57,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = ({
   const [{ isDragInProgress }] = useDrag({
     type: 'canvas-element',
     item: { id: element.id, type: element.type },
-    collect: monitor => ({
+    collect: (monitor: any) => ({
       isDragInProgress: monitor.isDragging(),
     }),
     canDrag: !readonly && !previewMode,

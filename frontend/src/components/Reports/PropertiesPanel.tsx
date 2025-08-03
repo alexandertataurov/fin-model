@@ -25,8 +25,6 @@ interface PropertiesPanelProps {
 export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   element,
   onElementUpdate,
-  _template,
-  _onTemplateUpdate,
 }) => {
   if (!element) {
     return (
@@ -330,7 +328,7 @@ const ChartConfiguration: React.FC<{
       <Switch
         id="show-legend"
         checked={config.showLegend !== false}
-        onCheckedChange={checked =>
+        onCheckedChange={(checked: boolean) =>
           onChange({ ...config, showLegend: checked })
         }
       />
@@ -363,7 +361,7 @@ const TableConfiguration: React.FC<{
       <Switch
         id="show-headers"
         checked={config.showHeaders !== false}
-        onCheckedChange={checked =>
+        onCheckedChange={(checked: boolean) =>
           onChange({ ...config, showHeaders: checked })
         }
       />
@@ -376,7 +374,7 @@ const TableConfiguration: React.FC<{
       <Switch
         id="pagination"
         checked={config.pagination === true}
-        onCheckedChange={checked =>
+        onCheckedChange={(checked: boolean) =>
           onChange({ ...config, pagination: checked })
         }
       />

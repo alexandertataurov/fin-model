@@ -20,7 +20,7 @@ export class WebSocketService {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
+  // reconnectDelay was replaced by connection manager's delay logic
   private subscribers: Map<string, Set<(data: any) => void>> = new Map();
   private isConnecting = false;
   private isConnected = false;
@@ -72,7 +72,7 @@ export class WebSocketService {
           this.isConnected = true;
           this.isConnecting = false;
           this.reconnectAttempts = 0;
-          this.reconnectDelay = 1000;
+          // Reset reconnection state
 
           // Notify connection manager
           this.connectionManager.handleConnectionOpen(endpoint);
@@ -473,11 +473,13 @@ export class WebSocketConnectionManager {
     if (typeof _key === 'string') {
       return this.connectionStates.get(_key) || 'disconnected';
     } else if (_key === undefined) {
-      if (this.isConnecting) return 'connecting';
-      if (this.isConnected) return 'connected';
+      // Return overall state based on any active connections
+      const states = Array.from(this.connectionStates.values());
+      if (states.includes('connecting')) return 'connecting';
+      if (states.includes('connected')) return 'connected';
       return 'disconnected';
     }
-    return this.connectionManager.getConnectionState();
+    return 'disconnected';
   }
 
   getAllConnectionStates(): Record<

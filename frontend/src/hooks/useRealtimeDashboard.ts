@@ -337,7 +337,7 @@ export const useRealtimeDashboard = ({
   return {
     dashboardData,
     isLoading,
-    error,
+    error: error as Error | null,
     isConnected,
     connectionState,
     lastUpdate,

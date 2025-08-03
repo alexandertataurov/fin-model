@@ -3,18 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BarChart3, 
-  Table, 
-  TrendingUp, 
-  Type, 
+import {
+  BarChart3,
+  Table,
+  TrendingUp,
+  Type,
   Image as ImageIcon,
   PieChart,
   LineChart,
   BarChart,
   Plus,
   Sparkles,
-  Brain
+  Brain,
 } from 'lucide-react';
 import { ReportElementSuggestion } from '@/types/template-builder';
 
@@ -30,10 +30,10 @@ interface RecommendationCardProps {
   onDismiss?: () => void;
 }
 
-const RecommendationCard: React.FC<RecommendationCardProps> = ({ 
-  recommendation, 
-  onAdd, 
-  onDismiss 
+const RecommendationCard: React.FC<RecommendationCardProps> = ({
+  recommendation,
+  onAdd,
+  onDismiss,
 }) => {
   const getElementIcon = (type: string, subtype?: string) => {
     if (type === 'chart') {
@@ -48,7 +48,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
           return <BarChart3 className="h-4 w-4" />;
       }
     }
-    
+
     switch (type) {
       case 'table':
         return <Table className="h-4 w-4" />;
@@ -84,28 +84,25 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-200 transition-colors">
               {getElementIcon(recommendation.type, recommendation.subtype)}
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
                 <h4 className="text-sm font-medium text-gray-900 truncate">
                   {recommendation.title}
                 </h4>
-                <Badge 
-                  variant="secondary" 
-                  className="text-xs shrink-0"
-                >
+                <Badge variant="secondary" className="text-xs shrink-0">
                   {Math.round(recommendation.confidence * 100)}%
                 </Badge>
               </div>
-              
+
               <p className="text-xs text-gray-600 mb-2 line-clamp-2">
                 {recommendation.description}
               </p>
-              
+
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-1">
                   <div className="w-12 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className={`h-full ${getConfidenceColor(recommendation.confidence)}`}
                       style={{ width: `${recommendation.confidence * 100}%` }}
                     />
@@ -117,7 +114,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-1 ml-2">
             <Button
               size="sm"
@@ -146,9 +143,10 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
   dataContext,
   onAddElement,
-  _templateId
 }) => {
-  const [recommendations, setRecommendations] = useState<ReportElementSuggestion[]>([]);
+  const [recommendations, setRecommendations] = useState<
+    ReportElementSuggestion[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
@@ -163,20 +161,23 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
     setError(null);
 
     try {
-      const response = await fetch('/api/v1/collaboration/templates/smart-recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ 
-          data_context: dataContext,
-          user_preferences: {
-            max_suggestions: 6,
-            chart_types: ['line', 'bar', 'pie']
-          }
-        })
-      });
+      const response = await fetch(
+        '/api/v1/collaboration/templates/smart-recommendations',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+          },
+          body: JSON.stringify({
+            data_context: dataContext,
+            user_preferences: {
+              max_suggestions: 6,
+              chart_types: ['line', 'bar', 'pie'],
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch recommendations');
@@ -187,7 +188,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
     } catch (err) {
       console.error('Failed to fetch recommendations:', err);
       setError('Failed to load recommendations');
-      
+
       // Fallback to mock recommendations for development
       setRecommendations(generateMockRecommendations(dataContext));
     } finally {
@@ -195,12 +196,15 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
     }
   }, [dataContext]);
 
-  const handleAddElement = useCallback((recommendation: ReportElementSuggestion) => {
-    onAddElement(recommendation);
-    
-    // Mark as dismissed to remove from list
-    setDismissedIds(prev => new Set([...prev, recommendation.id]));
-  }, [onAddElement]);
+  const handleAddElement = useCallback(
+    (recommendation: ReportElementSuggestion) => {
+      onAddElement(recommendation);
+
+      // Mark as dismissed to remove from list
+      setDismissedIds(prev => new Set([...prev, recommendation.id]));
+    },
+    [onAddElement]
+  );
 
   const handleDismiss = useCallback((recommendationId: string) => {
     setDismissedIds(prev => new Set([...prev, recommendationId]));
@@ -216,7 +220,9 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
   }, [fetchRecommendations]);
 
   // Filter out dismissed recommendations
-  const visibleRecommendations = recommendations.filter(rec => !dismissedIds.has(rec.id));
+  const visibleRecommendations = recommendations.filter(
+    rec => !dismissedIds.has(rec.id)
+  );
 
   if (!Object.keys(dataContext).length) {
     return (
@@ -256,7 +262,9 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Sparkles className="h-4 w-4 text-purple-500 animate-pulse" />
-              <span className="text-sm text-gray-600">Analyzing your data...</span>
+              <span className="text-sm text-gray-600">
+                Analyzing your data...
+              </span>
             </div>
             <Progress value={66} className="h-1" />
           </div>
@@ -265,9 +273,9 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         {error && (
           <div className="text-center py-4">
             <p className="text-sm text-red-600">{error}</p>
-            <Button 
-              size="sm" 
-              variant="outline" 
+            <Button
+              size="sm"
+              variant="outline"
               onClick={fetchRecommendations}
               className="mt-2"
             >
@@ -296,7 +304,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
                 onDismiss={() => handleDismiss(recommendation.id)}
               />
             ))}
-            
+
             {dismissedIds.size > 0 && (
               <div className="pt-2 border-t">
                 <Button
@@ -317,9 +325,11 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 };
 
 // Mock recommendations for development/fallback
-function generateMockRecommendations(dataContext: Record<string, any>): ReportElementSuggestion[] {
+function generateMockRecommendations(
+  dataContext: Record<string, any>
+): ReportElementSuggestion[] {
   const recommendations: ReportElementSuggestion[] = [];
-  
+
   // Check for time series data
   if (dataContext.revenue || dataContext.timeline) {
     recommendations.push({
@@ -334,12 +344,13 @@ function generateMockRecommendations(dataContext: Record<string, any>): ReportEl
           chartType: 'line',
           title: 'Revenue Trend',
           xAxis: 'period',
-          yAxis: ['revenue']
-        }
-      }
+          yAxis: ['revenue'],
+          dataSource: 'revenue_data',
+        },
+      },
     });
   }
-  
+
   // Check for categorical data
   if (dataContext.segments || dataContext.categories) {
     recommendations.push({
@@ -352,12 +363,13 @@ function generateMockRecommendations(dataContext: Record<string, any>): ReportEl
       suggested_config: {
         chart: {
           chartType: 'pie',
-          title: 'Revenue Distribution'
-        }
-      }
+          title: 'Revenue Distribution',
+          dataSource: 'segment_data',
+        },
+      },
     });
   }
-  
+
   // Always suggest key metrics
   recommendations.push({
     id: `mock-${Date.now()}-3`,
@@ -369,10 +381,10 @@ function generateMockRecommendations(dataContext: Record<string, any>): ReportEl
       metric: {
         label: 'Total Revenue',
         value: 0,
-        format: 'currency'
-      }
-    }
+        format: 'currency',
+      },
+    },
   });
-  
+
   return recommendations;
 }

@@ -176,13 +176,14 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
         <CardContent className="p-6">
           <div
             {...getRootProps()}
+            data-testid="dropzone"
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               isDragActive
                 ? 'border-primary bg-primary/5'
                 : 'border-muted-foreground/25 hover:border-primary/50'
             }`}
           >
-            <input {...getInputProps()} />
+            <input {...getInputProps()} data-testid="file-input" />
             <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium mb-2">
               {isDragActive ? 'Drop files here' : 'Drag & drop files here'}

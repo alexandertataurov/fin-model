@@ -30,23 +30,59 @@ class RealtimeDataService:
         @event.listens_for(FinancialStatement, 'after_insert')
         @event.listens_for(FinancialStatement, 'after_update')
         def financial_data_changed(mapper, connection, target):
-            asyncio.create_task(self.handle_financial_data_update(target))
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(self.handle_financial_data_update(target))
+                else:
+                    # For testing environments without running event loop
+                    pass
+            except RuntimeError:
+                # No event loop available, skip real-time updates
+                pass
 
         # Parameter updates
         @event.listens_for(Parameter, 'after_insert')
         @event.listens_for(Parameter, 'after_update')
         def parameter_changed(mapper, connection, target):
-            asyncio.create_task(self.handle_parameter_update(target))
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(self.handle_parameter_update(target))
+                else:
+                    # For testing environments without running event loop
+                    pass
+            except RuntimeError:
+                # No event loop available, skip real-time updates
+                pass
 
         # Report generation status updates
         @event.listens_for(ReportExport, 'after_update')
         def report_status_changed(mapper, connection, target):
-            asyncio.create_task(self.handle_report_status_update(target))
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(self.handle_report_status_update(target))
+                else:
+                    # For testing environments without running event loop
+                    pass
+            except RuntimeError:
+                # No event loop available, skip real-time updates
+                pass
 
         # File upload status updates
         @event.listens_for(UploadedFile, 'after_update')
         def file_status_changed(mapper, connection, target):
-            asyncio.create_task(self.handle_file_status_update(target))
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(self.handle_file_status_update(target))
+                else:
+                    # For testing environments without running event loop
+                    pass
+            except RuntimeError:
+                # No event loop available, skip real-time updates
+                pass
 
         logger.info("Database triggers for real-time updates have been set up")
 

@@ -39,48 +39,50 @@ export const BaseChart: React.FC<BaseChartProps> = ({
     <Card className={cn('relative group', className)}>
       {/* Header */}
       {(title || subtitle || onExport || onFullscreen || actions) && (
-        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-          <div className="space-y-1">
-            {title && (
-              <CardTitle className="text-base font-medium">{title}</CardTitle>
-            )}
-            {subtitle && (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
-            )}
-          </div>
+        <CardHeader>
+          <div className="flex flex-row items-start justify-between space-y-0">
+            <div className="space-y-1">
+              {title && (
+                <CardTitle className="text-base font-medium">{title}</CardTitle>
+              )}
+              {subtitle && (
+                <p className="text-sm text-muted-foreground">{subtitle}</p>
+              )}
+            </div>
 
-          <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-            {actions}
-            {onExport && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onExport('PNG')}>
-                    Export as PNG
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onExport('SVG')}>
-                    Export as SVG
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onExport('PDF')}>
-                    Export as PDF
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            {onFullscreen && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onFullscreen}
-                className="h-8 w-8 p-0"
-              >
-                <Maximize className="h-4 w-4" />
-              </Button>
-            )}
+            <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+              {actions}
+              {onExport && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onExport('PNG')}>
+                      Export as PNG
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onExport('SVG')}>
+                      Export as SVG
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onExport('PDF')}>
+                      Export as PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              {onFullscreen && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onFullscreen}
+                  className="h-8 w-8 p-0"
+                >
+                  <Maximize className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
       )}

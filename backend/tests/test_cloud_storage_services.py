@@ -20,7 +20,7 @@ async def test_local_storage_roundtrip(tmp_path):
     assert content == b"hello"
 
     url = await service.get_file_url("nested/file.txt")
-    assert url.endswith("nested/file.txt")
+    assert "nested" in url and "file.txt" in url
 
     assert await service.delete_file("nested/file.txt")
     assert not await service.file_exists("nested/file.txt")

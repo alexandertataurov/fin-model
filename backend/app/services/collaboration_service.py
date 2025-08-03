@@ -27,19 +27,23 @@ class CollaborationService:
         """Send collaboration invitation to a user"""
         
         try:
+            # Convert string IDs to integers for database queries
+            template_id_int = int(template_id)
+            inviter_id_int = int(inviter_id)
+            
             # Check if template exists and inviter has admin permission
             template = db.query(ReportTemplate).filter(
-                ReportTemplate.id == template_id
+                ReportTemplate.id == template_id_int
             ).first()
             
             if not template:
                 return {"success": False, "error": "Template not found"}
             
             # Check inviter permissions
-            if str(template.created_by) != inviter_id:
+            if template.created_by != inviter_id_int:
                 inviter_collab = db.query(ReportCollaboration).filter(
-                    ReportCollaboration.report_template_id == template_id,
-                    ReportCollaboration.user_id == inviter_id,
+                    ReportCollaboration.report_template_id == template_id_int,
+                    ReportCollaboration.user_id == inviter_id_int,
                     ReportCollaboration.permission == CollaborationPermission.ADMIN
                 ).first()
                 
@@ -53,7 +57,7 @@ class CollaborationService:
             
             # Check if collaboration already exists
             existing_collab = db.query(ReportCollaboration).filter(
-                ReportCollaboration.report_template_id == template_id,
+                ReportCollaboration.report_template_id == template_id_int,
                 ReportCollaboration.user_id == invitee.id
             ).first()
             
@@ -62,10 +66,10 @@ class CollaborationService:
             
             # Create collaboration invitation
             collaboration = ReportCollaboration(
-                report_template_id=template_id,
+                report_template_id=template_id_int,
                 user_id=invitee.id,
                 permission=permission,
-                invited_by=inviter_id,
+                invited_by=inviter_id_int,
                 invited_at=datetime.utcnow()
             )
             
@@ -94,9 +98,13 @@ class CollaborationService:
         """Accept a collaboration invitation"""
         
         try:
+            from uuid import UUID
+            collaboration_id_uuid = UUID(collaboration_id)
+            user_id_int = int(user_id)
+            
             collaboration = db.query(ReportCollaboration).filter(
-                ReportCollaboration.id == collaboration_id,
-                ReportCollaboration.user_id == user_id
+                ReportCollaboration.id == collaboration_id_uuid,
+                ReportCollaboration.user_id == user_id_int
             ).first()
             
             if not collaboration:
@@ -107,7 +115,7 @@ class CollaborationService:
             
             # Accept invitation
             collaboration.accepted_at = datetime.utcnow()
-            collaboration.is_active = True
+            collaboration.is_active = "True"
             
             db.commit()
             
@@ -123,7 +131,7 @@ class CollaborationService:
         
         collaborations = db.query(ReportCollaboration).filter(
             ReportCollaboration.report_template_id == template_id,
-            ReportCollaboration.is_active == True
+            ReportCollaboration.is_active == "True"
         ).all()
         
         collaborators = []

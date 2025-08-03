@@ -96,7 +96,7 @@ export const ChartElement: React.FC<ChartElementProps> = ({ config }) => {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {pieData.map((entry, index) => (
+                {pieData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={config.colors?.[index] || COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

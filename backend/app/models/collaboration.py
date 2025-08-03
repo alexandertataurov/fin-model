@@ -33,7 +33,7 @@ class ReportCollaboration(Base):
     accepted_at = Column(DateTime)
     
     # Status
-    is_active = Column(String, default=True)
+    is_active = Column(String, default="True")
     last_seen = Column(DateTime)
     
     # Relationships
@@ -122,7 +122,7 @@ class ReportElementSuggestion(Base):
     
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
-    is_accepted = Column(String, default=False)  # Whether user accepted the suggestion
+    is_accepted = Column(String, default="False")  # Whether user accepted the suggestion
     accepted_at = Column(DateTime)
     
     # Relationships

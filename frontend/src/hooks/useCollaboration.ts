@@ -30,72 +30,6 @@ export const useCollaboration = ({
   const maxReconnectAttempts = 5;
   const reconnectDelay = useRef(1000);
 
-  const connect = useCallback(() => {
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      return; // Already connected
-    }
-
-    setConnectionStatus('connecting');
-
-    const token = localStorage.getItem('authToken');
-    const wsUrl = `ws://localhost:8000/api/v1/collaboration/ws/template/${templateId}?token=${token}`;
-
-    ws.current = new WebSocket(wsUrl);
-
-    ws.current.onopen = () => {
-      // WebSocket connected for template
-      setIsConnected(true);
-      setConnectionStatus('connected');
-      reconnectAttempts.current = 0;
-      reconnectDelay.current = 1000;
-      // Send initial presence
-      sendMessage({
-        type: 'user_activity',
-        data: { action: 'joined' },
-      });
-    };
-
-    ws.current.onclose = event => {
-      // WebSocket disconnected
-      setIsConnected(false);
-      setConnectionStatus('disconnected');
-      // Attempt to reconnect if not manually closed
-      if (
-        event.code !== 1000 &&
-        reconnectAttempts.current < maxReconnectAttempts
-      ) {
-        setTimeout(() => {
-          reconnectAttempts.current++;
-          reconnectDelay.current *= 2; // Exponential backoff
-          connect();
-        }, reconnectDelay.current);
-      }
-    };
-
-    ws.current.onerror = error => {
-      console.error('WebSocket error:', error);
-      setConnectionStatus('disconnected');
-    };
-
-    ws.current.onmessage = event => {
-      try {
-        const message: CollaborationMessage = JSON.parse(event.data);
-        handleCollaborationMessage(message);
-      } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
-      }
-    };
-  }, [templateId, handleCollaborationMessage, sendMessage]);
-
-  const disconnect = useCallback(() => {
-    if (ws.current) {
-      ws.current.close(1000, 'Manual disconnect');
-      ws.current = null;
-    }
-    setIsConnected(false);
-    setConnectionStatus('disconnected');
-  }, []);
-
   const sendMessage = useCallback(
     (message: Partial<CollaborationMessage>) => {
       if (ws.current?.readyState === WebSocket.OPEN) {
@@ -111,32 +45,6 @@ export const useCollaboration = ({
       return false;
     },
     [userId]
-  );
-
-  const sendEdit = useCallback(
-    (editData: { edit_type: string; element_id?: string; changes: any }) => {
-      const success = sendMessage({
-        type: 'template_edit',
-        data: editData,
-      });
-
-      if (success) {
-        setLastActivity(new Date());
-      }
-
-      return success;
-    },
-    [sendMessage]
-  );
-
-  const sendCursorMove = useCallback(
-    (position: { x: number; y: number; elementId?: string }) => {
-      sendMessage({
-        type: 'cursor_move',
-        data: position,
-      });
-    },
-    [sendMessage]
   );
 
   const handleCollaborationMessage = useCallback(
@@ -224,13 +132,105 @@ export const useCollaboration = ({
     [userId, onElementUpdate, onTemplateUpdate]
   );
 
+  const connect = useCallback(() => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      return; // Already connected
+    }
+
+    setConnectionStatus('connecting');
+
+    const token = localStorage.getItem('authToken');
+    const wsUrl = `ws://localhost:8000/api/v1/collaboration/ws/template/${templateId}?token=${token}`;
+
+    ws.current = new WebSocket(wsUrl);
+
+    ws.current.onopen = () => {
+      // WebSocket connected for template
+      setIsConnected(true);
+      setConnectionStatus('connected');
+      reconnectAttempts.current = 0;
+      reconnectDelay.current = 1000;
+      // Send initial presence
+      sendMessage({
+        type: 'user_presence',
+        data: { action: 'joined' },
+      });
+    };
+
+    ws.current.onclose = event => {
+      // WebSocket disconnected
+      setIsConnected(false);
+      setConnectionStatus('disconnected');
+      // Attempt to reconnect if not manually closed
+      if (
+        event.code !== 1000 &&
+        reconnectAttempts.current < maxReconnectAttempts
+      ) {
+        setTimeout(() => {
+          reconnectAttempts.current++;
+          reconnectDelay.current *= 2; // Exponential backoff
+          connect();
+        }, reconnectDelay.current);
+      }
+    };
+
+    ws.current.onerror = error => {
+      console.error('WebSocket error:', error);
+      setConnectionStatus('disconnected');
+    };
+
+    ws.current.onmessage = event => {
+      try {
+        const message: CollaborationMessage = JSON.parse(event.data);
+        handleCollaborationMessage(message);
+      } catch (error) {
+        console.error('Failed to parse WebSocket message:', error);
+      }
+    };
+  }, [templateId, handleCollaborationMessage, sendMessage]);
+
+  const disconnect = useCallback(() => {
+    if (ws.current) {
+      ws.current.close(1000, 'Manual disconnect');
+      ws.current = null;
+    }
+    setIsConnected(false);
+    setConnectionStatus('disconnected');
+  }, []);
+
+  const sendEdit = useCallback(
+    (editData: { edit_type: string; element_id?: string; changes: any }) => {
+      const success = sendMessage({
+        type: 'template_edit',
+        data: editData,
+      });
+
+      if (success) {
+        setLastActivity(new Date());
+      }
+
+      return success;
+    },
+    [sendMessage]
+  );
+
+  const sendCursorMove = useCallback(
+    (position: { x: number; y: number; elementId?: string }) => {
+      sendMessage({
+        type: 'cursor_move',
+        data: position,
+      });
+    },
+    [sendMessage]
+  );
+
   // Send periodic activity updates
   useEffect(() => {
     if (!isConnected) return;
 
     const activityInterval = setInterval(() => {
       sendMessage({
-        type: 'user_activity',
+        type: 'user_presence',
         data: { action: 'active' },
       });
     }, 30000); // Every 30 seconds

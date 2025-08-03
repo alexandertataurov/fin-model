@@ -29,7 +29,7 @@ const PaletteItem: React.FC<PaletteItemProps> = ({ type, icon, label, descriptio
   const [{ isDragging }, drag] = useDrag({
     type: 'palette-element',
     item: { elementType: type },
-    collect: (monitor) => ({
+    collect: (monitor: any) => ({
       isDragging: monitor.isDragging()
     })
   });

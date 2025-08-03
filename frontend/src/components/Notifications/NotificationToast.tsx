@@ -22,6 +22,13 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
 
+  const handleClose = useCallback(() => {
+    setIsLeaving(true);
+    setTimeout(() => {
+      onClose();
+    }, 300); // Match animation duration
+  }, [onClose]);
+
   // Auto-close timer
   useEffect(() => {
     // Show animation
@@ -40,13 +47,6 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
       if (closeTimer) clearTimeout(closeTimer);
     };
   }, [duration, handleClose]);
-
-  const handleClose = useCallback(() => {
-    setIsLeaving(true);
-    setTimeout(() => {
-      onClose();
-    }, 300); // Match animation duration
-  }, [onClose]);
 
   const getIcon = () => {
     switch (notification.priority) {

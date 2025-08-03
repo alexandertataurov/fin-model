@@ -51,7 +51,7 @@ interface FileListProps {
 const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<FileInfo | null>(null);
 
@@ -66,7 +66,7 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
   } = useQuery<FileListResponse, Error>({
     queryKey: ['files', page + 1, rowsPerPage, statusFilter],
     queryFn: () =>
-      fileApi.getFiles(page + 1, rowsPerPage, statusFilter || undefined),
+      fileApi.getFiles(page + 1, rowsPerPage, statusFilter === 'ALL' ? undefined : statusFilter),
     refetchInterval: 5000, // Refresh every 5 seconds for status updates
   });
 
@@ -190,7 +190,7 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Status</SelectItem>
+                                    <SelectItem value="ALL">All Status</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="processing">Processing</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
