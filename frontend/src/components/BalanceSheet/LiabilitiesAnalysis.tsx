@@ -99,7 +99,9 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
     value: item.value,
     [item.period]: item.value,
   }));
-  const chartSeries = [{ dataKey: 'value', name: 'Liabilities' }];
+  const chartSeries = [
+    { dataKey: 'value', name: 'Liabilities', color: 'var(--chart-1)' },
+  ];
 
   // Group liabilities by subcategory
   const groupedLiabilities = liabilityMetrics.reduce(

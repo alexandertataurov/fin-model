@@ -95,7 +95,9 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
     value: item.value,
     [item.period]: item.value,
   }));
-  const chartSeries = [{ dataKey: 'value', name: 'Equity' }];
+  const chartSeries = [
+    { dataKey: 'value', name: 'Equity', color: 'var(--chart-1)' },
+  ];
 
   // Group equity by subcategory
   const groupedEquity = equityMetrics.reduce(
