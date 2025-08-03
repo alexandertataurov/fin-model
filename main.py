@@ -2,7 +2,7 @@
 """
 Railway entry point for FinVision Backend
 
-Requirements are loaded from backend/requirements.txt
+Requirements are loaded from root/requirements.txt
 This ensures consistency across Railway, Docker, and CI/CD pipelines.
 """
 
