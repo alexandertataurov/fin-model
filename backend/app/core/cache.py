@@ -17,7 +17,7 @@ try:
     logger.info("fastapi_cache2 decorator is available")
 except ImportError:
     CACHE_DECORATOR_AVAILABLE = False
-    logger.warning("fastapi_cache2 decorator not available")
+    logger.info("fastapi_cache2 decorator not available (this is expected in Railway environment)")
 
 
 def safe_cache(expire: int = 300, key_builder: Optional[Callable] = None):
