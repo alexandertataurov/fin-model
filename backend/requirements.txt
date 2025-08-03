@@ -116,10 +116,8 @@ pytest-cov==6.2.1
 pytest-mock==3.14.1
 pytest-xdist==3.8.0
 pycodestyle==2.11.1
+psutil==6.1.1
 pyflakes==3.1.0
-
-# Monitoring and Observability
-prometheus-client==0.19.0
 
 # Utilities and Helpers
 annotated-types==0.7.0
