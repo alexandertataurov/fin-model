@@ -1,5 +1,6 @@
 from enum import Enum as PyEnum
-from typing import List, Set, Dict, Any
+from typing import Dict, List, Set
+
 from app.models.role import RoleType
 
 
@@ -47,6 +48,8 @@ class Permission(PyEnum):
     AUDIT_LOGS = "audit:logs"
     SYSTEM_HEALTH = "system:health"
     ADMIN_ACCESS = "admin:access"
+    ADMIN_READ = "admin:read"
+    ADMIN_WRITE = "admin:write"
 
 
 # Role-based permission mapping
@@ -83,6 +86,8 @@ ROLE_PERMISSIONS: Dict[RoleType, Set[Permission]] = {
         Permission.AUDIT_LOGS,
         Permission.SYSTEM_HEALTH,
         Permission.ADMIN_ACCESS,
+        Permission.ADMIN_READ,
+        Permission.ADMIN_WRITE,
     },
     RoleType.ANALYST: {
         # Can work with models, data, and reports but limited user management
@@ -232,5 +237,7 @@ def get_permission_description(permission: Permission) -> str:
         Permission.AUDIT_LOGS: "View system audit logs",
         Permission.SYSTEM_HEALTH: "View system health and metrics",
         Permission.ADMIN_ACCESS: "Access administrative functions",
+        Permission.ADMIN_READ: "View administrative metrics and data",
+        Permission.ADMIN_WRITE: "Modify administrative settings",
     }
     return descriptions.get(permission, "Unknown permission")
