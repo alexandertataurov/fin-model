@@ -15,7 +15,8 @@ def test_root_endpoint():
     data = response.json()
     assert data["message"] == "FinVision API"
     assert data["version"] == "1.0.0"
-    assert "docs" in data
+    assert data["status"] == "running"
+    assert "cache_status" in data
 
 
 def test_health_endpoint():

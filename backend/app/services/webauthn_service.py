@@ -303,7 +303,7 @@ class WebAuthnService:
                 'challenge': bytes_to_base64url(challenge),
                 'type': challenge_type
             },
-            expires_at=datetime.now(timezone.utc) + timedelta(minutes=2)
+            expires_at=datetime.utcnow() + timedelta(minutes=2)
         )
 
         self.db.add(challenge_record)
@@ -321,13 +321,13 @@ class WebAuthnService:
         return self.db.query(MFAChallenge).filter(
             MFAChallenge.id == challenge_id,
             MFAChallenge.challenge_type == f"webauthn_{challenge_type}",
-            MFAChallenge.expires_at > datetime.now(timezone.utc)
+            MFAChallenge.expires_at > datetime.utcnow()
         ).first()
 
     def cleanup_expired_challenges(self):
         """Remove expired WebAuthn challenges."""
         self.db.query(MFAChallenge).filter(
-            MFAChallenge.expires_at <= datetime.now(timezone.utc)
+            MFAChallenge.expires_at <= datetime.utcnow()
         ).delete()
         self.db.commit()
 

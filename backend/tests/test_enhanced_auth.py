@@ -193,16 +193,23 @@ class TestWebAuthnService:
                 user_id=test_user.id,
                 challenge_type="webauthn_registration",
                 challenge_data={"test": "data"},
-                expires_at=datetime.now(timezone.utc) - timedelta(minutes=1)
+                expires_at=datetime.utcnow() - timedelta(minutes=1)
             )
             db_session.add(expired_challenge)
             db_session.commit()
+            db_session.refresh(expired_challenge)
+            
+            # Store the ID before cleanup
+            challenge_id = expired_challenge.id
             
             # Cleanup should remove expired challenge
             webauthn_service.cleanup_expired_challenges()
             
+            # Refresh session to clear any cached objects
+            db_session.expire_all()
+            
             remaining = db_session.query(MFAChallenge).filter(
-                MFAChallenge.id == expired_challenge.id
+                MFAChallenge.id == challenge_id
             ).first()
             assert remaining is None
             
@@ -257,12 +264,12 @@ class TestWebAuthnService:
 class TestEnhancedAuthEndpoints:
     """Test enhanced authentication API endpoints."""
 
-    def test_mfa_setup_requires_auth(self):
+    def test_mfa_setup_requires_auth(self, client):
         """Test that MFA setup requires authentication."""
         response = client.post("/api/v1/auth/mfa/setup")
         assert response.status_code == 401
 
-    def test_oauth_login_google(self):
+    def test_oauth_login_google(self, client):
         """Test Google OAuth login initiation."""
         # This would require proper OAuth configuration
         # For now, just test that the endpoint exists
@@ -270,12 +277,12 @@ class TestEnhancedAuthEndpoints:
         # Expecting redirect or error due to missing OAuth config
         assert response.status_code in [302, 500]
 
-    def test_webauthn_registration_requires_auth(self):
+    def test_webauthn_registration_requires_auth(self, client):
         """Test that WebAuthn registration requires authentication."""
         response = client.post("/api/v1/auth/webauthn/register/begin")
         assert response.status_code == 401
 
-    def test_enhanced_login_invalid_credentials(self):
+    def test_enhanced_login_invalid_credentials(self, client):
         """Test enhanced login with invalid credentials."""
         response = client.post("/api/v1/auth/login-enhanced", json={
             "username": "nonexistent@example.com",
@@ -283,7 +290,7 @@ class TestEnhancedAuthEndpoints:
         })
         assert response.status_code == 401
 
-    def test_enhanced_login_missing_credentials(self):
+    def test_enhanced_login_missing_credentials(self, client):
         """Test enhanced login with missing credentials."""
         response = client.post("/api/v1/auth/login-enhanced", json={
             "username": "test@example.com"
@@ -310,7 +317,7 @@ class TestSecurityFeatures:
         
         assert secret1 != secret2
 
-    def test_rate_limiting_headers(self):
+    def test_rate_limiting_headers(self, client):
         """Test that rate limiting is applied to auth endpoints."""
         # Make multiple requests to trigger rate limiting
         for _ in range(6):  # More than the limit of 5

@@ -175,16 +175,19 @@ class ExcelParser:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
         workbook = load_workbook(file_path, data_only=True)
-        sheets = []
-        for sheet_name in workbook.sheetnames:
-            sheet = workbook[sheet_name]
-            data = [list(row) for row in sheet.iter_rows(values_only=True)]
-            sheets.append({"name": sheet_name, "type": "financial", "data": data})
-        return {
-            "file_path": file_path,
-            "sheets": sheets,
-            "metadata": {"sheet_count": len(sheets)},
-        }
+        try:
+            sheets = []
+            for sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+                data = [list(row) for row in sheet.iter_rows(values_only=True)]
+                sheets.append({"name": sheet_name, "type": "financial", "data": data})
+            return {
+                "file_path": file_path,
+                "sheets": sheets,
+                "metadata": {"sheet_count": len(sheets)},
+            }
+        finally:
+            workbook.close()
 
     # The remaining complex implementation is kept for completeness but unused in tests
     def parse_excel_file(self, file_path: str) -> ParsedData:
