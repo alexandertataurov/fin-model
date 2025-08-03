@@ -10,14 +10,14 @@ from app.core.config import settings
 from app.api.v1.api import api_router
 from app.middleware.monitoring_middleware import MonitoringMiddleware
 
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.inmemory import InMemoryBackend
+# from fastapi_cache2 import FastAPICache
+# from fastapi_cache2.backends.inmemory import InMemoryBackend
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Initialize FastAPI cache on startup."""
-    FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")
+    # FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")
     yield
 
 
