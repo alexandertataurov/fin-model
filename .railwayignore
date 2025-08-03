@@ -1,5 +1,6 @@
 # Ignore frontend files during backend deployment
 frontend/
+frontend/**
 netlify.toml
 .netlify/
 
@@ -14,6 +15,14 @@ tasks/
 # Ignore Docker files (using Railway's build)
 docker-compose*.yml
 Dockerfile*
+
+# Ignore Node.js files (frontend only)
+frontend/package.json
+frontend/package-lock.json
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Ignore test files
 **/__pycache__/
