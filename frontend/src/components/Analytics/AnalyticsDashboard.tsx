@@ -264,7 +264,7 @@ const AnalyticsDashboard: React.FC = () => {
                   fill="#8884d8"
                   dataKey="count"
                 >
-                  {fileTypeDistribution.map((entry, index) => (
+                  {fileTypeDistribution.map((_, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={chartColors[index % chartColors.length]}

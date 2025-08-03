@@ -163,13 +163,14 @@ const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
   const calculateChange = (
     category: 'assets' | 'liabilities' | 'equity'
   ): number => {
-    const currentTotal = calculateTotal(category);
-    const previousTotal = data.metrics
-      .filter(m => m.category === category)
-      .reduce((sum, metric) => sum + (metric.previousValue || 0), 0);
-
-    if (previousTotal === 0) return 0;
-    return ((currentTotal - previousTotal) / previousTotal) * 100;
+    const metrics = data.metrics.filter(m => m.category === category);
+    const total = metrics.length;
+    if (total === 0) return 0;
+    const sumChange = metrics.reduce(
+      (sum, m) => sum + (m.change_percentage ?? 0),
+      0
+    );
+    return sumChange / total;
   };
 
   const getFinancialHealthColor = (): 'success' | 'warning' | 'error' => {

@@ -43,18 +43,24 @@ const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
       return <DollarSign className="text-primary" size={20} />;
     } else if (category.includes('inventory') || category.includes('stock')) {
       return <Package className="text-orange-500" size={20} />;
-    } else if (category.includes('property') || category.includes('equipment') || category.includes('asset')) {
+    } else if (
+      category.includes('property') ||
+      category.includes('equipment') ||
+      category.includes('asset')
+    ) {
       return <Building2 className="text-blue-500" size={20} />;
     }
     return <Banknote className="text-gray-500" size={20} />;
   };
 
-  const getTrendIcon = (trend?: string, changePercentage?: number) => {
-    if (!trend && !changePercentage) return <Minus className="text-gray-400" size={16} />;
-    
-    if (trend === 'up' || (changePercentage && changePercentage > 0)) {
+  const getTrendIcon = (trend?: string, changePercent?: number) => {
+    if (!trend && !changePercent) {
+      return <Minus className="text-gray-400" size={16} />;
+    }
+
+    if (trend === 'up' || (changePercent && changePercent > 0)) {
       return <TrendingUp className="text-green-500" size={16} />;
-    } else if (trend === 'down' || (changePercentage && changePercentage < 0)) {
+    } else if (trend === 'down' || (changePercent && changePercent < 0)) {
       return <TrendingDown className="text-red-500" size={16} />;
     }
     return <Minus className="text-gray-400" size={16} />;
@@ -74,14 +80,17 @@ const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
   const totalAssets = chartData.reduce((sum, item) => sum + item.value, 0);
 
   // Group assets by subcategory for better organization
-  const groupedAssets = assetMetrics.reduce((groups, asset) => {
-    const category = asset.subcategory || 'Other Assets';
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(asset);
-    return groups;
-  }, {} as Record<string, BalanceSheetMetric[]>);
+  const groupedAssets = assetMetrics.reduce(
+    (groups, asset) => {
+      const category = asset.subcategory || 'Other Assets';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(asset);
+      return groups;
+    },
+    {} as Record<string, BalanceSheetMetric[]>
+  );
 
   return (
     <Card>
@@ -103,7 +112,10 @@ const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
               </h4>
               <div className="space-y-2">
                 {assets.map((asset, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
                       {getAssetIcon(asset.subcategory || '')}
                       <div>
@@ -114,14 +126,19 @@ const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {asset.changePercentage !== undefined && (
+                      {asset.change_percentage !== undefined && (
                         <div className="flex items-center space-x-1">
-                          {getTrendIcon(asset.trend, asset.changePercentage)}
-                          <span className={`text-sm ${
-                            asset.changePercentage > 0 ? 'text-green-600' : 
-                            asset.changePercentage < 0 ? 'text-red-600' : 'text-gray-600'
-                          }`}>
-                            {formatPercentage(asset.changePercentage)}
+                          {getTrendIcon(asset.trend, asset.change_percentage)}
+                          <span
+                            className={`text-sm ${
+                              asset.change_percentage > 0
+                                ? 'text-green-600'
+                                : asset.change_percentage < 0
+                                  ? 'text-red-600'
+                                  : 'text-gray-600'
+                            }`}
+                          >
+                            {formatPercentage(asset.change_percentage)}
                           </span>
                         </div>
                       )}
@@ -141,7 +158,9 @@ const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
         <div className="bg-primary/5 p-4 rounded-lg">
           <div className="flex justify-between items-center">
             <span className="font-semibold">Total Assets</span>
-            <span className="text-xl font-bold">{formatCurrency(totalAssets)}</span>
+            <span className="text-xl font-bold">
+              {formatCurrency(totalAssets)}
+            </span>
           </div>
         </div>
       </CardContent>

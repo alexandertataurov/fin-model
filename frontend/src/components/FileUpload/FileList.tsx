@@ -110,15 +110,7 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
 
   const handleDownload = async (file: FileInfo) => {
     try {
-      const response = await fileApi.downloadFile(file.id);
-      const url = window.URL.createObjectURL(new Blob([response]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', file.filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      await fileApi.downloadFile(file.id, file.original_filename);
     } catch (error) {
       console.error('Download failed:', error);
     }
@@ -242,9 +234,9 @@ const FileList: React.FC<FileListProps> = ({ refreshTrigger }) => {
                     </TableCell>
                     <TableCell>{getStatusChip(file)}</TableCell>
                     <TableCell>
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                      {(file.file_size / 1024 / 1024).toFixed(2)} MB
                     </TableCell>
-                    <TableCell>{formatDate(file.uploaded_at)}</TableCell>
+                    <TableCell>{formatDate(file.created_at)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button

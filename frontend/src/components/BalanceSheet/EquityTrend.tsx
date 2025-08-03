@@ -39,7 +39,11 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
 
   const getEquityIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();
-    if (category.includes('share') || category.includes('stock') || category.includes('capital')) {
+    if (
+      category.includes('share') ||
+      category.includes('stock') ||
+      category.includes('capital')
+    ) {
       return <Building2 className="text-blue-500" size={20} />;
     } else if (category.includes('retained') || category.includes('earning')) {
       return <DollarSign className="text-green-500" size={20} />;
@@ -49,18 +53,22 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
     return <Banknote className="text-gray-500" size={20} />;
   };
 
-  const getTrendIcon = (trend?: string, changePercentage?: number) => {
-    if (!trend && !changePercentage) return <Minus className="text-gray-400" size={16} />;
-    
-    if (trend === 'up' || (changePercentage && changePercentage > 0)) {
+  const getTrendIcon = (trend?: string, changePercent?: number) => {
+    if (!trend && !changePercent) {
+      return <Minus className="text-gray-400" size={16} />;
+    }
+
+    if (trend === 'up' || (changePercent && changePercent > 0)) {
       return <TrendingUp className="text-green-500" size={16} />;
-    } else if (trend === 'down' || (changePercentage && changePercentage < 0)) {
+    } else if (trend === 'down' || (changePercent && changePercent < 0)) {
       return <TrendingDown className="text-red-500" size={16} />;
     }
     return <Minus className="text-gray-400" size={16} />;
   };
 
-  const getEquityHealthColor = (roePlaceholder: number): 'success' | 'warning' | 'error' => {
+  const getEquityHealthColor = (
+    roePlaceholder: number
+  ): 'success' | 'warning' | 'error' => {
     if (roePlaceholder > 15) return 'success';
     if (roePlaceholder > 5) return 'warning';
     return 'error';
@@ -87,16 +95,20 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
     value: item.value,
     [item.period]: item.value,
   }));
+  const chartSeries = [{ dataKey: 'value', name: 'Equity' }];
 
   // Group equity by subcategory
-  const groupedEquity = equityMetrics.reduce((groups, equity) => {
-    const category = equity.subcategory || 'Other Equity';
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(equity);
-    return groups;
-  }, {} as Record<string, BalanceSheetMetric[]>);
+  const groupedEquity = equityMetrics.reduce(
+    (groups, equity) => {
+      const category = equity.subcategory || 'Other Equity';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(equity);
+      return groups;
+    },
+    {} as Record<string, BalanceSheetMetric[]>
+  );
 
   return (
     <Card>
@@ -106,7 +118,7 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
       <CardContent className="space-y-6">
         {/* Chart Section */}
         <div className="h-64">
-          <LineChart data={chartData} />
+          <LineChart data={chartData} series={chartSeries} />
         </div>
 
         {/* Equity Components */}
@@ -118,7 +130,10 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
               </h4>
               <div className="space-y-2">
                 {equities.map((equity, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
                       {getEquityIcon(equity.subcategory || '')}
                       <div>
@@ -129,14 +144,19 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {equity.changePercentage !== undefined && (
+                      {equity.change_percentage !== undefined && (
                         <div className="flex items-center space-x-1">
-                          {getTrendIcon(equity.trend, equity.changePercentage)}
-                          <span className={`text-sm ${
-                            equity.changePercentage > 0 ? 'text-green-600' : 
-                            equity.changePercentage < 0 ? 'text-red-600' : 'text-gray-600'
-                          }`}>
-                            {formatPercentage(equity.changePercentage)}
+                          {getTrendIcon(equity.trend, equity.change_percentage)}
+                          <span
+                            className={`text-sm ${
+                              equity.change_percentage > 0
+                                ? 'text-green-600'
+                                : equity.change_percentage < 0
+                                  ? 'text-red-600'
+                                  : 'text-gray-600'
+                            }`}
+                          >
+                            {formatPercentage(equity.change_percentage)}
                           </span>
                         </div>
                       )}
@@ -161,21 +181,36 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">Total Equity</p>
-                <p className="text-2xl font-bold">{formatCurrency(totalEquity)}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(totalEquity)}
+                </p>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">Equity Ratio</p>
                 <p className="text-2xl font-bold">
-                  {totalAssets > 0 ? ((totalEquity / totalAssets) * 100).toFixed(1) : '0'}%
+                  {totalAssets > 0
+                    ? ((totalEquity / totalAssets) * 100).toFixed(1)
+                    : '0'}
+                  %
                 </p>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">Estimated ROE</p>
                 <p className="text-2xl font-bold">{estimatedROE.toFixed(1)}%</p>
-                <Badge variant={getEquityHealthColor(estimatedROE) === 'success' ? 'default' : 
-                              getEquityHealthColor(estimatedROE) === 'warning' ? 'secondary' : 'destructive'}>
-                  {getEquityHealthColor(estimatedROE) === 'success' ? 'Excellent' : 
-                   getEquityHealthColor(estimatedROE) === 'warning' ? 'Good' : 'Needs Attention'}
+                <Badge
+                  variant={
+                    getEquityHealthColor(estimatedROE) === 'success'
+                      ? 'default'
+                      : getEquityHealthColor(estimatedROE) === 'warning'
+                        ? 'secondary'
+                        : 'destructive'
+                  }
+                >
+                  {getEquityHealthColor(estimatedROE) === 'success'
+                    ? 'Excellent'
+                    : getEquityHealthColor(estimatedROE) === 'warning'
+                      ? 'Good'
+                      : 'Needs Attention'}
                 </Badge>
               </div>
             </div>
