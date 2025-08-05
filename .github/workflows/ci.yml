@@ -20,52 +20,39 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        working-directory: ./frontend
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
+      - name: Setup npm cache
         uses: actions/cache@v3
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-node-
 
       - name: Install dependencies (ultra-fast)
         working-directory: ./frontend
         run: |
-          # Use production-only dependencies for faster CI
-          cp package-ci.json package.json
-          pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
+          # Use optimized npm with dev dependencies omitted
+          npm ci --prefer-offline --no-audit --no-fund --omit=dev
         env:
           NODE_ENV: production
 
       - name: Run linting
         working-directory: ./frontend
-        run: pnpm lint:ci
+        run: npm run lint:ci
 
       - name: Run type checking
         working-directory: ./frontend
-        run: pnpm type-check
+        run: npm run type-check
 
       - name: Run tests
         working-directory: ./frontend
-        run: pnpm test:minimal:ci
+        run: npm run test:ci:fast
         env:
           NODE_ENV: test
 
       - name: Build (optimized)
         working-directory: ./frontend
-        run: pnpm build:netlify:prod
+        run: npm run build:netlify:prod
         env:
           NODE_ENV: production
           NODE_OPTIONS: "--max-old-space-size=8192"

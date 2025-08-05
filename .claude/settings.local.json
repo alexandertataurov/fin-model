@@ -74,7 +74,10 @@
       "Bash(pnpm import:*)",
       "Bash(timeout 120 npm run test:build-performance)",
       "Bash(timeout 60 pnpm install:*)",
-      "Bash(timeout 30 pnpm build:netlify:prod)"
+      "Bash(timeout 30 pnpm build:netlify:prod)",
+      "Bash(pnpm install:*)",
+      "Bash(timeout 60 npm run build:netlify:prod)",
+      "Bash(npm run preview:*)"
     ],
     "deny": []
   }

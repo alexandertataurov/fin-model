@@ -2,7 +2,7 @@
 
 [build]
   base = "frontend"
-  command = "npm install -g pnpm@8 && cp package-ci.json package.json && pnpm install --frozen-lockfile --prefer-offline --ignore-scripts && pnpm build:netlify:prod"
+  command = "npm ci --prefer-offline --no-audit --no-fund --omit=dev && npm run build:netlify:prod"
   publish = "dist"
 
   [build.environment]
@@ -100,19 +100,19 @@
 
 # Environment-specific configs
 [context.production]
-  command = "npm install -g pnpm@8 && cp package-ci.json package.json && pnpm install --frozen-lockfile --prefer-offline --ignore-scripts && pnpm build:netlify:prod"
+  command = "npm ci --prefer-offline --no-audit --no-fund --omit=dev && npm run build:netlify:prod"
   [context.production.environment]
     NODE_ENV = "production"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.deploy-preview]
-  command = "npm install -g pnpm@8 && cp package-ci.json package.json && pnpm install --frozen-lockfile --prefer-offline --ignore-scripts && pnpm build:netlify:preview"
+  command = "npm ci --prefer-offline --no-audit --no-fund --omit=dev && npm run build:netlify:preview"
   [context.deploy-preview.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.branch-deploy]
-  command = "npm install -g pnpm@8 && cp package-ci.json package.json && pnpm install --frozen-lockfile --prefer-offline --ignore-scripts && pnpm build:netlify:preview"
+  command = "npm ci --prefer-offline --no-audit --no-fund --omit=dev && npm run build:netlify:preview"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"

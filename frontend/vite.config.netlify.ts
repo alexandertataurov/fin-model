@@ -110,72 +110,10 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
 
     rollupOptions: {
-      external: id => {
-        // Externalize heavy dependencies that shouldn't be bundled
-        return (
-          id.startsWith('puppeteer') ||
-          id.startsWith('lighthouse') ||
-          id.startsWith('cypress') ||
-          id.startsWith('vitest') ||
-          id.startsWith('storybook') ||
-          id.startsWith('eslint') ||
-          id.startsWith('prettier')
-        );
-      },
-
       output: {
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        manualChunks: id => {
-          if (id.includes('node_modules')) {
-            // Core React
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-core';
-            }
-            // UI Libraries
-            if (id.includes('@radix-ui')) {
-              return 'radix-ui';
-            }
-            // Charts
-            if (id.includes('recharts')) {
-              return 'charts';
-            }
-            // Forms
-            if (
-              id.includes('react-hook-form') ||
-              id.includes('zod') ||
-              id.includes('formik') ||
-              id.includes('yup')
-            ) {
-              return 'forms';
-            }
-            // Utilities
-            if (
-              id.includes('date-fns') ||
-              id.includes('clsx') ||
-              id.includes('tailwind-merge')
-            ) {
-              return 'utils';
-            }
-            // State management
-            if (
-              id.includes('zustand') ||
-              id.includes('@tanstack/react-query')
-            ) {
-              return 'state';
-            }
-            // Everything else
-            return 'vendor';
-          }
-        },
-      },
-
-      treeshake: {
-        preset: 'recommended',
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-        unknownGlobalSideEffects: false,
       },
     },
   },
