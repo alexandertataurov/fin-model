@@ -1,5 +1,4 @@
 // Jest globals are available without explicit import
-import { expect } from 'vitest';
 import { configureAxe } from 'jest-axe';
 import { render as customRender } from './test-utils';
 import App from '../App';
