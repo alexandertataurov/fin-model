@@ -28,10 +28,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies (ultra-fast)
+      - name: Install dependencies (optimized for CI)
         working-directory: ./frontend
         run: |
-          # Install all dependencies for CI (needed for linting/testing)
+          # Install all dependencies for CI (includes dev tools for linting/testing)
           npm ci --prefer-offline --no-audit --no-fund
         env:
           NODE_ENV: production
