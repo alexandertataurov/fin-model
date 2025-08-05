@@ -197,7 +197,7 @@ export default function App() {
                   {/* Default redirects */}
                   <Route
                     path="/"
-                    element={<Navigate to="/dashboard" replace />}
+                    element={<Navigate to="/login" replace />}
                   />
 
                   {/* 404 Fallback */}
