@@ -106,9 +106,9 @@
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.deploy-preview]
-  command = "npm ci --prefer-offline --no-audit --no-fund --omit=dev && npm run build:netlify:preview"
+  command = "npm ci --prefer-offline --no-audit --no-fund --omit=dev && npm run build:netlify:simple"
   [context.deploy-preview.environment]
-    NODE_ENV = "development"
+    NODE_ENV = "production"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.branch-deploy]

@@ -10,6 +10,7 @@
     "build:netlify": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=512\" vite build --config vite.config.netlify.ts --mode production",
     "build:netlify:prod": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=512\" vite build --config vite.config.netlify.ts --mode production --minify esbuild",
     "build:netlify:preview": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=512\" vite build --config vite.config.netlify.ts --mode development",
+    "build:netlify:simple": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" vite build --config vite.config.netlify.simple.ts --mode production",
     "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
     "type-check": "tsc --noEmit",
     "test:minimal:ci": "cross-env CI=true vitest run --config vitest.config.minimal.ts"

@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Simple configuration for reliable builds
+      jsxRuntime: 'automatic',
+    }),
   ],
 
   // Optimize dependencies for faster builds
