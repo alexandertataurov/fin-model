@@ -8,7 +8,10 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi } from 'vitest';
 import { DashboardApiService } from '../services/dashboardApi';
-import { useCashFlowDashboard, usePLDashboard } from '../hooks/useDashboardData';
+import {
+  useCashFlowDashboard,
+  usePLDashboard,
+} from '../hooks/useDashboardData';
 import { DashboardCacheManager } from '../utils/dashboardCache';
 
 // Mock the dashboard API service
@@ -22,7 +25,7 @@ vi.mock('../services/dashboardApi', () => ({
 
 // Mock the cache manager
 vi.mock('../utils/dashboardCache', async () => {
-  const actual = await vi.importActual('../utils/dashboardCache');
+  const actual = (await vi.importActual('../utils/dashboardCache')) as any;
   return {
     ...actual,
     DashboardCacheManager: {
@@ -38,7 +41,9 @@ vi.mock('../utils/dashboardCache', async () => {
       optimizeChartData: vi.fn((data: any[], maxPoints: number) => {
         if (data.length <= maxPoints) return data;
         const step = Math.ceil(data.length / maxPoints);
-        return data.filter((_: any, i: number) => i % step === 0).slice(0, maxPoints);
+        return data
+          .filter((_: any, i: number) => i % step === 0)
+          .slice(0, maxPoints);
       }),
       compressData: vi.fn((data: any[]) => {
         return data.map((item: any) => {
@@ -143,10 +148,15 @@ describe('Dashboard Integration', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('test-data')).toHaveTextContent('Data loaded');
+        expect(screen.getByTestId('test-data')).toHaveTextContent(
+          'Data loaded'
+        );
       });
 
-      expect(DashboardApiService.getCashFlowMetrics).toHaveBeenCalledWith('ytd', undefined);
+      expect(DashboardApiService.getCashFlowMetrics).toHaveBeenCalledWith(
+        'ytd',
+        undefined
+      );
     });
 
     it('should handle API errors gracefully', async () => {
@@ -242,10 +252,15 @@ describe('Dashboard Integration', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('test-data')).toHaveTextContent('Data loaded');
+        expect(screen.getByTestId('test-data')).toHaveTextContent(
+          'Data loaded'
+        );
       });
 
-      expect(DashboardApiService.getPLMetrics).toHaveBeenCalledWith('ytd', undefined);
+      expect(DashboardApiService.getPLMetrics).toHaveBeenCalledWith(
+        'ytd',
+        undefined
+      );
     });
   });
 
@@ -284,7 +299,9 @@ describe('Dashboard Integration', () => {
         generated_at: '2024-01-01T00:00:00Z',
       };
 
-      vi.mocked(DashboardApiService.getCashFlowMetrics).mockResolvedValue(mockData);
+      vi.mocked(DashboardApiService.getCashFlowMetrics).mockResolvedValue(
+        mockData
+      );
 
       const TestComponent = () => {
         const { data } = useCashFlowDashboard('ytd');
@@ -300,7 +317,9 @@ describe('Dashboard Integration', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('test-data')).toHaveTextContent('Data loaded');
+        expect(screen.getByTestId('test-data')).toHaveTextContent(
+          'Data loaded'
+        );
       });
 
       expect(DashboardCacheManager.getCacheKey).toHaveBeenCalled();
