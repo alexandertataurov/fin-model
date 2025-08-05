@@ -15,7 +15,7 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["vitest/globals", "jest-axe"],
+    "types": ["vitest/globals"],
 
     /* Linting */
     "strict": true,
