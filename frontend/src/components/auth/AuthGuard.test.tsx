@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { vi } from 'vitest';
-import { AuthGuard } from './AuthGuard';
+import AuthGuard from './AuthGuard';
 import { AuthContext } from '../../contexts/AuthContext';
 
 // Mock the auth context

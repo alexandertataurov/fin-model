@@ -83,7 +83,7 @@ describe('LineChart', () => {
 
   it('shows title when provided', () => {
     const title = 'Revenue Trend';
-    render(<LineChart data={mockLineData} title={title} />);
+    render(<LineChart data={mockLineData} series={mockSeries} title={title} />);
 
     expect(screen.getByTestId('chart-title')).toHaveTextContent(title);
 
@@ -159,7 +159,7 @@ describe('LineChart', () => {
   });
 
   it('supports accessibility features', () => {
-    render(<LineChart data={mockLineData} title="Revenue Chart" />);
+    render(<LineChart data={mockLineData} series={mockSeries} title="Revenue Chart" />);
 
     // Chart should have a title for accessibility
     expect(screen.getAllByLabelText('Revenue Chart')).toHaveLength(2); // Card and chart both have the label
@@ -407,7 +407,7 @@ const mockPieData = [
 
 describe('Chart Accessibility', () => {
   it('charts have proper titles for accessibility', () => {
-    render(<LineChart data={mockLineData} title="Financial Revenue Chart" />);
+    render(<LineChart data={mockLineData} series={mockSeries} title="Financial Revenue Chart" />);
 
     expect(screen.getAllByLabelText('Financial Revenue Chart')).toHaveLength(2); // Card and chart both have the label
   });

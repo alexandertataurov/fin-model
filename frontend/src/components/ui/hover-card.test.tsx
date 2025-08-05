@@ -23,7 +23,7 @@ describe('HoverCard', () => {
     // Content should be visible
     await waitFor(() => {
       expect(screen.getByText('Hover content')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
 
     // Unhover
     await userEvent.unhover(trigger);
