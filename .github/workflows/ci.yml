@@ -33,20 +33,31 @@ jobs:
         run: |
           # Install all dependencies for CI (includes dev tools for linting/testing)
           npm ci --prefer-offline --no-audit --no-fund
+          # Verify essential tools are available
+          echo "Verifying CI tools..."
+          npx eslint --version && echo "✅ ESLint found"
+          npx tsc --version && echo "✅ TypeScript found"  
+          npx vitest --version && echo "✅ Vitest found"
         env:
           NODE_ENV: production
 
       - name: Run linting
         working-directory: ./frontend
-        run: npm run lint:ci
+        run: |
+          # Use npx to ensure ESLint is found
+          npx eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100
 
       - name: Run type checking
         working-directory: ./frontend
-        run: npm run type-check
+        run: |
+          # Use npx to ensure TypeScript is found
+          npx tsc --noEmit
 
       - name: Run tests
         working-directory: ./frontend
-        run: npm run test:ci:fast
+        run: |
+          # Use npx to ensure Vitest is found
+          npx vitest run --reporter=verbose
         env:
           NODE_ENV: test
 
