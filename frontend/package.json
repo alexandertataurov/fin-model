@@ -15,7 +15,8 @@
     "analyze:build": "npm run build && npm run analyze",
     "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
     "type-check": "tsc --noEmit",
-    "test:minimal:ci": "cross-env CI=true vitest run --config vitest.config.minimal.ts"
+    "test:minimal:ci": "cross-env CI=true vitest run --config vitest.config.minimal.ts",
+    "verify-build": "node scripts/verify-build.js"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",
@@ -62,7 +63,7 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.533.0",
     "postcss": "^8.5.6",
-    "react": "^18.3.1",
+    "react": "^18.2.0",
     "react-day-picker": "^9.8.1",
     "react-dnd": "16.0.1",
     "react-dnd-html5-backend": "16.0.1",

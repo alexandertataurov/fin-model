@@ -187,6 +187,7 @@ describe('Dashboard Integration', () => {
         const query = useCashFlowDashboard('ytd', undefined, {
           staleTime: 0,
           cacheTime: 0,
+          retry: false, // Explicitly disable retries for this test
         });
 
         const { error, isError, isLoading } = query;

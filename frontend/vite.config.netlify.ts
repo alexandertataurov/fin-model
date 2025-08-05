@@ -5,8 +5,9 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [
     react({
-      // Simple configuration for reliable builds
+      // Explicit JSX runtime configuration for reliable builds
       jsxRuntime: 'automatic',
+      jsxImportSource: 'react',
     }),
   ],
 

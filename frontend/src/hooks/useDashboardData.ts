@@ -22,6 +22,7 @@ export interface DashboardQueryOptions {
   staleTime?: number;
   cacheTime?: number;
   refetchOnWindowFocus?: boolean;
+  retry?: boolean | number | ((failureCount: number, error: any) => boolean);
 }
 
 const DEFAULT_OPTIONS: DashboardQueryOptions = {
