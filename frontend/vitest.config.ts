@@ -22,26 +22,27 @@ export default defineConfig({
         '**/coverage/**',
       ],
     },
-    // CI-specific settings
-    testTimeout: process.env.CI ? 30000 : 10000, // Longer timeout in CI
-    hookTimeout: process.env.CI ? 30000 : 10000,
-    // Exclude performance tests in CI to prevent freezing
-    exclude: process.env.CI 
-      ? [
-          '**/node_modules/**',
-          '**/dist/**',
-          '**/cypress/**',
-          '**/.{idea,git,cache,output,temp}/**',
-          '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-          '**/src/utils/performance.test.tsx', // Skip performance tests in CI
-        ]
-      : [
-          '**/node_modules/**',
-          '**/dist/**',
-          '**/cypress/**',
-          '**/.{idea,git,cache,output,temp}/**',
-          '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-        ],
+    // CI-specific settings - reduced timeouts to prevent hanging
+    testTimeout: process.env.CI ? 15000 : 8000, // Reduced timeout to catch hanging tests faster
+    hookTimeout: process.env.CI ? 15000 : 8000,
+    // Global test configuration
+    bail: process.env.CI ? 5 : 3, // Stop after 3-5 failures to save time
+    poolOptions: {
+      threads: {
+        singleThread: process.env.CI ? false : true, // Single thread locally for easier debugging
+      },
+    },
+    // Optimized exclusions - performance tests now mocked so can run everywhere
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+    ],
+    // Reporter configuration
+    reporter: process.env.CI ? ['junit', 'github-actions'] : ['verbose'],
+    outputFile: process.env.CI ? 'test-results.xml' : undefined,
   },
   resolve: {
     alias: {

@@ -1,25 +1,36 @@
-# Netlify Configuration for FinVision Frontend - Optimized Build
+# Netlify Configuration for FinVision Frontend - Ultra Optimized Build
 
 [build]
   base = "frontend"
-  command = "npm ci --omit=optional --prefer-offline && npm run build:fast"
+  command = "npm ci --omit=optional --prefer-offline --no-audit --no-fund && npm run build:netlify"
   publish = "dist"
 
   [build.environment]
     NODE_VERSION = "20"
-    # Enable build performance optimizations
-    NODE_OPTIONS = "--max-old-space-size=8192"
-    # Skip npm operations for faster builds
+    # Aggressive memory and performance optimizations
+    NODE_OPTIONS = "--max-old-space-size=8192 --max-semi-space-size=512"
+    # Skip all npm operations that slow down builds
     NPM_CONFIG_AUDIT = "false"
     NPM_CONFIG_FUND = "false"
     NPM_CONFIG_OPTIONAL = "false"
     NPM_CONFIG_PROGRESS = "false"
+    NPM_CONFIG_UPDATE_NOTIFIER = "false"
+    NPM_CONFIG_LOGLEVEL = "error"
     # Optimize npm performance
-    NPM_CONFIG_MAXSOCKETS = "20"
+    NPM_CONFIG_MAXSOCKETS = "50"
     NPM_CONFIG_PREFER_ONLINE = "true"
     NPM_CONFIG_INSTALL_STRATEGY = "shallow"
+    NPM_CONFIG_CACHE = ".npm-cache"
+    # Build optimizations
+    VITE_BUILD_ANALYZE = "false"
+    VITE_LEGACY_BUILD = "false"
+    VITE_DEV_SOURCEMAP = "false"
+    VITE_SOURCEMAP = "false"
+    # Skip unnecessary operations
+    SKIP_PREFLIGHT_CHECK = "true"
+    CI = "true"
 
-# Build optimizations
+# Build optimizations - disable all processing
 [build.processing]
   skip_processing = true
 
@@ -101,28 +112,32 @@
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
-# Environment-specific configs
+# Environment-specific configs with aggressive optimizations
 [context.production]
-  command = "npm ci --omit=optional --prefer-offline && npm run build:optimized"
+  command = "npm ci --omit=optional --prefer-offline --no-audit --no-fund && npm run build:netlify:prod"
   [context.production.environment]
     NODE_ENV = "production"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
     VITE_BUILD_ANALYZE = "false"
     VITE_LEGACY_BUILD = "false"
+    VITE_SOURCEMAP = "false"
+    VITE_DEV_SOURCEMAP = "false"
 
 [context.deploy-preview]
-  command = "npm ci --omit=optional --prefer-offline && npm run build:fast"
+  command = "npm ci --omit=optional --prefer-offline --no-audit --no-fund && npm run build:netlify:preview"
   [context.deploy-preview.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
     VITE_DEV_SOURCEMAP = "false"
+    VITE_SOURCEMAP = "false"
 
 [context.branch-deploy]
-  command = "npm ci --omit=optional --prefer-offline && npm run build:fast"
+  command = "npm ci --omit=optional --prefer-offline --no-audit --no-fund && npm run build:netlify:preview"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
     VITE_DEV_SOURCEMAP = "false"
+    VITE_SOURCEMAP = "false"
 
 # Netlify Functions config
 [functions]

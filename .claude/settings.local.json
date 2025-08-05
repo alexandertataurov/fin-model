@@ -63,7 +63,12 @@
       "Bash(git checkout:*)",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m alembic revision -m \"add_notification_tables\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m py_compile \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\alembic\\versions\\cb40847ce093_add_notification_tables.py\")",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(timeout 30 npm test -- performance.test.tsx --run)",
+      "Bash(timeout 60 npm test -- a11y.test.tsx --run)",
+      "Bash(timeout 120 npm test -- --run)",
+      "Bash(timeout 30 npm test -- AuthGuard.test.tsx --run)",
+      "Bash(timeout 60 npm test:*)"
     ],
     "deny": []
   }

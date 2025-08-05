@@ -237,48 +237,57 @@ export const createMockParameter = (
 });
 
 // Mock axios for API calls
+const mockAxiosInstance = {
+  get: vi.fn().mockResolvedValue({
+    data: {
+      overview: {
+        total_files: 25,
+        completed_files: 20,
+        failed_files: 5,
+        success_rate: 80,
+        average_processing_time_minutes: 2.5,
+        total_size_mb: 150,
+      },
+      daily_trends: [
+        { date: '2023-01-01', total_files: 5, completed_files: 4, failed_files: 1, success_rate: 80, total_size_mb: 30 },
+        { date: '2023-01-02', total_files: 8, completed_files: 7, failed_files: 1, success_rate: 87.5, total_size_mb: 45 },
+      ],
+      file_type_distribution: {
+        distribution: [
+          { file_type: 'xlsx', count: 15, percentage: 60, average_size_mb: 8 },
+          { file_type: 'csv', count: 10, percentage: 40, average_size_mb: 3 },
+        ],
+      },
+      top_users: [
+        { username: 'user1', total_uploads: 10, success_rate: 90 },
+        { username: 'user2', total_uploads: 8, success_rate: 75 },
+      ],
+      error_summary: {
+        total_errors: 5,
+        top_error_categories: [
+          { category: 'Format Error', count: 3 },
+          { category: 'Size Limit', count: 2 },
+        ],
+      },
+      performance_summary: {
+        avg_processing_time: 2.5,
+        throughput: 10,
+      },
+    },
+  }),
+  post: vi.fn().mockResolvedValue({ data: { success: true } }),
+  put: vi.fn().mockResolvedValue({ data: { success: true } }),
+  delete: vi.fn().mockResolvedValue({ data: { success: true } }),
+  interceptors: {
+    request: { use: vi.fn() },
+    response: { use: vi.fn() }
+  }
+};
+
 vi.mock('axios', () => ({
   default: {
-    get: vi.fn().mockResolvedValue({
-      data: {
-        overview: {
-          total_files: 25,
-          completed_files: 20,
-          failed_files: 5,
-          success_rate: 80,
-          average_processing_time_minutes: 2.5,
-          total_size_mb: 150,
-        },
-        daily_trends: [
-          { date: '2023-01-01', total_files: 5, completed_files: 4, failed_files: 1, success_rate: 80, total_size_mb: 30 },
-          { date: '2023-01-02', total_files: 8, completed_files: 7, failed_files: 1, success_rate: 87.5, total_size_mb: 45 },
-        ],
-        file_type_distribution: {
-          distribution: [
-            { file_type: 'xlsx', count: 15, percentage: 60, average_size_mb: 8 },
-            { file_type: 'csv', count: 10, percentage: 40, average_size_mb: 3 },
-          ],
-        },
-        top_users: [
-          { username: 'user1', total_uploads: 10, success_rate: 90 },
-          { username: 'user2', total_uploads: 8, success_rate: 75 },
-        ],
-        error_summary: {
-          total_errors: 5,
-          top_error_categories: [
-            { category: 'Format Error', count: 3 },
-            { category: 'Size Limit', count: 2 },
-          ],
-        },
-        performance_summary: {
-          avg_processing_time: 2.5,
-          throughput: 10,
-        },
-      },
-    }),
-    post: vi.fn().mockResolvedValue({ data: { success: true } }),
-    put: vi.fn().mockResolvedValue({ data: { success: true } }),
-    delete: vi.fn().mockResolvedValue({ data: { success: true } }),
+    ...mockAxiosInstance,
+    create: vi.fn(() => mockAxiosInstance),
   },
 }));
 
