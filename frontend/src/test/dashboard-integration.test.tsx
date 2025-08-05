@@ -7,11 +7,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi } from 'vitest';
-import {
-  useCashFlowDashboard,
-  usePLDashboard,
-} from '../hooks/useDashboardData';
 import { DashboardApiService } from '../services/dashboardApi';
+import { useCashFlowDashboard, usePLDashboard } from '../hooks/useDashboardData';
 import { DashboardCacheManager } from '../utils/dashboardCache';
 
 // Mock the dashboard API service
@@ -20,7 +17,6 @@ vi.mock('../services/dashboardApi', () => ({
     getCashFlowMetrics: vi.fn(),
     getPLMetrics: vi.fn(),
     getBalanceSheetMetrics: vi.fn(),
-    refreshDashboard: vi.fn(),
   },
 }));
 
@@ -30,8 +26,8 @@ vi.mock('../utils/dashboardCache', async () => {
   return {
     ...actual,
     DashboardCacheManager: {
-      getCacheKey: vi.fn((type, period, fileId) => {
-        const keys = {
+      getCacheKey: vi.fn((type: string, period: string, fileId?: number) => {
+        const keys: Record<string, string> = {
           CASH_FLOW: 'cash-flow-dashboard',
           PL: 'pl-dashboard',
           BALANCE_SHEET: 'balance-sheet-dashboard',
@@ -39,19 +35,19 @@ vi.mock('../utils/dashboardCache', async () => {
         return [keys[type] || type, period, fileId?.toString()].filter(Boolean);
       }),
       getQueryConfig: vi.fn(() => ({ staleTime: 300000, cacheTime: 600000 })),
-      optimizeChartData: vi.fn((data, maxPoints) => {
+      optimizeChartData: vi.fn((data: any[], maxPoints: number) => {
         if (data.length <= maxPoints) return data;
         const step = Math.ceil(data.length / maxPoints);
-        return data.filter((_, i) => i % step === 0).slice(0, maxPoints);
+        return data.filter((_: any, i: number) => i % step === 0).slice(0, maxPoints);
       }),
-      compressData: vi.fn(data => {
-        return data.map(item => {
+      compressData: vi.fn((data: any[]) => {
+        return data.map((item: any) => {
           const compressed = { ...item };
           if (typeof compressed.value === 'number') {
             compressed.value = Math.round(compressed.value * 100) / 100;
           }
           // Remove null and undefined fields
-          Object.keys(compressed).forEach(key => {
+          Object.keys(compressed).forEach((key: string) => {
             if (compressed[key] === null || compressed[key] === undefined) {
               delete compressed[key];
             }
@@ -85,16 +81,38 @@ describe('Dashboard Integration', () => {
   describe('Cash Flow Dashboard', () => {
     it('should fetch cash flow data successfully', async () => {
       const mockData = {
-        overview: {
-          total_cash_flow: 1000000,
-          operating_cash_flow: 500000,
-          investing_cash_flow: -200000,
-          financing_cash_flow: 300000,
-        },
+        metrics: [
+          {
+            id: 'total_cash_flow',
+            name: 'Total Cash Flow',
+            value: 1000000,
+            unit: 'USD',
+            format_type: 'currency' as const,
+            period: 'ytd',
+            last_updated: '2024-01-01T00:00:00Z',
+            display_order: 1,
+          },
+        ],
         charts: {
-          monthly_cash_flow: [
-            { month: 'Jan', value: 100000 },
-            { month: 'Feb', value: 150000 },
+          cash_waterfall: [
+            { period: 'Jan', value: 100000, date: '2024-01-01' },
+            { period: 'Feb', value: 150000, date: '2024-02-01' },
+          ],
+          cash_position: [
+            { period: 'Jan', value: 100000, date: '2024-01-01' },
+            { period: 'Feb', value: 250000, date: '2024-02-01' },
+          ],
+          operating_cash_flow: [
+            { period: 'Jan', value: 500000, date: '2024-01-01' },
+            { period: 'Feb', value: 600000, date: '2024-02-01' },
+          ],
+          investing_cash_flow: [
+            { period: 'Jan', value: -200000, date: '2024-01-01' },
+            { period: 'Feb', value: -250000, date: '2024-02-01' },
+          ],
+          financing_cash_flow: [
+            { period: 'Jan', value: 300000, date: '2024-01-01' },
+            { period: 'Feb', value: 350000, date: '2024-02-01' },
           ],
         },
         period_info: {
@@ -125,14 +143,38 @@ describe('Dashboard Integration', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('test-data')).toHaveTextContent(
-          'Data loaded'
-        );
+        expect(screen.getByTestId('test-data')).toHaveTextContent('Data loaded');
       });
 
-      expect(DashboardApiService.getCashFlowMetrics).toHaveBeenCalledWith(
-        'ytd',
-        undefined
+      expect(DashboardApiService.getCashFlowMetrics).toHaveBeenCalledWith('ytd', undefined);
+    });
+
+    it('should handle API errors gracefully', async () => {
+      vi.mocked(DashboardApiService.getCashFlowMetrics).mockRejectedValue(
+        new Error('API Error')
+      );
+
+      const TestComponent = () => {
+        const { error } = useCashFlowDashboard('ytd');
+        return (
+          <div data-testid="error-display">
+            {error ? 'Error occurred' : 'No error'}
+          </div>
+        );
+      };
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <TestComponent />
+        </QueryClientProvider>
+      );
+
+      expect(screen.getByTestId('error-display')).toBeInTheDocument();
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('error-display')).toBeInTheDocument();
+        },
+        { timeout: 5000 }
       );
     });
   });
@@ -140,22 +182,44 @@ describe('Dashboard Integration', () => {
   describe('P&L Dashboard', () => {
     it('should fetch P&L data successfully', async () => {
       const mockData = {
-        overview: {
-          total_revenue: 2000000,
-          total_expenses: 1500000,
-          net_income: 500000,
-          gross_margin: 0.75,
-        },
+        metrics: [
+          {
+            id: 'total_revenue',
+            name: 'Total Revenue',
+            value: 2000000,
+            unit: 'USD',
+            format_type: 'currency' as const,
+            period: 'ytd',
+            last_updated: '2024-01-01T00:00:00Z',
+            display_order: 1,
+          },
+        ],
         charts: {
-          revenue_by_month: [
-            { month: 'Jan', value: 200000 },
-            { month: 'Feb', value: 250000 },
+          revenue_trend: [
+            { period: 'Jan', value: 500000, date: '2024-01-01' },
+            { period: 'Feb', value: 600000, date: '2024-02-01' },
+          ],
+          profit_margins: [
+            { period: 'Jan', value: 0.25, date: '2024-01-01' },
+            { period: 'Feb', value: 0.28, date: '2024-02-01' },
+          ],
+          expense_breakdown: [
+            { period: 'COGS', value: 1200000, date: '2024-01-01' },
+            { period: 'Operating', value: 400000, date: '2024-01-01' },
+          ],
+          gross_margin_trend: [
+            { period: 'Jan', value: 0.4, date: '2024-01-01' },
+            { period: 'Feb', value: 0.42, date: '2024-02-01' },
+          ],
+          operating_margin_trend: [
+            { period: 'Jan', value: 0.15, date: '2024-01-01' },
+            { period: 'Feb', value: 0.18, date: '2024-02-01' },
           ],
         },
         period_info: {
-          period: 'qtd',
+          period: 'ytd',
           start_date: '2024-01-01',
-          end_date: '2024-03-31',
+          end_date: '2024-12-31',
         },
         last_updated: '2024-01-01T00:00:00Z',
         data_quality_score: 0.85,
@@ -165,7 +229,7 @@ describe('Dashboard Integration', () => {
       vi.mocked(DashboardApiService.getPLMetrics).mockResolvedValue(mockData);
 
       const TestComponent = () => {
-        const { data } = usePLDashboard('qtd');
+        const { data } = usePLDashboard('ytd');
         return (
           <div data-testid="test-data">{data ? 'Data loaded' : 'Loading'}</div>
         );
@@ -178,85 +242,54 @@ describe('Dashboard Integration', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('test-data')).toHaveTextContent(
-          'Data loaded'
-        );
+        expect(screen.getByTestId('test-data')).toHaveTextContent('Data loaded');
       });
 
-      expect(DashboardApiService.getPLMetrics).toHaveBeenCalledWith(
-        'qtd',
-        undefined
-      );
+      expect(DashboardApiService.getPLMetrics).toHaveBeenCalledWith('ytd', undefined);
     });
   });
 
-  describe('Cache Manager', () => {
-    it('should generate correct cache keys', () => {
-      const cashFlowKey = DashboardCacheManager.getCacheKey(
-        'CASH_FLOW',
-        'ytd',
-        123
-      );
-      const plKey = DashboardCacheManager.getCacheKey('PL', 'qtd');
-
-      expect(cashFlowKey).toEqual(['cash-flow-dashboard', 'ytd', '123']);
-      expect(plKey).toEqual(['pl-dashboard', 'qtd']);
-    });
-
-    it('should optimize chart data for large datasets', () => {
-      const largeDataset = Array.from({ length: 200 }, (_, i) => ({
-        period: `Period ${i}`,
-        value: i * 100,
-      }));
-
-      const optimized = DashboardCacheManager.optimizeChartData(
-        largeDataset,
-        50
-      );
-
-      expect(optimized.length).toBeLessThanOrEqual(50);
-      expect(optimized[0]).toEqual({ period: 'Period 0', value: 0 });
-    });
-
-    it('should compress data by rounding numbers', () => {
-      const testData = [
-        { name: 'Test', value: 123.456789, description: 'Sample data' },
-        {
-          name: 'Test2',
-          value: 999.999999,
-          nullField: null,
-          undefinedField: undefined,
+  describe('Cache Management', () => {
+    it('should use cache manager for data optimization', async () => {
+      const mockData = {
+        metrics: [
+          {
+            id: 'test_metric',
+            name: 'Test Metric',
+            value: 1000,
+            unit: 'USD',
+            format_type: 'currency' as const,
+            period: 'ytd',
+            last_updated: '2024-01-01T00:00:00Z',
+            display_order: 1,
+          },
+        ],
+        charts: {
+          cash_waterfall: [
+            { period: 'Jan', value: 100000, date: '2024-01-01' },
+            { period: 'Feb', value: 150000, date: '2024-02-01' },
+          ],
+          cash_position: [],
+          operating_cash_flow: [],
+          investing_cash_flow: [],
+          financing_cash_flow: [],
         },
-      ];
-
-      const compressed = DashboardCacheManager.compressData(testData);
-
-      expect(compressed).toEqual([
-        { name: 'Test', value: 123.46, description: 'Sample data' },
-        { name: 'Test2', value: 1000 },
-      ]);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle API errors gracefully', async () => {
-      const errorResponse = {
-        response: {
-          data: { message: 'API Error' },
-          status: 500,
+        period_info: {
+          period: 'ytd',
+          start_date: '2024-01-01',
+          end_date: '2024-12-31',
         },
+        last_updated: '2024-01-01T00:00:00Z',
+        data_quality_score: 0.85,
+        generated_at: '2024-01-01T00:00:00Z',
       };
 
-      vi.mocked(DashboardApiService.getCashFlowMetrics).mockRejectedValue(
-        errorResponse
-      );
+      vi.mocked(DashboardApiService.getCashFlowMetrics).mockResolvedValue(mockData);
 
       const TestComponent = () => {
-        const { error, isError } = useCashFlowDashboard('ytd');
+        const { data } = useCashFlowDashboard('ytd');
         return (
-          <div data-testid="error-display">
-            {isError && error ? error.message : 'No error'}
-          </div>
+          <div data-testid="test-data">{data ? 'Data loaded' : 'Loading'}</div>
         );
       };
 
@@ -266,16 +299,12 @@ describe('Dashboard Integration', () => {
         </QueryClientProvider>
       );
 
-      // Component should render without crashing
-      expect(screen.getByTestId('error-display')).toBeInTheDocument();
-      
-      // The component should handle the error gracefully
-      await waitFor(
-        () => {
-          expect(screen.getByTestId('error-display')).toBeInTheDocument();
-        },
-        { timeout: 5000 }
-      );
+      await waitFor(() => {
+        expect(screen.getByTestId('test-data')).toHaveTextContent('Data loaded');
+      });
+
+      expect(DashboardCacheManager.getCacheKey).toHaveBeenCalled();
+      expect(DashboardCacheManager.getQueryConfig).toHaveBeenCalled();
     });
   });
 });

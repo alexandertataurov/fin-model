@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import FileUploadDropzone from '../FileUpload/FileUploadDropzone';
@@ -35,8 +34,8 @@ describe('FileUploadDropzone', () => {
     expect(input).toHaveAttribute('accept');
   });
 
-  it('disables upload when disabled prop is true', () => {
-    render(<FileUploadDropzone disabled />);
+  it('renders with custom props', () => {
+    render(<FileUploadDropzone maxFiles={3} maxSize={5 * 1024 * 1024} />);
     const dropzone = screen.getByTestId('dropzone');
     expect(dropzone).toBeInTheDocument();
   });

@@ -7,6 +7,31 @@ import { toHaveNoViolations } from 'jest-axe';
 // jest-axe exports an object of matchers
 expect.extend(toHaveNoViolations as unknown as Record<string, any>);
 
+// Memory management for tests
+beforeEach(() => {
+  // Clear all mocks before each test
+  vi.clearAllMocks();
+
+  // Clear localStorage and sessionStorage
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // Reset any global state
+  if (global.gc) {
+    global.gc();
+  }
+});
+
+afterEach(() => {
+  // Clean up after each test
+  vi.clearAllMocks();
+
+  // Force garbage collection if available
+  if (global.gc) {
+    global.gc();
+  }
+});
+
 // Ensure Recharts components render in tests by providing non-zero dimensions
 // for elements queried by ResponsiveContainer. Without this, it falls back to
 // rendering empty divs because JSDOM reports zero width/height.
@@ -228,7 +253,6 @@ Object.defineProperty(window, 'SVGElement', {
     }
   },
 });
-
 
 // Suppress specific console warnings during tests
 const originalError = console.error;

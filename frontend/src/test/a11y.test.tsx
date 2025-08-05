@@ -25,7 +25,7 @@ const axe = configureAxe({
 describe('Accessibility Tests', () => {
   describe('App Component', () => {
     it('should not have accessibility violations', async () => {
-      const { container } = customRender(<App />);
+      const { container } = customRender(<App />, { skipRouterWrap: true });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -107,7 +107,7 @@ describe('Accessibility Tests', () => {
 
   describe('General Accessibility Requirements', () => {
     it('should have proper color contrast', async () => {
-      const { container } = customRender(<App />, { withRouter: false });
+      const { container } = customRender(<App />, { skipRouterWrap: true });
       const results = await axe(container, {
         rules: {
           'color-contrast': { enabled: true },
@@ -117,7 +117,7 @@ describe('Accessibility Tests', () => {
     });
 
     it('should support screen readers', async () => {
-      const { container } = customRender(<App />, { withRouter: false });
+      const { container } = customRender(<App />, { skipRouterWrap: true });
       const results = await axe(container, {
         rules: {
           'landmark-one-main': { enabled: true },
@@ -128,7 +128,7 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper focus management', async () => {
-      const { container } = customRender(<App />, { withRouter: false });
+      const { container } = customRender(<App />, { skipRouterWrap: true });
       const results = await axe(container, {
         rules: {
           'focus-order-semantics': { enabled: true },
@@ -139,7 +139,7 @@ describe('Accessibility Tests', () => {
     });
 
     it('should provide alternative text for images', async () => {
-      const { container } = customRender(<App />, { withRouter: false });
+      const { container } = customRender(<App />, { skipRouterWrap: true });
       const results = await axe(container, {
         rules: {
           'image-alt': { enabled: true },
@@ -171,7 +171,7 @@ describe('Accessibility Tests', () => {
 
   describe('Interactive Elements', () => {
     it('should have accessible interactive elements', async () => {
-      const { container } = customRender(<App />, { withRouter: false });
+      const { container } = customRender(<App />, { skipRouterWrap: true });
       const results = await axe(container, {
         rules: {
           'button-name': { enabled: false },
@@ -181,7 +181,7 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper ARIA attributes', async () => {
-      const { container } = customRender(<App />, { withRouter: false });
+      const { container } = customRender(<App />, { skipRouterWrap: true });
       const results = await axe(container, {
         rules: {
           'aria-allowed-attr': { enabled: true },
