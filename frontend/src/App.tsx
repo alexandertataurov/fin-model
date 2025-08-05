@@ -23,7 +23,11 @@ import {
 } from './components/auth/AuthGuard';
 
 // Main Application Components - Lazy load for better performance
-const DashboardLayout = React.lazy(() => import('./components/DashboardLayout').then(module => ({ default: module.DashboardLayout })));
+const DashboardLayout = React.lazy(() =>
+  import('./components/DashboardLayout').then(module => ({
+    default: module.DashboardLayout,
+  }))
+);
 
 // Lazy load heavy components for better performance
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -92,7 +96,9 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({
   <VerifiedUserGuard>
     <React.Suspense fallback={<LoadingFallback />}>
       <DashboardLayout>
-        <React.Suspense fallback={<LoadingFallback />}>{children}</React.Suspense>
+        <React.Suspense fallback={<LoadingFallback />}>
+          {children}
+        </React.Suspense>
       </DashboardLayout>
     </React.Suspense>
   </VerifiedUserGuard>
@@ -106,7 +112,7 @@ const queryClient = new QueryClient({
       retry: 2,
       refetchOnWindowFocus: false,
       // Add garbage collection time to help with memory management
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
     },
     mutations: {
       retry: 1,
@@ -195,10 +201,7 @@ export default function App() {
                   />
 
                   {/* Default redirects */}
-                  <Route
-                    path="/"
-                    element={<Navigate to="/login" replace />}
-                  />
+                  <Route path="/" element={<Navigate to="/login" replace />} />
 
                   {/* 404 Fallback */}
                   <Route
