@@ -1,5 +1,5 @@
 // Jest globals are available without explicit import
-import { expect, vi } from 'vitest';
+import { expect } from 'vitest';
 import { configureAxe } from 'jest-axe';
 import { render as customRender } from './test-utils';
 import App from '../App';
@@ -20,7 +20,7 @@ const axe = configureAxe({
     // Disable form-field-multiple-labels rule
     'form-field-multiple-labels': { enabled: false },
   },
-});
+}) as any;
 
 describe('Accessibility Tests', () => {
   describe('App Component', () => {
@@ -60,8 +60,12 @@ describe('Accessibility Tests', () => {
     it('should have accessible navigation', () => {
       const { getByRole } = customRender(<Dashboard />);
       // Dashboard doesn't have a navigation role, but has buttons for navigation
-      expect(getByRole('button', { name: /upload financial model/i })).toBeInTheDocument();
-      expect(getByRole('button', { name: /view p&l dashboard/i })).toBeInTheDocument();
+      expect(
+        getByRole('button', { name: /upload financial model/i })
+      ).toBeInTheDocument();
+      expect(
+        getByRole('button', { name: /view p&l dashboard/i })
+      ).toBeInTheDocument();
     });
   });
 
@@ -92,8 +96,12 @@ describe('Accessibility Tests', () => {
     it('should have accessible charts', () => {
       const { getByRole } = customRender(<AnalyticsDashboard />);
       // AnalyticsDashboard doesn't have a main role, but has headings for charts
-      expect(getByRole('heading', { name: /daily trends/i })).toBeInTheDocument();
-      expect(getByRole('heading', { name: /file type distribution/i })).toBeInTheDocument();
+      expect(
+        getByRole('heading', { name: /daily trends/i })
+      ).toBeInTheDocument();
+      expect(
+        getByRole('heading', { name: /file type distribution/i })
+      ).toBeInTheDocument();
     });
   });
 
@@ -124,7 +132,7 @@ describe('Accessibility Tests', () => {
       const results = await axe(container, {
         rules: {
           'focus-order-semantics': { enabled: true },
-          'tabindex': { enabled: true },
+          tabindex: { enabled: true },
         },
       });
       expect(results).toHaveNoViolations();
@@ -147,7 +155,7 @@ describe('Accessibility Tests', () => {
       const results = await axe(container, {
         rules: {
           'form-field-multiple-labels': { enabled: false },
-          'label': { enabled: true },
+          label: { enabled: true },
         },
       });
       expect(results).toHaveNoViolations();
