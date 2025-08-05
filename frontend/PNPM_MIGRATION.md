@@ -78,13 +78,16 @@ Updated `netlify.toml` to use pnpm commands:
 
 #### React 19 JSX Runtime Issue (Fixed)
 
-- **Problem**: `h.jsxDEV is not a function` error due to React 19 compatibility issues
-- **Solution**: Downgraded to React 18.3.1 for better stability
+- **Problem**: `h.jsxDEV is not a function` and `d.jsxDEV is not a function` errors due to React 19 compatibility issues
+- **Solution**: Downgraded to React 18.3.1 for better stability and added explicit JSX runtime handling
 - **Changes Made**:
   - Updated `package.json` to use React 18.2.0+ and React DOM 18.2.0+
   - Updated TypeScript types to match React 18
   - Enhanced Vite configuration with explicit JSX runtime includes
   - Added `jsxImportSource` to TypeScript config
+  - Added explicit `react/jsx-runtime` import in main.tsx
+  - Simplified Vite optimizeDeps configuration
+  - Added missing `dev` script to package.json
 
 ## Usage
 

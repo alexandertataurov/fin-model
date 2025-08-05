@@ -4,7 +4,7 @@
   "private": true,
   "description": "FinVision Financial Modeling Platform - Monorepo",
   "scripts": {
-    "dev": "cd frontend && npm run dev",
+    "dev": "cd frontend && pnpm dev",
     "build": "cd frontend && npm run build",
     "test": "cd frontend && npm run test:minimal:ci",
     "lint": "cd frontend && npm run lint:ci"
