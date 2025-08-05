@@ -1,0 +1,19 @@
+{
+  "name": "finvision-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FinVision Financial Modeling Platform - Monorepo",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "test": "cd frontend && npm run test:minimal:ci",
+    "lint": "cd frontend && npm run lint:ci"
+  },
+  "devDependencies": {
+    "eslint-plugin-storybook": "^9.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
