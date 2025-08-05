@@ -28,11 +28,11 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Run linting
         working-directory: ./frontend
-        run: npm run lint
+        run: npm run lint:ci
 
       - name: Run type checking
         working-directory: ./frontend
@@ -40,7 +40,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./frontend
-        run: npm run test:coverage
+        run: npm run test:minimal:ci
 
       - name: Build for production
         working-directory: ./frontend

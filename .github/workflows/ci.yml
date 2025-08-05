@@ -37,7 +37,7 @@ jobs:
         working-directory: ./frontend
         run: |
           # Install all dependencies for CI (includes dev tools for linting/testing)
-          npm ci --prefer-offline --no-audit --no-fund
+          npm ci --prefer-offline --no-audit --no-fund --legacy-peer-deps
           # List what's installed for debugging
           echo "Checking installed packages..."
           ls node_modules/.bin/ | grep -E "(eslint|tsc|vitest)" || echo "Tools not found in .bin"
