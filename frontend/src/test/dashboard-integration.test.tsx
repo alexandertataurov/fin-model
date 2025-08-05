@@ -178,26 +178,27 @@ describe('Dashboard Integration', () => {
     it('should handle API errors gracefully', async () => {
       // Mock the service to reject properly
       const apiError = new Error('API Error');
-      vi.mocked(DashboardApiService.getCashFlowMetrics).mockRejectedValue(apiError);
+      vi.mocked(DashboardApiService.getCashFlowMetrics).mockRejectedValue(
+        apiError
+      );
 
       // Create a component that uses the hook with error boundaries disabled in React Query
       const TestComponent = () => {
         const query = useCashFlowDashboard('ytd', undefined, {
-          retry: false,
           staleTime: 0,
           cacheTime: 0,
         });
-      
-        const { error, isError, isLoading, status } = query;
-        
+
+        const { error, isError, isLoading } = query;
+
         if (isLoading) {
           return <div data-testid="loading">Loading...</div>;
         }
-        
+
         if (isError || error) {
           return <div data-testid="error-display">Error occurred</div>;
         }
-        
+
         return <div data-testid="success-display">Success</div>;
       };
 
@@ -215,7 +216,7 @@ describe('Dashboard Integration', () => {
         },
         logger: {
           log: vi.fn(),
-          warn: vi.fn(), 
+          warn: vi.fn(),
           error: vi.fn(), // Suppress error logging in tests
         },
       });
@@ -233,15 +234,18 @@ describe('Dashboard Integration', () => {
         () => {
           // Should not be in loading state anymore
           expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
-          
+
           // Should show either error or success
           const hasErrorDisplay = screen.queryByTestId('error-display');
           const hasSuccessDisplay = screen.queryByTestId('success-display');
-          
+
           expect(hasErrorDisplay || hasSuccessDisplay).toBeInTheDocument();
-          
+
           // Verify the API was called
-          expect(DashboardApiService.getCashFlowMetrics).toHaveBeenCalledWith('ytd', undefined);
+          expect(DashboardApiService.getCashFlowMetrics).toHaveBeenCalledWith(
+            'ytd',
+            undefined
+          );
         },
         { timeout: 5000 }
       );

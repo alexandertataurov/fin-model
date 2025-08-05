@@ -346,7 +346,7 @@ React 18+ with TypeScript for type safety and maintainability
 Vite as build tool for fast development and optimized production builds
 React Router for client-side routing and navigation
 Recharts or Chart.js for data visualization components
-Material-UI (MUI) or Tailwind CSS for consistent UI components
+Radix UI + Tailwind CSS for consistent UI components
 
 State management:
 

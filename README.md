@@ -17,7 +17,7 @@ FinVision is a comprehensive web-based financial modeling and analysis platform 
 
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
-- **UI Library**: Material-UI (MUI)
+- **UI Library**: Radix UI + Tailwind CSS
 - **Charts**: Recharts
 - **State Management**: Zustand + React Query
 - **Testing**: Vitest + React Testing Library

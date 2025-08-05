@@ -50,10 +50,6 @@ export default defineConfig({
       'yup',
     ],
     exclude: [
-      '@mui/material',
-      '@mui/icons-material',
-      '@emotion/react',
-      '@emotion/styled',
       '@swc/plugin-styled-components',
       'puppeteer',
       'lighthouse',
@@ -117,8 +113,6 @@ export default defineConfig({
       external: id => {
         // Externalize heavy dependencies that shouldn't be bundled
         return (
-          id.startsWith('@mui/') ||
-          id.startsWith('@emotion/') ||
           id.startsWith('puppeteer') ||
           id.startsWith('lighthouse') ||
           id.startsWith('cypress') ||

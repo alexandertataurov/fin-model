@@ -487,7 +487,7 @@ These components serve as the gold standard for the FinVision platform developme
   "class-variance-authority": "^0.7.x",
   "clsx": "^2.x",
   "tailwind-merge": "^2.x",
-  "@mui/material": "^5.x",
+
   "@tanstack/react-query": "^4.x",
   "formik": "^2.x",
   "yup": "^1.x",

@@ -41,8 +41,6 @@ export default defineConfig(({ mode }) => {
         '@radix-ui/react-tooltip',
 
         '@radix-ui/react-toast',
-        '@mui/material',
-        '@mui/icons-material',
         '@tanstack/react-query',
         'react-router-dom',
         'react-hook-form',
@@ -60,7 +58,6 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
-        '@mui/styled-engine': '@mui/styled-engine/index.js',
       },
       conditions: ['development', 'browser'],
     },
@@ -96,9 +93,6 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@radix-ui')) {
                 return 'radix';
               }
-              if (id.includes('@mui')) {
-                return 'mui';
-              }
               if (id.includes('recharts')) {
                 return 'charts';
               }
@@ -116,9 +110,6 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
-      deps: {
-        inline: [/^@mui\/./],
-      },
       server: {
         deps: {
           inline: [

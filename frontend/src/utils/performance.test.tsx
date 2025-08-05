@@ -86,7 +86,7 @@ describe('Performance Tests', () => {
       const endTime = performance.now();
       const renderTime = endTime - startTime;
 
-      // With mocked timer, chart rendering should be fast 
+      // With mocked timer, chart rendering should be fast
       expect(renderTime).toBeLessThan(100);
     });
 
@@ -121,7 +121,7 @@ describe('Performance Tests', () => {
         writable: true,
       });
 
-      const initialMemory = performance.memory?.usedJSHeapSize || 0;
+      const initialMemory = (performance as any).memory?.usedJSHeapSize || 0;
 
       // Render and unmount components multiple times (reduced to 5 for speed)
       for (let i = 0; i < 5; i++) {
@@ -142,7 +142,7 @@ describe('Performance Tests', () => {
         global.gc();
       }
 
-      const finalMemory = performance.memory?.usedJSHeapSize || 0;
+      const finalMemory = (performance as any).memory?.usedJSHeapSize || 0;
       const memoryIncrease = finalMemory - initialMemory;
 
       // Memory increase should be reasonable (with mocked values, should be ~5KB)
@@ -212,7 +212,7 @@ describe('Performance Tests', () => {
       // Mock requestAnimationFrame for consistent testing
       const mockRAF = vi.fn();
       global.requestAnimationFrame = mockRAF;
-      
+
       const frameStart = performance.now();
       let frameCount = 0;
       const maxFrames = 5; // Reduced for faster testing

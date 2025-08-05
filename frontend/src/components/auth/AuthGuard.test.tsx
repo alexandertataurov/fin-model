@@ -1,16 +1,24 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
-import { BrowserRouter, useLocation } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { vi } from 'vitest';
-import AuthGuard, { AdminGuard, AnalystGuard, ViewerGuard, VerifiedUserGuard } from './AuthGuard';
+import AuthGuard, {
+  AdminGuard,
+  ViewerGuard,
+  VerifiedUserGuard,
+} from './AuthGuard';
 import { AuthContext } from '../../contexts/AuthContext';
 
 // Mock React Router hooks
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+  const actual = (await vi.importActual('react-router-dom')) as any;
   return {
     ...actual,
-    Navigate: vi.fn(({ to }) => <div data-testid="navigate" data-to={to}>Navigating to {to}</div>),
+    Navigate: vi.fn(({ to }: { to: string }) => (
+      <div data-testid="navigate" data-to={to}>
+        Navigating to {to}
+      </div>
+    )),
     useLocation: vi.fn(() => ({ pathname: '/dashboard', state: null })),
   };
 });
@@ -51,11 +59,7 @@ const mockAuthContext = {
 const renderWithRouter = async (component: React.ReactElement) => {
   let result;
   await act(async () => {
-    result = render(
-      <BrowserRouter>
-        {component}
-      </BrowserRouter>
-    );
+    result = render(<BrowserRouter>{component}</BrowserRouter>);
   });
   return result;
 };
@@ -203,7 +207,7 @@ describe('AuthGuard Higher-Order Components', () => {
       ...mockAuthContext,
       isAuthenticated: true,
       isLoading: false,
-      hasRole: vi.fn((role) => role === 'admin'),
+      hasRole: vi.fn(role => role === 'admin'),
       user: {
         ...mockAuthContext.user!,
         is_verified: true,
@@ -227,7 +231,7 @@ describe('AuthGuard Higher-Order Components', () => {
       ...mockAuthContext,
       isAuthenticated: true,
       isLoading: false,
-      hasRole: vi.fn((role) => role === 'viewer'),
+      hasRole: vi.fn(role => role === 'viewer'),
       user: {
         ...mockAuthContext.user!,
         is_verified: true,

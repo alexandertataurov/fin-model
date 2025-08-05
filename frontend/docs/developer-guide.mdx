@@ -207,11 +207,11 @@ describe('Button', () => {
 ### From Material-UI to Radix UI
 
 ```typescript
-// Before: Material-UI
-import { Button as MuiButton } from '@mui/material';
-<MuiButton variant="contained" color="primary">
-  Click me
-</MuiButton>;
+// Before: Material-UI (deprecated)
+// import { Button as MuiButton } from '@mui/material';
+// <MuiButton variant="contained" color="primary">
+//   Click me
+// </MuiButton>;
 
 // After: Radix UI + CVA
 import { Button } from '@/components/ui/button';
@@ -221,8 +221,8 @@ import { Button } from '@/components/ui/button';
 ### Form Migration Pattern
 
 ```typescript
-// Before: Material-UI forms
-import { TextField, FormControl, FormHelperText } from '@mui/material';
+// Before: Material-UI forms (deprecated)
+// import { TextField, FormControl, FormHelperText } from '@mui/material';
 
 // After: Radix UI forms
 import {

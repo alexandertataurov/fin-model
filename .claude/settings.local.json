@@ -68,7 +68,13 @@
       "Bash(timeout 60 npm test -- a11y.test.tsx --run)",
       "Bash(timeout 120 npm test -- --run)",
       "Bash(timeout 30 npm test -- AuthGuard.test.tsx --run)",
-      "Bash(timeout 60 npm test:*)"
+      "Bash(timeout 60 npm test:*)",
+      "Bash(grep:*)",
+      "Bash(npm install:*)",
+      "Bash(pnpm import:*)",
+      "Bash(timeout 120 npm run test:build-performance)",
+      "Bash(timeout 60 pnpm install:*)",
+      "Bash(timeout 30 pnpm build:netlify:prod)"
     ],
     "deny": []
   }
