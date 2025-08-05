@@ -1,50 +1,7 @@
-# Ignore ALL frontend files during backend deployment
 frontend/
-frontend/**
-frontend/*
-
-# Ignore ALL Node.js related files
 node_modules/
-node_modules/**
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npmrc
-.yarnrc
-
-# Don't ignore these specific files that might be needed
-# package.json and package-lock.json are now in frontend/
-
-# Ignore frontend deployment files
-netlify.toml
-.netlify/
-_headers
-_redirects
-
-# Ignore development files
-.git/
-.github/
-.vscode/
-tasks/
-*.md
-!README.md
-
-# Ignore Docker files (using Railway's build)
-docker-compose*.yml
-Dockerfile*
-
-# Ignore test files
-**/__pycache__/
-**/.pytest_cache/
-**/test_*.py
-**/tests/
-
-# Ignore local environment
-.env
+*.log
 .env.local
-
-# Ignore frontend build artifacts
-dist/
-build/
-coverage/
-storybook-static/ 
+.env.development.local
+.env.test.local
+.env.production.local 
