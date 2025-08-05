@@ -39,7 +39,6 @@ export default defineConfig(({ mode }) => {
         '@radix-ui/react-toggle',
         '@radix-ui/react-toggle-group',
         '@radix-ui/react-tooltip',
-
         '@radix-ui/react-toast',
         '@tanstack/react-query',
         'react-router-dom',
@@ -86,25 +85,72 @@ export default defineConfig(({ mode }) => {
         external: [],
         output: {
           manualChunks: (id) => {
+            // React and React DOM
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            
+            // Radix UI components
+            if (id.includes('@radix-ui')) {
+              return 'radix-ui';
+            }
+            
+            // Charting library
+            if (id.includes('recharts')) {
+              return 'charts';
+            }
+            
+            // Form handling
+            if (id.includes('react-hook-form') || id.includes('@hookform/resolvers') || id.includes('zod')) {
+              return 'forms';
+            }
+            
+            // Query management
+            if (id.includes('@tanstack/react-query')) {
+              return 'query';
+            }
+            
+            // Routing
+            if (id.includes('react-router-dom')) {
+              return 'router';
+            }
+            
+            // Date utilities
+            if (id.includes('date-fns')) {
+              return 'date-utils';
+            }
+            
+            // HTTP client
+            if (id.includes('axios')) {
+              return 'http-client';
+            }
+            
+            // UI utilities
+            if (id.includes('class-variance-authority') || id.includes('clsx') || id.includes('tailwind-merge')) {
+              return 'ui-utils';
+            }
+            
+            // Icons
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+            
+            // Other vendor dependencies
             if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom')) {
-                return 'vendor';
-              }
-              if (id.includes('@radix-ui')) {
-                return 'radix';
-              }
-              if (id.includes('recharts')) {
-                return 'charts';
-              }
-              if (id.includes('react-hook-form') || id.includes('zod')) {
-                return 'forms';
-              }
               return 'vendor';
             }
           },
+          // Optimize chunk naming
+          chunkFileNames: (chunkInfo) => {
+            const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
+            return `assets/[name]-[hash].js`;
+          },
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]',
         },
       },
-      chunkSizeWarningLimit: 1000,
+      // Increase chunk size warning limit slightly for better optimization
+      chunkSizeWarningLimit: 1200,
     },
     test: {
       globals: true,

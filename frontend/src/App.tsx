@@ -10,7 +10,7 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './components/ThemeProvider';
 import { AuthProvider } from './contexts/AuthContext';
 
-// Authentication Components
+// Authentication Components - Keep these as regular imports since they're small
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPasswordForm from './components/auth/ForgotPasswordForm';
@@ -22,8 +22,8 @@ import {
   VerifiedUserGuard,
 } from './components/auth/AuthGuard';
 
-// Main Application Components
-import { DashboardLayout } from './components/DashboardLayout';
+// Main Application Components - Lazy load for better performance
+const DashboardLayout = React.lazy(() => import('./components/DashboardLayout').then(module => ({ default: module.DashboardLayout })));
 
 // Lazy load heavy components for better performance
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -90,19 +90,26 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
   <VerifiedUserGuard>
-    <DashboardLayout>
-      <React.Suspense fallback={<LoadingFallback />}>{children}</React.Suspense>
-    </DashboardLayout>
+    <React.Suspense fallback={<LoadingFallback />}>
+      <DashboardLayout>
+        <React.Suspense fallback={<LoadingFallback />}>{children}</React.Suspense>
+      </DashboardLayout>
+    </React.Suspense>
   </VerifiedUserGuard>
 );
 
-// Create QueryClient instance
+// Create QueryClient instance with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       retry: 2,
       refetchOnWindowFocus: false,
+      // Add garbage collection time to help with memory management
+      gcTime: 10 * 60 * 1000, // 10 minutes
+    },
+    mutations: {
+      retry: 1,
     },
   },
 });
