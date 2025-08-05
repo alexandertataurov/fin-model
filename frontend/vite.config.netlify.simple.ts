@@ -7,6 +7,7 @@ export default defineConfig({
     react({
       jsxRuntime: 'automatic',
       jsxImportSource: 'react',
+      fastRefresh: false,
     }),
   ],
 
@@ -15,6 +16,7 @@ export default defineConfig({
       'react',
       'react-dom',
       'react/jsx-runtime',
+      'react/jsx-dev-runtime',
     ],
   },
 

@@ -8,6 +8,7 @@ export default defineConfig({
       // Explicit JSX runtime configuration for reliable builds
       jsxRuntime: 'automatic',
       jsxImportSource: 'react',
+      fastRefresh: false, // Disable for production
     }),
   ],
 
@@ -17,6 +18,7 @@ export default defineConfig({
       'react',
       'react-dom',
       'react/jsx-runtime',
+      'react/jsx-dev-runtime',
       'react-dom/client',
       'react-router-dom',
       '@tanstack/react-query',

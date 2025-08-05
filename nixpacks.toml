@@ -1,11 +1,20 @@
 [phases.setup]
-nixPkgs = ["python311", "postgresql_16.dev", "gcc"]
+nixPkgs = ["python311", "postgresql_16.dev", "gcc", "nodejs_20", "corepack"]
 
 [phases.install]
-cmds = ["python -m venv --copies /opt/venv", ". /opt/venv/bin/activate && pip install -r requirements.txt"]
+cmds = [
+  "python -m venv --copies /opt/venv", 
+  ". /opt/venv/bin/activate && pip install -r requirements.txt",
+  "corepack enable",
+  "cd frontend && pnpm install --frozen-lockfile"
+]
+
+[phases.build]
+cmds = ["cd frontend && pnpm run build:netlify:simple"]
 
 [start]
 cmd = "python main.py"
 
 [variables]
-NIXPACKS_NODE_PACKAGE_MANAGER = "none" 
+NODE_ENV = "production"
+PNPM_HOME = "/pnpm" 
