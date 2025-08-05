@@ -141,7 +141,7 @@ importers:
         specifier: ^8.5.6
         version: 8.5.6
       react:
-        specifier: ^18.3.1
+        specifier: ^18.2.0
         version: 18.3.1
       react-day-picker:
         specifier: ^9.8.1
