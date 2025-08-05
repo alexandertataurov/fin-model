@@ -74,6 +74,18 @@ Updated `netlify.toml` to use pnpm commands:
 - Some peer dependency warnings for Storybook (non-critical)
 - Deprecated ESLint version (can be updated later)
 
+### 🔧 Recent Fixes
+
+#### React 19 JSX Runtime Issue (Fixed)
+
+- **Problem**: `h.jsxDEV is not a function` error due to React 19 compatibility issues
+- **Solution**: Downgraded to React 18.3.1 for better stability
+- **Changes Made**:
+  - Updated `package.json` to use React 18.2.0+ and React DOM 18.2.0+
+  - Updated TypeScript types to match React 18
+  - Enhanced Vite configuration with explicit JSX runtime includes
+  - Added `jsxImportSource` to TypeScript config
+
 ## Usage
 
 ### Development

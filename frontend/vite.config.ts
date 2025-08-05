@@ -16,7 +16,10 @@ export default defineConfig(({ mode }) => {
     ],
     optimizeDeps: {
       include: [
+        'react',
+        'react-dom',
         'react/jsx-runtime',
+        'react/jsx-dev-runtime',
         'lucide-react',
         '@radix-ui/react-accordion',
         '@radix-ui/react-alert-dialog',

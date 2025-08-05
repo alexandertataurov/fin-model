@@ -295,16 +295,19 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
           isLive && isConnected && 'border-green-200 shadow-green-100/50'
         )}
       >
-        {React.cloneElement(children as React.ReactElement, {
-          data: chartData,
-          // Pass through any animation props for smooth updates
-          animation: isLive
-            ? {
-                duration: 750,
-                easing: 'ease-out',
-              }
-            : false,
-        })}
+        {React.cloneElement(
+          children as React.ReactElement,
+          {
+            data: chartData,
+            // Pass through any animation props for smooth updates
+            animation: isLive
+              ? {
+                  duration: 750,
+                  easing: 'ease-out',
+                }
+              : false,
+          } as any
+        )}
       </BaseChart>
     </div>
   );

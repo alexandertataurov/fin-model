@@ -1,6 +1,10 @@
 import React, { useCallback, useRef } from 'react';
 import { useDrop } from 'react-dnd';
-import { ReportTemplate, ReportElement, DragItem } from '@/types/template-builder';
+import {
+  ReportTemplate,
+  ReportElement,
+  DragItem,
+} from '@/types/template-builder';
 import { DraggableElement } from './DraggableElement';
 
 interface TemplateCanvasProps {
@@ -20,35 +24,38 @@ export const TemplateCanvas: React.FC<TemplateCanvasProps> = ({
   onElementSelect,
   previewMode,
   showGrid = true,
-  readonly = false
+  readonly = false,
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const addElementToCanvas = useCallback((item: DragItem, position: { x: number; y: number }) => {
-    if (readonly) return;
+  const addElementToCanvas = useCallback(
+    (item: DragItem, position: { x: number; y: number }) => {
+      if (readonly) return;
 
-    const newElement: ReportElement = {
-      id: `element-${Date.now()}`,
-      type: item.elementType,
-      position,
-      size: getDefaultSize(item.elementType),
-      config: getDefaultConfig(item.elementType),
-      style: {
-        backgroundColor: '#ffffff',
-        borderColor: '#e2e8f0',
-        borderWidth: 1,
-        borderRadius: 4,
-        padding: 8
-      }
-    };
+      const newElement: ReportElement = {
+        id: `element-${Date.now()}`,
+        type: item.elementType,
+        position,
+        size: getDefaultSize(item.elementType),
+        config: getDefaultConfig(item.elementType),
+        style: {
+          backgroundColor: '#ffffff',
+          borderColor: '#e2e8f0',
+          borderWidth: 1,
+          borderRadius: 4,
+          padding: 8,
+        },
+      };
 
-    onTemplateChange({
-      ...template,
-      elements: [...template.elements, newElement]
-    });
+      onTemplateChange({
+        ...template,
+        elements: [...template.elements, newElement],
+      });
 
-    onElementSelect(newElement.id);
-  }, [template, onTemplateChange, onElementSelect, readonly]);
+      onElementSelect(newElement.id);
+    },
+    [template, onTemplateChange, onElementSelect, readonly]
+  );
 
   const [{ isOver }, drop] = useDrop({
     accept: 'palette-element',
@@ -57,57 +64,66 @@ export const TemplateCanvas: React.FC<TemplateCanvasProps> = ({
 
       const clientOffset = monitor.getClientOffset();
       const canvasRect = canvasRef.current.getBoundingClientRect();
-      
+
       if (clientOffset) {
         const position = {
           x: clientOffset.x - canvasRect.left,
-          y: clientOffset.y - canvasRect.top
+          y: clientOffset.y - canvasRect.top,
         };
         addElementToCanvas(item, position);
       }
     },
     collect: (monitor: any) => ({
-      isOver: monitor.isOver()
-    })
+      isOver: monitor.isOver(),
+    }),
   });
 
-  const updateElement = useCallback((updatedElement: ReportElement) => {
-    if (readonly) return;
+  const updateElement = useCallback(
+    (updatedElement: ReportElement) => {
+      if (readonly) return;
 
-    onTemplateChange({
-      ...template,
-      elements: template.elements.map(el => 
-        el.id === updatedElement.id ? updatedElement : el
-      )
-    });
-  }, [template, onTemplateChange, readonly]);
+      onTemplateChange({
+        ...template,
+        elements: template.elements.map(el =>
+          el.id === updatedElement.id ? updatedElement : el
+        ),
+      });
+    },
+    [template, onTemplateChange, readonly]
+  );
 
-  const deleteElement = useCallback((elementId: string) => {
-    if (readonly) return;
+  const deleteElement = useCallback(
+    (elementId: string) => {
+      if (readonly) return;
 
-    onTemplateChange({
-      ...template,
-      elements: template.elements.filter(el => el.id !== elementId)
-    });
+      onTemplateChange({
+        ...template,
+        elements: template.elements.filter(el => el.id !== elementId),
+      });
 
-    if (selectedElement === elementId) {
-      onElementSelect(null);
-    }
-  }, [template, onTemplateChange, selectedElement, onElementSelect, readonly]);
+      if (selectedElement === elementId) {
+        onElementSelect(null);
+      }
+    },
+    [template, onTemplateChange, selectedElement, onElementSelect, readonly]
+  );
 
-  const handleCanvasClick = useCallback((e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onElementSelect(null);
-    }
-  }, [onElementSelect]);
+  const handleCanvasClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) {
+        onElementSelect(null);
+      }
+    },
+    [onElementSelect]
+  );
 
   // Calculate canvas dimensions based on page size
   const getCanvasDimensions = () => {
     const { pageSize, orientation } = template.layout;
-    
+
     let width = 210; // A4 width in mm
     let height = 297; // A4 height in mm
-    
+
     if (pageSize === 'Letter') {
       width = 216;
       height = 279;
@@ -115,24 +131,31 @@ export const TemplateCanvas: React.FC<TemplateCanvasProps> = ({
       width = 216;
       height = 356;
     }
-    
+
     if (orientation === 'landscape') {
       [width, height] = [height, width];
     }
-    
+
     // Convert mm to pixels (assuming 96 DPI)
     const scale = 3.77953; // 1mm = 3.77953px at 96 DPI
     return {
       width: width * scale,
-      height: height * scale
+      height: height * scale,
     };
   };
 
   const canvasDimensions = getCanvasDimensions();
 
+  const dropRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      drop(node);
+    },
+    [drop]
+  );
+
   return (
-    <div 
-      ref={drop}
+    <div
+      ref={dropRef}
       className="flex-1 bg-gray-100 overflow-auto p-8 relative"
       onClick={handleCanvasClick}
     >
@@ -145,11 +168,12 @@ export const TemplateCanvas: React.FC<TemplateCanvasProps> = ({
           width: canvasDimensions.width,
           height: canvasDimensions.height,
           minHeight: canvasDimensions.height,
-          backgroundImage: showGrid && !previewMode
-            ? 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)'
-            : undefined,
+          backgroundImage:
+            showGrid && !previewMode
+              ? 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)'
+              : undefined,
           backgroundSize: showGrid && !previewMode ? '20px 20px' : undefined,
-          backgroundPosition: showGrid && !previewMode ? '0 0' : undefined
+          backgroundPosition: showGrid && !previewMode ? '0 0' : undefined,
         }}
       >
         {/* Margin guides */}
@@ -161,8 +185,12 @@ export const TemplateCanvas: React.FC<TemplateCanvasProps> = ({
               left: template.layout.margins.left,
               right: template.layout.margins.right,
               bottom: template.layout.margins.bottom,
-              width: `calc(100% - ${template.layout.margins.left + template.layout.margins.right}px)`,
-              height: `calc(100% - ${template.layout.margins.top + template.layout.margins.bottom}px)`
+              width: `calc(100% - ${
+                template.layout.margins.left + template.layout.margins.right
+              }px)`,
+              height: `calc(100% - ${
+                template.layout.margins.top + template.layout.margins.bottom
+              }px)`,
             }}
           />
         )}
@@ -220,8 +248,8 @@ function getDefaultConfig(elementType: ReportElement['type']) {
           chartType: 'line' as const,
           dataSource: '',
           title: 'Chart Title',
-          showLegend: true
-        }
+          showLegend: true,
+        },
       };
     case 'table':
       return {
@@ -229,16 +257,16 @@ function getDefaultConfig(elementType: ReportElement['type']) {
           dataSource: '',
           columns: [],
           showHeaders: true,
-          pagination: false
-        }
+          pagination: false,
+        },
       };
     case 'metric':
       return {
         metric: {
           value: 0,
           label: 'Metric Label',
-          format: 'number' as const
-        }
+          format: 'number' as const,
+        },
       };
     case 'text':
       return {
@@ -246,16 +274,16 @@ function getDefaultConfig(elementType: ReportElement['type']) {
           content: 'Text content',
           fontSize: 14,
           fontWeight: 'normal' as const,
-          textAlign: 'left' as const
-        }
+          textAlign: 'left' as const,
+        },
       };
     case 'image':
       return {
         image: {
           src: '',
           alt: 'Image',
-          fit: 'cover' as const
-        }
+          fit: 'cover' as const,
+        },
       };
     default:
       return {};

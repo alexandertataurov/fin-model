@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDrag } from 'react-dnd';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Table, 
-  TrendingUp, 
-  Type, 
+import {
+  Table,
+  TrendingUp,
+  Type,
   Image as ImageIcon,
   PieChart,
   LineChart,
-  BarChart
+  BarChart,
 } from 'lucide-react';
 import { ReportElement } from '@/types/template-builder';
 
@@ -25,18 +25,31 @@ interface PaletteItemProps {
   onAdd: (elementType: ReportElement['type']) => void;
 }
 
-const PaletteItem: React.FC<PaletteItemProps> = ({ type, icon, label, description, onAdd }) => {
+const PaletteItem: React.FC<PaletteItemProps> = ({
+  type,
+  icon,
+  label,
+  description,
+  onAdd,
+}) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'palette-element',
     item: { elementType: type },
     collect: (monitor: any) => ({
-      isDragging: monitor.isDragging()
-    })
+      isDragging: monitor.isDragging(),
+    }),
   });
+
+  const dragRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      drag(node);
+    },
+    [drag]
+  );
 
   return (
     <div
-      ref={drag}
+      ref={dragRef}
       className={`
         p-3 border border-gray-200 rounded-lg cursor-grab hover:bg-gray-50 
         transition-colors duration-200 select-none
@@ -45,9 +58,7 @@ const PaletteItem: React.FC<PaletteItemProps> = ({ type, icon, label, descriptio
       onClick={() => onAdd(type)}
     >
       <div className="flex items-start space-x-3">
-        <div className="p-2 bg-blue-100 rounded-md text-blue-600">
-          {icon}
-        </div>
+        <div className="p-2 bg-blue-100 rounded-md text-blue-600">{icon}</div>
         <div className="flex-1 min-w-0">
           <h4 className="text-sm font-medium text-gray-900">{label}</h4>
           <p className="text-xs text-gray-500 mt-1">{description}</p>
@@ -57,26 +68,28 @@ const PaletteItem: React.FC<PaletteItemProps> = ({ type, icon, label, descriptio
   );
 };
 
-export const ElementPalette: React.FC<ElementPaletteProps> = ({ onElementAdd }) => {
+export const ElementPalette: React.FC<ElementPaletteProps> = ({
+  onElementAdd,
+}) => {
   const chartElements = [
     {
       type: 'chart' as const,
       icon: <LineChart className="h-4 w-4" />,
       label: 'Line Chart',
-      description: 'Show trends over time'
+      description: 'Show trends over time',
     },
     {
       type: 'chart' as const,
       icon: <BarChart className="h-4 w-4" />,
       label: 'Bar Chart',
-      description: 'Compare categories'
+      description: 'Compare categories',
     },
     {
       type: 'chart' as const,
       icon: <PieChart className="h-4 w-4" />,
       label: 'Pie Chart',
-      description: 'Show proportions'
-    }
+      description: 'Show proportions',
+    },
   ];
 
   const dataElements = [
@@ -84,14 +97,14 @@ export const ElementPalette: React.FC<ElementPaletteProps> = ({ onElementAdd }) 
       type: 'table' as const,
       icon: <Table className="h-4 w-4" />,
       label: 'Data Table',
-      description: 'Display structured data'
+      description: 'Display structured data',
     },
     {
       type: 'metric' as const,
       icon: <TrendingUp className="h-4 w-4" />,
       label: 'Key Metric',
-      description: 'Highlight important numbers'
-    }
+      description: 'Highlight important numbers',
+    },
   ];
 
   const contentElements = [
@@ -99,14 +112,14 @@ export const ElementPalette: React.FC<ElementPaletteProps> = ({ onElementAdd }) 
       type: 'text' as const,
       icon: <Type className="h-4 w-4" />,
       label: 'Text Block',
-      description: 'Add headings and paragraphs'
+      description: 'Add headings and paragraphs',
     },
     {
       type: 'image' as const,
       icon: <ImageIcon className="h-4 w-4" />,
       label: 'Image',
-      description: 'Insert charts or logos'
-    }
+      description: 'Insert charts or logos',
+    },
   ];
 
   return (
@@ -123,7 +136,7 @@ export const ElementPalette: React.FC<ElementPaletteProps> = ({ onElementAdd }) 
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Charts</h3>
           <div className="space-y-2">
-            {chartElements.map((element) => (
+            {chartElements.map(element => (
               <PaletteItem
                 key={`${element.type}-${element.label}`}
                 type={element.type}
@@ -142,7 +155,7 @@ export const ElementPalette: React.FC<ElementPaletteProps> = ({ onElementAdd }) 
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Data</h3>
           <div className="space-y-2">
-            {dataElements.map((element) => (
+            {dataElements.map(element => (
               <PaletteItem
                 key={`${element.type}-${element.label}`}
                 type={element.type}
@@ -161,7 +174,7 @@ export const ElementPalette: React.FC<ElementPaletteProps> = ({ onElementAdd }) 
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Content</h3>
           <div className="space-y-2">
-            {contentElements.map((element) => (
+            {contentElements.map(element => (
               <PaletteItem
                 key={`${element.type}-${element.label}`}
                 type={element.type}
