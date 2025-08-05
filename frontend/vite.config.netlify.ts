@@ -1,17 +1,10 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
-    react({
-      // Optimize React plugin for production
-      fastRefresh: false,
-      jsxRuntime: 'automatic',
-      babel: {
-        plugins: [['@babel/plugin-transform-runtime', { regenerator: false }]],
-      },
-    }),
+    react(),
   ],
 
   // Optimize dependencies for faster builds
@@ -125,13 +118,15 @@ export default defineConfig({
     minifySyntax: true,
     minifyWhitespace: true,
     treeShaking: true,
-    target: 'es2022',
+    target: 'es2020',
   },
 
   define: {
     'process.env.NODE_ENV': '"production"',
     __DEV__: false,
     __PROD__: true,
+    'import.meta.env.DEV': false,
+    'import.meta.env.PROD': true,
   },
 
   // Disable features that slow down builds

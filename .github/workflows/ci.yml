@@ -31,8 +31,8 @@ jobs:
       - name: Install dependencies (ultra-fast)
         working-directory: ./frontend
         run: |
-          # Use optimized npm with dev dependencies omitted
-          npm ci --prefer-offline --no-audit --no-fund --omit=dev
+          # Install all dependencies for CI (needed for linting/testing)
+          npm ci --prefer-offline --no-audit --no-fund
         env:
           NODE_ENV: production
 
