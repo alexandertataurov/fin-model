@@ -409,3 +409,52 @@ async def cleanup_database(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to cleanup database: {str(e)}",
         )
+
+
+@router.post("/rate-limits/clear", response_model=Dict[str, Any])
+def clear_rate_limits(
+    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Clear all rate limiting records to restore access."""
+    try:
+        from app.core.rate_limiter import RateLimit
+        
+        # Delete all rate limit records
+        deleted_count = db.query(RateLimit).delete()
+        db.commit()
+        
+        return {
+            "message": "Rate limits cleared successfully",
+            "cleared_records": deleted_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clear rate limits: {str(e)}",
+        )
+
+
+@router.post("/dev-clear-rate-limits", response_model=Dict[str, Any])
+def dev_clear_rate_limits(
+    db: Session = Depends(get_db),
+) -> Any:
+    """Development only: Clear rate limiting records without authentication."""
+    try:
+        from app.core.rate_limiter import RateLimit
+        
+        # Delete all rate limit records
+        deleted_count = db.query(RateLimit).delete()
+        db.commit()
+        
+        return {
+            "message": "Rate limits cleared successfully (dev endpoint)",
+            "cleared_records": deleted_count
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clear rate limits: {str(e)}",
+        )
