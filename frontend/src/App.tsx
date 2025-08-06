@@ -129,21 +129,23 @@ const queryClient = new QueryClient({
 export default function App() {
   console.log('=== APP COMPONENT RENDERING ===');
   
-  // Temporary minimal app to isolate the error
   try {
-    console.log('=== ATTEMPTING TO RENDER MINIMAL APP ===');
+    console.log('=== TESTING QUERY CLIENT ===');
     return (
-      <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-        <h1>Debug Mode - App is Loading</h1>
-        <p>If you see this, React is working!</p>
-        <p>Time: {new Date().toISOString()}</p>
-      </div>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <div style={{ padding: '20px' }}>
+            <h1>Step 1: QueryClient works!</h1>
+            <p>Time: {new Date().toISOString()}</p>
+          </div>
+        </QueryClientProvider>
+      </ErrorBoundary>
     );
   } catch (error) {
-    console.error('Error in minimal app render:', error);
+    console.error('Error in QueryClient test:', error);
     return (
       <div style={{ padding: '20px', color: 'red' }}>
-        <h1>Render Error</h1>
+        <h1>QueryClient Error</h1>
         <p>Error: {String(error)}</p>
       </div>
     );
