@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from '@/design/components/ui/form';
+} from '@/design/components/ui';
 import { Mail, Lock, TrendingUp, Loader2, AlertCircle } from 'lucide-react';
 import { BiometricLogin } from '@/components/auth/BiometricLogin';
 import { useLoginErrorHandler } from '@/hooks/useLoginErrorHandler';

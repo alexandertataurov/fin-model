@@ -49,6 +49,21 @@ export {
   FormField,
 } from './form';
 
+// Additional Design System Components (unique)
+export { Switch } from './switch';
+export { RadioGroup, RadioGroupItem } from './radio-group';
+export { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './resizable';
+export { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './pagination';
+export { InputOTP, InputOTPGroup, InputOTPSlot } from './input-otp';
+export { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from './drawer';
+export { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from './command';
+export { Chart } from './chart';
+export { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './carousel';
+export { Calendar } from './calendar';
+export { Sidebar } from './sidebar';
+export { useMobile } from './use-mobile';
+export { Toaster } from './toaster';
+
 export {
   Tabs,
   TabsContent,
