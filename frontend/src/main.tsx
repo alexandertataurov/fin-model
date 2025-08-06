@@ -11,14 +11,12 @@ if (!rootElement) {
 
 try {
   const root = ReactDOM.createRoot(rootElement);
-  console.log('React root created, rendering App');
 
   root.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
-
 } catch (error) {
   rootElement.innerHTML = `
     <div style="padding: 20px; font-family: Arial, sans-serif;">
