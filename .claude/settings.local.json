@@ -78,7 +78,15 @@
       "Bash(pnpm install:*)",
       "Bash(timeout 60 npm run build:netlify:prod)",
       "Bash(npm run preview:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(timeout 60 pnpm:*)",
+      "Bash(timeout 10 pnpm dev)",
+      "Bash(timeout 30 npm test -- --run)",
+      "Bash(timeout 30 pnpm test)",
+      "Bash(pnpm run:*)",
+      "Bash(timeout 30 pnpm test:minimal:ci)",
+      "Bash(timeout 30 pnpm build)",
+      "Bash(timeout 30 pnpm build:netlify)"
     ],
     "deny": []
   }

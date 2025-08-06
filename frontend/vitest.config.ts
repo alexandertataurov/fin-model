@@ -1,19 +1,21 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { baseConfig } from './vite.config.base';
+import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  ...baseConfig,
   plugins: [react()],
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    css: true,
+    css: !process.env.CI, // Disable CSS processing in CI to reduce memory usage
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: process.env.CI ? ['text'] : ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
         'src/test/',
@@ -22,17 +24,19 @@ export default defineConfig({
         '**/coverage/**',
       ],
     },
-    // CI-specific settings - reduced timeouts to prevent hanging
-    testTimeout: process.env.CI ? 15000 : 8000, // Reduced timeout to catch hanging tests faster
+    // Adaptive settings based on environment
+    testTimeout: process.env.CI ? 15000 : 8000,
     hookTimeout: process.env.CI ? 15000 : 8000,
-    // Global test configuration
-    bail: process.env.CI ? 5 : 3, // Stop after 3-5 failures to save time
+    bail: process.env.CI ? 5 : 3,
+    pool: process.env.CI ? 'threads' : 'forks',
     poolOptions: {
       threads: {
-        singleThread: process.env.CI ? false : true, // Single thread locally for easier debugging
+        singleThread: !process.env.CI, // Single thread locally for easier debugging
+      },
+      forks: {
+        singleFork: !process.env.CI, // Single fork locally to reduce memory usage
       },
     },
-    // Optimized exclusions - performance tests now mocked so can run everywhere
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -40,8 +44,7 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
     ],
-    // Reporter configuration
-    reporter: process.env.CI ? ['junit', 'github-actions'] : ['verbose'],
+    reporter: process.env.CI ? ['junit'] : ['verbose'],
     outputFile: process.env.CI ? 'test-results.xml' : undefined,
   },
   resolve: {

@@ -1,54 +1,25 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { mergeConfig } from './vite.config.base';
 
-export default defineConfig({
-  plugins: [react({
-    jsxRuntime: 'automatic',
-    jsxImportSource: 'react'
-  })],
+export default mergeConfig({
   optimizeDeps: {
-    include: [
-      'react/jsx-runtime',
-      'react-dom/client',
-      'react-router-dom',
-      '@tanstack/react-query',
-      'axios',
-      'recharts',
-      'lucide-react',
-      'class-variance-authority',
-      'clsx',
-      'tailwind-merge',
-    ],
     force: false,
   },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-    },
-  },
+  
   build: {
-    outDir: 'dist',
     sourcemap: false,
     minify: 'esbuild',
-    target: 'es2022',
     cssTarget: 'chrome80',
     cssMinify: 'esbuild',
     reportCompressedSize: false,
-    emptyOutDir: true,
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
-      output: {
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
-      },
       treeshake: {
         preset: 'recommended',
         moduleSideEffects: false,
       },
     },
-    chunkSizeWarningLimit: 800,
   },
+  
   esbuild: {
     legalComments: 'none',
     drop: ['console', 'debugger'],
@@ -56,9 +27,5 @@ export default defineConfig({
     minifySyntax: true,
     minifyWhitespace: true,
     treeShaking: true,
-  },
-  define: {
-    'process.env.NODE_ENV': '"production"',
-    __DEV__: false,
   },
 });
