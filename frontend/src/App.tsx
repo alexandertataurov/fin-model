@@ -129,118 +129,23 @@ const queryClient = new QueryClient({
 export default function App() {
   console.log('=== APP COMPONENT RENDERING ===');
   
-  return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <Router>
-            <AuthProvider>
-              <div className="min-h-screen bg-background text-foreground">
-                <Routes>
-                  {/* Public Authentication Routes */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route
-                    path="/forgot-password"
-                    element={<ForgotPasswordForm />}
-                  />
-                  <Route
-                    path="/reset-password"
-                    element={<ResetPasswordForm />}
-                  />
-                  <Route path="/verify-email" element={<EmailVerification />} />
-
-                  {/* Protected Application Routes */}
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedLayout>
-                        <Dashboard />
-                      </ProtectedLayout>
-                    }
-                  />
-
-                  <Route
-                    path="/analytics"
-                    element={
-                      <ProtectedLayout>
-                        <Analytics />
-                      </ProtectedLayout>
-                    }
-                  />
-
-                  <Route
-                    path="/upload"
-                    element={
-                      <ProtectedLayout>
-                        <FileUpload />
-                      </ProtectedLayout>
-                    }
-                  />
-
-                  <Route
-                    path="/reports"
-                    element={
-                      <AnalystGuard>
-                        <ProtectedLayout>
-                          <Reports />
-                        </ProtectedLayout>
-                      </AnalystGuard>
-                    }
-                  />
-
-                  {/* Admin Only Routes - placeholder for future admin panel */}
-                  <Route
-                    path="/admin/*"
-                    element={
-                      <AdminGuard>
-                        <ProtectedLayout>
-                          <div className="p-6">
-                            <h1 className="text-2xl font-bold mb-4">
-                              Admin Panel
-                            </h1>
-                            <p className="text-muted-foreground">
-                              Admin features coming soon...
-                            </p>
-                          </div>
-                        </ProtectedLayout>
-                      </AdminGuard>
-                    }
-                  />
-
-                  {/* Default redirects */}
-                  <Route path="/" element={<Navigate to="/login" replace />} />
-
-                  {/* 404 Fallback */}
-                  <Route
-                    path="*"
-                    element={
-                      <div className="min-h-screen flex items-center justify-center bg-background">
-                        <div className="text-center space-y-4">
-                          <h1 className="text-4xl font-bold text-muted-foreground">
-                            404
-                          </h1>
-                          <p className="text-xl text-muted-foreground">
-                            Page not found
-                          </p>
-                          <button
-                            onClick={() => window.history.back()}
-                            className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
-                          >
-                            Go Back
-                          </button>
-                        </div>
-                      </div>
-                    }
-                  />
-                </Routes>
-
-                <Toaster />
-              </div>
-            </AuthProvider>
-          </Router>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
+  // Temporary minimal app to isolate the error
+  try {
+    console.log('=== ATTEMPTING TO RENDER MINIMAL APP ===');
+    return (
+      <div style={{ padding: '20px', fontFamily: 'Arial' }}>
+        <h1>Debug Mode - App is Loading</h1>
+        <p>If you see this, React is working!</p>
+        <p>Time: {new Date().toISOString()}</p>
+      </div>
+    );
+  } catch (error) {
+    console.error('Error in minimal app render:', error);
+    return (
+      <div style={{ padding: '20px', color: 'red' }}>
+        <h1>Render Error</h1>
+        <p>Error: {String(error)}</p>
+      </div>
+    );
+  }
 }

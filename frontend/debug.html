@@ -5,22 +5,41 @@
 </head>
 <body>
     <h1>Debug Test</h1>
+    <div id="output"></div>
     <script>
-        console.log('=== BASIC DEBUG TEST ===');
-        console.log('JavaScript is working');
+        // Use both console.log AND DOM updates to ensure we can see output
+        function log(message) {
+            console.log(message);
+            const output = document.getElementById('output');
+            output.innerHTML += '<p>' + message + '</p>';
+        }
         
-        // Test if the issue is with imports
+        log('=== BASIC DEBUG TEST ===');
+        log('JavaScript is working');
+        log('Time: ' + new Date().toISOString());
+        
+        // Test localStorage access
         try {
-            console.log('Testing fetch to API...');
-            fetch('/api/v1/admin/permissions')
+            localStorage.setItem('test', 'working');
+            const testValue = localStorage.getItem('test');
+            log('localStorage test: ' + testValue);
+            localStorage.removeItem('test');
+        } catch (error) {
+            log('localStorage error: ' + error.message);
+        }
+        
+        // Test if the issue is with API calls
+        try {
+            log('Testing direct Railway API...');
+            fetch('https://fin-model-production.up.railway.app/api/v1/admin/permissions')
                 .then(response => {
-                    console.log('API test response status:', response.status);
+                    log('Direct API response status: ' + response.status);
                     return response.json();
                 })
-                .then(data => console.log('API test data:', data))
-                .catch(error => console.error('API test error:', error));
+                .then(data => log('Direct API data: ' + JSON.stringify(data)))
+                .catch(error => log('Direct API error: ' + error.message));
         } catch (error) {
-            console.error('Fetch test error:', error);
+            log('Fetch test error: ' + error.message);
         }
     </script>
 </body>
