@@ -139,13 +139,13 @@ const App: React.FC = () => {
                 v7_relativeSplatPath: true,
               }}
             >
-              {/* TEMPORARILY REMOVE AuthProvider to confirm it's the issue */}
-              <div style={{ padding: '20px' }}>
-                <h1>✅ CONFIRMED: AuthProvider is causing the Authentication Error!</h1>
-                <p>All other components work fine. The issue is specifically in AuthProvider.</p>
-                <p>Time: {new Date().toISOString()}</p>
-                <a href="/debug.html" style={{ color: 'blue' }}>Test Debug Page</a>
-              </div>
+              <AuthProvider>
+                <div style={{ padding: '20px' }}>
+                  <h1>🔍 TESTING AuthProvider with Better Error Handling</h1>
+                  <p>Check console for detailed error logs</p>
+                  <p>Time: {new Date().toISOString()}</p>
+                </div>
+              </AuthProvider>
             </Router>
           </ToastProvider>
         </ThemeProvider>

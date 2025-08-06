@@ -181,15 +181,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log('Loading user permissions...');
       const permissionsData = await authApi.getUserPermissions();
       console.log('Permissions data received:', permissionsData);
+      
+      // Safely handle the permissions data
+      const permissions = Array.isArray(permissionsData?.permissions) 
+        ? permissionsData.permissions 
+        : [];
+      const roles = Array.isArray(permissionsData?.roles) 
+        ? permissionsData.roles 
+        : [];
+        
       setState(prev => ({
         ...prev,
-        permissions: permissionsData.permissions || [],
-        roles: permissionsData.roles || [],
+        permissions,
+        roles,
       }));
-      console.log('Permissions set successfully');
+      console.log('Permissions set successfully:', { permissions, roles });
     } catch (error) {
       console.error('Error loading permissions:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status
+      });
       // Error loading permissions - continue with empty permissions
+      setState(prev => ({
+        ...prev,
+        permissions: [],
+        roles: [],
+      }));
     }
   };
 
