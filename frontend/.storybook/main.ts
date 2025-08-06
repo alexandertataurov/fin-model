@@ -9,9 +9,6 @@ const config: StorybookConfig = {
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-a11y',
-    '@storybook/addon-docs',
-    '@storybook/addon-controls',
-    '@storybook/addon-viewport',
   ],
   framework: {
     name: '@storybook/react-vite',
@@ -27,7 +24,7 @@ const config: StorybookConfig = {
     check: false,
     reactDocgen: 'react-docgen-typescript',
   },
-  viteFinal: async (config) => {
+  viteFinal: async config => {
     // Add path resolution
     if (config.resolve) {
       config.resolve.alias = {
