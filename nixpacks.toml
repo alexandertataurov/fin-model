@@ -11,5 +11,5 @@ cmds = [
 cmd = "python main.py"
 
 [variables]
-NODE_ENV = "production"
-PNPM_HOME = "/pnpm" 
+PYTHONPATH = "/app"
+PYTHON_ENV = "production" 

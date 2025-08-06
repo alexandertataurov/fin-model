@@ -17,30 +17,42 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: |
-            package-lock.json
-            frontend/package-lock.json
+          node-version: "20"
 
-      - name: Install root dependencies
-        run: npm ci --legacy-peer-deps
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --frozen-lockfile
 
       - name: Run linting
         working-directory: ./frontend
-        run: npm run lint:ci
+        run: pnpm run lint:ci
 
       - name: Run type checking
         working-directory: ./frontend
-        run: npm run type-check
+        run: pnpm run type-check
 
       - name: Run tests
         working-directory: ./frontend
-        run: npm run test:minimal:ci
+        run: pnpm run test:minimal:ci
 
       - name: Build for production
         working-directory: ./frontend
@@ -49,7 +61,7 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://api.finvision.com' }}
           VITE_APP_NAME: FinVision
           VITE_APP_VERSION: ${{ github.sha }}
-        run: npm run build
+        run: pnpm run build
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0

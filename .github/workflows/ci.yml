@@ -17,27 +17,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: |
-            package-lock.json
-            frontend/package-lock.json
 
-      - name: Setup npm cache
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
         uses: actions/cache@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install root dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund --legacy-peer-deps
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install frontend dependencies (optimized for CI)
         working-directory: ./frontend
         run: |
           # Install all dependencies for CI (includes dev tools for linting/testing)
-          npm ci --prefer-offline --no-audit --no-fund --legacy-peer-deps
+          pnpm install --frozen-lockfile
           # List what's installed for debugging
           echo "Checking installed packages..."
           ls node_modules/.bin/ | grep -E "(eslint|tsc|vitest)" || echo "Tools not found in .bin"
@@ -50,26 +54,26 @@ jobs:
       - name: Run linting
         working-directory: ./frontend
         run: |
-          # Use npx to ensure ESLint is found, with legacy config format
-          ESLINT_USE_FLAT_CONFIG=false npx eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100
+          # Use pnpm to run linting
+          pnpm run lint:ci
 
       - name: Run type checking
         working-directory: ./frontend
         run: |
-          # Use npx to ensure TypeScript is found
-          npx tsc --noEmit
+          # Use pnpm to run type checking
+          pnpm run type-check
 
       - name: Run tests
         working-directory: ./frontend
         run: |
-          # Use npx to ensure Vitest is found
-          npx vitest run --reporter=verbose
+          # Use pnpm to run tests
+          pnpm run test:minimal:ci
         env:
           NODE_ENV: test
 
       - name: Build (optimized)
         working-directory: ./frontend
-        run: npm run build:netlify:prod
+        run: pnpm run build:netlify:prod
         env:
           NODE_ENV: production
           NODE_OPTIONS: "--max-old-space-size=8192"
