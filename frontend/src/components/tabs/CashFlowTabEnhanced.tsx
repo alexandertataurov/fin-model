@@ -4,7 +4,7 @@
  * Displays real cash flow data with waterfall charts and trends
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { DraggableWidget } from '../draggable-widget';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader } from '../ui/card';

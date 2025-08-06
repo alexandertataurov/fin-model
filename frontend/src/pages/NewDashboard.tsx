@@ -1,3 +1,4 @@
+import React from 'react';
 import { ThemeProvider } from '../components/theme-provider';
 import { DashboardLayout } from '../components/dashboard-layout';
 

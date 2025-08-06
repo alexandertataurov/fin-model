@@ -4,7 +4,7 @@
  * Displays real balance sheet data with composition charts and financial ratios
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { DraggableWidget } from '../draggable-widget';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader } from '../ui/card';
@@ -199,7 +199,9 @@ export function BalanceTabEnhanced({
             disabled={refreshMutation.isPending}
           >
             <RefreshCw
-              className={`h-4 w-4 mr-2 ${refreshMutation.isPending ? 'animate-spin' : ''}`}
+              className={`h-4 w-4 mr-2 ${
+                refreshMutation.isPending ? 'animate-spin' : ''
+              }`}
             />
             Refresh
           </Button>

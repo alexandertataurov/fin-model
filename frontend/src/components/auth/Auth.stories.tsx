@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from '../ui/card';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const meta: Meta = {
   title: 'Auth/Authentication Forms',

@@ -4,7 +4,7 @@
  * Main dashboard view showing overview of all financial statements and key metrics
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
@@ -213,7 +213,9 @@ export function DashboardOverview({
             disabled={refreshMutation.isPending}
           >
             <RefreshCw
-              className={`h-4 w-4 mr-2 ${refreshMutation.isPending ? 'animate-spin' : ''}`}
+              className={`h-4 w-4 mr-2 ${
+                refreshMutation.isPending ? 'animate-spin' : ''
+              }`}
             />
             Refresh
           </Button>
@@ -535,8 +537,8 @@ export function DashboardOverview({
                     overview.data_quality_score >= 0.8
                       ? 'bg-green-700'
                       : overview.data_quality_score >= 0.6
-                        ? 'bg-amber-600'
-                        : 'bg-red-700'
+                      ? 'bg-amber-600'
+                      : 'bg-red-700'
                   }`}
                   style={{ width: `${overview.data_quality_score * 100}%` }}
                 />
