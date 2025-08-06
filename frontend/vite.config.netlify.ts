@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { resolve } from 'path';
 
 const netlifyOptimizeDeps = [
@@ -72,7 +72,9 @@ const netlifyExcludeDeps = [
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      jsxImportSource: 'react',
+    }),
   ],
   
   resolve: {

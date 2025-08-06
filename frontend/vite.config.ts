@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       react({
         // Enable fast refresh in development
         ...(mode === 'development' && { fastRefresh: true }),
+        jsxImportSource: 'react',
       }),
     ],
     optimizeDeps: {
