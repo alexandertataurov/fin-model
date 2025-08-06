@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <script>
+        console.log('=== BASIC DEBUG TEST ===');
+        console.log('JavaScript is working');
+        
+        // Test if the issue is with imports
+        try {
+            console.log('Testing fetch to API...');
+            fetch('/api/v1/admin/permissions')
+                .then(response => {
+                    console.log('API test response status:', response.status);
+                    return response.json();
+                })
+                .then(data => console.log('API test data:', data))
+                .catch(error => console.error('API test error:', error));
+        } catch (error) {
+            console.error('Fetch test error:', error);
+        }
+    </script>
+</body>
+</html>
