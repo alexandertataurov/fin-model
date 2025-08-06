@@ -140,11 +140,7 @@ const App: React.FC = () => {
               }}
             >
               <AuthProvider>
-                <div style={{ padding: '20px' }}>
-                  <h1>🔍 TESTING AuthProvider with Better Error Handling</h1>
-                  <p>Check console for detailed error logs</p>
-                  <p>Time: {new Date().toISOString()}</p>
-                </div>
+                <AppRoutes />
               </AuthProvider>
             </Router>
           </ToastProvider>

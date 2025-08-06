@@ -87,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Load user data on mount
   useEffect(() => {
+    console.log('=== USE EFFECT RUNNING ===');
     const loadUserData = async () => {
       console.log('Loading user data on mount...');
       const storedUser = localStorage.getItem(USER_KEY);
@@ -122,7 +123,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
+    console.log('About to call loadUserData...');
     loadUserData();
+    console.log('loadUserData called');
   }, []);
 
   // Clear authentication data - defined before functions that use it
@@ -334,6 +337,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAnalyst,
   };
 
+  console.log('=== AUTH PROVIDER RENDERING ===', { isLoading: state.isLoading, user: !!state.user });
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
