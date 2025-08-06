@@ -72,8 +72,14 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="dashboards/pl" element={<div>PL Dashboard - Coming Soon</div>} />
-        <Route path="dashboards/cashflow" element={<div>Cash Flow Dashboard - Coming Soon</div>} />
+        <Route
+          path="dashboards/pl"
+          element={<div>PL Dashboard - Coming Soon</div>}
+        />
+        <Route
+          path="dashboards/cashflow"
+          element={<div>Cash Flow Dashboard - Coming Soon</div>}
+        />
         <Route
           path="dashboards/balance-sheet"
           element={<div>Balance Sheet Dashboard - Coming Soon</div>}
@@ -121,7 +127,7 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   console.log('=== APP RENDERING ===');
-  
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -133,11 +139,12 @@ const App: React.FC = () => {
                 v7_relativeSplatPath: true,
               }}
             >
-              {/* TEMPORARILY REMOVE AuthProvider to isolate the issue */}
+              {/* TEMPORARILY REMOVE AuthProvider to confirm it's the issue */}
               <div style={{ padding: '20px' }}>
-                <h1>Step 3: Everything works except AuthProvider!</h1>
-                <p>The issue is in AuthProvider component</p>
+                <h1>✅ CONFIRMED: AuthProvider is causing the Authentication Error!</h1>
+                <p>All other components work fine. The issue is specifically in AuthProvider.</p>
                 <p>Time: {new Date().toISOString()}</p>
+                <a href="/debug.html" style={{ color: 'blue' }}>Test Debug Page</a>
               </div>
             </Router>
           </ToastProvider>
