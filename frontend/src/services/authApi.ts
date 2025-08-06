@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// For Netlify deployment with proxy, use relative URLs
+// For local development, use full URL
+const API_BASE_URL = import.meta.env.PROD 
+  ? '' // Use relative URLs in production (Netlify proxy)
+  : import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Create axios instance
 const api = axios.create({
