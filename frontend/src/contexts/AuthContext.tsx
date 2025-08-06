@@ -72,8 +72,6 @@ const USER_KEY = 'user_data';
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  console.log('=== AUTH PROVIDER INITIALIZING ===');
-  
   const [state, setState] = useState<AuthState>({
     user: null,
     token: localStorage.getItem(TOKEN_KEY),
@@ -83,49 +81,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isLoading: true,
   });
 
-  console.log('Initial auth state:', state);
-
   // Load user data on mount
   useEffect(() => {
-    console.log('=== USE EFFECT RUNNING ===');
     const loadUserData = async () => {
-      console.log('Loading user data on mount...');
       const storedUser = localStorage.getItem(USER_KEY);
       const storedToken = localStorage.getItem(TOKEN_KEY);
-      console.log('Stored user:', storedUser ? 'found' : 'not found');
-      console.log('Stored token:', storedToken ? 'found' : 'not found');
 
       if (storedUser && storedToken) {
         try {
-          console.log('Parsing stored user data...');
           const user = JSON.parse(storedUser);
-          console.log('Parsed user:', user);
-          
           setState(prev => ({
             ...prev,
             user,
             token: storedToken,
             isLoading: false,
           }));
-          console.log('Initial user state set');
 
           // Load permissions
-          console.log('Loading permissions on mount...');
           await loadUserPermissions();
         } catch (error) {
-          console.error('Error loading initial user data:', error);
-          // Error loading user data - clear auth data
+          console.error('Error loading user data:', error);
           clearAuthData();
         }
       } else {
-        console.log('No stored auth data, setting loading to false');
         setState(prev => ({ ...prev, isLoading: false }));
       }
     };
 
-    console.log('About to call loadUserData...');
     loadUserData();
-    console.log('loadUserData called');
   }, []);
 
   // Clear authentication data - defined before functions that use it
@@ -181,9 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadUserPermissions = async () => {
     try {
-      console.log('Loading user permissions...');
       const permissionsData = await authApi.getUserPermissions();
-      console.log('Permissions data received:', permissionsData);
       
       // Safely handle the permissions data
       const permissions = Array.isArray(permissionsData?.permissions) 
@@ -198,14 +179,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         permissions,
         roles,
       }));
-      console.log('Permissions set successfully:', { permissions, roles });
     } catch (error) {
       console.error('Error loading permissions:', error);
-      console.error('Error details:', {
-        message: error?.message,
-        response: error?.response?.data,
-        status: error?.response?.status
-      });
       // Error loading permissions - continue with empty permissions
       setState(prev => ({
         ...prev,
@@ -337,7 +312,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAnalyst,
   };
 
-  console.log('=== AUTH PROVIDER RENDERING ===', { isLoading: state.isLoading, user: !!state.user });
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
