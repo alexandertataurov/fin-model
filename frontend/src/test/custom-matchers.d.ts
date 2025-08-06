@@ -1,15 +1,10 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
+// Ensure Jest DOM matchers are available globally for all test files
 declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toHaveClass: (...classNames: string[]) => R;
-      toHaveTextContent: (text: string | RegExp) => R;
-      toBeDisabled: () => R;
-      toHaveValue: (value: string | string[] | number) => R;
-      toHaveFocus: () => R;
-      toBeVisible: () => R;
-      toHaveStyle: (css: string | Record<string, any>) => R;
+  namespace Vi {
+    interface JestAssertion<T = any> {
+      toHaveTextContent: (text: string | RegExp) => void;
     }
   }
 }

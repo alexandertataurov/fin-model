@@ -5,7 +5,6 @@ import { resolve } from 'path';
 const netlifyOptimizeDeps = [
   'react',
   'react-dom',
-  'react/jsx-runtime',
   'react-dom/client',
   'react-router-dom',
   '@tanstack/react-query',
