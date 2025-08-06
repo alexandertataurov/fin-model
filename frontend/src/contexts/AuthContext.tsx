@@ -84,26 +84,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Load user data on mount
   useEffect(() => {
     const loadUserData = async () => {
+      console.log('Loading user data on mount...');
       const storedUser = localStorage.getItem(USER_KEY);
       const storedToken = localStorage.getItem(TOKEN_KEY);
+      console.log('Stored user:', storedUser ? 'found' : 'not found');
+      console.log('Stored token:', storedToken ? 'found' : 'not found');
 
       if (storedUser && storedToken) {
         try {
+          console.log('Parsing stored user data...');
           const user = JSON.parse(storedUser);
+          console.log('Parsed user:', user);
+          
           setState(prev => ({
             ...prev,
             user,
             token: storedToken,
             isLoading: false,
           }));
+          console.log('Initial user state set');
 
           // Load permissions
+          console.log('Loading permissions on mount...');
           await loadUserPermissions();
         } catch (error) {
+          console.error('Error loading initial user data:', error);
           // Error loading user data - clear auth data
           clearAuthData();
         }
       } else {
+        console.log('No stored auth data, setting loading to false');
         setState(prev => ({ ...prev, isLoading: false }));
       }
     };
@@ -164,13 +174,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadUserPermissions = async () => {
     try {
+      console.log('Loading user permissions...');
       const permissionsData = await authApi.getUserPermissions();
+      console.log('Permissions data received:', permissionsData);
       setState(prev => ({
         ...prev,
         permissions: permissionsData.permissions || [],
         roles: permissionsData.roles || [],
       }));
+      console.log('Permissions set successfully');
     } catch (error) {
+      console.error('Error loading permissions:', error);
       // Error loading permissions - continue with empty permissions
     }
   };
@@ -181,22 +195,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     rememberMe = false
   ): Promise<boolean> => {
     try {
+      console.log('Starting login process...');
       setState(prev => ({ ...prev, isLoading: true }));
 
+      console.log('Calling login API...');
       const response = await authApi.login({
         email,
         password,
         remember_me: rememberMe,
       });
+      console.log('Login API response:', response);
 
       // Store tokens
       localStorage.setItem(TOKEN_KEY, response.access_token);
       if (response.refresh_token) {
         localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
       }
+      console.log('Tokens stored');
 
       // Get user data
+      console.log('Getting current user...');
       const userData = await authApi.getCurrentUser();
+      console.log('User data received:', userData);
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
 
       setState(prev => ({
@@ -206,12 +226,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshToken: response.refresh_token || null,
         isLoading: false,
       }));
+      console.log('User state updated');
 
       // Load permissions
+      console.log('Loading permissions...');
       await loadUserPermissions();
+      console.log('Login process completed successfully');
 
       return true;
     } catch (error) {
+      console.error('Login failed:', error);
       // Login failed
       setState(prev => ({ ...prev, isLoading: false }));
       return false;
