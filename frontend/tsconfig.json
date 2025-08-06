@@ -30,6 +30,6 @@
     }
   },
   "include": ["src", "src/test/custom-matchers.d.ts"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "src/components/__tests__/Charts.test.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

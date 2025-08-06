@@ -33,16 +33,13 @@ export default defineConfig({
       ],
     },
     // Adaptive settings based on environment
-    testTimeout: process.env.CI ? 15000 : 8000,
-    hookTimeout: process.env.CI ? 15000 : 8000,
-    bail: process.env.CI ? 5 : 3,
-    pool: process.env.CI ? 'threads' : 'forks',
+    testTimeout: process.env.CI ? 10000 : 5000,
+    hookTimeout: process.env.CI ? 10000 : 5000,
+    bail: process.env.CI ? 3 : 2,
+    pool: 'forks',
     poolOptions: {
-      threads: {
-        singleThread: !process.env.CI, // Single thread locally for easier debugging
-      },
       forks: {
-        singleFork: !process.env.CI, // Single fork locally to reduce memory usage
+        singleFork: true, // Single fork to reduce memory usage and avoid hanging
       },
     },
     exclude: [

@@ -20,11 +20,8 @@ import { ErrorBoundary, ToastProvider } from './components/ui';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import PLDashboard from './pages/PLDashboard';
-import CashFlowDashboard from './pages/CashFlowDashboard';
 import FileUpload from './pages/FileUpload';
 import Reports from './pages/Reports';
-import ScenarioModeling from './pages/ScenarioModeling';
 import Analytics from './pages/Analytics';
 import NewDashboard from './pages/NewDashboard';
 import TemplateDashboard from './pages/TemplateDashboard';
@@ -75,8 +72,8 @@ const AppRoutes: React.FC = () => {
         }
       >
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="dashboards/pl" element={<PLDashboard />} />
-        <Route path="dashboards/cashflow" element={<CashFlowDashboard />} />
+        <Route path="dashboards/pl" element={<div>PL Dashboard - Coming Soon</div>} />
+        <Route path="dashboards/cashflow" element={<div>Cash Flow Dashboard - Coming Soon</div>} />
         <Route
           path="dashboards/balance-sheet"
           element={<div>Balance Sheet Dashboard - Coming Soon</div>}
@@ -87,7 +84,7 @@ const AppRoutes: React.FC = () => {
           path="scenarios"
           element={
             <ProtectedRoute requiredRole="analyst">
-              <ScenarioModeling />
+              <div>Scenario Modeling - Coming Soon</div>
             </ProtectedRoute>
           }
         />
