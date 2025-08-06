@@ -15,9 +15,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         data-slot="card"
         className={cn(
-          'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border',
-          interactive && 'cursor-pointer',
-          interactive && 'role="button" tabIndex={0}',
+          'bg-card text-card-foreground flex flex-col gap-6 rounded-lg border shadow-sm',
+          'transition-all duration-normal',
+          interactive && 'cursor-pointer hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
           hover && 'hover:-translate-y-0.5 hover:shadow-md',
           className
         )}
