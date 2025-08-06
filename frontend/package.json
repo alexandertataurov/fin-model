@@ -19,7 +19,8 @@
     "test:minimal:ci": "cross-env CI=true vitest run",
     "verify-build": "node scripts/verify-build.js",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "storybook:clean": "node scripts/clear-storybook-cache.js"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",

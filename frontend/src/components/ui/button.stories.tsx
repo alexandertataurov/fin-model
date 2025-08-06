@@ -41,6 +41,9 @@ The Button component is built on top of Radix UI's Slot primitive and uses Class
         'secondary',
         'ghost',
         'link',
+        'success',
+        'warning',
+        'info',
       ],
       description: 'Visual style variant',
     },
@@ -74,11 +77,14 @@ export const Variants: Story = {
   render: () => (
     <div className="flex gap-4 flex-wrap">
       <Button variant="default">Default</Button>
-      <Button variant="destructive">Destructive</Button>
-      <Button variant="outline">Outline</Button>
       <Button variant="secondary">Secondary</Button>
+      <Button variant="outline">Outline</Button>
       <Button variant="ghost">Ghost</Button>
       <Button variant="link">Link</Button>
+      <Button variant="destructive">Destructive</Button>
+      <Button variant="success">Success</Button>
+      <Button variant="warning">Warning</Button>
+      <Button variant="info">Info</Button>
     </div>
   ),
   parameters: {

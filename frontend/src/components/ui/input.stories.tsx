@@ -80,18 +80,36 @@ export const WithLabel: Story = {
 
 export const WithError: Story = {
   render: () => (
-    <div className="w-80 space-y-2">
-      <Label htmlFor="error-input">Email Address</Label>
-      <Input
-        id="error-input"
-        type="email"
-        placeholder="Enter your email"
-        aria-invalid="true"
-        className="border-destructive focus-visible:ring-destructive/20"
-      />
-      <p className="text-sm text-destructive">
-        Please enter a valid email address
-      </p>
+    <div className="w-80 space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="error-input">Email Address</Label>
+        <Input
+          id="error-input"
+          type="email"
+          placeholder="Enter your email"
+          error
+          helperText="Please enter a valid email address"
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="helper-input">Username</Label>
+        <Input
+          id="helper-input"
+          placeholder="Enter username"
+          helperText="Must be 3-20 characters long"
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="disabled-input">Disabled Field</Label>
+        <Input
+          id="disabled-input"
+          disabled
+          placeholder="This field is disabled"
+          helperText="This field cannot be edited"
+        />
+      </div>
     </div>
   ),
   parameters: {
