@@ -1,9 +1,28 @@
-import { mergeConfig, sharedOptimizeDeps } from './vite.config.base';
-import { resolve } from 'path';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 const netlifyOptimizeDeps = [
-  ...sharedOptimizeDeps,
+  'react',
+  'react-dom',
+  'react/jsx-runtime',
+  'react/jsx-dev-runtime',
+  'react-dom/client',
+  'react-router-dom',
+  '@tanstack/react-query',
+  'axios',
+  'recharts',
+  'lucide-react',
+  'class-variance-authority',
+  'clsx',
+  'tailwind-merge',
+  'zustand',
+  'react-hook-form',
+  'zod',
+  '@hookform/resolvers/zod',
+  'date-fns',
+  'react-dropzone',
+  'react-hot-toast',
   'react-grid-layout',
   'react-dnd',
   'react-dnd-html5-backend',
@@ -51,8 +70,17 @@ const netlifyExcludeDeps = [
   'prettier',
 ];
 
-export default mergeConfig({
-  plugins: [react()],
+export default defineConfig({
+  plugins: [
+    react(),
+  ],
+  
+  resolve: {
+    conditions: ['browser', 'module', 'import'],
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
   
   optimizeDeps: {
     include: netlifyOptimizeDeps,
@@ -66,14 +94,10 @@ export default mergeConfig({
     },
   },
 
-  resolve: {
-    conditions: ['browser', 'module', 'import'],
-    alias: {
-      '@': resolve(__dirname, 'src'),
-    },
-  },
-
   build: {
+    outDir: 'dist',
+    target: 'es2022',
+    emptyOutDir: true,
     sourcemap: false,
     minify: 'esbuild',
     cssTarget: 'chrome80',
@@ -81,6 +105,13 @@ export default mergeConfig({
     reportCompressedSize: false,
     assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
   },
 
   esbuild: {
@@ -91,6 +122,14 @@ export default mergeConfig({
     minifyWhitespace: true,
     treeShaking: true,
     target: 'es2020',
+  },
+
+  define: {
+    'process.env.NODE_ENV': '"production"',
+    __DEV__: false,
+    __PROD__: true,
+    'import.meta.env.DEV': false,
+    'import.meta.env.PROD': true,
   },
 
   server: {
