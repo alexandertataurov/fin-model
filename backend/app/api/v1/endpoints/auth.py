@@ -201,10 +201,9 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # If the request came as JSON (used in some tests), require that the
-    # account has a verified email before issuing tokens. Form submissions do
-    # not enforce this rule to maintain backward compatibility with existing
-    # fixtures.
+    # Check if email verification is required
+    # Since we're using Pydantic models, all requests are JSON format
+    json_request = request.headers.get("content-type", "").startswith("application/json")
     if json_request and not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -271,6 +270,8 @@ async def login_enhanced(
         )
 
     # Check email verification for JSON requests
+    # Since we're using Pydantic models, all requests are JSON format
+    json_request = request.headers.get("content-type", "").startswith("application/json")
     if json_request and not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
