@@ -72,6 +72,8 @@ const USER_KEY = 'user_data';
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  console.log('=== AUTH PROVIDER INITIALIZING ===');
+  
   const [state, setState] = useState<AuthState>({
     user: null,
     token: localStorage.getItem(TOKEN_KEY),
@@ -80,6 +82,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     roles: [],
     isLoading: true,
   });
+
+  console.log('Initial auth state:', state);
 
   // Load user data on mount
   useEffect(() => {

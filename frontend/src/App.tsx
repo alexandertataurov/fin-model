@@ -50,7 +50,13 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Auth Error Boundary caught an error:', error, errorInfo);
+    console.error('=== ERROR BOUNDARY TRIGGERED ===');
+    console.error('Error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Error info:', errorInfo);
+    console.error('Component stack:', errorInfo.componentStack);
+    console.error('================================');
   }
 
   render() {
@@ -121,6 +127,8 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  console.log('=== APP COMPONENT RENDERING ===');
+  
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
