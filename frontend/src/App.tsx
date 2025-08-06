@@ -6,148 +6,148 @@ import {
   Navigate,
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
-import { ThemeProvider } from './components/ThemeProvider';
-import { AuthProvider } from './contexts/AuthContext';
 
-// Authentication Components - Keep these as regular imports since they're small
+// Contexts
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './components/theme-provider';
+
+// Components
+import Layout from './components/Layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { ErrorBoundary, ToastProvider } from './components/ui';
+
+// Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ForgotPasswordForm from './components/auth/ForgotPasswordForm';
-import ResetPasswordForm from './components/auth/ResetPasswordForm';
-import EmailVerification from './components/auth/EmailVerification';
-import {
-  AdminGuard,
-  AnalystGuard,
-  VerifiedUserGuard,
-} from './components/auth/AuthGuard';
+import Dashboard from './pages/Dashboard';
+import PLDashboard from './pages/PLDashboard';
+import CashFlowDashboard from './pages/CashFlowDashboard';
+import FileUpload from './pages/FileUpload';
+import Reports from './pages/Reports';
+import ScenarioModeling from './pages/ScenarioModeling';
+import Analytics from './pages/Analytics';
+import NewDashboard from './pages/NewDashboard';
+import TemplateDashboard from './pages/TemplateDashboard';
 
-// Main Application Components - Lazy load for better performance
-const DashboardLayout = React.lazy(() =>
-  import('./components/DashboardLayout').then(module => ({
-    default: module.DashboardLayout,
-  }))
-);
-
-// Lazy load heavy components for better performance
-const Dashboard = React.lazy(() => import('./pages/Dashboard'));
-const Analytics = React.lazy(() => import('./pages/Analytics'));
-const FileUpload = React.lazy(() => import('./pages/FileUpload'));
-const Reports = React.lazy(() => import('./pages/Reports'));
-
-// Error Boundary Component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('=== ERROR BOUNDARY TRIGGERED ===');
-    console.error('Error:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    console.error('Error info:', errorInfo);
-    console.error('Component stack:', errorInfo.componentStack);
-    console.error('================================');
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold text-destructive">
-              Authentication Error
-            </h1>
-            <p className="text-muted-foreground">
-              Something went wrong with authentication. Please refresh the page.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-// Loading fallback component
-const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="text-center space-y-4">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-      <p className="text-muted-foreground">Loading...</p>
-    </div>
-  </div>
-);
-
-// Protected Layout Component with Suspense
-const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => (
-  <VerifiedUserGuard>
-    <React.Suspense fallback={<LoadingFallback />}>
-      <DashboardLayout>
-        <React.Suspense fallback={<LoadingFallback />}>
-          {children}
-        </React.Suspense>
-      </DashboardLayout>
-    </React.Suspense>
-  </VerifiedUserGuard>
-);
-
-// Create QueryClient instance with optimized settings
+// Create a new QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 2,
-      refetchOnWindowFocus: false,
-      // Add garbage collection time to help with memory management
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-    },
-    mutations: {
       retry: 1,
+      refetchOnWindowFocus: false,
     },
   },
 });
 
-export default function App() {
-  console.log('=== APP COMPONENT RENDERING ===');
-  
-  try {
-    console.log('=== TESTING QUERY CLIENT ===');
-    return (
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <div style={{ padding: '20px' }}>
-            <h1>Step 1: QueryClient works!</h1>
-            <p>Time: {new Date().toISOString()}</p>
-          </div>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    );
-  } catch (error) {
-    console.error('Error in QueryClient test:', error);
-    return (
-      <div style={{ padding: '20px', color: 'red' }}>
-        <h1>QueryClient Error</h1>
-        <p>Error: {String(error)}</p>
-      </div>
-    );
+// App routes with authentication logic
+const AppRoutes: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; // AuthProvider will show loading
   }
-}
+
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />
+        }
+      />
+      <Route path="/new-dashboard" element={<NewDashboard />} />
+      <Route path="/template-dashboard" element={<TemplateDashboard />} />
+
+      {/* Protected routes with Layout */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="dashboards/pl" element={<PLDashboard />} />
+        <Route path="dashboards/cashflow" element={<CashFlowDashboard />} />
+        <Route
+          path="dashboards/balance-sheet"
+          element={<div>Balance Sheet Dashboard - Coming Soon</div>}
+        />
+        <Route path="files" element={<FileUpload />} />
+        <Route path="reports" element={<Reports />} />
+        <Route
+          path="scenarios"
+          element={
+            <ProtectedRoute requiredRole="analyst">
+              <ScenarioModeling />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="template" element={<TemplateDashboard />} />
+        <Route
+          path="admin/*"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <div>Admin Panel - Coming Soon</div>
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      {/* Default redirects */}
+      <Route
+        index
+        element={
+          <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
+        }
+      />
+
+      {/* Catch all - redirect to dashboard or login */}
+      <Route
+        path="*"
+        element={
+          <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
+        }
+      />
+    </Routes>
+  );
+};
+
+const App: React.FC = () => {
+  console.log('=== APP RENDERING ===');
+  
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <ToastProvider>
+            <Router
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
+              {/* TEMPORARILY REMOVE AuthProvider to isolate the issue */}
+              <div style={{ padding: '20px' }}>
+                <h1>Step 3: Everything works except AuthProvider!</h1>
+                <p>The issue is in AuthProvider component</p>
+                <p>Time: {new Date().toISOString()}</p>
+              </div>
+            </Router>
+          </ToastProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
+
+export default App;
