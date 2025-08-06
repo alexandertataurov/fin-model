@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EnhancedCard, EnhancedButton, componentStyles } from '@/components/ui';
+import { EnhancedCard, EnhancedButton } from '@/components/ui';
+import { componentStyles } from '@/components/ui/utils/designSystem';
 import { Home, ArrowLeft } from 'lucide-react';
 
 const NotFound: React.FC = () => {

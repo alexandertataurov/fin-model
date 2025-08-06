@@ -198,6 +198,9 @@ export {
 } from './EnhancedButton';
 export { DesignSystemProvider, useDesignSystem } from './DesignSystemProvider';
 
+// Design System Utilities
+export { componentStyles, DesignSystem } from './utils/designSystem';
+
 // Re-export types
 export type { CardProps } from './card';
 export type { TextFieldProps } from './TextField';

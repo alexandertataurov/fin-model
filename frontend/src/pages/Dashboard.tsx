@@ -17,8 +17,8 @@ import {
   EnhancedCard,
   FeatureCard,
   ActionButton,
-  componentStyles,
 } from '../components/ui';
+import { componentStyles } from '../components/ui/utils/designSystem';
 import { useAuth } from '../contexts/AuthContext';
 
 /**

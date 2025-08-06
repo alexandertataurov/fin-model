@@ -1,5 +1,6 @@
 import React from 'react';
-import { EnhancedCard, componentStyles } from '@/components/ui';
+import { EnhancedCard } from '@/components/ui';
+import { componentStyles } from '@/components/ui/utils/designSystem';
 
 const BalanceSheetDashboard: React.FC = () => {
   return (
