@@ -72,9 +72,7 @@ const netlifyExcludeDeps = [
 
 export default defineConfig({
   plugins: [
-    react({
-      jsxImportSource: 'react',
-    }),
+    react(),
   ],
   
   resolve: {
