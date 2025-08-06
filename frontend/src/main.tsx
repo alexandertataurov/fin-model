@@ -4,14 +4,10 @@ import 'react/jsx-runtime';
 import App from './App';
 import './index.css';
 
-console.log('Main.tsx loaded');
-
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error('Root element not found');
 }
-
-console.log('Root element found, creating React root');
 
 try {
   const root = ReactDOM.createRoot(rootElement);
@@ -23,9 +19,7 @@ try {
     </React.StrictMode>
   );
 
-  console.log('App rendered successfully');
 } catch (error) {
-  console.error('Error rendering app:', error);
   rootElement.innerHTML = `
     <div style="padding: 20px; font-family: Arial, sans-serif;">
       <h1>Error Loading Application</h1>
