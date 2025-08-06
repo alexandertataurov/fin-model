@@ -1,5 +1,6 @@
 import { mergeConfig, sharedOptimizeDeps } from './vite.config.base';
 import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
 
 const netlifyOptimizeDeps = [
   ...sharedOptimizeDeps,
@@ -51,6 +52,7 @@ const netlifyExcludeDeps = [
 ];
 
 export default mergeConfig({
+  plugins: [react()],
   
   optimizeDeps: {
     include: netlifyOptimizeDeps,

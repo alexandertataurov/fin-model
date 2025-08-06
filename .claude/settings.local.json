@@ -87,7 +87,9 @@
       "Bash(timeout 30 pnpm test:minimal:ci)",
       "Bash(timeout 30 pnpm build)",
       "Bash(timeout 30 pnpm build:netlify)",
-      "Bash(timeout 30 pnpm run lint:ci)"
+      "Bash(timeout 30 pnpm run lint:ci)",
+      "Bash(timeout 30 pnpm run type-check)",
+      "Bash(pnpm add:*)"
     ],
     "deny": []
   }
