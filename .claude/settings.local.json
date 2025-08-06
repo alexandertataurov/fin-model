@@ -91,7 +91,8 @@
       "Bash(timeout 30 pnpm run type-check)",
       "Bash(pnpm add:*)",
       "Bash(DEBUG=vite:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(pnpm build:netlify:*)"
     ],
     "deny": []
   }
