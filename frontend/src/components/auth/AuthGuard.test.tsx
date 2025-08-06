@@ -14,6 +14,7 @@ vi.mock('react-router-dom', async () => {
   const actual = (await vi.importActual('react-router-dom')) as any;
   return {
     ...actual,
+    default: actual.default,
     Navigate: vi.fn(({ to }: { to: string }) => (
       <div data-testid="navigate" data-to={to}>
         Navigating to {to}

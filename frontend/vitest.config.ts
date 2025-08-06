@@ -8,6 +8,14 @@ import path from 'path';
 export default defineConfig({
   ...baseConfig,
   plugins: [react()],
+  define: {
+    ...baseConfig.define,
+    'process.env.NODE_ENV': '"test"',
+    __DEV__: true,
+    __PROD__: false,
+    'import.meta.env.DEV': true,
+    'import.meta.env.PROD': false,
+  },
   test: {
     globals: true,
     environment: 'jsdom',

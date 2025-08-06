@@ -45,18 +45,12 @@
 [build.processing.html]
   pretty_urls = false
 
-# SPA routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# API proxy
+# API proxy - must come BEFORE SPA routing
 [[redirects]]
   from = "/api/*"
   to = "https://fin-model-production.up.railway.app/api/:splat"
   status = 200
-  force = false
+  force = true
   headers = { X-From = "Netlify" }
 
 # Health check proxy
@@ -64,7 +58,13 @@
   from = "/health"
   to = "https://fin-model-production.up.railway.app/health"
   status = 200
-  force = false
+  force = true
+
+# SPA routing - must come LAST
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 # Security headers with optimizations
 [[headers]]

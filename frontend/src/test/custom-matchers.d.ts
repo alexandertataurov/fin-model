@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom/vitest';
+import '@testing-library/jest-dom';
 
 // Ensure Jest DOM matchers are available globally for all test files
 declare global {

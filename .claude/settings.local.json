@@ -94,7 +94,8 @@
       "Bash(timeout:*)",
       "Bash(pnpm build:netlify:*)",
       "Bash(pnpm list:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\clear_rate_limits.py\")"
     ],
     "deny": []
   }

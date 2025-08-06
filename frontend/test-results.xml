@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="106" failures="92" errors="0" time="28.021">
-    <testsuite name="src/App.test.tsx" timestamp="2025-08-06T05:52:45.719Z" hostname="DESKTOP-EUV1RQE" tests="3" failures="3" errors="0" skipped="0" time="0.017">
