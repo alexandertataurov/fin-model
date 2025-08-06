@@ -1,5 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { EnhancedButton, IconButton } from '@/components/ui/EnhancedButton';
+import { EnhancedCard } from '@/components/ui/EnhancedCard';
+import { componentStyles } from '@/components/ui/utils/designSystem';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +14,14 @@ import {
   WidthProvider,
   Layout as LayoutItem,
 } from 'react-grid-layout';
-import { Plus, Maximize2, Minimize2 } from 'lucide-react';
+import {
+  Plus,
+  Maximize2,
+  Minimize2,
+  Settings,
+  MoreVertical,
+  BarChart3,
+} from 'lucide-react';
 
 // React Grid Layout CSS should be imported at the app level or in index.html
 
@@ -101,16 +111,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
     return generatedLayouts;
   }, [widgets, layouts]);
 
-  const handleLayoutChange = useCallback(
-    (layout: LayoutItem[], layouts: { [key: string]: LayoutItem[] }) => {
-      if (onLayoutChange) {
-        onLayoutChange(layout, layouts);
-      }
-    },
-    [onLayoutChange]
-  );
-
-  const handleWidgetFullscreen = useCallback(
+  const handleFullscreen = useCallback(
     (widgetId: string) => {
       if (fullscreenWidget === widgetId) {
         setFullscreenWidget(null);
@@ -123,73 +124,84 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
     [fullscreenWidget]
   );
 
-  const handleAddWidget = useCallback(() => {
-    if (onAddWidget) {
-      onAddWidget();
-    }
-  }, [onAddWidget]);
+  const handleLayoutChange = useCallback(
+    (
+      currentLayout: LayoutItem[],
+      allLayouts: { [key: string]: LayoutItem[] }
+    ) => {
+      if (onLayoutChange) {
+        onLayoutChange(currentLayout, allLayouts);
+      }
+    },
+    [onLayoutChange]
+  );
 
   const renderWidget = useCallback(
     (widget: DashboardWidget) => {
       const WidgetComponent = widget.component;
-      const isFullscreen = fullscreenWidget === widget.id;
+      const isFullscreenWidget = fullscreenWidget === widget.id;
 
       return (
-        <div key={widget.id} className="h-full w-full">
-          <div className="flex items-center justify-between p-3 border-b bg-muted/50">
-            <h3 className="font-medium text-sm">{widget.title}</h3>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleWidgetFullscreen(widget.id)}
-                className="h-6 w-6 p-0"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3 w-3" />
-                ) : (
-                  <Maximize2 className="h-3 w-3" />
-                )}
-              </Button>
-              {editable && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      <Plus className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {availableWidgets.map(availableWidget => (
+        <EnhancedCard
+          key={widget.id}
+          variant="default"
+          className={cn(
+            'h-full flex flex-col',
+            isFullscreenWidget &&
+              'z-50 fixed inset-4 bg-background border-2 border-primary'
+          )}
+          header={
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-foreground">{widget.title}</h3>
+              <div className="flex items-center gap-2">
+                <IconButton
+                  icon={<Maximize2 className="h-4 w-4" />}
+                  onClick={() => handleFullscreen(widget.id)}
+                  variant="ghost"
+                  size="sm"
+                  tooltip={
+                    isFullscreenWidget ? 'Exit fullscreen' : 'Fullscreen'
+                  }
+                />
+                {editable && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <IconButton
+                        icon={<MoreVertical className="h-4 w-4" />}
+                        variant="ghost"
+                        size="sm"
+                        tooltip="Widget options"
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        key={availableWidget.id}
-                        onClick={handleAddWidget}
+                        onClick={() => onRemoveWidget?.(widget.id)}
                       >
-                        {availableWidget.title}
+                        Remove Widget
                       </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                      <DropdownMenuItem>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Configure
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="p-3">
+          }
+        >
+          <div className="flex-1 min-h-0">
             <WidgetComponent
-              height={isFullscreen ? 600 : undefined}
-              isFullscreen={isFullscreen}
-              onFullscreen={() => handleWidgetFullscreen(widget.id)}
+              height={isFullscreenWidget ? window.innerHeight - 100 : undefined}
+              isFullscreen={isFullscreenWidget}
+              onFullscreen={() => handleFullscreen(widget.id)}
               {...widget.props}
             />
           </div>
-        </div>
+        </EnhancedCard>
       );
     },
-    [
-      fullscreenWidget,
-      editable,
-      availableWidgets,
-      handleWidgetFullscreen,
-      handleAddWidget,
-    ]
+    [fullscreenWidget, editable, onRemoveWidget, handleFullscreen]
   );
 
   if (isFullscreen && fullscreenWidget) {
@@ -199,44 +211,107 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
     return (
       <div className="fixed inset-0 z-50 bg-background">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-xl font-semibold">
             {fullscreenWidgetData.title}
           </h2>
-          <Button
+          <IconButton
+            icon={<Minimize2 className="h-4 w-4" />}
+            onClick={() => handleFullscreen(fullscreenWidget)}
             variant="outline"
-            onClick={() => handleWidgetFullscreen(fullscreenWidget)}
-          >
-            <Minimize2 className="h-4 w-4 mr-2" />
-            Exit Fullscreen
-          </Button>
+            size="sm"
+          />
         </div>
-        <div className="p-4 h-[calc(100vh-80px)]">
-          {renderWidget(fullscreenWidgetData)}
-        </div>
+        <div className="p-4">{renderWidget(fullscreenWidgetData)}</div>
       </div>
     );
   }
 
   return (
-    <div className={className}>
-      <ResponsiveGridLayout
-        className="layout"
-        layouts={defaultLayouts}
-        breakpoints={defaultBreakpoints}
-        cols={defaultCols}
-        rowHeight={100}
-        isDraggable={editable}
-        isResizable={editable}
-        onLayoutChange={handleLayoutChange}
-        margin={[16, 16]}
-        containerPadding={[16, 16]}
-      >
-        {widgets.map(widget => (
-          <div key={widget.id}>{renderWidget(widget)}</div>
-        ))}
-      </ResponsiveGridLayout>
+    <div className={cn('space-y-6', className)}>
+      {/* Dashboard Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className={componentStyles.heading.h2}>Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Customize your dashboard layout and widgets
+          </p>
+        </div>
+
+        {editable && onAddWidget && (
+          <div className="flex items-center gap-3">
+            <EnhancedButton
+              variant="outline"
+              leftIcon={<Settings className="h-4 w-4" />}
+              onClick={() => {
+                /* Configure dashboard */
+              }}
+            >
+              Configure
+            </EnhancedButton>
+            <EnhancedButton
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={onAddWidget}
+            >
+              Add Widget
+            </EnhancedButton>
+          </div>
+        )}
+      </div>
+
+      {/* Grid Layout */}
+      <div className="relative">
+        <ResponsiveGridLayout
+          className="layout"
+          layouts={defaultLayouts}
+          breakpoints={defaultBreakpoints}
+          cols={defaultCols}
+          rowHeight={100}
+          isDraggable={editable}
+          isResizable={editable}
+          onLayoutChange={handleLayoutChange}
+          margin={[16, 16]}
+          containerPadding={[0, 0]}
+          useCSSTransforms={true}
+          compactType="vertical"
+          preventCollision={false}
+        >
+          {widgets.map(widget => (
+            <div key={widget.id} className="h-full">
+              {renderWidget(widget)}
+            </div>
+          ))}
+        </ResponsiveGridLayout>
+      </div>
+
+      {/* Empty State */}
+      {widgets.length === 0 && (
+        <EnhancedCard variant="outline" className="text-center py-12">
+          <div className="space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <BarChart3 className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">No widgets added</h3>
+              <p className="text-muted-foreground mt-1">
+                Add widgets to start building your dashboard
+              </p>
+            </div>
+            {editable && onAddWidget && (
+              <EnhancedButton
+                leftIcon={<Plus className="h-4 w-4" />}
+                onClick={onAddWidget}
+              >
+                Add Your First Widget
+              </EnhancedButton>
+            )}
+          </div>
+        </EnhancedCard>
+      )}
     </div>
   );
 };
 
-export default DashboardGrid;
+// Utility function for class names
+function cn(...classes: (string | undefined | null | false)[]): string {
+  return classes.filter(Boolean).join(' ');
+}

@@ -10,7 +10,15 @@ import {
   ArrowRight as ArrowForward,
   Activity as Timeline,
 } from 'lucide-react';
-import { Card, Button, Badge } from '../components/ui';
+import {
+  Card,
+  Button,
+  Badge,
+  EnhancedCard,
+  FeatureCard,
+  ActionButton,
+  componentStyles,
+} from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
@@ -40,38 +48,18 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   badge,
 }) => {
   return (
-    <Card
-      className="cursor-pointer hover:shadow-lg transition-all duration-200 border-border/50 hover:border-primary/50"
-      onClick={onClick}
-    >
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 text-primary">
-            {icon}
-          </div>
-          {badge && (
-            <Badge variant="secondary" className="text-xs font-semibold">
-              {badge}
-            </Badge>
-          )}
-        </div>
-
-        <h3 className="text-lg font-semibold mb-2">
-          {title}
-        </h3>
-
-        <p className="text-sm text-muted-foreground mb-4">
-          {subtitle}
-        </p>
-
+    <FeatureCard
+      title={title}
+      description={subtitle}
+      icon={icon}
+      action={
         <div className="flex items-center text-primary">
-          <span className="text-sm font-semibold">
-            Open Dashboard
-          </span>
+          <span className="text-sm font-semibold">Open Dashboard</span>
           <ArrowForward className="ml-2 h-4 w-4" />
         </div>
-      </div>
-    </Card>
+      }
+      variant="highlight"
+    />
   );
 };
 
@@ -85,7 +73,7 @@ const Dashboard = () => {
       subtitle:
         'Analyze profit & loss statements with interactive charts and key metrics',
       icon: <TrendingUp />,
-      color: 'var(--chart-3)', // DESIGN_FIX
+      color: 'var(--chart-3)',
       path: '/dashboards/pl',
       badge: 'Financial',
     },
@@ -93,185 +81,151 @@ const Dashboard = () => {
       title: 'Cash Flow',
       subtitle: 'Track cash inflows and outflows with waterfall visualizations',
       icon: <DollarSign />,
-      color: 'var(--chart-1)', // DESIGN_FIX
+      color: 'var(--chart-1)',
       path: '/dashboards/cashflow',
       badge: 'Financial',
     },
     {
       title: 'Balance Sheet',
-      subtitle: 'Monitor assets, liabilities, and equity positions',
+      subtitle: 'View assets, liabilities, and equity with detailed breakdowns',
       icon: <CreditCard />,
-      color: 'var(--chart-5)', // DESIGN_FIX
-      path: '/dashboards/balance-sheet',
-      badge: 'Coming Soon',
-    },
-    {
-      title: 'Reports',
-      subtitle: 'Generate and export comprehensive financial reports',
-      icon: <BarChart3 />,
-      color: 'var(--chart-4)', // DESIGN_FIX
-      path: '/reports',
-    },
-    {
-      title: 'File Upload',
-      subtitle: 'Upload and process Excel financial models',
-      icon: <CloudUpload />,
-      color: 'var(--chart-2)', // DESIGN_FIX
-      path: '/files',
+      color: 'var(--chart-2)',
+      path: '/dashboards/balance',
+      badge: 'Financial',
     },
     {
       title: 'Analytics',
-      subtitle: 'Advanced analytics and performance insights',
+      subtitle: 'Advanced analytics and reporting with custom dashboards',
       icon: <Analytics />,
-      color: 'var(--chart-1)', // DESIGN_FIX
+      color: 'var(--chart-4)',
       path: '/analytics',
+      badge: 'Advanced',
+    },
+    {
+      title: 'File Upload',
+      subtitle: 'Upload and process financial documents and spreadsheets',
+      icon: <CloudUpload />,
+      color: 'var(--chart-5)',
+      path: '/upload',
+      badge: 'Tools',
+    },
+    {
+      title: 'Real-time Metrics',
+      subtitle: 'Monitor live financial data and performance indicators',
+      icon: <Timeline />,
+      color: 'var(--chart-6)',
+      path: '/metrics',
+      badge: 'Live',
     },
   ];
 
-  const hasAnalystAccess =
-    user?.roles?.includes('analyst') || user?.roles?.includes('admin');
+  const quickActions = [
+    {
+      title: 'Upload File',
+      description: 'Process new financial data',
+      icon: <CloudUpload className="h-5 w-5" />,
+      action: () => navigate('/upload'),
+      variant: 'default' as const,
+    },
+    {
+      title: 'Generate Report',
+      description: 'Create custom financial reports',
+      icon: <BarChart3 className="h-5 w-5" />,
+      action: () => navigate('/reports'),
+      variant: 'success' as const,
+    },
+    {
+      title: 'View Analytics',
+      description: 'Access advanced analytics',
+      icon: <Analytics className="h-5 w-5" />,
+      action: () => navigate('/analytics'),
+      variant: 'info' as const,
+    },
+  ];
 
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {user?.first_name || 'User'}
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Transform your Excel financial models into interactive web dashboards
-        </p>
-      </div>
-
-      {/* Quick Actions */}
-      <Card className="bg-primary text-primary-foreground">
-        <div className="p-6">
-          <h2 className="text-lg font-semibold mb-4">
-            Quick Actions
-          </h2>
-          <div className="flex gap-3 flex-wrap">
-          <Button
-            type="button"
-            variant="default"
-            onClick={() => navigate('/files')}
-            className="bg-background text-primary hover:bg-muted flex items-center"
-          >
-            <CloudUpload className="mr-2 h-4 w-4" />
-            Upload Financial Model
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/dashboards/pl')}
-            className="border-border text-primary-foreground hover:bg-primary/10 flex items-center"
-          >
-            <TrendingUp className="mr-2 h-4 w-4" />
-            View P&L Dashboard
-          </Button>
-          {hasAnalystAccess && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/scenarios')}
-              className="border-border text-primary-foreground hover:bg-primary/10 flex items-center"
-            >
-              <Timeline className="mr-2 h-4 w-4" />
-              Scenario Modeling
-            </Button>
-          )}
+      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className={componentStyles.container}>
+          <div className={`${componentStyles.flexBetween} py-6`}>
+            <div>
+              <h1 className={componentStyles.heading.h1}>
+                Welcome back, {user?.name || 'User'}!
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Here's what's happening with your financial data today.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant="success">v2.0.0</Badge>
+              <Button variant="outline" size="sm">
+                Settings
+              </Button>
+            </div>
           </div>
         </div>
-      </Card>
+      </header>
 
-      {/* Dashboard Cards */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold">
-          Dashboards & Tools
-        </h2>
+      <main className={`${componentStyles.container} py-8`}>
+        {/* Quick Actions */}
+        <section className="mb-12">
+          <h2 className={componentStyles.heading.h2}>Quick Actions</h2>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {quickActions.map((action, index) => (
+              <ActionButton
+                key={index}
+                icon={action.icon}
+                label={action.title}
+                onClick={action.action}
+                variant={action.variant}
+                size="lg"
+              />
+            ))}
+          </div>
+        </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dashboardCards.map(card => (
-            <DashboardCard
-              key={card.title}
-              title={card.title}
-              subtitle={card.subtitle}
-              icon={card.icon}
-              color={card.color}
-              badge={card.badge}
-              onClick={() => navigate(card.path)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Getting Started Section */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold">
-          Getting Started
-        </h2>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Card>
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Steps to Get Started</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
-                      1
-                    </div>
-                    <p className="text-sm">
-                      Upload your Excel financial model files
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
-                      2
-                    </div>
-                    <p className="text-sm">
-                      Review and validate extracted parameters
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
-                      3
-                    </div>
-                    <p className="text-sm">
-                      Explore interactive dashboards and visualizations
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
-                      4
-                    </div>
-                    <p className="text-sm">
-                      Generate and export comprehensive reports
-                    </p>
-                  </div>
-                </div>
+        {/* Dashboard Cards */}
+        <section className="mb-12">
+          <h2 className={componentStyles.heading.h2}>Financial Dashboards</h2>
+          <p className="text-muted-foreground mt-2 mb-6">
+            Access your financial data through our comprehensive dashboard
+            suite.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dashboardCards.map((card, index) => (
+              <div key={index} onClick={() => navigate(card.path)}>
+                <DashboardCard {...card} />
               </div>
-            </Card>
+            ))}
           </div>
+        </section>
 
-          <div>
-            <Card>
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-2">Need Help?</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Get started quickly with our documentation and support
-                  resources.
-                </p>
-                <Button type="button" variant="outline" className="w-full">
+        {/* Getting Started Guide */}
+        <section className="mb-12">
+          <EnhancedCard
+            variant="filled"
+            className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20"
+          >
+            <div className="text-center space-y-4">
+              <h3 className={componentStyles.heading.h3}>Getting Started</h3>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                New to FinVision? Start by uploading your financial data or
+                explore our comprehensive dashboard suite to get insights into
+                your financial performance.
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <Button onClick={() => navigate('/upload')}>
+                  Upload Your First File
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/docs')}>
                   View Documentation
                 </Button>
               </div>
-            </Card>
-          </div>
-        </div>
-      </div>
+            </div>
+          </EnhancedCard>
+        </section>
+      </main>
     </div>
   );
 };

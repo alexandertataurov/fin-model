@@ -188,6 +188,16 @@ export {
   NotFound,
 } from './ErrorHandling';
 
+// Enhanced Design System Components
+export { EnhancedCard, MetricCard, FeatureCard } from './EnhancedCard';
+export {
+  EnhancedButton,
+  ActionButton,
+  IconButton,
+  LoadingButton,
+} from './EnhancedButton';
+export { DesignSystemProvider, useDesignSystem } from './DesignSystemProvider';
+
 // Re-export types
 export type { CardProps } from './card';
 export type { TextFieldProps } from './TextField';
