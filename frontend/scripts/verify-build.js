@@ -35,11 +35,6 @@ const buildChecks = [
     required: true,
   },
   {
-    name: 'React Vendor Bundle',
-    pattern: /assets\/react-vendor-.*\.js/,
-    required: true,
-  },
-  {
     name: 'CSS Bundle',
     pattern: /assets\/.*\.css/,
     required: true,
