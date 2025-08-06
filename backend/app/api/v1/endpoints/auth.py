@@ -15,6 +15,7 @@ from app.schemas.user import (
     UserRegister,
     User,
     UserUpdate,
+    UserLogin,
     Token,
     PasswordReset,
     PasswordResetConfirm,
@@ -160,6 +161,7 @@ def register(
 
 @router.post("/login", response_model=Token)
 async def login(
+    login_data: UserLogin,
     request: Request,
     db: Session = Depends(get_db),
 ) -> Any:
@@ -176,20 +178,10 @@ async def login(
 
     auth_service = AuthService(db)
 
-    # Support both JSON payloads and form data for tests
-    json_request = request.headers.get("content-type", "").startswith(
-        "application/json"
-    )
-    if json_request:
-        data = await request.json()
-    else:
-        form = await request.form()
-        data = dict(form)
-
-    identifier = data.get("username") or data.get("email")
-    password = data.get("password")
-
-    remember_me = data.get("remember_me", False)
+    # Extract login data
+    identifier = login_data.email
+    password = login_data.password
+    remember_me = login_data.remember_me or False
 
     # Get client info for audit logging
     ip_address = request.client.host if request.client else None
@@ -236,6 +228,7 @@ async def login(
 
 @router.post("/login-enhanced", response_model=AuthenticationFlowResponse)
 async def login_enhanced(
+    login_data: UserLogin,
     request: Request,
     db: Session = Depends(get_db),
 ) -> Any:
@@ -255,26 +248,10 @@ async def login_enhanced(
 
     auth_service = AuthService(db)
 
-    # Support both JSON payloads and form data
-    json_request = request.headers.get("content-type", "").startswith(
-        "application/json"
-    )
-    if json_request:
-        data = await request.json()
-    else:
-        form = await request.form()
-        data = dict(form)
-
-    identifier = data.get("username") or data.get("email")
-    password = data.get("password")
-
-    if not identifier or not password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username/email and password are required"
-        )
-
-    remember_me = data.get("remember_me", False)
+    # Extract login data
+    identifier = login_data.email
+    password = login_data.password
+    remember_me = login_data.remember_me or False
 
     # Get client info for audit logging
     ip_address = request.client.host if request.client else None
