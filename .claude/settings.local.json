@@ -93,7 +93,8 @@
       "Bash(DEBUG=vite:*)",
       "Bash(timeout:*)",
       "Bash(pnpm build:netlify:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }
