@@ -1,6 +1,6 @@
 /**
  * WebSocket Service for Real-time Notifications
- * Minimal implementation for build compatibility
+ * Enhanced implementation with better error handling
  */
 
 interface WebSocketEventHandler {
@@ -15,15 +15,21 @@ class WebSocketService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  private isServiceAvailable = true; // Track service availability
+  private isServiceAvailable = true;
+  private connectionTimeout: NodeJS.Timeout | null = null;
+  private isConnecting = false;
 
   async connect(endpoint: string): Promise<void> {
     try {
+      // Prevent multiple simultaneous connection attempts
+      if (this.isConnecting) {
+        console.log('WebSocket connection already in progress');
+        return;
+      }
+
       // Don't connect if service is marked as unavailable
       if (!this.isServiceAvailable) {
-        console.warn(
-          'WebSocket service is marked as unavailable, skipping connection'
-        );
+        console.warn('WebSocket service is marked as unavailable, skipping connection');
         throw new Error('WebSocket service unavailable');
       }
 
@@ -33,11 +39,7 @@ class WebSocketService {
         return;
       }
 
-      // Don't connect if currently connecting
-      if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-        console.log('WebSocket connection in progress');
-        return;
-      }
+      this.isConnecting = true;
 
       // Store the original endpoint for reconnection
       this.originalEndpoint = endpoint;
@@ -49,14 +51,13 @@ class WebSocketService {
       const requiresAuth = endpoint !== '/ws/health';
 
       if (requiresAuth && !token) {
-        console.warn(
-          'WebSocket connection requires authentication but no token found'
-        );
+        console.warn('WebSocket connection requires authentication but no token found');
+        this.isConnecting = false;
         throw new Error('Authentication required');
       }
 
       // Use Railway backend URL for WebSocket connections
-      const protocol = 'wss:';
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = 'fin-model-production.up.railway.app';
 
       // Add token as query parameter if available and required
@@ -70,84 +71,94 @@ class WebSocketService {
           : baseUrl;
 
       console.log(`Connecting to WebSocket: ${this.url}`);
+      
+      // Close existing connection if any
+      if (this.ws) {
+        this.ws.close();
+        this.ws = null;
+      }
+
       this.ws = new WebSocket(this.url);
 
       // Set connection timeout
-      const connectionTimeout = setTimeout(() => {
+      this.connectionTimeout = setTimeout(() => {
         if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
           console.warn('WebSocket connection timeout');
           this.ws.close();
+          this.isConnecting = false;
         }
-      }, 10000); // 10 second timeout
+      }, 15000); // 15 second timeout
 
-      this.ws.onopen = () => {
-        clearTimeout(connectionTimeout);
-        console.log('WebSocket connected');
-        this.reconnectAttempts = 0;
-        this.isServiceAvailable = true; // Mark service as available
-      };
-
-      this.ws.onmessage = event => {
-        try {
-          const data = JSON.parse(event.data);
-          this.handleMessage(data);
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-
-      this.ws.onclose = event => {
-        clearTimeout(connectionTimeout);
-        console.log(
-          `WebSocket disconnected with code: ${event.code}, reason: ${event.reason}`
-        );
-
-        // Don't attempt reconnection for authentication errors
-        if (event.code === 4001) {
-          console.warn(
-            'WebSocket authentication failed, not attempting reconnection'
-          );
+      return new Promise((resolve, reject) => {
+        if (!this.ws) {
+          reject(new Error('Failed to create WebSocket'));
           return;
         }
 
-        // Don't attempt reconnection if we're not authenticated
-        if (requiresAuth && !localStorage.getItem('access_token')) {
-          console.log(
-            'User not authenticated, not attempting WebSocket reconnection'
-          );
-          return;
-        }
+        this.ws.onopen = () => {
+          if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+            this.connectionTimeout = null;
+          }
+          console.log('WebSocket connected successfully');
+          this.reconnectAttempts = 0;
+          this.isServiceAvailable = true;
+          this.isConnecting = false;
+          resolve();
+        };
 
-        // Mark service as unavailable for certain error codes
-        if (event.code === 1006 || event.code === 1015) {
-          console.warn('WebSocket service appears to be unavailable');
-          this.isServiceAvailable = false;
-          return;
-        }
+        this.ws.onmessage = event => {
+          try {
+            const data = JSON.parse(event.data);
+            this.handleMessage(data);
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+          }
+        };
 
-        this.attemptReconnect();
-      };
+        this.ws.onclose = event => {
+          if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+            this.connectionTimeout = null;
+          }
+          
+          console.log(`WebSocket closed: ${event.code} - ${event.reason}`);
+          this.isConnecting = false;
+          
+          // Only attempt reconnect if it wasn't a manual close
+          if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+            this.attemptReconnect();
+          }
+        };
 
-      this.ws.onerror = error => {
-        clearTimeout(connectionTimeout);
-        console.error('WebSocket error:', error);
-        // Mark service as unavailable on error
-        this.isServiceAvailable = false;
-      };
+        this.ws.onerror = error => {
+          console.error('WebSocket error:', error);
+          this.isConnecting = false;
+          reject(error);
+        };
+      });
+
     } catch (error) {
-      console.error('Failed to establish WebSocket connection:', error);
-      this.isServiceAvailable = false;
+      this.isConnecting = false;
+      console.error('Failed to connect to WebSocket:', error);
       throw error;
     }
   }
 
   disconnect(): void {
+    if (this.connectionTimeout) {
+      clearTimeout(this.connectionTimeout);
+      this.connectionTimeout = null;
+    }
+    
     if (this.ws) {
-      this.ws.close();
+      this.ws.close(1000, 'Manual disconnect');
       this.ws = null;
     }
-    this.originalEndpoint = '';
-    this.subscriptions.clear();
+    
+    this.isConnecting = false;
+    this.reconnectAttempts = 0;
+    console.log('WebSocket disconnected');
   }
 
   subscribe(event: string, handler: WebSocketEventHandler): () => void {
