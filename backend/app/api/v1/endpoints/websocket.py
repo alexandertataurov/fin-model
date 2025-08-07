@@ -35,7 +35,7 @@ async def authenticate_websocket(websocket: WebSocket, token: Optional[str] = No
             user = auth_service.get_user_by_id(int(user_id))
             
             if not user or not user.is_active:
-                logger.warning(f"WebSocket connection attempt by inactive user {user_id}")
+                logger.warning(f"WebSocket connection attempt for inactive user {user_id}")
                 await websocket.close(code=4001, reason="User not found or inactive")
                 return None
                 
@@ -49,6 +49,53 @@ async def authenticate_websocket(websocket: WebSocket, token: Optional[str] = No
         return None
 
 
+@router.websocket("/health")
+async def health_websocket(websocket: WebSocket):
+    """WebSocket health check endpoint - no authentication required."""
+    try:
+        await websocket.accept()
+        logger.info("Health check WebSocket connected")
+        
+        # Send connection confirmation
+        await websocket.send_text(json.dumps({
+            "type": "health_check",
+            "message": "WebSocket health check successful",
+            "status": "connected"
+        }))
+        
+        # Keep connection alive for a short time
+        while True:
+            try:
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                
+                if message.get("type") == "ping":
+                    await websocket.send_text(json.dumps({
+                        "type": "pong",
+                        "timestamp": message.get("timestamp")
+                    }))
+                else:
+                    await websocket.send_text(json.dumps({
+                        "type": "error",
+                        "message": "Only ping messages supported"
+                    }))
+                    
+            except WebSocketDisconnect:
+                logger.info("Health check WebSocket disconnected")
+                break
+            except Exception as e:
+                logger.error(f"Error in health check WebSocket: {e}")
+                break
+                
+    except Exception as e:
+        logger.error(f"Error establishing health check WebSocket: {e}")
+        if websocket.client_state.name == 'CONNECTED':
+            try:
+                await websocket.close()
+            except Exception:
+                pass
+
+
 @router.websocket("/notifications")
 async def notifications_websocket(websocket: WebSocket, token: Optional[str] = Query(None)):
     """WebSocket endpoint for real-time notifications."""
@@ -56,7 +103,8 @@ async def notifications_websocket(websocket: WebSocket, token: Optional[str] = Q
         # Authenticate user BEFORE accepting the connection
         user = await authenticate_websocket(websocket, token)
         if not user:
-            return  # authenticate_websocket will close the connection
+            # Connection will be closed by authenticate_websocket
+            return
         
         # Accept the connection only after successful authentication
         await websocket.accept()

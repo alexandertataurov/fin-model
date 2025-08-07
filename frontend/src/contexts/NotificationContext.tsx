@@ -144,14 +144,38 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   );
 
   // Load user preferences
-  const loadPreferences = useCallback(async () => {
-    try {
-      const data = await apiCall('/preferences');
-      setPreferences(data);
-    } catch (error) {
-      console.error('Failed to load notification preferences:', error);
+  const loadPreferences = useCallback(async (): Promise<void> => {
+    // Check if user is authenticated
+    const token = getAuthToken();
+    if (!token) {
+      console.log('User not authenticated, skipping preferences load');
+      return;
     }
-  }, [apiCall]);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/notifications/preferences`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setPreferences(data);
+      } else if (response.status === 401) {
+        console.log('User not authenticated, using default preferences');
+        setPreferences(null);
+      } else {
+        console.error('Failed to fetch preferences:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+    }
+  }, []);
 
   // Handle real-time notification
   const handleNewNotification = useCallback(
@@ -234,6 +258,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const connect = useCallback(async () => {
     if (isConnected) return;
 
+    // Check if user is authenticated
+    const token = getAuthToken();
+    if (!token) {
+      console.log('User not authenticated, skipping WebSocket connection');
+      return;
+    }
+
     try {
       await notificationsWebSocketService.connect('/ws/notifications');
       setIsConnected(true);
@@ -262,6 +293,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     } catch (error) {
       console.error('Failed to connect to notifications WebSocket:', error);
       setIsConnected(false);
+
+      // If it's an authentication error, don't retry
+      if (
+        error instanceof Error &&
+        error.message === 'Authentication required'
+      ) {
+        console.log(
+          'WebSocket connection failed due to authentication, will retry when user logs in'
+        );
+      }
     }
   }, [
     isConnected,
@@ -387,9 +428,45 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     });
   }, []);
 
-  const refreshNotifications = useCallback(async () => {
-    await loadNotifications(1, false);
-  }, [loadNotifications]);
+  const refreshNotifications = useCallback(async (): Promise<void> => {
+    if (isLoading) return;
+
+    // Check if user is authenticated
+    const token = getAuthToken();
+    if (!token) {
+      console.log('User not authenticated, skipping notification refresh');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/notifications/?page=1&limit=${maxNotifications}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.items || []);
+        setUnreadCount(data.unread_count || 0);
+      } else if (response.status === 401) {
+        console.log('User not authenticated, clearing notifications');
+        setNotifications([]);
+        setUnreadCount(0);
+      } else {
+        console.error('Failed to fetch notifications:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoading, maxNotifications]);
 
   const loadMore = useCallback(async () => {
     if (hasMore && !isLoading) {
@@ -426,10 +503,24 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       loadNotifications();
       loadPreferences();
 
-      // Connect WebSocket if enabled
-      if (autoConnect) {
-        connect();
-      }
+      // Auto-connect WebSocket when component mounts (only if authenticated)
+      useEffect(() => {
+        if (autoConnect) {
+          // Check if user is authenticated before attempting connection
+          const token = getAuthToken();
+          if (token) {
+            connect();
+          } else {
+            console.log(
+              'User not authenticated, skipping WebSocket auto-connect'
+            );
+          }
+        }
+
+        return () => {
+          disconnect();
+        };
+      }, [autoConnect, connect, disconnect]);
     }
 
     return () => {
@@ -449,6 +540,40 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const interval = setInterval(checkConnection, 2000);
     return () => clearInterval(interval);
   }, [isConnected]);
+
+  // Handle authentication state changes
+  const handleAuthChange = useCallback(() => {
+    const token = getAuthToken();
+    if (token && !isConnected) {
+      console.log('User authenticated, connecting WebSocket');
+      connect();
+    } else if (!token && isConnected) {
+      console.log('User logged out, disconnecting WebSocket');
+      disconnect();
+    }
+  }, [isConnected, connect, disconnect]);
+
+  // Listen for authentication changes
+  useEffect(() => {
+    // Check auth state periodically
+    const interval = setInterval(handleAuthChange, 5000);
+
+    // Also check on storage events (when token is set/removed in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'access_token') {
+        handleAuthChange();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [handleAuthChange]);
+
+  // Auto-connect WebSocket when component mounts (only if authenticated)
 
   const value: NotificationContextType = {
     // State

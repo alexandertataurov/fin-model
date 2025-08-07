@@ -24,17 +24,26 @@ class WebSocketService {
       // Get auth token from localStorage
       const token = localStorage.getItem('access_token');
       
+      // Check if authentication is required for this endpoint
+      const requiresAuth = endpoint !== '/ws/health';
+      
+      if (requiresAuth && !token) {
+        console.warn('WebSocket connection requires authentication but no token found');
+        throw new Error('Authentication required');
+      }
+      
       // Use Railway backend URL for WebSocket connections
       const protocol = 'wss:';
       const host = 'fin-model-production.up.railway.app';
       
-      // Add token as query parameter if available
+      // Add token as query parameter if available and required
       const baseUrl = `${protocol}//${host}${
         endpoint.startsWith('/') ? endpoint : '/' + endpoint
       }`;
       
-      this.url = token ? `${baseUrl}?token=${encodeURIComponent(token)}` : baseUrl;
+      this.url = token && requiresAuth ? `${baseUrl}?token=${encodeURIComponent(token)}` : baseUrl;
 
+      console.log(`Connecting to WebSocket: ${this.url}`);
       this.ws = new WebSocket(this.url);
 
       this.ws.onopen = () => {
@@ -51,8 +60,15 @@ class WebSocketService {
         }
       };
 
-      this.ws.onclose = () => {
-        console.log('WebSocket disconnected');
+      this.ws.onclose = (event) => {
+        console.log(`WebSocket disconnected with code: ${event.code}, reason: ${event.reason}`);
+        
+        // Don't attempt reconnection for authentication errors
+        if (event.code === 4001) {
+          console.warn('WebSocket authentication failed, not attempting reconnection');
+          return;
+        }
+        
         this.attemptReconnect();
       };
 
