@@ -6,17 +6,11 @@ from app.api.v1.endpoints import (
     webauthn,
     admin,
     files,
-    websocket,
-    analytics,
-    admin_tools,
     dashboard,
     parameters,
     scenarios,
-    reports,
     statements,
-    monitoring,
-    collaboration,
-    notifications,
+    lean_financial,
 )
 from app.core.config import settings
 
@@ -40,14 +34,6 @@ api_router.include_router(admin.router, prefix="/admin", tags=["administration"]
 # Include file upload routes
 api_router.include_router(files.router, prefix="/files", tags=["file-upload"])
 
-# Include analytics routes
-api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
-
-# Include admin tools routes
-api_router.include_router(
-    admin_tools.router, prefix="/admin-tools", tags=["admin-tools"]
-)
-
 # Include dashboard routes
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 
@@ -57,25 +43,15 @@ api_router.include_router(parameters.router, prefix="/parameters", tags=["parame
 # Include scenario management routes
 api_router.include_router(scenarios.router, prefix="/scenarios", tags=["scenarios"])
 
-# Include report generation routes
-api_router.include_router(reports.router, prefix="/reports", tags=["reports"])
-
 # Include financial statements routes
 api_router.include_router(
     statements.router, prefix="/statements", tags=["financial-statements"]
 )
 
-# Include WebSocket routes
-api_router.include_router(websocket.router, tags=["websocket"])
-
-# Include monitoring routes
-api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
-
-# Include collaboration routes
-api_router.include_router(collaboration.router, prefix="/collaboration", tags=["collaboration"])
-
-# Include notification routes
-api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+# Include lean financial modeling routes
+api_router.include_router(
+    lean_financial.router, prefix="/lean-financial", tags=["lean-financial-modeling"]
+)
 
 try:
     from app.api.v1.endpoints import test_utils

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.user import User
 from app.models.role import Role, UserRole, RoleType
-from app.models.audit import AuditLog, AuditAction
+# Audit models removed in lean version
 from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import (
     verify_password,
@@ -127,7 +127,7 @@ class AuthService:
             user = self.get_user_by_username(identifier)
         if not user:
             self.log_audit_action(
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
                 details=f"User not found: {identifier}",
                 ip_address=ip_address,
@@ -139,7 +139,7 @@ class AuthService:
         if user.is_locked:
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
                 details="Account is locked",
                 ip_address=ip_address,
@@ -154,7 +154,7 @@ class AuthService:
         if not user.is_active:
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
                 details="Account is not active",
                 ip_address=ip_address,
@@ -174,7 +174,7 @@ class AuthService:
                 )
                 self.log_audit_action(
                     user_id=user.id,
-                    action=AuditAction.ACCOUNT_LOCKED,
+                    action="ACCOUNT_LOCKED",
                     success="success",
                     details="Account locked due to multiple failed login attempts",
                     ip_address=ip_address,
@@ -183,7 +183,7 @@ class AuthService:
 
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
                 details=f"Invalid password attempt {user.failed_login_attempts}",
                 ip_address=ip_address,
@@ -200,7 +200,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.LOGIN,
+            action="LOGIN",
             success="success",
             ip_address=ip_address,
             user_agent=user_agent,
@@ -219,7 +219,7 @@ class AuthService:
         user.verification_token = None
 
         self.log_audit_action(
-            user_id=user.id, action=AuditAction.EMAIL_VERIFICATION, success="success"
+            user_id=user.id, action="EMAIL_VERIFICATION", success="success"
         )
 
         self.db.commit()
@@ -238,7 +238,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.PASSWORD_RESET,
+            action="PASSWORD_RESET",
             success="success",
             details="Password reset requested",
         )
@@ -271,7 +271,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.PASSWORD_RESET,
+            action="PASSWORD_RESET",
             success="success",
             details="Password reset completed",
         )
@@ -291,7 +291,7 @@ class AuthService:
         if not verify_password(current_password, user.hashed_password):
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.PASSWORD_CHANGE,
+                action="PASSWORD_CHANGE",
                 success="failure",
                 details="Invalid current password",
             )
@@ -301,7 +301,7 @@ class AuthService:
         user.hashed_password = get_password_hash(new_password)
 
         self.log_audit_action(
-            user_id=user.id, action=AuditAction.PASSWORD_CHANGE, success="success"
+            user_id=user.id, action="PASSWORD_CHANGE", success="success"
         )
 
         self.db.commit()
@@ -319,7 +319,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.PROFILE_UPDATED,
+            action="PROFILE_UPDATED",
             success="success",
             details=f"Updated fields: {list(update_data.keys())}",
         )
@@ -360,7 +360,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user_id,
-            action=AuditAction.ROLE_ASSIGNED,
+            action="ROLE_ASSIGNED",
             success="success",
             details=f"Role {role.value} assigned by user {assigned_by_id}",
         )
@@ -392,7 +392,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user_id,
-            action=AuditAction.ROLE_REMOVED,
+            action="ROLE_REMOVED",
             success="success",
             details=f"Role {role.value} removed by user {removed_by_id}",
         )
@@ -422,7 +422,7 @@ class AuthService:
         # Log the logout action
         self.log_audit_action(
             user_id=user_id,
-            action=AuditAction.LOGOUT,
+            action="LOGOUT",
             success="success",
             ip_address=ip_address,
             user_agent=user_agent,
@@ -434,7 +434,7 @@ class AuthService:
 
     def log_audit_action(
         self,
-        action: AuditAction,
+        action: str,  # Changed from AuditAction to string for lean version
         success: str = "success",
         user_id: Optional[int] = None,
         resource: Optional[str] = None,
@@ -443,20 +443,9 @@ class AuthService:
         user_agent: Optional[str] = None,
         details: Optional[str] = None,
     ):
-        """Log an audit action."""
-        audit_log = AuditLog(
-            user_id=user_id,
-            action=action,
-            resource=resource,
-            resource_id=resource_id,
-            ip_address=ip_address,
-            user_agent=user_agent,
-            details=details,
-            success=success,
-        )
-
-        self.db.add(audit_log)
-        # Note: commit is handled by the calling method
+        """Log an audit action - simplified for lean version."""
+        # Audit logging removed in lean version - could add simple logging here if needed
+        pass
 
     def create_user_tokens(
         self, user: User, expires_delta: timedelta | None = None

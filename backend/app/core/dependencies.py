@@ -3,7 +3,7 @@ from typing import Any, Callable, List, Set
 
 from app.api.v1.endpoints.auth import get_current_active_user, get_current_user
 from app.core.permissions import Permission, PermissionChecker
-from app.models.audit import AuditAction
+# Audit models removed in lean version
 from app.models.base import get_db
 from app.models.role import RoleType
 from app.models.user import User
@@ -62,7 +62,7 @@ def require_permissions(
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=AuditAction.PERMISSION_DENIED,
+                action="PERMISSION_DENIED",
                 success="failure",
                 details=f"Missing permissions: {[p.value for p in required_permissions]}",
             )
@@ -98,7 +98,7 @@ def require_all_permissions(*required_permissions: Permission):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=AuditAction.PERMISSION_DENIED,
+                action="PERMISSION_DENIED",
                 success="failure",
                 details=f"Missing permissions: {[p.value for p in required_permissions]}",
             )
@@ -132,7 +132,7 @@ def require_role(required_role: RoleType):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=AuditAction.PERMISSION_DENIED,
+                action="PERMISSION_DENIED",
                 success="failure",
                 details=f"Missing required role: {required_role.value}",
             )
@@ -181,7 +181,7 @@ def require_admin(
         # Log permission denied
         auth_service.log_audit_action(
             user_id=current_user.id,
-            action=AuditAction.PERMISSION_DENIED,
+            action="PERMISSION_DENIED",
             success="failure",
             details="Missing admin role",
         )
@@ -255,7 +255,7 @@ def require_resource_access(resource_type: str):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=AuditAction.PERMISSION_DENIED,
+                action="PERMISSION_DENIED",
                 success="failure",
                 details=f"Missing permission for resource type: {resource_type}",
             )
@@ -304,7 +304,7 @@ def check_resource_ownership(resource_id: int, resource_type: str):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
-                action=AuditAction.PERMISSION_DENIED,
+                action="PERMISSION_DENIED",
                 success="failure",
                 details=f"Missing permission for resource {resource_type}:{resource_id}",
             )

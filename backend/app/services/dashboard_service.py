@@ -14,10 +14,7 @@ from enum import Enum
 from app.models.financial import FinancialStatement, StatementType, PeriodType
 from app.models.user import User
 from app.models.file import UploadedFile, FileStatus
-from app.models.chart_data import (
-    DashboardData as DashboardDataModel, KeyMetrics as KeyMetricsModel,
-    DashboardChartData, FinancialStatementSummary, PeriodInfo, MetricValue
-)
+# Chart data models removed in lean version - using direct data structures
 from app.services.dashboard_metrics import DashboardMetricsService
 from app.services.financial_extractor import FinancialExtractor
 from app.services.chart_data_service import ChartDataService, TimeGranularity

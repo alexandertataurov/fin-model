@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.models.base import get_db
 from app.models.role import RoleType
-from app.models.audit import AuditAction
+# Audit models removed in lean version
 from app.schemas.user import (
     UserRegister,
     User,
@@ -147,7 +147,7 @@ def register(
         raise
     except Exception as e:
         auth_service.log_audit_action(
-            action=AuditAction.REGISTER,
+            action="REGISTER",
             success="error",
             details=str(e),
             ip_address=ip_address,
@@ -449,7 +449,7 @@ def dev_verify_user(request: dict, db: Session = Depends(get_db)) -> Any:
 
     auth_service.log_audit_action(
         user_id=user.id,
-        action=AuditAction.EMAIL_VERIFICATION,
+        action="EMAIL_VERIFICATION",
         success="success",
         details="Manually verified via dev endpoint",
     )

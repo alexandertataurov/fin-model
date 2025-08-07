@@ -97,7 +97,16 @@
       "Bash(curl:*)",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" \"C:\\Python Dev Folder\\fin-model\\fin-model\\backend\\clear_rate_limits.py\")",
       "Bash(git rm:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -m alembic revision -m \"remove_non_essential_tables_for_lean_app\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''✅ Application imports successfully'')\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''✅ Application imports successfully'')\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_financial_engine import LeanFinancialEngine, CoreParameters; print(''✅ Lean financial engine imports successfully'')\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_financial_engine import LeanFinancialEngine, CoreParameters; engine = LeanFinancialEngine(None); params = CoreParameters(); model = engine.calculate_comprehensive_model(params); print(''✅ Lean financial engine works! Net income:'', model[''profit_loss''].net_income)\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_financial_engine import LeanFinancialEngine, CoreParameters; engine = LeanFinancialEngine(None); params = CoreParameters(); model = engine.calculate_comprehensive_model(params); print(''Lean financial engine works! Net income:'', model[''profit_loss''].net_income)\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_parameter_manager import LeanParameterManager; manager = LeanParameterManager(None); groups = manager.get_parameter_groups(); print(''Parameter manager works! Categories:'', len(groups))\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_parameter_manager import LeanParameterManager; manager = LeanParameterManager(None); groups = manager.get_parameter_groups(); print(''Parameter manager works! Categories:'', len(groups))\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" test_lean_engine.py)"
     ],
     "deny": []
   }
