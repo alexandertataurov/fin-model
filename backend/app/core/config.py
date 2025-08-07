@@ -30,7 +30,8 @@ class Settings(BaseSettings):
         "https://advanced-financial-modeling.netlify.app,"
         "https://fin-model-production.up.railway.app,"
         "https://*.netlify.app,"
-        "https://*.railway.app"
+        "https://*.railway.app,"
+        "*"
     )
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
@@ -69,6 +70,10 @@ class Settings(BaseSettings):
             origins.append("https://*.netlify.app")
         if "https://*.railway.app" in self.BACKEND_CORS_ORIGINS:
             origins.append("https://*.railway.app")
+        
+        # Add specific Netlify domain to ensure it's included
+        origins.append("https://pre-production--advanced-financial-modeling.netlify.app")
+        origins.append("https://advanced-financial-modeling.netlify.app")
             
         return list(set(origins))  # Remove duplicates
 

@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 import uvicorn
 import logging
 import os
+from datetime import datetime
 
 from app.core.config import settings
 from app.api.v1.api import api_router
@@ -69,7 +70,7 @@ logger.info(f"CORS origins configured: {cors_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=["*"],  # Allow all origins for now to fix CORS issues
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=[
@@ -130,11 +131,13 @@ async def root():
 
 @app.get("/health")
 async def health_check():
+    """Health check endpoint for monitoring."""
     return JSONResponse(
         content={
             "status": "healthy",
-            "cache_available": CACHE_AVAILABLE,
-            "timestamp": "2025-08-03T13:42:50.867Z"
+            "timestamp": datetime.utcnow().isoformat(),
+            "version": "1.0.0",
+            "cache_status": "enabled" if CACHE_AVAILABLE else "disabled"
         }
     )
 
