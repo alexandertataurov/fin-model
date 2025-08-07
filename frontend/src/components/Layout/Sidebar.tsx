@@ -160,7 +160,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
     return (
       <div key={item.id}>
         {hasChildren ? (
-          <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(item.id)}>
+          <Collapsible
+            open={isExpanded}
+            onOpenChange={() => toggleExpanded(item.id)}
+          >
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
@@ -188,7 +191,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
                   variant="ghost"
                   size="sm"
                   className={`w-full justify-start h-8 px-6 ml-2 ${
-                    isActive(child.path) ? 'bg-accent text-accent-foreground' : ''
+                    isActive(child.path)
+                      ? 'bg-accent text-accent-foreground'
+                      : ''
                   }`}
                   onClick={() => handleNavigation(child.path!)}
                 >
@@ -219,65 +224,79 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
   };
 
   return (
-    <div
-      className={`fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out ${
-        open ? 'translate-x-0' : '-translate-x-full'
-      }`}
-    >
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Activity className="w-5 h-5 text-primary-foreground" />
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 lg:inset-y-0 lg:left-0 ${
+          open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Activity className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold">FinModel</h1>
+                <p className="text-xs text-muted-foreground">v2.0.0</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-lg font-semibold">FinModel</h1>
-              <p className="text-xs text-muted-foreground">v2.0.0</p>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onToggle}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* User Info */}
-        <div className="p-4 border-b">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-              <Shield className="w-4 h-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">
-                {user?.first_name || user?.username || 'User'}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {user?.email || 'user@example.com'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <ScrollArea className="flex-1 p-4">
-          <nav className="space-y-2">
-            {navigationItems.map(renderNavItem)}
-          </nav>
-        </ScrollArea>
-
-        {/* Footer */}
-        <div className="p-4 border-t">
-          <div className="flex items-center justify-between">
-            <Badge variant="secondary" className="text-xs">
-              Lean App
-            </Badge>
-            <Button variant="ghost" size="sm">
-              <Settings className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggle}
+              className="lg:hidden"
+            >
+              <ChevronLeft className="h-4 w-4" />
             </Button>
+          </div>
+
+          {/* User Info */}
+          <div className="p-4 border-b">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                <Shield className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {user?.first_name || user?.username || 'User'}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user?.email || 'user@example.com'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <ScrollArea className="flex-1 p-4">
+            <nav className="space-y-2">
+              {navigationItems.map(renderNavItem)}
+            </nav>
+          </ScrollArea>
+
+          {/* Footer */}
+          <div className="p-4 border-t">
+            <div className="flex items-center justify-between">
+              <Badge variant="secondary" className="text-xs">
+                Lean App
+              </Badge>
+              <Button variant="ghost" size="sm">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

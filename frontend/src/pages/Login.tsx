@@ -48,7 +48,11 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       console.log('User already authenticated, redirecting to dashboard');
-      navigate('/', { replace: true });
+      // Add a small delay to prevent jarring redirect
+      const timer = setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, authLoading, navigate]);
 

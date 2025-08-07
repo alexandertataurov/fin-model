@@ -88,7 +88,7 @@ const Layout = () => {
       <Sidebar open={sidebarOpen} onToggle={handleSidebarToggle} />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-16 items-center gap-4 px-4">
@@ -96,7 +96,7 @@ const Layout = () => {
               variant="ghost"
               size="sm"
               onClick={handleSidebarToggle}
-              className="md:hidden"
+              className="lg:hidden"
             >
               <Menu className="h-5 w-5" />
             </Button>

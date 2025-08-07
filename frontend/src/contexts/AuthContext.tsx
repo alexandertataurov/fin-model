@@ -93,16 +93,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (storedUser && storedToken) {
         try {
+          // Validate token with backend before setting user as authenticated
           const user = JSON.parse(storedUser);
+
+          // Set user temporarily but keep loading state
           setState(prev => ({
             ...prev,
             user,
             token: storedToken,
-            isLoading: false,
+            isLoading: true, // Keep loading until we validate
           }));
 
-          // Load permissions
-          await loadUserPermissions();
+          // Validate token by getting current user from backend
+          try {
+            const currentUser = await authApi.getCurrentUser();
+
+            // Token is valid, update user data and load permissions
+            setState(prev => ({
+              ...prev,
+              user: currentUser,
+              isLoading: false,
+            }));
+
+            localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+            await loadUserPermissions();
+          } catch (validationError) {
+            console.error('Token validation failed:', validationError);
+            // Token is invalid, clear auth data
+            clearAuthData();
+          }
         } catch (error) {
           console.error('Error loading user data:', error);
           clearAuthData();
@@ -113,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     loadUserData();
-  }, []);
+  }, [loadUserPermissions]);
 
   // Clear authentication data - defined before functions that use it
   const clearAuthData = () => {
@@ -163,7 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [state.token, state.refreshToken, refreshTokenInternal]);
 
-  const loadUserPermissions = async () => {
+  const loadUserPermissions = useCallback(async () => {
     try {
       const permissionsData = await authApi.getUserPermissions();
 
@@ -189,7 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         roles: [],
       }));
     }
-  };
+  }, []);
 
   const login = async (
     email: string,
