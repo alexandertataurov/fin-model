@@ -252,21 +252,22 @@ export class DesignSystem {
 export const componentStyles = {
   // Common layout patterns
   container: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
-  section: 'py-12 sm:py-16 lg:py-20',
+  section: 'py-8 sm:py-12 lg:py-16 xl:py-20',
   
   // Typography patterns
   heading: {
-    h1: 'text-4xl font-bold tracking-tight text-foreground sm:text-5xl',
-    h2: 'text-3xl font-bold tracking-tight text-foreground sm:text-4xl',
-    h3: 'text-2xl font-semibold tracking-tight text-foreground',
-    h4: 'text-xl font-semibold text-foreground',
-    h5: 'text-lg font-semibold text-foreground',
-    h6: 'text-base font-semibold text-foreground',
+    h1: 'text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-foreground leading-tight',
+    h2: 'text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight text-foreground',
+    h3: 'text-lg sm:text-xl lg:text-2xl font-semibold tracking-tight text-foreground',
+    h4: 'text-base sm:text-lg lg:text-xl font-semibold text-foreground',
+    h5: 'text-sm sm:text-base lg:text-lg font-semibold text-foreground',
+    h6: 'text-xs sm:text-sm lg:text-base font-semibold text-foreground',
   },
   
   // Common patterns
   flexCenter: 'flex items-center justify-center',
   flexBetween: 'flex items-center justify-between',
+  flexBetweenResponsive: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4',
   absoluteCenter: 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
   
   // Interactive states

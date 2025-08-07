@@ -277,8 +277,12 @@ export const authApi = {
         console.log('🏥 Health endpoint error:', await healthResponse.text());
       }
 
-      // Test 2: Register a test user
-      console.log('📝 Registering test user...');
+      // Test 2: Register a test user with unique timestamp to avoid duplicates
+      const timestamp = Date.now();
+      const testEmail = `test${timestamp}@example.com`;
+      const testUsername = `testuser${timestamp}`;
+      
+      console.log(`📝 Registering test user: ${testEmail}...`);
       const registerResponse = await fetch(
         `${API_BASE_URL}/api/v1/auth/register`,
         {
@@ -287,8 +291,8 @@ export const authApi = {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email: 'test@example.com',
-            username: 'testuser',
+            email: testEmail,
+            username: testUsername,
             first_name: 'Test',
             last_name: 'User',
             password: 'TestPassword123!',
@@ -315,7 +319,7 @@ export const authApi = {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              email: 'test@example.com',
+              email: testEmail,
             }),
           }
         );
@@ -339,7 +343,7 @@ export const authApi = {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                email: 'test@example.com',
+                email: testEmail,
                 password: 'TestPassword123!',
               }),
             }
@@ -365,7 +369,33 @@ export const authApi = {
           console.log('❌ User verification failed:', await verifyResponse.text());
         }
       } else {
-        console.log('❌ Registration failed:', await registerResponse.text());
+        const errorText = await registerResponse.text();
+        if (registerResponse.status === 400 && errorText.includes('already registered')) {
+          console.log('⚠️ Test user already exists, trying to login directly...');
+          
+          // Try to login with the existing test@example.com user
+          const loginResponse = await fetch(
+            `${API_BASE_URL}/api/v1/auth/login`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: 'test@example.com',
+                password: 'TestPassword123!',
+              }),
+            }
+          );
+          
+          if (loginResponse.ok) {
+            console.log('🎉 SUCCESS: Login worked with existing test user!');
+          } else {
+            console.log('❌ Both registration and login failed:', await loginResponse.text());
+          }
+        } else {
+          console.log('❌ Registration failed:', errorText);
+        }
       }
     } catch (error) {
       console.error('❌ Test backend connection error:', error);
