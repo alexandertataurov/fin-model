@@ -458,11 +458,20 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         console.log('User not authenticated, clearing notifications');
         setNotifications([]);
         setUnreadCount(0);
+      } else if (response.status === 500) {
+        console.log(
+          'Server error (likely missing database tables), using empty notifications'
+        );
+        setNotifications([]);
+        setUnreadCount(0);
       } else {
         console.error('Failed to fetch notifications:', response.status);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      // On network errors, use empty state
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
       setIsLoading(false);
     }

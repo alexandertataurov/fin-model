@@ -18,6 +18,18 @@ class WebSocketService {
 
   async connect(endpoint: string): Promise<void> {
     try {
+      // Don't connect if already connected
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        console.log('WebSocket already connected');
+        return;
+      }
+
+      // Don't connect if currently connecting
+      if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
+        console.log('WebSocket connection in progress');
+        return;
+      }
+
       // Store the original endpoint for reconnection
       this.originalEndpoint = endpoint;
       
@@ -66,6 +78,12 @@ class WebSocketService {
         // Don't attempt reconnection for authentication errors
         if (event.code === 4001) {
           console.warn('WebSocket authentication failed, not attempting reconnection');
+          return;
+        }
+        
+        // Don't attempt reconnection if we're not authenticated
+        if (requiresAuth && !localStorage.getItem('access_token')) {
+          console.log('User not authenticated, not attempting WebSocket reconnection');
           return;
         }
         

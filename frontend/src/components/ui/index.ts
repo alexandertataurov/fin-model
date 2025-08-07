@@ -120,8 +120,6 @@ export {
 
 // Re-export design system ThemeToggle component
 export { ThemeToggle } from '../theme-toggle';
-export { default as TextField } from './TextField';
-export { default as MultiSelect } from './MultiSelect';
 export {
   Accordion,
   AccordionItem,
@@ -173,7 +171,6 @@ export {
   TableRow,
 } from './table';
 export { default as DataTable } from './DataTable';
-export { default as BottomNavigation } from './BottomNavigation';
 export { default as HelpCenter, HelpButton } from './HelpCenter';
 
 // Loading States
@@ -203,7 +200,4 @@ export { componentStyles, DesignSystem } from './utils/designSystem';
 
 // Re-export types
 export type { CardProps } from './card';
-export type { TextFieldProps } from './TextField';
-export type { MultiSelectProps, MultiSelectOption } from './MultiSelect';
 export type { DataTableProps, DataTableColumn } from './DataTable';
-export type { BottomNavigationProps } from './BottomNavigation';
