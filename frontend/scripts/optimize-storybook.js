@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 console.log('🚀 Optimizing Storybook for FinVision...\n');
 
@@ -11,7 +15,7 @@ const config = {
   storybookDir: path.join(__dirname, '..', '.storybook'),
   srcDir: path.join(__dirname, '..', 'src'),
   outputDir: path.join(__dirname, '..', 'storybook-static'),
-  maxWorkers: Math.max(1, Math.floor(require('os').cpus().length * 0.75)),
+  maxWorkers: 4, // Fixed value for ES modules compatibility
 };
 
 // Utility functions
@@ -40,8 +44,6 @@ function checkDependencies() {
     '@storybook/addon-backgrounds',
     '@storybook/addon-measure',
     '@storybook/addon-outline',
-    '@storybook/addon-coverage',
-    '@storybook/addon-jest',
   ];
 
   const missingAddons = requiredAddons.filter(
@@ -432,14 +434,4 @@ async function main() {
 }
 
 // Run if called directly
-if (require.main === module) {
-  main();
-}
-
-module.exports = {
-  checkDependencies,
-  optimizeViteConfig,
-  optimizeBuildProcess,
-  createPerformanceStories,
-  createStorybookConfig,
-};
+main().catch(console.error);

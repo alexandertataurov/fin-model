@@ -337,6 +337,7 @@ def get_user_permissions(
 @router.get("/database/health", response_model=Dict[str, Any])
 async def get_database_health(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    db: Session = Depends(get_db),
 ):
     """
     Get comprehensive database health check.
@@ -359,6 +360,7 @@ async def get_database_health(
 async def get_database_performance(
     limit: int = Query(10, ge=1, le=100),
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    db: Session = Depends(get_db),
 ):
     """
     Get database query performance analysis.
@@ -379,6 +381,7 @@ async def get_database_performance(
 @router.get("/database/tables", response_model=Dict[str, Dict[str, Any]])
 async def get_table_information(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    db: Session = Depends(get_db),
 ):
     """
     Get detailed table size and usage information.
@@ -398,6 +401,7 @@ async def get_table_information(
 async def cleanup_database(
     dry_run: bool = Query(True, description="Whether to perform a dry run"),
     current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    db: Session = Depends(get_db),
 ):
     """
     Clean up stale database records based on retention policies.

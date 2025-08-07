@@ -115,8 +115,64 @@ const config: StorybookConfig = {
       rollupOptions: {
         ...config.build?.rollupOptions,
         external: (id: string) => {
-          const externals = ['@storybook/globalThis'];
+          const externals = [
+            '@storybook/globalThis',
+            '@storybook/addon-viewport/preview',
+            '@storybook/addon-backgrounds/preview',
+            '@storybook/addon-measure/preview',
+            '@storybook/addon-outline/preview',
+          ];
           return externals.some(external => id.includes(external));
+        },
+      },
+    };
+
+    // Performance optimizations
+    config.optimizeDeps = {
+      ...config.optimizeDeps,
+      include: [
+        ...(config.optimizeDeps?.include || []),
+        'tailwindcss',
+        'autoprefixer',
+        'lucide-react',
+        'class-variance-authority',
+        'clsx',
+        'tailwind-merge',
+        '@radix-ui/react-slot',
+        '@radix-ui/react-dialog',
+        '@radix-ui/react-select',
+        '@radix-ui/react-tabs',
+        '@radix-ui/react-checkbox',
+        '@radix-ui/react-switch',
+        '@radix-ui/react-alert-dialog',
+        '@radix-ui/react-popover',
+        '@radix-ui/react-tooltip',
+      ],
+    };
+
+    // Build optimizations
+    config.build = {
+      ...config.build,
+      target: 'esnext',
+      minify: 'esbuild',
+      rollupOptions: {
+        ...config.build?.rollupOptions,
+        output: {
+          ...config.build?.rollupOptions?.output,
+          manualChunks: {
+            'storybook-vendor': ['react', 'react-dom'],
+            'storybook-addons': [
+              '@storybook/addon-essentials',
+              '@storybook/addon-a11y',
+              '@storybook/addon-interactions',
+            ],
+            'ui-components': [
+              'lucide-react',
+              'class-variance-authority',
+              'clsx',
+              'tailwind-merge',
+            ],
+          },
         },
       },
     };

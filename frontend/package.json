@@ -20,7 +20,12 @@
     "verify-build": "node scripts/verify-build.js",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "storybook:clean": "node scripts/clear-storybook-cache.js"
+    "storybook:clean": "node scripts/clear-storybook-cache.js",
+    "storybook:fast": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" storybook dev -p 6006",
+    "build-storybook:fast": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" storybook build",
+    "storybook:analyze": "npm run build-storybook && npx bundle-analyzer storybook-static/**/*.js",
+    "storybook:test": "storybook test --watch",
+    "storybook:test:ci": "storybook test --ci"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",
@@ -100,8 +105,6 @@
     "@storybook/addon-backgrounds": "8.6.14",
     "@storybook/addon-measure": "8.6.14",
     "@storybook/addon-outline": "8.6.14",
-    "@storybook/addon-coverage": "8.6.14",
-    "@storybook/addon-jest": "8.6.14",
     "@storybook/blocks": "8.6.14",
     "@storybook/react": "8.6.14",
     "@storybook/react-vite": "8.6.14",
