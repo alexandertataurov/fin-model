@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/utils/cn";
-import { Button, buttonVariants } from "../../../components/ui/button";
+import { Button, buttonVariants } from "./Button";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -107,10 +107,10 @@ function PaginationEllipsis({
     <span
       aria-hidden
       data-slot="pagination-ellipsis"
-      className={cn("flex size-9 items-center justify-center", className)}
+      className={cn("flex h-9 w-9 items-center justify-center", className)}
       {...props}
     >
-      <MoreHorizontalIcon className="size-4" />
+      <MoreHorizontalIcon className="h-4 w-4" />
       <span className="sr-only">More pages</span>
     </span>
   );
@@ -119,9 +119,9 @@ function PaginationEllipsis({
 export {
   Pagination,
   PaginationContent,
-  PaginationLink,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
   PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 };

@@ -99,7 +99,10 @@ function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-foreground font-semibold", className)}
+      className={cn(
+        "text-lg font-semibold leading-none tracking-tight",
+        className,
+      )}
       {...props}
     />
   );
@@ -112,7 +115,7 @@ function DrawerDescription({
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
   );
@@ -120,13 +123,13 @@ function DrawerDescription({
 
 export {
   Drawer,
-  DrawerPortal,
-  DrawerOverlay,
-  DrawerTrigger,
   DrawerClose,
   DrawerContent,
-  DrawerHeader,
-  DrawerFooter,
-  DrawerTitle,
   DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerPortal,
+  DrawerTitle,
+  DrawerTrigger,
 };

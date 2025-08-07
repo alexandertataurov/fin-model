@@ -9,6 +9,7 @@ import logging
 
 from app.core.config import settings
 from app.api.v1.api import api_router
+from app.api.v1.endpoints.websocket import router as websocket_router
 from app.middleware.monitoring_middleware import MonitoringMiddleware
 
 # Configure logging
@@ -91,6 +92,9 @@ async def validation_exception_handler(request, exc):
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Include WebSocket routes directly (bypass authentication)
+app.include_router(websocket_router, prefix="/ws", tags=["websocket"])
 
 
 @app.get("/")

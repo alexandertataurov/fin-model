@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from '@/design/components/ui';
+} from '@/design-system';
 import {
   Mail,
   Lock,

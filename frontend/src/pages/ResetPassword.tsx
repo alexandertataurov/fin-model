@@ -18,7 +18,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from '@/design/components/ui';
+} from '@/design-system';
 import {
   Lock,
   Loader2,

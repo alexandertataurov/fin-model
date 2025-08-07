@@ -46,6 +46,21 @@ export * from '../utils/cn';
 // Design System Provider
 export { DesignSystemProvider, useDesignSystem } from './provider';
 
+// Design System Components (migrated from old design structure)
+export * from './components/Sidebar';
+export * from './components/Command';
+export * from './components/Carousel';
+export * from './components/Calendar';
+export * from './components/Pagination';
+export * from './components/Form';
+export * from './components/RadioGroup';
+export * from './components/InputOTP';
+export * from './components/Drawer';
+export * from './components/Chart';
+export * from './components/Toaster';
+export * from './components/use-mobile';
+export * from './components/ImageWithFallback';
+
 // Types
 export type { ButtonProps } from '../components/ui/button';
 export type { CardProps } from '../components/ui/card';

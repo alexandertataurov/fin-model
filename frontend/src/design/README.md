@@ -1,4 +1,35 @@
-# FinVision Design System
+# FinVision Design System (DEPRECATED)
+
+⚠️ **This directory is deprecated and will be removed.**
+
+All components have been migrated to the new design system structure at `src/design-system/`.
+
+## Migration Guide
+
+Please update your imports from:
+```tsx
+import { Button, Card } from '@/design/components/ui';
+```
+
+To:
+```tsx
+import { Button, Card } from '@/design-system';
+```
+
+## New Design System
+
+The new design system is located at `src/design-system/` and provides:
+
+- **Enhanced Components**: Improved variants, better accessibility, and modern patterns
+- **Unified Structure**: Single source of truth with centralized design system
+- **Better Performance**: Optimized bundle size and rendering
+- **Comprehensive Documentation**: Detailed Storybook stories and examples
+
+For the complete documentation, see: `src/design-system/README.md`
+
+---
+
+**Original Documentation (for reference only):**
 
 A comprehensive, unified design system for the FinVision financial modeling platform. This system provides consistent, accessible, and reusable components built with React, TypeScript, and Tailwind CSS.
 

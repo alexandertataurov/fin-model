@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, WebSocketState
 import json
 import logging
 
@@ -9,10 +9,11 @@ router = APIRouter()
 @router.websocket("/notifications")
 async def notifications_websocket(websocket: WebSocket):
     """WebSocket endpoint for real-time notifications."""
-    # Accept the connection first
-    await websocket.accept()
-    
     try:
+        # Accept the connection first
+        await websocket.accept()
+        logger.info("WebSocket connection accepted for notifications")
+        
         # Send connection confirmation
         await websocket.send_text(json.dumps({
             "type": "connection_established",
@@ -56,11 +57,12 @@ async def notifications_websocket(websocket: WebSocket):
                 
     except Exception as e:
         logger.error(f"Error establishing notifications WebSocket: {e}")
-    finally:
-        try:
-            await websocket.close()
-        except Exception:
-            pass
+        # Don't try to close if we never accepted the connection
+        if websocket.client_state == WebSocketState.CONNECTED:
+            try:
+                await websocket.close()
+            except Exception:
+                pass
 
 
 @router.websocket("/collaboration/ws/template/{template_id}")
