@@ -14,7 +14,7 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -35,7 +35,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           const response = await authApi.refreshToken(refreshToken);
-          localStorage.setItem('auth_token', response.access_token);
+          localStorage.setItem('access_token', response.access_token);
 
           // Retry the original request
           const originalRequest = error.config;
@@ -43,14 +43,14 @@ api.interceptors.response.use(
           return api.request(originalRequest);
         } catch (refreshError) {
           // Refresh failed, redirect to login
-          localStorage.removeItem('auth_token');
+          localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_data');
           window.location.href = '/login';
         }
       } else {
         // No refresh token, redirect to login
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem('access_token');
         localStorage.removeItem('user_data');
         window.location.href = '/login';
       }
@@ -117,10 +117,49 @@ export interface UserPermissions {
 }
 
 export const authApi = {
+  // Health check
+  async healthCheck(): Promise<boolean> {
+    try {
+      console.log('🏥 Checking backend health...');
+      const response = await api.get('/health');
+      console.log('✅ Backend health check successful:', response.data);
+      return true;
+    } catch (error) {
+      console.error('❌ Backend health check failed:', error);
+      return false;
+    }
+  },
+
   // Authentication
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await api.post('/auth/login', credentials);
-    return response.data;
+    console.log('🔐 Attempting login with credentials:', {
+      email: credentials.email,
+      remember_me: credentials.remember_me,
+    });
+    console.log('🌐 API Base URL:', API_BASE_URL);
+    console.log('📡 Making request to:', `${API_BASE_URL}/api/v1/auth/login`);
+
+    // Test backend connection first
+    await this.testBackendConnection();
+
+    // First check if backend is reachable
+    const isHealthy = await this.healthCheck();
+    if (!isHealthy) {
+      throw new Error(
+        'Backend is not reachable. Please check your connection.'
+      );
+    }
+
+    try {
+      const response = await api.post('/auth/login', credentials);
+      console.log('✅ Login successful:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Login failed:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      throw error;
+    }
   },
 
   async register(userData: RegisterRequest): Promise<User> {
@@ -208,6 +247,50 @@ export const authApi = {
   async getSystemHealth() {
     const response = await api.get('/admin/system/health');
     return response.data;
+  },
+
+  // Test backend connection
+  async testBackendConnection(): Promise<void> {
+    try {
+      console.log('🧪 Testing backend connection...');
+
+      // Test 1: Direct fetch to health endpoint
+      const healthResponse = await fetch(`${API_BASE_URL}/health`);
+      console.log(
+        '🏥 Health endpoint response:',
+        healthResponse.status,
+        healthResponse.ok
+      );
+
+      if (healthResponse.ok) {
+        const healthData = await healthResponse.json();
+        console.log('🏥 Health data:', healthData);
+      }
+
+      // Test 2: Test API endpoint
+      const apiResponse = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: 'test@example.com',
+          password: 'testpassword',
+        }),
+      });
+      console.log(
+        '🔐 Login endpoint response:',
+        apiResponse.status,
+        apiResponse.ok
+      );
+
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.text();
+        console.log('🔐 Login error response:', errorData);
+      }
+    } catch (error) {
+      console.error('❌ Backend connection test failed:', error);
+    }
   },
 };
 
