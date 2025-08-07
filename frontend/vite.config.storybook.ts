@@ -5,6 +5,10 @@ export default mergeConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@/design-system': resolve(__dirname, './src/design-system'),
+      '@design-system': resolve(__dirname, './src/design-system'),
+      '@/components': resolve(__dirname, './src/components'),
+      '@components': resolve(__dirname, './src/components'),
     },
   },
   optimizeDeps: {

@@ -147,8 +147,7 @@ export {
   AccordionTrigger,
   AccordionContent,
 } from '@/design-system/components/Accordion';
-export { Alert, AlertDescription, AlertTitle } from './alert';
-export { Badge } from './badge';
+// Alert and Badge are already exported from design system above
 export { AspectRatio } from '@/design-system/components/AspectRatio';
 export {
   Avatar,

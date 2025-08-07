@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui';
 import { cn } from '@/utils/cn';
 import { Download, Maximize, Loader2, AlertCircle } from 'lucide-react';
 

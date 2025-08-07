@@ -1,21 +1,19 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { resolve } from 'path';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 const config: StorybookConfig = {
   stories: [
     '../src/design-system/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     '../src/components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
-    '../docs/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    // removed '../docs/**/*.stories...' to avoid warnings when no stories exist
   ],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-a11y',
     '@storybook/addon-interactions',
     '@storybook/addon-links',
-    // '@storybook/addon-viewport',
-    // '@storybook/addon-backgrounds',
-    // '@storybook/addon-measure',
-    // '@storybook/addon-outline',
   ],
   framework: {
     name: '@storybook/react-vite',
@@ -38,7 +36,6 @@ const config: StorybookConfig = {
         prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
     },
   },
-  // Enhanced navigation structure
   managerHead: head => `
     ${head}
     <style>
@@ -68,8 +65,12 @@ const config: StorybookConfig = {
       config.resolve.alias = {
         ...config.resolve.alias,
         '@': resolve(__dirname, '../src'),
+        // support both '@/design-system' and '@design-system'
         '@/design-system': resolve(__dirname, '../src/design-system'),
+        '@design-system': resolve(__dirname, '../src/design-system'),
+        // support both '@/components' and '@components'
         '@/components': resolve(__dirname, '../src/components'),
+        '@components': resolve(__dirname, '../src/components'),
         '@/utils': resolve(__dirname, '../src/utils'),
       };
     }
@@ -79,8 +80,8 @@ const config: StorybookConfig = {
       ...config.css,
       postcss: {
         plugins: [
-          require('tailwindcss')(resolve(__dirname, '../tailwind.config.js')),
-          require('autoprefixer'),
+          tailwindcss(resolve(__dirname, '../tailwind.config.js')),
+          autoprefixer,
         ],
       },
     };
