@@ -2,13 +2,18 @@
 
 [build]
   base = "frontend"
-  command = "pnpm install --frozen-lockfile && pnpm run build:netlify && pnpm run verify-build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
   publish = "dist"
 
   [build.environment]
     NODE_VERSION = "20"
     # Aggressive memory and performance optimizations
     NODE_OPTIONS = "--max-old-space-size=8192 --max-semi-space-size=512"
+    # Run in development mode to get non-minified output
+    NODE_ENV = "development"
+    # Enable sourcemaps for better stack traces
+    VITE_DEV_SOURCEMAP = "true"
+    VITE_SOURCEMAP = "true"
     # Skip all npm operations that slow down builds
     NPM_CONFIG_AUDIT = "false"
     NPM_CONFIG_FUND = "false"
@@ -24,8 +29,6 @@
     # Build optimizations
     VITE_BUILD_ANALYZE = "false"
     VITE_LEGACY_BUILD = "false"
-    VITE_DEV_SOURCEMAP = "false"
-    VITE_SOURCEMAP = "false"
     # Skip unnecessary operations
     SKIP_PREFLIGHT_CHECK = "true"
     CI = "true"
@@ -112,32 +115,32 @@
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
-# Environment-specific configs with aggressive optimizations
+# Environment-specific configs with dev build
 [context.production]
-  command = "pnpm install --frozen-lockfile && pnpm run build:netlify && pnpm run verify-build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
   [context.production.environment]
-    NODE_ENV = "production"
+    NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
     VITE_BUILD_ANALYZE = "false"
     VITE_LEGACY_BUILD = "false"
-    VITE_SOURCEMAP = "false"
-    VITE_DEV_SOURCEMAP = "false"
+    VITE_SOURCEMAP = "true"
+    VITE_DEV_SOURCEMAP = "true"
 
 [context.deploy-preview]
-  command = "pnpm install --frozen-lockfile && pnpm run build:netlify && pnpm run verify-build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
   [context.deploy-preview.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
-    VITE_DEV_SOURCEMAP = "false"
-    VITE_SOURCEMAP = "false"
+    VITE_DEV_SOURCEMAP = "true"
+    VITE_SOURCEMAP = "true"
 
 [context.branch-deploy]
-  command = "pnpm install --frozen-lockfile && pnpm run build:netlify && pnpm run verify-build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
-    VITE_DEV_SOURCEMAP = "false"
-    VITE_SOURCEMAP = "false"
+    VITE_DEV_SOURCEMAP = "true"
+    VITE_SOURCEMAP = "true"
 
 # Netlify Functions config
 [functions]

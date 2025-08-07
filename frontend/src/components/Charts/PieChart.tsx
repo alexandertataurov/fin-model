@@ -68,8 +68,6 @@ export const PieChart: React.FC<PieChartProps> = ({
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
-
-
   const renderCustomizedLabel = (entry: { value: number; name: string }) => {
     if (!showLabels) return null;
 
@@ -140,10 +138,10 @@ export const PieChart: React.FC<PieChartProps> = ({
               paddingTop: '20px',
               fontSize: '14px',
             }}
-            formatter={(value: unknown, entry: Record<string, unknown>) => {
-              const value = (entry.payload as { value: number }).value;
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${value} (${percentage}%)`;
+            formatter={(_label: unknown, entry: Record<string, unknown>) => {
+              const numericValue = (entry.payload as { value: number }).value;
+              const percentage = ((numericValue / total) * 100).toFixed(1);
+              return `${numericValue} (${percentage}%)`;
             }}
           />
         )}

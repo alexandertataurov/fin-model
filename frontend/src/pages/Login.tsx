@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,18 +44,24 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { handleError } = useLoginErrorHandler();
+  const hasRedirectedRef = useRef(false);
 
-  // Redirect if already authenticated
+  // Redirect once if already authenticated
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      console.log('User already authenticated, redirecting to dashboard');
-      navigate('/', { replace: true });
+    if (!authLoading && isAuthenticated && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      const from = (location.state as any)?.from?.pathname || '/';
+      navigate(from, { replace: true });
     }
-  }, [isAuthenticated, authLoading, navigate]);
+    if (!isAuthenticated) {
+      hasRedirectedRef.current = false;
+    }
+  }, [isAuthenticated, authLoading, navigate, location.state]);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -71,26 +77,21 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      console.log('Login form submitted with:', {
-        email: values.email,
-        rememberMe: values.rememberMe,
-      });
       const success = await login(
         values.email,
         values.password,
         values.rememberMe
       );
 
-      console.log('Login result:', success);
-      if (success) {
-        console.log('Login successful, navigating to dashboard...');
-        navigate('/', { replace: true });
-      } else {
-        console.log('Login failed, showing error message');
+      if (success && !hasRedirectedRef.current) {
+        hasRedirectedRef.current = true;
+        const from = (location.state as any)?.from?.pathname || '/';
+        navigate(from, { replace: true });
+      }
+      if (!success) {
         setError('Invalid email or password. Please try again.');
       }
     } catch (err: unknown) {
-      console.error('Login error:', err);
       const error = err as {
         response?: { status?: number; data?: { detail?: string } };
       };
@@ -125,7 +126,6 @@ const Login: React.FC = () => {
       setIsLoading(true);
       setError(null);
       // Biometric login logic would go here
-      console.log('Biometric login attempted');
     } catch (error) {
       setError('Biometric authentication failed. Please try again.');
     } finally {
