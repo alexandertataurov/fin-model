@@ -4,14 +4,14 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
+import { Input } from '@/design-system/components/Input';
+import { Label } from '@/design-system/components/Label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import { Slider } from '@/design-system/components/Slider';
+import { Switch } from '@/design-system/components/Switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
 import { 
   Settings, 
   Save, 

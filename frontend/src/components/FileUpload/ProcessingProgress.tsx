@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Progress } from '../ui/progress';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Alert, AlertDescription } from '../ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Progress } from '@/design-system/components/Progress';
+import { Badge } from '@/design-system/components/Badge';
+import { Button } from '@/design-system/components/Button';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { 
   CheckCircle, 
   XCircle, 

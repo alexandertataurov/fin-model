@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Fingerprint } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/design-system/components/Button';
+import { Separator } from '@/design-system/components/Separator';
 
 interface BiometricLoginProps {
   onBiometricLogin: () => Promise<void>;

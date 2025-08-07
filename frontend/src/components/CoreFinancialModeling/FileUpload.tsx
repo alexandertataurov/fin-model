@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Progress } from '../ui/progress';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
+import { Badge } from '@/design-system/components/Badge';
+import { Progress } from '@/design-system/components/Progress';
 import { 
   Upload, 
   FileSpreadsheet, 

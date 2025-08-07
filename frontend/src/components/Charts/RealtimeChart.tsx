@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/design-system/components/Button';
+import { Badge } from '@/design-system/components/Badge';
 import { cn } from '@/utils/cn';
 import { Play, Pause, RotateCcw, WifiOff, Wifi } from 'lucide-react';
 import { websocketService } from '../../services/websocket';

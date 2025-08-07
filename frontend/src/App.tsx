@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/design-system/components/Toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { DesignSystemProvider } from '@/design-system';

@@ -4,8 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/design-system/components/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Input, Checkbox, Alert, AlertDescription } from '@/design-system';
 import {
   Form,

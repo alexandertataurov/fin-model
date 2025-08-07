@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/design-system/components/Button';
+import { Card, CardContent } from '@/design-system/components/Card';
+import { Input } from '@/design-system/components/Input';
+import { Label } from '@/design-system/components/Label';
 import {
   Mail,
   TrendingUp,

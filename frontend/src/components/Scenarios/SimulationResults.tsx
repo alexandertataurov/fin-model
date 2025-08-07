@@ -5,11 +5,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+} from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
+import { Badge } from '@/design-system/components/Badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
 
 import { DistributionChart } from './DistributionChart';
 import { ScatterPlot } from './ScatterPlot';

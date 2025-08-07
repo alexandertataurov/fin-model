@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
+import { Badge } from '@/design-system/components/Badge';
+import { Progress } from '@/design-system/components/Progress';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { Separator } from '@/design-system/components/Separator';
 import {
   Upload,
   FileText,

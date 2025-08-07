@@ -356,7 +356,7 @@ export class DashboardApiService {
    * Refresh dashboard cache
    */
   static async refreshDashboard(): Promise<{message: string}> {
-    const response = await apiClient.post('/dashboard/refresh');
+    const response = await apiClient.post('/dashboard/refresh-cache');
     return response.data;
   }
 }

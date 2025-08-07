@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Button } from '../ui/button'
-import { Badge } from '../ui/badge'
-import { ScrollArea } from '../ui/scroll-area'
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card'
+import { Button } from '@/design-system/components/Button'
+import { Badge } from '@/design-system/components/Badge'
+import { ScrollArea } from '@/design-system/components/ScrollArea'
 import { 
   Table, 
   TableBody, 
@@ -10,7 +10,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '../ui/table'
+} from '@/design-system/components/Table'
 import { Clock, User, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react'
 import type { Parameter } from './ParameterPanel'
 

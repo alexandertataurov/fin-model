@@ -5,23 +5,23 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
+import { Input } from '@/design-system/components/Input';
+import { Label } from '@/design-system/components/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '@/design-system/components/Select';
+import { Badge } from '@/design-system/components/Badge';
+import { Progress } from '@/design-system/components/Progress';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { ScrollArea } from '@/design-system/components/ScrollArea';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
 import {
   Play,
   Settings,

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { Badge } from '@/design-system/components/Badge';
+import { Separator } from '@/design-system/components/Separator';
 import {
   TrendingUp,
   TrendingDown,

@@ -5,10 +5,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+} from '@/design-system/components/Card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import { Button } from '@/design-system/components/Button';
+import { Badge } from '@/design-system/components/Badge';
 import {
   Upload,
   Settings,

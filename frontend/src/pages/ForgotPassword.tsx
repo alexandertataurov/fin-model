@@ -3,10 +3,10 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/design-system/components/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Input } from '@/design-system/components/Input';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import {
   Form,
   FormField,

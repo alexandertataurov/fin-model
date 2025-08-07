@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { Badge } from '@/design-system/components/Badge';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import {
   CheckCircle,
   AlertTriangle,

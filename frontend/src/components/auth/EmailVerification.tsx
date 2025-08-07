@@ -4,8 +4,8 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/design-system/components/Button';
+import { Card, CardContent } from '@/design-system/components/Card';
 import { Loader2, AlertCircle, Check, Mail, ArrowLeft } from 'lucide-react';
 import { authApi } from '../../services/authApi';
 

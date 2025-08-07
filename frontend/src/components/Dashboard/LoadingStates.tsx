@@ -5,9 +5,9 @@
  */
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent } from '@/design-system/components/Card';
+import { Skeleton } from '@/design-system/components/Skeleton';
+import { Progress } from '@/design-system/components/Progress';
 
 interface LoadingProps {
   height?: number | string;

@@ -5,16 +5,16 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+} from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+} from '@/design-system/components/Select';
+import { Badge } from '@/design-system/components/Badge';
 import {
   Table,
   TableBody,
@@ -22,10 +22,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+} from '@/design-system/components/Table';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { ScrollArea } from '@/design-system/components/ScrollArea';
+import { Separator } from '@/design-system/components/Separator';
 import {
   TrendingUp,
   TrendingDown,

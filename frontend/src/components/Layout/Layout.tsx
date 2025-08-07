@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/design-system/components/Button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/design-system/components/Avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/design-system/components/Separator';
 import { Menu, LogOut, Home, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 // import { HelpButton } from '../ui';

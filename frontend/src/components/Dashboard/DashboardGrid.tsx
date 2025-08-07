@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/design-system/components/Button';
 import { EnhancedButton, IconButton } from '@/components/ui/EnhancedButton';
 import { EnhancedCard } from '@/components/ui/EnhancedCard';
 import { componentStyles } from '@/components/ui/utils/designSystem';

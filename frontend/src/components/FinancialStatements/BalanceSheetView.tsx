@@ -4,8 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
 import { Download, Building, CreditCard, PieChart, BarChart3 } from 'lucide-react';
 
 interface BalanceSheetData {

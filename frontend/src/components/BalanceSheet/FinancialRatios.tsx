@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { Badge } from '@/design-system/components/Badge';
+import { Progress } from '@/design-system/components/Progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import { Button } from '@/design-system/components/Button';
 import {
   TrendingUp,
   TrendingDown,

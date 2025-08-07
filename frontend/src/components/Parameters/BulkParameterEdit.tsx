@@ -6,13 +6,13 @@ import {
   DialogFooter, 
   DialogHeader, 
   DialogTitle 
-} from '../ui/dialog'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { Checkbox } from '../ui/checkbox'
-import { Badge } from '../ui/badge'
-import { Alert, AlertDescription } from '../ui/alert'
+} from '@/design-system/components/Dialog'
+import { Button } from '@/design-system/components/Button'
+import { Input } from '@/design-system/components/Input'
+import { Label } from '@/design-system/components/Label'
+import { Checkbox } from '@/design-system/components/Checkbox'
+import { Badge } from '@/design-system/components/Badge'
+import { Alert, AlertDescription } from '@/design-system/components/Alert'
 import { 
   Table, 
   TableBody, 
@@ -20,9 +20,9 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '../ui/table'
-import { ScrollArea } from '../ui/scroll-area'
-import { Separator } from '../ui/separator'
+} from '@/design-system/components/Table'
+import { ScrollArea } from '@/design-system/components/ScrollArea'
+import { Separator } from '@/design-system/components/Separator'
 import { CheckCircle, X, Settings, Save } from 'lucide-react'
 import type { Parameter } from './ParameterPanel'
 

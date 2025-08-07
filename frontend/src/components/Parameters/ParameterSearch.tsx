@@ -1,13 +1,13 @@
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import { Badge } from '../ui/badge'
+import { Input } from '@/design-system/components/Input'
+import { Button } from '@/design-system/components/Button'
+import { Badge } from '@/design-system/components/Badge'
 import { 
   Select, 
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from '../ui/select'
+} from '@/design-system/components/Select'
 import { Search, X } from 'lucide-react'
 
 interface ParameterSearchProps {

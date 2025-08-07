@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useTheme } from '@/components/theme-hooks';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/design-system/components/Button';
+import { Sheet, SheetContent, SheetTrigger } from '@/design-system/components/Sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
 import { Menu, Moon, Sun } from 'lucide-react';
 import { PLTab } from '@/components/tabs/PLTab';
 import { CashFlowTab } from '@/components/tabs/CashFlowTab';

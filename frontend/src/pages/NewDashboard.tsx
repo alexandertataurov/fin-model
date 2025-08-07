@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemeProvider } from '@/components/ui/theme-provider';
+import { ThemeProvider } from '@/design-system/components/ThemeProvider';
 import { DashboardLayout } from '@/components/dashboard-layout';
 
 /**

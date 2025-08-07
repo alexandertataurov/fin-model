@@ -9,12 +9,12 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-// import { AspectRatio } from '@/components/ui/aspect-ratio';
-// import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+} from '@/design-system/components/Accordion';
+import { Alert, AlertDescription, AlertTitle } from '@/design-system/components/Alert';
+// import { AspectRatio } from '@/design-system/components/AspectRatio';
+// import { Avatar, AvatarFallback, AvatarImage } from '@/design-system/components/Avatar';
+import { Badge } from '@/design-system/components/Badge';
+import { Button } from '@/design-system/components/Button';
 // import { Calendar } from '@/components/ui/calendar';
 import {
   Card,
@@ -24,13 +24,13 @@ import {
   CardHeader,
   CardTitle,
   CardAction,
-} from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/design-system/components/Card';
+import { Checkbox } from '@/design-system/components/Checkbox';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+} from '@/design-system/components/Collapsible';
 // import {
 //   Command,
 //   CommandDialog,
@@ -65,7 +65,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/design-system/components/Dialog';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -88,8 +88,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input } from '@/design-system/components/Input';
+import { Label } from '@/design-system/components/Label';
 // import {
 //   Menubar,
 //   MenubarCheckboxItem,
@@ -121,9 +121,9 @@ import { Label } from '@/components/ui/label';
 //   PopoverContent,
 //   PopoverTrigger,
 // } from '@/components/ui/popover';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@/design-system/components/Progress';
 // import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/design-system/components/ScrollArea';
 import {
   Select,
   SelectContent,
@@ -133,8 +133,8 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-// import { Separator } from '@/components/ui/separator';
+} from '@/design-system/components/Select';
+// import { Separator } from '@/design-system/components/Separator';
 import {
   Sheet,
   SheetClose,
@@ -144,10 +144,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Slider } from '@/components/ui/slider';
-// import { Switch } from '@/components/ui/switch';
+} from '@/design-system/components/Sheet';
+import { Skeleton } from '@/design-system/components/Skeleton';
+import { Slider } from '@/design-system/components/Slider';
+// import { Switch } from '@/design-system/components/Switch';
 // import {
 //   Table,
 //   TableBody,
@@ -157,9 +157,9 @@ import { Slider } from '@/components/ui/slider';
 //   TableHead,
 //   TableHeader,
 //   TableRow,
-// } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// import { Textarea } from '@/components/ui/textarea';
+// } from '@/design-system/components/Table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+// import { Textarea } from '@/design-system/components/Textarea';
 // import {
 //   Toast,
 //   ToastAction,
@@ -169,7 +169,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 //   ToastTitle,
 //   ToastViewport,
 // } from '@/components/ui/toast';
-// import { Toaster } from '@/components/ui/toaster';
+// import { Toaster } from '@/design-system/components/Toaster';
 // import { Toggle } from '@/components/ui/toggle';
 // import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 // import {
@@ -177,7 +177,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 //   TooltipContent,
 //   TooltipProvider,
 //   TooltipTrigger,
-// } from '@/components/ui/tooltip';
+// } from '@/design-system/components/Tooltip';
 
 // Custom Components
 import { DataTable } from '@/components/ui/DataTable';
