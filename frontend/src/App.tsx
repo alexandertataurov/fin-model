@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { DesignSystemProvider } from '@/components/ui/DesignSystemProvider';
+import AuthGuard from '@/components/auth/AuthGuard';
 import Layout from '@/components/Layout/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -32,14 +33,21 @@ function App() {
             <Router>
               <div className="min-h-screen bg-background text-foreground">
                 <Routes>
-                  {/* Authentication Routes */}
+                  {/* Public Authentication Routes */}
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
 
-                  {/* Protected Routes */}
-                  <Route path="/" element={<Layout />}>
+                  {/* Protected Routes - All wrapped with AuthGuard */}
+                  <Route
+                    path="/"
+                    element={
+                      <AuthGuard>
+                        <Layout />
+                      </AuthGuard>
+                    }
+                  >
                     <Route index element={<Dashboard />} />
                     <Route path="upload" element={<FileUpload />} />
                     <Route path="dashboards/pl" element={<PnLDashboard />} />
