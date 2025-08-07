@@ -212,3 +212,55 @@ async def dashboard_websocket(websocket: WebSocket, file_id: str):
             await websocket.close()
         except Exception:
             pass
+
+
+@router.websocket("/")
+async def root_websocket(websocket: WebSocket):
+    """Root WebSocket endpoint for basic connections."""
+    await websocket.accept()
+    logger.info("Root WebSocket connection accepted")
+    
+    try:
+        # Send connection confirmation
+        await websocket.send_text(json.dumps({
+            "type": "connection_established",
+            "message": "Root WebSocket connected",
+            "info": "Use specific endpoints like /ws/notifications for full functionality"
+        }))
+        
+        # Keep connection alive
+        while True:
+            try:
+                # Wait for messages from client
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                
+                # Handle different message types
+                if message.get("type") == "ping":
+                    await websocket.send_text(json.dumps({
+                        "type": "pong",
+                        "timestamp": message.get("timestamp")
+                    }))
+                else:
+                    await websocket.send_text(json.dumps({
+                        "type": "info",
+                        "message": "This is a basic WebSocket endpoint. For authenticated features, use /ws/notifications"
+                    }))
+                    
+            except WebSocketDisconnect:
+                logger.info("Client disconnected from root WebSocket")
+                break
+            except Exception as e:
+                logger.error(f"Error in root WebSocket: {e}")
+                await websocket.send_text(json.dumps({
+                    "type": "error",
+                    "message": "Internal server error"
+                }))
+                
+    except Exception as e:
+        logger.error(f"Error establishing root WebSocket: {e}")
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            pass
