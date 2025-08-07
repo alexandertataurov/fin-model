@@ -279,22 +279,22 @@ export const authApi = {
 
       // Test 2: Register a test user
       console.log('📝 Registering test user...');
-      const registerResponse = await fetch(
-        `${API_BASE_URL}/api/v1/auth/register`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: 'test@example.com',
-            username: 'testuser',
-            first_name: 'Test',
-            last_name: 'User',
-            password: 'TestPassword123!',
-          }),
-        }
-      );
+              const registerResponse = await fetch(
+          `${API_BASE_URL}/auth/register`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: 'test@example.com',
+              username: 'testuser',
+              first_name: 'Test',
+              last_name: 'User',
+              password: 'TestPassword123!',
+            }),
+          }
+        );
       console.log(
         '📝 Register response:',
         registerResponse.status,
@@ -308,7 +308,7 @@ export const authApi = {
         // Test 3: Verify the user
         console.log('✅ Verifying test user...');
         const verifyResponse = await fetch(
-          `${API_BASE_URL}/api/v1/auth/dev-verify-user`,
+          `${API_BASE_URL}/auth/dev-verify-user`,
           {
             method: 'POST',
             headers: {
@@ -332,7 +332,7 @@ export const authApi = {
           // Test 4: Login with verified user
           console.log('🔐 Testing login with verified user...');
           const loginResponse = await fetch(
-            `${API_BASE_URL}/api/v1/auth/login`,
+            `${API_BASE_URL}/auth/login`,
             {
               method: 'POST',
               headers: {

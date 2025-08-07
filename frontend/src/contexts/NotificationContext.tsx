@@ -161,7 +161,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/notifications/preferences`,
+        `${API_BASE_URL}/notifications/preferences`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -455,7 +455,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/notifications/?page=1&limit=${maxNotifications}`,
+        `${API_BASE_URL}/notifications/?page=1&limit=${maxNotifications}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
