@@ -261,6 +261,91 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     setUnreadCount(0);
   }, []);
 
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => {
+      const notification = prev.find(n => n.id === id);
+      const filtered = prev.filter(notif => notif.id !== id);
+
+      // Update unread count if removed notification was unread
+      if (notification && !notification.is_read) {
+        setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+      }
+
+      return filtered;
+    });
+  }, []);
+
+  const refreshNotifications = useCallback(async (): Promise<void> => {
+    if (isLoading) return;
+
+    // Check if user is authenticated
+    const token = getAuthToken();
+    if (!token) {
+      console.log('User not authenticated, skipping notification refresh');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/notifications/?page=1&limit=${maxNotifications}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.items || []);
+        setUnreadCount(data.unread_count || 0);
+      } else if (response.status === 401) {
+        console.log('User not authenticated, clearing notifications');
+        setNotifications([]);
+        setUnreadCount(0);
+      } else if (response.status === 500) {
+        console.log(
+          'Server error (likely missing database tables), using empty notifications'
+        );
+        setNotifications([]);
+        setUnreadCount(0);
+      } else {
+        console.error('Failed to fetch notifications:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      // On network errors, use empty state
+      setNotifications([]);
+      setUnreadCount(0);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoading, maxNotifications]);
+
+  // Show user-friendly notification about WebSocket limitations
+  const showWebSocketLimitationNotification = useCallback(() => {
+    if (showToasts) {
+      console.warn(
+        'WebSocket connection failed - notifications will use polling fallback'
+      );
+      // You can add a toast notification here if you have a toast system
+    }
+  }, [showToasts]);
+
+  // Polling fallback
+  const startPolling = useCallback(() => {
+    console.log('Starting notification polling fallback');
+    // Poll every 30 seconds as fallback
+    const pollInterval = setInterval(() => {
+      refreshNotifications();
+    }, 30000);
+    
+    // Store interval for cleanup
+    return () => clearInterval(pollInterval);
+  }, [refreshNotifications]);
+
   // WebSocket connection management
   const connect = useCallback(async (): Promise<void> => {
     if (isConnected) {
@@ -315,15 +400,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
       // Show user-friendly error message
       showWebSocketLimitationNotification();
+      
+      // Fallback to polling if WebSocket fails
+      console.log('Falling back to polling for notifications');
+      startPolling();
     }
-  }, [
-    isConnected,
-    getAuthToken,
-    showToasts,
-    handleNewNotification,
-    handleNotificationUpdate,
-    handleBulkRead,
-  ]);
+  }, [handleNewNotification, handleNotificationUpdate, handleBulkRead, showWebSocketLimitationNotification, startPolling]);
 
   const disconnect = useCallback(() => {
     unsubscribeRefs.current.forEach(unsub => unsub());
@@ -428,69 +510,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     [apiCall]
   );
 
-  const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => {
-      const notification = prev.find(n => n.id === id);
-      const filtered = prev.filter(notif => notif.id !== id);
-
-      // Update unread count if removed notification was unread
-      if (notification && !notification.is_read) {
-        setUnreadCount(prevCount => Math.max(0, prevCount - 1));
-      }
-
-      return filtered;
-    });
-  }, []);
-
-  const refreshNotifications = useCallback(async (): Promise<void> => {
-    if (isLoading) return;
-
-    // Check if user is authenticated
-    const token = getAuthToken();
-    if (!token) {
-      console.log('User not authenticated, skipping notification refresh');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/notifications/?page=1&limit=${maxNotifications}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.items || []);
-        setUnreadCount(data.unread_count || 0);
-      } else if (response.status === 401) {
-        console.log('User not authenticated, clearing notifications');
-        setNotifications([]);
-        setUnreadCount(0);
-      } else if (response.status === 500) {
-        console.log(
-          'Server error (likely missing database tables), using empty notifications'
-        );
-        setNotifications([]);
-        setUnreadCount(0);
-      } else {
-        console.error('Failed to fetch notifications:', response.status);
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      // On network errors, use empty state
-      setNotifications([]);
-      setUnreadCount(0);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, maxNotifications]);
-
   const loadMore = useCallback(async () => {
     if (hasMore && !isLoading) {
       await loadNotifications(currentPage + 1, true);
@@ -516,25 +535,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     },
     [apiCall]
   );
-
-  // Show user-friendly notification about WebSocket limitations
-  const showWebSocketLimitationNotification = useCallback(() => {
-    if (showToasts) {
-      addNotification({
-        id: `websocket-limitation-${Date.now()}`,
-        type: 'system',
-        title: 'Real-time updates limited',
-        message:
-          'Real-time notifications are currently limited. You can still view and manage notifications manually.',
-        priority: 'low',
-        status: 'active',
-        is_read: false,
-        is_dismissed: false,
-        created_at: new Date().toISOString(),
-        data: { type: 'websocket_limitation' },
-      });
-    }
-  }, [showToasts, addNotification]);
 
   // Initialize
   useEffect(() => {
