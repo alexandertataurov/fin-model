@@ -10,32 +10,12 @@ import {
 import { Badge } from './badge';
 
 const meta: Meta = {
-  title: 'Design System/Design Tokens',
+  title: '🎨 Design Foundation',
   parameters: {
-    layout: 'fullscreen',
+    layout: 'padded',
     docs: {
       description: {
-        component: `
-# Design Tokens
-
-The foundational design elements that create consistency across the FinVision platform. These tokens define colors, typography, spacing, and other visual properties.
-
-## Token Categories
-
-- **Colors**: Primary, secondary, semantic, and neutral color palettes
-- **Typography**: Font families, sizes, weights, and line heights
-- **Spacing**: Consistent spacing scale for margins and padding
-- **Shadows**: Elevation and depth through shadow tokens
-- **Border Radius**: Corner radius values for components
-- **Transitions**: Animation timing and easing functions
-
-## Usage Guidelines
-
-- Always use design tokens instead of hardcoded values
-- Maintain consistency across all components
-- Follow the established scale for spacing and sizing
-- Use semantic color tokens for better theming support
-        `,
+        component: 'Core design tokens and foundational elements that define our visual language - colors, typography, spacing, and design principles.',
       },
     },
   },

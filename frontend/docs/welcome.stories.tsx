@@ -20,30 +20,13 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Welcome',
+  title: '🎯 Getting Started',
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: `
-# Welcome to FinVision Storybook
-
-This Storybook contains the complete component library for the FinVision financial modeling platform. It serves as both documentation and a development playground for our design system.
-
-## What is FinVision?
-
-FinVision is a comprehensive financial modeling and analysis platform that helps organizations build, analyze, and optimize their financial models. It provides intuitive interfaces for parameter management, scenario analysis, and report generation.
-
-## Design Philosophy
-
-Our design system follows these core principles:
-
-- **Consistency**: Unified visual language across all interfaces
-- **Accessibility**: WCAG 2.1 AA compliant components
-- **Performance**: Optimized for fast loading and smooth interactions  
-- **Flexibility**: Composable components that adapt to various use cases
-- **Business Focus**: Financial domain-specific patterns and workflows
-        `,
+        component:
+          'Welcome to FinVision - Your comprehensive financial modeling platform. This guide will help you get started with our design system and components.',
       },
     },
   },

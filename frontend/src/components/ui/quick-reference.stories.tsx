@@ -55,32 +55,12 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Design System/Quick Reference',
+  title: '📚 Quick Reference',
   parameters: {
-    layout: 'fullscreen',
+    layout: 'padded',
     docs: {
       description: {
-        component: `
-# Quick Reference Guide
-
-A comprehensive overview of all FinVision UI components with their key properties, variants, and common usage patterns.
-
-## Component Categories
-
-- **Form Elements**: Buttons, inputs, selects, checkboxes, switches
-- **Feedback**: Alerts, badges, progress indicators
-- **Navigation**: Tabs, breadcrumbs, navigation menus
-- **Overlays**: Dialogs, popovers, tooltips
-- **Layout**: Cards, separators, containers
-
-## Usage Patterns
-
-Each component includes:
-- Available variants and sizes
-- Common props and their effects
-- Accessibility considerations
-- Integration examples
-        `,
+        component: 'Essential patterns, best practices, and quick solutions for common UI challenges in financial applications.',
       },
     },
   },

@@ -4,35 +4,12 @@ import BarChart from './BarChart';
 import PieChart from './PieChart';
 
 const meta: Meta = {
-  title: 'Charts',
+  title: '📊 Data Visualization',
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: `
-# Financial Charts
-
-Interactive chart components built with Recharts for financial data visualization. These charts are specifically designed for FinVision's financial modeling and reporting needs.
-
-## Chart Types
-
-- **LineChart**: Time-series data, trends, and projections
-- **BarChart**: Comparative analysis and category breakdown
-- **PieChart**: Portfolio composition and percentage breakdowns
-- **WaterfallChart**: Cash flow and variance analysis
-
-## Key Features
-
-- **Responsive**: Automatically adapts to container size
-- **Interactive**: Hover tooltips and click handlers
-- **Customizable**: Configurable colors, labels, and styling
-- **Export**: Built-in export functionality (PNG, SVG, PDF)
-- **Accessibility**: Screen reader friendly with proper ARIA labels
-
-## Data Format
-
-All charts expect data in a consistent format with configurable series and styling options.
-        `,
+        component: 'Financial charts and data visualization components for displaying complex financial data in an intuitive and interactive way.',
       },
     },
   },

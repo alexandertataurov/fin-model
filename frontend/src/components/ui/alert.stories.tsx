@@ -5,7 +5,7 @@ import { Button } from './button';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
 
 const meta: Meta<typeof Alert> = {
-  title: 'Components/Alert',
+  title: '🧩 UI Components/Alert',
   component: Alert,
   parameters: {
     layout: 'centered',

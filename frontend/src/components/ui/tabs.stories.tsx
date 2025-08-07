@@ -1,10 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './card';
 import { BarChart3, FileText, Settings, TrendingUp } from 'lucide-react';
 
 const meta: Meta<typeof Tabs> = {
-  title: 'Components/Tabs',
+  title: '🧩 UI Components/Tabs',
   component: Tabs,
   parameters: {
     layout: 'centered',
@@ -238,9 +244,7 @@ export const VerticalTabs: Story = {
         <Card>
           <CardHeader>
             <CardTitle>Overview</CardTitle>
-            <CardDescription>
-              High-level financial summary
-            </CardDescription>
+            <CardDescription>High-level financial summary</CardDescription>
           </CardHeader>
           <CardContent>
             <p>Overview content goes here...</p>
@@ -251,9 +255,7 @@ export const VerticalTabs: Story = {
         <Card>
           <CardHeader>
             <CardTitle>Reports</CardTitle>
-            <CardDescription>
-              Financial reporting tools
-            </CardDescription>
+            <CardDescription>Financial reporting tools</CardDescription>
           </CardHeader>
           <CardContent>
             <p>Reports content goes here...</p>
@@ -264,9 +266,7 @@ export const VerticalTabs: Story = {
         <Card>
           <CardHeader>
             <CardTitle>Analysis</CardTitle>
-            <CardDescription>
-              Advanced analysis tools
-            </CardDescription>
+            <CardDescription>Advanced analysis tools</CardDescription>
           </CardHeader>
           <CardContent>
             <p>Analysis content goes here...</p>

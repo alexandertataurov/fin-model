@@ -2,32 +2,12 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'Core Financial Modeling',
+  title: '💰 Financial Modeling',
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: `
-# Streamlined Core Financial Modeling Components
-
-This showcase demonstrates the new streamlined components created according to the lean financial modeling plan. These components focus on essential functionality while removing unnecessary complexity.
-
-## Key Features
-
-- **CoreFinancialModeling**: Central hub for all financial modeling activities
-- **ParameterManager**: Comprehensive parameter management with 12 categories
-- **DCFValuation**: Complete DCF model with FCF projections, terminal value, and sensitivity analysis
-- **FileUpload**: Streamlined Excel file upload with processing status
-- **Shared Utilities**: Consolidated components and utilities to reduce duplication
-
-## Design Principles
-
-- **Lean Architecture**: Focus on core financial modeling capabilities
-- **Comprehensive Coverage**: All essential modeling features included
-- **User-Friendly Interface**: Intuitive design for financial professionals
-- **Performance Optimized**: Efficient rendering and calculations
-- **DRY Principle**: Shared utilities eliminate code duplication
-        `,
+        component: 'Specialized components for financial modeling workflows - DCF analysis, scenario modeling, and financial statement generation.',
       },
     },
   },

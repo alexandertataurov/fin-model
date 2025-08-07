@@ -5,7 +5,7 @@ import { Search, Mail, Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
 
 const meta: Meta<typeof Input> = {
-  title: 'Components/Input',
+  title: '🧩 UI Components/Input',
   component: Input,
   parameters: {
     layout: 'centered',

@@ -20,40 +20,12 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Layout',
+  title: '🏗️ Application Structure',
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: `
-# Application Layout Components
-
-Core layout components that provide the structural foundation for FinVision. These components handle navigation, content organization, and responsive behavior.
-
-## Components
-
-- **Layout**: Main application wrapper with header and navigation
-- **Sidebar**: Collapsible navigation sidebar with menu items
-- **DashboardLayout**: Specialized layout for dashboard views
-- **Header**: Top navigation bar with user actions
-- **Content**: Main content area with proper spacing
-
-## Key Features
-
-- **Responsive**: Adapts to different screen sizes
-- **Navigation**: Hierarchical menu structure
-- **User Context**: User profile and actions
-- **Notifications**: System alerts and messages
-- **Breadcrumbs**: Navigation context
-- **Search**: Global search functionality
-
-## Layout Patterns
-
-- **Dashboard**: Grid-based widget layout
-- **Form**: Centered form with sidebar navigation
-- **List**: Table/list view with filters
-- **Detail**: Single item focus with related actions
-        `,
+        component: 'Layout components and page structures that define the overall application architecture and user experience flow.',
       },
     },
   },

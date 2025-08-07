@@ -32,40 +32,12 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Features',
+  title: '⚙️ Business Features',
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: `
-# Parameter Management Components
-
-Interactive components for managing financial model parameters in FinVision. These components allow users to adjust assumptions, view impact analysis, and organize parameters into logical groups.
-
-## Components
-
-- **ParameterControl**: Individual parameter controls (sliders, inputs, dropdowns)
-- **ParameterGroup**: Organized collections of related parameters
-- **ParameterSearch**: Search and filter parameters
-- **BulkParameterEdit**: Edit multiple parameters simultaneously
-- **ParameterHistory**: Track parameter changes over time
-- **ParameterTemplates**: Save and load parameter presets
-
-## Key Features
-
-- **Real-time Updates**: Live model recalculation as parameters change
-- **Impact Analysis**: Visual feedback on parameter sensitivity
-- **Validation**: Input validation with error states
-- **Templates**: Save common parameter configurations
-- **History**: Track and revert parameter changes
-
-## Parameter Types
-
-- **Growth Rates**: Revenue, expense growth assumptions
-- **Financial Ratios**: Margins, returns, efficiency metrics
-- **Market Data**: Interest rates, market multiples
-- **Operational**: Capacity, productivity factors
-        `,
+        component: 'Core business functionality components - parameter management, scenario analysis, and financial modeling tools.',
       },
     },
   },

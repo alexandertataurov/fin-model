@@ -8,10 +8,16 @@ import {
 } from './select';
 import { Label } from './label';
 import { Button } from './button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './card';
 
 const meta: Meta<typeof Select> = {
-  title: 'Components/Select',
+  title: '🧩 UI Components/Select',
   component: Select,
   parameters: {
     layout: 'centered',
@@ -131,7 +137,8 @@ export const ParameterCategories: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Parameter category selector for filtering financial parameters.',
+        story:
+          'Parameter category selector for filtering financial parameters.',
       },
     },
   },
@@ -263,7 +270,9 @@ export const FormExample: Story = {
               <SelectItem value="income">Income Statement</SelectItem>
               <SelectItem value="balance">Balance Sheet</SelectItem>
               <SelectItem value="cashflow">Cash Flow Statement</SelectItem>
-              <SelectItem value="comprehensive">Comprehensive Report</SelectItem>
+              <SelectItem value="comprehensive">
+                Comprehensive Report
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -306,7 +315,8 @@ export const FormExample: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form example using multiple select components for report configuration.',
+        story:
+          'Form example using multiple select components for report configuration.',
       },
     },
   },
@@ -323,7 +333,7 @@ export const FilterExample: Story = {
             placeholder="Search parameters..."
           />
         </div>
-        
+
         <Select defaultValue="all">
           <SelectTrigger className="w-48">
             <SelectValue />
@@ -359,7 +369,8 @@ export const FilterExample: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Multiple select components used together for advanced filtering.',
+        story:
+          'Multiple select components used together for advanced filtering.',
       },
     },
   },

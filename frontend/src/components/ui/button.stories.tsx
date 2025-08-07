@@ -3,7 +3,7 @@ import { Button } from './button';
 import { Plus, Download, Trash2, Edit } from 'lucide-react';
 
 const meta: Meta<typeof Button> = {
-  title: 'Components/Button',
+  title: '🧩 UI Components/Button',
   component: Button,
   parameters: {
     layout: 'centered',

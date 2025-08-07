@@ -17,37 +17,13 @@ import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import React, { useState } from 'react';
 
 const meta: Meta = {
-  title: 'Auth',
+  title: '🔐 Authentication',
   parameters: {
     layout: 'centered',
     docs: {
       description: {
-        component: `
-# Authentication Components
-
-A comprehensive set of authentication components for the FinVision platform. These components handle user registration, login, password management, and account verification.
-
-## Components
-
-- **LoginForm**: Primary authentication interface
-- **RegisterForm**: New user registration
-- **ForgotPasswordForm**: Password reset initiation
-- **ResetPasswordForm**: Password reset completion
-- **EmailVerification**: Account email verification
-- **BiometricLogin**: Biometric authentication (when supported)
-
-## Key Features
-
-- **Security**: Input validation and secure handling
-- **Accessibility**: Full keyboard navigation and screen readers
-- **Responsive**: Works on all device sizes
-- **Error Handling**: Clear validation messages
-- **Progressive Enhancement**: Graceful fallbacks
-
-## Usage in FinVision
-
-Authentication is required for accessing financial data and modeling features.
-        `,
+        component:
+          'Authentication and user management components - login forms, registration, password reset, and security features.',
       },
     },
   },

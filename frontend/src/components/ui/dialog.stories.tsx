@@ -14,7 +14,7 @@ import { Label } from './label';
 import { AlertTriangle, Trash2, Settings, Plus } from 'lucide-react';
 
 const meta: Meta<typeof Dialog> = {
-  title: 'Components/Dialog',
+  title: '🧩 UI Components/Dialog',
   component: Dialog,
   parameters: {
     layout: 'centered',
@@ -69,7 +69,8 @@ export const Default: Story = {
         <DialogHeader>
           <DialogTitle>Dialog Title</DialogTitle>
           <DialogDescription>
-            This is a description of what this dialog does. It provides context for the user.
+            This is a description of what this dialog does. It provides context
+            for the user.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -100,7 +101,8 @@ export const ConfirmationDialog: Story = {
             <span>Confirm Deletion</span>
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete "Q4 Financial Report"? This action cannot be undone.
+            Are you sure you want to delete "Q4 Financial Report"? This action
+            cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -123,7 +125,8 @@ export const ConfirmationDialog: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Confirmation dialog for destructive actions with warning styling.',
+        story:
+          'Confirmation dialog for destructive actions with warning styling.',
       },
     },
   },
@@ -148,10 +151,7 @@ export const FormDialog: Story = {
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="param-name">Parameter Name</Label>
-            <Input
-              id="param-name"
-              placeholder="e.g., Revenue Growth Rate"
-            />
+            <Input id="param-name" placeholder="e.g., Revenue Growth Rate" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="param-description">Description</Label>
@@ -163,19 +163,11 @@ export const FormDialog: Story = {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="param-min">Min Value</Label>
-              <Input
-                id="param-min"
-                type="number"
-                placeholder="0"
-              />
+              <Input id="param-min" type="number" placeholder="0" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="param-max">Max Value</Label>
-              <Input
-                id="param-max"
-                type="number"
-                placeholder="1"
-              />
+              <Input id="param-max" type="number" placeholder="1" />
             </div>
           </div>
           <div className="space-y-2">
@@ -225,10 +217,7 @@ export const SettingsDialog: Story = {
             <h4 className="text-sm font-medium">Profile Information</h4>
             <div className="space-y-2">
               <Label htmlFor="display-name">Display Name</Label>
-              <Input
-                id="display-name"
-                defaultValue="John Doe"
-              />
+              <Input id="display-name" defaultValue="John Doe" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -239,13 +228,15 @@ export const SettingsDialog: Story = {
               />
             </div>
           </div>
-          
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Preferences</h4>
             <div className="flex items-center justify-between">
               <div>
                 <Label>Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive email notifications for reports</p>
+                <p className="text-sm text-muted-foreground">
+                  Receive email notifications for reports
+                </p>
               </div>
               <input type="checkbox" defaultChecked className="h-4 w-4" />
             </div>
@@ -289,7 +280,9 @@ export const LargeContentDialog: Story = {
         </DialogHeader>
         <div className="py-4">
           <div className="bg-muted rounded-lg p-6 min-h-80 flex items-center justify-center">
-            <p className="text-muted-foreground">Chart visualization would appear here</p>
+            <p className="text-muted-foreground">
+              Chart visualization would appear here
+            </p>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-4">
             <div className="text-center">

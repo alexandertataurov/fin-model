@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 const meta: Meta<typeof Card> = {
-  title: 'Components/Card',
+  title: '🧩 UI Components/Card',
   component: Card,
   parameters: {
     layout: 'centered',

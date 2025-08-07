@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { toast } from 'sonner';
 import { notificationsWebSocketService } from '../services/websocket';
+import { makeApiCall } from '../utils/apiUtils';
 
 export interface Notification {
   id: string;
@@ -112,23 +113,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // API calls
   const apiCall = useCallback(
     async (endpoint: string, options: RequestInit = {}) => {
-      const token = getAuthToken();
-      const response = await fetch(`/api/v1/notifications${endpoint}`, {
-        ...options,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`API call failed: ${response.statusText}`);
-      }
-
-      return response.json();
+      return makeApiCall(`/notifications${endpoint}`, options);
     },
-    [getAuthToken]
+    []
   );
 
   // Load notifications from API

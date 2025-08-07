@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v1';
+// Use Railway backend URL for file API
+const API_BASE_URL = 'https://fin-model-production.up.railway.app/api/v1';
 
 export interface FileUploadResponse {
   id: number;

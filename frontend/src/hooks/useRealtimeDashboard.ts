@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { dashboardWebSocketService } from '../services/websocket';
+import { makeApiCall } from '../utils/apiUtils';
 
 export interface DashboardData {
   metrics: DashboardMetric[];
@@ -63,20 +64,7 @@ export const useRealtimeDashboard = ({
 
   // Fetch dashboard data from API
   const fetchDashboardData = async (): Promise<DashboardData> => {
-    const response = await fetch(
-      `/api/v1/dashboard/${fileId}?period=${period}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch dashboard data: ${response.statusText}`);
-    }
-
-    return response.json();
+    return makeApiCall(`/dashboard/${fileId}?period=${period}`);
   };
 
   // React Query for dashboard data

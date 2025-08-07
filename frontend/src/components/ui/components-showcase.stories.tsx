@@ -37,40 +37,12 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Design System/Components Showcase',
+  title: '🧩 UI Components',
   parameters: {
-    layout: 'fullscreen',
+    layout: 'padded',
     docs: {
       description: {
-        component: `
-# FinVision Design System - Components Showcase
-
-A comprehensive overview of all UI components available in the FinVision platform. This showcase demonstrates the design system's consistency, accessibility, and flexibility.
-
-## Design Principles
-
-- **Consistency**: Unified visual language across all components
-- **Accessibility**: WCAG 2.1 AA compliance with keyboard navigation
-- **Responsive**: Mobile-first design that scales to all devices
-- **Performance**: Optimized for fast loading and smooth interactions
-- **Flexibility**: Customizable variants for different use cases
-
-## Component Categories
-
-- **Form Elements**: Inputs, buttons, selects, and form controls
-- **Feedback**: Alerts, badges, and progress indicators
-- **Navigation**: Tabs, breadcrumbs, and navigation menus
-- **Overlays**: Dialogs, popovers, and tooltips
-- **Data Display**: Cards, tables, and data visualization components
-
-## Usage Guidelines
-
-Each component includes:
-- Interactive examples with all variants
-- Accessibility considerations
-- Best practices for implementation
-- Integration examples with FinVision features
-        `,
+        component: 'Complete collection of reusable UI components - buttons, inputs, cards, alerts, and more. All components follow our design system and are fully accessible.',
       },
     },
   },
