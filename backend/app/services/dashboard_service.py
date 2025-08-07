@@ -5,6 +5,7 @@ Connects processed Excel financial statements to dashboard visualizations.
 """
 import json
 from typing import Dict, List, Any, Optional, Tuple, Union
+import logging
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, func
@@ -87,39 +88,62 @@ class DashboardService:
         user_id: int, 
         period: PeriodFilter = PeriodFilter.YTD
     ) -> DashboardData:
-        """Get complete dashboard data for a user."""
-        
-        # Get user's financial statements
-        statements = self._get_user_statements(user_id)
-        
-        if not statements:
-            # Fallback to demo/legacy data
-            return await self._get_demo_dashboard_data(user_id, period)
-        
-        # Get active statement (most recent)
-        active_statement = statements[0] if statements else None
-        
-        # Calculate key metrics
-        key_metrics = await self._calculate_dashboard_key_metrics(statements, period)
-        
-        # Generate chart data using enhanced chart service
-        chart_data = await self.enhanced_charts.generate_enhanced_dashboard_charts(statements, period.value)
-        
-        # Calculate data quality
-        data_quality_score = self._calculate_data_quality_score(statements)
-        
-        # Period information
-        period_info = self._get_period_info(period)
-        
-        return DashboardData(
-            statements=[self._serialize_statement(stmt) for stmt in statements],
-            active_statement=self._serialize_statement(active_statement) if active_statement else None,
-            key_metrics=key_metrics,
-            chart_data=chart_data,
-            last_updated=datetime.utcnow(),
-            data_quality_score=data_quality_score,
-            period_info=period_info
-        )
+        """Get complete dashboard data for a user.
+
+        Robust to failures: if any step fails, return demo/legacy data
+        instead of propagating an exception that causes a 500.
+        """
+
+        try:
+            # Get user's financial statements
+            statements = self._get_user_statements(user_id)
+
+            if not statements:
+                # Fallback to demo/legacy data
+                return await self._get_demo_dashboard_data(user_id, period)
+
+            # Get active statement (most recent)
+            active_statement = statements[0] if statements else None
+
+            # Calculate key metrics
+            key_metrics = await self._calculate_dashboard_key_metrics(statements, period)
+
+            # Generate chart data using enhanced chart service
+            chart_data = await self.enhanced_charts.generate_enhanced_dashboard_charts(statements, period.value)
+
+            # Calculate data quality
+            data_quality_score = self._calculate_data_quality_score(statements)
+
+            # Period information
+            period_info = self._get_period_info(period)
+
+            return DashboardData(
+                statements=[self._serialize_statement(stmt) for stmt in statements],
+                active_statement=self._serialize_statement(active_statement) if active_statement else None,
+                key_metrics=key_metrics,
+                chart_data=chart_data,
+                last_updated=datetime.utcnow(),
+                data_quality_score=data_quality_score,
+                period_info=period_info
+            )
+
+        except Exception:
+            # Log and return safe demo data so the endpoint does not 500
+            logging.exception("Failed to build user dashboard data, falling back to demo data")
+            try:
+                return await self._get_demo_dashboard_data(user_id, period)
+            except Exception:
+                # Final defensive fallback with minimal structure
+                logging.exception("Demo data generation failed; returning minimal dashboard response")
+                return DashboardData(
+                    statements=[],
+                    active_statement=None,
+                    key_metrics={},
+                    chart_data={},
+                    last_updated=datetime.utcnow(),
+                    data_quality_score=0.0,
+                    period_info=self._get_period_info(period),
+                )
 
     async def get_pl_data(self, statement_id: int, user_id: int) -> Dict[str, Any]:
         """Get P&L dashboard data for a specific statement."""
