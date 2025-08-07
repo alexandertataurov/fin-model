@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import { mergeConfig, sharedOptimizeDeps } from './vite.config.base';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -19,6 +20,9 @@ export default defineConfig(({ mode }) => {
     },
     
     resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src'),
+      },
       conditions: ['development', 'browser'],
     },
     

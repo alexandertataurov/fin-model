@@ -90,13 +90,13 @@ export const AccessibleColors: Story = {
               text: 'text-white',
               contrast: '4.8:1',
             },
-                     ].map(color => (
-             <div key={color.name} className="space-y-2">
-               <div
-                 className={`${color.class} ${color.text} p-4 rounded-md text-center font-medium`}
-               >
-                 <span className={color.text}>{color.name}</span>
-               </div>
+          ].map(color => (
+            <div key={color.name} className="space-y-2">
+              <div
+                className={`${color.class} ${color.text} p-4 rounded-md text-center font-medium`}
+              >
+                <span className={color.text}>{color.name}</span>
+              </div>
               <div className="text-xs">
                 <p className="font-medium">{color.class}</p>
                 <p className="text-muted-foreground">
@@ -145,18 +145,31 @@ export const AccessibleColors: Story = {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Badge className="bg-amber-600 text-white hover:bg-amber-700">
+              <Badge
+                className="bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+                style={{ backgroundColor: '#d97706', color: 'white' }}
+              >
                 Processing
               </Badge>
               <Badge
                 variant="outline"
-                className="border-amber-600 text-amber-700"
+                className="border-amber-600 text-amber-700 hover:bg-amber-50"
+                style={{ borderColor: '#d97706', color: '#b45309' }}
               >
                 Needs Review
               </Badge>
-              <Alert className="border-amber-600 bg-amber-50">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <AlertDescription className="text-amber-800">
+              <Alert
+                className="border-amber-600 bg-amber-50 text-amber-800"
+                style={{ borderColor: '#d97706', backgroundColor: '#fffbeb' }}
+              >
+                <AlertTriangle
+                  className="h-4 w-4 text-amber-600"
+                  style={{ color: '#d97706' }}
+                />
+                <AlertDescription
+                  className="text-amber-800"
+                  style={{ color: '#92400e' }}
+                >
                   Some parameters may need adjustment.
                 </AlertDescription>
               </Alert>
@@ -377,6 +390,111 @@ export const ContrastTesting: Story = {
       description: {
         story:
           'Tools and methods for testing color contrast and accessibility compliance.',
+      },
+    },
+  },
+};
+
+export const ColorTest: Story = {
+  render: () => (
+    <div className="space-y-6">
+      <h3 className="text-lg font-semibold">Color Display Test</h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Warning Color Test</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div
+                className="bg-amber-600 text-white p-3 rounded"
+                style={{ backgroundColor: '#d97706', color: 'white' }}
+              >
+                Amber 600 Background
+              </div>
+              <div
+                className="border-amber-600 text-amber-700 p-3 rounded border"
+                style={{ borderColor: '#d97706', color: '#b45309' }}
+              >
+                Amber Border & Text
+              </div>
+              <div
+                className="bg-amber-50 border-amber-600 text-amber-800 p-3 rounded border"
+                style={{
+                  backgroundColor: '#fffbeb',
+                  borderColor: '#d97706',
+                  color: '#92400e',
+                }}
+              >
+                Amber Light Background
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Badge
+                className="bg-amber-600 text-white"
+                style={{ backgroundColor: '#d97706', color: 'white' }}
+              >
+                Warning Badge
+              </Badge>
+              <Badge
+                variant="outline"
+                className="border-amber-600 text-amber-700"
+                style={{ borderColor: '#d97706', color: '#b45309' }}
+              >
+                Warning Outline Badge
+              </Badge>
+            </div>
+
+            <Alert
+              className="border-amber-600 bg-amber-50"
+              style={{ borderColor: '#d97706', backgroundColor: '#fffbeb' }}
+            >
+              <AlertTriangle
+                className="h-4 w-4 text-amber-600"
+                style={{ color: '#d97706' }}
+              />
+              <AlertDescription
+                className="text-amber-800"
+                style={{ color: '#92400e' }}
+              >
+                This is a warning alert test.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>All Status Colors</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="bg-green-700 text-white p-3 rounded">
+                Success Green
+              </div>
+              <div className="bg-blue-700 text-white p-3 rounded">
+                Info Blue
+              </div>
+              <div className="bg-red-700 text-white p-3 rounded">Error Red</div>
+            </div>
+
+            <div className="space-y-2">
+              <Badge className="bg-green-700 text-white">Success</Badge>
+              <Badge className="bg-blue-700 text-white">Info</Badge>
+              <Badge className="bg-red-700 text-white">Error</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Test component to verify that all status colors are displaying correctly.',
       },
     },
   },
