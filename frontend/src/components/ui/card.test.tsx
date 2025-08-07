@@ -24,26 +24,17 @@ describe('Card', () => {
       </Card>
     );
 
-    expect(
-      screen.getByText('Card Title').closest('[data-slot="card"]')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Card Title').closest('[data-slot="card-header"]')
-    ).toBeInTheDocument();
-    expect(screen.getByText('Card Title')).toHaveAttribute(
-      'data-slot',
-      'card-title'
-    );
-    expect(screen.getByText('Card Description')).toHaveAttribute(
-      'data-slot',
-      'card-description'
-    );
-    expect(
-      screen.getByText('Card Content').closest('[data-slot="card-content"]')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Card Footer').closest('[data-slot="card-footer"]')
-    ).toBeInTheDocument();
+    // Check that all components are rendered
+    expect(screen.getByText('Card Title')).toBeInTheDocument();
+    expect(screen.getByText('Card Description')).toBeInTheDocument();
+    expect(screen.getByText('Card Content')).toBeInTheDocument();
+    expect(screen.getByText('Card Footer')).toBeInTheDocument();
+
+    // Check data-slots
+    expect(screen.getByText('Card Title')).toHaveAttribute('data-slot', 'card-title');
+    expect(screen.getByText('Card Description')).toHaveAttribute('data-slot', 'card-description');
+    expect(screen.getByText('Card Content').closest('[data-slot="card-content"]')).toBeInTheDocument();
+    expect(screen.getByText('Card Footer').closest('[data-slot="card-footer"]')).toBeInTheDocument();
   });
 
   it('handles interactive card behavior', async () => {
@@ -109,10 +100,7 @@ describe('Card', () => {
     );
 
     expect(screen.getByLabelText('Example card')).toBeInTheDocument();
-    expect(screen.getByText('Accessible Title')).toHaveAttribute(
-      'aria-level',
-      '2'
-    );
+    expect(screen.getByText('Accessible Title')).toHaveAttribute('aria-level', '2');
     expect(screen.getByLabelText('Card description')).toBeInTheDocument();
   });
 
@@ -152,9 +140,13 @@ describe('Card', () => {
       </Card>
     );
 
-    Object.values(refs).forEach(ref => {
-      expect(ref.current).toBeInstanceOf(HTMLElement);
-    });
+    // Check that refs are properly set
+    expect(refs.card.current).toBeInstanceOf(HTMLDivElement);
+    expect(refs.header.current).toBeInstanceOf(HTMLDivElement);
+    expect(refs.title.current).toBeInstanceOf(HTMLHeadingElement);
+    expect(refs.description.current).toBeInstanceOf(HTMLParagraphElement);
+    expect(refs.content.current).toBeInstanceOf(HTMLDivElement);
+    expect(refs.footer.current).toBeInstanceOf(HTMLDivElement);
   });
 
   it('applies custom classes through className prop', () => {

@@ -1,3 +1,4 @@
+import React from "react";
 import { useTheme } from "../theme-hooks";
 import { Toaster as Sonner, ToasterProps } from "sonner";
 

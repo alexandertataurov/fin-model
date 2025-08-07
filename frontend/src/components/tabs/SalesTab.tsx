@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { DraggableWidget } from '../draggable-widget'
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
 import { TrendingUp, Users, Target, ShoppingCart, Plus } from 'lucide-react'

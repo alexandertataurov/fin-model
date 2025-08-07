@@ -1,24 +1,15 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  Box,
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  Avatar,
-  Breadcrumbs,
-  Link,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Logout,
-  Home,
-} from '@mui/icons-material';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
+import { Menu, LogOut, Home, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { BottomNavigation, HelpButton } from '../ui';
 import { ThemeToggle } from '../theme-toggle';
@@ -27,28 +18,22 @@ import Sidebar from './Sidebar';
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout } = useAuth();
 
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const userInitial =
+    user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U';
+  const fullName = user
+    ? `${user.first_name} ${user.last_name}`.trim() || user.username
+    : '';
+
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleSidebarToggle = () => {
     setSidebarOpen(prev => !prev);
   };
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleLogout = async () => {
     await logout();
-    handleClose();
     navigate('/login');
   };
 
@@ -69,172 +54,107 @@ const Layout = () => {
       admin: { label: 'Admin Panel' },
     };
 
-    return segments.map((segment, index) => {
-      const path = `/${segments.slice(0, index + 1).join('/')}`;
-      const breadcrumb = breadcrumbMap[segment];
+    return segments
+      .map((segment, index) => {
+        const path = `/${segments.slice(0, index + 1).join('/')}`;
+        const breadcrumb = breadcrumbMap[segment];
 
-      if (!breadcrumb) return null;
+        if (!breadcrumb) return null;
 
-      return (
-        <Link
-          key={path}
-          color="inherit"
-          onClick={() => navigate(path)}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            cursor: 'pointer',
-            textDecoration: 'none',
-            '&:hover': { textDecoration: 'underline' },
-          }}
-        >
-          {breadcrumb.label}
-        </Link>
-      );
-    }).filter(Boolean);
+        return (
+          <React.Fragment key={path}>
+            <button
+              onClick={() => navigate(path)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {breadcrumb.label}
+            </button>
+            {index < segments.length - 1 && (
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            )}
+          </React.Fragment>
+        );
+      })
+      .filter(Boolean);
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="flex min-h-screen">
       {/* Sidebar */}
       <Sidebar open={sidebarOpen} onToggle={handleSidebarToggle} />
 
-      {/* Main Content Area */}
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* App Bar */}
-        <AppBar
-          position="sticky"
-          elevation={0}
-          sx={{
-            zIndex: theme.zIndex.drawer - 1,
-            // DESIGN_FIX: use design system token instead of MUI background.paper
-            backgroundColor: 'var(--card)',
-            // DESIGN_FIX: use design system token for text color
-            color: 'var(--card-foreground)',
-            borderBottom: 1,
-            // DESIGN_FIX: use design system border token
-            borderColor: 'var(--border)',
-          }}
-        >
-          <Toolbar>
-            {/* Mobile Menu Button */}
-            {isMobile && (
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleSidebarToggle}
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-16 items-center gap-4 px-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSidebarToggle}
+              className="md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
 
-            {/* Title */}
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              FinVision
-            </Typography>
-
-                      {/* Theme Toggle, Help, and User Menu */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <HelpButton size="medium" />
-            <ThemeToggle />
-            <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <Avatar sx={{ width: 32, height: 32 }}>
-                  {user?.first_name?.[0]?.toUpperCase() || 'U'}
-                </Avatar>
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem disabled>
-                  <Box>
-                    <Typography variant="subtitle2">
-                      {user?.first_name} {user?.last_name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {user?.email}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>
-                  <Logout sx={{ mr: 1 }} />
-                  Logout
-                </MenuItem>
-              </Menu>
-            </Box>
-          </Toolbar>
-        </AppBar>
-
-        {/* Breadcrumbs */}
-        {location.pathname !== '/' && location.pathname !== '/dashboard' && (
-          <Box sx={{
-            px: 3,
-            py: 1.5,
-            // DESIGN_FIX: replace MUI background.default with design token
-            backgroundColor: 'var(--background)',
-            borderBottom: 1,
-            // DESIGN_FIX: use design system border token
-            borderColor: 'var(--border)',
-          }}>
-            <Breadcrumbs aria-label="breadcrumb">
-              <Link
-                color="inherit"
-                onClick={() => navigate('/dashboard')}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-              >
-                <Home sx={{ mr: 0.5 }} fontSize="inherit" />
-                Home
-              </Link>
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-2 text-sm">
+              <Home className="h-4 w-4 text-muted-foreground" />
               {getBreadcrumbs()}
-            </Breadcrumbs>
-          </Box>
-        )}
+            </div>
 
-        {/* Main Content */}
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            p: 3,
-            // DESIGN_FIX: use design token for page background
-            backgroundColor: 'var(--background)',
-            minHeight: 0, // Allow content to be scrollable
-            pb: isMobile ? 10 : 3, // Add bottom padding for mobile navigation
-          }}
-        >
-          <Outlet />
-        </Box>
-      </Box>
+            <div className="ml-auto flex items-center gap-4">
+              <ThemeToggle />
+              <HelpButton />
 
-      {/* Mobile Bottom Navigation */}
-      <BottomNavigation />
-    </Box>
+              {/* User Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="" alt={fullName} />
+                      <AvatarFallback>
+                        {userInitial.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      {fullName && <p className="font-medium">{fullName}</p>}
+                      {user?.email && (
+                        <p className="w-[200px] truncate text-sm text-muted-foreground">
+                          {user.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Separator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto">
+          <div className="container mx-auto p-6">
+            <Outlet />
+          </div>
+        </main>
+
+        {/* Bottom Navigation for Mobile */}
+        <BottomNavigation />
+      </div>
+    </div>
   );
 };
 

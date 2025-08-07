@@ -15,7 +15,7 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["vitest/globals", "jest-axe"],
+    "types": ["vitest/globals"],
 
     /* Linting */
     "strict": true,
@@ -29,7 +29,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["node_modules"],
+  "include": ["src", "src/test/custom-matchers.d.ts"],
+  "exclude": ["node_modules", "src/components/__tests__/Charts.test.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -17,7 +17,7 @@ FinVision is a comprehensive web-based financial modeling and analysis platform 
 
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
-- **UI Library**: Material-UI (MUI)
+- **UI Library**: Radix UI + Tailwind CSS
 - **Charts**: Recharts
 - **State Management**: Zustand + React Query
 - **Testing**: Vitest + React Testing Library
@@ -84,10 +84,10 @@ npm run dev
 #### Backend Setup
 
 ```bash
-cd backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+cd backend
 uvicorn main:app --reload
 ```
 
@@ -122,8 +122,8 @@ fin-model/
 │   │   ├── core/           # Core configuration
 │   │   ├── models/         # SQLAlchemy models
 │   │   └── services/       # Business logic
-│   ├── requirements.txt
 │   └── main.py
+├── requirements.txt        # Python dependencies
 ├── netlify.toml            # Netlify deployment configuration
 ├── tasks/                   # Project task documentation
 ├── docker-compose.yml       # Local development setup
@@ -164,7 +164,6 @@ The frontend is configured for easy deployment on Netlify with automatic builds 
 #### Quick Deploy
 
 1. **Connect Repository to Netlify**
-
    - Log in to [Netlify](https://netlify.com)
    - Click "New site from Git"
    - Connect your repository

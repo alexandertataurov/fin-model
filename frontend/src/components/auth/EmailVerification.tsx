@@ -1,61 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Loader2,
-  AlertCircle,
-  Check,
-  Mail,
-  ArrowLeft,
-} from 'lucide-react';
+import { Loader2, AlertCircle, Check, Mail, ArrowLeft } from 'lucide-react';
 import { authApi } from '../../services/authApi';
 
 const EmailVerification: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+
+  const verifyEmail = useCallback(
+    async (verificationToken: string) => {
+      setIsVerifying(true);
+      setIsLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      try {
+        await authApi.verifyEmail(verificationToken);
+        setSuccess(
+          'Email verified successfully! You can now sign in to your account.'
+        );
+
+        // Redirect to login after 5 seconds
+        setTimeout(() => {
+          navigate('/login');
+        }, 5000);
+      } catch (err: unknown) {
+        const error = err as {
+          response?: { status?: number; data?: { detail?: string } };
+        };
+
+        if (error.response?.status === 400) {
+          setError(
+            'Invalid or expired verification link. The link may have already been used or expired.'
+          );
+        } else {
+          setError(
+            'An error occurred during verification. Please try again later.'
+          );
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [navigate]
+  );
 
   // Auto-verify if token is present
   useEffect(() => {
     if (token && !isVerifying) {
       verifyEmail(token);
     }
-  }, [token, isVerifying]);
-
-  const verifyEmail = async (verificationToken: string) => {
-    setIsVerifying(true);
-    setIsLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      await authApi.verifyEmail(verificationToken);
-      setSuccess('Email verified successfully! You can now sign in to your account.');
-      
-      // Redirect to login after 5 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 5000);
-    } catch (err: unknown) {
-      const error = err as {
-        response?: { status?: number; data?: { detail?: string } };
-      };
-      
-      if (error.response?.status === 400) {
-        setError('Invalid or expired verification link. The link may have already been used or expired.');
-      } else {
-        setError('An error occurred during verification. Please try again later.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [token, isVerifying, verifyEmail]);
 
   const handleResendVerification = async () => {
     // This would require additional API endpoint to resend verification
@@ -86,19 +93,19 @@ const EmailVerification: React.FC = () => {
                 {isLoading
                   ? 'Verifying Email...'
                   : success
-                  ? 'Email Verified!'
-                  : error
-                  ? 'Verification Failed'
-                  : 'Email Verification'}
+                    ? 'Email Verified!'
+                    : error
+                      ? 'Verification Failed'
+                      : 'Email Verification'}
               </h1>
               <p className="text-muted-foreground">
                 {isLoading
                   ? 'Please wait while we verify your email address.'
                   : success
-                  ? 'Your email has been successfully verified.'
-                  : error
-                  ? 'We couldn\'t verify your email address.'
-                  : 'Verify your email to activate your account.'}
+                    ? 'Your email has been successfully verified.'
+                    : error
+                      ? "We couldn't verify your email address."
+                      : 'Verify your email to activate your account.'}
               </p>
             </div>
           </div>
@@ -122,8 +129,8 @@ const EmailVerification: React.FC = () => {
               <div className="text-center space-y-4">
                 <div className="p-4 rounded-md bg-blue-50 border border-blue-200">
                   <p className="text-sm text-blue-800">
-                    Click the verification link in your email to verify your account.
-                    Check your spam folder if you don't see the email.
+                    Click the verification link in your email to verify your
+                    account. Check your spam folder if you don't see the email.
                   </p>
                 </div>
               </div>

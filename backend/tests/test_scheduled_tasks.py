@@ -77,10 +77,22 @@ def patch_deps(monkeypatch):
         def cleanup_expired_files(self):
             return {"total_files_deleted": 2, "total_storage_freed_mb": 1.2}
 
+    class DummyRedis:
+        def __init__(self, *args, **kwargs):
+            pass
+        
+        def setex(self, key, time, value):
+            return True
+        
+        def get(self, key):
+            return None
+
     monkeypatch.setattr(st, "FileService", DummyFileService)
     monkeypatch.setattr(st, "FileCleanupService", DummyCleanupService)
     monkeypatch.setattr(st, "send_system_alert", dummy_send)
     monkeypatch.setattr(st, "SessionLocal", lambda: DummySessionLocal())
+    # Mock the redis_client from celery_app
+    monkeypatch.setattr("app.core.celery_app.redis_client", DummyRedis())
     import sys
 
     sys.modules["app.services.cloud_storage"] = types.SimpleNamespace(

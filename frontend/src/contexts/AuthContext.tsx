@@ -61,7 +61,9 @@ interface AuthState {
   isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -98,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           // Load permissions
           await loadUserPermissions();
         } catch (error) {
-          // Error loading user data - clear auth data
+          console.error('Error loading user data:', error);
           clearAuthData();
         }
       } else {
@@ -163,13 +165,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const loadUserPermissions = async () => {
     try {
       const permissionsData = await authApi.getUserPermissions();
+      
+      // Safely handle the permissions data
+      const permissions = Array.isArray(permissionsData?.permissions) 
+        ? permissionsData.permissions 
+        : [];
+      const roles = Array.isArray(permissionsData?.roles) 
+        ? permissionsData.roles 
+        : [];
+        
       setState(prev => ({
         ...prev,
-        permissions: permissionsData.permissions || [],
-        roles: permissionsData.roles || [],
+        permissions,
+        roles,
       }));
     } catch (error) {
+      console.error('Error loading permissions:', error);
       // Error loading permissions - continue with empty permissions
+      setState(prev => ({
+        ...prev,
+        permissions: [],
+        roles: [],
+      }));
     }
   };
 
@@ -179,22 +196,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     rememberMe = false
   ): Promise<boolean> => {
     try {
+      console.log('Starting login process...');
       setState(prev => ({ ...prev, isLoading: true }));
 
+      console.log('Calling login API...');
       const response = await authApi.login({
         email,
         password,
         remember_me: rememberMe,
       });
+      console.log('Login API response:', response);
 
       // Store tokens
       localStorage.setItem(TOKEN_KEY, response.access_token);
       if (response.refresh_token) {
         localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
       }
+      console.log('Tokens stored');
 
       // Get user data
+      console.log('Getting current user...');
       const userData = await authApi.getCurrentUser();
+      console.log('User data received:', userData);
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
 
       setState(prev => ({
@@ -204,12 +227,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshToken: response.refresh_token || null,
         isLoading: false,
       }));
+      console.log('User state updated');
 
       // Load permissions
+      console.log('Loading permissions...');
       await loadUserPermissions();
+      console.log('Login process completed successfully');
 
       return true;
     } catch (error) {
+      console.error('Login failed:', error);
       // Login failed
       setState(prev => ({ ...prev, isLoading: false }));
       return false;
@@ -288,7 +315,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

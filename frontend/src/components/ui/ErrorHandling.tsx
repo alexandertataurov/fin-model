@@ -1,25 +1,30 @@
 import React, { Component, ReactNode } from 'react';
+import { Alert, AlertDescription, AlertTitle } from './alert';
+import { Button } from './button';
 import {
-  Box,
-  Typography,
-  Alert,
-
-  Button,
-  Paper,
-  IconButton,
-  Snackbar,
-  Collapse,
-} from '@mui/material';
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './card';
 import {
-  Error as ErrorIcon,
-  Warning as WarningIcon,
-  Info as InfoIcon,
-
-  Refresh as RefreshIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  Close as CloseIcon,
-} from '@mui/icons-material';
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from './collapsible';
+import { toast } from 'sonner';
+import {
+  AlertTriangle,
+  AlertCircle,
+  Info,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  X,
+  Home,
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 // Error Boundary Component
 interface ErrorBoundaryState {
@@ -34,7 +39,10 @@ interface ErrorBoundaryProps {
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
@@ -59,7 +67,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     // Log error
     // Removed console.error (no-console lint rule)
-    
+
     // Call optional error handler
     this.props.onError?.(error, errorInfo);
   }
@@ -121,88 +129,84 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   const getIcon = () => {
     switch (type) {
       case 'warning':
-        return <WarningIcon sx={{ fontSize: 48, color: 'warning.main' }} />;
+        return <AlertTriangle className="h-12 w-12 text-yellow-500" />;
       case 'info':
-        return <InfoIcon sx={{ fontSize: 48, color: 'info.main' }} />;
+        return <Info className="h-12 w-12 text-blue-500" />;
       default:
-        return <ErrorIcon sx={{ fontSize: 48, color: 'error.main' }} />;
+        return <AlertTriangle className="h-12 w-12 text-destructive" />;
     }
   };
 
-
+  const getVariant = () => {
+    switch (type) {
+      case 'warning':
+      case 'info':
+        return 'default';
+      default:
+        return 'destructive';
+    }
+  };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 4,
-        textAlign: 'center',
-        ...(fullHeight && { minHeight: '400px' }),
-      }}
-    >
-      {getIcon()}
-      
-      <Typography variant="h5" component="h2" sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
-        {title}
-      </Typography>
-      
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 500 }}>
-        {message}
-      </Typography>
-
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-        {onRetry && (
-          <Button
-            variant="contained"
-            startIcon={<RefreshIcon />}
-            onClick={onRetry}
-          >
-            Try Again
-          </Button>
-        )}
-        
-        {onDismiss && (
-          <Button variant="outlined" onClick={onDismiss}>
-            Dismiss
-          </Button>
-        )}
-        
-        {actions}
-      </Box>
-
-      {details && (
-        <Box sx={{ width: '100%', maxWidth: 600 }}>
-          <Button
-            variant="text"
-            size="small"
-            onClick={() => setShowDetails(!showDetails)}
-            endIcon={showDetails ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          >
-            {showDetails ? 'Hide' : 'Show'} Details
-          </Button>
-          
-          <Collapse in={showDetails}>
-            <Paper
-              sx={{
-                mt: 2,
-                p: 2,
-                backgroundColor: 'grey.100',
-                fontFamily: 'monospace',
-                fontSize: '0.875rem',
-                whiteSpace: 'pre-wrap',
-                maxHeight: 200,
-                overflow: 'auto',
-              }}
-            >
-              {details}
-            </Paper>
-          </Collapse>
-        </Box>
+    <div
+      className={cn(
+        'flex items-center justify-center p-8',
+        fullHeight && 'min-h-[400px]'
       )}
-    </Box>
+    >
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">{getIcon()}</div>
+          <CardTitle className="text-xl">{title}</CardTitle>
+          <CardDescription>{message}</CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-2">
+            {onRetry && (
+              <Button onClick={onRetry} className="w-full">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Button>
+            )}
+
+            {onDismiss && (
+              <Button variant="outline" onClick={onDismiss} className="w-full">
+                Dismiss
+              </Button>
+            )}
+
+            {actions}
+          </div>
+
+          {details && (
+            <div className="w-full">
+              <Collapsible open={showDetails} onOpenChange={setShowDetails}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="w-full">
+                    {showDetails ? 'Hide' : 'Show'} Details
+                    {showDetails ? (
+                      <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    )}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <Alert variant={getVariant()} className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Details</AlertTitle>
+                    <AlertDescription className="mt-2 font-mono text-xs whitespace-pre-wrap max-h-48 overflow-auto">
+                      {details}
+                    </AlertDescription>
+                  </Alert>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
@@ -220,142 +224,75 @@ export const InlineError: React.FC<InlineErrorProps> = ({
   onDismiss,
   severity = 'error',
 }) => {
+  const variant = severity === 'error' ? 'destructive' : 'default';
+
   return (
-    <Alert
-      severity={severity}
-      action={
-        <Box>
-          {onRetry && (
-            <IconButton
-              color="inherit"
-              size="small"
-              onClick={onRetry}
-              aria-label="retry"
-            >
-              <RefreshIcon />
-            </IconButton>
-          )}
-          {onDismiss && (
-            <IconButton
-              color="inherit"
-              size="small"
-              onClick={onDismiss}
-              aria-label="close"
-            >
-              <CloseIcon />
-            </IconButton>
-          )}
-        </Box>
-      }
-      sx={{ mb: 2 }}
-    >
-      {message}
+    <Alert variant={variant} className="mb-2">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription className="flex-1">{message}</AlertDescription>
+      <div className="flex gap-1 ml-auto">
+        {onRetry && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRetry}
+            className="h-6 w-6 p-0"
+            aria-label="retry"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </Button>
+        )}
+        {onDismiss && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDismiss}
+            className="h-6 w-6 p-0"
+            aria-label="close"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
     </Alert>
   );
 };
 
-// Toast Notification Hook
-export interface ToastNotification {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  duration?: number;
-}
-
-interface ToastContextType {
-  notifications: ToastNotification[];
-  showToast: (message: string, type?: ToastNotification['type'], duration?: number) => void;
-  hideToast: (id: string) => void;
-}
-
-const ToastContext = React.createContext<ToastContextType | null>(null);
-
+// Toast Hook using Sonner
 export const useToast = () => {
-  const context = React.useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
-};
-
-// Toast Provider Component
-export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = React.useState<ToastNotification[]>([]);
-
   const showToast = React.useCallback(
-    (message: string, type: ToastNotification['type'] = 'info', duration = 5000) => {
-      const id = `toast-${Date.now()}-${Math.random()}`;
-      const notification: ToastNotification = { id, message, type, duration };
-      
-      setNotifications(prev => [...prev, notification]);
-
-      // Auto remove after duration
-      if (duration > 0) {
-        setTimeout(() => {
-          setNotifications(prev => prev.filter(n => n.id !== id));
-        }, duration);
+    (
+      message: string,
+      type: 'success' | 'error' | 'warning' | 'info' = 'info',
+      duration?: number
+    ) => {
+      switch (type) {
+        case 'success':
+          toast.success(message, { duration });
+          break;
+        case 'error':
+          toast.error(message, { duration });
+          break;
+        case 'warning':
+          toast.warning(message, { duration });
+          break;
+        case 'info':
+        default:
+          toast.info(message, { duration });
+          break;
       }
     },
     []
   );
 
-  const hideToast = React.useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
-
-  const value = {
-    notifications,
-    showToast,
-    hideToast,
-  };
-
-  return (
-    <ToastContext.Provider value={value}>
-      {children}
-      <ToastContainer notifications={notifications} onClose={hideToast} />
-    </ToastContext.Provider>
-  );
+  return { showToast };
 };
 
-// Toast Container Component
-interface ToastContainerProps {
-  notifications: ToastNotification[];
-  onClose: (id: string) => void;
-}
-
-const ToastContainer: React.FC<ToastContainerProps> = ({ notifications, onClose }) => {
-  return (
-    <Box
-      sx={{
-        position: 'fixed',
-        top: 24,
-        right: 24,
-        zIndex: 2000,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1,
-        maxWidth: 400,
-      }}
-    >
-      {notifications.map((notification) => (
-        <Snackbar
-          key={notification.id}
-          open={true}
-          autoHideDuration={null}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          sx={{ position: 'relative', mb: 1 }}
-        >
-          <Alert
-            severity={notification.type}
-            onClose={() => onClose(notification.id)}
-            sx={{ width: '100%' }}
-          >
-            {notification.message}
-          </Alert>
-        </Snackbar>
-      ))}
-    </Box>
-  );
+// For backwards compatibility, export ToastProvider as a pass-through
+export const ToastProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  return <>{children}</>;
 };
 
 // Network Error Component
@@ -397,7 +334,8 @@ export const NotFound: React.FC<NotFoundProps> = ({
       type="info"
       actions={
         onGoHome && (
-          <Button variant="contained" onClick={onGoHome}>
+          <Button onClick={onGoHome} className="w-full">
+            <Home className="mr-2 h-4 w-4" />
             Go to Homepage
           </Button>
         )
@@ -414,4 +352,4 @@ export default {
   useToast,
   NetworkError,
   NotFound,
-}; 
+};

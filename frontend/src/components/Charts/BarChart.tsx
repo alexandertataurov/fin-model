@@ -220,6 +220,8 @@ export const BarChart: React.FC<BarChartProps> = ({
       error={error}
       onExport={onExport}
       onFullscreen={onFullscreen}
+      aria-label={title || 'Bar Chart'}
+      aria-describedby={subtitle ? undefined : undefined}
     >
       {chartContent}
     </BaseChart>

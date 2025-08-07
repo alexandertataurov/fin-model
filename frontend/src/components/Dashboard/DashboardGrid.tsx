@@ -1,15 +1,27 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Box, IconButton, Menu, MenuItem, Typography } from '@mui/material';
-import { 
-  Responsive, 
+import { Button } from '@/components/ui/button';
+import { EnhancedButton, IconButton } from '@/components/ui/EnhancedButton';
+import { EnhancedCard } from '@/components/ui/EnhancedCard';
+import { componentStyles } from '@/components/ui/utils/designSystem';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Responsive,
   WidthProvider,
-  Layout as LayoutItem 
+  Layout as LayoutItem,
 } from 'react-grid-layout';
 import {
-  Add as AddIcon,
-  FullscreenExit as ExitFullscreenIcon,
-  Fullscreen as FullscreenIcon,
-} from '@mui/icons-material';
+  Plus,
+  Maximize2,
+  Minimize2,
+  Settings,
+  MoreVertical,
+  BarChart3,
+} from 'lucide-react';
 
 // React Grid Layout CSS should be imported at the app level or in index.html
 
@@ -18,7 +30,11 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 export interface DashboardWidget {
   id: string;
   title: string;
-  component: React.ComponentType<{ height?: number; isFullscreen?: boolean; onFullscreen?: () => void }>;
+  component: React.ComponentType<{
+    height?: number;
+    isFullscreen?: boolean;
+    onFullscreen?: () => void;
+  }>;
   props?: Record<string, unknown>;
   minWidth?: number;
   minHeight?: number;
@@ -34,7 +50,10 @@ export interface DashboardLayout {
 interface DashboardGridProps {
   widgets: DashboardWidget[];
   layouts?: { [key: string]: LayoutItem[] };
-  onLayoutChange?: (layout: LayoutItem[], layouts: { [key: string]: LayoutItem[] }) => void;
+  onLayoutChange?: (
+    layout: LayoutItem[],
+    layouts: { [key: string]: LayoutItem[] }
+  ) => void;
   editable?: boolean;
   onAddWidget?: () => void;
   onRemoveWidget?: (widgetId: string) => void;
@@ -64,24 +83,25 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   onLayoutChange,
   editable = false,
   onAddWidget,
-  onRemoveWidget,
   availableWidgets = [],
   className,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenWidget, setFullscreenWidget] = useState<string | null>(null);
-  const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
 
   // Generate layouts if not provided
   const defaultLayouts = useMemo(() => {
     if (layouts) return layouts;
-    
+
     const generatedLayouts: { [key: string]: LayoutItem[] } = {};
     Object.keys(defaultCols).forEach(breakpoint => {
       generatedLayouts[breakpoint] = widgets.map((widget, index) => ({
         i: widget.id,
         x: (index * 2) % defaultCols[breakpoint as keyof typeof defaultCols],
-        y: Math.floor((index * 2) / defaultCols[breakpoint as keyof typeof defaultCols]) * 2,
+        y:
+          Math.floor(
+            (index * 2) / defaultCols[breakpoint as keyof typeof defaultCols]
+          ) * 2,
         w: widget.defaultWidth || 4,
         h: widget.defaultHeight || 4,
         minW: widget.minWidth || 2,
@@ -91,204 +111,207 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
     return generatedLayouts;
   }, [widgets, layouts]);
 
-  const handleLayoutChange = useCallback((layout: LayoutItem[], layouts: { [key: string]: LayoutItem[] }) => {
-    if (onLayoutChange) {
-      onLayoutChange(layout, layouts);
-    }
-  }, [onLayoutChange]);
+  const handleFullscreen = useCallback(
+    (widgetId: string) => {
+      if (fullscreenWidget === widgetId) {
+        setFullscreenWidget(null);
+        setIsFullscreen(false);
+      } else {
+        setFullscreenWidget(widgetId);
+        setIsFullscreen(true);
+      }
+    },
+    [fullscreenWidget]
+  );
 
-  const handleWidgetFullscreen = useCallback((widgetId: string) => {
-    setFullscreenWidget(widgetId);
-    setIsFullscreen(true);
-  }, []);
+  const handleLayoutChange = useCallback(
+    (
+      currentLayout: LayoutItem[],
+      allLayouts: { [key: string]: LayoutItem[] }
+    ) => {
+      if (onLayoutChange) {
+        onLayoutChange(currentLayout, allLayouts);
+      }
+    },
+    [onLayoutChange]
+  );
 
-  const handleExitFullscreen = useCallback(() => {
-    setIsFullscreen(false);
-    setFullscreenWidget(null);
-  }, []);
-
-  const handleAddWidget = useCallback((_widget: DashboardWidget) => {
-    setAddMenuAnchor(null);
-    if (onAddWidget) {
-      onAddWidget();
-    }
-  }, [onAddWidget]);
-
-  // Render fullscreen widget
-  if (isFullscreen && fullscreenWidget) {
-    const widget = widgets.find(w => w.id === fullscreenWidget);
-    if (widget) {
+  const renderWidget = useCallback(
+    (widget: DashboardWidget) => {
       const WidgetComponent = widget.component;
+      const isFullscreenWidget = fullscreenWidget === widget.id;
+
       return (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9999,
-            backgroundColor: 'background.default',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
+        <EnhancedCard
+          key={widget.id}
+          variant="default"
+          className={cn(
+            'h-full flex flex-col',
+            isFullscreenWidget &&
+              'z-50 fixed inset-4 bg-background border-2 border-primary'
+          )}
+          header={
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-foreground">{widget.title}</h3>
+              <div className="flex items-center gap-2">
+                <IconButton
+                  icon={<Maximize2 className="h-4 w-4" />}
+                  onClick={() => handleFullscreen(widget.id)}
+                  variant="ghost"
+                  size="sm"
+                  tooltip={
+                    isFullscreenWidget ? 'Exit fullscreen' : 'Fullscreen'
+                  }
+                />
+                {editable && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <IconButton
+                        icon={<MoreVertical className="h-4 w-4" />}
+                        variant="ghost"
+                        size="sm"
+                        tooltip="Widget options"
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => onRemoveWidget?.(widget.id)}
+                      >
+                        Remove Widget
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Configure
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+            </div>
+          }
         >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              p: 2,
-              borderBottom: 1,
-              borderColor: 'divider',
-            }}
-          >
-            <Typography variant="h6">{widget.title}</Typography>
-            <IconButton onClick={handleExitFullscreen}>
-              <ExitFullscreenIcon />
-            </IconButton>
-          </Box>
-          <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
+          <div className="flex-1 min-h-0">
             <WidgetComponent
+              height={isFullscreenWidget ? window.innerHeight - 100 : undefined}
+              isFullscreen={isFullscreenWidget}
+              onFullscreen={() => handleFullscreen(widget.id)}
               {...widget.props}
-              onFullscreen={() => handleExitFullscreen()}
-              isFullscreen={true}
             />
-          </Box>
-        </Box>
+          </div>
+        </EnhancedCard>
       );
-    }
+    },
+    [fullscreenWidget, editable, onRemoveWidget, handleFullscreen]
+  );
+
+  if (isFullscreen && fullscreenWidget) {
+    const fullscreenWidgetData = widgets.find(w => w.id === fullscreenWidget);
+    if (!fullscreenWidgetData) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 bg-background">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-xl font-semibold">
+            {fullscreenWidgetData.title}
+          </h2>
+          <IconButton
+            icon={<Minimize2 className="h-4 w-4" />}
+            onClick={() => handleFullscreen(fullscreenWidget)}
+            variant="outline"
+            size="sm"
+          />
+        </div>
+        <div className="p-4">{renderWidget(fullscreenWidgetData)}</div>
+      </div>
+    );
   }
 
   return (
-    <Box className={className} sx={{ position: 'relative' }}>
-      {/* Add Widget Button */}
-      {editable && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: -8,
-            right: 16,
-            zIndex: 10,
-          }}
-        >
-          <IconButton
-            onClick={(e) => setAddMenuAnchor(e.currentTarget)}
-            sx={{
-              backgroundColor: 'primary.main',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            }}
-          >
-            <AddIcon />
-          </IconButton>
-          
-          <Menu
-            anchorEl={addMenuAnchor}
-            open={Boolean(addMenuAnchor)}
-            onClose={() => setAddMenuAnchor(null)}
-          >
-            {availableWidgets.map((widget) => (
-              <MenuItem
-                key={widget.id}
-                onClick={() => handleAddWidget(widget)}
-              >
-                {widget.title}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-      )}
+    <div className={cn('space-y-6', className)}>
+      {/* Dashboard Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className={componentStyles.heading.h2}>Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Customize your dashboard layout and widgets
+          </p>
+        </div>
 
-      {/* Grid Layout */}
-      <ResponsiveGridLayout
-        className="dashboard-grid"
-        layouts={defaultLayouts}
-        breakpoints={defaultBreakpoints}
-        cols={defaultCols}
-        rowHeight={60}
-        onLayoutChange={handleLayoutChange}
-        isDraggable={editable}
-        isResizable={editable}
-        margin={[16, 16]}
-        containerPadding={[0, 0]}
-        useCSSTransforms={true}
-        preventCollision={false}
-        compactType="vertical"
-      >
-        {widgets.map((widget) => {
-          const WidgetComponent = widget.component;
-          return (
-            <Box
-              key={widget.id}
-              sx={{
-                backgroundColor: 'background.paper',
-                borderRadius: 1,
-                overflow: 'hidden',
-                border: 1,
-                borderColor: 'divider',
-                position: 'relative',
-                '&:hover .widget-actions': {
-                  opacity: 1,
-                },
+        {editable && onAddWidget && (
+          <div className="flex items-center gap-3">
+            <EnhancedButton
+              variant="outline"
+              leftIcon={<Settings className="h-4 w-4" />}
+              onClick={() => {
+                /* Configure dashboard */
               }}
             >
-              {/* Widget Actions */}
-              {editable && (
-                <Box
-                  className="widget-actions"
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    zIndex: 10,
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease-in-out',
-                    display: 'flex',
-                    gap: 0.5,
-                  }}
-                >
-                  <IconButton
-                    size="small"
-                    onClick={() => handleWidgetFullscreen(widget.id)}
-                    sx={{
-                      backgroundColor: 'background.paper',
-                      boxShadow: 1,
-                    }}
-                  >
-                    <FullscreenIcon fontSize="small" />
-                  </IconButton>
-                  {onRemoveWidget && (
-                    <IconButton
-                      size="small"
-                      onClick={() => onRemoveWidget(widget.id)}
-                      sx={{
-                        backgroundColor: 'background.paper',
-                        boxShadow: 1,
-                        color: 'error.main',
-                      }}
-                    >
-                      ×
-                    </IconButton>
-                  )}
-                </Box>
-              )}
+              Configure
+            </EnhancedButton>
+            <EnhancedButton
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={onAddWidget}
+            >
+              Add Widget
+            </EnhancedButton>
+          </div>
+        )}
+      </div>
 
-              {/* Widget Content */}
-              <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <WidgetComponent
-                  {...widget.props}
-                  onFullscreen={() => handleWidgetFullscreen(widget.id)}
-                />
-              </Box>
-            </Box>
-          );
-        })}
-      </ResponsiveGridLayout>
-    </Box>
+      {/* Grid Layout */}
+      <div className="relative">
+        <ResponsiveGridLayout
+          className="layout"
+          layouts={defaultLayouts}
+          breakpoints={defaultBreakpoints}
+          cols={defaultCols}
+          rowHeight={100}
+          isDraggable={editable}
+          isResizable={editable}
+          onLayoutChange={handleLayoutChange}
+          margin={[16, 16]}
+          containerPadding={[0, 0]}
+          useCSSTransforms={true}
+          compactType="vertical"
+          preventCollision={false}
+        >
+          {widgets.map(widget => (
+            <div key={widget.id} className="h-full">
+              {renderWidget(widget)}
+            </div>
+          ))}
+        </ResponsiveGridLayout>
+      </div>
+
+      {/* Empty State */}
+      {widgets.length === 0 && (
+        <EnhancedCard variant="outline" className="text-center py-12">
+          <div className="space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <BarChart3 className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">No widgets added</h3>
+              <p className="text-muted-foreground mt-1">
+                Add widgets to start building your dashboard
+              </p>
+            </div>
+            {editable && onAddWidget && (
+              <EnhancedButton
+                leftIcon={<Plus className="h-4 w-4" />}
+                onClick={onAddWidget}
+              >
+                Add Your First Widget
+              </EnhancedButton>
+            )}
+          </div>
+        </EnhancedCard>
+      )}
+    </div>
   );
 };
 
-export default DashboardGrid; 
+// Utility function for class names
+function cn(...classes: (string | undefined | null | false)[]): string {
+  return classes.filter(Boolean).join(' ');
+}

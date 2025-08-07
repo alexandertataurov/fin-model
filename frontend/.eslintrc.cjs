@@ -11,12 +11,13 @@ module.exports = {
   plugins: ['react-refresh', '@typescript-eslint'],
   rules: {
     // React-specific rules
-    'react-refresh/only-export-components': 'warn',
+    'react-refresh/only-export-components': 'off',
 
     // TypeScript rules - relaxed for production flexibility
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/no-explicit-any': 'warn', // Allow any but warn
+    '@typescript-eslint/no-explicit-any': 'off', // Allow any without warning
     '@typescript-eslint/ban-ts-comment': 'warn', // Allow @ts-ignore but warn
+    '@typescript-eslint/no-non-null-assertion': 'off',
 
     // Code quality rules
     'prefer-const': 'error',

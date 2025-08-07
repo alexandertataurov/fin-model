@@ -1,7 +1,43 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: ['./src/**/*.{ts,tsx}', './index.html'],
+  content: [
+    './src/**/*.{ts,tsx}', 
+    './index.html',
+    './.storybook/**/*.{js,ts,jsx,tsx}',
+  ],
+  safelist: [
+    'bg-blue-600',
+    'bg-blue-800',
+    'bg-gray-700',
+    'bg-gray-500',
+    'bg-purple-700',
+    'bg-orange-700',
+    'bg-yellow-300',
+    'bg-green-400',
+    'bg-blue-400',
+    'text-lg',
+    'text-sm',
+    'font-semibold',
+    'text-white',
+    'p-6',
+    'text-center',
+    {
+      pattern: /bg-(blue|gray|purple|orange|yellow|green)-(400|500|600|700|800|300)/,
+    },
+    {
+      pattern: /text-(lg|sm|white)/,
+    },
+    {
+      pattern: /font-(semibold)/,
+    },
+    {
+      pattern: /p-6/,
+    },
+    {
+      pattern: /text-center/,
+    },
+  ],
   theme: {
     container: {
       center: true,
@@ -11,6 +47,16 @@ export default {
       },
     },
     extend: {
+      // Import design tokens for comprehensive theming
+      spacing: {
+        xs: '0.25rem', // 4px
+        sm: '0.5rem', // 8px
+        md: '1rem', // 16px
+        lg: '1.5rem', // 24px
+        xl: '2rem', // 32px
+        '2xl': '3rem', // 48px
+        '3xl': '4rem', // 64px
+      },
       colors: {
         border: 'var(--border)',
         input: 'var(--input)',
@@ -28,6 +74,18 @@ export default {
         destructive: {
           DEFAULT: 'var(--destructive)',
           foreground: 'var(--destructive-foreground)',
+        },
+        success: {
+          DEFAULT: 'var(--success)',
+          foreground: 'var(--success-foreground)',
+        },
+        warning: {
+          DEFAULT: 'var(--warning)',
+          foreground: 'var(--warning-foreground)',
+        },
+        info: {
+          DEFAULT: 'var(--info)',
+          foreground: 'var(--info-foreground)',
         },
         muted: {
           DEFAULT: 'var(--muted)',
@@ -55,24 +113,75 @@ export default {
           border: 'var(--sidebar-border)',
           ring: 'var(--sidebar-ring)',
         },
+        // Chart color palette
+        chart: {
+          1: 'var(--chart-1)',
+          2: 'var(--chart-2)',
+          3: 'var(--chart-3)',
+          4: 'var(--chart-4)',
+          5: 'var(--chart-5)',
+          6: 'var(--chart-6)',
+          7: 'var(--chart-7)',
+          8: 'var(--chart-8)',
+        },
+        // Grayscale tokens
+        gray: {
+          50: 'var(--gray-50)',
+          100: 'var(--gray-100)',
+          200: 'var(--gray-200)',
+          300: 'var(--gray-300)',
+          400: 'var(--gray-400)',
+          500: 'var(--gray-500)',
+          600: 'var(--gray-600)',
+          700: 'var(--gray-700)',
+          800: 'var(--gray-800)',
+          900: 'var(--gray-900)',
+        },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        none: '0',
+        sm: '0.125rem', // 2px
+        DEFAULT: '0.375rem', // 6px
+        md: '0.5rem', // 8px
+        lg: '0.75rem', // 12px
+        xl: '1rem', // 16px
+        full: '9999px',
       },
       fontWeight: {
-        normal: 'var(--font-weight-normal)',
-        medium: 'var(--font-weight-medium)',
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
       },
       fontSize: {
-        'text-xs': 'var(--text-xs)',
-        'text-sm': 'var(--text-sm)',
-        'text-base': 'var(--text-base)',
-        'text-lg': 'var(--text-lg)',
-        'text-xl': 'var(--text-xl)',
-        'text-2xl': 'var(--text-2xl)',
-        'text-3xl': 'var(--text-3xl)',
+        xs: ['0.75rem', { lineHeight: '1rem' }], // 12px
+        sm: ['0.875rem', { lineHeight: '1.25rem' }], // 14px
+        base: ['1rem', { lineHeight: '1.5rem' }], // 16px
+        lg: ['1.125rem', { lineHeight: '1.75rem' }], // 18px
+        xl: ['1.25rem', { lineHeight: '1.75rem' }], // 20px
+        '2xl': ['1.5rem', { lineHeight: '2rem' }], // 24px
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }], // 36px
+      },
+      boxShadow: {
+        sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        DEFAULT: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+        xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+      },
+      transitionDuration: {
+        fast: '150ms',
+        normal: '200ms',
+        slow: '300ms',
+      },
+      zIndex: {
+        dropdown: '1000',
+        sticky: '1020',
+        fixed: '1030',
+        modal: '1040',
+        popover: '1050',
+        tooltip: '1060',
       },
     },
   },

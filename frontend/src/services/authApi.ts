@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Temporarily use direct Railway URL to isolate proxy issues
+const API_BASE_URL = 'https://fin-model-production.up.railway.app';
 
 // Create axios instance
 const api = axios.create({

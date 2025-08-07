@@ -1,25 +1,16 @@
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardHeader,
   Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  CircularProgress,
-  Alert,
-  Chip,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-  LinearProgress,
-} from '@mui/material';
-import { Speed, Error, CloudUpload, CheckCircle } from '@mui/icons-material';
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Gauge, AlertCircle, Upload, CheckCircle } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -33,7 +24,6 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { SelectChangeEvent } from '@mui/material/Select';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -83,7 +73,7 @@ interface DashboardData {
 }
 
 const AnalyticsDashboard: React.FC = () => {
-  const [timePeriod, setTimePeriod] = useState(7);
+  const [timePeriod, setTimePeriod] = useState<string>('7');
 
   const {
     data: dashboardData,
@@ -94,7 +84,7 @@ const AnalyticsDashboard: React.FC = () => {
     queryFn: async () => {
       const token = localStorage.getItem('auth_token');
       const response = await axios.get(`${API_BASE_URL}/analytics/dashboard`, {
-        params: { days: timePeriod },
+        params: { days: parseInt(timePeriod) },
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -102,8 +92,8 @@ const AnalyticsDashboard: React.FC = () => {
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const handleTimePeriodChange = (event: SelectChangeEvent<number>) => {
-    setTimePeriod(event.target.value as number);
+  const handleTimePeriodChange = (value: string) => {
+    setTimePeriod(value);
   };
 
   // DESIGN_FIX: use design system chart tokens
@@ -128,7 +118,6 @@ const AnalyticsDashboard: React.FC = () => {
   const dailyTrends = dashboardData?.daily_trends || [];
   const fileTypeDistribution =
     dashboardData?.file_type_distribution?.distribution || [];
-  const topUsers = dashboardData?.top_users || [];
   const errorSummary = dashboardData?.error_summary || {
     total_errors: 0,
     top_error_categories: [],
@@ -140,336 +129,202 @@ const AnalyticsDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <Alert severity="error" sx={{ mt: 2 }}>
-        Failed to load dashboard data. Please try again later.
+      <Alert className="mt-2">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load dashboard data. Please try again later.
+        </AlertDescription>
       </Alert>
     );
   }
 
   return (
-    <Box>
+    <div className="space-y-6">
       {/* Header */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-        }}
-      >
-        <Typography variant="h4" component="h1">
-          Analytics Dashboard
-        </Typography>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>Time Period</InputLabel>
-          <Select
-            value={timePeriod}
-            label="Time Period"
-            onChange={handleTimePeriodChange}
-          >
-            <MenuItem value={7}>Last 7 days</MenuItem>
-            <MenuItem value={14}>Last 14 days</MenuItem>
-            <MenuItem value={30}>Last 30 days</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+        <Select value={timePeriod} onValueChange={handleTimePeriodChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Time Period" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7">Last 7 days</SelectItem>
+            <SelectItem value="14">Last 14 days</SelectItem>
+            <SelectItem value="30">Last 30 days</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress />
-        </Box>
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
       ) : (
-        <Grid container spacing={3}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Overview Cards */}
-          <Grid item xs={12} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CloudUpload color="primary" sx={{ mr: 2 }} />
-                  <Box>
-                    <Typography color="text.secondary" gutterBottom>
-                      Total Files
-                    </Typography>
-                    <Typography variant="h5">{overview.total_files}</Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Upload className="text-primary mr-2" size={24} />
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Files</p>
+                  <p className="text-2xl font-bold">{overview.total_files}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CheckCircle color="success" sx={{ mr: 2 }} />
-                  <Box>
-                    <Typography color="text.secondary" gutterBottom>
-                      Success Rate
-                    </Typography>
-                    <Typography variant="h5">
-                      {overview.success_rate.toFixed(1)}%
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <CheckCircle className="text-green-500 mr-2" size={24} />
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Completed Files
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {overview.completed_files}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Speed color="info" sx={{ mr: 2 }} />
-                  <Box>
-                    <Typography color="text.secondary" gutterBottom>
-                      Avg Processing Time
-                    </Typography>
-                    <Typography variant="h5">
-                      {performanceSummary.avg_processing_time.toFixed(1)}m
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <AlertCircle className="text-red-500 mr-2" size={24} />
+                <div>
+                  <p className="text-sm text-muted-foreground">Failed Files</p>
+                  <p className="text-2xl font-bold">{overview.failed_files}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Error color="error" sx={{ mr: 2 }} />
-                  <Box>
-                    <Typography color="text.secondary" gutterBottom>
-                      Failed Files
-                    </Typography>
-                    <Typography variant="h5">
-                      {overview.failed_files}
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Daily Trends Chart */}
-          <Grid item xs={12} md={8}>
-            <Card>
-              <CardHeader title="Daily Processing Trends" />
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dailyTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="total_files"
-                      stroke="var(--chart-1)" // DESIGN_FIX: tokenized stroke
-                      name="Total Files"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="completed_files"
-                      stroke="var(--chart-2)" // DESIGN_FIX: tokenized stroke
-                      name="Completed"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="failed_files"
-                      stroke="var(--chart-3)" // DESIGN_FIX: tokenized stroke
-                      name="Failed"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* File Type Distribution */}
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardHeader title="File Type Distribution" />
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={fileTypeDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ file_type, percentage }) =>
-                        `${file_type} (${percentage}%)`
-                      }
-                      outerRadius={80}
-                      fill="var(--chart-1)" // DESIGN_FIX: replace hardcoded color
-                      dataKey="count"
-                    >
-                      {fileTypeDistribution.map((_, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={chartColors[index % chartColors.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Top Users (if available) */}
-          {topUsers.length > 0 && (
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardHeader title="Top Active Users" />
-                <CardContent>
-                  <List>
-                    {topUsers.slice(0, 5).map((user, index) => (
-                      <React.Fragment key={user.username}>
-                        <ListItem>
-                          <ListItemText
-                            primary={user.username}
-                            secondary={
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 1,
-                                }}
-                              >
-                                <Typography variant="body2">
-                                  {user.total_uploads} files
-                                </Typography>
-                                <Chip
-                                  size="small"
-                                  label={`${user.success_rate.toFixed(1)}% success`}
-                                  color={
-                                    user.success_rate > 90
-                                      ? 'success'
-                                      : user.success_rate > 70
-                                        ? 'warning'
-                                        : 'error'
-                                  }
-                                  variant="outlined"
-                                />
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                        {index < Math.min(topUsers.length - 1, 4) && (
-                          <Divider />
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </List>
-                </CardContent>
-              </Card>
-            </Grid>
-          )}
-
-          {/* Error Summary */}
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardHeader title="Common Issues" />
-              <CardContent>
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="h6" color="error">
-                    {errorSummary.total_errors} Total Errors
-                  </Typography>
-                </Box>
-                <List>
-                  {errorSummary.top_error_categories.length > 0 ? (
-                    errorSummary.top_error_categories.map((error, index) => (
-                      <React.Fragment key={error.category}>
-                        <ListItem>
-                          <ListItemText
-                            primary={error.category}
-                            secondary={
-                              <Box>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  {error.count} occurrences
-                                </Typography>
-                                <LinearProgress
-                                  variant="determinate"
-                                  value={Math.min(
-                                    (error.count / errorSummary.total_errors) *
-                                      100,
-                                    100
-                                  )}
-                                  sx={{ mt: 1 }}
-                                />
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                        {index <
-                          errorSummary.top_error_categories.length - 1 && (
-                          <Divider />
-                        )}
-                      </React.Fragment>
-                    ))
-                  ) : (
-                    <ListItem>
-                      <ListItemText
-                        primary="No errors recorded"
-                        secondary="System is running smoothly"
-                      />
-                    </ListItem>
-                  )}
-                </List>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Performance Metrics */}
-          <Grid item xs={12}>
-            <Card>
-              <CardHeader title="Performance Summary" />
-              <CardContent>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="h4" color="primary">
-                        {performanceSummary.avg_processing_time.toFixed(1)}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Average Processing Time (minutes)
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="h4" color="secondary">
-                        {performanceSummary.throughput.toFixed(1)}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Files per Hour
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="h4" color="success.main">
-                        {overview.total_size_mb.toFixed(1)}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Total Data Processed (MB)
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Gauge className="text-blue-500 mr-2" size={24} />
+                <div>
+                  <p className="text-sm text-muted-foreground">Success Rate</p>
+                  <p className="text-2xl font-bold">
+                    {overview.success_rate.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
-    </Box>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Daily Trends Chart */}
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold">Daily Trends</h3>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dailyTrends}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="total_files" stroke="#8884d8" />
+                <Line
+                  type="monotone"
+                  dataKey="completed_files"
+                  stroke="#82ca9d"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* File Type Distribution */}
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold">File Type Distribution</h3>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={fileTypeDistribution}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="count"
+                >
+                  {fileTypeDistribution.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={chartColors[index % chartColors.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Performance Metrics */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">Performance Metrics</h3>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <div className="flex justify-between text-sm mb-2">
+              <span>Average Processing Time</span>
+              <span>{performanceSummary.avg_processing_time.toFixed(2)}s</span>
+            </div>
+            <Progress
+              value={Math.min(
+                (performanceSummary.avg_processing_time / 60) * 100,
+                100
+              )}
+            />
+          </div>
+          <div>
+            <div className="flex justify-between text-sm mb-2">
+              <span>Throughput (files/hour)</span>
+              <span>{performanceSummary.throughput.toFixed(1)}</span>
+            </div>
+            <Progress
+              value={Math.min((performanceSummary.throughput / 100) * 100, 100)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Error Summary */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">Error Summary</h3>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {errorSummary.top_error_categories.map((error, index) => (
+              <div key={index} className="flex justify-between items-center">
+                <span className="text-sm">{error.category}</span>
+                <Badge variant="destructive">{error.count}</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

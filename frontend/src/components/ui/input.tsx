@@ -1,26 +1,50 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { cn } from "./utils";
+import { cn } from '@/utils/cn';
 
-export type InputProps = React.ComponentProps<"input"> & {
+export type InputProps = React.ComponentProps<'input'> & {
   error?: boolean;
   helperText?: string;
 };
 
-function Input({ className, type, error, helperText, ...props }: InputProps) {
-  return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, error, helperText, ...props }, ref) => {
+    return (
+      <div className="space-y-1">
+        <input
+          type={type}
+          data-slot="input"
+          className={cn(
+            'flex h-9 w-full min-w-0 rounded-md border bg-background px-3 py-1',
+            'text-base transition-colors duration-normal outline-none',
+            'file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground',
+            'placeholder:text-muted-foreground',
+            'selection:bg-primary selection:text-primary-foreground',
+            'focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none',
+            'md:text-sm',
+            error ? 'border-destructive focus-visible:ring-destructive' : 'border-input',
+            className
+          )}
+          aria-invalid={error}
+          ref={ref}
+          {...props}
+        />
+        {helperText && (
+          <p
+            className={cn(
+              'text-sm',
+              error ? 'text-destructive' : 'text-muted-foreground'
+            )}
+          >
+            {helperText}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
+
+Input.displayName = 'Input';
 
 export { Input };

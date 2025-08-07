@@ -74,6 +74,9 @@ class ReportTemplate(Base):
     # Relationships
     creator = relationship("User", back_populates="report_templates")
     reports = relationship("ReportExport", back_populates="template")
+    collaborations = relationship("ReportCollaboration", back_populates="template")
+    edits = relationship("ReportEdit", back_populates="template")
+    ai_insights = relationship("AIInsight", back_populates="template")
 
 
 class ReportSchedule(Base):
