@@ -28,7 +28,6 @@ import {
   Heart,
   Share2,
   MoreHorizontal,
-  Palette
 } from 'lucide-react';
 
 const meta: Meta = {

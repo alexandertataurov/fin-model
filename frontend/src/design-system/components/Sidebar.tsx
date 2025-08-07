@@ -134,7 +134,7 @@ function SidebarProvider({
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
-  const value = React.useMemo(
+  const value: SidebarContextProps = React.useMemo(
     () => ({
       state: open ? "expanded" : "collapsed",
       open,
@@ -628,7 +628,6 @@ function SidebarMenuSubButton({
 export {
   Sidebar,
   SidebarContent,
-  SidebarDescription,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupAction,

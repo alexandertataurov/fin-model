@@ -37,7 +37,6 @@ import {
   ArrowLeft,
   Play,
   Pause,
-  Stop,
 } from 'lucide-react';
 
 const meta: Meta<typeof Button> = {

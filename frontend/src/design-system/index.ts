@@ -65,7 +65,4 @@ export * from './components/ImageWithFallback';
 export type { ButtonProps } from './components/Button';
 export type { CardProps } from './components/Card';
 export type { InputProps } from './components/Input';
-export type { SelectProps } from '../components/ui/select';
-export type { DialogProps } from './components/Dialog';
-export type { AlertProps } from '../components/ui/alert';
-export type { BadgeProps } from '../components/ui/badge';
+

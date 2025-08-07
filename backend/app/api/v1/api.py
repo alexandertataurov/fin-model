@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     scenarios,
     statements,
     lean_financial,
+    notifications,
 )
 from app.core.config import settings
 
@@ -53,8 +54,8 @@ api_router.include_router(
     lean_financial.router, prefix="/lean-financial", tags=["lean-financial-modeling"]
 )
 
-# Include notification routes (temporarily disabled)
-# api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+# Include notification routes
+api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 
 try:
     from app.api.v1.endpoints import test_utils

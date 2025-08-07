@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, WebSocketState
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import json
 import logging
 
@@ -58,7 +58,7 @@ async def notifications_websocket(websocket: WebSocket):
     except Exception as e:
         logger.error(f"Error establishing notifications WebSocket: {e}")
         # Don't try to close if we never accepted the connection
-        if websocket.client_state == WebSocketState.CONNECTED:
+        if websocket.client_state.name == 'CONNECTED':
             try:
                 await websocket.close()
             except Exception:

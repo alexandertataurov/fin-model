@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { ThemeProvider } from '../components/ThemeProvider';
+import { ThemeProvider } from '../components/ui/theme-provider';
 
 interface DesignSystemContextValue {
   theme: 'light' | 'dark' | 'system';

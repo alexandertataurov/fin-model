@@ -59,8 +59,8 @@ class NotificationPreferencesBase(BaseModel):
     push_enabled: bool = True
     in_app_enabled: bool = True
     quiet_hours_enabled: bool = False
-    quiet_start_time: Optional[str] = Field(None, regex=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
-    quiet_end_time: Optional[str] = Field(None, regex=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
+    quiet_start_time: Optional[str] = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
+    quiet_end_time: Optional[str] = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
     quiet_timezone: str = "UTC"
     type_preferences: Dict[str, bool] = Field(default_factory=dict)
     min_priority_email: NotificationPriority = NotificationPriority.NORMAL
@@ -85,8 +85,8 @@ class NotificationPreferencesUpdate(BaseModel):
     push_enabled: Optional[bool] = None
     in_app_enabled: Optional[bool] = None
     quiet_hours_enabled: Optional[bool] = None
-    quiet_start_time: Optional[str] = Field(None, regex=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
-    quiet_end_time: Optional[str] = Field(None, regex=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
+    quiet_start_time: Optional[str] = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
+    quiet_end_time: Optional[str] = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
     quiet_timezone: Optional[str] = None
     type_preferences: Optional[Dict[str, bool]] = None
     min_priority_email: Optional[NotificationPriority] = None
