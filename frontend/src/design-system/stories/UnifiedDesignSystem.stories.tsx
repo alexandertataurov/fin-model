@@ -1,19 +1,43 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { DesignSystemProvider } from '../provider';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
+import { 
+  Button, 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
   CardTitle,
   Input,
   Label,
   Badge,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Switch,
   Separator,
   Skeleton,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Checkbox,
+  Textarea,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useForm,
 } from '../index';
 import {
   Plus,
@@ -103,6 +127,17 @@ type Story = StoryObj<typeof meta>;
 
 export const Overview: Story = {
   render: () => {
+    const form = useForm({
+      defaultValues: {
+        email: '',
+        password: '',
+        remember: false,
+        notifications: true,
+        role: '',
+        description: '',
+      },
+    });
+
     return (
       <div className="space-y-12">
         {/* Header */}
@@ -217,38 +252,132 @@ export const Overview: Story = {
             <CardHeader>
               <CardTitle>Form Components</CardTitle>
               <CardDescription>
-                Input, labels, and form controls
+                Input, labels, and form controls with validation
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
+              <Form {...form}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="Enter your email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          We'll never share your email with anyone else.
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="Enter your password"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
+                
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter a description..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a role" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="admin">Administrator</SelectItem>
+                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="viewer">Viewer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
                   />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Settings</Label>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Switch id="notifications" />
-                    <Label htmlFor="notifications">Enable notifications</Label>
+                  <div className="space-y-4">
+                    <FormLabel>Settings</FormLabel>
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="remember"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Remember me</FormLabel>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="notifications"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Notifications</FormLabel>
+                              <FormDescription>
+                                Receive notifications about new features.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Form>
             </CardContent>
           </Card>
 
@@ -256,9 +385,43 @@ export const Overview: Story = {
           <Card>
             <CardHeader>
               <CardTitle>Feedback Components</CardTitle>
-              <CardDescription>Badges and status indicators</CardDescription>
+              <CardDescription>Alerts, badges, and status indicators</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Information</AlertTitle>
+                  <AlertDescription>
+                    This is an informational alert with default styling.
+                  </AlertDescription>
+                </Alert>
+                
+                <Alert variant="success">
+                  <CheckCircle className="h-4 w-4" />
+                  <AlertTitle>Success</AlertTitle>
+                  <AlertDescription>
+                    Your changes have been saved successfully.
+                  </AlertDescription>
+                </Alert>
+                
+                <Alert variant="warning">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Warning</AlertTitle>
+                  <AlertDescription>
+                    Please review your input before proceeding.
+                  </AlertDescription>
+                </Alert>
+                
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    There was an error processing your request.
+                  </AlertDescription>
+                </Alert>
+              </div>
+              
               <div className="flex flex-wrap gap-2">
                 <Badge>Default</Badge>
                 <Badge variant="secondary">Secondary</Badge>
@@ -313,21 +476,34 @@ export const Overview: Story = {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="demo-input">Demo Input</Label>
-                  <Input id="demo-input" placeholder="Try typing here..." />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="demo-switch" />
-                  <Label htmlFor="demo-switch">Demo Switch</Label>
-                </div>
-                <div className="flex gap-2">
-                  <Badge variant="success">Success</Badge>
-                  <Badge variant="warning">Warning</Badge>
-                  <Badge variant="info">Info</Badge>
-                </div>
-              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Open Dialog</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Design System Demo</DialogTitle>
+                    <DialogDescription>
+                      This dialog demonstrates the unified design system components in action.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="demo-input">Demo Input</Label>
+                      <Input id="demo-input" placeholder="Try typing here..." />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch id="demo-switch" />
+                      <Label htmlFor="demo-switch">Demo Switch</Label>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge variant="success">Success</Badge>
+                      <Badge variant="warning">Warning</Badge>
+                      <Badge variant="info">Info</Badge>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </section>

@@ -124,6 +124,120 @@ def run_migrations():
         return False
 
 
+def create_notifications_table():
+    """Create notifications table manually if it doesn't exist."""
+    print("🔧 Creating notifications table...")
+    
+    try:
+        from app.core.config import settings
+        from sqlalchemy import create_engine, text
+        
+        engine = create_engine(settings.DATABASE_URL)
+        
+        with engine.connect() as conn:
+            # Check if table exists
+            result = conn.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'notifications'
+                )
+            """))
+            
+            if result.scalar():
+                print("✅ notifications table already exists")
+                return True
+            
+            print("🔄 Creating notifications table...")
+            
+            # Create notification types enum
+            conn.execute(text("""
+                CREATE TYPE notificationtype AS ENUM (
+                    'REPORT_READY', 'FILE_PROCESSED', 'ERROR_ALERT', 'SYSTEM_UPDATE',
+                    'COLLABORATION_INVITE', 'DATA_QUALITY_ISSUE', 'SCHEDULED_REPORT',
+                    'PARAMETER_CHANGE', 'CALCULATION_COMPLETE', 'DEADLINE_REMINDER',
+                    'SECURITY_ALERT'
+                )
+            """))
+            
+            # Create notification priority enum
+            conn.execute(text("""
+                CREATE TYPE notificationpriority AS ENUM (
+                    'LOW', 'NORMAL', 'HIGH', 'URGENT'
+                )
+            """))
+            
+            # Create notification status enum
+            conn.execute(text("""
+                CREATE TYPE notificationstatus AS ENUM (
+                    'PENDING', 'SENT', 'DELIVERED', 'FAILED', 'READ', 'DISMISSED'
+                )
+            """))
+            
+            # Create notifications table
+            conn.execute(text("""
+                CREATE TABLE notifications (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    type notificationtype NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    message TEXT NOT NULL,
+                    data JSON DEFAULT '{}',
+                    priority notificationpriority DEFAULT 'NORMAL',
+                    status notificationstatus DEFAULT 'PENDING',
+                    is_read BOOLEAN DEFAULT FALSE,
+                    is_dismissed BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                    sent_at TIMESTAMP,
+                    delivered_at TIMESTAMP,
+                    read_at TIMESTAMP,
+                    dismissed_at TIMESTAMP,
+                    expires_at TIMESTAMP,
+                    delivery_attempts INTEGER DEFAULT 0,
+                    last_delivery_attempt TIMESTAMP,
+                    delivery_error TEXT
+                )
+            """))
+            
+            # Create notification preferences table
+            conn.execute(text("""
+                CREATE TABLE notification_preferences (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_id INTEGER NOT NULL UNIQUE REFERENCES users(id),
+                    email_enabled BOOLEAN DEFAULT TRUE,
+                    push_enabled BOOLEAN DEFAULT TRUE,
+                    in_app_enabled BOOLEAN DEFAULT TRUE,
+                    quiet_hours_enabled BOOLEAN DEFAULT FALSE,
+                    quiet_start_time VARCHAR(5),
+                    quiet_end_time VARCHAR(5),
+                    quiet_timezone VARCHAR(50) DEFAULT 'UTC',
+                    type_preferences JSON DEFAULT '{}',
+                    min_priority_email notificationpriority DEFAULT 'NORMAL',
+                    min_priority_push notificationpriority DEFAULT 'HIGH',
+                    min_priority_in_app notificationpriority DEFAULT 'LOW',
+                    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+                )
+            """))
+            
+            # Create indexes
+            conn.execute(text("CREATE INDEX ix_notifications_user_id ON notifications(user_id)"))
+            conn.execute(text("CREATE INDEX ix_notifications_type ON notifications(type)"))
+            conn.execute(text("CREATE INDEX ix_notifications_priority ON notifications(priority)"))
+            conn.execute(text("CREATE INDEX ix_notifications_status ON notifications(status)"))
+            conn.execute(text("CREATE INDEX ix_notifications_is_read ON notifications(is_read)"))
+            conn.execute(text("CREATE INDEX ix_notifications_created_at ON notifications(created_at)"))
+            conn.execute(text("CREATE INDEX ix_notifications_expires_at ON notifications(expires_at)"))
+            
+            conn.commit()
+            print("✅ notifications table created successfully")
+            return True
+            
+    except Exception as e:
+        print(f"❌ Error creating notifications table: {e}")
+        return False
+
+
 def start_app():
     """Start the FastAPI application."""
     print("🚀 Starting FastAPI application...")
@@ -151,6 +265,9 @@ def main():
     if not check_database_connection():
         print("❌ Cannot connect to database, exiting")
         sys.exit(1)
+    
+    # Create notifications table if it doesn't exist
+    create_notifications_table()
     
     # Run migrations
     if not run_migrations():
