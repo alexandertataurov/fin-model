@@ -168,15 +168,17 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
                   active ? 'bg-accent text-accent-foreground' : ''
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  {item.icon}
-                  <span className="text-sm font-medium">{item.label}</span>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-3">
+                    {item.icon}
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </div>
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-1">

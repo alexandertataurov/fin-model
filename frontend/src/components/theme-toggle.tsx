@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/design-system/components/DropdownMenu';
 import { useTheme } from '@/components/theme-hooks';
 
 export function ThemeToggle() {
