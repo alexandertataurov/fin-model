@@ -5,7 +5,9 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Download, Building, CreditCard, PieChart, BarChart3 } from 'lucide-react';
 
 interface BalanceSheetData {

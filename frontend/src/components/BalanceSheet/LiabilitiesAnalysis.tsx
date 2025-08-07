@@ -1,8 +1,12 @@
 import React from 'react';
 import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Progress } from '@/design-system/components/Progress';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Separator } from '@/design-system/components/Separator';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import {
   AlertTriangle,
   CreditCard,
@@ -25,18 +29,9 @@ interface LiabilitiesAnalysisProps {
 }
 
 const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
-  const formatPercentage = (value: number): string => {
-    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
-  };
+
+
 
   const getLiabilityIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();

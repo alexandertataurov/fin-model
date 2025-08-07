@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Card, Separator } from '../ui';
 
 
@@ -32,24 +33,9 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
     return null;
   }
 
-  const formatCurrency = (value: number | string): string => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    if (isNaN(numValue)) return String(value);
-    
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === '$' ? 'USD' : currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(numValue);
-  };
 
-  const formatPercentage = (value: number | string): string => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    if (isNaN(numValue)) return String(value);
-    
-    return `${numValue.toFixed(1)}%`;
-  };
+
+
 
   const getFormattedValue = (value: number | string, name: string): string => {
     if (formatter) {

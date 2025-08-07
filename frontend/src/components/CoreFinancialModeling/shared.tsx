@@ -239,23 +239,7 @@ export const VALUATION_SECTIONS = [
   'Sensitivity Analysis',
 ] as const;
 
-// Shared Utilities
-export const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-};
-
-export const formatPercentage = (value: number): string => {
-  return `${value.toFixed(1)}%`;
-};
-
-export const formatNumber = (value: number): string => {
-  return new Intl.NumberFormat('en-US').format(value);
-};
+// Shared Utilities - Using centralized formatters from @/utils/formatters
 
 export const calculatePercentageChange = (
   current: number,

@@ -5,12 +5,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
+import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
 import { Input } from '@/design-system/components/Input';
+import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
 import { Label } from '@/design-system/components/Label';
+import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/design-system/components/Dialog';
+import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
+import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
+import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
 import { 
   Play,
   Plus, 
@@ -80,25 +87,9 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
     type: 'custom' as const,
   });
 
-  const formatCurrency = (value: number): string => {
-    if (Math.abs(value) >= 1e9) {
-      return `$${(value / 1e9).toFixed(1)}B`;
-    } else if (Math.abs(value) >= 1e6) {
-      return `$${(value / 1e6).toFixed(1)}M`;
-    } else if (Math.abs(value) >= 1e3) {
-      return `$${(value / 1e3).toFixed(1)}K`;
-    }
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
-  const formatPercentage = (value: number): string => {
-    return `${(value * 100).toFixed(1)}%`;
-  };
+
+
 
   const getScenarioTypeIcon = (type: string) => {
     switch (type) {

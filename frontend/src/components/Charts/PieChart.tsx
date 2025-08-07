@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 // Removed Material-UI imports - using Tailwind for layout
 import BaseChart from './BaseChart';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 
 export interface PieChartDataPoint {
   name: string;
@@ -67,19 +68,7 @@ export const PieChart: React.FC<PieChartProps> = ({
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === '$' ? 'USD' : currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
-  const formatPercentage = (value: number): string => {
-    const percentage = (value / total) * 100;
-    return `${percentage.toFixed(1)}%`;
-  };
 
   const renderCustomizedLabel = (entry: { value: number; name: string }) => {
     if (!showLabels) return null;
@@ -152,10 +141,9 @@ export const PieChart: React.FC<PieChartProps> = ({
               fontSize: '14px',
             }}
             formatter={(value: unknown, entry: Record<string, unknown>) => {
-              const percentageValue = formatPercentage(
-                (entry.payload as { value: number }).value
-              );
-              return `${value} (${percentageValue})`;
+              const value = (entry.payload as { value: number }).value;
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${value} (${percentage}%)`;
             }}
           />
         )}

@@ -1,7 +1,10 @@
 import React from 'react';
 import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import {
   CheckCircle,
   AlertTriangle,
@@ -33,18 +36,9 @@ const MetricDisplay: React.FC<MetricDisplayProps> = ({
   trend,
   category,
 }) => {
-  const formatCurrency = (val: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
 
-  const formatPercentage = (val: number): string => {
-    return `${val > 0 ? '+' : ''}${val.toFixed(1)}%`;
-  };
+
+
 
   const getTrendIcon = () => {
     if (!trend && !change) return <Minus className="text-gray-400" size={16} />;
@@ -108,14 +102,7 @@ const BalanceValidation: React.FC<BalanceValidationProps> = ({
   assets,
   liabilitiesEquity,
 }) => {
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+
 
   const difference = assets - liabilitiesEquity;
   const isBalanced = Math.abs(difference) < 1000; // Tolerance of $1,000

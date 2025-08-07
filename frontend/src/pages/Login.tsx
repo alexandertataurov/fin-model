@@ -49,12 +49,17 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { handleError } = useLoginErrorHandler();
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - with prevention mechanism
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       console.log('User already authenticated, redirecting to dashboard');
-      // Use immediate redirect to prevent loop
-      navigate('/', { replace: true });
+      // Add a small delay and check if we're still on login page
+      const timer = setTimeout(() => {
+        if (window.location.pathname === '/login') {
+          navigate('/', { replace: true });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, authLoading, navigate]);
 

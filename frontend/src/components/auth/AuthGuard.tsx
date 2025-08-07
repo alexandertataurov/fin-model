@@ -36,8 +36,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
       isAuthenticated,
       hasUser: !!user,
       isLoading,
+      currentPath: location.pathname,
     });
-    return <Navigate to="/login" state={{ from: location }} replace />;
+
+    // Only redirect if we're not already on the login page
+    if (location.pathname !== '/login') {
+      return <Navigate to="/login" state={{ from: location }} replace />;
+    }
   }
 
   // Check email verification requirement

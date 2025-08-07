@@ -7,9 +7,13 @@
 import React, { useState } from 'react';
 import { DraggableWidget } from '../draggable-widget';
 import { Button } from '@/design-system/components/Button';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Card, CardContent, CardHeader } from '@/design-system/components/Card';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Skeleton } from '@/design-system/components/Skeleton';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import {
   PieChart,
   Pie,

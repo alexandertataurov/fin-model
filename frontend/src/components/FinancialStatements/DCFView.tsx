@@ -5,7 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Download, TrendingUp, TrendingDown, DollarSign, BarChart3, Target, Calculator } from 'lucide-react';
 
 interface DCFData {

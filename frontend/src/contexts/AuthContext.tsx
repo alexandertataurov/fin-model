@@ -63,6 +63,7 @@ interface AuthState {
   permissions: string[];
   roles: string[];
   isLoading: boolean;
+  isRedirecting: boolean; // Flag to prevent multiple redirects
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -83,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     permissions: [],
     roles: [],
     isLoading: true,
+    isRedirecting: false,
   });
 
   // Clear authentication data - defined first to avoid hoisting issues
@@ -97,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       permissions: [],
       roles: [],
       isLoading: false,
+      isRedirecting: false,
     });
   }, []);
 
@@ -270,6 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         token: response.access_token,
         refreshToken: response.refresh_token || null,
         isLoading: false,
+        isRedirecting: true, // Set redirecting flag
       }));
       console.log('User state updated atomically');
 
@@ -352,8 +356,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       hasToken: !!state.token,
       isAuthenticated,
       isLoading: state.isLoading,
+      isRedirecting: state.isRedirecting,
     });
-  }, [state.user, state.token, isAuthenticated, state.isLoading]);
+  }, [
+    state.user,
+    state.token,
+    isAuthenticated,
+    state.isLoading,
+    state.isRedirecting,
+  ]);
 
   const value: AuthContextType = {
     user: state.user,

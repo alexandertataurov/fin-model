@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
 import { Badge } from '@/design-system/components/Badge';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Separator } from '@/design-system/components/Separator';
 import {
   Banknote,
@@ -24,18 +25,7 @@ interface AssetsBreakdownProps {
 }
 
 const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
-  const formatPercentage = (value: number): string => {
-    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
-  };
 
   const getAssetIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();
