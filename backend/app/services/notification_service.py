@@ -64,7 +64,7 @@ class NotificationService:
 
         # Convert to response models
         notification_responses = [
-            NotificationResponse.from_orm(notification) for notification in notifications
+            NotificationResponse.model_validate(notification) for notification in notifications
         ]
 
         return notification_responses, total_count, total_pages
@@ -85,7 +85,7 @@ class NotificationService:
         )
 
         if notification:
-            return NotificationResponse.from_orm(notification)
+            return NotificationResponse.model_validate(notification)
         return None
 
     def mark_as_read(self, notification_id: UUID, user_id: int) -> bool:
@@ -172,7 +172,7 @@ class NotificationService:
         )
 
         if preferences:
-            return NotificationPreferencesSchema.from_orm(preferences)
+            return NotificationPreferencesSchema.model_validate(preferences)
         return None
 
     def create_default_preferences(
@@ -200,7 +200,7 @@ class NotificationService:
         self.db.commit()
         self.db.refresh(preferences)
 
-        return NotificationPreferencesSchema.from_orm(preferences)
+        return NotificationPreferencesSchema.model_validate(preferences)
 
     def update_user_preferences(
         self, user_id: int, preferences_update: NotificationPreferencesUpdate
@@ -225,7 +225,7 @@ class NotificationService:
         self.db.commit()
         self.db.refresh(preferences)
 
-        return NotificationPreferencesSchema.from_orm(preferences)
+        return NotificationPreferencesSchema.model_validate(preferences)
 
     def get_user_stats(self, user_id: int) -> NotificationStats:
         """Get notification statistics for a user."""
@@ -339,7 +339,7 @@ class NotificationService:
         self.db.commit()
         self.db.refresh(notification)
 
-        return NotificationResponse.from_orm(notification)
+        return NotificationResponse.model_validate(notification)
 
     def delete_notification(self, notification_id: UUID) -> bool:
         """Delete a notification (admin only)."""
