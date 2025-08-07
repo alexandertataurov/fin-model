@@ -44,9 +44,6 @@ class User(Base):
     )
     parameters = relationship("Parameter", back_populates="created_by")
     scenarios = relationship("Scenario", back_populates="created_by")
-    report_templates = relationship("ReportTemplate", back_populates="creator")
-    report_schedules = relationship("ReportSchedule", back_populates="creator")
-    report_exports = relationship("ReportExport", back_populates="creator")
     
     # Enhanced authentication relationships
     mfa_token = relationship("MFAToken", back_populates="user", uselist=False, cascade="all, delete-orphan")
