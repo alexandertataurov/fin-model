@@ -36,8 +36,14 @@ def fix_migration_state():
     try:
         from app.core.config import settings
         from sqlalchemy import create_engine, text
+        from alembic import command
+        from alembic.config import Config
         
         engine = create_engine(settings.DATABASE_URL)
+        current_dir = Path(__file__).parent
+        alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
+        alembic_cfg.set_main_option("script_location", os.path.join(current_dir, "alembic"))
+        
         with engine.connect() as conn:
             # Check if monte_carlo_simulations table exists
             result = conn.execute(text("""
@@ -48,11 +54,40 @@ def fix_migration_state():
                 )
             """))
             if result.scalar():
-                print("✅ monte_carlo_simulations table exists, migration state looks good")
-                return True
-            else:
-                print("⚠️ monte_carlo_simulations table doesn't exist")
-                return False
+                print("✅ monte_carlo_simulations table exists")
+                print("🔄 Marking migration e55cf976aaaa as complete...")
+                command.stamp(alembic_cfg, "e55cf976aaaa")
+                print("✅ Migration e55cf976aaaa marked as complete")
+            
+            # Check if notifications table exists
+            result = conn.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'notifications'
+                )
+            """))
+            if result.scalar():
+                print("✅ notifications table exists")
+                print("🔄 Marking migration cb40847ce093 as complete...")
+                command.stamp(alembic_cfg, "cb40847ce093")
+                print("✅ Migration cb40847ce093 marked as complete")
+            
+            # Check if report_templates table exists
+            result = conn.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'report_templates'
+                )
+            """))
+            if result.scalar():
+                print("✅ report_templates table exists")
+                print("🔄 Marking migration cc29f0d3d343 as complete...")
+                command.stamp(alembic_cfg, "cc29f0d3d343")
+                print("✅ Migration cc29f0d3d343 marked as complete")
+        
+        return True
     except Exception as e:
         print(f"❌ Error checking migration state: {e}")
         return False
