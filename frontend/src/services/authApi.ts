@@ -42,17 +42,17 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
           return api.request(originalRequest);
         } catch (refreshError) {
-          // Refresh failed, redirect to login
+          // Refresh failed, clear tokens and let app routing handle redirect
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_data');
-          window.location.href = '/login';
+          return Promise.reject(error);
         }
       } else {
-        // No refresh token, redirect to login
+        // No refresh token, clear tokens and let app routing handle redirect
         localStorage.removeItem('access_token');
         localStorage.removeItem('user_data');
-        window.location.href = '/login';
+        return Promise.reject(error);
       }
     }
     return Promise.reject(error);
@@ -162,7 +162,7 @@ export const authApi = {
       const response = await api.post('/auth/login', credentials);
       console.log('✅ Login successful:', response.data);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Login failed:', error);
       console.error('❌ Error response:', error.response?.data);
       console.error('❌ Error status:', error.response?.status);
@@ -277,126 +277,7 @@ export const authApi = {
         console.log('🏥 Health endpoint error:', await healthResponse.text());
       }
 
-      // Test 2: Register a test user with unique timestamp to avoid duplicates
-      const timestamp = Date.now();
-      const testEmail = `test${timestamp}@example.com`;
-      const testUsername = `testuser${timestamp}`;
-      
-      console.log(`📝 Registering test user: ${testEmail}...`);
-      const registerResponse = await fetch(
-        `${API_BASE_URL}/api/v1/auth/register`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: testEmail,
-            username: testUsername,
-            first_name: 'Test',
-            last_name: 'User',
-            password: 'TestPassword123!',
-          }),
-        }
-      );
-      console.log(
-        '📝 Register response:',
-        registerResponse.status,
-        registerResponse.ok
-      );
-
-      if (registerResponse.ok) {
-        const registerData = await registerResponse.json();
-        console.log('📝 Register data:', registerData);
-
-        // Test 3: Verify the user
-        console.log('✅ Verifying test user...');
-        const verifyResponse = await fetch(
-          `${API_BASE_URL}/api/v1/auth/dev-verify-user`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: testEmail,
-            }),
-          }
-        );
-        console.log(
-          '✅ Verify response:',
-          verifyResponse.status,
-          verifyResponse.ok
-        );
-
-        if (verifyResponse.ok) {
-          const verifyData = await verifyResponse.json();
-          console.log('✅ Verify data:', verifyData);
-
-          // Test 4: Login with verified user
-          console.log('🔐 Testing login with verified user...');
-          const loginResponse = await fetch(
-            `${API_BASE_URL}/api/v1/auth/login`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                email: testEmail,
-                password: 'TestPassword123!',
-              }),
-            }
-          );
-          console.log(
-            '🔐 Login response:',
-            loginResponse.status,
-            loginResponse.ok
-          );
-
-          const loginText = await loginResponse.text();
-          console.log('🔐 Login response body:', loginText);
-
-          if (loginResponse.ok) {
-            console.log('🎉 SUCCESS: Login worked with verified user!');
-          } else {
-            console.log('❌ Login failed even with verified user:', {
-              status: loginResponse.status,
-              text: loginText,
-            });
-          }
-        } else {
-          console.log('❌ User verification failed:', await verifyResponse.text());
-        }
-      } else {
-        const errorText = await registerResponse.text();
-        if (registerResponse.status === 400 && errorText.includes('already registered')) {
-          console.log('⚠️ Test user already exists, trying to login directly...');
-          
-          // Try to login with the existing test@example.com user
-          const loginResponse = await fetch(
-            `${API_BASE_URL}/api/v1/auth/login`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                email: 'test@example.com',
-                password: 'TestPassword123!',
-              }),
-            }
-          );
-          
-          if (loginResponse.ok) {
-            console.log('🎉 SUCCESS: Login worked with existing test user!');
-          } else {
-            console.log('❌ Both registration and login failed:', await loginResponse.text());
-          }
-        } else {
-          console.log('❌ Registration failed:', errorText);
-        }
-      }
+      // Skipping the heavy test user registration/login flow in interceptor setup
     } catch (error) {
       console.error('❌ Test backend connection error:', error);
     }
