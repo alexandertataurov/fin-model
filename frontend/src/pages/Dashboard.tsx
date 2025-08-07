@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -8,10 +7,11 @@ import {
   Target,
   Settings,
   CloudUpload,
+  ArrowRight,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DashboardCard } from '@/components/Dashboard/DashboardCard';
+import { FeatureCard } from '@/components/ui/EnhancedCard';
 import { EnhancedButton } from '@/components/ui/EnhancedButton';
 import { componentStyles } from '@/components/ui/utils/designSystem';
 
@@ -24,38 +24,6 @@ import { componentStyles } from '@/components/ui/utils/designSystem';
  * - Getting started guide for new users
  * - User welcome message and overview
  */
-
-interface DashboardCardProps {
-  title: string;
-  subtitle: string;
-  icon: React.ReactNode;
-  color: string;
-  onClick: () => void;
-  badge?: string;
-}
-
-const DashboardCard: React.FC<DashboardCardProps> = ({
-  title,
-  subtitle,
-  icon,
-  onClick,
-  badge,
-}) => {
-  return (
-    <FeatureCard
-      title={title}
-      description={subtitle}
-      icon={icon}
-      action={
-        <div className="flex items-center text-primary">
-          <span className="text-sm font-semibold">Open Dashboard</span>
-          <ArrowForward className="ml-2 h-4 w-4" />
-        </div>
-      }
-      variant="highlight"
-    />
-  );
-};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -168,63 +136,112 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className={`${componentStyles.container} py-8`}>
-        {/* Quick Actions */}
-        <section className="mb-12">
-          <h2 className={componentStyles.heading.h2}>Quick Actions</h2>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {quickActions.map((action, index) => (
-              <ActionButton
+      {/* Main Content */}
+      <main className={componentStyles.container}>
+        {/* Dashboard Cards Grid */}
+        <section className="py-8">
+          <div className="mb-6">
+            <h2 className={componentStyles.heading.h2}>
+              Financial Modeling Tools
+            </h2>
+            <p className="text-muted-foreground">
+              Access comprehensive financial modeling and analysis tools
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dashboardCards.map((card, index) => (
+              <div
                 key={index}
-                icon={action.icon}
-                label={action.title}
-                onClick={action.action}
-                variant={action.variant}
-                size="lg"
-              />
+                onClick={card.onClick}
+                className="cursor-pointer"
+              >
+                <FeatureCard
+                  title={card.title}
+                  description={card.subtitle}
+                  icon={card.icon}
+                  action={
+                    <div className="flex items-center text-primary">
+                      <span className="text-sm font-semibold">
+                        Open Dashboard
+                      </span>
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </div>
+                  }
+                  variant="highlight"
+                />
+              </div>
             ))}
           </div>
         </section>
 
-        {/* Dashboard Cards */}
-        <section className="mb-12">
-          <h2 className={componentStyles.heading.h2}>Financial Dashboards</h2>
-          <p className="text-muted-foreground mt-2 mb-6">
-            Access your financial data through our comprehensive dashboard
-            suite.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {dashboardCards.map((card, index) => (
-              <div key={index} onClick={() => navigate(card.path)}>
-                <DashboardCard {...card} />
-              </div>
+        {/* Quick Actions */}
+        <section className="py-8 border-t">
+          <div className="mb-6">
+            <h2 className={componentStyles.heading.h2}>Quick Actions</h2>
+            <p className="text-muted-foreground">
+              Common tasks to get you started quickly
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {quickActions.map((action, index) => (
+              <EnhancedButton
+                key={index}
+                leftIcon={action.icon}
+                onClick={action.action}
+                variant={action.variant}
+                size="lg"
+              >
+                {action.title}
+              </EnhancedButton>
             ))}
           </div>
         </section>
 
         {/* Getting Started Guide */}
-        <section className="mb-12">
-          <EnhancedCard
-            variant="filled"
-            className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20"
-          >
-            <div className="text-center space-y-4">
-              <h3 className={componentStyles.heading.h3}>Getting Started</h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                New to FinVision? Start by uploading your financial data or
-                explore our comprehensive dashboard suite to get insights into
-                your financial performance.
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                <Button onClick={() => navigate('/upload')}>
-                  Upload Your First File
-                </Button>
-                <Button variant="outline" onClick={() => navigate('/docs')}>
-                  View Documentation
-                </Button>
+        <section className="py-8 border-t">
+          <div className="mb-6">
+            <h2 className={componentStyles.heading.h2}>Getting Started</h2>
+            <p className="text-muted-foreground">
+              Follow these steps to begin your financial modeling journey
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                  1
+                </div>
+                <h3 className="font-semibold">Upload Your Data</h3>
               </div>
+              <p className="text-sm text-muted-foreground">
+                Start by uploading your financial data files (Excel, CSV) to
+                begin modeling.
+              </p>
             </div>
-          </EnhancedCard>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                  2
+                </div>
+                <h3 className="font-semibold">Configure Parameters</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Set up your modeling parameters across 12 comprehensive
+                categories.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                  3
+                </div>
+                <h3 className="font-semibold">Run Analysis</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Generate comprehensive financial statements and DCF valuations.
+              </p>
+            </div>
+          </div>
         </section>
       </main>
     </div>
