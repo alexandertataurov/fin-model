@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/react';
 import React from 'react';
-import { ThemeProvider } from '../src/components/ui/theme-provider';
+import { DesignSystemProvider } from '../src/design-system/provider';
 
 // Import global styles (includes Tailwind directives)
 import '../src/styles/globals.css';
@@ -49,6 +49,26 @@ const preview: Preview = {
             id: 'page-has-heading-one',
             enabled: true,
           },
+          {
+            id: 'button-name',
+            enabled: true,
+          },
+          {
+            id: 'image-alt',
+            enabled: true,
+          },
+          {
+            id: 'label',
+            enabled: true,
+          },
+          {
+            id: 'list',
+            enabled: true,
+          },
+          {
+            id: 'listitem',
+            enabled: true,
+          },
         ],
       },
       options: {
@@ -73,6 +93,18 @@ const preview: Preview = {
         {
           name: 'blue',
           value: '#f0f9ff',
+        },
+        {
+          name: 'green',
+          value: '#f0fdf4',
+        },
+        {
+          name: 'yellow',
+          value: '#fefce8',
+        },
+        {
+          name: 'red',
+          value: '#fef2f2',
         },
       ],
     },
@@ -121,18 +153,32 @@ const preview: Preview = {
     test: {
       timeout: 10000,
     },
+    // Design system parameters
+    designSystem: {
+      theme: 'light',
+      density: 'comfortable',
+      radius: 'md',
+    },
   },
   // Global decorators to wrap all stories
   decorators: [
-    Story => (
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <div className="min-h-screen bg-background text-foreground">
-          <div className="p-4">
-            <Story />
+    (Story, context) => {
+      const { designSystem } = context.parameters;
+
+      return (
+        <DesignSystemProvider
+          defaultTheme={designSystem?.theme || 'light'}
+          defaultDensity={designSystem?.density || 'comfortable'}
+          defaultRadius={designSystem?.radius || 'md'}
+        >
+          <div className="min-h-screen bg-background text-foreground">
+            <div className="p-4">
+              <Story />
+            </div>
           </div>
-        </div>
-      </ThemeProvider>
-    ),
+        </DesignSystemProvider>
+      );
+    },
   ],
 };
 

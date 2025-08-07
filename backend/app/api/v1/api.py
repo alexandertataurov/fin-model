@@ -12,7 +12,6 @@ from app.api.v1.endpoints import (
     statements,
     lean_financial,
     websocket,
-    notifications,
 )
 from app.core.config import settings
 
@@ -58,8 +57,8 @@ api_router.include_router(
 # Include WebSocket routes
 api_router.include_router(websocket.router, prefix="/websocket", tags=["websocket"])
 
-# Include notification routes
-api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+# Include notification routes (temporarily disabled)
+# api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 
 try:
     from app.api.v1.endpoints import test_utils

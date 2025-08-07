@@ -3,6 +3,7 @@ import { resolve } from 'path';
 
 const config: StorybookConfig = {
   stories: [
+    '../src/design-system/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     '../src/components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     '../docs/**/*.stories.@(js|jsx|ts|tsx|mdx)',
   ],
@@ -11,10 +12,18 @@ const config: StorybookConfig = {
     '@storybook/addon-a11y',
     '@storybook/addon-interactions',
     '@storybook/addon-links',
+    '@storybook/addon-viewport',
+    '@storybook/addon-backgrounds',
+    '@storybook/addon-measure',
+    '@storybook/addon-outline',
   ],
   framework: {
     name: '@storybook/react-vite',
-    options: {},
+    options: {
+      builder: {
+        viteConfigPath: 'vite.config.storybook.ts',
+      },
+    },
   },
   docs: {
     autodocs: 'tag',
@@ -47,6 +56,10 @@ const config: StorybookConfig = {
         font-weight: 600;
         color: #059669;
       }
+      .sidebar-item[data-item-id*="overview"] {
+        font-weight: 600;
+        color: #7c3aed;
+      }
     </style>
   `,
   viteFinal: async config => {
@@ -55,6 +68,9 @@ const config: StorybookConfig = {
       config.resolve.alias = {
         ...config.resolve.alias,
         '@': resolve(__dirname, '../src'),
+        '@/design-system': resolve(__dirname, '../src/design-system'),
+        '@/components': resolve(__dirname, '../src/components'),
+        '@/utils': resolve(__dirname, '../src/utils'),
       };
     }
 
@@ -80,6 +96,31 @@ const config: StorybookConfig = {
         'class-variance-authority',
         'clsx',
         'tailwind-merge',
+        '@radix-ui/react-slot',
+        '@radix-ui/react-dialog',
+        '@radix-ui/react-select',
+        '@radix-ui/react-tabs',
+        '@radix-ui/react-checkbox',
+        '@radix-ui/react-switch',
+        '@radix-ui/react-alert-dialog',
+        '@radix-ui/react-popover',
+        '@radix-ui/react-tooltip',
+        '@radix-ui/react-accordion',
+        '@radix-ui/react-avatar',
+        '@radix-ui/react-breadcrumb',
+        '@radix-ui/react-context-menu',
+        '@radix-ui/react-dropdown-menu',
+        '@radix-ui/react-hover-card',
+        '@radix-ui/react-menubar',
+        '@radix-ui/react-navigation-menu',
+        '@radix-ui/react-progress',
+        '@radix-ui/react-radio-group',
+        '@radix-ui/react-scroll-area',
+        '@radix-ui/react-separator',
+        '@radix-ui/react-slider',
+        '@radix-ui/react-toast',
+        '@radix-ui/react-toggle',
+        '@radix-ui/react-toggle-group',
       ],
     };
 
@@ -99,7 +140,7 @@ const config: StorybookConfig = {
       jsxImportSource: 'react',
     };
 
-    // Disable HMR
+    // Disable HMR for better performance
     config.server = {
       ...config.server,
       hmr: false,
@@ -111,7 +152,6 @@ const config: StorybookConfig = {
       rollupOptions: {
         ...config.build?.rollupOptions,
         external: (id: string) => {
-          // Only externalize specific problematic modules, not all addon previews
           const externals = ['@storybook/globalThis'];
           return externals.some(external => id.includes(external));
         },
@@ -162,6 +202,17 @@ const config: StorybookConfig = {
               'class-variance-authority',
               'clsx',
               'tailwind-merge',
+            ],
+            'radix-components': [
+              '@radix-ui/react-slot',
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-select',
+              '@radix-ui/react-tabs',
+              '@radix-ui/react-checkbox',
+              '@radix-ui/react-switch',
+              '@radix-ui/react-alert-dialog',
+              '@radix-ui/react-popover',
+              '@radix-ui/react-tooltip',
             ],
           },
         },

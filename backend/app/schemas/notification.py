@@ -17,7 +17,7 @@ class NotificationBase(BaseModel):
 
 class NotificationCreate(NotificationBase):
     """Schema for creating a notification."""
-    user_id: UUID
+    user_id: int
 
 
 class NotificationUpdate(BaseModel):
@@ -34,7 +34,7 @@ class NotificationUpdate(BaseModel):
 class NotificationResponse(NotificationBase):
     """Schema for notification response."""
     id: UUID
-    user_id: UUID
+    user_id: int
     is_read: bool
     is_dismissed: bool
     created_at: datetime
@@ -71,7 +71,7 @@ class NotificationPreferencesBase(BaseModel):
 class NotificationPreferences(NotificationPreferencesBase):
     """Schema for notification preferences."""
     id: UUID
-    user_id: UUID
+    user_id: int
     created_at: datetime
     updated_at: datetime
 

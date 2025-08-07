@@ -32,7 +32,7 @@ class NotificationService:
 
     def get_user_notifications(
         self,
-        user_id: UUID,
+        user_id: int,
         page: int = 1,
         limit: int = 20,
         filters: Optional[List] = None,
@@ -70,7 +70,7 @@ class NotificationService:
         return notification_responses, total_count, total_pages
 
     def get_notification(
-        self, notification_id: UUID, user_id: UUID
+        self, notification_id: UUID, user_id: int
     ) -> Optional[NotificationResponse]:
         """Get a specific notification for a user."""
         notification = (
@@ -88,7 +88,7 @@ class NotificationService:
             return NotificationResponse.from_orm(notification)
         return None
 
-    def mark_as_read(self, notification_id: UUID, user_id: UUID) -> bool:
+    def mark_as_read(self, notification_id: UUID, user_id: int) -> bool:
         """Mark a notification as read."""
         notification = (
             self.db.query(Notification)
@@ -108,7 +108,7 @@ class NotificationService:
             return True
         return False
 
-    def dismiss_notification(self, notification_id: UUID, user_id: UUID) -> bool:
+    def dismiss_notification(self, notification_id: UUID, user_id: int) -> bool:
         """Dismiss a notification."""
         notification = (
             self.db.query(Notification)
@@ -128,7 +128,7 @@ class NotificationService:
             return True
         return False
 
-    def mark_all_as_read(self, user_id: UUID) -> int:
+    def mark_all_as_read(self, user_id: int) -> int:
         """Mark all user notifications as read."""
         result = (
             self.db.query(Notification)
@@ -148,7 +148,7 @@ class NotificationService:
         self.db.commit()
         return result
 
-    def get_unread_count(self, user_id: UUID) -> int:
+    def get_unread_count(self, user_id: int) -> int:
         """Get count of unread notifications for a user."""
         return (
             self.db.query(Notification)
@@ -162,7 +162,7 @@ class NotificationService:
         )
 
     def get_user_preferences(
-        self, user_id: UUID
+        self, user_id: int
     ) -> Optional[NotificationPreferencesSchema]:
         """Get user notification preferences."""
         preferences = (
@@ -176,7 +176,7 @@ class NotificationService:
         return None
 
     def create_default_preferences(
-        self, user_id: UUID
+        self, user_id: int
     ) -> NotificationPreferencesSchema:
         """Create default notification preferences for a user."""
         preferences = NotificationPreferences(
@@ -203,7 +203,7 @@ class NotificationService:
         return NotificationPreferencesSchema.from_orm(preferences)
 
     def update_user_preferences(
-        self, user_id: UUID, preferences_update: NotificationPreferencesUpdate
+        self, user_id: int, preferences_update: NotificationPreferencesUpdate
     ) -> NotificationPreferencesSchema:
         """Update user notification preferences."""
         preferences = (
@@ -227,7 +227,7 @@ class NotificationService:
 
         return NotificationPreferencesSchema.from_orm(preferences)
 
-    def get_user_stats(self, user_id: UUID) -> NotificationStats:
+    def get_user_stats(self, user_id: int) -> NotificationStats:
         """Get notification statistics for a user."""
         # Get total notifications
         total_notifications = (

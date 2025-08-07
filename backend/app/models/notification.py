@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Optional, Dict, Any
 from uuid import uuid4
+from enum import Enum
 
-from sqlalchemy import Column, String, Text, Boolean, DateTime, Integer, JSON, Enum, ForeignKey, Index
+from sqlalchemy import Column, String, Text, Boolean, DateTime, Integer, JSON, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -47,13 +48,13 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
-    notification_type = Column(Enum(NotificationType), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    notification_type = Column(String(50), nullable=False, index=True)
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
     data = Column(JSON, default={})
-    priority = Column(Enum(NotificationPriority), default=NotificationPriority.NORMAL, index=True)
-    status = Column(Enum(NotificationStatus), default=NotificationStatus.PENDING, index=True)
+    priority = Column(String(20), default=NotificationPriority.NORMAL, index=True)
+    status = Column(String(20), default=NotificationStatus.PENDING, index=True)
     is_read = Column(Boolean, default=False, index=True)
     is_dismissed = Column(Boolean, default=False, index=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
@@ -78,7 +79,7 @@ class NotificationPreferences(Base):
     __tablename__ = "notification_preferences"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, unique=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
     email_enabled = Column(Boolean, default=True)
     push_enabled = Column(Boolean, default=True)
     in_app_enabled = Column(Boolean, default=True)
@@ -87,9 +88,9 @@ class NotificationPreferences(Base):
     quiet_end_time = Column(String(5))    # Format: "HH:MM"
     quiet_timezone = Column(String(50), default="UTC")
     type_preferences = Column(JSON, default={})
-    min_priority_email = Column(Enum(NotificationPriority), default=NotificationPriority.NORMAL)
-    min_priority_push = Column(Enum(NotificationPriority), default=NotificationPriority.HIGH)
-    min_priority_in_app = Column(Enum(NotificationPriority), default=NotificationPriority.LOW)
+    min_priority_email = Column(String(20), default=NotificationPriority.NORMAL)
+    min_priority_push = Column(String(20), default=NotificationPriority.HIGH)
+    min_priority_in_app = Column(String(20), default=NotificationPriority.LOW)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -106,10 +107,10 @@ class NotificationTemplate(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     name = Column(String(100), nullable=False, unique=True)
-    notification_type = Column(Enum(NotificationType), nullable=False, index=True)
+    notification_type = Column(String(50), nullable=False, index=True)
     title_template = Column(String(255), nullable=False)
     message_template = Column(Text, nullable=False)
-    default_priority = Column(Enum(NotificationPriority), default=NotificationPriority.NORMAL)
+    default_priority = Column(String(20), default=NotificationPriority.NORMAL)
     expires_after_hours = Column(Integer)
     description = Column(Text)
     is_active = Column(Boolean, default=True)
