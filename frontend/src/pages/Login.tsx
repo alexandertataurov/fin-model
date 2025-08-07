@@ -5,7 +5,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/design-system/components/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/components/Card';
 import { Input, Checkbox, Alert, AlertDescription } from '@/design-system';
 import {
   Form,
@@ -51,7 +56,7 @@ const Login: React.FC = () => {
       // Add a small delay to prevent jarring redirect
       const timer = setTimeout(() => {
         navigate('/', { replace: true });
-      }, 100);
+      }, 300); // Increased delay for smoother transition
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, authLoading, navigate]);
@@ -70,7 +75,10 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      console.log('Login form submitted with:', { email: values.email, rememberMe: values.rememberMe });
+      console.log('Login form submitted with:', {
+        email: values.email,
+        rememberMe: values.rememberMe,
+      });
       const success = await login(
         values.email,
         values.password,
@@ -129,6 +137,23 @@ const Login: React.FC = () => {
     }
   };
 
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-8 text-center">
+          <div className="mx-auto h-12 w-12 bg-primary rounded-xl flex items-center justify-center mb-4">
+            <Activity className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Checking authentication...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
@@ -147,7 +172,9 @@ const Login: React.FC = () => {
         {authLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Checking authentication...</span>
+            <span className="ml-2 text-muted-foreground">
+              Checking authentication...
+            </span>
           </div>
         ) : (
           /* Login Card */
