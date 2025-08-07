@@ -28,7 +28,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { authApi } from '@/services/authApi';
-import { componentStyles } from '@/components/ui/utils/designSystem';
+import { componentStyles } from '@/design-system/utils/designSystem';
 
 const resetPasswordSchema = z
   .object({

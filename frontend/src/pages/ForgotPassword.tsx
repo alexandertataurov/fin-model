@@ -24,7 +24,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { authApi } from '@/services/authApi';
-import { componentStyles } from '@/components/ui/utils/designSystem';
+import { componentStyles } from '@/design-system/utils/designSystem';
 
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),

@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { BiometricLogin } from '@/components/auth/BiometricLogin';
 import { useLoginErrorHandler } from '@/hooks/useLoginErrorHandler';
-import { componentStyles } from '@/components/ui/utils/designSystem';
+import { componentStyles } from '@/design-system/utils/designSystem';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),

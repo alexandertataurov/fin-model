@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/design-system/components/Button';
 import { EnhancedButton, IconButton } from '@/components/ui/EnhancedButton';
 import { EnhancedCard } from '@/components/ui/EnhancedCard';
-import { componentStyles } from '@/components/ui/utils/designSystem';
+import { componentStyles } from '@/design-system/utils/designSystem';
 import {
   DropdownMenu,
   DropdownMenuContent,

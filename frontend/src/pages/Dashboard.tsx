@@ -16,7 +16,7 @@ import {
 import { Badge } from '@/design-system/components/Badge';
 import { Button } from '@/design-system/components/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system';
-import { componentStyles } from '@/components/ui/utils/designSystem';
+import { componentStyles } from '@/design-system/utils/designSystem';
 import { CoreFinancialModeling } from '@/components/CoreFinancialModeling';
 import DashboardApiService, { DashboardOverview, PeriodFilter } from '@/services/dashboardApi';
 import type { DashboardData, DashboardLoadingState } from '@/types/dashboard';

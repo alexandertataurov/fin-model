@@ -25,7 +25,7 @@ import {
   Activity,
   CheckCircle,
 } from 'lucide-react';
-import { componentStyles } from '@/components/ui/utils/designSystem';
+import { componentStyles } from '@/design-system/utils/designSystem';
 
 const registerSchema = z
   .object({

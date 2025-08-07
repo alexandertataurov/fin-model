@@ -116,7 +116,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }));
 
             localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-            await loadUserPermissions();
+            
+            // Load permissions inline to avoid circular dependency
+            try {
+              const permissionsData = await authApi.getUserPermissions();
+              const permissions = Array.isArray(permissionsData?.permissions)
+                ? permissionsData.permissions
+                : [];
+              const roles = Array.isArray(permissionsData?.roles)
+                ? permissionsData.roles
+                : [];
+
+              setState(prev => ({
+                ...prev,
+                permissions,
+                roles,
+              }));
+            } catch (permissionsError) {
+              console.error('Error loading permissions:', permissionsError);
+              setState(prev => ({
+                ...prev,
+                permissions: [],
+                roles: [],
+              }));
+            }
           } catch (validationError) {
             console.error('Token validation failed:', validationError);
             // Token is invalid, clear auth data
@@ -132,10 +155,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     loadUserData();
-  }, [loadUserPermissions]);
+  }, []); // Remove loadUserPermissions dependency
 
   // Clear authentication data - defined before functions that use it
-  const clearAuthData = () => {
+  const clearAuthData = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -147,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       roles: [],
       isLoading: false,
     });
-  };
+  }, []);
 
   // Token refresh function - defined before useEffect that uses it
   const refreshTokenInternal = useCallback(async (): Promise<boolean> => {
@@ -169,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       clearAuthData();
       return false;
     }
-  }, [state.refreshToken]);
+  }, [state.refreshToken, clearAuthData]);
 
   // Auto-refresh token
   useEffect(() => {

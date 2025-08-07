@@ -218,10 +218,16 @@ export {
 //   IconButton,
 //   LoadingButton,
 // } from './EnhancedButton';
-export { DesignSystemProvider, useDesignSystem } from '@/design-system/components/DesignSystemProvider';
+export {
+  DesignSystemProvider,
+  useDesignSystem,
+} from '@/design-system/components/DesignSystemProvider';
 
 // Design System Utilities
-export { componentStyles, DesignSystem } from './utils/designSystem';
+export {
+  componentStyles,
+  DesignSystem,
+} from '@/design-system/utils/designSystem';
 export {
   ResizablePanelGroup,
   ResizablePanel,
@@ -229,5 +235,5 @@ export {
 } from '@/design-system/components/Resizable';
 
 // Re-export types
-export type { CardProps } from './card';
+export type { CardProps } from '@/design-system/components/Card';
 // export type { DataTableProps, DataTableColumn } from './DataTable';

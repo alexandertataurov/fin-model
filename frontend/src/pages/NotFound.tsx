@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // import { Card, CardContent, CardHeader, CardTitle, Button } from '@/design-system';
-import { componentStyles } from '@/components/ui/utils/designSystem';
+import { componentStyles } from '@/design-system/utils/designSystem';
 import { Home, ArrowLeft } from 'lucide-react';
 
 const NotFound: React.FC = () => {
