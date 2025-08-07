@@ -44,6 +44,9 @@ class DashboardData:
     last_updated: datetime
     data_quality_score: float
     period_info: Dict[str, str]
+    # Flags to signal data nature to the frontend
+    is_demo: bool = False
+    data_state: str = "real"  # one of: real | demo | empty
 
 
 @dataclass
@@ -86,7 +89,8 @@ class DashboardService:
     async def get_user_dashboard_data(
         self, 
         user_id: int, 
-        period: PeriodFilter = PeriodFilter.YTD
+        period: PeriodFilter = PeriodFilter.YTD,
+        fallback: str = "demo",
     ) -> DashboardData:
         """Get complete dashboard data for a user.
 
@@ -99,6 +103,19 @@ class DashboardService:
             statements = self._get_user_statements(user_id)
 
             if not statements:
+                # No real data. Honor fallback preference
+                if fallback == "empty":
+                    return DashboardData(
+                        statements=[],
+                        active_statement=None,
+                        key_metrics={},
+                        chart_data={},
+                        last_updated=datetime.utcnow(),
+                        data_quality_score=0.0,
+                        period_info=self._get_period_info(period),
+                        is_demo=False,
+                        data_state="empty",
+                    )
                 # Fallback to demo/legacy data
                 return await self._get_demo_dashboard_data(user_id, period)
 
@@ -124,13 +141,27 @@ class DashboardService:
                 chart_data=chart_data,
                 last_updated=datetime.utcnow(),
                 data_quality_score=data_quality_score,
-                period_info=period_info
+                period_info=period_info,
+                is_demo=False,
+                data_state="real",
             )
 
         except Exception:
             # Log and return safe demo data so the endpoint does not 500
             logging.exception("Failed to build user dashboard data, falling back to demo data")
             try:
+                if fallback == "empty":
+                    return DashboardData(
+                        statements=[],
+                        active_statement=None,
+                        key_metrics={},
+                        chart_data={},
+                        last_updated=datetime.utcnow(),
+                        data_quality_score=0.0,
+                        period_info=self._get_period_info(period),
+                        is_demo=False,
+                        data_state="empty",
+                    )
                 return await self._get_demo_dashboard_data(user_id, period)
             except Exception:
                 # Final defensive fallback with minimal structure
@@ -1034,7 +1065,9 @@ class DashboardService:
             chart_data=legacy_data.get("charts", {}),
             last_updated=datetime.utcnow(),
             data_quality_score=0.7,  # Demo data quality
-            period_info=self._get_period_info(period)
+            period_info=self._get_period_info(period),
+            is_demo=True,
+            data_state="demo",
         )
 
     def _get_demo_key_metrics(self) -> Dict[str, Any]:

@@ -486,6 +486,7 @@ async def refresh_dashboard_cache(
 @router.get("/overview")
 async def get_dashboard_overview(
     period: str = Query(PeriodFilter.YTD.value, description="Time period for dashboard"),
+    fallback: str = Query("demo", description="Fallback when no data: 'demo' or 'empty'"),
     current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
@@ -500,7 +501,8 @@ async def get_dashboard_overview(
         period_filter = PeriodFilter(period)
         dashboard_data = await dashboard_service.get_user_dashboard_data(
             user_id=current_user.id,
-            period=period_filter
+            period=period_filter,
+            fallback=fallback,
         )
         
         return {
@@ -512,6 +514,8 @@ async def get_dashboard_overview(
             "data_quality_score": dashboard_data.data_quality_score,
             "period_info": dashboard_data.period_info,
             "generated_at": datetime.utcnow().isoformat(),
+            "is_demo": getattr(dashboard_data, "is_demo", False),
+            "data_state": getattr(dashboard_data, "data_state", "real"),
         }
         
     except ValueError as e:

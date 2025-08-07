@@ -18,7 +18,10 @@ import { Button } from '@/design-system/components/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system';
 import { componentStyles } from '@/design-system/utils/designSystem';
 import { CoreFinancialModeling } from '@/components/CoreFinancialModeling';
-import DashboardApiService, { DashboardOverview, PeriodFilter } from '@/services/dashboardApi';
+import DashboardApiService, {
+  DashboardOverview,
+  PeriodFilter,
+} from '@/services/dashboardApi';
 import type { DashboardData, DashboardLoadingState } from '@/types/dashboard';
 import { toast } from 'sonner';
 
@@ -36,52 +39,74 @@ import { toast } from 'sonner';
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   // Dashboard state management
-  const [dashboardData, setDashboardData] = useState<DashboardOverview | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardOverview | null>(
+    null
+  );
   const [loadingState, setLoadingState] = useState<DashboardLoadingState>({
     isLoading: true,
     isRefreshing: false,
     error: null,
   });
-  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(PeriodFilter.YTD);
-  
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(
+    PeriodFilter.YTD
+  );
+
   // Load dashboard data
-  const loadDashboardData = async (period: PeriodFilter = selectedPeriod, isRefresh = false) => {
+  const loadDashboardData = async (
+    period: PeriodFilter = selectedPeriod,
+    isRefresh = false
+  ) => {
     try {
-      setLoadingState(prev => ({ ...prev, isLoading: !isRefresh, isRefreshing: isRefresh, error: null }));
-      
-      const data = await DashboardApiService.getDashboardOverview(period);
+      setLoadingState(prev => ({
+        ...prev,
+        isLoading: !isRefresh,
+        isRefreshing: isRefresh,
+        error: null,
+      }));
+
+      const data = await DashboardApiService.getDashboardOverview(
+        period,
+        'demo'
+      );
       setDashboardData(data);
-      
+
       if (isRefresh) {
         toast.success('Dashboard data refreshed successfully');
       }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard data';
-      
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to load dashboard data';
+
       setLoadingState(prev => ({ ...prev, error: { message: errorMessage } }));
-      
+
       if (isRefresh) {
         toast.error('Failed to refresh dashboard data');
       }
     } finally {
-      setLoadingState(prev => ({ ...prev, isLoading: false, isRefreshing: false }));
+      setLoadingState(prev => ({
+        ...prev,
+        isLoading: false,
+        isRefreshing: false,
+      }));
     }
   };
-  
+
   // Refresh dashboard
   const handleRefreshDashboard = async () => {
     await loadDashboardData(selectedPeriod, true);
   };
-  
+
   // Period change handler
   const handlePeriodChange = (period: PeriodFilter) => {
     setSelectedPeriod(period);
     loadDashboardData(period);
   };
-  
+
   // Load data on mount
   useEffect(() => {
     loadDashboardData();
@@ -198,24 +223,28 @@ const Dashboard = () => {
     try {
       const exportData = await DashboardApiService.exportDashboardData({
         format: 'json',
-        period: selectedPeriod
+        period: selectedPeriod,
       });
       toast.success('Dashboard data exported successfully');
     } catch (error) {
       toast.error('Failed to export dashboard data');
     }
   };
-  
+
   // Format metric value based on type
-  const formatMetricValue = (value: number | undefined, unit: string, formatType?: string) => {
+  const formatMetricValue = (
+    value: number | undefined,
+    unit: string,
+    formatType?: string
+  ) => {
     if (value === undefined || value === null) return 'N/A';
-    
+
     switch (formatType) {
       case 'currency':
         return new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'USD',
-          notation: value >= 1000000 ? 'compact' : 'standard'
+          notation: value >= 1000000 ? 'compact' : 'standard',
         }).format(value);
       case 'percentage':
         return `${value.toFixed(1)}%`;
@@ -223,16 +252,19 @@ const Dashboard = () => {
         return value.toLocaleString();
     }
   };
-  
+
   // Get trend color
   const getTrendColor = (trend?: string) => {
     switch (trend) {
-      case 'up': return 'text-green-600';
-      case 'down': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'up':
+        return 'text-green-600';
+      case 'down':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
     }
   };
-  
+
   // Display error state
   if (loadingState.error) {
     return (
@@ -245,7 +277,9 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">{loadingState.error.message}</p>
+            <p className="text-muted-foreground mb-4">
+              {loadingState.error.message}
+            </p>
             <Button onClick={() => loadDashboardData()} className="w-full">
               <RefreshCw className="h-4 w-4 mr-2" />
               Retry
@@ -266,17 +300,29 @@ const Dashboard = () => {
               Welcome back, {user?.first_name || user?.username || 'User'}!
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-              {dashboardData ? 
-                `Last updated: ${new Date(dashboardData.last_updated).toLocaleDateString()} - Data quality: ${(dashboardData.data_quality_score * 100).toFixed(0)}%` :
-                'Loading your financial dashboard...'
-              }
+              {dashboardData
+                ? `Last updated: ${new Date(
+                    dashboardData.last_updated
+                  ).toLocaleDateString()} - Data quality: ${(
+                    dashboardData.data_quality_score * 100
+                  ).toFixed(0)}%`
+                : 'Loading your financial dashboard...'}
             </p>
+            {dashboardData && (dashboardData as any).data_state === 'demo' && (
+              <div className="mt-2">
+                <Badge variant="outline" className="text-xs">
+                  Demo data
+                </Badge>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="flex items-center space-x-2">
-              <select 
-                value={selectedPeriod} 
-                onChange={(e) => handlePeriodChange(e.target.value as PeriodFilter)}
+              <select
+                value={selectedPeriod}
+                onChange={e =>
+                  handlePeriodChange(e.target.value as PeriodFilter)
+                }
                 className="text-xs sm:text-sm border rounded px-2 py-1 bg-background"
                 disabled={loadingState.isRefreshing}
               >
@@ -285,23 +331,34 @@ const Dashboard = () => {
                 <option value={PeriodFilter.YTD}>Year to Date</option>
                 <option value={PeriodFilter.LAST_30_DAYS}>Last 30 Days</option>
                 <option value={PeriodFilter.LAST_90_DAYS}>Last 90 Days</option>
-                <option value={PeriodFilter.LAST_12_MONTHS}>Last 12 Months</option>
+                <option value={PeriodFilter.LAST_12_MONTHS}>
+                  Last 12 Months
+                </option>
               </select>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleRefreshDashboard}
                 disabled={loadingState.isRefreshing}
                 className="text-xs sm:text-sm"
               >
-                <RefreshCw className={`h-3 w-3 mr-1 ${loadingState.isRefreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`h-3 w-3 mr-1 ${
+                    loadingState.isRefreshing ? 'animate-spin' : ''
+                  }`}
+                />
                 Refresh
               </Button>
             </div>
             <Badge variant="default" className="text-xs sm:text-sm">
               v2.0.0
             </Badge>
-            <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => navigate('/settings')}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs sm:text-sm"
+              onClick={() => navigate('/settings')}
+            >
               Settings
             </Button>
           </div>
@@ -313,7 +370,9 @@ const Dashboard = () => {
         {/* Key Metrics Section */}
         <section className="py-6">
           <div className={componentStyles.container}>
-            <h2 className="text-xl font-semibold mb-4">Key Financial Metrics</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Key Financial Metrics
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {loadingState.isLoading ? (
                 // Loading skeleton
@@ -329,32 +388,54 @@ const Dashboard = () => {
                   </Card>
                 ))
               ) : dashboardData && dashboardData.key_metrics ? (
-                Object.entries(dashboardData.key_metrics).map(([key, metric]) => (
-                  <Card key={key} className="hover:shadow-md transition-shadow">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        {metric.name || key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold mb-1">
-                        {formatMetricValue(metric.value, metric.unit || '', metric.format_type)}
-                      </div>
-                      {metric.change_percentage !== undefined && (
-                        <div className={`text-sm ${getTrendColor(metric.trend)}`}>
-                          {metric.change_percentage > 0 ? '+' : ''}{metric.change_percentage.toFixed(1)}% from last period
+                Object.entries(dashboardData.key_metrics).map(
+                  ([key, metric]) => (
+                    <Card
+                      key={key}
+                      className="hover:shadow-md transition-shadow"
+                    >
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                          {metric.name ||
+                            key
+                              .replace('_', ' ')
+                              .replace(/\b\w/g, l => l.toUpperCase())}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold mb-1">
+                          {formatMetricValue(
+                            metric.value,
+                            metric.unit || '',
+                            metric.format_type
+                          )}
                         </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))
+                        {metric.change_percentage !== undefined && (
+                          <div
+                            className={`text-sm ${getTrendColor(metric.trend)}`}
+                          >
+                            {metric.change_percentage > 0 ? '+' : ''}
+                            {metric.change_percentage.toFixed(1)}% from last
+                            period
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )
+                )
               ) : (
                 // No data state
                 <div className="col-span-full">
                   <Card>
                     <CardContent className="text-center py-8">
-                      <p className="text-muted-foreground">No financial metrics available. Upload financial statements to see key metrics.</p>
-                      <Button className="mt-4" onClick={() => navigate('/upload')}>
+                      <p className="text-muted-foreground">
+                        No financial metrics available. Upload financial
+                        statements to see key metrics.
+                      </p>
+                      <Button
+                        className="mt-4"
+                        onClick={() => navigate('/upload')}
+                      >
                         Upload Financial Data
                       </Button>
                     </CardContent>
@@ -369,8 +450,14 @@ const Dashboard = () => {
         <section className="py-6 border-t">
           <div className={componentStyles.container}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Recent Financial Statements</h2>
-              <Button variant="outline" size="sm" onClick={() => navigate('/statements')}>
+              <h2 className="text-xl font-semibold">
+                Recent Financial Statements
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/statements')}
+              >
                 View All
               </Button>
             </div>
@@ -394,18 +481,28 @@ const Dashboard = () => {
                     </CardContent>
                   </Card>
                 ))
-              ) : dashboardData && dashboardData.statements && dashboardData.statements.length > 0 ? (
-                dashboardData.statements.slice(0, 6).map((statement) => (
-                  <Card key={statement.id} className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => {
-                          const path = statement.type === 'pl' ? '/dashboards/pl' : 
-                                     statement.type === 'balance_sheet' ? '/dashboards/balance' :
-                                     '/dashboards/cashflow';
-                          navigate(path, { state: { statementId: statement.id } });
-                        }}>
+              ) : dashboardData &&
+                dashboardData.statements &&
+                dashboardData.statements.length > 0 ? (
+                dashboardData.statements.slice(0, 6).map(statement => (
+                  <Card
+                    key={statement.id}
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => {
+                      const path =
+                        statement.type === 'pl'
+                          ? '/dashboards/pl'
+                          : statement.type === 'balance_sheet'
+                          ? '/dashboards/balance'
+                          : '/dashboards/cashflow';
+                      navigate(path, { state: { statementId: statement.id } });
+                    }}
+                  >
                     <CardHeader>
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm">{statement.name}</CardTitle>
+                        <CardTitle className="text-sm">
+                          {statement.name}
+                        </CardTitle>
                         <Badge variant="outline" className="text-xs">
                           {statement.type.replace('_', ' ').toUpperCase()}
                         </Badge>
@@ -413,9 +510,21 @@ const Dashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <div>Period: {new Date(statement.period_start).toLocaleDateString()} - {new Date(statement.period_end).toLocaleDateString()}</div>
+                        <div>
+                          Period:{' '}
+                          {new Date(
+                            statement.period_start
+                          ).toLocaleDateString()}{' '}
+                          -{' '}
+                          {new Date(statement.period_end).toLocaleDateString()}
+                        </div>
                         <div>Currency: {statement.currency}</div>
-                        <div>Updated: {new Date(statement.last_updated).toLocaleDateString()}</div>
+                        <div>
+                          Updated:{' '}
+                          {new Date(
+                            statement.last_updated
+                          ).toLocaleDateString()}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -426,13 +535,19 @@ const Dashboard = () => {
                   <Card>
                     <CardContent className="text-center py-8">
                       <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-4">No financial statements found. Upload your financial data to get started.</p>
+                      <p className="text-muted-foreground mb-4">
+                        No financial statements found. Upload your financial
+                        data to get started.
+                      </p>
                       <div className="space-x-2">
                         <Button onClick={() => navigate('/upload')}>
                           <CloudUpload className="h-4 w-4 mr-2" />
                           Upload Data
                         </Button>
-                        <Button variant="outline" onClick={() => navigate('/parameters')}>
+                        <Button
+                          variant="outline"
+                          onClick={() => navigate('/parameters')}
+                        >
                           <Settings className="h-4 w-4 mr-2" />
                           Set Parameters
                         </Button>
@@ -448,7 +563,9 @@ const Dashboard = () => {
         {/* Core Financial Modeling Interface */}
         <section className="py-8 border-t">
           <div className={componentStyles.container}>
-            <h2 className="text-xl font-semibold mb-4">Financial Modeling Tools</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Financial Modeling Tools
+            </h2>
             <CoreFinancialModeling
               onFileUpload={handleFileUpload}
               onParameterChange={handleParameterChange}

@@ -1,13 +1,13 @@
 /**
  * Dashboard API Service
- * 
+ *
  * Frontend API client for dashboard data integration
  */
 
 import { apiClient } from './api';
-import { 
-  DashboardData, 
-  CashFlowDashboardData, 
+import {
+  DashboardData,
+  CashFlowDashboardData,
   BalanceSheetDashboardData,
   FinancialRatio,
   DashboardPeriod,
@@ -136,22 +136,24 @@ export interface ExportParams {
 // Period filter options
 export enum PeriodFilter {
   MTD = 'mtd',
-  QTD = 'qtd', 
+  QTD = 'qtd',
   YTD = 'ytd',
   LAST_30_DAYS = 'last_30_days',
   LAST_90_DAYS = 'last_90_days',
   LAST_12_MONTHS = 'last_12_months',
-  CUSTOM = 'custom'
+  CUSTOM = 'custom',
 }
 
 export class DashboardApiService {
-  
   /**
    * Get complete dashboard overview
    */
-  static async getDashboardOverview(period: PeriodFilter = PeriodFilter.YTD): Promise<DashboardOverview> {
+  static async getDashboardOverview(
+    period: PeriodFilter = PeriodFilter.YTD,
+    fallback: 'demo' | 'empty' = 'demo'
+  ): Promise<DashboardOverview> {
     const response = await apiClient.get('/dashboard/overview', {
-      params: { period }
+      params: { period, fallback },
     });
     return response.data;
   }
@@ -165,9 +167,9 @@ export class DashboardApiService {
   ): Promise<CashFlowDashboardData> {
     const params: any = { period };
     if (fileId) params.file_id = fileId;
-    
+
     const response = await apiClient.get('/dashboard/metrics/cash-flow', {
-      params
+      params,
     });
     return response.data;
   }
@@ -181,9 +183,9 @@ export class DashboardApiService {
   ): Promise<PLDashboardDataType> {
     const params: any = { period };
     if (fileId) params.file_id = fileId;
-    
+
     const response = await apiClient.get('/dashboard/metrics/pl', {
-      params
+      params,
     });
     return response.data;
   }
@@ -197,9 +199,9 @@ export class DashboardApiService {
   ): Promise<DashboardData> {
     const params: any = { period };
     if (fileId) params.file_id = fileId;
-    
+
     const response = await apiClient.get('/dashboard/metrics/ratios', {
-      params
+      params,
     });
     return response.data;
   }
@@ -213,9 +215,9 @@ export class DashboardApiService {
   ): Promise<DashboardData> {
     const params: any = { period };
     if (fileId) params.file_id = fileId;
-    
+
     const response = await apiClient.get('/dashboard/metrics/variance', {
-      params
+      params,
     });
     return response.data;
   }
@@ -229,9 +231,9 @@ export class DashboardApiService {
   ): Promise<BalanceSheetDashboardData> {
     const params: any = { period };
     if (fileId) params.file_id = fileId;
-    
+
     const response = await apiClient.get('/dashboard/metrics/balance-sheet', {
-      params
+      params,
     });
     return response.data;
   }
@@ -247,9 +249,9 @@ export class DashboardApiService {
     const params: any = { period };
     if (fileId) params.file_id = fileId;
     if (category) params.ratio_category = category;
-    
+
     const response = await apiClient.get('/dashboard/metrics/ratios', {
-      params
+      params,
     });
     return response.data.ratios || [];
   }
@@ -265,7 +267,9 @@ export class DashboardApiService {
   /**
    * Get Balance Sheet dashboard data
    */
-  static async getBalanceSheetData(statementId: string): Promise<BalanceSheetData> {
+  static async getBalanceSheetData(
+    statementId: string
+  ): Promise<BalanceSheetData> {
     const response = await apiClient.get(`/dashboard/balance/${statementId}`);
     return response.data;
   }
@@ -292,9 +296,9 @@ export class DashboardApiService {
   static async getUserStatements(
     statementType?: string,
     limit = 10
-  ): Promise<{statements: FinancialStatement[], total_count: number}> {
+  ): Promise<{ statements: FinancialStatement[]; total_count: number }> {
     const response = await apiClient.get('/dashboard/statements', {
-      params: { statement_type: statementType, limit }
+      params: { statement_type: statementType, limit },
     });
     return response.data;
   }
@@ -313,7 +317,7 @@ export class DashboardApiService {
     forecast: ChartData[];
   }> {
     const response = await apiClient.get('/dashboard/time-series', {
-      params
+      params,
     });
     return response.data;
   }
@@ -329,7 +333,7 @@ export class DashboardApiService {
     summary: Record<string, any>;
   }> {
     const response = await apiClient.get('/dashboard/comparisons', {
-      params
+      params,
     });
     return response.data;
   }
@@ -346,8 +350,8 @@ export class DashboardApiService {
     const response = await apiClient.get(`/dashboard/export/${params.format}`, {
       params: {
         period: params.period,
-        statement_ids: params.statement_ids?.join(',')
-      }
+        statement_ids: params.statement_ids?.join(','),
+      },
     });
     return response.data;
   }
@@ -355,7 +359,7 @@ export class DashboardApiService {
   /**
    * Refresh dashboard cache
    */
-  static async refreshDashboard(): Promise<{message: string}> {
+  static async refreshDashboard(): Promise<{ message: string }> {
     const response = await apiClient.post('/dashboard/refresh-cache');
     return response.data;
   }
