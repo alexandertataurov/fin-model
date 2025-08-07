@@ -96,18 +96,29 @@ app.add_middleware(
 # Ensure validation errors return JSON responses instead of raising
 
 
+def make_json_serializable(obj):
+    """Recursively convert non-JSON-serializable objects to strings."""
+    if isinstance(obj, bytes):
+        return obj.decode('utf-8', errors='ignore')
+    elif isinstance(obj, dict):
+        return {k: make_json_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [make_json_serializable(item) for item in obj]
+    elif isinstance(obj, Exception):
+        return str(obj)
+    elif hasattr(obj, '__dict__'):
+        # For objects with attributes, convert to string
+        return str(obj)
+    else:
+        return obj
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     errors = []
     for err in exc.errors():
-        err = err.copy()
-        # Handle ctx field with exception objects
-        if "ctx" in err and isinstance(err["ctx"].get("error"), Exception):
-            err["ctx"] = {"error": str(err["ctx"]["error"])}
-        # Handle input field that might contain bytes
-        if "input" in err and isinstance(err["input"], bytes):
-            err["input"] = err["input"].decode('utf-8', errors='ignore')
-        errors.append(err)
+        # Make a deep copy and ensure all data is JSON serializable
+        clean_err = make_json_serializable(err)
+        errors.append(clean_err)
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={"detail": errors},
