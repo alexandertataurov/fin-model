@@ -177,27 +177,52 @@ def get_notification_preferences(
         logger = logging.getLogger(__name__)
         logger.error(f"Error getting notification preferences: {str(e)}")
         
-        # Return default preferences instead of error
-        from uuid import uuid4
-        from datetime import datetime
-        
-        return NotificationPreferencesSchema(
-            id=uuid4(),
-            user_id=current_user.id,
-            email_enabled=True,
-            push_enabled=True,
-            in_app_enabled=True,
-            quiet_hours_enabled=False,
-            quiet_start_time="22:00",
-            quiet_end_time="08:00",
-            quiet_timezone="UTC",
-            type_preferences={},
-            min_priority_email="NORMAL",
-            min_priority_push="HIGH",
-            min_priority_in_app="LOW",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
-        )
+        # Check if it's a database table issue
+        if "relation" in str(e).lower() and "does not exist" in str(e).lower():
+            logger.warning("Notification preferences table does not exist, returning defaults")
+            # Return default preferences instead of error
+            from uuid import uuid4
+            from datetime import datetime
+            
+            return NotificationPreferencesSchema(
+                id=uuid4(),
+                user_id=current_user.id,
+                email_enabled=True,
+                push_enabled=True,
+                in_app_enabled=True,
+                quiet_hours_enabled=False,
+                quiet_start_time="22:00",
+                quiet_end_time="08:00",
+                quiet_timezone="UTC",
+                type_preferences={},
+                min_priority_email="NORMAL",
+                min_priority_push="HIGH",
+                min_priority_in_app="LOW",
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+        else:
+            # For other errors, still return defaults
+            from uuid import uuid4
+            from datetime import datetime
+            
+            return NotificationPreferencesSchema(
+                id=uuid4(),
+                user_id=current_user.id,
+                email_enabled=True,
+                push_enabled=True,
+                in_app_enabled=True,
+                quiet_hours_enabled=False,
+                quiet_start_time="22:00",
+                quiet_end_time="08:00",
+                quiet_timezone="UTC",
+                type_preferences={},
+                min_priority_email="NORMAL",
+                min_priority_push="HIGH",
+                min_priority_in_app="LOW",
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
 
 
 @router.put("/preferences", response_model=NotificationPreferencesSchema)
