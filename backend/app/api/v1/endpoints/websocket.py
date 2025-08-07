@@ -15,45 +15,52 @@ router = APIRouter()
 async def authenticate_websocket(websocket: WebSocket, token: Optional[str] = None):
     """Authenticate WebSocket connection using token."""
     if not token:
+        logger.warning("WebSocket connection attempt without token")
         await websocket.close(code=4001, reason="Authentication required")
         return None
     
-    user_id = verify_token(token)
-    if not user_id:
-        await websocket.close(code=4001, reason="Invalid token")
-        return None
-    
-    # Get database session
-    db_gen = get_db()
-    db = next(db_gen)
-    
     try:
-        auth_service = AuthService(db)
-        user = auth_service.get_user_by_id(int(user_id))
-        
-        if not user or not user.is_active:
-            await websocket.close(code=4001, reason="User not found or inactive")
+        user_id = verify_token(token)
+        if not user_id:
+            logger.warning("WebSocket connection attempt with invalid token")
+            await websocket.close(code=4001, reason="Invalid token")
             return None
+        
+        # Get database session
+        db_gen = get_db()
+        db = next(db_gen)
+        
+        try:
+            auth_service = AuthService(db)
+            user = auth_service.get_user_by_id(int(user_id))
             
-        return user
-    finally:
-        db.close()
+            if not user or not user.is_active:
+                logger.warning(f"WebSocket connection attempt by inactive user {user_id}")
+                await websocket.close(code=4001, reason="User not found or inactive")
+                return None
+                
+            logger.info(f"WebSocket authentication successful for user {user.id}")
+            return user
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Error during WebSocket authentication: {e}")
+        await websocket.close(code=4001, reason="Authentication error")
+        return None
 
 
 @router.websocket("/notifications")
 async def notifications_websocket(websocket: WebSocket, token: Optional[str] = Query(None)):
     """WebSocket endpoint for real-time notifications."""
     try:
-        # Accept the connection first
-        await websocket.accept()
-        logger.info("WebSocket connection accepted for notifications")
-        
-        # Authenticate user
+        # Authenticate user BEFORE accepting the connection
         user = await authenticate_websocket(websocket, token)
         if not user:
-            return
-            
-        logger.info(f"WebSocket authenticated for user {user.id}")
+            return  # authenticate_websocket will close the connection
+        
+        # Accept the connection only after successful authentication
+        await websocket.accept()
+        logger.info(f"WebSocket connection accepted for user {user.id}")
         
         # Send connection confirmation
         await websocket.send_text(json.dumps({
