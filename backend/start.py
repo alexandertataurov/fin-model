@@ -238,6 +238,42 @@ def create_notifications_table():
         return False
 
 
+def fix_notification_schema():
+    """Fix notification schema issues by renaming columns."""
+    print("🔧 Fixing notification schema...")
+    
+    try:
+        from sqlalchemy import create_engine, text
+        from app.core.config import settings
+        
+        engine = create_engine(settings.DATABASE_URL)
+        
+        with engine.connect() as conn:
+            # Read and execute the SQL fix script
+            with open('fix_notification_schema.sql', 'r') as f:
+                sql_script = f.read()
+            
+            # Split the script into individual statements
+            statements = [stmt.strip() for stmt in sql_script.split(';') if stmt.strip()]
+            
+            for statement in statements:
+                if statement:
+                    try:
+                        conn.execute(text(statement))
+                        conn.commit()
+                    except Exception as e:
+                        print(f"⚠️ Warning executing statement: {e}")
+                        # Continue with other statements
+                        continue
+            
+            print("✅ Notification schema fix completed")
+            return True
+            
+    except Exception as e:
+        print(f"❌ Error fixing notification schema: {e}")
+        return False
+
+
 def start_app():
     """Start the FastAPI application."""
     print("🚀 Starting FastAPI application...")
@@ -268,6 +304,9 @@ def main():
     
     # Create notifications table if it doesn't exist
     create_notifications_table()
+    
+    # Fix notification schema issues
+    fix_notification_schema()
     
     # Run migrations
     if not run_migrations():
