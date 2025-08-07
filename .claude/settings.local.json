@@ -106,7 +106,9 @@
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_financial_engine import LeanFinancialEngine, CoreParameters; engine = LeanFinancialEngine(None); params = CoreParameters(); model = engine.calculate_comprehensive_model(params); print(''Lean financial engine works! Net income:'', model[''profit_loss''].net_income)\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_parameter_manager import LeanParameterManager; manager = LeanParameterManager(None); groups = manager.get_parameter_groups(); print(''Parameter manager works! Categories:'', len(groups))\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_parameter_manager import LeanParameterManager; manager = LeanParameterManager(None); groups = manager.get_parameter_groups(); print(''Parameter manager works! Categories:'', len(groups))\")",
-      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" test_lean_engine.py)"
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" test_lean_engine.py)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_financial_engine import LeanFinancialEngine, CoreParameters; engine = LeanFinancialEngine(None); params = CoreParameters(); model = engine.calculate_comprehensive_model(params); print(''Backend integration test successful! Net income:'', model[''profit_loss''].net_income)\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.services.lean_financial_engine import LeanFinancialEngine, CoreParameters; engine = LeanFinancialEngine(None); params = CoreParameters(); model = engine.calculate_comprehensive_model(params); print(''Backend integration test successful! Net income:'', model[''profit_loss''].net_income)\")"
     ],
     "deny": []
   }
