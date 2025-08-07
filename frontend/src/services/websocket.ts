@@ -72,7 +72,16 @@ class WebSocketService {
       console.log(`Connecting to WebSocket: ${this.url}`);
       this.ws = new WebSocket(this.url);
 
+      // Set connection timeout
+      const connectionTimeout = setTimeout(() => {
+        if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
+          console.warn('WebSocket connection timeout');
+          this.ws.close();
+        }
+      }, 10000); // 10 second timeout
+
       this.ws.onopen = () => {
+        clearTimeout(connectionTimeout);
         console.log('WebSocket connected');
         this.reconnectAttempts = 0;
         this.isServiceAvailable = true; // Mark service as available
@@ -88,6 +97,7 @@ class WebSocketService {
       };
 
       this.ws.onclose = event => {
+        clearTimeout(connectionTimeout);
         console.log(
           `WebSocket disconnected with code: ${event.code}, reason: ${event.reason}`
         );
@@ -119,12 +129,13 @@ class WebSocketService {
       };
 
       this.ws.onerror = error => {
+        clearTimeout(connectionTimeout);
         console.error('WebSocket error:', error);
         // Mark service as unavailable on error
         this.isServiceAvailable = false;
       };
     } catch (error) {
-      console.error('Failed to connect WebSocket:', error);
+      console.error('Failed to establish WebSocket connection:', error);
       this.isServiceAvailable = false;
       throw error;
     }
