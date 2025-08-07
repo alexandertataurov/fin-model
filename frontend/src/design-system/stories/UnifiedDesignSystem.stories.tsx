@@ -1,52 +1,28 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { DesignSystemProvider } from '../provider';
-import { 
-  Button, 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
   CardTitle,
   Input,
   Label,
   Badge,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Switch,
   Separator,
   Skeleton,
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Checkbox,
-  Textarea,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  useForm,
 } from '../index';
-import { 
-  Plus, 
-  Download, 
-  Trash2, 
-  Edit, 
-  Search, 
-  Mail, 
-  Eye, 
+import {
+  Plus,
+  Download,
+  Trash2,
+  Edit,
+  Search,
+  Mail,
+  Eye,
   EyeOff,
   Settings,
   User,
@@ -110,7 +86,7 @@ A comprehensive, unified design system that consolidates all components into one
     },
   },
   decorators: [
-    (Story) => (
+    Story => (
       <DesignSystemProvider>
         <div className="min-h-screen bg-background p-8">
           <Story />
@@ -127,36 +103,31 @@ type Story = StoryObj<typeof meta>;
 
 export const Overview: Story = {
   render: () => {
-    const form = useForm({
-      defaultValues: {
-        email: '',
-        password: '',
-        remember: false,
-        notifications: true,
-        role: '',
-      },
-    });
-
     return (
       <div className="space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">Unified Design System</h1>
+          <h1 className="text-4xl font-bold tracking-tight">
+            Unified Design System
+          </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A comprehensive design system that consolidates all components into one cohesive, 
-            accessible, and performant system for building financial applications.
+            A comprehensive design system that consolidates all components into
+            one cohesive, accessible, and performant system for building
+            financial applications.
           </p>
         </div>
 
         {/* Core Components Section */}
         <section className="space-y-6">
           <h2 className="text-2xl font-semibold">Core Components</h2>
-          
+
           {/* Buttons */}
           <Card>
             <CardHeader>
               <CardTitle>Buttons</CardTitle>
-              <CardDescription>Primary interaction components with multiple variants</CardDescription>
+              <CardDescription>
+                Primary interaction components with multiple variants
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap gap-4">
@@ -189,36 +160,53 @@ export const Overview: Story = {
           <Card>
             <CardHeader>
               <CardTitle>Cards</CardTitle>
-              <CardDescription>Container components for organizing content</CardDescription>
+              <CardDescription>
+                Container components for organizing content
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card variant="default">
                 <CardHeader>
                   <CardTitle>Default Card</CardTitle>
-                  <CardDescription>Standard card with default styling</CardDescription>
+                  <CardDescription>
+                    Standard card with default styling
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>This is the default card variant with standard padding and styling.</p>
+                  <p>
+                    This is the default card variant with standard padding and
+                    styling.
+                  </p>
                 </CardContent>
               </Card>
-              
+
               <Card variant="elevated">
                 <CardHeader>
                   <CardTitle>Elevated Card</CardTitle>
-                  <CardDescription>Card with enhanced shadow and hover effects</CardDescription>
+                  <CardDescription>
+                    Card with enhanced shadow and hover effects
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>This card has enhanced shadows and hover effects for better visual hierarchy.</p>
+                  <p>
+                    This card has enhanced shadows and hover effects for better
+                    visual hierarchy.
+                  </p>
                 </CardContent>
               </Card>
-              
+
               <Card variant="outline">
                 <CardHeader>
                   <CardTitle>Outline Card</CardTitle>
-                  <CardDescription>Card with transparent background and border</CardDescription>
+                  <CardDescription>
+                    Card with transparent background and border
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>This card has a transparent background with a visible border.</p>
+                  <p>
+                    This card has a transparent background with a visible
+                    border.
+                  </p>
                 </CardContent>
               </Card>
             </CardContent>
@@ -228,54 +216,36 @@ export const Overview: Story = {
           <Card>
             <CardHeader>
               <CardTitle>Form Components</CardTitle>
-              <CardDescription>Input, labels, and form controls</CardDescription>
+              <CardDescription>
+                Input, labels, and form controls
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="Enter your email" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" placeholder="Enter your password" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                  />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea 
-                  id="description" 
-                  placeholder="Enter a description..."
-                  rows={3}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">Administrator</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="viewer">Viewer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Settings</Label>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="remember" />
-                      <Label htmlFor="remember">Remember me</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="notifications" />
-                      <Label htmlFor="notifications">Enable notifications</Label>
-                    </div>
+                <Label>Settings</Label>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch id="notifications" />
+                    <Label htmlFor="notifications">Enable notifications</Label>
                   </div>
                 </div>
               </div>
@@ -286,43 +256,9 @@ export const Overview: Story = {
           <Card>
             <CardHeader>
               <CardTitle>Feedback Components</CardTitle>
-              <CardDescription>Alerts, badges, and status indicators</CardDescription>
+              <CardDescription>Badges and status indicators</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Information</AlertTitle>
-                  <AlertDescription>
-                    This is an informational alert with default styling.
-                  </AlertDescription>
-                </Alert>
-                
-                <Alert variant="success">
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertTitle>Success</AlertTitle>
-                  <AlertDescription>
-                    Your changes have been saved successfully.
-                  </AlertDescription>
-                </Alert>
-                
-                <Alert variant="warning">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Warning</AlertTitle>
-                  <AlertDescription>
-                    Please review your input before proceeding.
-                  </AlertDescription>
-                </Alert>
-                
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>
-                    There was an error processing your request.
-                  </AlertDescription>
-                </Alert>
-              </div>
-              
               <div className="flex flex-wrap gap-2">
                 <Badge>Default</Badge>
                 <Badge variant="secondary">Secondary</Badge>
@@ -339,7 +275,9 @@ export const Overview: Story = {
           <Card>
             <CardHeader>
               <CardTitle>Layout Components</CardTitle>
-              <CardDescription>Separators, skeletons, and layout helpers</CardDescription>
+              <CardDescription>
+                Separators, skeletons, and layout helpers
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -347,7 +285,7 @@ export const Overview: Story = {
                 <Separator />
                 <p>Content below separator</p>
               </div>
-              
+
               <div className="space-y-4">
                 <h4 className="font-medium">Loading States</h4>
                 <div className="space-y-2">
@@ -370,37 +308,26 @@ export const Overview: Story = {
           <Card>
             <CardHeader>
               <CardTitle>Interactive Demo</CardTitle>
-              <CardDescription>Try out the components interactively</CardDescription>
+              <CardDescription>
+                Try out the components interactively
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Open Dialog</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Design System Demo</DialogTitle>
-                    <DialogDescription>
-                      This dialog demonstrates the unified design system components in action.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="demo-input">Demo Input</Label>
-                      <Input id="demo-input" placeholder="Try typing here..." />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="demo-switch" />
-                      <Label htmlFor="demo-switch">Demo Switch</Label>
-                    </div>
-                    <div className="flex gap-2">
-                      <Badge variant="success">Success</Badge>
-                      <Badge variant="warning">Warning</Badge>
-                      <Badge variant="info">Info</Badge>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="demo-input">Demo Input</Label>
+                  <Input id="demo-input" placeholder="Try typing here..." />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="demo-switch" />
+                  <Label htmlFor="demo-switch">Demo Switch</Label>
+                </div>
+                <div className="flex gap-2">
+                  <Badge variant="success">Success</Badge>
+                  <Badge variant="warning">Warning</Badge>
+                  <Badge variant="info">Info</Badge>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </section>

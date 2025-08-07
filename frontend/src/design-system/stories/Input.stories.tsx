@@ -55,7 +55,7 @@ import { Input } from '@/design-system';
 <Input 
   label="Email"
   placeholder="Enter your email"
-  helperText="We'll never share your email"
+  helperText="We\'ll never share your email"
 />
 
 // With error state
@@ -138,7 +138,7 @@ export const WithLabel: Story = {
 export const WithHelperText: Story = {
   args: {
     placeholder: 'Enter your email',
-    helperText: 'We'll never share your email with anyone else.',
+    helperText: 'We\'ll never share your email with anyone else.',
   },
 };
 
