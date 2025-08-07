@@ -24,6 +24,12 @@ import DashboardApiService, {
 } from '@/services/dashboardApi';
 import type { DashboardData, DashboardLoadingState } from '@/types/dashboard';
 import { toast } from 'sonner';
+import {
+  useUserStatements,
+  useRefreshDashboard,
+  useExportDashboard,
+} from '@/hooks/useDashboard';
+import { useFinancialRatios } from '@/hooks/useDashboardData';
 
 /**
  * Main Dashboard/Home Page
@@ -52,6 +58,11 @@ const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(
     PeriodFilter.YTD
   );
+  const [fallbackMode, setFallbackMode] = useState<'empty' | 'demo'>(
+    (localStorage.getItem('dashboard_fallback') as 'empty' | 'demo') || 'empty'
+  );
+  const { data: statementsData } = useUserStatements(undefined, 6);
+  const { data: ratiosData } = useFinancialRatios(selectedPeriod);
 
   // Load dashboard data
   const loadDashboardData = async (
@@ -68,7 +79,7 @@ const Dashboard = () => {
 
       const data = await DashboardApiService.getDashboardOverview(
         period,
-        'demo'
+        fallbackMode
       );
       setDashboardData(data);
 
@@ -96,15 +107,29 @@ const Dashboard = () => {
     }
   };
 
-  // Refresh dashboard
+  // Use hooks for refresh/export
+  const refreshMutation = useRefreshDashboard();
+  const exportMutation = useExportDashboard();
+
   const handleRefreshDashboard = async () => {
-    await loadDashboardData(selectedPeriod, true);
+    try {
+      await refreshMutation.mutateAsync();
+      await loadDashboardData(selectedPeriod, true);
+    } catch {
+      // toast handled in hook
+    }
   };
 
   // Period change handler
   const handlePeriodChange = (period: PeriodFilter) => {
     setSelectedPeriod(period);
     loadDashboardData(period);
+  };
+
+  const handleFallbackChange = (mode: 'empty' | 'demo') => {
+    setFallbackMode(mode);
+    localStorage.setItem('dashboard_fallback', mode);
+    loadDashboardData(selectedPeriod);
   };
 
   // Load data on mount
@@ -218,17 +243,11 @@ const Dashboard = () => {
     toast.success('DCF valuation updated');
   };
 
-  const handleExportResults = async (results: any) => {
-    console.log('Export results:', results);
-    try {
-      const exportData = await DashboardApiService.exportDashboardData({
-        format: 'json',
-        period: selectedPeriod,
-      });
-      toast.success('Dashboard data exported successfully');
-    } catch (error) {
-      toast.error('Failed to export dashboard data');
-    }
+  const handleExportResults = async (_results: any) => {
+    await exportMutation.mutateAsync({
+      format: 'json',
+      period: selectedPeriod,
+    });
   };
 
   // Format metric value based on type
@@ -335,6 +354,18 @@ const Dashboard = () => {
                   Last 12 Months
                 </option>
               </select>
+              <select
+                value={fallbackMode}
+                onChange={e =>
+                  handleFallbackChange(e.target.value as 'empty' | 'demo')
+                }
+                className="text-xs sm:text-sm border rounded px-2 py-1 bg-background"
+                disabled={loadingState.isRefreshing}
+                title="Data mode"
+              >
+                <option value="empty">No data</option>
+                <option value="demo">Demo</option>
+              </select>
               <Button
                 variant="outline"
                 size="sm"
@@ -423,6 +454,33 @@ const Dashboard = () => {
                     </Card>
                   )
                 )
+              ) : ratiosData && (ratiosData as any).metrics ? (
+                Object.entries((ratiosData as any).metrics).map(
+                  ([key, metric]: any) => (
+                    <Card
+                      key={key}
+                      className="hover:shadow-md transition-shadow"
+                    >
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                          {metric.name ||
+                            key
+                              .replace('_', ' ')
+                              .replace(/\b\w/g, l => l.toUpperCase())}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold mb-1">
+                          {formatMetricValue(
+                            metric.value,
+                            metric.unit || '',
+                            metric.format_type
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                )
               ) : (
                 // No data state
                 <div className="col-span-full">
@@ -432,12 +490,17 @@ const Dashboard = () => {
                         No financial metrics available. Upload financial
                         statements to see key metrics.
                       </p>
-                      <Button
-                        className="mt-4"
-                        onClick={() => navigate('/upload')}
-                      >
-                        Upload Financial Data
-                      </Button>
+                      <div className="mt-4 flex items-center justify-center gap-2">
+                        <Button onClick={() => navigate('/upload')}>
+                          Upload Financial Data
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleFallbackChange('demo')}
+                        >
+                          View Demo Data
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
@@ -481,54 +544,60 @@ const Dashboard = () => {
                     </CardContent>
                   </Card>
                 ))
-              ) : dashboardData &&
-                dashboardData.statements &&
-                dashboardData.statements.length > 0 ? (
-                dashboardData.statements.slice(0, 6).map(statement => (
-                  <Card
-                    key={statement.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => {
-                      const path =
-                        statement.type === 'pl'
-                          ? '/dashboards/pl'
-                          : statement.type === 'balance_sheet'
-                          ? '/dashboards/balance'
-                          : '/dashboards/cashflow';
-                      navigate(path, { state: { statementId: statement.id } });
-                    }}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm">
-                          {statement.name}
-                        </CardTitle>
-                        <Badge variant="outline" className="text-xs">
-                          {statement.type.replace('_', ' ').toUpperCase()}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div>
-                          Period:{' '}
-                          {new Date(
-                            statement.period_start
-                          ).toLocaleDateString()}{' '}
-                          -{' '}
-                          {new Date(statement.period_end).toLocaleDateString()}
+              ) : (statementsData?.statements?.length || 0) > 0 ? (
+                (statementsData?.statements || [])
+                  .slice(0, 6)
+                  .map(statement => (
+                    <Card
+                      key={statement.id}
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => {
+                        const path =
+                          statement.type === 'pl'
+                            ? '/dashboards/pl'
+                            : statement.type === 'balance_sheet'
+                            ? '/dashboards/balance'
+                            : '/dashboards/cashflow';
+                        navigate(path, {
+                          state: { statementId: statement.id },
+                        });
+                      }}
+                    >
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-sm">
+                            {statement.name}
+                          </CardTitle>
+                          <Badge variant="outline" className="text-xs">
+                            {statement.type.replace('_', ' ').toUpperCase()}
+                          </Badge>
                         </div>
-                        <div>Currency: {statement.currency}</div>
-                        <div>
-                          Updated:{' '}
-                          {new Date(
-                            statement.last_updated
-                          ).toLocaleDateString()}
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-xs text-muted-foreground space-y-1">
+                          {statement.period_start && statement.period_end && (
+                            <div>
+                              Period:{' '}
+                              {new Date(
+                                statement.period_start
+                              ).toLocaleDateString()}{' '}
+                              -{' '}
+                              {new Date(
+                                statement.period_end
+                              ).toLocaleDateString()}
+                            </div>
+                          )}
+                          <div>Currency: {statement.currency}</div>
+                          <div>
+                            Updated:{' '}
+                            {new Date(
+                              statement.last_updated
+                            ).toLocaleDateString()}
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardContent>
+                    </Card>
+                  ))
               ) : (
                 // No statements state
                 <div className="col-span-full">
@@ -550,6 +619,12 @@ const Dashboard = () => {
                         >
                           <Settings className="h-4 w-4 mr-2" />
                           Set Parameters
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleFallbackChange('demo')}
+                        >
+                          View Demo Data
                         </Button>
                       </div>
                     </CardContent>
