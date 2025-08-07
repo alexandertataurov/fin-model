@@ -9,7 +9,7 @@ from app.models.base import get_db
 from app.models.user import User
 from app.models.file import UploadedFile, FileStatus
 from app.models.parameter import Parameter
-from app.models.report import ReportExport
+# Note: Report models removed in lean version
 
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
@@ -48,11 +48,8 @@ async def get_dashboard_metrics(
     total_parameters = (
         db.query(Parameter).filter(Parameter.user_id == current_user.id).count()
     )
-    total_reports = (
-        db.query(ReportExport)
-        .filter(ReportExport.created_by == current_user.id)
-        .count()
-    )
+    # Note: Report functionality removed in lean version
+    total_reports = 0
     return {
         "total_files": total_files,
         "completed_files": completed_files,
