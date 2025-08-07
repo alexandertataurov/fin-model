@@ -121,9 +121,17 @@ export const authApi = {
   async healthCheck(): Promise<boolean> {
     try {
       console.log('🏥 Checking backend health...');
-      const response = await api.get('/health');
-      console.log('✅ Backend health check successful:', response.data);
-      return true;
+      const response = await fetch(`${API_BASE_URL}/health`);
+      console.log(
+        '✅ Backend health check successful:',
+        response.status,
+        response.ok
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🏥 Health data:', data);
+      }
+      return response.ok;
     } catch (error) {
       console.error('❌ Backend health check failed:', error);
       return false;
@@ -265,28 +273,102 @@ export const authApi = {
       if (healthResponse.ok) {
         const healthData = await healthResponse.json();
         console.log('🏥 Health data:', healthData);
+      } else {
+        console.log('🏥 Health endpoint error:', await healthResponse.text());
       }
 
-      // Test 2: Test API endpoint
-      const apiResponse = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          password: 'testpassword',
-        }),
-      });
+      // Test 2: Register a test user
+      console.log('📝 Registering test user...');
+      const registerResponse = await fetch(
+        `${API_BASE_URL}/api/v1/auth/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: 'test@example.com',
+            username: 'testuser',
+            first_name: 'Test',
+            last_name: 'User',
+            password: 'TestPassword123!',
+          }),
+        }
+      );
       console.log(
-        '🔐 Login endpoint response:',
-        apiResponse.status,
-        apiResponse.ok
+        '📝 Register response:',
+        registerResponse.status,
+        registerResponse.ok
       );
 
-      if (!apiResponse.ok) {
-        const errorData = await apiResponse.text();
-        console.log('🔐 Login error response:', errorData);
+      if (registerResponse.ok) {
+        const registerData = await registerResponse.json();
+        console.log('📝 Register data:', registerData);
+
+        // Test 3: Verify the user
+        console.log('✅ Verifying test user...');
+        const verifyResponse = await fetch(
+          `${API_BASE_URL}/api/v1/auth/dev-verify-user`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: 'test@example.com',
+            }),
+          }
+        );
+        console.log(
+          '✅ Verify response:',
+          verifyResponse.status,
+          verifyResponse.ok
+        );
+
+        if (verifyResponse.ok) {
+          const verifyData = await verifyResponse.json();
+          console.log('✅ Verify data:', verifyData);
+
+          // Test 4: Login with verified user
+          console.log('🔐 Testing login with verified user...');
+          const loginResponse = await fetch(
+            `${API_BASE_URL}/api/v1/auth/login`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: 'test@example.com',
+                password: 'TestPassword123!',
+              }),
+            }
+          );
+          console.log(
+            '🔐 Login response:',
+            loginResponse.status,
+            loginResponse.ok
+          );
+
+          const loginText = await loginResponse.text();
+          console.log('🔐 Login response body:', loginText);
+
+          if (loginResponse.ok) {
+            console.log('🎉 SUCCESS: Login worked with verified user!');
+          } else {
+            console.log('❌ Login failed even with verified user:', {
+              status: loginResponse.status,
+              statusText: loginResponse.statusText,
+              body: loginText,
+            });
+          }
+        } else {
+          const verifyText = await verifyResponse.text();
+          console.log('❌ Verify failed:', verifyText);
+        }
+      } else {
+        const registerText = await registerResponse.text();
+        console.log('❌ Register failed:', registerText);
       }
     } catch (error) {
       console.error('❌ Backend connection test failed:', error);
