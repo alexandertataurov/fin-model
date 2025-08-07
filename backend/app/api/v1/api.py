@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     scenarios,
     statements,
     lean_financial,
+    websocket,
 )
 from app.core.config import settings
 
@@ -52,6 +53,9 @@ api_router.include_router(
 api_router.include_router(
     lean_financial.router, prefix="/lean-financial", tags=["lean-financial-modeling"]
 )
+
+# Include WebSocket routes
+api_router.include_router(websocket.router, prefix="/websocket", tags=["websocket"])
 
 try:
     from app.api.v1.endpoints import test_utils

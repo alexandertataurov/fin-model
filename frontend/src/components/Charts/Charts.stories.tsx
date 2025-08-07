@@ -4,12 +4,13 @@ import BarChart from './BarChart';
 import PieChart from './PieChart';
 
 const meta: Meta = {
-  title: '📊 Data Visualization',
+  title: '🏗️ Application Structure/📊 Data Visualization',
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: 'Financial charts and data visualization components for displaying complex financial data in an intuitive and interactive way.',
+        component:
+          'Advanced financial data visualization framework - interactive charts, graphs, and analytics components for displaying complex financial metrics and trends.',
       },
     },
   },
@@ -18,6 +19,153 @@ const meta: Meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const DataVisualizationOverview: Story = {
+  render: () => (
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-bold">📊 Data Visualization Framework</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Advanced financial data visualization and analytics components for
+          displaying complex financial metrics and trends
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Chart Types</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Line Charts</p>
+                <p className="text-sm text-muted-foreground">
+                  Trend analysis and time series
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Bar Charts</p>
+                <p className="text-sm text-muted-foreground">
+                  Comparison and distribution
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Pie Charts</p>
+                <p className="text-sm text-muted-foreground">
+                  Proportional breakdowns
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Features</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Interactive</p>
+                <p className="text-sm text-muted-foreground">
+                  Hover, zoom, and drill-down
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Responsive</p>
+                <p className="text-sm text-muted-foreground">
+                  Adapts to screen sizes
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Accessible</p>
+                <p className="text-sm text-muted-foreground">
+                  Screen reader support
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Use Cases</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-teal-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Financial Reports</p>
+                <p className="text-sm text-muted-foreground">
+                  Revenue and performance
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Dashboard Widgets</p>
+                <p className="text-sm text-muted-foreground">
+                  Real-time metrics
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Scenario Analysis</p>
+                <p className="text-sm text-muted-foreground">
+                  What-if modeling
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-muted/50 p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4">Technical Specifications</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium mb-2">Performance</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Optimized rendering for large datasets</li>
+              <li>• Lazy loading and virtualization</li>
+              <li>• Efficient memory management</li>
+              <li>• Smooth animations and transitions</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Integration</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Seamless data binding</li>
+              <li>• Real-time updates</li>
+              <li>• Export capabilities (PNG, SVG, PDF)</li>
+              <li>• Customizable themes and colors</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Comprehensive overview of the Data Visualization framework, showcasing chart types, features, and technical capabilities.',
+      },
+    },
+  },
+};
 
 // Sample financial data
 const revenueData = [

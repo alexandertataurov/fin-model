@@ -20,7 +20,9 @@ class WebSocketService {
       // Use Railway backend URL for WebSocket connections
       const protocol = 'wss:';
       const host = 'fin-model-production.up.railway.app';
-      this.url = `${protocol}//${host}${endpoint}`;
+      this.url = `${protocol}//${host}${
+        endpoint.startsWith('/') ? endpoint : '/' + endpoint
+      }`;
 
       this.ws = new WebSocket(this.url);
 

@@ -235,7 +235,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     if (isConnected) return;
 
     try {
-      await notificationsWebSocketService.connect('/notifications');
+      await notificationsWebSocketService.connect('/websocket/notifications');
       setIsConnected(true);
 
       // Clear previous subscriptions

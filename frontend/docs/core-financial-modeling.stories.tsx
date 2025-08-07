@@ -2,12 +2,13 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
-  title: '💰 Financial Modeling',
+  title: '🏗️ Application Structure/💰 Financial Modeling',
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: 'Specialized components for financial modeling workflows - DCF analysis, scenario modeling, and financial statement generation.',
+        component:
+          'Comprehensive financial modeling and valuation framework - DCF analysis engines, scenario modeling systems, and financial statement generation workflows.',
       },
     },
   },
@@ -16,6 +17,153 @@ const meta: Meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const FinancialModelingOverview: Story = {
+  render: () => (
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-bold">💰 Financial Modeling Framework</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Comprehensive financial modeling and valuation framework for DCF
+          analysis, scenario modeling, and financial statement generation
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">DCF Analysis</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">FCF Projections</p>
+                <p className="text-sm text-muted-foreground">
+                  Free cash flow modeling
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Terminal Value</p>
+                <p className="text-sm text-muted-foreground">
+                  Perpetuity and exit multiples
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">WACC Calculation</p>
+                <p className="text-sm text-muted-foreground">
+                  Cost of capital analysis
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Scenario Modeling</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Base Case</p>
+                <p className="text-sm text-muted-foreground">
+                  Conservative assumptions
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Upside/Downside</p>
+                <p className="text-sm text-muted-foreground">
+                  Optimistic/pessimistic
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Sensitivity</p>
+                <p className="text-sm text-muted-foreground">
+                  Key driver analysis
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Financial Statements</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-teal-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Income Statement</p>
+                <p className="text-sm text-muted-foreground">
+                  Revenue and profitability
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Balance Sheet</p>
+                <p className="text-sm text-muted-foreground">
+                  Assets and liabilities
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Cash Flow</p>
+                <p className="text-sm text-muted-foreground">
+                  Operating, investing, financing
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-muted/50 p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4">Modeling Framework</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium mb-2">Valuation Methods</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Discounted Cash Flow (DCF)</li>
+              <li>• Comparable Company Analysis</li>
+              <li>• Precedent Transactions</li>
+              <li>• Asset-Based Valuation</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Analysis Tools</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Sensitivity analysis</li>
+              <li>• Monte Carlo simulation</li>
+              <li>• Scenario comparison</li>
+              <li>• Risk assessment</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Comprehensive overview of the Financial Modeling framework, showcasing DCF analysis, scenario modeling, and financial statement capabilities.',
+      },
+    },
+  },
+};
 
 export const MainPlatformShowcase: Story = {
   render: () => (

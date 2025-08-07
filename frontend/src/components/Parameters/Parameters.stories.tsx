@@ -32,12 +32,13 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: '⚙️ Business Features',
+  title: '🏗️ Application Structure/⚙️ Business Features',
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        component: 'Core business functionality components - parameter management, scenario analysis, and financial modeling tools.',
+        component:
+          'Core business intelligence and operational framework - parameter management systems, scenario analysis tools, and financial modeling workflows.',
       },
     },
   },
@@ -46,6 +47,151 @@ const meta: Meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const BusinessFeaturesOverview: Story = {
+  render: () => (
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-bold">⚙️ Business Features Framework</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Core business intelligence and operational framework for parameter
+          management, scenario analysis, and financial modeling workflows
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Parameter Management</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Dynamic Controls</p>
+                <p className="text-sm text-muted-foreground">
+                  Sliders, inputs, and selectors
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Bulk Operations</p>
+                <p className="text-sm text-muted-foreground">
+                  Batch editing and updates
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Validation</p>
+                <p className="text-sm text-muted-foreground">
+                  Range checks and constraints
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Scenario Analysis</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">What-If Modeling</p>
+                <p className="text-sm text-muted-foreground">
+                  Sensitivity analysis
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Monte Carlo</p>
+                <p className="text-sm text-muted-foreground">
+                  Probabilistic modeling
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Comparison</p>
+                <p className="text-sm text-muted-foreground">
+                  Base vs scenario results
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Business Intelligence</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-teal-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Real-time Updates</p>
+                <p className="text-sm text-muted-foreground">
+                  Live calculations
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Impact Analysis</p>
+                <p className="text-sm text-muted-foreground">Change tracking</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Reporting</p>
+                <p className="text-sm text-muted-foreground">
+                  Automated insights
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-muted/50 p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4">Operational Framework</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium mb-2">Workflow Management</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Parameter lifecycle management</li>
+              <li>• Change approval workflows</li>
+              <li>• Version control and history</li>
+              <li>• Collaboration features</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Data Integration</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Excel import/export</li>
+              <li>• API connectivity</li>
+              <li>• Real-time synchronization</li>
+              <li>• Data validation rules</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Comprehensive overview of the Business Features framework, showcasing parameter management, scenario analysis, and operational capabilities.',
+      },
+    },
+  },
+};
 
 // Sample parameter data
 const sampleParameters = [

@@ -17,13 +17,13 @@ import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import React, { useState } from 'react';
 
 const meta: Meta = {
-  title: '🔐 Authentication',
+  title: '🏗️ Application Structure/🔐 Authentication',
   parameters: {
     layout: 'centered',
     docs: {
       description: {
         component:
-          'Authentication and user management components - login forms, registration, password reset, and security features.',
+          'Secure authentication and user management framework - login systems, registration workflows, password management, and security protocols.',
       },
     },
   },
@@ -32,6 +32,147 @@ const meta: Meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const AuthenticationOverview: Story = {
+  render: () => (
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-bold">🔐 Authentication Framework</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Secure authentication and user management framework for login systems,
+          registration workflows, and security protocols
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Login Systems</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Email/Password</p>
+                <p className="text-sm text-muted-foreground">
+                  Traditional authentication
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Biometric</p>
+                <p className="text-sm text-muted-foreground">
+                  Fingerprint and face ID
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">SSO Integration</p>
+                <p className="text-sm text-muted-foreground">OAuth and SAML</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">User Registration</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Account Creation</p>
+                <p className="text-sm text-muted-foreground">
+                  Multi-step registration
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Email Verification</p>
+                <p className="text-sm text-muted-foreground">
+                  Account activation
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Profile Setup</p>
+                <p className="text-sm text-muted-foreground">
+                  User preferences
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Security Protocols</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-teal-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Password Management</p>
+                <p className="text-sm text-muted-foreground">
+                  Reset and recovery
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Multi-Factor Auth</p>
+                <p className="text-sm text-muted-foreground">2FA and TOTP</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div>
+                <p className="font-medium">Session Management</p>
+                <p className="text-sm text-muted-foreground">Token handling</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-muted/50 p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4">Security Framework</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium mb-2">Authentication Methods</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Email/password authentication</li>
+              <li>• Biometric authentication</li>
+              <li>• Single Sign-On (SSO)</li>
+              <li>• Two-factor authentication (2FA)</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Security Features</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Password strength validation</li>
+              <li>• Account lockout protection</li>
+              <li>• Session timeout management</li>
+              <li>• Audit logging and monitoring</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Comprehensive overview of the Authentication framework, showcasing login systems, user registration, and security protocols.',
+      },
+    },
+  },
+};
 
 export const LoginForm: Story = {
   render: function LoginFormStory() {

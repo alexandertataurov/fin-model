@@ -2,21 +2,27 @@ import type { Meta, StoryObj } from '@storybook/react';
 // import Layout from './Layout';
 // import Sidebar from './Sidebar';
 // import { DashboardLayout } from '../DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Settings, 
-  Upload, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  FileText,
+  Settings,
+  Upload,
+  BarChart3,
   TrendingUp,
   DollarSign,
   Users,
   Calendar,
-  Bell
+  Bell,
 } from 'lucide-react';
 
 const meta: Meta = {
@@ -25,7 +31,8 @@ const meta: Meta = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Layout components and page structures that define the overall application architecture and user experience flow.',
+        component:
+          'Complete application architecture and user experience framework - layout components, navigation patterns, and page structures that define the overall application flow.',
       },
     },
   },
@@ -35,13 +42,179 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const ApplicationStructureOverview: Story = {
+  render: () => (
+    <div className="space-y-8">
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-bold">🏗️ Application Structure</h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Complete application architecture and user experience framework for
+          financial modeling
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Data Visualization */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <span className="text-2xl">📊</span>
+              <span>Data Visualization</span>
+            </CardTitle>
+            <CardDescription>
+              Advanced financial charts, graphs, and analytics components
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>Interactive Charts</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Financial Metrics</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span>Trend Analysis</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Business Features */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <span className="text-2xl">⚙️</span>
+              <span>Business Features</span>
+            </CardTitle>
+            <CardDescription>
+              Core business intelligence and operational tools
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>Parameter Management</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Scenario Analysis</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span>Business Intelligence</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Financial Modeling */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <span className="text-2xl">💰</span>
+              <span>Financial Modeling</span>
+            </CardTitle>
+            <CardDescription>
+              Comprehensive modeling and valuation frameworks
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>DCF Analysis</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Scenario Modeling</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span>Financial Statements</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Authentication */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <span className="text-2xl">🔐</span>
+              <span>Authentication</span>
+            </CardTitle>
+            <CardDescription>
+              Secure user management and access control
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>Login Systems</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>User Registration</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span>Security Protocols</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="bg-muted/50 p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4">
+          Application Architecture Overview
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium mb-2">Core Framework</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Modular component architecture</li>
+              <li>• Consistent design patterns</li>
+              <li>• Responsive layout system</li>
+              <li>• Accessibility compliance</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Integration Points</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>• Seamless data flow between modules</li>
+              <li>• Shared state management</li>
+              <li>• Unified navigation system</li>
+              <li>• Consistent user experience</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Comprehensive overview of the Application Structure framework, showcasing all major components and their integration points.',
+      },
+    },
+  },
+};
+
 const SampleSidebarContent = () => (
   <div className="w-64 h-screen bg-card border-r">
     <div className="p-4 border-b">
       <h2 className="text-lg font-semibold">FinVision</h2>
       <p className="text-sm text-muted-foreground">Financial Modeling</p>
     </div>
-    
+
     <nav className="p-4 space-y-2">
       <div className="space-y-1">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -88,7 +261,7 @@ const SampleHeader = () => (
       <h1 className="text-xl font-semibold">Parameter Dashboard</h1>
       <Badge variant="secondary">Active Model</Badge>
     </div>
-    
+
     <div className="flex items-center space-x-4">
       <Button variant="ghost" size="icon">
         <Bell className="h-4 w-4" />
@@ -135,9 +308,7 @@ const SampleDashboardContent = () => (
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">24</div>
-          <div className="text-xs text-muted-foreground">
-            3 modified today
-          </div>
+          <div className="text-xs text-muted-foreground">3 modified today</div>
         </CardContent>
       </Card>
 
@@ -172,11 +343,29 @@ const SampleDashboardContent = () => (
         <CardContent>
           <div className="space-y-3">
             {[
-              { name: 'Revenue Growth Rate', old: '12%', new: '15%', time: '2 hours ago' },
-              { name: 'Discount Rate', old: '10%', new: '8%', time: '4 hours ago' },
-              { name: 'COGS Margin', old: '65%', new: '60%', time: '6 hours ago' },
+              {
+                name: 'Revenue Growth Rate',
+                old: '12%',
+                new: '15%',
+                time: '2 hours ago',
+              },
+              {
+                name: 'Discount Rate',
+                old: '10%',
+                new: '8%',
+                time: '4 hours ago',
+              },
+              {
+                name: 'COGS Margin',
+                old: '65%',
+                new: '60%',
+                time: '6 hours ago',
+              },
             ].map((change, index) => (
-              <div key={index} className="flex justify-between items-center py-2 border-b last:border-0">
+              <div
+                key={index}
+                className="flex justify-between items-center py-2 border-b last:border-0"
+              >
                 <div>
                   <p className="text-sm font-medium">{change.name}</p>
                   <p className="text-xs text-muted-foreground">{change.time}</p>
@@ -197,9 +386,7 @@ const SampleDashboardContent = () => (
       <Card>
         <CardHeader>
           <CardTitle>Model Performance</CardTitle>
-          <CardDescription>
-            Key metrics and validation status
-          </CardDescription>
+          <CardDescription>Key metrics and validation status</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -213,12 +400,12 @@ const SampleDashboardContent = () => (
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Last Updated</span>
-              <span className="text-sm text-muted-foreground">5 minutes ago</span>
+              <span className="text-sm text-muted-foreground">
+                5 minutes ago
+              </span>
             </div>
             <div className="pt-4 border-t">
-              <Button className="w-full">
-                Recalculate Model
-              </Button>
+              <Button className="w-full">Recalculate Model</Button>
             </div>
           </div>
         </CardContent>
@@ -242,7 +429,8 @@ export const FullApplicationLayout: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Complete application layout with sidebar, header, and dashboard content.',
+        story:
+          'Complete application layout with sidebar, header, and dashboard content.',
       },
     },
   },
@@ -263,7 +451,8 @@ export const DashboardLayoutExample: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Dashboard-specific layout optimized for data visualization and widgets.',
+        story:
+          'Dashboard-specific layout optimized for data visualization and widgets.',
       },
     },
   },
@@ -311,8 +500,18 @@ export const ResponsiveLayout: Story = {
       {/* Mobile/Tablet Header */}
       <header className="lg:hidden h-16 border-b bg-background px-4 flex items-center justify-between">
         <Button variant="ghost" size="icon">
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          <svg
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </Button>
         <h1 className="text-lg font-semibold">FinVision</h1>
@@ -326,14 +525,14 @@ export const ResponsiveLayout: Story = {
         <div className="hidden lg:block">
           <SampleSidebarContent />
         </div>
-        
+
         {/* Main Content */}
         <main className="flex-1">
           {/* Desktop Header */}
           <div className="hidden lg:block">
             <SampleHeader />
           </div>
-          
+
           {/* Content */}
           <div className="p-4 lg:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -345,7 +544,7 @@ export const ResponsiveLayout: Story = {
                   <div className="text-xl lg:text-2xl font-bold">$1.2M</div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Parameters</CardTitle>
@@ -354,7 +553,7 @@ export const ResponsiveLayout: Story = {
                   <div className="text-xl lg:text-2xl font-bold">24</div>
                 </CardContent>
               </Card>
-              
+
               <Card className="sm:col-span-2 lg:col-span-1">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Status</CardTitle>
@@ -375,7 +574,8 @@ export const ResponsiveLayout: Story = {
     },
     docs: {
       description: {
-        story: 'Responsive layout that adapts to different screen sizes with mobile-first approach.',
+        story:
+          'Responsive layout that adapts to different screen sizes with mobile-first approach.',
       },
     },
   },
@@ -387,7 +587,7 @@ export const CenteredFormLayout: Story = {
       <div className="hidden lg:block w-64">
         <SampleSidebarContent />
       </div>
-      
+
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
@@ -399,12 +599,12 @@ export const CenteredFormLayout: Story = {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Parameter Name</label>
-              <input 
-                className="w-full px-3 py-2 border rounded-md" 
+              <input
+                className="w-full px-3 py-2 border rounded-md"
                 placeholder="e.g., Revenue Growth Rate"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Category</label>
               <select className="w-full px-3 py-2 border rounded-md">
@@ -413,29 +613,31 @@ export const CenteredFormLayout: Story = {
                 <option>Valuation</option>
               </select>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Min Value</label>
-                <input 
-                  type="number" 
-                  className="w-full px-3 py-2 border rounded-md" 
+                <input
+                  type="number"
+                  className="w-full px-3 py-2 border rounded-md"
                   placeholder="0"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Max Value</label>
-                <input 
-                  type="number" 
-                  className="w-full px-3 py-2 border rounded-md" 
+                <input
+                  type="number"
+                  className="w-full px-3 py-2 border rounded-md"
                   placeholder="1"
                 />
               </div>
             </div>
-            
+
             <div className="pt-4 space-y-2">
               <Button className="w-full">Create Parameter</Button>
-              <Button variant="outline" className="w-full">Cancel</Button>
+              <Button variant="outline" className="w-full">
+                Cancel
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -445,7 +647,8 @@ export const CenteredFormLayout: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Centered form layout with sidebar navigation for focused input tasks.',
+        story:
+          'Centered form layout with sidebar navigation for focused input tasks.',
       },
     },
   },
