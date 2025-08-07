@@ -1,5 +1,5 @@
 import React from 'react';
-import { EnhancedCard } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system';
 import { componentStyles } from '@/components/ui/utils/designSystem';
 
 const PnLDashboard: React.FC = () => {
@@ -12,19 +12,24 @@ const PnLDashboard: React.FC = () => {
             Profit & Loss analysis and insights
           </p>
         </header>
-        
+
         <main className="space-y-6">
-          <EnhancedCard variant="default">
-            <h2 className={componentStyles.heading.h2}>Coming Soon</h2>
-            <p className="text-muted-foreground">
-              The P&L Dashboard is under development. This will provide comprehensive
-              profit and loss analysis with interactive charts and key metrics.
-            </p>
-          </EnhancedCard>
+          <Card>
+            <CardHeader>
+              <CardTitle>Coming Soon</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                The P&L Dashboard is under development. This will provide
+                comprehensive profit and loss analysis with interactive charts
+                and key metrics.
+              </p>
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>
   );
 };
 
-export default PnLDashboard; 
+export default PnLDashboard;

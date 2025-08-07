@@ -11,8 +11,8 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FeatureCard } from '@/components/ui/EnhancedCard';
-import { EnhancedButton } from '@/components/ui/EnhancedButton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system';
+import { Button } from '@/design-system';
 import { componentStyles } from '@/components/ui/utils/designSystem';
 import { CoreFinancialModeling } from '@/components/CoreFinancialModeling';
 
@@ -189,7 +189,7 @@ const Dashboard = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {quickActions.map((action, index) => (
-              <EnhancedButton
+              <Button
                 key={index}
                 variant={action.variant}
                 onClick={action.action}
@@ -204,7 +204,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
-              </EnhancedButton>
+              </Button>
             ))}
           </div>
         </section>
@@ -221,15 +221,23 @@ const Dashboard = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {dashboardCards.map((card, index) => (
-              <FeatureCard
+              <Card
                 key={index}
-                title={card.title}
-                description={card.subtitle}
-                icon={card.icon}
-                variant="highlight"
                 onClick={card.onClick}
                 className="cursor-pointer transition-all duration-200 hover:scale-105"
-              />
+              >
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    {card.icon}
+                    <CardTitle>{card.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {card.subtitle}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </section>
@@ -248,30 +256,54 @@ const Dashboard = () => {
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FeatureCard
-              title="Upload Your Data"
-              description="Start by uploading your financial spreadsheets and documents"
-              icon={<CloudUpload />}
-              variant="highlight"
+            <Card
               onClick={() => navigate('/upload')}
               className="cursor-pointer"
-            />
-            <FeatureCard
-              title="Configure Parameters"
-              description="Set up your modeling parameters and assumptions"
-              icon={<Settings />}
-              variant="highlight"
+            >
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <CloudUpload />
+                  <CardTitle>Upload Your Data</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Start by uploading your financial spreadsheets and documents
+                </p>
+              </CardContent>
+            </Card>
+            <Card
               onClick={() => navigate('/parameters')}
               className="cursor-pointer"
-            />
-            <FeatureCard
-              title="Run Analysis"
-              description="Generate comprehensive financial statements and valuations"
-              icon={<Target />}
-              variant="highlight"
+            >
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Settings />
+                  <CardTitle>Configure Parameters</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Set up your modeling parameters and assumptions
+                </p>
+              </CardContent>
+            </Card>
+            <Card
               onClick={() => navigate('/dcf-valuation')}
               className="cursor-pointer"
-            />
+            >
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <Target />
+                  <CardTitle>Run Analysis</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Generate comprehensive financial statements and valuations
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </section>
       </main>

@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PasswordInput } from '@/components/ui/password-input';
+import { Input } from '@/design-system';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Form,
@@ -171,7 +171,8 @@ const ResetPassword: React.FC = () => {
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <PasswordInput
+                          <Input
+                            type="password"
                             placeholder="Enter your new password"
                             className="pl-9"
                             {...field}
@@ -192,7 +193,8 @@ const ResetPassword: React.FC = () => {
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <PasswordInput
+                          <Input
+                            type="password"
                             placeholder="Confirm your new password"
                             className="pl-9"
                             {...field}

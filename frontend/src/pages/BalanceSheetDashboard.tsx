@@ -1,5 +1,5 @@
 import React from 'react';
-import { EnhancedCard } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system';
 import { componentStyles } from '@/components/ui/utils/designSystem';
 
 const BalanceSheetDashboard: React.FC = () => {
@@ -7,24 +7,31 @@ const BalanceSheetDashboard: React.FC = () => {
     <div className="min-h-screen bg-background">
       <div className={componentStyles.container}>
         <header className="py-6">
-          <h1 className={componentStyles.heading.h1}>Balance Sheet Dashboard</h1>
+          <h1 className={componentStyles.heading.h1}>
+            Balance Sheet Dashboard
+          </h1>
           <p className="text-muted-foreground mt-2">
             Assets, liabilities, and equity analysis
           </p>
         </header>
-        
+
         <main className="space-y-6">
-          <EnhancedCard variant="default">
-            <h2 className={componentStyles.heading.h2}>Coming Soon</h2>
-            <p className="text-muted-foreground">
-              The Balance Sheet Dashboard is under development. This will provide
-              comprehensive balance sheet analysis with asset and liability breakdowns.
-            </p>
-          </EnhancedCard>
+          <Card>
+            <CardHeader>
+              <CardTitle>Coming Soon</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                The Balance Sheet Dashboard is under development. This will
+                provide comprehensive balance sheet analysis with asset and
+                liability breakdowns.
+              </p>
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>
   );
 };
 
-export default BalanceSheetDashboard; 
+export default BalanceSheetDashboard;

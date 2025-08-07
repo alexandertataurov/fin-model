@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EnhancedCard, EnhancedButton } from '@/components/ui';
+// import { Card, CardContent, CardHeader, CardTitle, Button } from '@/design-system';
 import { componentStyles } from '@/components/ui/utils/designSystem';
 import { Home, ArrowLeft } from 'lucide-react';
 
@@ -13,12 +13,14 @@ const NotFound: React.FC = () => {
         <div className="text-center space-y-6">
           <EnhancedCard variant="outline" className="max-w-md mx-auto">
             <div className="space-y-4">
-              <div className="text-6xl font-bold text-muted-foreground">404</div>
+              <div className="text-6xl font-bold text-muted-foreground">
+                404
+              </div>
               <h1 className={componentStyles.heading.h1}>Page Not Found</h1>
               <p className="text-muted-foreground">
                 The page you're looking for doesn't exist or has been moved.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <EnhancedButton
                   variant="outline"
@@ -42,4 +44,4 @@ const NotFound: React.FC = () => {
   );
 };
 
-export default NotFound; 
+export default NotFound;

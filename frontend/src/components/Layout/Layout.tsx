@@ -11,7 +11,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Menu, LogOut, Home, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { HelpButton } from '../ui';
+// import { HelpButton } from '../ui';
 import { ThemeToggle } from '../theme-toggle';
 import Sidebar from './Sidebar';
 
@@ -105,7 +105,7 @@ const Layout = () => {
 
             <div className="ml-auto flex items-center gap-4">
               <ThemeToggle />
-              <HelpButton />
+              {/* <HelpButton /> */}
 
               {/* User Menu */}
               <DropdownMenu>

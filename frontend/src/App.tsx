@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
-import { Toaster } from '@/design-system';
+import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { DesignSystemProvider } from '@/design-system';
@@ -24,6 +24,15 @@ import CashFlowLifecycle from '@/pages/CashFlowLifecycle';
 import NotFound from '@/pages/NotFound';
 import './styles/globals.css';
 
+// Component to conditionally render NotificationProvider with autoConnect
+const AuthenticatedNotificationProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <NotificationProvider autoConnect={true}>{children}</NotificationProvider>
+  );
+};
+
 function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -43,9 +52,9 @@ function App() {
                   path="/"
                   element={
                     <AuthGuard>
-                      <NotificationProvider>
+                      <AuthenticatedNotificationProvider>
                         <Layout />
-                      </NotificationProvider>
+                      </AuthenticatedNotificationProvider>
                     </AuthGuard>
                   }
                 >
@@ -63,10 +72,7 @@ function App() {
                   <Route path="scenarios" element={<Scenarios />} />
                   <Route path="parameters" element={<Parameters />} />
                   <Route path="dcf-valuation" element={<DCFValuation />} />
-                  <Route
-                    path="asset-lifecycle"
-                    element={<AssetLifecycle />}
-                  />
+                  <Route path="asset-lifecycle" element={<AssetLifecycle />} />
                   <Route
                     path="cash-flow-lifecycle"
                     element={<CashFlowLifecycle />}

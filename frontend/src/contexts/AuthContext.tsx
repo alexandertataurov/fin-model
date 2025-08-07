@@ -6,6 +6,10 @@ import React, {
   useCallback,
 } from 'react';
 import { authApi } from '../services/authApi';
+import {
+  notificationsWebSocketService,
+  dashboardWebSocketService,
+} from '../services/websocket';
 
 export interface User {
   id: number;
@@ -151,12 +155,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Auto-refresh token
   useEffect(() => {
     if (state.token && state.refreshToken) {
-      const refreshInterval = setInterval(
-        async () => {
-          await refreshTokenInternal();
-        },
-        14 * 60 * 1000
-      ); // Refresh every 14 minutes
+      const refreshInterval = setInterval(async () => {
+        await refreshTokenInternal();
+      }, 14 * 60 * 1000); // Refresh every 14 minutes
 
       return () => clearInterval(refreshInterval);
     }
@@ -165,15 +166,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const loadUserPermissions = async () => {
     try {
       const permissionsData = await authApi.getUserPermissions();
-      
+
       // Safely handle the permissions data
-      const permissions = Array.isArray(permissionsData?.permissions) 
-        ? permissionsData.permissions 
+      const permissions = Array.isArray(permissionsData?.permissions)
+        ? permissionsData.permissions
         : [];
-      const roles = Array.isArray(permissionsData?.roles) 
-        ? permissionsData.roles 
+      const roles = Array.isArray(permissionsData?.roles)
+        ? permissionsData.roles
         : [];
-        
+
       setState(prev => ({
         ...prev,
         permissions,
@@ -233,6 +234,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log('Loading permissions...');
       await loadUserPermissions();
       console.log('Login process completed successfully');
+
+      // Reset WebSocket service availability for fresh connection attempts
+      notificationsWebSocketService.resetServiceAvailability();
+      dashboardWebSocketService.resetServiceAvailability();
 
       return true;
     } catch (error) {

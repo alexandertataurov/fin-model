@@ -15,9 +15,18 @@ class WebSocketService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
+  private isServiceAvailable = true; // Track service availability
 
   async connect(endpoint: string): Promise<void> {
     try {
+      // Don't connect if service is marked as unavailable
+      if (!this.isServiceAvailable) {
+        console.warn(
+          'WebSocket service is marked as unavailable, skipping connection'
+        );
+        throw new Error('WebSocket service unavailable');
+      }
+
       // Don't connect if already connected
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         console.log('WebSocket already connected');
@@ -32,28 +41,33 @@ class WebSocketService {
 
       // Store the original endpoint for reconnection
       this.originalEndpoint = endpoint;
-      
+
       // Get auth token from localStorage
       const token = localStorage.getItem('access_token');
-      
+
       // Check if authentication is required for this endpoint
       const requiresAuth = endpoint !== '/ws/health';
-      
+
       if (requiresAuth && !token) {
-        console.warn('WebSocket connection requires authentication but no token found');
+        console.warn(
+          'WebSocket connection requires authentication but no token found'
+        );
         throw new Error('Authentication required');
       }
-      
+
       // Use Railway backend URL for WebSocket connections
       const protocol = 'wss:';
       const host = 'fin-model-production.up.railway.app';
-      
+
       // Add token as query parameter if available and required
       const baseUrl = `${protocol}//${host}${
         endpoint.startsWith('/') ? endpoint : '/' + endpoint
       }`;
-      
-      this.url = token && requiresAuth ? `${baseUrl}?token=${encodeURIComponent(token)}` : baseUrl;
+
+      this.url =
+        token && requiresAuth
+          ? `${baseUrl}?token=${encodeURIComponent(token)}`
+          : baseUrl;
 
       console.log(`Connecting to WebSocket: ${this.url}`);
       this.ws = new WebSocket(this.url);
@@ -61,6 +75,7 @@ class WebSocketService {
       this.ws.onopen = () => {
         console.log('WebSocket connected');
         this.reconnectAttempts = 0;
+        this.isServiceAvailable = true; // Mark service as available
       };
 
       this.ws.onmessage = event => {
@@ -72,29 +87,45 @@ class WebSocketService {
         }
       };
 
-      this.ws.onclose = (event) => {
-        console.log(`WebSocket disconnected with code: ${event.code}, reason: ${event.reason}`);
-        
+      this.ws.onclose = event => {
+        console.log(
+          `WebSocket disconnected with code: ${event.code}, reason: ${event.reason}`
+        );
+
         // Don't attempt reconnection for authentication errors
         if (event.code === 4001) {
-          console.warn('WebSocket authentication failed, not attempting reconnection');
+          console.warn(
+            'WebSocket authentication failed, not attempting reconnection'
+          );
           return;
         }
-        
+
         // Don't attempt reconnection if we're not authenticated
         if (requiresAuth && !localStorage.getItem('access_token')) {
-          console.log('User not authenticated, not attempting WebSocket reconnection');
+          console.log(
+            'User not authenticated, not attempting WebSocket reconnection'
+          );
           return;
         }
-        
+
+        // Mark service as unavailable for certain error codes
+        if (event.code === 1006 || event.code === 1015) {
+          console.warn('WebSocket service appears to be unavailable');
+          this.isServiceAvailable = false;
+          return;
+        }
+
         this.attemptReconnect();
       };
 
       this.ws.onerror = error => {
         console.error('WebSocket error:', error);
+        // Mark service as unavailable on error
+        this.isServiceAvailable = false;
       };
     } catch (error) {
       console.error('Failed to connect WebSocket:', error);
+      this.isServiceAvailable = false;
       throw error;
     }
   }
@@ -188,6 +219,43 @@ class WebSocketService {
         return 'disconnected';
       default:
         return 'unknown';
+    }
+  }
+
+  checkServiceAvailability(): boolean {
+    return this.isServiceAvailable;
+  }
+
+  resetServiceAvailability(): void {
+    this.isServiceAvailable = true;
+  }
+
+  async checkBackendHealth(): Promise<boolean> {
+    try {
+      const response = await fetch(
+        'https://fin-model-production.up.railway.app/health',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // Short timeout to avoid hanging
+          signal: AbortSignal.timeout(5000),
+        }
+      );
+
+      if (response.ok) {
+        this.isServiceAvailable = true;
+        return true;
+      } else {
+        console.warn('Backend health check failed:', response.status);
+        this.isServiceAvailable = false;
+        return false;
+      }
+    } catch (error) {
+      console.warn('Backend health check error:', error);
+      this.isServiceAvailable = false;
+      return false;
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
@@ -6,10 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { PasswordInput } from '@/components/ui/password-input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input, Checkbox, Alert, AlertDescription } from '@/design-system';
 import {
   Form,
   FormField,
@@ -42,10 +39,18 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { handleError } = useLoginErrorHandler();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      console.log('User already authenticated, redirecting to dashboard');
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -61,18 +66,23 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
+      console.log('Login form submitted with:', { email: values.email, rememberMe: values.rememberMe });
       const success = await login(
         values.email,
         values.password,
         values.rememberMe
       );
 
+      console.log('Login result:', success);
       if (success) {
+        console.log('Login successful, navigating to dashboard...');
         navigate('/', { replace: true });
       } else {
+        console.log('Login failed, showing error message');
         setError('Invalid email or password. Please try again.');
       }
     } catch (err: unknown) {
+      console.error('Login error:', err);
       const error = err as {
         response?: { status?: number; data?: { detail?: string } };
       };
@@ -129,143 +139,152 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        {/* Login Card */}
-        <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xl font-semibold text-center">
-              Sign In
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+        {/* Show loading spinner while checking authentication */}
+        {authLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Checking authentication...</span>
+          </div>
+        ) : (
+          /* Login Card */
+          <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+            <CardHeader className="space-y-1 pb-4">
+              <CardTitle className="text-xl font-semibold text-center">
+                Sign In
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter your email"
-                            type="email"
-                            autoComplete="email"
-                            className="pl-9"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <PasswordInput
-                            placeholder="Enter your password"
-                            autoComplete="current-password"
-                            className="pl-9"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex items-center justify-between">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={form.control}
-                    name="rememberMe"
+                    name="email"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Enter your email"
+                              type="email"
+                              autoComplete="email"
+                              className="pl-9"
+                              {...field}
+                            />
+                          </div>
                         </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          Remember me
-                        </FormLabel>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button variant="link" size="sm" asChild>
-                    <RouterLink to="/forgot-password">
-                      Forgot password?
-                    </RouterLink>
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="password"
+                              placeholder="Enter your password"
+                              autoComplete="current-password"
+                              className="pl-9"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex items-center justify-between">
+                    <FormField
+                      control={form.control}
+                      name="rememberMe"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Remember me
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                    <Button variant="link" size="sm" asChild>
+                      <RouterLink to="/forgot-password">
+                        Forgot password?
+                      </RouterLink>
+                    </Button>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing In...
+                      </>
+                    ) : (
+                      'Sign In'
+                    )}
                   </Button>
-                </div>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full"
-                  size="lg"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing In...
-                    </>
-                  ) : (
-                    'Sign In'
-                  )}
-                </Button>
-
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-4 py-1 text-muted-foreground">
+                        or
+                      </span>
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-4 py-1 text-muted-foreground">
-                      or
-                    </span>
+
+                  <BiometricLogin
+                    onBiometricLogin={handleBiometricLogin}
+                    isLoading={isLoading}
+                  />
+
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Don't have an account?{' '}
+                      <RouterLink
+                        to="/register"
+                        className="font-medium text-primary hover:text-primary/80 hover:underline transition-colors"
+                      >
+                        Sign up here
+                      </RouterLink>
+                    </p>
                   </div>
-                </div>
-
-                <BiometricLogin
-                  onBiometricLogin={handleBiometricLogin}
-                  isLoading={isLoading}
-                />
-
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Don't have an account?{' '}
-                    <RouterLink
-                      to="/register"
-                      className="font-medium text-primary hover:text-primary/80 hover:underline transition-colors"
-                    >
-                      Sign up here
-                    </RouterLink>
-                  </p>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Footer */}
         <div className="text-center">

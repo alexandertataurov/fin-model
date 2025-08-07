@@ -89,7 +89,7 @@ interface NotificationProviderProps {
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
-  autoConnect = true,
+  autoConnect = false, // Changed from true to false
   showToasts = true,
   maxNotifications = 100,
 }) => {
@@ -262,8 +262,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   }, []);
 
   // WebSocket connection management
-  const connect = useCallback(async () => {
-    if (isConnected) return;
+  const connect = useCallback(async (): Promise<void> => {
+    if (isConnected) {
+      console.log('Already connected to notifications WebSocket');
+      return;
+    }
 
     // Check if user is authenticated
     const token = getAuthToken();
@@ -272,47 +275,51 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       return;
     }
 
+    // Check if WebSocket service is available
+    if (!notificationsWebSocketService.checkServiceAvailability()) {
+      console.warn(
+        'WebSocket service is unavailable, checking backend health...'
+      );
+      const isHealthy =
+        await notificationsWebSocketService.checkBackendHealth();
+      if (!isHealthy) {
+        console.warn(
+          'Backend health check failed, skipping WebSocket connection'
+        );
+        return;
+      }
+    }
+
     try {
       await notificationsWebSocketService.connect('/ws/notifications');
       setIsConnected(true);
 
-      // Clear previous subscriptions
-      unsubscribeRefs.current.forEach(unsub => unsub());
-      unsubscribeRefs.current = [];
+      // Subscribe to different notification events
+      notificationsWebSocketService.subscribe(
+        'notification_created',
+        handleNewNotification
+      );
+      notificationsWebSocketService.subscribe(
+        'notification_updated',
+        handleNotificationUpdate
+      );
+      notificationsWebSocketService.subscribe(
+        'notification_deleted',
+        handleBulkRead
+      );
 
-      // Subscribe to real-time events
-      const subscriptions = [
-        notificationsWebSocketService.subscribe(
-          'notification',
-          handleNewNotification
-        ),
-        notificationsWebSocketService.subscribe(
-          'notification_update',
-          handleNotificationUpdate
-        ),
-        notificationsWebSocketService.subscribe(
-          'notifications_bulk_read',
-          handleBulkRead
-        ),
-      ];
-
-      unsubscribeRefs.current = subscriptions;
+      console.log('Successfully connected to notifications WebSocket');
     } catch (error) {
       console.error('Failed to connect to notifications WebSocket:', error);
       setIsConnected(false);
 
-      // If it's an authentication error, don't retry
-      if (
-        error instanceof Error &&
-        error.message === 'Authentication required'
-      ) {
-        console.log(
-          'WebSocket connection failed due to authentication, will retry when user logs in'
-        );
-      }
+      // Show user-friendly error message
+      showWebSocketLimitationNotification();
     }
   }, [
     isConnected,
+    getAuthToken,
+    showToasts,
     handleNewNotification,
     handleNotificationUpdate,
     handleBulkRead,
@@ -510,6 +517,25 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     [apiCall]
   );
 
+  // Show user-friendly notification about WebSocket limitations
+  const showWebSocketLimitationNotification = useCallback(() => {
+    if (showToasts) {
+      addNotification({
+        id: `websocket-limitation-${Date.now()}`,
+        type: 'system',
+        title: 'Real-time updates limited',
+        message:
+          'Real-time notifications are currently limited. You can still view and manage notifications manually.',
+        priority: 'low',
+        status: 'active',
+        is_read: false,
+        is_dismissed: false,
+        created_at: new Date().toISOString(),
+        data: { type: 'websocket_limitation' },
+      });
+    }
+  }, [showToasts, addNotification]);
+
   // Initialize
   useEffect(() => {
     if (!initialized.current) {
@@ -538,7 +564,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       // Check if user is authenticated before attempting connection
       const token = getAuthToken();
       if (token) {
-        connect();
+        connect().catch(error => {
+          console.warn('WebSocket connection failed:', error);
+          // Show user-friendly notification about WebSocket unavailability
+          showWebSocketLimitationNotification();
+        });
       } else {
         console.log('User not authenticated, skipping WebSocket auto-connect');
       }
@@ -547,7 +577,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     return () => {
       disconnect();
     };
-  }, [autoConnect, connect, disconnect]);
+  }, [autoConnect, connect, disconnect, showWebSocketLimitationNotification]);
 
   // Monitor connection state
   useEffect(() => {

@@ -6,10 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { PasswordInput } from '@/components/ui/password-input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input, Checkbox, Alert, AlertDescription } from '@/design-system';
 import {
   Form,
   FormField,
@@ -253,7 +250,8 @@ const Register: React.FC = () => {
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <PasswordInput
+                          <Input
+                            type="password"
                             placeholder="Create a strong password"
                             className="pl-9"
                             {...field}
@@ -274,7 +272,8 @@ const Register: React.FC = () => {
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <PasswordInput
+                          <Input
+                            type="password"
                             placeholder="Confirm your password"
                             className="pl-9"
                             {...field}
