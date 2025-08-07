@@ -10,6 +10,7 @@ interface WebSocketEventHandler {
 class WebSocketService {
   private ws: WebSocket | null = null;
   private url: string = '';
+  private originalEndpoint: string = '';
   private subscriptions = new Map<string, WebSocketEventHandler[]>();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -17,6 +18,9 @@ class WebSocketService {
 
   async connect(endpoint: string): Promise<void> {
     try {
+      // Store the original endpoint for reconnection
+      this.originalEndpoint = endpoint;
+      
       // Use Railway backend URL for WebSocket connections
       const protocol = 'wss:';
       const host = 'fin-model-production.up.railway.app';
@@ -59,6 +63,7 @@ class WebSocketService {
       this.ws.close();
       this.ws = null;
     }
+    this.originalEndpoint = '';
     this.subscriptions.clear();
   }
 
@@ -109,7 +114,7 @@ class WebSocketService {
       console.log(
         `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`
       );
-      this.connect(this.url.split('/').pop() || '');
+      this.connect(this.originalEndpoint);
     }, delay);
   }
 
