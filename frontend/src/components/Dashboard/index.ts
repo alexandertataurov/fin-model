@@ -1,5 +1,5 @@
 // Dashboard components
-export { default as DashboardGrid } from './DashboardGrid';
+export { DashboardGrid } from './DashboardGrid';
 export { default as FinancialDashboard } from './FinancialDashboard';
 export type { DashboardWidget, DashboardLayout } from './DashboardGrid';
 

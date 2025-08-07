@@ -27,7 +27,7 @@ import {
   Zap
 } from 'lucide-react';
 
-interface Scenario {
+export interface Scenario {
   id: string;
   name: string;
   description: string;
@@ -39,7 +39,7 @@ interface Scenario {
   status: 'draft' | 'calculated' | 'error';
 }
 
-interface ScenarioResults {
+export interface ScenarioResults {
   net_income: number;
   revenue: number;
   ebitda: number;

@@ -28,19 +28,21 @@ export const sharedOptimizeDeps = [
 // Base configuration shared across all configs
 export const baseConfig: UserConfig = {
   plugins: [
-    react(),
+    react({
+      jsxImportSource: 'react',
+    }),
   ],
-  
+
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
     },
   },
-  
+
   optimizeDeps: {
     include: sharedOptimizeDeps,
   },
-  
+
   build: {
     outDir: 'dist',
     target: 'es2022',
@@ -53,7 +55,7 @@ export const baseConfig: UserConfig = {
       },
     },
   },
-  
+
   define: {
     'process.env.NODE_ENV': '"production"',
     __DEV__: false,
@@ -77,7 +79,8 @@ export function mergeConfig(override: UserConfig): UserConfig {
     optimizeDeps: {
       ...baseConfig.optimizeDeps,
       ...override.optimizeDeps,
-      include: override.optimizeDeps?.include || baseConfig.optimizeDeps?.include,
+      include:
+        override.optimizeDeps?.include || baseConfig.optimizeDeps?.include,
     },
     build: {
       ...baseConfig.build,

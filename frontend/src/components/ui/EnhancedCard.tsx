@@ -25,8 +25,10 @@ export const EnhancedCard: React.FC<EnhancedCardProps> = ({
   className,
   ...props
 }) => {
-  const baseClasses = DesignSystem.card(variant);
-  
+  // Map interactive variant to default for DesignSystem.card
+  const designSystemVariant = variant === 'interactive' ? 'default' : variant;
+  const baseClasses = DesignSystem.card(designSystemVariant);
+
   const paddingClasses = {
     sm: 'p-4',
     md: 'p-6',
@@ -34,24 +36,24 @@ export const EnhancedCard: React.FC<EnhancedCardProps> = ({
     xl: 'p-10',
   };
 
-  const interactiveClasses = hover && !disabled ? [
-    'cursor-pointer',
-    'transition-all duration-normal',
-    'hover:shadow-md hover:scale-[1.02]',
-    'active:scale-[0.98]',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-  ] : [];
+  const interactiveClasses =
+    hover && !disabled
+      ? [
+          'cursor-pointer',
+          'transition-all duration-normal',
+          'hover:shadow-md hover:scale-[1.02]',
+          'active:scale-[0.98]',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        ]
+      : [];
 
-  const selectedClasses = selected ? [
-    'ring-2 ring-primary ring-offset-2',
-    'bg-primary/5',
-  ] : [];
+  const selectedClasses = selected
+    ? ['ring-2 ring-primary ring-offset-2', 'bg-primary/5']
+    : [];
 
-  const disabledClasses = disabled ? [
-    'opacity-50',
-    'cursor-not-allowed',
-    'pointer-events-none',
-  ] : [];
+  const disabledClasses = disabled
+    ? ['opacity-50', 'cursor-not-allowed', 'pointer-events-none']
+    : [];
 
   const cardClasses = cn(
     baseClasses,
@@ -65,19 +67,13 @@ export const EnhancedCard: React.FC<EnhancedCardProps> = ({
   return (
     <div className={cardClasses} {...props}>
       {header && (
-        <div className="mb-4 pb-4 border-b border-border/50">
-          {header}
-        </div>
+        <div className="mb-4 pb-4 border-b border-border/50">{header}</div>
       )}
-      
-      <div className="space-y-4">
-        {children}
-      </div>
-      
+
+      <div className="space-y-4">{children}</div>
+
       {footer && (
-        <div className="mt-6 pt-4 border-t border-border/50">
-          {footer}
-        </div>
+        <div className="mt-6 pt-4 border-t border-border/50">{footer}</div>
       )}
     </div>
   );
@@ -116,11 +112,14 @@ export const MetricCard: React.FC<{
           )}
           {trend && (
             <div className="flex items-center text-xs">
-              <span className={cn(
-                'font-medium',
-                trend.isPositive ? 'text-success' : 'text-destructive'
-              )}>
-                {trend.isPositive ? '+' : ''}{trend.value}%
+              <span
+                className={cn(
+                  'font-medium',
+                  trend.isPositive ? 'text-success' : 'text-destructive'
+                )}
+              >
+                {trend.isPositive ? '+' : ''}
+                {trend.value}%
               </span>
               <span className="text-muted-foreground ml-1">vs last month</span>
             </div>
@@ -149,19 +148,22 @@ export const FeatureCard: React.FC<{
       hover={true}
       className={cn(
         'group',
-        variant === 'highlight' && 'bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20'
+        variant === 'highlight' &&
+          'bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20'
       )}
     >
       <div className="flex items-start space-x-4">
-        <div className={cn(
-          'flex items-center justify-center w-12 h-12 rounded-lg',
-          'bg-primary/10 text-primary',
-          'group-hover:bg-primary/20 group-hover:scale-110',
-          'transition-all duration-normal'
-        )}>
+        <div
+          className={cn(
+            'flex items-center justify-center w-12 h-12 rounded-lg',
+            'bg-primary/10 text-primary',
+            'group-hover:bg-primary/20 group-hover:scale-110',
+            'transition-all duration-normal'
+          )}
+        >
           {icon}
         </div>
-        
+
         <div className="flex-1 space-y-2">
           <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
             {title}
@@ -169,13 +171,9 @@ export const FeatureCard: React.FC<{
           <p className="text-sm text-muted-foreground leading-relaxed">
             {description}
           </p>
-          {action && (
-            <div className="pt-2">
-              {action}
-            </div>
-          )}
+          {action && <div className="pt-2">{action}</div>}
         </div>
       </div>
     </EnhancedCard>
   );
-}; 
+};

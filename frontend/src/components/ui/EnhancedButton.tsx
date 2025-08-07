@@ -137,7 +137,7 @@ export const IconButton: React.FC<{
   size?: 'sm' | 'default' | 'lg';
   tooltip?: string;
 }> = ({ icon, onClick, variant = 'ghost', size = 'default', tooltip }) => {
-  const sizeMap = {
+  const sizeMap: Record<string, 'icon-sm' | 'icon' | 'icon-lg'> = {
     sm: 'icon-sm',
     default: 'icon',
     lg: 'icon-lg',

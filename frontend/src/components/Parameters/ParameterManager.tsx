@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 
 // Define parameter categories based on the lean financial modeling plan
-interface ParameterGroup {
+export interface ParameterGroup {
   id: string;
   name: string;
   icon: React.ReactNode;
@@ -40,7 +40,7 @@ interface ParameterGroup {
   parameters: ParameterDefinition[];
 }
 
-interface ParameterDefinition {
+export interface ParameterDefinition {
   id: string;
   name: string;
   description: string;

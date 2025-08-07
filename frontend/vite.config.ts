@@ -12,10 +12,17 @@ export default defineConfig(({ mode }) => {
       react({
         // Enable fast refresh in development
         ...(mode === 'development' && { fastRefresh: true }),
+        // Ensure React is available globally
+        jsxImportSource: 'react',
       }),
     ],
     optimizeDeps: {
-      include: sharedOptimizeDeps,
+      include: [
+        ...sharedOptimizeDeps,
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+      ],
       force: true,
     },
     
@@ -24,6 +31,13 @@ export default defineConfig(({ mode }) => {
         '@': resolve(__dirname, 'src'),
       },
       conditions: ['development', 'browser'],
+    },
+    
+    define: {
+      // Ensure React is available globally
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      __DEV__: mode === 'development',
+      __PROD__: mode === 'production',
     },
     
     server: {
@@ -103,20 +117,6 @@ export default defineConfig(({ mode }) => {
           ],
         },
       },
-      coverage: {
-        reporter: ['text', 'json', 'html'],
-        exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*'],
-      },
     },
-    
-    define: {
-      __APP_VERSION__: JSON.stringify(env.VITE_APP_VERSION || '1.0.0'),
-      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-      'process.env.NODE_ENV': JSON.stringify(mode),
-      __DEV__: mode === 'development',
-      __PROD__: mode === 'production',
-    },
-    
-    envPrefix: 'VITE_',
   });
 });

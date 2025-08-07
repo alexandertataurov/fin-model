@@ -83,6 +83,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   onLayoutChange,
   editable = false,
   onAddWidget,
+  onRemoveWidget,
   availableWidgets = [],
   className,
 }) => {
@@ -171,6 +172,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
                         variant="ghost"
                         size="sm"
                         tooltip="Widget options"
+                        onClick={() => {}} // Empty function for dropdown trigger
                       />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
