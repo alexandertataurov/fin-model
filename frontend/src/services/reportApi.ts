@@ -701,7 +701,7 @@ export class ReportApi {
     };
 
     const response = await this.exportChart({
-      chart_type: 'recharts',
+      chart_type: chartType as any,
       chart_data: chartData,
       export_format: options.format,
       width: options.width,
@@ -733,45 +733,18 @@ export class ReportApi {
     return Promise.all(exportPromises);
   }
 
-  // Polling for export status
-  static async pollExportStatus(
+  // Legacy polling method - kept for backward compatibility
+  static async pollExportStatusSimple(
     exportId: number,
     onProgress?: (progress: number) => void,
     intervalMs = 2000,
     timeoutMs = 300000 // 5 minutes
   ): Promise<ReportExport> {
-    const startTime = Date.now();
-
-    return new Promise((resolve, reject) => {
-      const poll = async () => {
-        try {
-          if (Date.now() - startTime > timeoutMs) {
-            reject(new Error('Export timeout'));
-            return;
-          }
-
-          const status = await this.getExportStatus(exportId);
-          
-          if (onProgress && status.progress_percentage !== undefined) {
-            onProgress(status.progress_percentage);
-          }
-
-          if (status.status === 'COMPLETED') {
-            const exportItem = await this.getExport(exportId);
-            resolve(exportItem);
-          } else if (status.status === 'FAILED' || status.status === 'CANCELLED') {
-            reject(new Error(status.error_message || 'Export failed'));
-          } else {
-            // Still processing, continue polling
-            setTimeout(poll, intervalMs);
-          }
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      poll();
-    });
+    return this.pollExportStatus(
+      exportId,
+      { onProgress },
+      { intervalMs, timeoutMs }
+    );
   }
 
   // Enhanced polling with detailed callbacks
@@ -884,7 +857,7 @@ export class ReportApi {
     recommended: boolean;
     reason: string;
   }> {
-    const recommendations = {
+    const recommendations: Record<string, Record<string, Array<{ format: string; recommended: boolean; reason: string }>>> = {
       'financial': {
         'small': [{ format: 'PDF', recommended: true, reason: 'Best for sharing and printing' }],
         'medium': [{ format: 'EXCEL', recommended: true, reason: 'Allows further analysis' }],

@@ -62,7 +62,7 @@ export { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 export { Calendar } from './calendar';
 export { Sidebar } from './sidebar';
 export { useMobile } from './use-mobile';
-export { Toaster } from './toaster';
+// Toaster is exported below from sonner - removing duplicate
 
 export {
   Tabs,
