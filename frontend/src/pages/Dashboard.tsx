@@ -141,176 +141,178 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 sm:py-6">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-foreground leading-tight">
-                Welcome back, {user?.first_name || user?.username || 'User'}!
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-                Here's what's happening with your financial data today.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <Badge variant="default" className="text-xs sm:text-sm">
-                v2.0.0
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs sm:text-sm"
-              >
-                Settings
-              </Button>
-            </div>
+      {/* Welcome Section */}
+      <section className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 sm:py-6">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-foreground leading-tight">
+              Welcome back, {user?.first_name || user?.username || 'User'}!
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
+              Here's what's happening with your financial data today.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <Badge variant="default" className="text-xs sm:text-sm">
+              v2.0.0
+            </Badge>
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+              Settings
+            </Button>
           </div>
         </div>
-      </header>
+      </section>
 
       {/* Main Content */}
-      <main className={componentStyles.container}>
+      <main>
         {/* Core Financial Modeling Interface */}
         <section className="py-8">
-          <CoreFinancialModeling
-            onFileUpload={handleFileUpload}
-            onParameterChange={handleParameterChange}
-            onScenarioCreate={handleScenarioCreate}
-            onValuationChange={handleValuationChange}
-            onExportResults={handleExportResults}
-          />
+          <div className={componentStyles.container}>
+            <CoreFinancialModeling
+              onFileUpload={handleFileUpload}
+              onParameterChange={handleParameterChange}
+              onScenarioCreate={handleScenarioCreate}
+              onValuationChange={handleValuationChange}
+              onExportResults={handleExportResults}
+            />
+          </div>
         </section>
 
         {/* Quick Actions */}
         <section className="py-6 sm:py-8 border-t">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h2 className={componentStyles.heading.h2}>Quick Actions</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Get started with common financial modeling tasks
-              </p>
+          <div className={componentStyles.container}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div>
+                <h2 className={componentStyles.heading.h2}>Quick Actions</h2>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Get started with common financial modeling tasks
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {quickActions.map((action, index) => (
-              <Button
-                key={index}
-                variant={action.variant}
-                onClick={action.action}
-                className="h-auto p-4 sm:p-6 flex flex-col items-start space-y-2 sm:space-y-3"
-              >
-                <div className="flex items-center space-x-2 sm:space-x-3 w-full">
-                  {action.icon}
-                  <div className="text-left flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm sm:text-base">
-                      {action.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {action.description}
-                    </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {quickActions.map((action, index) => (
+                <Button
+                  key={index}
+                  variant={action.variant}
+                  onClick={action.action}
+                  className="h-auto p-4 sm:p-6 flex flex-col items-start space-y-2 sm:space-y-3"
+                >
+                  <div className="flex items-center space-x-2 sm:space-x-3 w-full">
+                    {action.icon}
+                    <div className="text-left flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm sm:text-base">
+                        {action.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {action.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Button>
-            ))}
+                </Button>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Navigation Cards */}
         <section className="py-6 sm:py-8 border-t">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h2 className={componentStyles.heading.h2}>Financial Tools</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Access specialized financial analysis tools
-              </p>
+          <div className={componentStyles.container}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div>
+                <h2 className={componentStyles.heading.h2}>Financial Tools</h2>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Access specialized financial analysis tools
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {dashboardCards.map((card, index) => (
-              <Card
-                key={index}
-                onClick={card.onClick}
-                className="cursor-pointer transition-all duration-200 hover:scale-105"
-              >
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    {card.icon}
-                    <CardTitle>{card.title}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    {card.subtitle}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {dashboardCards.map((card, index) => (
+                <Card
+                  key={index}
+                  onClick={card.onClick}
+                  className="cursor-pointer transition-all duration-200 hover:scale-105"
+                >
+                  <CardHeader>
+                    <div className="flex items-center space-x-2">
+                      {card.icon}
+                      <CardTitle>{card.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      {card.subtitle}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Getting Started Guide */}
         <section className="py-6 sm:py-8 border-t">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h2 className={componentStyles.heading.h2}>Getting Started</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Learn how to use the financial modeling platform
-              </p>
+          <div className={componentStyles.container}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div>
+                <h2 className={componentStyles.heading.h2}>Getting Started</h2>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Learn how to use the financial modeling platform
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                View All Guides
+              </Button>
             </div>
-            <Button variant="outline" size="sm" className="w-full sm:w-auto">
-              View All Guides
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <Card
-              onClick={() => navigate('/upload')}
-              className="cursor-pointer"
-            >
-              <CardHeader>
-                <div className="flex items-center space-x-2">
-                  <CloudUpload />
-                  <CardTitle>Upload Your Data</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Start by uploading your financial spreadsheets and documents
-                </p>
-              </CardContent>
-            </Card>
-            <Card
-              onClick={() => navigate('/parameters')}
-              className="cursor-pointer"
-            >
-              <CardHeader>
-                <div className="flex items-center space-x-2">
-                  <Settings />
-                  <CardTitle>Configure Parameters</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Set up your modeling parameters and assumptions
-                </p>
-              </CardContent>
-            </Card>
-            <Card
-              onClick={() => navigate('/dcf-valuation')}
-              className="cursor-pointer"
-            >
-              <CardHeader>
-                <div className="flex items-center space-x-2">
-                  <Target />
-                  <CardTitle>Run Analysis</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Generate comprehensive financial statements and valuations
-                </p>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <Card
+                onClick={() => navigate('/upload')}
+                className="cursor-pointer"
+              >
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <CloudUpload />
+                    <CardTitle>Upload Your Data</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Start by uploading your financial spreadsheets and documents
+                  </p>
+                </CardContent>
+              </Card>
+              <Card
+                onClick={() => navigate('/parameters')}
+                className="cursor-pointer"
+              >
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Settings />
+                    <CardTitle>Configure Parameters</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Set up your modeling parameters and assumptions
+                  </p>
+                </CardContent>
+              </Card>
+              <Card
+                onClick={() => navigate('/dcf-valuation')}
+                className="cursor-pointer"
+              >
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Target />
+                    <CardTitle>Run Analysis</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Generate comprehensive financial statements and valuations
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </section>
       </main>
