@@ -13,7 +13,7 @@ from app.models.user import User
 from app.schemas.user import User as UserSchema
 from app.schemas.user import UserUpdate, UserWithRoles
 from app.services.auth_service import AuthService
-from app.services.database_monitor import db_monitor
+from app.services.database_monitor import get_db_monitor
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -345,6 +345,7 @@ async def get_database_health(
     table statistics, and performance metrics.
     """
     try:
+        db_monitor = get_db_monitor(db)
         health_data = db_monitor.get_health_check()
         return health_data
     except Exception as e:
@@ -365,6 +366,7 @@ async def get_database_performance(
     Returns information about slow queries and performance metrics.
     """
     try:
+        db_monitor = get_db_monitor(db)
         performance_data = db_monitor.get_query_performance(limit=limit)
         return performance_data
     except Exception as e:
@@ -382,6 +384,7 @@ async def get_table_information(
     Get detailed table size and usage information.
     """
     try:
+        db_monitor = get_db_monitor(db)
         table_sizes = db_monitor.get_table_sizes()
         return table_sizes
     except Exception as e:
@@ -402,6 +405,7 @@ async def cleanup_database(
     Use dry_run=false to actually perform the cleanup.
     """
     try:
+        db_monitor = get_db_monitor(db)
         cleanup_results = db_monitor.cleanup_stale_data(dry_run=dry_run)
         return cleanup_results
     except Exception as e:

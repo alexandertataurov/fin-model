@@ -13,11 +13,17 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/,
       },
+      expanded: true,
+      sort: 'requiredFirst',
     },
     docs: {
       toc: true,
       source: {
         state: 'open',
+        excludeDecorators: true,
+      },
+      canvas: {
+        sourceState: 'shown',
       },
     },
     a11y: {
@@ -35,7 +41,18 @@ const preview: Preview = {
             id: 'focus-trap',
             enabled: true,
           },
+          {
+            id: 'landmark-one-main',
+            enabled: true,
+          },
+          {
+            id: 'page-has-heading-one',
+            enabled: true,
+          },
         ],
+      },
+      options: {
+        restoreScroll: true,
       },
     },
     backgrounds: {
@@ -48,6 +65,14 @@ const preview: Preview = {
         {
           name: 'dark',
           value: '#0a0a0a',
+        },
+        {
+          name: 'gray',
+          value: '#f8f9fa',
+        },
+        {
+          name: 'blue',
+          value: '#f0f9ff',
         },
       ],
     },
@@ -74,11 +99,27 @@ const preview: Preview = {
             height: '900px',
           },
         },
+        wide: {
+          name: 'Wide',
+          styles: {
+            width: '1920px',
+            height: '1080px',
+          },
+        },
       },
     },
     // Fix for React Refresh conflicts
     react: {
       version: 'detect',
+    },
+    // Performance optimizations
+    chromatic: {
+      delay: 1000,
+      diffThreshold: 0.2,
+    },
+    // Testing configuration
+    test: {
+      timeout: 10000,
     },
   },
   // Global decorators to wrap all stories

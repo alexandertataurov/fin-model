@@ -50,5 +50,27 @@ addons.setConfig({
   sidebar: {
     showRoots: false,
     collapsedRoots: ['other'],
+    filters: {
+      patterns: (item) => {
+        // Show all items by default
+        return true;
+      },
+    },
+  },
+  toolbar: {
+    title: { hidden: false },
+    zoom: { hidden: false },
+    eject: { hidden: false },
+    copy: { hidden: false },
+    fullscreen: { hidden: false },
+  },
+  // Performance optimizations
+  docs: {
+    defaultName: 'Documentation',
+    toc: true,
+  },
+  // Testing configuration
+  test: {
+    timeout: 10000,
   },
 });

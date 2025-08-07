@@ -11,6 +11,10 @@ const config: StorybookConfig = {
     '@storybook/addon-a11y',
     '@storybook/addon-interactions',
     '@storybook/addon-links',
+    '@storybook/addon-viewport',
+    '@storybook/addon-backgrounds',
+    '@storybook/addon-measure',
+    '@storybook/addon-outline',
   ],
   framework: {
     name: '@storybook/react-vite',
@@ -23,6 +27,11 @@ const config: StorybookConfig = {
   typescript: {
     check: false,
     reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      propFilter: prop =>
+        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
+    },
   },
   // Enhanced navigation structure
   managerHead: head => `
@@ -37,6 +46,10 @@ const config: StorybookConfig = {
       }
       .sidebar-item[data-item-id*="auth"] {
         font-weight: 500;
+      }
+      .sidebar-item[data-item-id*="getting-started"] {
+        font-weight: 600;
+        color: #059669;
       }
     </style>
   `,
@@ -67,15 +80,20 @@ const config: StorybookConfig = {
         ...(config.optimizeDeps?.include || []),
         'tailwindcss',
         'autoprefixer',
+        'lucide-react',
+        'class-variance-authority',
+        'clsx',
+        'tailwind-merge',
       ],
     };
 
-    // Disable React Refresh and HMR for Storybook
+    // Fix for @storybook/globalThis import issue
     config.define = {
       ...config.define,
       'process.env.NODE_ENV': '"development"',
       __STORYBOOK_REACT_REFRESH__: 'false',
       __STORYBOOK_HMR__: 'false',
+      global: 'globalThis',
     };
 
     // Ensure proper JSX handling
@@ -89,6 +107,18 @@ const config: StorybookConfig = {
     config.server = {
       ...config.server,
       hmr: false,
+    };
+
+    // Add external dependencies to prevent build issues
+    config.build = {
+      ...config.build,
+      rollupOptions: {
+        ...config.build?.rollupOptions,
+        external: (id: string) => {
+          const externals = ['@storybook/globalThis'];
+          return externals.some(external => id.includes(external));
+        },
+      },
     };
 
     return config;
