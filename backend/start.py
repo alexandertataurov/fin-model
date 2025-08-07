@@ -17,11 +17,11 @@ def check_database_connection():
     
     try:
         from app.core.config import settings
-        from sqlalchemy import create_engine
+        from sqlalchemy import create_engine, text
         
         engine = create_engine(settings.DATABASE_URL)
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
             print("✅ Database connection successful")
             return True
     except Exception as e:
