@@ -21,12 +21,19 @@ class WebSocketService {
       // Store the original endpoint for reconnection
       this.originalEndpoint = endpoint;
       
+      // Get auth token from localStorage
+      const token = localStorage.getItem('access_token');
+      
       // Use Railway backend URL for WebSocket connections
       const protocol = 'wss:';
       const host = 'fin-model-production.up.railway.app';
-      this.url = `${protocol}//${host}${
+      
+      // Add token as query parameter if available
+      const baseUrl = `${protocol}//${host}${
         endpoint.startsWith('/') ? endpoint : '/' + endpoint
       }`;
+      
+      this.url = token ? `${baseUrl}?token=${encodeURIComponent(token)}` : baseUrl;
 
       this.ws = new WebSocket(this.url);
 

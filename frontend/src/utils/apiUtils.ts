@@ -6,7 +6,7 @@ export const makeApiCall = async (
   endpoint: string,
   options: RequestInit = {}
 ): Promise<any> => {
-  const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('access_token');
+  const token = localStorage.getItem('access_token');
   
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,

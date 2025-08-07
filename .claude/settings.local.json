@@ -114,6 +114,8 @@
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''✅ Backend application imports successfully'')\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''✅ Backend application imports successfully'')\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''Backend application imports successfully'')\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''Backend application imports successfully'')\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''Backend application imports successfully'')\")",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''Backend application imports successfully'')\")"
     ],
     "deny": []
