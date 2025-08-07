@@ -140,7 +140,7 @@ export const useCollaboration = ({
     setConnectionStatus('connecting');
 
     const token = localStorage.getItem('authToken');
-    const wsUrl = `wss://fin-model-production.up.railway.app/api/v1/websocket/collaboration/ws/template/${templateId}?token=${token}`;
+    const wsUrl = `wss://fin-model-production.up.railway.app/ws/collaboration/ws/template/${templateId}?token=${token}`;
 
     ws.current = new WebSocket(wsUrl);
 
