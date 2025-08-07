@@ -1,7 +1,12 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/design-system/components/Button';
 import { Button } from '@/design-system/components/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/components/Card';
 import { componentStyles } from '@/design-system/utils/designSystem';
 import {
   DropdownMenu,
@@ -167,11 +172,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
                 {editable && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        title="Widget options"
-                      >
+                      <Button variant="ghost" size="sm" title="Widget options">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -215,12 +216,13 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
           <h2 className="text-xl font-semibold">
             {fullscreenWidgetData.title}
           </h2>
-          <IconButton
-            icon={<Minimize2 className="h-4 w-4" />}
-            onClick={() => handleFullscreen(fullscreenWidget)}
+          <Button
             variant="outline"
             size="sm"
-          />
+            onClick={() => handleFullscreen(fullscreenWidget)}
+          >
+            <Minimize2 className="h-4 w-4" />
+          </Button>
         </div>
         <div className="p-4">{renderWidget(fullscreenWidgetData)}</div>
       </div>
@@ -240,21 +242,19 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
 
         {editable && onAddWidget && (
           <div className="flex items-center gap-3">
-            <EnhancedButton
+            <Button
               variant="outline"
-              leftIcon={<Settings className="h-4 w-4" />}
               onClick={() => {
                 /* Configure dashboard */
               }}
             >
+              <Settings className="h-4 w-4 mr-2" />
               Configure
-            </EnhancedButton>
-            <EnhancedButton
-              leftIcon={<Plus className="h-4 w-4" />}
-              onClick={onAddWidget}
-            >
+            </Button>
+            <Button onClick={onAddWidget}>
+              <Plus className="h-4 w-4 mr-2" />
               Add Widget
-            </EnhancedButton>
+            </Button>
           </div>
         )}
       </div>
@@ -286,27 +286,27 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
 
       {/* Empty State */}
       {widgets.length === 0 && (
-        <EnhancedCard variant="outline" className="text-center py-12">
-          <div className="space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-              <BarChart3 className="h-8 w-8 text-muted-foreground" />
+        <Card variant="outline" className="text-center py-12">
+          <CardContent>
+            <div className="space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                <BarChart3 className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">No widgets added</h3>
+                <p className="text-muted-foreground mt-1">
+                  Add widgets to start building your dashboard
+                </p>
+              </div>
+              {editable && onAddWidget && (
+                <Button onClick={onAddWidget}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Widget
+                </Button>
+              )}
             </div>
-            <div>
-              <h3 className="text-lg font-semibold">No widgets added</h3>
-              <p className="text-muted-foreground mt-1">
-                Add widgets to start building your dashboard
-              </p>
-            </div>
-            {editable && onAddWidget && (
-              <EnhancedButton
-                leftIcon={<Plus className="h-4 w-4" />}
-                onClick={onAddWidget}
-              >
-                Add Your First Widget
-              </EnhancedButton>
-            )}
-          </div>
-        </EnhancedCard>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

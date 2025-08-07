@@ -131,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }));
 
             localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-            
+
             // Load permissions inline to avoid circular dependency
             try {
               const permissionsData = await authApi.getUserPermissions();
@@ -263,6 +263,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log('User data received:', userData);
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
 
+      // Update state atomically to prevent race conditions
       setState(prev => ({
         ...prev,
         user: userData,
@@ -270,9 +271,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshToken: response.refresh_token || null,
         isLoading: false,
       }));
-      console.log('User state updated');
+      console.log('User state updated atomically');
 
-      // Load permissions
+      // Load permissions after state is updated
       console.log('Loading permissions...');
       await loadUserPermissions();
       console.log('Login process completed successfully');
@@ -341,13 +342,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return hasRole('analyst') || isAdmin();
   };
 
+  // Calculate authentication state with debugging
+  const isAuthenticated = !!state.user && !!state.token;
+
+  // Debug authentication state changes
+  useEffect(() => {
+    console.log('Auth state changed:', {
+      hasUser: !!state.user,
+      hasToken: !!state.token,
+      isAuthenticated,
+      isLoading: state.isLoading,
+    });
+  }, [state.user, state.token, isAuthenticated, state.isLoading]);
+
   const value: AuthContextType = {
     user: state.user,
     token: state.token,
     permissions: state.permissions,
     roles: state.roles,
     isLoading: state.isLoading,
-    isAuthenticated: !!state.user && !!state.token,
+    isAuthenticated,
     login,
     logout,
     register,

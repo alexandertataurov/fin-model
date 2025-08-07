@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { useTheme } from '@/components/theme-hooks';
 import { Button } from '@/design-system/components/Button';
-import { Sheet, SheetContent, SheetTrigger } from '@/design-system/components/Sheet';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from '@/design-system/components/Sheet';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/components/Tabs';
 import { Menu, Moon, Sun } from 'lucide-react';
 import { PLTab } from '@/components/tabs/PLTab';
 import { CashFlowTab } from '@/components/tabs/CashFlowTab';
@@ -11,7 +20,7 @@ import { ParametersTab } from '@/components/tabs/ParametersTab';
 import { SalesTab } from '@/components/tabs/SalesTab';
 import { FilterSidebar } from '@/components/FilterSidebar';
 import { FileUpload } from '@/components/FileUpload/FileUploadDropzone';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from '@/design-system/components/Toaster';
 
 export default function TemplateDashboard() {
   const { theme, setTheme } = useTheme();

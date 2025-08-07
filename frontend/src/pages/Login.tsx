@@ -53,13 +53,27 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       console.log('User already authenticated, redirecting to dashboard');
-      // Add a small delay to prevent jarring redirect
-      const timer = setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 300); // Increased delay for smoother transition
-      return () => clearTimeout(timer);
+      // Use immediate redirect to prevent loop
+      navigate('/', { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  // Prevent showing login form while authentication is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-8 text-center">
+          <div className="mx-auto h-12 w-12 bg-primary rounded-xl flex items-center justify-center mb-4">
+            <Activity className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Checking authentication...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

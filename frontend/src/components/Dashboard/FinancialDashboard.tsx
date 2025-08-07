@@ -4,15 +4,30 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/components/Tabs';
 import { Badge } from '@/design-system/components/Badge';
-import { 
-  LayoutDashboard, 
-  Settings, 
-  BarChart3, 
-  Target, 
+import {
+  formatCurrency,
+  formatPercentage,
+  formatNumber,
+} from '@/utils/formatters';
+import {
+  LayoutDashboard,
+  Settings,
+  BarChart3,
+  Target,
   Activity,
   TrendingUp,
   TrendingDown,
@@ -22,7 +37,7 @@ import {
   RefreshCw,
   Calendar,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
 
 // Import our components
@@ -59,7 +74,9 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [calculationStatus, setCalculationStatus] = useState<'idle' | 'calculating' | 'completed' | 'error'>('completed');
+  const [calculationStatus, setCalculationStatus] = useState<
+    'idle' | 'calculating' | 'completed' | 'error'
+  >('completed');
 
   // Mock data - in real app, this would come from API/state management
   const metrics: DashboardMetrics = {
@@ -76,35 +93,13 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     revenue_per_employee: 147058,
   };
 
-  const formatCurrency = (value: number): string => {
-    if (Math.abs(value) >= 1e9) {
-      return `$${(value / 1e9).toFixed(1)}B`;
-    } else if (Math.abs(value) >= 1e6) {
-      return `$${(value / 1e6).toFixed(1)}M`;
-    } else if (Math.abs(value) >= 1e3) {
-      return `$${(value / 1e3).toFixed(1)}K`;
-    }
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const formatPercentage = (value: number): string => {
-    return `${(value * 100).toFixed(1)}%`;
-  };
-
-  const formatNumber = (value: number): string => {
-    return value.toLocaleString();
-  };
+  // Using shared formatters from @/utils/formatters
 
   const handleRefresh = () => {
     setCalculationStatus('calculating');
     setLastUpdated(new Date());
     onRefresh?.();
-    
+
     // Simulate calculation time
     setTimeout(() => {
       setCalculationStatus('completed');
@@ -126,20 +121,27 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
             <p className="text-sm font-medium text-gray-600">{title}</p>
             <p className={`text-2xl font-bold ${color}`}>{value}</p>
           </div>
-          <div className={`${color} opacity-80`}>
-            {icon}
-          </div>
+          <div className={`${color} opacity-80`}>{icon}</div>
         </div>
         {change !== undefined && (
           <div className="mt-2 flex items-center">
-            {trend === 'up' && <TrendingUp className="w-4 h-4 text-green-500 mr-1" />}
-            {trend === 'down' && <TrendingDown className="w-4 h-4 text-red-500 mr-1" />}
-            <span className={`text-sm ${
-              trend === 'up' ? 'text-green-600' : 
-              trend === 'down' ? 'text-red-600' : 
-              'text-gray-600'
-            }`}>
-              {change > 0 ? '+' : ''}{formatPercentage(change)} vs last period
+            {trend === 'up' && (
+              <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+            )}
+            {trend === 'down' && (
+              <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+            )}
+            <span
+              className={`text-sm ${
+                trend === 'up'
+                  ? 'text-green-600'
+                  : trend === 'down'
+                  ? 'text-red-600'
+                  : 'text-gray-600'
+              }`}
+            >
+              {change > 0 ? '+' : ''}
+              {formatPercentage(change)} vs last period
             </span>
           </div>
         )}
@@ -292,13 +294,17 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           </CardTitle>
           <div className="flex items-center space-x-4">
             <StatusIndicator />
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleRefresh}
               disabled={calculationStatus === 'calculating'}
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${calculationStatus === 'calculating' ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${
+                  calculationStatus === 'calculating' ? 'animate-spin' : ''
+                }`}
+              />
               Refresh
             </Button>
           </div>
@@ -312,15 +318,24 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
             <LayoutDashboard className="w-4 h-4" />
             <span>Overview</span>
           </TabsTrigger>
-          <TabsTrigger value="profit-loss" className="flex items-center space-x-2">
+          <TabsTrigger
+            value="profit-loss"
+            className="flex items-center space-x-2"
+          >
             <TrendingUp className="w-4 h-4" />
             <span>P&L</span>
           </TabsTrigger>
-          <TabsTrigger value="balance-sheet" className="flex items-center space-x-2">
+          <TabsTrigger
+            value="balance-sheet"
+            className="flex items-center space-x-2"
+          >
             <BarChart3 className="w-4 h-4" />
             <span>Balance Sheet</span>
           </TabsTrigger>
-          <TabsTrigger value="cash-flow" className="flex items-center space-x-2">
+          <TabsTrigger
+            value="cash-flow"
+            className="flex items-center space-x-2"
+          >
             <Activity className="w-4 h-4" />
             <span>Cash Flow</span>
           </TabsTrigger>
@@ -328,7 +343,10 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
             <Target className="w-4 h-4" />
             <span>DCF</span>
           </TabsTrigger>
-          <TabsTrigger value="parameters" className="flex items-center space-x-2">
+          <TabsTrigger
+            value="parameters"
+            className="flex items-center space-x-2"
+          >
             <Settings className="w-4 h-4" />
             <span>Parameters</span>
           </TabsTrigger>
@@ -339,28 +357,28 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
         </TabsContent>
 
         <TabsContent value="profit-loss" className="mt-6">
-          <ProfitLossView 
+          <ProfitLossView
             isLoading={calculationStatus === 'calculating'}
             onRefresh={handleRefresh}
           />
         </TabsContent>
 
         <TabsContent value="balance-sheet" className="mt-6">
-          <BalanceSheetView 
+          <BalanceSheetView
             isLoading={calculationStatus === 'calculating'}
             onRefresh={handleRefresh}
           />
         </TabsContent>
 
         <TabsContent value="cash-flow" className="mt-6">
-          <CashFlowView 
+          <CashFlowView
             isLoading={calculationStatus === 'calculating'}
             onRefresh={handleRefresh}
           />
         </TabsContent>
 
         <TabsContent value="dcf" className="mt-6">
-          <DCFView 
+          <DCFView
             isLoading={calculationStatus === 'calculating'}
             onRefresh={handleRefresh}
           />
@@ -368,13 +386,11 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
 
         <TabsContent value="parameters" className="mt-6">
           <div className="space-y-6">
-            <ParameterManager 
+            <ParameterManager
               isLoading={calculationStatus === 'calculating'}
               onSave={() => handleRefresh()}
             />
-            <ScenarioManager 
-              isLoading={calculationStatus === 'calculating'}
-            />
+            <ScenarioManager isLoading={calculationStatus === 'calculating'} />
           </div>
         </TabsContent>
       </Tabs>
