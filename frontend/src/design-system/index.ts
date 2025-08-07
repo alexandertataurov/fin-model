@@ -62,10 +62,10 @@ export * from './components/use-mobile';
 export * from './components/ImageWithFallback';
 
 // Types
-export type { ButtonProps } from '../components/ui/button';
-export type { CardProps } from '../components/ui/card';
-export type { InputProps } from '../components/ui/input';
+export type { ButtonProps } from './components/Button';
+export type { CardProps } from './components/Card';
+export type { InputProps } from './components/Input';
 export type { SelectProps } from '../components/ui/select';
-export type { DialogProps } from '../components/ui/dialog';
+export type { DialogProps } from './components/Dialog';
 export type { AlertProps } from '../components/ui/alert';
 export type { BadgeProps } from '../components/ui/badge';
