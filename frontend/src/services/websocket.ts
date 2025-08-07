@@ -21,7 +21,7 @@ class WebSocketService {
 
   async connect(endpoint: string): Promise<void> {
     try {
-      // Prevent multiple simultaneous connection attempts
+      // Prevent multiple simultaneous connections
       if (this.isConnecting) {
         console.log('WebSocket connection already in progress');
         return;
@@ -78,6 +78,7 @@ class WebSocketService {
         this.ws = null;
       }
 
+      // Create new WebSocket connection
       this.ws = new WebSocket(this.url);
 
       // Set connection timeout
@@ -87,7 +88,7 @@ class WebSocketService {
           this.ws.close();
           this.isConnecting = false;
         }
-      }, 15000); // 15 second timeout
+      }, 20000); // 20 second timeout
 
       return new Promise((resolve, reject) => {
         if (!this.ws) {
@@ -125,8 +126,26 @@ class WebSocketService {
           console.log(`WebSocket closed: ${event.code} - ${event.reason}`);
           this.isConnecting = false;
           
-          // Only attempt reconnect if it wasn't a manual close
-          if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+          // Handle specific error codes
+          if (event.code === 4001) {
+            console.warn('WebSocket authentication failed');
+            this.isServiceAvailable = false;
+            reject(new Error('Authentication failed'));
+            return;
+          }
+          
+          if (event.code === 1006) {
+            console.warn('WebSocket connection aborted');
+            this.isServiceAvailable = false;
+            reject(new Error('Connection aborted'));
+            return;
+          }
+          
+          // Only attempt reconnect for certain error codes
+          if (event.code !== 1000 && 
+              event.code !== 4001 && 
+              event.code !== 1006 && 
+              this.reconnectAttempts < this.maxReconnectAttempts) {
             this.attemptReconnect();
           }
         };
@@ -134,6 +153,7 @@ class WebSocketService {
         this.ws.onerror = error => {
           console.error('WebSocket error:', error);
           this.isConnecting = false;
+          this.isServiceAvailable = false;
           reject(error);
         };
       });

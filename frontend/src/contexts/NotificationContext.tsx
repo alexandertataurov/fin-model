@@ -371,11 +371,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         console.warn(
           'Backend health check failed, skipping WebSocket connection'
         );
+        // Start polling as fallback
+        startPolling();
         return;
       }
     }
 
     try {
+      console.log('Attempting to connect to notifications WebSocket...');
       await notificationsWebSocketService.connect('/ws/notifications');
       setIsConnected(true);
 

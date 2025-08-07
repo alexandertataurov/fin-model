@@ -207,7 +207,8 @@ def get_notification_preferences(
                 updated_at=datetime.utcnow()
             )
         elif ("validation" in str(e).lower() or 
-              "422" in str(e).lower()):
+              "422" in str(e).lower() or
+              "pydantic" in str(e).lower()):
             logger.warning(
                 "Validation error in notification preferences, returning defaults"
             )
