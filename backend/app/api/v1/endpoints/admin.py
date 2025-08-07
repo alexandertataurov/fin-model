@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 from app.core.dependencies import (
     UserWithPermissions,
     get_current_user_with_permissions,
-    require_admin,
     require_permissions,
 )
 from app.core.permissions import Permission
@@ -88,14 +87,7 @@ def update_user(
     for field, value in update_data.items():
         setattr(user, field, value)
 
-    # Log the update
-    auth_service.log_audit_action(
-        user_id=current_user.id,
-        action=auth_service.AuditAction.PROFILE_UPDATED,
-        success="success",
-        details=f"Updated user {user_id}: {list(update_data.keys())}",
-    )
-
+    # Note: Audit logging removed in lean version
     db.commit()
     db.refresh(user)
 
@@ -126,14 +118,7 @@ def delete_user(
     # Soft delete - deactivate user instead of actual deletion
     user.is_active = False
 
-    # Log the deletion
-    auth_service.log_audit_action(
-        user_id=current_user.id,
-        action=auth_service.AuditAction.USER_DELETE,
-        success="success",
-        details=f"Deactivated user {user_id}",
-    )
-
+    # Note: Audit logging removed in lean version
     db.commit()
 
     return {"message": "User deactivated successfully"}
@@ -219,14 +204,7 @@ def remove_role(
     if user_role:
         user_role.is_active = False
 
-        # Log the role removal
-        auth_service.log_audit_action(
-            user_id=current_user.id,
-            action=auth_service.AuditAction.ROLE_REMOVED,
-            success="success",
-            details=f"Removed {role.value} role from user {user_id}",
-        )
-
+        # Note: Audit logging removed in lean version
         db.commit()
 
     return {"message": f"Role {role.value} removed successfully"}
@@ -242,32 +220,8 @@ def get_audit_logs(
     db: Session = Depends(get_db),
 ) -> Any:
     """Get audit logs (Admin only)."""
-    from app.models.audit import AuditAction, AuditLog
-
-    query = db.query(AuditLog)
-
-    # Filter by user_id if provided
-    if user_id:
-        query = query.filter(AuditLog.user_id == user_id)
-
-    # Filter by action if provided
-    if action:
-        try:
-            action_enum = AuditAction(action)
-            query = query.filter(AuditLog.action == action_enum)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid action: {action}",
-            )
-
-    # Order by most recent first
-    query = query.order_by(AuditLog.created_at.desc())
-
-    # Apply pagination
-    audit_logs = query.offset(skip).limit(limit).all()
-
-    return audit_logs
+    # Note: Audit logging removed in lean version
+    return {"message": "Audit logging is not available in the lean version"}
 
 
 @router.get("/system/health")
@@ -276,9 +230,8 @@ def system_health(
     db: Session = Depends(get_db),
 ) -> Any:
     """Get system health information."""
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
-    from app.models.audit import AuditLog
     from sqlalchemy import func
 
     # Get basic statistics
@@ -286,23 +239,9 @@ def system_health(
     active_users = db.query(User).filter(User.is_active == True).count()
     verified_users = db.query(User).filter(User.is_verified == True).count()
 
-    # Get recent activity (last 24 hours)
-    yesterday = datetime.utcnow() - timedelta(days=1)
-    recent_logins = (
-        db.query(AuditLog)
-        .filter(
-            AuditLog.action == "login",
-            AuditLog.created_at >= yesterday,
-            AuditLog.success == "success",
-        )
-        .count()
-    )
-
-    recent_failed_logins = (
-        db.query(AuditLog)
-        .filter(AuditLog.action == "failed_login", AuditLog.created_at >= yesterday)
-        .count()
-    )
+    # Note: Audit logging removed in lean version
+    recent_logins = 0
+    recent_failed_logins = 0
 
     return {
         "status": "healthy",

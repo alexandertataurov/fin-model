@@ -11,10 +11,6 @@ const config: StorybookConfig = {
     '@storybook/addon-a11y',
     '@storybook/addon-interactions',
     '@storybook/addon-links',
-    '@storybook/addon-viewport',
-    '@storybook/addon-backgrounds',
-    '@storybook/addon-measure',
-    '@storybook/addon-outline',
   ],
   framework: {
     name: '@storybook/react-vite',
@@ -115,13 +111,8 @@ const config: StorybookConfig = {
       rollupOptions: {
         ...config.build?.rollupOptions,
         external: (id: string) => {
-          const externals = [
-            '@storybook/globalThis',
-            '@storybook/addon-viewport/preview',
-            '@storybook/addon-backgrounds/preview',
-            '@storybook/addon-measure/preview',
-            '@storybook/addon-outline/preview',
-          ];
+          // Only externalize specific problematic modules, not all addon previews
+          const externals = ['@storybook/globalThis'];
           return externals.some(external => id.includes(external));
         },
       },

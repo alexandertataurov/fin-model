@@ -8,7 +8,7 @@ from app.models.collaboration import CollaborationPermission
 from app.models.mfa import MFAToken, OAuthAccount, WebAuthnCredential, MFAChallenge
 from app.models.notification import Notification, NotificationPreference
 from app.models.role import UserRole
-from app.models.audit import AuditLog
+# Note: Audit logging removed in lean version
 from app.models.file import UploadedFile
 from app.models.parameter import Parameter, Scenario
 from app.services.collaboration_service import CollaborationService

@@ -220,16 +220,7 @@ def complete_webauthn_authentication(
                 subject=user.id, expires_delta=access_token_expires
             )
 
-            # Log successful authentication
-            from app.models.audit import AuditAction
-            auth_service.log_audit_action(
-                user_id=user.id,
-                action=AuditAction.LOGIN,
-                success="success",
-                details="WebAuthn authentication successful",
-                ip_address=request.client.host if request.client else None,
-                user_agent=request.headers.get("user-agent")
-            )
+            # Note: Audit logging removed in lean version
 
             return AuthenticationFlowResponse(
                 status="success",
