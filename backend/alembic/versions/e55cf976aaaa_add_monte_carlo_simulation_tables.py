@@ -17,34 +17,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Helper function to safely create tables
-    def safe_create_table(table_name, table_definition_func):
-        try:
-            # Check if table already exists
-            inspector = sa.inspect(op.get_bind())
-            if table_name not in inspector.get_table_names():
-                table_definition_func()
-                print(f"✅ Created table {table_name}")
-            else:
-                print(f"⚠️ Table {table_name} already exists, skipping")
-        except Exception as e:
-            print(f"⚠️ Could not create table {table_name}: {e}")
-
-    # Helper function to safely add columns
-    def safe_add_column(table_name, column_name, column_spec):
-        try:
-            inspector = sa.inspect(op.get_bind())
-            existing_columns = [col['name'] for col in inspector.get_columns(table_name)]
-            if column_name not in existing_columns:
-                op.add_column(table_name, column_spec)
-                print(f"✅ Added column {column_name} to {table_name}")
-            else:
-                print(f"⚠️ Column {column_name} already exists in {table_name}")
-        except Exception as e:
-            print(f"⚠️ Could not add column {column_name}: {e}")
-
     # Create monte_carlo_simulations table
-    def create_monte_carlo_table():
+    try:
         op.create_table(
             "monte_carlo_simulations",
             sa.Column("id", sa.String(length=50), primary_key=True),
@@ -69,11 +43,12 @@ def upgrade() -> None:
                 "created_by_id", sa.Integer, sa.ForeignKey("users.id"), nullable=False
             ),
         )
-    
-    safe_create_table("monte_carlo_simulations", create_monte_carlo_table)
+        print("✅ Created monte_carlo_simulations table")
+    except Exception as e:
+        print(f"⚠️ monte_carlo_simulations table already exists or error: {e}")
 
     # Create scenario_parameters table for scenario-specific parameter overrides
-    def create_scenario_parameters_table():
+    try:
         op.create_table(
             "scenario_parameters",
             sa.Column("id", sa.String(length=50), primary_key=True),
@@ -88,67 +63,74 @@ def upgrade() -> None:
             sa.Column("created_at", sa.DateTime, default=sa.func.now()),
             sa.Column("updated_at", sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()),
         )
-    
-    safe_create_table("scenario_parameters", create_scenario_parameters_table)
+        print("✅ Created scenario_parameters table")
+    except Exception as e:
+        print(f"⚠️ scenario_parameters table already exists or error: {e}")
 
     # Add scenario_type field to scenarios table
-    safe_add_column(
-        "scenarios",
-        "scenario_type",
-        sa.Column("scenario_type", sa.String(length=50), default="custom"),
-    )
+    try:
+        op.add_column(
+            "scenarios",
+            sa.Column("scenario_type", sa.String(length=50), default="custom"),
+        )
+        print("✅ Added scenario_type column to scenarios table")
+    except Exception as e:
+        print(f"⚠️ scenario_type column already exists or error: {e}")
 
     # Add is_base_case field to scenarios table  
-    safe_add_column("scenarios", "is_base_case", sa.Column("is_base_case", sa.Boolean, default=False))
+    try:
+        op.add_column("scenarios", sa.Column("is_base_case", sa.Boolean, default=False))
+        print("✅ Added is_base_case column to scenarios table")
+    except Exception as e:
+        print(f"⚠️ is_base_case column already exists or error: {e}")
 
-    # Create indexes safely
-    def safe_create_index(index_name, table_name, columns, unique=False):
-        try:
-            inspector = sa.inspect(op.get_bind())
-            existing_indexes = [idx['name'] for idx in inspector.get_indexes(table_name)]
-            if index_name not in existing_indexes:
-                op.create_index(index_name, table_name, columns, unique=unique)
-                print(f"✅ Created index {index_name}")
-            else:
-                print(f"⚠️ Index {index_name} already exists")
-        except Exception as e:
-            print(f"⚠️ Could not create index {index_name}: {e}")
+    # Create indexes
+    try:
+        op.create_index(
+            "ix_monte_carlo_simulations_scenario_id",
+            "monte_carlo_simulations",
+            ["scenario_id"],
+        )
+        print("✅ Created index ix_monte_carlo_simulations_scenario_id")
+    except Exception as e:
+        print(f"⚠️ Index ix_monte_carlo_simulations_scenario_id already exists or error: {e}")
 
-    safe_create_index(
-        "ix_monte_carlo_simulations_scenario_id",
-        "monte_carlo_simulations",
-        ["scenario_id"],
-    )
-    safe_create_index(
-        "ix_monte_carlo_simulations_created_at",
-        "monte_carlo_simulations",
-        ["created_at"],
-    )
-    safe_create_index(
-        "ix_scenario_parameters_scenario_id", "scenario_parameters", ["scenario_id"]
-    )
-    safe_create_index(
-        "ix_scenario_parameters_parameter_id", "scenario_parameters", ["parameter_id"]
-    )
+    try:
+        op.create_index(
+            "ix_monte_carlo_simulations_created_at",
+            "monte_carlo_simulations",
+            ["created_at"],
+        )
+        print("✅ Created index ix_monte_carlo_simulations_created_at")
+    except Exception as e:
+        print(f"⚠️ Index ix_monte_carlo_simulations_created_at already exists or error: {e}")
 
-    # Create unique constraint safely
-    def safe_create_unique_constraint(constraint_name, table_name, columns):
-        try:
-            inspector = sa.inspect(op.get_bind())
-            existing_constraints = [con['name'] for con in inspector.get_unique_constraints(table_name)]
-            if constraint_name not in existing_constraints:
-                op.create_unique_constraint(constraint_name, table_name, columns)
-                print(f"✅ Created unique constraint {constraint_name}")
-            else:
-                print(f"⚠️ Unique constraint {constraint_name} already exists")
-        except Exception as e:
-            print(f"⚠️ Could not create unique constraint {constraint_name}: {e}")
+    try:
+        op.create_index(
+            "ix_scenario_parameters_scenario_id", "scenario_parameters", ["scenario_id"]
+        )
+        print("✅ Created index ix_scenario_parameters_scenario_id")
+    except Exception as e:
+        print(f"⚠️ Index ix_scenario_parameters_scenario_id already exists or error: {e}")
 
-    safe_create_unique_constraint(
-        "uq_scenario_parameter",
-        "scenario_parameters",
-        ["scenario_id", "parameter_id"],
-    )
+    try:
+        op.create_index(
+            "ix_scenario_parameters_parameter_id", "scenario_parameters", ["parameter_id"]
+        )
+        print("✅ Created index ix_scenario_parameters_parameter_id")
+    except Exception as e:
+        print(f"⚠️ Index ix_scenario_parameters_parameter_id already exists or error: {e}")
+
+    # Create unique constraint for scenario-parameter combination
+    try:
+        op.create_unique_constraint(
+            "uq_scenario_parameter",
+            "scenario_parameters",
+            ["scenario_id", "parameter_id"],
+        )
+        print("✅ Created unique constraint uq_scenario_parameter")
+    except Exception as e:
+        print(f"⚠️ Unique constraint uq_scenario_parameter already exists or error: {e}")
 
 
 def downgrade() -> None:
