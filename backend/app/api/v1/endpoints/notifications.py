@@ -85,63 +85,6 @@ def get_notifications(
         )
 
 
-@router.get("/{notification_id}", response_model=NotificationResponse)
-def get_notification(
-    notification_id: UUID,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-) -> Any:
-    """Get a specific notification."""
-    notification_service = NotificationService(db)
-    
-    notification = notification_service.get_notification(notification_id, current_user.id)
-    if not notification:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Notification not found"
-        )
-    
-    return notification
-
-
-@router.post("/{notification_id}/read")
-def mark_as_read(
-    notification_id: UUID,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-) -> Any:
-    """Mark a notification as read."""
-    notification_service = NotificationService(db)
-    
-    success = notification_service.mark_as_read(notification_id, current_user.id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Notification not found"
-        )
-    
-    return {"message": "Notification marked as read"}
-
-
-@router.post("/{notification_id}/dismiss")
-def dismiss_notification(
-    notification_id: UUID,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-) -> Any:
-    """Dismiss a notification."""
-    notification_service = NotificationService(db)
-    
-    success = notification_service.dismiss_notification(notification_id, current_user.id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Notification not found"
-        )
-    
-    return {"message": "Notification dismissed"}
-
-
 @router.post("/mark-all-read")
 def mark_all_as_read(
     current_user: User = Depends(get_current_user),
@@ -345,3 +288,61 @@ def delete_notification_admin(
         )
     
     return {"message": "Notification deleted"}
+
+
+# Generic routes with UUID parameters - MUST come after specific routes
+@router.get("/{notification_id}", response_model=NotificationResponse)
+def get_notification(
+    notification_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Get a specific notification."""
+    notification_service = NotificationService(db)
+    
+    notification = notification_service.get_notification(notification_id, current_user.id)
+    if not notification:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found"
+        )
+    
+    return notification
+
+
+@router.post("/{notification_id}/read")
+def mark_as_read(
+    notification_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Mark a notification as read."""
+    notification_service = NotificationService(db)
+    
+    success = notification_service.mark_as_read(notification_id, current_user.id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found"
+        )
+    
+    return {"message": "Notification marked as read"}
+
+
+@router.post("/{notification_id}/dismiss")
+def dismiss_notification(
+    notification_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Dismiss a notification."""
+    notification_service = NotificationService(db)
+    
+    success = notification_service.dismiss_notification(notification_id, current_user.id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found"
+        )
+    
+    return {"message": "Notification dismissed"}
