@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { toast } from 'sonner';
 import { notificationsWebSocketService } from '../services/websocket';
-import { makeApiCall } from '../utils/apiUtils';
+import { makeApiCall, API_BASE_URL } from '../utils/apiUtils';
 
 export interface Notification {
   id: string;
@@ -121,6 +121,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // Load notifications from API
   const loadNotifications = useCallback(
     async (page = 1, append = false) => {
+      // Check if user is authenticated
+      const token = getAuthToken();
+      if (!token) {
+        console.log('User not authenticated, skipping notification load');
+        return;
+      }
+
       try {
         setIsLoading(true);
         const data = await apiCall(`/?page=${page}&limit=20`);
@@ -140,7 +147,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         setIsLoading(false);
       }
     },
-    [apiCall]
+    [apiCall, getAuthToken]
   );
 
   // Load user preferences
@@ -508,15 +515,22 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     if (!initialized.current) {
       initialized.current = true;
 
-      // Load initial data
-      loadNotifications();
-      loadPreferences();
+      // Only load data if user is authenticated
+      const token = getAuthToken();
+      if (token) {
+        loadNotifications();
+        loadPreferences();
+      } else {
+        console.log(
+          'User not authenticated, skipping notification initialization'
+        );
+      }
     }
 
     return () => {
       disconnect();
     };
-  }, [loadNotifications, loadPreferences, disconnect]);
+  }, [loadNotifications, loadPreferences, disconnect, getAuthToken]);
 
   // Auto-connect WebSocket when component mounts (only if authenticated)
   useEffect(() => {

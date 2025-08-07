@@ -7,9 +7,6 @@ cmds = [
   ". /opt/venv/bin/activate && pip install -r requirements.txt"
 ]
 
-[start]
-cmd = "python main.py"
-
 [variables]
 PYTHONPATH = "/app"
 PYTHON_ENV = "production" 

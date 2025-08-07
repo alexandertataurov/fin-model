@@ -1,344 +1,338 @@
-# FinVision Design System
+# Unified Design System
 
-A modern, accessible, and performant design system built specifically for financial applications. This system provides consistent components, comprehensive theming, and excellent developer experience.
+A comprehensive, unified design system that consolidates all components into one cohesive system for building financial applications.
 
-## 🚀 Key Improvements
+## 🎯 Overview
 
-### Architecture
+This design system provides a single source of truth for all UI components, ensuring consistency, accessibility, and performance across the entire application.
 
-- **Unified Structure**: Single source of truth with centralized design system
-- **Modern Patterns**: Enhanced component composition and prop patterns
-- **Type Safety**: Full TypeScript support with comprehensive interfaces
-- **Performance**: Optimized bundle size and rendering performance
+## ✨ Key Features
 
-### Design System
+- **🎨 Unified Components**: All components in one place with consistent APIs
+- **♿ Accessibility**: WCAG 2.1 AA compliant with full keyboard navigation
+- **📱 Responsive**: Mobile-first design with adaptive layouts
+- **🎯 Type Safe**: Full TypeScript support with comprehensive prop validation
+- **⚡ Performance**: Optimized for speed with minimal bundle impact
+- **🎭 Theming**: Flexible theming system with light/dark mode support
+- **🧪 Tested**: Comprehensive testing with accessibility and visual regression tests
 
-- **Enhanced Tokens**: Comprehensive design tokens for colors, typography, spacing
-- **Flexible Theming**: Runtime theme switching with CSS custom properties
-- **Accessibility**: WCAG 2.1 AA compliant with full keyboard navigation
-- **Responsive**: Mobile-first design with adaptive layouts
-
-### Developer Experience
-
-- **Better Documentation**: Comprehensive Storybook stories with examples
-- **Improved Testing**: Enhanced accessibility and visual regression testing
-- **Streamlined API**: Clean, consistent component interfaces
-- **Modern Tooling**: Latest Storybook and build optimizations
-
-## 📁 Structure
+## 🏗️ Architecture
 
 ```
-src/design-system/
-├── index.ts              # Main entry point
-├── provider.tsx          # Design system context provider
-├── tokens.ts             # Design tokens and CSS variables
-├── components/           # Enhanced component library
-│   ├── Button.tsx        # Enhanced button with loading states
-│   ├── Card.tsx          # Flexible card system
-│   └── ...               # Other components
-├── stories/              # Comprehensive Storybook stories
-│   ├── DesignSystem.stories.tsx  # System overview
-│   ├── Button.stories.tsx        # Button documentation
-│   └── ...               # Component stories
-└── README.md             # This documentation
+frontend/src/design-system/
+├── components/          # All UI components
+│   ├── Button.tsx      # Enhanced button with variants
+│   ├── Card.tsx        # Flexible card system
+│   ├── Input.tsx       # Form inputs
+│   ├── Badge.tsx       # Status indicators
+│   ├── Alert.tsx       # Feedback messages
+│   ├── Dialog.tsx      # Modal dialogs
+│   ├── Select.tsx      # Dropdown selects
+│   ├── Switch.tsx      # Toggle switches
+│   ├── Checkbox.tsx    # Checkboxes
+│   ├── Textarea.tsx    # Multi-line inputs
+│   └── ...            # Additional components
+├── stories/            # Storybook stories
+│   ├── Button.stories.tsx
+│   ├── Card.stories.tsx
+│   ├── UnifiedDesignSystem.stories.tsx
+│   └── ...
+├── provider.tsx        # Design system provider
+├── tokens.ts          # Design tokens
+├── index.ts           # Main export file
+└── README.md          # This file
 ```
 
-## 🎨 Design Tokens
+## 🚀 Quick Start
 
-### Colors
+### Installation
 
-- **Primary**: Brand colors for main actions
-- **Secondary**: Supporting colors for secondary actions
-- **Semantic**: Success, warning, error, info colors
-- **Neutral**: Grayscale palette for text and backgrounds
-
-### Typography
-
-- **Font Families**: Inter (sans), JetBrains Mono (mono), Georgia (serif)
-- **Font Sizes**: XS to 6XL with optimized line heights
-- **Font Weights**: Light to Extra Bold
-
-### Spacing
-
-- **Consistent Scale**: 4px base unit with logical progression
-- **Responsive**: Adapts to different screen sizes
-- **Flexible**: Supports custom spacing when needed
-
-### Border Radius
-
-- **Multiple Options**: None, SM, MD, LG, XL, Full
-- **Consistent**: Applied consistently across components
-- **Accessible**: Meets contrast and touch target requirements
-
-## 🧩 Components
-
-### Button
-
-Enhanced button component with:
-
-- **9 Variants**: Default, secondary, outline, ghost, link, and semantic variants
-- **5 Sizes**: XS, SM, MD, LG, XL with icon-only options
-- **Loading States**: Built-in spinner with automatic disabling
-- **Icon Support**: Left/right icons with automatic sizing
-- **Accessibility**: Full keyboard navigation and ARIA support
-
-### Card
-
-Flexible card system with:
-
-- **5 Variants**: Default, elevated, outline, ghost, interactive
-- **Flexible Padding**: None, SM, MD, LG, XL options
-- **Composition**: Header, content, footer with independent styling
-- **Interactive**: Hover and focus states for clickable cards
-
-## 🚀 Usage
-
-### Basic Import
+All components are available through the main export:
 
 ```tsx
-import { Button, Card, DesignSystemProvider } from '@/design-system';
+import { 
+  Button, 
+  Card, 
+  Input, 
+  Badge, 
+  Alert,
+  DesignSystemProvider 
+} from '@/design-system';
 ```
 
 ### Setup Provider
+
+Wrap your app with the DesignSystemProvider:
 
 ```tsx
 import { DesignSystemProvider } from '@/design-system';
 
 function App() {
   return (
-    <DesignSystemProvider
-      defaultTheme="light"
-      defaultDensity="comfortable"
-      defaultRadius="md"
-    >
+    <DesignSystemProvider>
       <YourApp />
     </DesignSystemProvider>
   );
 }
 ```
 
-### Component Usage
+## 🧩 Component Categories
+
+### Core Components
+- **Button**: Primary interaction component with 9 variants and 5 sizes
+- **Card**: Flexible container with 5 variants and customizable padding
+- **Input**: Form input with validation states and icons
+- **Label**: Accessible form labels
+- **Badge**: Status indicators with semantic variants
+
+### Form Components
+- **Form**: React Hook Form integration with validation
+- **Checkbox**: Accessible checkbox with custom styling
+- **Textarea**: Multi-line text input
+- **Select**: Dropdown selection with search and grouping
+- **Switch**: Toggle component with labels
+- **RadioGroup**: Radio button groups
+
+### Feedback Components
+- **Alert**: Status messages with semantic variants
+- **Dialog**: Modal dialogs with backdrop and focus management
+- **Toast**: Notification system for user feedback
+- **Tooltip**: Contextual information overlays
+
+### Layout Components
+- **Separator**: Visual dividers
+- **Skeleton**: Loading state placeholders
+- **Sheet**: Slide-out panels
+- **Drawer**: Bottom sheet dialogs
+
+### Navigation Components
+- **Tabs**: Tabbed interface
+- **Breadcrumb**: Navigation hierarchy
+- **Pagination**: Page navigation
+- **Command**: Command palette interface
+
+### Data Display
+- **Table**: Data tables with sorting and selection
+- **Chart**: Data visualization components
+- **Progress**: Progress indicators
+- **Avatar**: User profile images
+
+## 🎨 Design Tokens
+
+### Colors
+- **Primary**: Brand colors for main actions
+- **Secondary**: Supporting colors for secondary actions
+- **Semantic**: Success, warning, error, info colors
+- **Neutral**: Grayscale palette for text and backgrounds
+
+### Typography
+- **Font Families**: Inter (sans), JetBrains Mono (mono), Georgia (serif)
+- **Font Sizes**: XS to 6XL with optimized line heights
+- **Font Weights**: Light to Extra Bold
+
+### Spacing
+- **Consistent Scale**: 4px base unit with logical progression
+- **Responsive**: Adapts to different screen sizes
+- **Flexible**: Supports custom spacing when needed
+
+### Border Radius
+- **Multiple Options**: None, SM, MD, LG, XL, Full
+- **Consistent**: Applied consistently across components
+- **Accessible**: Meets contrast and touch target requirements
+
+## 📝 Usage Examples
+
+### Button Variants
 
 ```tsx
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/design-system';
+import { Button } from '@/design-system';
 
-function MyComponent() {
-  return (
-    <Card variant="elevated">
-      <CardHeader>
-        <CardTitle>My Card</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Button
-          variant="primary"
-          size="lg"
-          leftIcon={<Plus />}
-          loading={isLoading}
-        >
-          Add Item
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
+// Basic usage
+<Button>Click me</Button>
+
+// Variants
+<Button variant="primary">Primary</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="ghost">Ghost</Button>
+<Button variant="destructive">Delete</Button>
+
+// Sizes
+<Button size="sm">Small</Button>
+<Button size="md">Medium</Button>
+<Button size="lg">Large</Button>
+
+// With icons
+<Button leftIcon={<Plus />}>Add Item</Button>
+<Button rightIcon={<ArrowRight />}>Continue</Button>
+
+// Loading state
+<Button loading>Processing...</Button>
+```
+
+### Card System
+
+```tsx
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/design-system';
+
+<Card variant="elevated" padding="lg">
+  <CardHeader>
+    <CardTitle>Card Title</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <p>Card content goes here</p>
+  </CardContent>
+  <CardFooter>
+    <Button>Action</Button>
+  </CardFooter>
+</Card>
+```
+
+### Form Components
+
+```tsx
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/design-system';
+
+const form = useForm({
+  defaultValues: {
+    email: '',
+    password: '',
+  },
+});
+
+<Form {...form}>
+  <form onSubmit={form.handleSubmit(onSubmit)}>
+    <FormField
+      control={form.control}
+      name="email"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Email</FormLabel>
+          <FormControl>
+            <Input placeholder="Enter your email" {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </form>
+</Form>
+```
+
+### Alert System
+
+```tsx
+import { Alert, AlertTitle, AlertDescription } from '@/design-system';
+
+<Alert variant="success">
+  <CheckCircle className="h-4 w-4" />
+  <AlertTitle>Success!</AlertTitle>
+  <AlertDescription>
+    Your changes have been saved successfully.
+  </AlertDescription>
+</Alert>
 ```
 
 ## 🎭 Theming
 
-### Theme Switching
+The design system supports comprehensive theming:
 
 ```tsx
-import { useDesignSystem } from '@/design-system';
+import { DesignSystemProvider } from '@/design-system';
 
-function ThemeToggle() {
-  const { theme, setTheme } = useDesignSystem();
-
-  return (
-    <Button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-      Toggle Theme
-    </Button>
-  );
-}
+<DesignSystemProvider
+  defaultTheme="light"
+  defaultDensity="comfortable"
+  defaultRadius="md"
+>
+  <YourApp />
+</DesignSystemProvider>
 ```
 
-### Custom Theming
-
-```css
-/* Custom CSS variables */
-:root {
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --background: #ffffff;
-  --foreground: #0f172a;
-}
-
-[data-theme='dark'] {
-  --primary: #60a5fa;
-  --primary-foreground: #0f172a;
-  --background: #0f172a;
-  --foreground: #f8fafc;
-}
-```
+### Theme Options
+- **Theme**: `light`, `dark`, `system`
+- **Density**: `compact`, `comfortable`, `spacious`
+- **Radius**: `none`, `sm`, `md`, `lg`, `xl`
 
 ## ♿ Accessibility
 
-### Features
+All components are built with accessibility in mind:
 
 - **Keyboard Navigation**: Full keyboard support for all interactive elements
-- **Screen Reader Support**: Proper ARIA labels, roles, and descriptions
-- **Color Contrast**: Meets WCAG AA contrast requirements
-- **Focus Management**: Clear focus indicators and logical tab order
-- **Semantic HTML**: Proper HTML structure and landmarks
-
-### Best Practices
-
-```tsx
-// Always provide accessible labels
-<Button aria-label="Add new item">
-  <Plus />
-</Button>
-
-// Use semantic variants for meaning
-<Button variant="destructive" aria-describedby="delete-help">
-  Delete
-</Button>
-<p id="delete-help">This action cannot be undone</p>
-
-// Support keyboard navigation
-<Button onKeyDown={handleKeyDown}>
-  Interactive Button
-</Button>
-```
+- **Screen Readers**: Proper ARIA labels and roles
+- **Focus Management**: Visible focus indicators and logical tab order
+- **Color Contrast**: WCAG 2.1 AA compliant color ratios
+- **Touch Targets**: Minimum 44px touch targets for mobile
 
 ## 🧪 Testing
 
 ### Storybook
+Run Storybook to explore components:
 
 ```bash
-# Start Storybook
 npm run storybook
+```
 
-# Build for production
-npm run build-storybook
+### Component Testing
+Each component includes comprehensive tests:
 
-# Run tests
-npm run storybook:test
+```bash
+npm test
 ```
 
 ### Accessibility Testing
+Automated accessibility testing with axe-core:
 
-- Automated a11y checks with axe-core
-- Color contrast validation
-- Keyboard navigation testing
-- Screen reader compatibility
-
-### Visual Regression
-
-- Chromatic integration for visual testing
-- Responsive design validation
-- Cross-browser compatibility
+```bash
+npm run test:a11y
+```
 
 ## 📚 Documentation
 
-### Storybook Stories
-
-- **Overview**: Complete system showcase
-- **Components**: Individual component documentation
-- **Examples**: Real-world usage patterns
-- **Accessibility**: Testing and best practices
-
-### API Documentation
-
-- **Props**: Comprehensive prop documentation
-- **Types**: TypeScript interfaces and types
-- **Examples**: Code examples and patterns
-- **Migration**: Upgrade guides and breaking changes
-
-## 🔧 Development
-
-### Adding Components
-
-1. Create component in `src/design-system/components/`
-2. Add to `src/design-system/index.ts` exports
-3. Create Storybook stories
-4. Add accessibility tests
-5. Update documentation
-
-### Component Guidelines
-
-- Use TypeScript for type safety
-- Include comprehensive JSDoc comments
-- Follow established naming conventions
-- Ensure accessibility compliance
-- Add Storybook documentation
-- Include usage examples
-
-### Testing Requirements
-
-- Unit tests for functionality
-- Accessibility tests with axe-core
-- Visual regression tests
-- Integration tests for complex interactions
-
-## 🎯 Best Practices
-
-### Component Design
-
-- Keep components focused and single-purpose
-- Use composition over inheritance
-- Provide sensible defaults
-- Support customization through props
-- Maintain backward compatibility
-
-### Styling
-
-- Use design tokens consistently
-- Follow established patterns
-- Ensure responsive design
-- Maintain consistent spacing
-- Use semantic color names
-
-### Performance
-
-- Lazy load when appropriate
-- Optimize bundle size
-- Use React.memo for expensive components
-- Implement proper cleanup in effects
+- **Component Stories**: Interactive examples in Storybook
+- **API Reference**: TypeScript definitions for all props
+- **Design Tokens**: Complete token system documentation
+- **Migration Guide**: Upgrading from legacy components
 
 ## 🤝 Contributing
 
-1. Follow established patterns and conventions
-2. Add comprehensive documentation
-3. Include usage examples
-4. Test across different browsers
-5. Ensure accessibility compliance
-6. Update this documentation
+1. **Component Development**: Create new components in `components/`
+2. **Story Creation**: Add stories in `stories/`
+3. **Testing**: Include unit and accessibility tests
+4. **Documentation**: Update README and component docs
+
+## 📦 Bundle Size
+
+The design system is optimized for minimal bundle impact:
+
+- **Tree Shaking**: Only import what you use
+- **Code Splitting**: Components are individually importable
+- **CSS Optimization**: Tailwind CSS with PurgeCSS
+- **Type Safety**: Zero runtime overhead for TypeScript
+
+## 🔄 Migration
+
+### From Legacy Components
+
+```tsx
+// Old
+import { Button } from '@/components/ui/button';
+
+// New
+import { Button } from '@/design-system';
+```
+
+### From Multiple Providers
+
+```tsx
+// Old
+import { ThemeProvider } from 'next-themes';
+import { DesignSystemProvider } from '@/components/ui/DesignSystemProvider';
+
+// New
+import { DesignSystemProvider } from '@/design-system';
+```
 
 ## 📄 License
 
-This design system is part of the FinVision platform and follows the same licensing terms.
-
-## 🔄 Migration Guide
-
-### From Old Structure
-
-1. Update imports to use `@/design-system`
-2. Replace old component usage with new patterns
-3. Update theme provider to use `DesignSystemProvider`
-4. Test accessibility and functionality
-5. Update any custom styling to use new tokens
-
-### Breaking Changes
-
-- Component prop interfaces have been enhanced
-- Theme provider API has changed
-- Some class names may have been updated
-- Icon sizing has been standardized
-
-For detailed migration instructions, see the migration guide in the documentation.
+This design system is part of the FinVision project and follows the same licensing terms.

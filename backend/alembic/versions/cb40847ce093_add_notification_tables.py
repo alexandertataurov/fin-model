@@ -61,7 +61,7 @@ def upgrade() -> None:
     op.create_table(
         'notifications',
         sa.Column('id', UUID(as_uuid=True), primary_key=True),
-        sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False, index=True),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('users.id'), nullable=False, index=True),
         sa.Column('type', notification_type_enum, nullable=False, index=True),
         sa.Column('title', sa.String(255), nullable=False),
         sa.Column('message', sa.Text, nullable=False),
@@ -85,7 +85,7 @@ def upgrade() -> None:
     op.create_table(
         'notification_preferences',
         sa.Column('id', UUID(as_uuid=True), primary_key=True),
-        sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False, unique=True),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('users.id'), nullable=False, unique=True),
         sa.Column('email_enabled', sa.Boolean, default=True),
         sa.Column('push_enabled', sa.Boolean, default=True),
         sa.Column('in_app_enabled', sa.Boolean, default=True),

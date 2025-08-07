@@ -29,56 +29,56 @@ function App() {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <DesignSystemProvider>
         <AuthProvider>
-          <NotificationProvider>
-            <Router>
-              <div className="min-h-screen bg-background text-foreground">
-                <Routes>
-                  {/* Public Authentication Routes */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
+          <Router>
+            <div className="min-h-screen bg-background text-foreground">
+              <Routes>
+                {/* Public Authentication Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-                  {/* Protected Routes - All wrapped with AuthGuard */}
-                  <Route
-                    path="/"
-                    element={
-                      <AuthGuard>
+                {/* Protected Routes - All wrapped with AuthGuard */}
+                <Route
+                  path="/"
+                  element={
+                    <AuthGuard>
+                      <NotificationProvider>
                         <Layout />
-                      </AuthGuard>
-                    }
-                  >
-                    <Route index element={<Dashboard />} />
-                    <Route path="upload" element={<FileUpload />} />
-                    <Route path="dashboards/pl" element={<PnLDashboard />} />
-                    <Route
-                      path="dashboards/cashflow"
-                      element={<CashFlowDashboard />}
-                    />
-                    <Route
-                      path="dashboards/balance"
-                      element={<BalanceSheetDashboard />}
-                    />
-                    <Route path="scenarios" element={<Scenarios />} />
-                    <Route path="parameters" element={<Parameters />} />
-                    <Route path="dcf-valuation" element={<DCFValuation />} />
-                    <Route
-                      path="asset-lifecycle"
-                      element={<AssetLifecycle />}
-                    />
-                    <Route
-                      path="cash-flow-lifecycle"
-                      element={<CashFlowLifecycle />}
-                    />
-                    {/* New streamlined routes */}
-                    <Route path="financial-modeling" element={<Dashboard />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
-                </Routes>
-                <Toaster />
-              </div>
-            </Router>
-          </NotificationProvider>
+                      </NotificationProvider>
+                    </AuthGuard>
+                  }
+                >
+                  <Route index element={<Dashboard />} />
+                  <Route path="upload" element={<FileUpload />} />
+                  <Route path="dashboards/pl" element={<PnLDashboard />} />
+                  <Route
+                    path="dashboards/cashflow"
+                    element={<CashFlowDashboard />}
+                  />
+                  <Route
+                    path="dashboards/balance"
+                    element={<BalanceSheetDashboard />}
+                  />
+                  <Route path="scenarios" element={<Scenarios />} />
+                  <Route path="parameters" element={<Parameters />} />
+                  <Route path="dcf-valuation" element={<DCFValuation />} />
+                  <Route
+                    path="asset-lifecycle"
+                    element={<AssetLifecycle />}
+                  />
+                  <Route
+                    path="cash-flow-lifecycle"
+                    element={<CashFlowLifecycle />}
+                  />
+                  {/* New streamlined routes */}
+                  <Route path="financial-modeling" element={<Dashboard />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+              <Toaster />
+            </div>
+          </Router>
         </AuthProvider>
       </DesignSystemProvider>
     </ThemeProvider>

@@ -6,36 +6,61 @@ Runs migrations and starts the application
 
 import os
 import sys
-import subprocess
 from pathlib import Path
+from alembic import command
+from alembic.config import Config
+
+
+def check_database_connection():
+    """Check if we can connect to the database."""
+    print("🔌 Checking database connection...")
+    
+    try:
+        from app.core.config import settings
+        from sqlalchemy import create_engine
+        
+        engine = create_engine(settings.DATABASE_URL)
+        with engine.connect() as conn:
+            conn.execute("SELECT 1")
+            print("✅ Database connection successful")
+            return True
+    except Exception as e:
+        print(f"❌ Database connection failed: {e}")
+        return False
+
 
 def run_migrations():
     """Run database migrations."""
     print("🔄 Running database migrations...")
     
     try:
-        # Run alembic upgrade head
-        result = subprocess.run([
-            sys.executable, "-m", "alembic", "upgrade", "head"
-        ], capture_output=True, text=True, cwd=Path(__file__).parent)
+        current_dir = Path(__file__).parent
+        alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
+        alembic_cfg.set_main_option("script_location", os.path.join(current_dir, "alembic"))
         
-        if result.returncode == 0:
-            print("✅ Migrations completed successfully")
-            return True
-        else:
-            print(f"❌ Migration failed: {result.stderr}")
-            return False
-            
+        # Check current revision
+        print("📋 Current database revision:")
+        command.current(alembic_cfg)
+        
+        # Run migrations
+        print("🔄 Upgrading to head...")
+        command.upgrade(alembic_cfg, "head")
+        
+        print("✅ Migrations completed successfully")
+        return True
+        
     except Exception as e:
-        print(f"❌ Error running migrations: {e}")
+        print(f"❌ Migration failed: {e}")
+        import traceback
+        traceback.print_exc()
         return False
+
 
 def start_app():
     """Start the FastAPI application."""
     print("🚀 Starting FastAPI application...")
     
     try:
-        # Import and run the app
         from main import app
         import uvicorn
         
@@ -49,16 +74,24 @@ def start_app():
         print(f"❌ Error starting application: {e}")
         sys.exit(1)
 
+
 def main():
     """Main startup function."""
     print("🚀 Starting FinVision API...")
     
-    # Run migrations first
+    # Check database connection first
+    if not check_database_connection():
+        print("❌ Cannot connect to database, exiting")
+        sys.exit(1)
+    
+    # Run migrations
     if not run_migrations():
-        print("⚠️ Migration failed, but continuing with startup...")
+        print("❌ Migration failed, exiting")
+        sys.exit(1)
     
     # Start the application
     start_app()
+
 
 if __name__ == "__main__":
     main()
