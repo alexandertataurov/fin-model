@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { Alert, AlertDescription, AlertTitle } from '../components/Alert';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Info, 
-  XCircle, 
-  Bell, 
-  Shield, 
-  Zap, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  XCircle,
+  Bell,
+  Shield,
+  Zap,
   Clock,
   DollarSign,
   TrendingUp,
@@ -101,12 +101,8 @@ import {
   Medal,
   Crown,
   Flag,
-  Shield,
   Sword,
-  Zap,
   Sparkles,
-  Star,
-  Heart,
   Diamond,
   Gem,
   Coins,
@@ -119,17 +115,11 @@ import {
   PieChart,
   BarChart,
   LineChart,
-  TrendingUp,
   TrendingDown,
-  Minus,
-  Plus,
   Equal,
   Divide,
   Percent,
-  Hash,
   AtSign,
-  Hash,
-  DollarSign,
   Euro,
   Pound,
   Yen,
@@ -288,7 +278,8 @@ export const Warning: Story = {
       <AlertTriangle className="h-4 w-4" />
       <AlertTitle>Warning</AlertTitle>
       <AlertDescription>
-        Please review your input before proceeding. Some fields may need attention.
+        Please review your input before proceeding. Some fields may need
+        attention.
       </AlertDescription>
     </Alert>
   ),
@@ -308,7 +299,7 @@ export const Destructive: Story = {
 };
 
 // Info Alert
-export const Info: Story = {
+export const InfoAlert: Story = {
   render: () => (
     <Alert variant="info">
       <Info className="h-4 w-4" />
@@ -327,19 +318,15 @@ export const AllVariants: Story = {
       <Alert>
         <Info className="h-4 w-4" />
         <AlertTitle>Default</AlertTitle>
-        <AlertDescription>
-          This is the default alert variant.
-        </AlertDescription>
+        <AlertDescription>This is the default alert variant.</AlertDescription>
       </Alert>
-      
+
       <Alert variant="success">
         <CheckCircle className="h-4 w-4" />
         <AlertTitle>Success</AlertTitle>
-        <AlertDescription>
-          Operation completed successfully.
-        </AlertDescription>
+        <AlertDescription>Operation completed successfully.</AlertDescription>
       </Alert>
-      
+
       <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
@@ -347,15 +334,13 @@ export const AllVariants: Story = {
           Please review the information before proceeding.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="info">
         <Info className="h-4 w-4" />
         <AlertTitle>Info</AlertTitle>
-        <AlertDescription>
-          Here's some helpful information.
-        </AlertDescription>
+        <AlertDescription>Here's some helpful information.</AlertDescription>
       </Alert>
-      
+
       <Alert variant="destructive">
         <XCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
@@ -375,31 +360,35 @@ export const FinancialAlerts: Story = {
         <TrendingUp className="h-4 w-4" />
         <AlertTitle>Portfolio Performance</AlertTitle>
         <AlertDescription>
-          Your portfolio has increased by 12.5% this month, outperforming the market average.
+          Your portfolio has increased by 12.5% this month, outperforming the
+          market average.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="warning">
         <DollarSign className="h-4 w-4" />
         <AlertTitle>Budget Alert</AlertTitle>
         <AlertDescription>
-          You're approaching your monthly budget limit. Consider reviewing your expenses.
+          You're approaching your monthly budget limit. Consider reviewing your
+          expenses.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="info">
         <BarChart3 className="h-4 w-4" />
         <AlertTitle>Market Update</AlertTitle>
         <AlertDescription>
-          New market data is available. Refresh your dashboard to see the latest trends.
+          New market data is available. Refresh your dashboard to see the latest
+          trends.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="destructive">
         <XCircle className="h-4 w-4" />
         <AlertTitle>Transaction Failed</AlertTitle>
         <AlertDescription>
-          The payment transaction could not be processed. Please check your payment method.
+          The payment transaction could not be processed. Please check your
+          payment method.
         </AlertDescription>
       </Alert>
     </div>
@@ -414,10 +403,11 @@ export const SystemAlerts: Story = {
         <Bell className="h-4 w-4" />
         <AlertTitle>System Maintenance</AlertTitle>
         <AlertDescription>
-          Scheduled maintenance will occur on Sunday from 2:00 AM to 6:00 AM EST.
+          Scheduled maintenance will occur on Sunday from 2:00 AM to 6:00 AM
+          EST.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="success">
         <CheckCircle className="h-4 w-4" />
         <AlertTitle>Backup Complete</AlertTitle>
@@ -425,7 +415,7 @@ export const SystemAlerts: Story = {
           Your data has been successfully backed up to the cloud.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="warning">
         <Shield className="h-4 w-4" />
         <AlertTitle>Security Update</AlertTitle>
@@ -433,7 +423,7 @@ export const SystemAlerts: Story = {
           A new security update is available. Please update your application.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="info">
         <Zap className="h-4 w-4" />
         <AlertTitle>Performance Boost</AlertTitle>
@@ -456,7 +446,7 @@ export const UserAlerts: Story = {
           Your email address has been successfully verified.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="warning">
         <Clock className="h-4 w-4" />
         <AlertTitle>Session Expiring</AlertTitle>
@@ -464,7 +454,7 @@ export const UserAlerts: Story = {
           Your session will expire in 5 minutes. Please save your work.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="info">
         <Users className="h-4 w-4" />
         <AlertTitle>Team Invitation</AlertTitle>
@@ -472,7 +462,7 @@ export const UserAlerts: Story = {
           You've been invited to join the Financial Analysis team.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="destructive">
         <UserX className="h-4 w-4" />
         <AlertTitle>Access Denied</AlertTitle>
@@ -495,15 +485,16 @@ export const FileAlerts: Story = {
           Your financial report has been downloaded successfully.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="warning">
         <FileText className="h-4 w-4" />
         <AlertTitle>File Size Warning</AlertTitle>
         <AlertDescription>
-          The file you're uploading is larger than recommended. This may take longer to process.
+          The file you're uploading is larger than recommended. This may take
+          longer to process.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="info">
         <Upload className="h-4 w-4" />
         <AlertTitle>Upload in Progress</AlertTitle>
@@ -511,7 +502,7 @@ export const FileAlerts: Story = {
           Your file is being uploaded. Please don't close this window.
         </AlertDescription>
       </Alert>
-      
+
       <Alert variant="destructive">
         <Trash2 className="h-4 w-4" />
         <AlertTitle>File Deleted</AlertTitle>

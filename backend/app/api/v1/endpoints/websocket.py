@@ -13,70 +13,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-async def authenticate_websocket(websocket: WebSocket, token: Optional[str] = None):
-    """Authenticate WebSocket connection using token."""
-    if not token:
-        logger.warning("WebSocket connection attempt without token")
-        try:
-            await websocket.close(code=4001, reason="Authentication required")
-        except Exception:
-            pass
-        return None
-    
-    try:
-        # Try to verify token
-        try:
-            user_id = verify_token(token)
-        except Exception as e:
-            logger.error(f"Token verification error: {e}")
-            user_id = None
-            
-        if not user_id:
-            logger.warning("WebSocket connection attempt with invalid token")
-            try:
-                await websocket.close(code=4001, reason="Invalid token")
-            except Exception:
-                pass
-            return None
-        
-        # Get database session
-        db_gen = get_db()
-        db = next(db_gen)
-        
-        try:
-            auth_service = AuthService(db)
-            user = auth_service.get_user_by_id(int(user_id))
-            
-            if not user or not user.is_active:
-                logger.warning(f"WebSocket connection attempt for inactive user {user_id}")
-                try:
-                    await websocket.close(code=4001, reason="User not found or inactive")
-                except Exception:
-                    pass
-                return None
-                
-            logger.info(f"WebSocket authentication successful for user {user.id}")
-            return user
-        except Exception as e:
-            logger.error(f"Database error during WebSocket authentication: {e}")
-            try:
-                await websocket.close(code=4001, reason="Database error")
-            except Exception:
-                pass
-            return None
-        finally:
-            try:
-                db.close()
-            except Exception:
-                pass
-    except Exception as e:
-        logger.error(f"Error during WebSocket authentication: {e}")
-        try:
-            await websocket.close(code=4001, reason="Authentication error")
-        except Exception:
-            pass
-        return None
-
 
 @router.websocket("/health")
 async def health_websocket(websocket: WebSocket):
@@ -129,14 +65,51 @@ async def health_websocket(websocket: WebSocket):
 async def notifications_websocket(websocket: WebSocket, token: Optional[str] = Query(None)):
     """WebSocket endpoint for real-time notifications."""
     try:
-        # Authenticate user BEFORE accepting the connection
-        user = await authenticate_websocket(websocket, token)
-        if not user:
-            # Connection will be closed by authenticate_websocket
+        # Accept the connection first
+        await websocket.accept()
+        
+        # Then authenticate
+        if not token:
+            logger.warning("WebSocket connection attempt without token")
+            await websocket.close(code=4001, reason="Authentication required")
             return
         
-        # Accept the connection only after successful authentication
-        await websocket.accept()
+        try:
+            user_id = verify_token(token)
+        except Exception as e:
+            logger.error(f"Token verification error: {e}")
+            await websocket.close(code=4001, reason="Invalid token")
+            return
+            
+        if not user_id:
+            logger.warning("WebSocket connection attempt with invalid token")
+            await websocket.close(code=4001, reason="Invalid token")
+            return
+        
+        # Get database session
+        db_gen = get_db()
+        db = next(db_gen)
+        
+        try:
+            auth_service = AuthService(db)
+            user = auth_service.get_user_by_id(int(user_id))
+            
+            if not user or not user.is_active:
+                logger.warning(f"WebSocket connection attempt for inactive user {user_id}")
+                await websocket.close(code=4001, reason="User not found or inactive")
+                return
+                
+            logger.info(f"WebSocket authentication successful for user {user.id}")
+        except Exception as e:
+            logger.error(f"Database error during WebSocket authentication: {e}")
+            await websocket.close(code=4001, reason="Database error")
+            return
+        finally:
+            try:
+                db.close()
+            except Exception:
+                pass
+        
         logger.info(f"WebSocket connection accepted for user {user.id}")
         
         # Send connection confirmation
