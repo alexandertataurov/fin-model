@@ -28,7 +28,9 @@ class Settings(BaseSettings):
         "http://localhost:3000,http://127.0.0.1:3000,"
         "https://pre-production--advanced-financial-modeling.netlify.app,"
         "https://advanced-financial-modeling.netlify.app,"
-        "https://fin-model-production.up.railway.app"
+        "https://fin-model-production.up.railway.app,"
+        "https://*.netlify.app,"
+        "https://*.railway.app"
     )
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
@@ -42,11 +44,33 @@ class Settings(BaseSettings):
         """Get CORS origins as a list."""
         if self.BACKEND_CORS_ORIGINS == "*":
             return ["*"]
-        return [
-            origin.strip()
-            for origin in self.BACKEND_CORS_ORIGINS.split(",")
-            if origin.strip()
-        ]
+        
+        origins = []
+        for origin in self.BACKEND_CORS_ORIGINS.split(","):
+            origin = origin.strip()
+            if origin:
+                # Handle wildcard domains
+                if origin.startswith("https://*."):
+                    # Add common subdomains for wildcard domains
+                    domain = origin.replace("https://*.", "")
+                    origins.extend([
+                        f"https://{domain}",
+                        f"https://www.{domain}",
+                        f"https://pre-production--{domain}",
+                        f"https://production--{domain}",
+                        f"https://staging--{domain}",
+                        f"https://dev--{domain}",
+                    ])
+                else:
+                    origins.append(origin)
+        
+        # Add the original wildcard entries for broader compatibility
+        if "https://*.netlify.app" in self.BACKEND_CORS_ORIGINS:
+            origins.append("https://*.netlify.app")
+        if "https://*.railway.app" in self.BACKEND_CORS_ORIGINS:
+            origins.append("https://*.railway.app")
+            
+        return list(set(origins))  # Remove duplicates
 
     # JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
