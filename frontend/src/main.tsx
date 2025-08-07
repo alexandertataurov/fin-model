@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+// Ensure React is available globally
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+}
+
 console.log('=== MAIN.TSX STARTING ===');
 
 const rootElement = document.getElementById('root');

@@ -24,6 +24,22 @@ const config: StorybookConfig = {
     check: false,
     reactDocgen: 'react-docgen-typescript',
   },
+  // Enhanced navigation structure
+  managerHead: (head) => `
+    ${head}
+    <style>
+      .sidebar-item[data-item-id*="design-system"] {
+        font-weight: 600;
+        color: #3b82f6;
+      }
+      .sidebar-item[data-item-id*="components"] {
+        font-weight: 500;
+      }
+      .sidebar-item[data-item-id*="auth"] {
+        font-weight: 500;
+      }
+    </style>
+  `,
   viteFinal: async config => {
     // Add path resolution
     if (config.resolve) {

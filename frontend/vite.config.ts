@@ -38,6 +38,8 @@ export default defineConfig(({ mode }) => {
       'process.env.NODE_ENV': JSON.stringify(mode),
       __DEV__: mode === 'development',
       __PROD__: mode === 'production',
+      // Ensure React is available globally
+      'global': 'globalThis',
     },
     
     server: {
@@ -62,43 +64,10 @@ export default defineConfig(({ mode }) => {
       minify: mode === 'production' ? 'esbuild' : false,
       target: 'esnext',
       chunkSizeWarningLimit: 1200,
+      // Remove complex chunking to avoid React bundling issues
       rollupOptions: {
         output: {
-          manualChunks: id => {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'radix-ui';
-            }
-            if (id.includes('recharts')) {
-              return 'charts';
-            }
-            if (id.includes('react-hook-form') || id.includes('@hookform/resolvers') || id.includes('zod')) {
-              return 'forms';
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'query';
-            }
-            if (id.includes('react-router-dom')) {
-              return 'router';
-            }
-            if (id.includes('date-fns')) {
-              return 'date-utils';
-            }
-            if (id.includes('axios')) {
-              return 'http-client';
-            }
-            if (id.includes('class-variance-authority') || id.includes('clsx') || id.includes('tailwind-merge')) {
-              return 'ui-utils';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons';
-            }
-            if (id.includes('node_modules')) {
-              return 'vendor';
-            }
-          },
+          manualChunks: undefined, // Disable manual chunking
         },
       },
     },
