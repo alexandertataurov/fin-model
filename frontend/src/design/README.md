@@ -81,13 +81,20 @@ Modal and popup components.
 - **Tooltip**: Hover information
 - **Sheet**: Slide-out panels
 
-### 7. Enhanced Components
-Advanced components with additional features.
+### 7. Form Components
+Form components and validation.
 
-- **EnhancedButton**: Button with loading states and icons
-- **EnhancedCard**: Card with metrics and trends
-- **TextField**: Input with validation and error states
-- **MultiSelect**: Multi-selection dropdown
+- **Form**: Form wrapper with validation
+- **FormField**: Individual form field wrapper
+- **RadioGroup**: Radio button groups
+- **InputOTP**: One-time password input
+
+### 8. Advanced Components
+Complex UI patterns and interactions.
+
+- **Calendar**: Date picker component
+- **Carousel**: Image/content carousel
+- **Pagination**: Page navigation controls
 
 ## 🚀 Usage
 

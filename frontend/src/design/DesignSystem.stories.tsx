@@ -60,10 +60,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  EnhancedCard,
-  EnhancedButton,
-  TextField,
-  MultiSelect,
   Form,
   FormField,
   FormItem,
@@ -72,12 +68,6 @@ import {
   FormMessage,
   RadioGroup,
   RadioGroupItem,
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
@@ -87,28 +77,12 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-  Chart,
-  Sidebar,
-  useMobile,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from './components/ui';
 import { 
   Plus, 
@@ -407,9 +381,8 @@ A comprehensive design system built with React, TypeScript, and Tailwind CSS. Th
 4. **Feedback**: User feedback components (Alert, Toast, Progress)
 5. **Data Display**: Data presentation components (Table, Badge, Avatar)
 6. **Overlay**: Modal and popup components (Dialog, Popover, Tooltip)
-7. **Enhanced**: Advanced components with additional features
-8. **Forms**: Form components and validation
-9. **Advanced UI**: Complex UI patterns and interactions
+7. **Forms**: Form components and validation
+8. **Advanced**: Complex UI patterns and interactions
         `,
       },
     },
@@ -571,17 +544,7 @@ export const Layout: Story = {
               </CardContent>
             </Card>
             
-            <EnhancedCard>
-              <CardHeader>
-                <CardTitle>Enhanced Card</CardTitle>
-                <CardDescription>Card with additional features</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Enhanced card with better styling and interactions.</p>
-              </CardContent>
-            </EnhancedCard>
-
-            <Card className="border-dashed">
+            <Card>
               <CardHeader>
                 <CardTitle>Interactive Card</CardTitle>
                 <CardDescription>Click to interact</CardDescription>
@@ -591,6 +554,16 @@ export const Layout: Story = {
                   <Plus className="mr-2 h-4 w-4" />
                   Add Item
                 </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-dashed">
+              <CardHeader>
+                <CardTitle>Dashed Border</CardTitle>
+                <CardDescription>Special styling</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Card with dashed border for special use cases.</p>
               </CardContent>
             </Card>
           </div>
@@ -801,165 +774,6 @@ export const Forms: Story = {
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Multi Select */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Multi Select</h3>
-          <Card className="max-w-md">
-            <CardHeader>
-              <CardTitle>Select Categories</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MultiSelect
-                options={[
-                  { value: 'finance', label: 'Finance' },
-                  { value: 'marketing', label: 'Marketing' },
-                  { value: 'operations', label: 'Operations' },
-                  { value: 'hr', label: 'Human Resources' },
-                  { value: 'it', label: 'Information Technology' },
-                  { value: 'sales', label: 'Sales' },
-                ]}
-                placeholder="Select multiple options"
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-// Advanced UI
-export const AdvancedUI: Story = {
-  render: () => (
-    <div className="p-8 space-y-12">
-      <div>
-        <h2 className="text-3xl font-bold mb-8">Advanced UI Components</h2>
-        
-        {/* Resizable Panels */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Resizable Panels</h3>
-          <ResizablePanelGroup direction="horizontal" className="min-h-[400px] rounded-lg border">
-            <ResizablePanel defaultSize={25}>
-              <div className="flex h-full items-center justify-center p-6">
-                <span className="font-semibold">Sidebar</span>
-              </div>
-            </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel defaultSize={75}>
-              <div className="flex h-full items-center justify-center p-6">
-                <span className="font-semibold">Main Content</span>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Command Palette */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Command Palette</h3>
-          <Card className="max-w-md">
-            <CardHeader>
-              <CardTitle>Search Commands</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Command>
-                <CommandInput placeholder="Type a command or search..." />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup heading="Suggestions">
-                    <CommandItem>
-                      <Calendar className="mr-2 h-4 w-4" />
-                      <span>Calendar</span>
-                    </CommandItem>
-                    <CommandItem>
-                      <Search className="mr-2 h-4 w-4" />
-                      <span>Search</span>
-                    </CommandItem>
-                    <CommandItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
-                    </CommandItem>
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Carousel */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Carousel</h3>
-          <Carousel className="w-full max-w-xs">
-            <CarouselContent>
-              {Array.from({ length: 5 }).map((_, index) => (
-                <CarouselItem key={index}>
-                  <div className="p-1">
-                    <Card>
-                      <CardContent className="flex aspect-square items-center justify-center p-6">
-                        <span className="text-4xl font-semibold">{index + 1}</span>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Calendar */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Calendar</h3>
-          <Card className="max-w-sm">
-            <CardHeader>
-              <CardTitle>Date Picker</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Calendar
-                mode="single"
-                selected={new Date()}
-                className="rounded-md border"
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Pagination */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Pagination</h3>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" isActive>
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </div>
       </div>
     </div>
@@ -1237,95 +1051,80 @@ export const Overlays: Story = {
   ),
 };
 
-// Enhanced
-export const Enhanced: Story = {
+// Advanced
+export const Advanced: Story = {
   render: () => (
     <div className="p-8 space-y-12">
       <div>
-        <h2 className="text-3xl font-bold mb-8">Enhanced Components</h2>
+        <h2 className="text-3xl font-bold mb-8">Advanced Components</h2>
         
-        {/* Enhanced Buttons */}
+        {/* Calendar */}
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Enhanced Buttons</h3>
-          <div className="flex gap-4 flex-wrap">
-            <EnhancedButton>Enhanced Button</EnhancedButton>
-            <EnhancedButton variant="secondary">Secondary</EnhancedButton>
-            <EnhancedButton variant="outline">Outline</EnhancedButton>
-            <EnhancedButton variant="ghost">Ghost</EnhancedButton>
-          </div>
+          <h3 className="text-xl font-semibold">Calendar</h3>
+          <Card className="max-w-sm">
+            <CardHeader>
+              <CardTitle>Date Picker</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Calendar
+                mode="single"
+                selected={new Date()}
+                className="rounded-md border"
+              />
+            </CardContent>
+          </Card>
         </div>
 
         <Separator className="my-8" />
 
-        {/* Enhanced Cards */}
+        {/* Carousel */}
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Enhanced Cards</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <EnhancedCard>
-              <CardHeader>
-                <CardTitle>Revenue</CardTitle>
-                <CardDescription>Monthly revenue</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$45,231.89</div>
-                <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
-                </p>
-              </CardContent>
-            </EnhancedCard>
-            <EnhancedCard>
-              <CardHeader>
-                <CardTitle>Subscriptions</CardTitle>
-                <CardDescription>Active subscriptions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+2350</div>
-                <p className="text-xs text-muted-foreground">
-                  +180.1% from last month
-                </p>
-              </CardContent>
-            </EnhancedCard>
-            <EnhancedCard>
-              <CardHeader>
-                <CardTitle>Sales</CardTitle>
-                <CardDescription>Total sales</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+12,234</div>
-                <p className="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
-              </CardContent>
-            </EnhancedCard>
-          </div>
+          <h3 className="text-xl font-semibold">Carousel</h3>
+          <Carousel className="w-full max-w-xs">
+            <CarouselContent>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <CarouselItem key={index}>
+                  <div className="p-1">
+                    <Card>
+                      <CardContent className="flex aspect-square items-center justify-center p-6">
+                        <span className="text-4xl font-semibold">{index + 1}</span>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </div>
 
         <Separator className="my-8" />
 
-        {/* Advanced Inputs */}
+        {/* Pagination */}
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Advanced Inputs</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label>Enhanced Text Field</Label>
-              <TextField
-                placeholder="Enter text with validation"
-                error="This field is required"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Multi Select</Label>
-              <MultiSelect
-                options={[
-                  { value: 'finance', label: 'Finance' },
-                  { value: 'marketing', label: 'Marketing' },
-                  { value: 'operations', label: 'Operations' },
-                  { value: 'hr', label: 'Human Resources' },
-                ]}
-                placeholder="Select multiple options"
-              />
-            </div>
-          </div>
+          <h3 className="text-xl font-semibold">Pagination</h3>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive>
+                  2
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">3</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </div>
