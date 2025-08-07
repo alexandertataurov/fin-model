@@ -35,9 +35,6 @@ class User(Base):
         foreign_keys="UserRole.user_id",
         cascade="all, delete-orphan",
     )
-    audit_logs = relationship(
-        "AuditLog", back_populates="user", cascade="all, delete-orphan"
-    )
     # Files uploaded by this user
     uploaded_files = relationship(
         "UploadedFile",
