@@ -85,6 +85,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isLoading: true,
   });
 
+  // Clear authentication data - defined first to avoid hoisting issues
+  const clearAuthData = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    setState({
+      user: null,
+      token: null,
+      refreshToken: null,
+      permissions: [],
+      roles: [],
+      isLoading: false,
+    });
+  }, []);
+
   // Load user data on mount
   useEffect(() => {
     const loadUserData = async () => {
@@ -155,22 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     loadUserData();
-  }, []); // Remove loadUserPermissions dependency
-
-  // Clear authentication data - defined before functions that use it
-  const clearAuthData = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    setState({
-      user: null,
-      token: null,
-      refreshToken: null,
-      permissions: [],
-      roles: [],
-      isLoading: false,
-    });
-  }, []);
+  }, [clearAuthData]); // Add clearAuthData as dependency
 
   // Token refresh function - defined before useEffect that uses it
   const refreshTokenInternal = useCallback(async (): Promise<boolean> => {

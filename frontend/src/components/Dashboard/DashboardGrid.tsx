@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/design-system/components/Button';
-import { EnhancedButton, IconButton } from '@/components/ui/EnhancedButton';
-import { EnhancedCard } from '@/components/ui/EnhancedCard';
+import { Button } from '@/design-system/components/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { componentStyles } from '@/design-system/utils/designSystem';
 import {
   DropdownMenu,
@@ -143,7 +143,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       const isFullscreenWidget = fullscreenWidget === widget.id;
 
       return (
-        <EnhancedCard
+        <Card
           key={widget.id}
           variant="default"
           className={cn(
@@ -151,29 +151,29 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
             isFullscreenWidget &&
               'z-50 fixed inset-4 bg-background border-2 border-primary'
           )}
-          header={
+        >
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">{widget.title}</h3>
+              <CardTitle>{widget.title}</CardTitle>
               <div className="flex items-center gap-2">
-                <IconButton
-                  icon={<Maximize2 className="h-4 w-4" />}
-                  onClick={() => handleFullscreen(widget.id)}
+                <Button
                   variant="ghost"
                   size="sm"
-                  tooltip={
-                    isFullscreenWidget ? 'Exit fullscreen' : 'Fullscreen'
-                  }
-                />
+                  onClick={() => handleFullscreen(widget.id)}
+                  title={isFullscreenWidget ? 'Exit fullscreen' : 'Fullscreen'}
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </Button>
                 {editable && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <IconButton
-                        icon={<MoreVertical className="h-4 w-4" />}
+                      <Button
                         variant="ghost"
                         size="sm"
-                        tooltip="Widget options"
-                        onClick={() => {}} // Empty function for dropdown trigger
-                      />
+                        title="Widget options"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
@@ -190,17 +190,16 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
                 )}
               </div>
             </div>
-          }
-        >
-          <div className="flex-1 min-h-0">
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
             <WidgetComponent
               height={isFullscreenWidget ? window.innerHeight - 100 : undefined}
               isFullscreen={isFullscreenWidget}
               onFullscreen={() => handleFullscreen(widget.id)}
               {...widget.props}
             />
-          </div>
-        </EnhancedCard>
+          </CardContent>
+        </Card>
       );
     },
     [fullscreenWidget, editable, onRemoveWidget, handleFullscreen]
