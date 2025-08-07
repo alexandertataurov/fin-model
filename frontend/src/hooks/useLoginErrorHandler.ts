@@ -1,4 +1,4 @@
-// import { useToast } from '@/components/ui/ErrorHandling';
+import { toast } from 'sonner';
 
 interface LoginError {
   type: 'validation' | 'authentication' | 'network' | 'security';
@@ -8,27 +8,22 @@ interface LoginError {
 }
 
 export const useLoginErrorHandler = () => {
-  const { showToast } = useToast();
-
   const handleError = (error: LoginError) => {
     switch (error.type) {
       case 'security':
-        showToast(error.message, 'error');
+        toast.error(error.message);
         break;
 
       case 'authentication':
-        showToast(error.message, 'error');
+        toast.error(error.message);
         break;
 
       case 'network':
-        showToast(
-          'Please check your internet connection and try again.',
-          'error'
-        );
+        toast.error('Please check your internet connection and try again.');
         break;
 
       default:
-        showToast(error.message, 'error');
+        toast.error(error.message);
     }
   };
 
