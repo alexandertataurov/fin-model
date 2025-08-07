@@ -1,6 +1,6 @@
 import React from 'react';
-import { ThemeProvider } from '../components/theme-provider';
-import { DashboardLayout } from '../components/dashboard-layout';
+import { ThemeProvider } from '@/components/ui/theme-provider';
+import { DashboardLayout } from '@/components/dashboard-layout';
 
 /**
  * Financial Analytics Dashboard

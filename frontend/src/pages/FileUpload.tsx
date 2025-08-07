@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileUpload as FileUploadComponent } from '../components/FileUpload';
+import { FileUpload as FileUploadComponent } from '../components/CoreFinancialModeling/FileUpload';
 
 const FileUploadPage: React.FC = () => (
   <div className="p-6">
