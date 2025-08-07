@@ -100,9 +100,13 @@ app.add_middleware(
 async def validation_exception_handler(request, exc):
     errors = []
     for err in exc.errors():
+        err = err.copy()
+        # Handle ctx field with exception objects
         if "ctx" in err and isinstance(err["ctx"].get("error"), Exception):
-            err = err.copy()
             err["ctx"] = {"error": str(err["ctx"]["error"])}
+        # Handle input field that might contain bytes
+        if "input" in err and isinstance(err["input"], bytes):
+            err["input"] = err["input"].decode('utf-8', errors='ignore')
         errors.append(err)
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
