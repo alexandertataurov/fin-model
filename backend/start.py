@@ -179,7 +179,7 @@ def create_notifications_table():
                 CREATE TABLE notifications (
                     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                     user_id INTEGER NOT NULL REFERENCES users(id),
-                    type notificationtype NOT NULL,
+                    notification_type notificationtype NOT NULL,
                     title VARCHAR(255) NOT NULL,
                     message TEXT NOT NULL,
                     data JSON DEFAULT '{}',
@@ -222,7 +222,7 @@ def create_notifications_table():
             
             # Create indexes
             conn.execute(text("CREATE INDEX ix_notifications_user_id ON notifications(user_id)"))
-            conn.execute(text("CREATE INDEX ix_notifications_type ON notifications(type)"))
+            conn.execute(text("CREATE INDEX ix_notifications_notification_type ON notifications(notification_type)"))
             conn.execute(text("CREATE INDEX ix_notifications_priority ON notifications(priority)"))
             conn.execute(text("CREATE INDEX ix_notifications_status ON notifications(status)"))
             conn.execute(text("CREATE INDEX ix_notifications_is_read ON notifications(is_read)"))
