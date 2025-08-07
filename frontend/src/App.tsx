@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/design-system';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import { DesignSystemProvider } from '@/components/ui/DesignSystemProvider';
+import { DesignSystemProvider } from '@/design-system';
 import AuthGuard from '@/components/auth/AuthGuard';
 import Layout from '@/components/Layout/Layout';
 import Login from '@/pages/Login';
