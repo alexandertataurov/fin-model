@@ -60,7 +60,7 @@ export function CoreFinancialModeling({
     setTimeout(() => setModelStatus('complete'), 2000);
   };
 
-  const handleTabChange = (tab: ActiveTab) => setActiveTab(tab);
+  const handleTabChange = (tab: string) => setActiveTab(tab as ActiveTab);
 
   // Consolidated metrics data
   const metrics = [

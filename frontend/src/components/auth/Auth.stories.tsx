@@ -17,7 +17,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import React, { useState } from 'react';
 
 const meta: Meta = {
-  title: 'Auth/Authentication Forms',
+  title: 'Auth',
   parameters: {
     layout: 'centered',
     docs: {

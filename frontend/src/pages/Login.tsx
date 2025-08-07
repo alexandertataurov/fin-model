@@ -5,10 +5,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordInput } from '@/components/ui/password-input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Form,
   FormField,
@@ -17,9 +18,17 @@ import {
   FormControl,
   FormMessage,
 } from '@/design/components/ui';
-import { Mail, Lock, TrendingUp, Loader2, AlertCircle } from 'lucide-react';
+import {
+  Mail,
+  Lock,
+  TrendingUp,
+  Loader2,
+  AlertCircle,
+  Activity,
+} from 'lucide-react';
 import { BiometricLogin } from '@/components/auth/BiometricLogin';
 import { useLoginErrorHandler } from '@/hooks/useLoginErrorHandler';
+import { componentStyles } from '@/components/ui/utils/designSystem';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -59,7 +68,7 @@ const Login: React.FC = () => {
       );
 
       if (success) {
-        navigate('/dashboard', { replace: true });
+        navigate('/', { replace: true });
       } else {
         setError('Invalid email or password. Please try again.');
       }
@@ -97,77 +106,62 @@ const Login: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-
-      // In a real implementation, you would:
-      // 1. Get challenge from server
-      // 2. Call navigator.credentials.get() with WebAuthn options
-      // 3. Send credential to server for verification
-      // For demo purposes, we'll show a placeholder
-
-      handleError({
-        type: 'authentication',
-        message:
-          'Biometric authentication is not yet configured. Please use email and password.',
-      });
-    } catch (err) {
-      handleError({
-        type: 'security',
-        message: 'Biometric authentication failed. Please try again.',
-      });
+      // Biometric login logic would go here
+      console.log('Biometric login attempted');
+    } catch (error) {
+      setError('Biometric authentication failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
-      <div className="w-full max-w-md">
-        <Card className="bg-card/95 backdrop-blur-md border-border/20 shadow-2xl">
-          <div className="p-6 pb-6 text-center space-y-4">
-            <div className="flex justify-center">
-              <div className="p-3 rounded-full bg-primary/10">
-                <TrendingUp className="h-8 w-8 text-primary" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">FinVision</h1>
-              <p className="text-muted-foreground">
-                Financial Modeling & Analysis Platform
-              </p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 bg-primary rounded-xl flex items-center justify-center mb-4">
+            <Activity className="h-8 w-8 text-primary-foreground" />
           </div>
+          <h1 className={componentStyles.heading.h2}>Welcome back</h1>
+          <p className="text-muted-foreground mt-2">
+            Sign in to your FinVision account to continue
+          </p>
+        </div>
 
-          <CardContent className="space-y-6 pt-0">
+        {/* Login Card */}
+        <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-xl font-semibold text-center">
+              Sign In
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
               >
-                {error && (
-                  <div
-                    className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm"
-                    role="alert"
-                    aria-live="polite"
-                  >
-                    <AlertCircle className="h-4 w-4" />
-                    {error}
-                  </div>
-                )}
-
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
-                            type="email"
                             placeholder="Enter your email"
+                            type="email"
                             autoComplete="email"
-                            autoFocus
                             className="pl-9"
                             {...field}
                           />
@@ -186,7 +180,7 @@ const Login: React.FC = () => {
                       <FormLabel>Password</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <PasswordInput
                             placeholder="Enter your password"
                             autoComplete="current-password"
@@ -246,11 +240,16 @@ const Login: React.FC = () => {
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-4 py-1 text-muted-foreground">
+                    <span className="bg-card px-4 py-1 text-muted-foreground">
                       or
                     </span>
                   </div>
                 </div>
+
+                <BiometricLogin
+                  onBiometricLogin={handleBiometricLogin}
+                  isLoading={isLoading}
+                />
 
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">
@@ -263,19 +262,14 @@ const Login: React.FC = () => {
                     </RouterLink>
                   </p>
                 </div>
-
-                <BiometricLogin
-                  onBiometricLogin={handleBiometricLogin}
-                  isLoading={isLoading}
-                />
               </form>
             </Form>
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-white/80">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
             © 2024 FinVision. All rights reserved.
           </p>
         </div>

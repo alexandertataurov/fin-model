@@ -7,6 +7,9 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import { DesignSystemProvider } from '@/components/ui/DesignSystemProvider';
 import Layout from '@/components/Layout/Layout';
 import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 import Dashboard from '@/pages/Dashboard';
 import FileUpload from '@/pages/FileUpload';
 import PnLDashboard from '@/pages/PnLDashboard';
@@ -29,7 +32,13 @@ function App() {
             <Router>
               <div className="min-h-screen bg-background text-foreground">
                 <Routes>
+                  {/* Authentication Routes */}
                   <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+
+                  {/* Protected Routes */}
                   <Route path="/" element={<Layout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="upload" element={<FileUpload />} />
@@ -45,8 +54,16 @@ function App() {
                     <Route path="scenarios" element={<Scenarios />} />
                     <Route path="parameters" element={<Parameters />} />
                     <Route path="dcf-valuation" element={<DCFValuation />} />
-                    <Route path="asset-lifecycle" element={<AssetLifecycle />} />
-                    <Route path="cash-flow-lifecycle" element={<CashFlowLifecycle />} />
+                    <Route
+                      path="asset-lifecycle"
+                      element={<AssetLifecycle />}
+                    />
+                    <Route
+                      path="cash-flow-lifecycle"
+                      element={<CashFlowLifecycle />}
+                    />
+                    {/* New streamlined routes */}
+                    <Route path="financial-modeling" element={<Dashboard />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
                 </Routes>

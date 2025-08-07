@@ -9,15 +9,3 @@ export { FileUpload } from './FileUpload';
 
 // Shared Utilities
 export * from './shared';
-
-// Re-export types for external use
-export type { Parameter, ParameterManagerProps } from './ParameterManager';
-
-export type {
-  DCFValuationProps,
-  FCFProjection,
-  TerminalValue,
-  CostOfCapital,
-} from './DCFValuation';
-
-export type { FileUploadProps, UploadedFile } from './FileUpload';

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Welcome/Getting Started',
+  title: 'Welcome',
   parameters: {
     layout: 'padded',
     docs: {

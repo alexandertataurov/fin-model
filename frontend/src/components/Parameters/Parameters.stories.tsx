@@ -3,17 +3,36 @@ import type { Meta, StoryObj } from '@storybook/react';
 // import { ParameterGroup } from './ParameterGroup';
 // import { ParameterSearch } from './ParameterSearch';
 // import { BulkParameterEdit } from './BulkParameterEdit';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Slider } from '../ui/slider';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Settings, Calculator, Search, Edit, TrendingUp, DollarSign } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import {
+  Settings,
+  Calculator,
+  Search,
+  Edit,
+  TrendingUp,
+  DollarSign,
+} from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Features/Parameter Management',
+  title: 'Features',
   parameters: {
     layout: 'padded',
     docs: {
@@ -65,9 +84,9 @@ const sampleParameters = [
     type: 'percentage',
     category: 'Revenue',
     value: 0.15,
-    default_value: 0.10,
+    default_value: 0.1,
     min_value: 0,
-    max_value: 0.50,
+    max_value: 0.5,
     control_type: 'slider' as const,
     display_format: 'percentage' as const,
     step_size: 0.01,
@@ -79,10 +98,10 @@ const sampleParameters = [
     description: 'COGS as percentage of revenue',
     type: 'percentage',
     category: 'Costs',
-    value: 0.60,
+    value: 0.6,
     default_value: 0.65,
-    min_value: 0.40,
-    max_value: 0.80,
+    min_value: 0.4,
+    max_value: 0.8,
     control_type: 'slider' as const,
     display_format: 'percentage' as const,
     step_size: 0.01,
@@ -95,7 +114,7 @@ const sampleParameters = [
     type: 'percentage',
     category: 'Valuation',
     value: 0.08,
-    default_value: 0.10,
+    default_value: 0.1,
     min_value: 0.05,
     max_value: 0.15,
     control_type: 'input' as const,
@@ -128,20 +147,14 @@ export const ParameterSlider: Story = {
               </Button>
             </div>
           </div>
-          <Slider
-            value={[15]}
-            min={0}
-            max={50}
-            step={0.1}
-            className="w-full"
-          />
+          <Slider value={[15]} min={0} max={50} step={0.1} className="w-full" />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>0%</span>
             <span>25%</span>
             <span>50%</span>
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Current:</span>
@@ -207,9 +220,7 @@ export const ParameterInput: Story = {
               %
             </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Range: 5.0% - 15.0%
-          </p>
+          <p className="text-xs text-muted-foreground">Range: 5.0% - 15.0%</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
@@ -270,7 +281,9 @@ export const ParameterGroupExample: Story = {
           <div className="flex justify-between items-center">
             <div>
               <Label className="text-sm font-medium">Revenue Growth Rate</Label>
-              <p className="text-xs text-muted-foreground">Annual growth assumption</p>
+              <p className="text-xs text-muted-foreground">
+                Annual growth assumption
+              </p>
             </div>
             <Badge variant="secondary">15.0%</Badge>
           </div>
@@ -282,7 +295,9 @@ export const ParameterGroupExample: Story = {
           <div className="flex justify-between items-center">
             <div>
               <Label className="text-sm font-medium">Price Elasticity</Label>
-              <p className="text-xs text-muted-foreground">Demand sensitivity to price</p>
+              <p className="text-xs text-muted-foreground">
+                Demand sensitivity to price
+              </p>
             </div>
             <Badge variant="secondary">-1.2</Badge>
           </div>
@@ -294,7 +309,9 @@ export const ParameterGroupExample: Story = {
           <div className="flex justify-between items-center">
             <div>
               <Label className="text-sm font-medium">Market Share</Label>
-              <p className="text-xs text-muted-foreground">Target market penetration</p>
+              <p className="text-xs text-muted-foreground">
+                Target market penetration
+              </p>
             </div>
             <Badge variant="secondary">12.5%</Badge>
           </div>
@@ -304,10 +321,14 @@ export const ParameterGroupExample: Story = {
         <div className="pt-4 border-t flex justify-between items-center">
           <div className="text-sm">
             <span className="text-muted-foreground">Combined Impact:</span>
-            <span className="ml-2 font-medium text-green-600">+$3.2M Revenue</span>
+            <span className="ml-2 font-medium text-green-600">
+              +$3.2M Revenue
+            </span>
           </div>
           <div className="space-x-2">
-            <Button variant="outline" size="sm">Reset</Button>
+            <Button variant="outline" size="sm">
+              Reset
+            </Button>
             <Button size="sm">Apply</Button>
           </div>
         </div>
@@ -317,7 +338,8 @@ export const ParameterGroupExample: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Parameter group with multiple related controls and combined impact.',
+        story:
+          'Parameter group with multiple related controls and combined impact.',
       },
     },
   },
@@ -332,10 +354,7 @@ export const ParameterSearchExample: Story = {
           <div className="flex space-x-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search parameters..."
-                className="pl-10"
-              />
+              <Input placeholder="Search parameters..." className="pl-10" />
             </div>
             <Select defaultValue="all">
               <SelectTrigger className="w-48">
@@ -358,7 +377,7 @@ export const ParameterSearchExample: Story = {
 
       {/* Parameter List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sampleParameters.map((param) => (
+        {sampleParameters.map(param => (
           <Card key={param.id}>
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
@@ -374,24 +393,25 @@ export const ParameterSearchExample: Story = {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Current Value</span>
+                  <span className="text-sm text-muted-foreground">
+                    Current Value
+                  </span>
                   <Badge variant="secondary">
-                    {param.display_format === 'percentage' 
+                    {param.display_format === 'percentage'
                       ? `${(param.value * 100).toFixed(1)}%`
-                      : param.value
-                    }
+                      : param.value}
                   </Badge>
                 </div>
-                
+
                 {param.control_type === 'slider' && (
-                  <Slider 
-                    value={[param.value * 100]} 
-                    min={param.min_value! * 100} 
+                  <Slider
+                    value={[param.value * 100]}
+                    min={param.min_value! * 100}
                     max={param.max_value! * 100}
                     step={param.step_size! * 100}
                   />
                 )}
-                
+
                 {param.control_type === 'input' && (
                   <Input
                     type="number"
@@ -411,7 +431,8 @@ export const ParameterSearchExample: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Parameter search and filtering interface with multiple parameter types.',
+        story:
+          'Parameter search and filtering interface with multiple parameter types.',
       },
     },
   },
@@ -430,8 +451,12 @@ export const BulkEditExample: Story = {
         <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
           <span className="text-sm font-medium">3 parameters selected</span>
           <div className="space-x-2">
-            <Button variant="outline" size="sm">Select All</Button>
-            <Button variant="outline" size="sm">Clear</Button>
+            <Button variant="outline" size="sm">
+              Select All
+            </Button>
+            <Button variant="outline" size="sm">
+              Clear
+            </Button>
           </div>
         </div>
 
@@ -444,26 +469,32 @@ export const BulkEditExample: Story = {
             <div className="col-span-3">New Value</div>
           </div>
 
-          {sampleParameters.map((param) => (
-            <div key={param.id} className="grid grid-cols-12 gap-4 items-center p-2 border rounded">
+          {sampleParameters.map(param => (
+            <div
+              key={param.id}
+              className="grid grid-cols-12 gap-4 items-center p-2 border rounded"
+            >
               <div className="col-span-1">
                 <input type="checkbox" className="h-4 w-4" defaultChecked />
               </div>
               <div className="col-span-4">
                 <div>
                   <p className="text-sm font-medium">{param.name}</p>
-                  <p className="text-xs text-muted-foreground">{param.description}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {param.description}
+                  </p>
                 </div>
               </div>
               <div className="col-span-2">
-                <Badge variant="outline" className="text-xs">{param.category}</Badge>
+                <Badge variant="outline" className="text-xs">
+                  {param.category}
+                </Badge>
               </div>
               <div className="col-span-2">
                 <span className="text-sm">
-                  {param.display_format === 'percentage' 
+                  {param.display_format === 'percentage'
                     ? `${(param.value * 100).toFixed(1)}%`
-                    : param.value
-                  }
+                    : param.value}
                 </span>
               </div>
               <div className="col-span-3">
@@ -495,7 +526,8 @@ export const BulkEditExample: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Bulk parameter editing interface for efficient parameter management.',
+        story:
+          'Bulk parameter editing interface for efficient parameter management.',
       },
     },
   },

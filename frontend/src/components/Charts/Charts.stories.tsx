@@ -4,7 +4,7 @@ import BarChart from './BarChart';
 import PieChart from './PieChart';
 
 const meta: Meta = {
-  title: 'Charts/Financial Charts',
+  title: 'Charts',
   parameters: {
     layout: 'padded',
     docs: {

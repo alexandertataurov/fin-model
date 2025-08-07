@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 const meta: Meta = {
-  title: 'Layout/Application Layout',
+  title: 'Layout',
   parameters: {
     layout: 'fullscreen',
     docs: {

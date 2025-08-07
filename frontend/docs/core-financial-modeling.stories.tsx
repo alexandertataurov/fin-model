@@ -2,7 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta = {
-  title: 'Core Financial Modeling/Streamlined Components',
+  title: 'Core Financial Modeling',
   parameters: {
     layout: 'padded',
     docs: {

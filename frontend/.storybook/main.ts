@@ -25,7 +25,7 @@ const config: StorybookConfig = {
     reactDocgen: 'react-docgen-typescript',
   },
   // Enhanced navigation structure
-  managerHead: (head) => `
+  managerHead: head => `
     ${head}
     <style>
       .sidebar-item[data-item-id*="design-system"] {
@@ -60,7 +60,7 @@ const config: StorybookConfig = {
       },
     };
 
-    // Add optimizeDeps to include Tailwind
+    // Optimize dependencies
     config.optimizeDeps = {
       ...config.optimizeDeps,
       include: [
@@ -68,40 +68,12 @@ const config: StorybookConfig = {
         'tailwindcss',
         'autoprefixer',
       ],
-      exclude: [
-        ...(config.optimizeDeps?.exclude || []),
-        '@storybook/addon-essentials',
-        '@storybook/addon-a11y',
-        '@storybook/addon-interactions',
-        '@storybook/addon-links',
-      ],
     };
-
-    // Comprehensive fix for React Refresh conflicts
-    if (config.plugins) {
-      config.plugins = config.plugins.filter(plugin => {
-        if (!plugin || typeof plugin !== 'object') return true;
-
-        // Remove any React Refresh related plugins
-        if ('name' in plugin) {
-          const pluginName = plugin.name as string;
-          return !(
-            pluginName === 'vite:react-refresh' ||
-            pluginName === 'react-refresh' ||
-            pluginName === 'vite:react-refresh-babel' ||
-            pluginName.includes('refresh')
-          );
-        }
-
-        return true;
-      });
-    }
 
     // Disable React Refresh and HMR for Storybook
     config.define = {
       ...config.define,
       'process.env.NODE_ENV': '"development"',
-      __STORYBOOK_MODULE_FEDERATION_PLUGIN__: 'false',
       __STORYBOOK_REACT_REFRESH__: 'false',
       __STORYBOOK_HMR__: 'false',
     };
@@ -113,13 +85,10 @@ const config: StorybookConfig = {
       jsxImportSource: 'react',
     };
 
-    // Disable HMR and set proper server configuration
+    // Disable HMR
     config.server = {
       ...config.server,
       hmr: false,
-      watch: {
-        ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
-      },
     };
 
     return config;

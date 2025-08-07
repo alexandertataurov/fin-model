@@ -26,6 +26,7 @@ import {
   Building,
   RefreshCw,
   Settings,
+  Activity,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -40,212 +41,240 @@ interface NavItem {
   icon: React.ReactNode;
   path?: string;
   children?: NavItem[];
-  roles?: string[];
-  badge?: string | number;
 }
 
-const navigationItems: NavItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: <LayoutDashboard className="h-4 w-4" />,
-    path: '/',
-  },
-  {
-    id: 'financial-dashboards',
-    label: 'Financial Statements',
-    icon: <BarChart3 className="h-4 w-4" />,
-    children: [
-      {
-        id: 'pl-dashboard',
-        label: 'P&L Statement',
-        icon: <TrendingUp className="h-4 w-4" />,
-        path: '/dashboards/pl',
-      },
-      {
-        id: 'cashflow-dashboard',
-        label: 'Cash Flow Statement',
-        icon: <TrendingUp className="h-4 w-4" />,
-        path: '/dashboards/cashflow',
-      },
-      {
-        id: 'balance-sheet',
-        label: 'Balance Sheet',
-        icon: <PieChart className="h-4 w-4" />,
-        path: '/dashboards/balance',
-      },
-    ],
-  },
-  {
-    id: 'modeling-tools',
-    label: 'Modeling Tools',
-    icon: <Calculator className="h-4 w-4" />,
-    children: [
-      {
-        id: 'dcf-valuation',
-        label: 'DCF Valuation',
-        icon: <Target className="h-4 w-4" />,
-        path: '/dcf-valuation',
-      },
-      {
-        id: 'scenario-modeling',
-        label: 'Scenario Modeling',
-        icon: <Brain className="h-4 w-4" />,
-        path: '/scenarios',
-      },
-      {
-        id: 'asset-lifecycle',
-        label: 'Asset Lifecycle',
-        icon: <Building className="h-4 w-4" />,
-        path: '/asset-lifecycle',
-      },
-      {
-        id: 'cash-flow-lifecycle',
-        label: 'Cash Flow Lifecycle',
-        icon: <RefreshCw className="h-4 w-4" />,
-        path: '/cash-flow-lifecycle',
-      },
-    ],
-  },
-  {
-    id: 'parameters',
-    label: 'Parameters',
-    icon: <Settings className="h-4 w-4" />,
-    path: '/parameters',
-  },
-  {
-    id: 'files',
-    label: 'File Upload',
-    icon: <Upload className="h-4 w-4" />,
-    path: '/upload',
-  },
-];
-
-export const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [expandedItems, setExpandedItems] = useState<string[]>(['dashboard']);
 
-  const handleItemClick = (item: NavItem) => {
-    if (item.children) {
-      // Toggle expansion for items with children
-      setExpandedItems(prev => {
-        const newSet = new Set(prev);
-        if (newSet.has(item.id)) {
-          newSet.delete(item.id);
-        } else {
-          newSet.add(item.id);
-        }
-        return newSet;
-      });
-    } else if (item.path) {
-      // Navigate to the path
-      navigate(item.path);
+  const navigationItems: NavItem[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: <LayoutDashboard className="h-4 w-4" />,
+      path: '/',
+    },
+    {
+      id: 'financial-modeling',
+      label: 'Financial Modeling',
+      icon: <Activity className="h-4 w-4" />,
+      path: '/financial-modeling',
+    },
+    {
+      id: 'financial-dashboards',
+      label: 'Financial Statements',
+      icon: <BarChart3 className="h-4 w-4" />,
+      children: [
+        {
+          id: 'pl-dashboard',
+          label: 'P&L Statement',
+          icon: <TrendingUp className="h-4 w-4" />,
+          path: '/dashboards/pl',
+        },
+        {
+          id: 'cashflow-dashboard',
+          label: 'Cash Flow Statement',
+          icon: <TrendingUp className="h-4 w-4" />,
+          path: '/dashboards/cashflow',
+        },
+        {
+          id: 'balance-sheet',
+          label: 'Balance Sheet',
+          icon: <PieChart className="h-4 w-4" />,
+          path: '/dashboards/balance',
+        },
+      ],
+    },
+    {
+      id: 'modeling-tools',
+      label: 'Modeling Tools',
+      icon: <Calculator className="h-4 w-4" />,
+      children: [
+        {
+          id: 'dcf-valuation',
+          label: 'DCF Valuation',
+          icon: <Target className="h-4 w-4" />,
+          path: '/dcf-valuation',
+        },
+        {
+          id: 'scenario-modeling',
+          label: 'Scenario Modeling',
+          icon: <Brain className="h-4 w-4" />,
+          path: '/scenarios',
+        },
+        {
+          id: 'asset-lifecycle',
+          label: 'Asset Lifecycle',
+          icon: <Building className="h-4 w-4" />,
+          path: '/asset-lifecycle',
+        },
+        {
+          id: 'cash-flow-lifecycle',
+          label: 'Cash Flow Lifecycle',
+          icon: <RefreshCw className="h-4 w-4" />,
+          path: '/cash-flow-lifecycle',
+        },
+      ],
+    },
+    {
+      id: 'parameters',
+      label: 'Parameters',
+      icon: <Settings className="h-4 w-4" />,
+      path: '/parameters',
+    },
+    {
+      id: 'files',
+      label: 'File Upload',
+      icon: <Upload className="h-4 w-4" />,
+      path: '/upload',
+    },
+  ];
+
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItems(prev =>
+      prev.includes(itemId)
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (!open) {
+      onToggle();
     }
   };
 
-  const isItemActive = (item: NavItem): boolean => {
-    if (item.path) {
-      return location.pathname === item.path;
-    }
-    if (item.children) {
-      return item.children.some(child => isItemActive(child));
-    }
-    return false;
+  const isActive = (path?: string) => {
+    if (!path) return false;
+    return location.pathname === path;
   };
 
-  const hasPermission = (item: NavItem): boolean => {
-    if (!item.roles) return true;
-    return item.roles.some(role => user?.roles?.includes(role));
-  };
-
-  const renderNavItem = (item: NavItem, level = 0) => {
-    if (!hasPermission(item)) return null;
-
-    const isActive = isItemActive(item);
-    const isExpanded = expandedItems.has(item.id);
+  const renderNavItem = (item: NavItem) => {
     const hasChildren = item.children && item.children.length > 0;
-
-    if (hasChildren) {
-      return (
-        <Collapsible
-          key={item.id}
-          open={isExpanded}
-          onOpenChange={() => handleItemClick(item)}
-        >
-          <CollapsibleTrigger asChild>
-            <Button
-              variant={isActive ? 'secondary' : 'ghost'}
-              className={`w-full justify-between h-10 px-3 ${
-                level > 0 ? 'ml-4' : ''
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {item.icon}
-                <span className="text-sm font-medium">{item.label}</span>
-              </div>
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-1">
-            {item.children?.map(child => renderNavItem(child, level + 1))}
-          </CollapsibleContent>
-        </Collapsible>
-      );
-    }
+    const isExpanded = expandedItems.includes(item.id);
+    const active = isActive(item.path);
 
     return (
-      <Button
-        key={item.id}
-        variant={isActive ? 'secondary' : 'ghost'}
-        className={`w-full justify-start h-10 px-3 ${level > 0 ? 'ml-4' : ''}`}
-        onClick={() => handleItemClick(item)}
-      >
-        <div className="flex items-center gap-3">
-          {item.icon}
-          <span className="text-sm font-medium">{item.label}</span>
-        </div>
-        {item.badge && (
-          <Badge variant="secondary" className="ml-auto">
-            {item.badge}
-          </Badge>
+      <div key={item.id}>
+        {hasChildren ? (
+          <Collapsible open={isExpanded} onOpenChange={() => toggleExpanded(item.id)}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className={`w-full justify-between h-10 px-3 ${
+                  active ? 'bg-accent text-accent-foreground' : ''
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  {item.icon}
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-1">
+              {item.children?.map(child => (
+                <Button
+                  key={child.id}
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-start h-8 px-6 ml-2 ${
+                    isActive(child.path) ? 'bg-accent text-accent-foreground' : ''
+                  }`}
+                  onClick={() => handleNavigation(child.path!)}
+                >
+                  <div className="flex items-center space-x-3">
+                    {child.icon}
+                    <span className="text-sm">{child.label}</span>
+                  </div>
+                </Button>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <Button
+            variant="ghost"
+            className={`w-full justify-start h-10 px-3 ${
+              active ? 'bg-accent text-accent-foreground' : ''
+            }`}
+            onClick={() => item.path && handleNavigation(item.path)}
+          >
+            <div className="flex items-center space-x-3">
+              {item.icon}
+              <span className="text-sm font-medium">{item.label}</span>
+            </div>
+          </Button>
         )}
-      </Button>
+      </div>
     );
   };
 
   return (
     <div
-      className={`border-r bg-background transition-all duration-300 ${
-        open ? 'w-64' : 'w-16'
+      className={`fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out ${
+        open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex h-16 items-center justify-between px-4 border-b">
-        {open && <h2 className="text-lg font-semibold">FinVision</h2>}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onToggle}
-          className="h-8 w-8 p-0"
-        >
-          {open ? (
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Activity className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold">FinModel</h1>
+              <p className="text-xs text-muted-foreground">v2.0.0</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onToggle}>
             <ChevronLeft className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
-
-      <ScrollArea className="h-[calc(100vh-4rem)]">
-        <div className="p-2 space-y-1">
-          {navigationItems.map(item => renderNavItem(item))}
+          </Button>
         </div>
-      </ScrollArea>
+
+        {/* User Info */}
+        <div className="p-4 border-b">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+              <Shield className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">
+                {user?.first_name || user?.username || 'User'}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email || 'user@example.com'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <ScrollArea className="flex-1 p-4">
+          <nav className="space-y-2">
+            {navigationItems.map(renderNavItem)}
+          </nav>
+        </ScrollArea>
+
+        {/* Footer */}
+        <div className="p-4 border-t">
+          <div className="flex items-center justify-between">
+            <Badge variant="secondary" className="text-xs">
+              Lean App
+            </Badge>
+            <Button variant="ghost" size="sm">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
