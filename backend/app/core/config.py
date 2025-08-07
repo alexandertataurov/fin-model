@@ -27,7 +27,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: str = (
         "http://localhost:3000,http://127.0.0.1:3000,"
         "https://pre-production--advanced-financial-modeling.netlify.app,"
-        "https://advanced-financial-modeling.netlify.app"
+        "https://advanced-financial-modeling.netlify.app,"
+        "https://fin-model-production.up.railway.app"
     )
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")

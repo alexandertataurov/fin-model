@@ -9,6 +9,7 @@ router = APIRouter()
 @router.websocket("/notifications")
 async def notifications_websocket(websocket: WebSocket):
     """WebSocket endpoint for real-time notifications."""
+    # Accept the connection first
     await websocket.accept()
     
     try:
@@ -30,6 +31,12 @@ async def notifications_websocket(websocket: WebSocket):
                     await websocket.send_text(json.dumps({
                         "type": "pong",
                         "timestamp": message.get("timestamp")
+                    }))
+                elif message.get("type") == "auth":
+                    # Handle authentication if needed
+                    await websocket.send_text(json.dumps({
+                        "type": "auth_success",
+                        "message": "Authentication successful"
                     }))
                 else:
                     await websocket.send_text(json.dumps({
