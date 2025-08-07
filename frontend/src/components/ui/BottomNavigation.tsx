@@ -6,8 +6,8 @@ import { cn } from '@/utils/cn';
 import {
   LayoutDashboard,
   Upload,
-  BarChart3,
-  FileText,
+  Target,
+  Settings,
   TrendingUp,
 } from 'lucide-react';
 
@@ -22,7 +22,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   {
     label: 'Dashboard',
-    value: '/dashboard',
+    value: '/',
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
@@ -31,19 +31,19 @@ const navigationItems: NavigationItem[] = [
     icon: <TrendingUp className="h-5 w-5" />,
   },
   {
+    label: 'DCF',
+    value: '/dcf-valuation',
+    icon: <Target className="h-5 w-5" />,
+  },
+  {
+    label: 'Parameters',
+    value: '/parameters',
+    icon: <Settings className="h-5 w-5" />,
+  },
+  {
     label: 'Upload',
-    value: '/files',
+    value: '/upload',
     icon: <Upload className="h-5 w-5" />,
-  },
-  {
-    label: 'Reports',
-    value: '/reports',
-    icon: <FileText className="h-5 w-5" />,
-  },
-  {
-    label: 'Analytics',
-    value: '/analytics',
-    icon: <BarChart3 className="h-5 w-5" />,
   },
 ];
 

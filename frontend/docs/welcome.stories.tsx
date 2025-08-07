@@ -53,6 +53,8 @@ Our design system follows these core principles:
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+import React from 'react';
+
 export const Welcome: Story = {
   render: () => (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -349,7 +351,7 @@ export const Welcome: Story = {
         </div>
       </div>
 
-      {/* Getting Started */}
+      {/* Quick Start Guide */}
       <Card className="bg-muted/50">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Quick Start Guide</CardTitle>
@@ -394,6 +396,74 @@ export const Welcome: Story = {
           </div>
         </CardContent>
       </Card>
+
+      {/* Component Status Overview */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-center">
+          Component Status Overview
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Completion Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span>Ready for Production</span>
+                <Badge variant="default" className="bg-green-700 text-white">
+                  35 components
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>In Development</span>
+                <Badge variant="secondary">8 components</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Planned</span>
+                <Badge variant="outline">12 components</Badge>
+              </div>
+              <div className="pt-2 border-t">
+                <div className="text-center">
+                  <span className="text-2xl font-bold text-green-700">64%</span>
+                  <p className="text-sm text-muted-foreground">
+                    Overall Progress
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Quality Metrics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span>Accessibility Score</span>
+                <Badge variant="default" className="bg-green-700 text-white">
+                  AA Compliant
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>TypeScript Coverage</span>
+                <Badge variant="default">100%</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Test Coverage</span>
+                <Badge variant="default" className="bg-green-700 text-white">
+                  89%
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Documentation</span>
+                <Badge variant="default" className="bg-green-700 text-white">
+                  Complete
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   ),
   parameters: {
@@ -401,88 +471,6 @@ export const Welcome: Story = {
       description: {
         story:
           'Welcome to the FinVision Storybook - your guide to building consistent, accessible financial applications.',
-      },
-    },
-  },
-};
-
-export const ComponentStatus: Story = {
-  render: () => (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">Component Status Overview</h2>
-        <p className="text-muted-foreground">
-          Track the development progress of all FinVision components
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Completion Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span>Ready for Production</span>
-              <Badge variant="default" className="bg-green-700 text-white">
-                35 components
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>In Development</span>
-              <Badge variant="secondary">8 components</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>Planned</span>
-              <Badge variant="outline">12 components</Badge>
-            </div>
-            <div className="pt-2 border-t">
-              <div className="text-center">
-                <span className="text-2xl font-bold text-green-700">64%</span>
-                <p className="text-sm text-muted-foreground">
-                  Overall Progress
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Quality Metrics</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span>Accessibility Score</span>
-              <Badge variant="default" className="bg-green-700 text-white">
-                AA Compliant
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>TypeScript Coverage</span>
-              <Badge variant="default">100%</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>Test Coverage</span>
-              <Badge variant="default" className="bg-green-700 text-white">
-                89%
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>Documentation</span>
-              <Badge variant="default" className="bg-green-700 text-white">
-                Complete
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Overview of component development status and quality metrics.',
       },
     },
   },

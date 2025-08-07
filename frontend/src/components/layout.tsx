@@ -4,11 +4,11 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Sidebar } from '@/components/sidebar';
 import {
   LayoutGrid,
-  FileText,
+  Target,
   Settings,
-  BarChart4,
+  TrendingUp,
   Calculator,
-  Users,
+  Upload,
 } from 'lucide-react';
 
 const sidebarItems = [
@@ -18,29 +18,24 @@ const sidebarItems = [
     icon: <LayoutGrid className="h-4 w-4" />,
   },
   {
-    title: 'Reports',
-    href: '/reports',
-    icon: <FileText className="h-4 w-4" />,
+    title: 'P&L Statement',
+    href: '/dashboards/pl',
+    icon: <TrendingUp className="h-4 w-4" />,
   },
   {
-    title: 'Analytics',
-    href: '/analytics',
-    icon: <BarChart4 className="h-4 w-4" />,
+    title: 'DCF Valuation',
+    href: '/dcf-valuation',
+    icon: <Target className="h-4 w-4" />,
   },
   {
-    title: 'Calculations',
-    href: '/calculations',
-    icon: <Calculator className="h-4 w-4" />,
-  },
-  {
-    title: 'Team',
-    href: '/team',
-    icon: <Users className="h-4 w-4" />,
-  },
-  {
-    title: 'Settings',
-    href: '/settings',
+    title: 'Parameters',
+    href: '/parameters',
     icon: <Settings className="h-4 w-4" />,
+  },
+  {
+    title: 'File Upload',
+    href: '/upload',
+    icon: <Upload className="h-4 w-4" />,
   },
 ];
 

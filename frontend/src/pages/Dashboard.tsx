@@ -1,25 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   TrendingUp,
   DollarSign,
   CreditCard,
-  BarChart3,
-  Upload as CloudUpload,
-  BarChart3 as Analytics,
-  ArrowRight as ArrowForward,
-  Activity as Timeline,
+  Target,
+  Settings,
+  CloudUpload,
 } from 'lucide-react';
-import {
-  Card,
-  Button,
-  Badge,
-  EnhancedCard,
-  FeatureCard,
-  ActionButton,
-} from '../components/ui';
-import { componentStyles } from '../components/ui/utils/designSystem';
-import { useAuth } from '../contexts/AuthContext';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DashboardCard } from '@/components/Dashboard/DashboardCard';
+import { EnhancedButton } from '@/components/ui/EnhancedButton';
+import { componentStyles } from '@/components/ui/utils/designSystem';
 
 /**
  * Main Dashboard/Home Page
@@ -69,53 +63,60 @@ const Dashboard = () => {
 
   const dashboardCards = [
     {
-      title: 'P&L Dashboard',
+      title: 'P&L Statement',
       subtitle:
-        'Analyze profit & loss statements with interactive charts and key metrics',
+        'Analyze profit & loss statements with granular line items and key metrics',
       icon: <TrendingUp />,
       color: 'var(--chart-3)',
       path: '/dashboards/pl',
       badge: 'Financial',
+      onClick: () => navigate('/dashboards/pl'),
     },
     {
-      title: 'Cash Flow',
-      subtitle: 'Track cash inflows and outflows with waterfall visualizations',
+      title: 'Cash Flow Statement',
+      subtitle: 'Track cash inflows and outflows with detailed breakdowns',
       icon: <DollarSign />,
       color: 'var(--chart-1)',
       path: '/dashboards/cashflow',
       badge: 'Financial',
+      onClick: () => navigate('/dashboards/cashflow'),
     },
     {
       title: 'Balance Sheet',
-      subtitle: 'View assets, liabilities, and equity with detailed breakdowns',
+      subtitle:
+        'View assets, liabilities, and equity with comprehensive structure',
       icon: <CreditCard />,
       color: 'var(--chart-2)',
       path: '/dashboards/balance',
       badge: 'Financial',
+      onClick: () => navigate('/dashboards/balance'),
     },
     {
-      title: 'Analytics',
-      subtitle: 'Advanced analytics and reporting with custom dashboards',
-      icon: <Analytics />,
+      title: 'DCF Valuation',
+      subtitle: 'Comprehensive DCF modeling with sensitivity analysis',
+      icon: <Target />,
       color: 'var(--chart-4)',
-      path: '/analytics',
-      badge: 'Advanced',
+      path: '/dcf-valuation',
+      badge: 'Valuation',
+      onClick: () => navigate('/dcf-valuation'),
+    },
+    {
+      title: 'Parameters',
+      subtitle: 'Configure comprehensive financial modeling parameters',
+      icon: <Settings />,
+      color: 'var(--chart-5)',
+      path: '/parameters',
+      badge: 'Configuration',
+      onClick: () => navigate('/parameters'),
     },
     {
       title: 'File Upload',
       subtitle: 'Upload and process financial documents and spreadsheets',
       icon: <CloudUpload />,
-      color: 'var(--chart-5)',
+      color: 'var(--chart-6)',
       path: '/upload',
       badge: 'Tools',
-    },
-    {
-      title: 'Real-time Metrics',
-      subtitle: 'Monitor live financial data and performance indicators',
-      icon: <Timeline />,
-      color: 'var(--chart-6)',
-      path: '/metrics',
-      badge: 'Live',
+      onClick: () => navigate('/upload'),
     },
   ];
 
@@ -128,18 +129,18 @@ const Dashboard = () => {
       variant: 'default' as const,
     },
     {
-      title: 'Generate Report',
-      description: 'Create custom financial reports',
-      icon: <BarChart3 className="h-5 w-5" />,
-      action: () => navigate('/reports'),
+      title: 'Configure Parameters',
+      description: 'Set up modeling parameters',
+      icon: <Settings className="h-5 w-5" />,
+      action: () => navigate('/parameters'),
       variant: 'success' as const,
     },
     {
-      title: 'View Analytics',
-      description: 'Access advanced analytics',
-      icon: <Analytics className="h-5 w-5" />,
-      action: () => navigate('/analytics'),
-      variant: 'info' as const,
+      title: 'Run DCF Valuation',
+      description: 'Perform comprehensive valuation',
+      icon: <Target className="h-5 w-5" />,
+      action: () => navigate('/dcf-valuation'),
+      variant: 'default' as const,
     },
   ];
 
@@ -151,14 +152,14 @@ const Dashboard = () => {
           <div className={`${componentStyles.flexBetween} py-6`}>
             <div>
               <h1 className={componentStyles.heading.h1}>
-                Welcome back, {user?.name || 'User'}!
+                Welcome back, {user?.first_name || user?.username || 'User'}!
               </h1>
               <p className="text-muted-foreground mt-2">
                 Here's what's happening with your financial data today.
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant="success">v2.0.0</Badge>
+              <Badge variant="default">v2.0.0</Badge>
               <Button variant="outline" size="sm">
                 Settings
               </Button>

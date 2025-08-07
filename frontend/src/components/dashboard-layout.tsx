@@ -15,6 +15,7 @@ import { SalesTab } from './tabs/SalesTab';
 import { DashboardOverview } from './DashboardOverview';
 import { FilterSidebar } from './filter-sidebar';
 import { FileUpload } from './file-upload';
+import { DCFTab } from './tabs/DCFTab';
 
 export function DashboardLayout() {
   const { theme, toggleTheme } = useTheme();
@@ -80,8 +81,8 @@ export function DashboardLayout() {
               <TabsTrigger value="pl">P&L</TabsTrigger>
               <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
               <TabsTrigger value="balance">Balance</TabsTrigger>
+              <TabsTrigger value="dcf">DCF</TabsTrigger>
               <TabsTrigger value="params">Parameters</TabsTrigger>
-              <TabsTrigger value="sales">Sales</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-0">
@@ -96,11 +97,11 @@ export function DashboardLayout() {
             <TabsContent value="balance" className="mt-0">
               {useEnhancedTabs ? <BalanceTabEnhanced /> : <BalanceTab />}
             </TabsContent>
+            <TabsContent value="dcf" className="mt-0">
+              <DCFTab />
+            </TabsContent>
             <TabsContent value="params" className="mt-0">
               <ParametersTab />
-            </TabsContent>
-            <TabsContent value="sales" className="mt-0">
-              <SalesTab />
             </TabsContent>
           </Tabs>
         </main>

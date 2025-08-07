@@ -16,9 +16,6 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
-  features: {
-    buildStoriesJson: true,
-  },
   docs: {
     autodocs: 'tag',
     defaultName: 'Documentation',
@@ -33,9 +30,6 @@ const config: StorybookConfig = {
       config.resolve.alias = {
         ...config.resolve.alias,
         '@': resolve(__dirname, '../src'),
-        // Explicitly disable react-refresh
-        'react-refresh/runtime': false,
-        'react-refresh': false,
       };
     }
 

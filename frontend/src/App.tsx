@@ -12,10 +12,11 @@ import FileUpload from '@/pages/FileUpload';
 import PnLDashboard from '@/pages/PnLDashboard';
 import CashFlowDashboard from '@/pages/CashFlowDashboard';
 import BalanceSheetDashboard from '@/pages/BalanceSheetDashboard';
-import Analytics from '@/pages/Analytics';
-import Reports from '@/pages/Reports';
 import Scenarios from '@/pages/Scenarios';
-import Settings from '@/pages/Settings';
+import Parameters from '@/pages/Parameters';
+import DCFValuation from '@/pages/DCFValuation';
+import AssetLifecycle from '@/pages/AssetLifecycle';
+import CashFlowLifecycle from '@/pages/CashFlowLifecycle';
 import NotFound from '@/pages/NotFound';
 import './styles/globals.css';
 
@@ -41,10 +42,11 @@ function App() {
                       path="dashboards/balance"
                       element={<BalanceSheetDashboard />}
                     />
-                    <Route path="analytics" element={<Analytics />} />
-                    <Route path="reports" element={<Reports />} />
                     <Route path="scenarios" element={<Scenarios />} />
-                    <Route path="settings" element={<Settings />} />
+                    <Route path="parameters" element={<Parameters />} />
+                    <Route path="dcf-valuation" element={<DCFValuation />} />
+                    <Route path="asset-lifecycle" element={<AssetLifecycle />} />
+                    <Route path="cash-flow-lifecycle" element={<CashFlowLifecycle />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
                 </Routes>

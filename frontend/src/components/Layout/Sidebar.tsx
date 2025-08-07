@@ -21,6 +21,11 @@ import {
   ChevronUp,
   Shield,
   Brain,
+  Calculator,
+  Target,
+  Building,
+  RefreshCw,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -44,22 +49,22 @@ const navigationItems: NavItem[] = [
     id: 'dashboard',
     label: 'Dashboard',
     icon: <LayoutDashboard className="h-4 w-4" />,
-    path: '/dashboard',
+    path: '/',
   },
   {
     id: 'financial-dashboards',
-    label: 'Financial Dashboards',
+    label: 'Financial Statements',
     icon: <BarChart3 className="h-4 w-4" />,
     children: [
       {
         id: 'pl-dashboard',
-        label: 'P&L Dashboard',
+        label: 'P&L Statement',
         icon: <TrendingUp className="h-4 w-4" />,
         path: '/dashboards/pl',
       },
       {
         id: 'cashflow-dashboard',
-        label: 'Cash Flow',
+        label: 'Cash Flow Statement',
         icon: <TrendingUp className="h-4 w-4" />,
         path: '/dashboards/cashflow',
       },
@@ -67,40 +72,52 @@ const navigationItems: NavItem[] = [
         id: 'balance-sheet',
         label: 'Balance Sheet',
         icon: <PieChart className="h-4 w-4" />,
-        path: '/dashboards/balance-sheet',
+        path: '/dashboards/balance',
       },
     ],
+  },
+  {
+    id: 'modeling-tools',
+    label: 'Modeling Tools',
+    icon: <Calculator className="h-4 w-4" />,
+    children: [
+      {
+        id: 'dcf-valuation',
+        label: 'DCF Valuation',
+        icon: <Target className="h-4 w-4" />,
+        path: '/dcf-valuation',
+      },
+      {
+        id: 'scenario-modeling',
+        label: 'Scenario Modeling',
+        icon: <Brain className="h-4 w-4" />,
+        path: '/scenarios',
+      },
+      {
+        id: 'asset-lifecycle',
+        label: 'Asset Lifecycle',
+        icon: <Building className="h-4 w-4" />,
+        path: '/asset-lifecycle',
+      },
+      {
+        id: 'cash-flow-lifecycle',
+        label: 'Cash Flow Lifecycle',
+        icon: <RefreshCw className="h-4 w-4" />,
+        path: '/cash-flow-lifecycle',
+      },
+    ],
+  },
+  {
+    id: 'parameters',
+    label: 'Parameters',
+    icon: <Settings className="h-4 w-4" />,
+    path: '/parameters',
   },
   {
     id: 'files',
     label: 'File Upload',
     icon: <Upload className="h-4 w-4" />,
-    path: '/files',
-  },
-  {
-    id: 'reports',
-    label: 'Reports',
-    icon: <FileText className="h-4 w-4" />,
-    path: '/reports',
-  },
-  {
-    id: 'scenario-modeling',
-    label: 'Scenario Modeling',
-    icon: <Brain className="h-4 w-4" />,
-    path: '/scenarios',
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: <BarChart3 className="h-4 w-4" />,
-    path: '/analytics',
-  },
-  {
-    id: 'admin',
-    label: 'Admin Panel',
-    icon: <Shield className="h-4 w-4" />,
-    path: '/admin',
-    roles: ['admin'],
+    path: '/upload',
   },
 ];
 
