@@ -502,31 +502,29 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       // Load initial data
       loadNotifications();
       loadPreferences();
-
-      // Auto-connect WebSocket when component mounts (only if authenticated)
-      useEffect(() => {
-        if (autoConnect) {
-          // Check if user is authenticated before attempting connection
-          const token = getAuthToken();
-          if (token) {
-            connect();
-          } else {
-            console.log(
-              'User not authenticated, skipping WebSocket auto-connect'
-            );
-          }
-        }
-
-        return () => {
-          disconnect();
-        };
-      }, [autoConnect, connect, disconnect]);
     }
 
     return () => {
       disconnect();
     };
-  }, [autoConnect, connect, disconnect, loadNotifications, loadPreferences]);
+  }, [loadNotifications, loadPreferences, disconnect]);
+
+  // Auto-connect WebSocket when component mounts (only if authenticated)
+  useEffect(() => {
+    if (autoConnect) {
+      // Check if user is authenticated before attempting connection
+      const token = getAuthToken();
+      if (token) {
+        connect();
+      } else {
+        console.log('User not authenticated, skipping WebSocket auto-connect');
+      }
+    }
+
+    return () => {
+      disconnect();
+    };
+  }, [autoConnect, connect, disconnect]);
 
   // Monitor connection state
   useEffect(() => {
@@ -572,8 +570,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [handleAuthChange]);
-
-  // Auto-connect WebSocket when component mounts (only if authenticated)
 
   const value: NotificationContextType = {
     // State
