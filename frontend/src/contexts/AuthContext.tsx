@@ -103,65 +103,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Load user data on mount
   useEffect(() => {
     const loadUserData = async () => {
-      const storedUser = localStorage.getItem(USER_KEY);
       const storedToken = localStorage.getItem(TOKEN_KEY);
 
-      if (storedUser && storedToken) {
+      if (storedToken) {
         try {
-          // Validate token with backend before setting user as authenticated
-          const user = JSON.parse(storedUser);
+          // Keep loading; do NOT set a temporary user before validation
+          // Validate token by getting current user from backend
+          const currentUser = await authApi.getCurrentUser();
 
-          // Set user temporarily but keep loading state
+          // Token is valid, update user data and load permissions
           setState(prev => ({
             ...prev,
-            user,
+            user: currentUser,
             token: storedToken,
-            isLoading: true, // Keep loading until we validate
+            isLoading: false,
           }));
 
-          // Validate token by getting current user from backend
-          try {
-            const currentUser = await authApi.getCurrentUser();
+          localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
 
-            // Token is valid, update user data and load permissions
+          // Load permissions inline
+          try {
+            const permissionsData = await authApi.getUserPermissions();
+            const permissions = Array.isArray(permissionsData?.permissions)
+              ? permissionsData.permissions
+              : [];
+            const roles = Array.isArray(permissionsData?.roles)
+              ? permissionsData.roles
+              : [];
+
             setState(prev => ({
               ...prev,
-              user: currentUser,
-              isLoading: false,
+              permissions,
+              roles,
             }));
-
-            localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-
-            // Load permissions inline to avoid circular dependency
-            try {
-              const permissionsData = await authApi.getUserPermissions();
-              const permissions = Array.isArray(permissionsData?.permissions)
-                ? permissionsData.permissions
-                : [];
-              const roles = Array.isArray(permissionsData?.roles)
-                ? permissionsData.roles
-                : [];
-
-              setState(prev => ({
-                ...prev,
-                permissions,
-                roles,
-              }));
-            } catch (permissionsError) {
-              console.error('Error loading permissions:', permissionsError);
-              setState(prev => ({
-                ...prev,
-                permissions: [],
-                roles: [],
-              }));
-            }
-          } catch (validationError) {
-            console.error('Token validation failed:', validationError);
-            // Token is invalid, clear auth data
-            clearAuthData();
+          } catch (permissionsError) {
+            console.error('Error loading permissions:', permissionsError);
+            setState(prev => ({
+              ...prev,
+              permissions: [],
+              roles: [],
+            }));
           }
-        } catch (error) {
-          console.error('Error loading user data:', error);
+        } catch (validationError) {
+          console.error('Token validation failed:', validationError);
           clearAuthData();
         }
       } else {
@@ -170,7 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     loadUserData();
-  }, [clearAuthData]); // Add clearAuthData as dependency
+  }, [clearAuthData]);
 
   // Token refresh function - defined before useEffect that uses it
   const refreshTokenInternal = useCallback(async (): Promise<boolean> => {
