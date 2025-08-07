@@ -178,7 +178,11 @@ def get_notification_preferences(
         logger.error(f"Error getting notification preferences: {str(e)}")
         
         # Return default preferences instead of error
+        from uuid import uuid4
+        from datetime import datetime
+        
         return NotificationPreferencesSchema(
+            id=uuid4(),
             user_id=current_user.id,
             email_enabled=True,
             push_enabled=True,
@@ -190,7 +194,9 @@ def get_notification_preferences(
             type_preferences={},
             min_priority_email="NORMAL",
             min_priority_push="HIGH",
-            min_priority_in_app="LOW"
+            min_priority_in_app="LOW",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
         )
 
 

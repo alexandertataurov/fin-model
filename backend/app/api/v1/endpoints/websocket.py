@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 import json
 import logging
 from typing import Optional
+from datetime import datetime
 
 from app.models.base import get_db
 from app.core.security import verify_token
@@ -16,14 +17,26 @@ async def authenticate_websocket(websocket: WebSocket, token: Optional[str] = No
     """Authenticate WebSocket connection using token."""
     if not token:
         logger.warning("WebSocket connection attempt without token")
-        await websocket.close(code=4001, reason="Authentication required")
+        try:
+            await websocket.close(code=4001, reason="Authentication required")
+        except Exception:
+            pass
         return None
     
     try:
-        user_id = verify_token(token)
+        # Try to verify token
+        try:
+            user_id = verify_token(token)
+        except Exception as e:
+            logger.error(f"Token verification error: {e}")
+            user_id = None
+            
         if not user_id:
             logger.warning("WebSocket connection attempt with invalid token")
-            await websocket.close(code=4001, reason="Invalid token")
+            try:
+                await websocket.close(code=4001, reason="Invalid token")
+            except Exception:
+                pass
             return None
         
         # Get database session
@@ -36,16 +49,32 @@ async def authenticate_websocket(websocket: WebSocket, token: Optional[str] = No
             
             if not user or not user.is_active:
                 logger.warning(f"WebSocket connection attempt for inactive user {user_id}")
-                await websocket.close(code=4001, reason="User not found or inactive")
+                try:
+                    await websocket.close(code=4001, reason="User not found or inactive")
+                except Exception:
+                    pass
                 return None
                 
             logger.info(f"WebSocket authentication successful for user {user.id}")
             return user
+        except Exception as e:
+            logger.error(f"Database error during WebSocket authentication: {e}")
+            try:
+                await websocket.close(code=4001, reason="Database error")
+            except Exception:
+                pass
+            return None
         finally:
-            db.close()
+            try:
+                db.close()
+            except Exception:
+                pass
     except Exception as e:
         logger.error(f"Error during WebSocket authentication: {e}")
-        await websocket.close(code=4001, reason="Authentication error")
+        try:
+            await websocket.close(code=4001, reason="Authentication error")
+        except Exception:
+            pass
         return None
 
 
@@ -319,3 +348,59 @@ async def root_websocket(websocket: WebSocket):
             await websocket.close()
         except Exception:
             pass
+
+
+@router.websocket("/test")
+async def test_websocket(websocket: WebSocket):
+    """Test WebSocket endpoint - no authentication required."""
+    try:
+        await websocket.accept()
+        logger.info("Test WebSocket connected")
+        
+        # Send connection confirmation
+        await websocket.send_text(json.dumps({
+            "type": "test_connection",
+            "message": "Test WebSocket connected successfully",
+            "status": "connected",
+            "timestamp": datetime.utcnow().isoformat()
+        }))
+        
+        # Keep connection alive for a short time
+        while True:
+            try:
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                
+                if message.get("type") == "ping":
+                    await websocket.send_text(json.dumps({
+                        "type": "pong",
+                        "timestamp": message.get("timestamp"),
+                        "echo": "pong"
+                    }))
+                elif message.get("type") == "echo":
+                    await websocket.send_text(json.dumps({
+                        "type": "echo_response",
+                        "message": message.get("message", ""),
+                        "timestamp": datetime.utcnow().isoformat()
+                    }))
+                else:
+                    await websocket.send_text(json.dumps({
+                        "type": "error",
+                        "message": "Unknown message type",
+                        "received": message.get("type")
+                    }))
+                    
+            except WebSocketDisconnect:
+                logger.info("Test WebSocket disconnected")
+                break
+            except Exception as e:
+                logger.error(f"Error in test WebSocket: {e}")
+                break
+                
+    except Exception as e:
+        logger.error(f"Error establishing test WebSocket: {e}")
+        if websocket.client_state.name == 'CONNECTED':
+            try:
+                await websocket.close()
+            except Exception:
+                pass
