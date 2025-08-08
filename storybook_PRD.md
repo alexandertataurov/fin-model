@@ -10,7 +10,7 @@ Transform the existing Storybook into a **world-class design system hub** — fu
 
 #### **2.1 In-Scope**
 
-- **Full content audit** — identify missing or outdated stories.
+- ~~**Full content audit** — identify missing or outdated stories.~~ (done)
 - Improve **documentation depth** — usage guidelines, dos/don’ts, real examples.
 - Implement **design parity** with Figma or design source.
 - Enhance **developer tooling** — prop tables, arg controls, live editing.

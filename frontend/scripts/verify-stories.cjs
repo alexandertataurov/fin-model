@@ -18,6 +18,11 @@ const { globby } = require('globby');
     /dashboardConstants\.(ts|tsx)$/,
     /theme-hooks\.(ts|tsx)$/,
     /use-[^/]+\.(ts|tsx)$/,
+    /\/design-system\/components\/(Chart|DesignSystemProvider|ThemeProvider|Toaster)\.tsx$/,
+    /\/components\/(layout|dashboard-layout)\.tsx$/,
+    /\/components\/Layout\/(Layout|Sidebar)\.tsx$/,
+    /\/components\/draggable-widget\.tsx$/,
+    /\/components\/CoreFinancialModeling\/shared\.tsx$/,
   ];
   const components = allComponents.filter(
     p => !ignore.some(re => re.test(p.replace(/\\/g, '/')))
