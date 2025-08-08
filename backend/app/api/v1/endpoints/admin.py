@@ -1253,15 +1253,19 @@ async def bulk_user_action(
         )
 
 
-@router.get("/system/logs", response_model=List[Dict[str, Any]])
+# Returns list by default for compatibility; can return envelope when
+# envelope=true
+@router.get("/system/logs")
 async def get_system_logs(
     level: str = Query(
         "ERROR", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
     ),
     limit: int = Query(100, ge=1, le=1000),
+    skip: int = Query(0, ge=0),
     from_ts: Optional[datetime] = Query(None, description="From timestamp"),
     to_ts: Optional[datetime] = Query(None, description="To timestamp"),
     search: Optional[str] = Query(None, description="Search message/module"),
+    envelope: bool = Query(False, description="Return pagination envelope"),
     current_user: User = Depends(
         require_permissions(Permission.ADMIN_READ)
     ),
@@ -1329,7 +1333,17 @@ async def get_system_logs(
                 or q in str(log.get("module", "")).lower()
             ]
 
-        return sample_logs[:limit]
+        total = len(sample_logs)
+        items = sample_logs[skip: skip + limit]
+
+        if envelope:
+            return {
+                "items": items,
+                "skip": skip,
+                "limit": limit,
+                "total": total,
+            }
+        return items
 
     except Exception as e:
         raise HTTPException(

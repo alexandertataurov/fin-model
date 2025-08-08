@@ -180,8 +180,13 @@ export class AdminApiService {
   /**
    * Get security audit information
    */
-  static async getSecurityAudit(): Promise<SecurityAudit> {
-    const response = await api.get('/admin/security/audit');
+  static async getSecurityAudit(opts?: {
+    from?: string;
+    to?: string;
+  }): Promise<SecurityAudit> {
+    const response = await api.get('/admin/security/audit', {
+      params: { from_ts: opts?.from, to_ts: opts?.to },
+    });
     return response.data;
   }
 
@@ -295,9 +300,17 @@ export class AdminApiService {
   /**
    * Get database performance data
    */
-  static async getDatabasePerformance(limit: number = 10): Promise<any[]> {
+  static async getDatabasePerformance(
+    limit: number = 10,
+    opts?: { window?: '1h' | '24h' | '7d'; from?: string; to?: string }
+  ): Promise<any[]> {
     const response = await api.get('/admin/database/performance', {
-      params: { limit },
+      params: {
+        limit,
+        window: opts?.window,
+        from_ts: opts?.from,
+        to_ts: opts?.to,
+      },
     });
     return response.data;
   }
@@ -377,15 +390,26 @@ export class AdminApiService {
   static async getSystemLogs(
     level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL' = 'ERROR',
     limit: number = 100,
-    opts?: { from?: string; to?: string; search?: string }
-  ): Promise<LogEntry[]> {
+    opts?: {
+      from?: string;
+      to?: string;
+      search?: string;
+      skip?: number;
+      envelope?: boolean;
+    }
+  ): Promise<
+    | LogEntry[]
+    | { items: LogEntry[]; skip: number; limit: number; total: number }
+  > {
     const response = await api.get('/admin/system/logs', {
       params: {
         level,
         limit,
+        skip: opts?.skip ?? 0,
         from_ts: opts?.from,
         to_ts: opts?.to,
         search: opts?.search,
+        envelope: opts?.envelope ?? false,
       },
     });
     return response.data;

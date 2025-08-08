@@ -31,16 +31,16 @@
 
 - Frontend
 
-  - [ ] Update `AdminApiService.getAuditLogs` type to `{ logs: AuditEntry[]; skip; limit; total }`; add `AuditEntry` type
+  - [x] Update `AdminApiService.getAuditLogs` type to `{ logs: AuditEntry[]; skip; limit; total }`; add `AuditEntry` type
   - Data Management → Manual Ops wiring (`frontend/src/components/Admin/DataManagement.tsx`)
-    - [ ] Backup Database → `POST /admin/database/backup` (confirm + toast)
-    - [ ] Export Data → `POST /admin/database/export` (table + format select, download)
-    - [ ] Rebuild Indexes → `POST /admin/database/reindex` (progress toast)
+    - [x] Backup Database → `POST /admin/database/backup` (confirm + toast)
+    - [x] Export Data → `POST /admin/database/export` (table + format select, download)
+    - [x] Rebuild Indexes → `POST /admin/database/reindex` (progress toast)
     - [ ] Generate Report → `/admin/reports/overview?format=` (download)
   - [ ] Maintenance schedules UI: editable list (toggle enable, time, task type) using `GET/PUT /admin/maintenance/schedules`
   - Logs tab
-    - [ ] Add `from`/`to` date pickers
-    - [ ] Add text search
+    - [x] Add `from`/`to` date pickers
+    - [x] Add text search
     - [ ] Add paging/infinite scroll; adapt to pagination envelope
   - [ ] Performance tab: add window selector (1h/24h/7d) → `/admin/database/performance`
   - [ ] Security tab: add date range filters; table for `suspicious_activities` (type, user/ip, timestamp, details)
