@@ -563,7 +563,7 @@ async def get_dashboard_overview(
         PeriodFilter.YTD.value, description="Time period for dashboard"
     ),
     fallback: str = Query(
-        "demo", description="Fallback when no data: 'demo' or 'empty'"
+        "empty", description="Fallback when no data: 'demo' or 'empty'"
     ),
     current_user: User = Depends(
         require_permissions(Permission.DASHBOARD_READ)

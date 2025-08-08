@@ -58,9 +58,7 @@ const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(
     PeriodFilter.YTD
   );
-  const [fallbackMode, setFallbackMode] = useState<'empty' | 'demo'>(
-    (localStorage.getItem('dashboard_fallback') as 'empty' | 'demo') || 'empty'
-  );
+  // No demo mode: always empty fallback handled by API service
   const { data: statementsData } = useUserStatements(undefined, 6);
   const { data: ratiosData } = useFinancialRatios(selectedPeriod);
 
@@ -77,10 +75,7 @@ const Dashboard = () => {
         error: null,
       }));
 
-      const data = await DashboardApiService.getDashboardOverview(
-        period,
-        fallbackMode
-      );
+      const data = await DashboardApiService.getDashboardOverview(period);
       setDashboardData(data);
 
       if (isRefresh) {
@@ -126,11 +121,7 @@ const Dashboard = () => {
     loadDashboardData(period);
   };
 
-  const handleFallbackChange = (mode: 'empty' | 'demo') => {
-    setFallbackMode(mode);
-    localStorage.setItem('dashboard_fallback', mode);
-    loadDashboardData(selectedPeriod);
-  };
+  // removed demo toggle
 
   // Load data on mount
   useEffect(() => {
@@ -327,13 +318,7 @@ const Dashboard = () => {
                   ).toFixed(0)}%`
                 : 'Loading your financial dashboard...'}
             </p>
-            {dashboardData && (dashboardData as any).data_state === 'demo' && (
-              <div className="mt-2">
-                <Badge variant="outline" className="text-xs">
-                  Demo data
-                </Badge>
-              </div>
-            )}
+            {/* No demo badge */}
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="flex items-center space-x-2">
@@ -354,18 +339,7 @@ const Dashboard = () => {
                   Last 12 Months
                 </option>
               </select>
-              <select
-                value={fallbackMode}
-                onChange={e =>
-                  handleFallbackChange(e.target.value as 'empty' | 'demo')
-                }
-                className="text-xs sm:text-sm border rounded px-2 py-1 bg-background"
-                disabled={loadingState.isRefreshing}
-                title="Data mode"
-              >
-                <option value="empty">No data</option>
-                <option value="demo">Demo</option>
-              </select>
+              {/* Removed demo/empty selector */}
               <Button
                 variant="outline"
                 size="sm"
@@ -494,12 +468,7 @@ const Dashboard = () => {
                         <Button onClick={() => navigate('/upload')}>
                           Upload Financial Data
                         </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleFallbackChange('demo')}
-                        >
-                          View Demo Data
-                        </Button>
+                        {/* No demo button */}
                       </div>
                     </CardContent>
                   </Card>
@@ -620,12 +589,7 @@ const Dashboard = () => {
                           <Settings className="h-4 w-4 mr-2" />
                           Set Parameters
                         </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleFallbackChange('demo')}
-                        >
-                          View Demo Data
-                        </Button>
+                        {/* No demo button */}
                       </div>
                     </CardContent>
                   </Card>

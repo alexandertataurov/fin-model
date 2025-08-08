@@ -232,11 +232,10 @@ export class DashboardApiService {
    * Get complete dashboard overview
    */
   static async getDashboardOverview(
-    period: PeriodFilter = PeriodFilter.YTD,
-    fallback: 'demo' | 'empty' = 'demo'
+    period: PeriodFilter = PeriodFilter.YTD
   ): Promise<DashboardOverview> {
     const response = await apiClient.get('/dashboard/overview', {
-      params: { period, fallback },
+      params: { period, fallback: 'empty' },
     });
     return response.data;
   }
