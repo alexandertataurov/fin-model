@@ -3,12 +3,17 @@
 - Backend
 
   - Audit logs
-    - [ ] Persist real audit events (models + hooks) for user/role changes, auth, files, maintenance; replace synthetic data in `/admin/audit-logs` with DB results
+    - [x] Replace synthetic data in `/admin/audit-logs` with DB-backed results
+    - [ ] Persist real audit events (models + hooks)
+      - [x] User/role changes (create/update/deactivate, role assign/remove)
+      - [ ] Auth events (login/logout/failed login, password actions)
+      - [ ] File events (uploads, processing, cleanup)
+      - [ ] Maintenance actions (schedules, executions)
     - [x] Support filters: `skip`, `limit`, `user_id`, `action`, `from`, `to`
     - [x] Return envelope `{ logs, skip, limit, total }`
   - System logs (`/admin/system/logs`)
     - [x] Filters: `from`, `to`, `search`
-    - [ ] Pagination envelope `{ items, skip, limit, total }`
+    - [x] Pagination envelope `{ items, skip, limit, total }` (via `envelope=true`)
     - [ ] Integrate with real logging store (DB/file); remove sample logs
     - [ ] Optional streaming endpoint
   - DB operations endpoints
@@ -25,9 +30,12 @@
     - [x] Support `from`/`to` on `/admin/security/audit`
     - [ ] Implement failed login tracking and suspicious activity heuristics
   - Reports
-    - [ ] `GET /admin/reports/overview?format=json|csv` to feed “Generate Report”
+    - [x] `GET /admin/reports/overview?format=json|csv` to feed “Generate Report”
   - Consistency
     - [ ] Standardize pagination envelopes across admin endpoints (`{ items, skip, limit, total }`)
+      - [x] `/admin/system/logs` (envelope=true)
+      - [x] `/admin/audit-logs` (envelope=true)
+      - [x] `/admin/users` (envelope=true)
 
 - Frontend
 
@@ -36,20 +44,20 @@
     - [x] Backup Database → `POST /admin/database/backup` (confirm + toast)
     - [x] Export Data → `POST /admin/database/export` (table + format select, download)
     - [x] Rebuild Indexes → `POST /admin/database/reindex` (progress toast)
-    - [ ] Generate Report → `/admin/reports/overview?format=` (download)
-  - [ ] Maintenance schedules UI: editable list (toggle enable, time, task type) using `GET/PUT /admin/maintenance/schedules`
+    - [x] Generate Report → `/admin/reports/overview?format=` (download)
+  - [x] Maintenance schedules UI: editable list (toggle enable, time, task type) using `GET/PUT /admin/maintenance/schedules`
   - Logs tab
     - [x] Add `from`/`to` date pickers
     - [x] Add text search
-    - [ ] Add paging/infinite scroll; adapt to pagination envelope
-  - [ ] Performance tab: add window selector (1h/24h/7d) → `/admin/database/performance`
-  - [ ] Security tab: add date range filters; table for `suspicious_activities` (type, user/ip, timestamp, details)
-  - [ ] Data tables export per-table (Download button) → `/admin/database/export?table=...`
+    - [x] Add paging (Prev/Next) using envelope
+  - [x] Performance tab: add window selector (1h/24h/7d) → `/admin/database/performance`
+  - [x] Security tab: add date range filters; table for `suspicious_activities` (type, user/ip, timestamp, details)
+  - [x] Data tables export per-table (Download button) → `/admin/database/export?table=...`
 
 - Validation/Safety
 
   - [x] Backend permission gates on destructive ops use `Permission.ADMIN_ACCESS`
-  - [ ] UI confirm dialogs for destructive actions
+  - [x] UI confirm dialogs for destructive actions (backup/reindex/cleanup)
   - [x] Empty-state/placeholder coverage (no demo/sample data)
 
 - Quality
@@ -58,5 +66,5 @@
 
 Notes
 
-- Current `/admin/audit-logs` returns synthetic entries; frontend already tolerates `{ logs }`. Align service type and remove synthetic generation once DB storage is ready.
-- Current `/admin/system/logs` returns hardcoded samples; replace with real source + filters.
+- `/admin/audit-logs` now returns DB-backed entries. Continue instrumenting auth, file, and maintenance flows to persist additional audit events.
+- `/admin/system/logs` currently returns hardcoded samples; replace with real source + filters (and optional streaming).

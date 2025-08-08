@@ -124,9 +124,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const userList = await AdminApiService.listUsers(0, 100);
-      setUsers(userList);
-      setFilteredUsers(userList);
+      const resp = await AdminApiService.listUsers(0, 200, true);
+      const env = resp as any;
+      const list = (env?.items as UserWithRoles[]) || (resp as UserWithRoles[]);
+      setUsers(list);
+      setFilteredUsers(list);
     } catch (error) {
       toast.error('Failed to load users');
     } finally {

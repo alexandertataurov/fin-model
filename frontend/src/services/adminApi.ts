@@ -195,10 +195,14 @@ export class AdminApiService {
    */
   static async listUsers(
     skip: number = 0,
-    limit: number = 100
-  ): Promise<UserWithRoles[]> {
+    limit: number = 100,
+    envelope: boolean = false
+  ): Promise<
+    | UserWithRoles[]
+    | { items: UserWithRoles[]; skip: number; limit: number; total: number }
+  > {
     const response = await api.get('/admin/users', {
-      params: { skip, limit },
+      params: { skip, limit, envelope },
     });
     return response.data;
   }
@@ -423,13 +427,16 @@ export class AdminApiService {
     limit: number = 100,
     userId?: number,
     action?: string,
-    opts?: { from?: string; to?: string }
-  ): Promise<{
-    logs: AuditEntry[];
-    skip: number;
-    limit: number;
-    total: number;
-  }> {
+    opts?: { from?: string; to?: string; envelope?: boolean }
+  ): Promise<
+    | {
+        logs: AuditEntry[];
+        skip: number;
+        limit: number;
+        total: number;
+      }
+    | { items: AuditEntry[]; skip: number; limit: number; total: number }
+  > {
     const response = await api.get('/admin/audit-logs', {
       params: {
         skip,
@@ -438,6 +445,7 @@ export class AdminApiService {
         action,
         from_ts: opts?.from,
         to_ts: opts?.to,
+        envelope: opts?.envelope ?? false,
       },
     });
     return response.data;
@@ -472,6 +480,17 @@ export class AdminApiService {
 
   static async reindexDatabase(): Promise<{ job_id: string; message: string }> {
     const response = await api.post('/admin/database/reindex');
+    return response.data;
+  }
+
+  // Reports
+  static async getAdminOverviewReport(
+    format: 'json' | 'csv' = 'json'
+  ): Promise<any> {
+    const response = await api.get('/admin/reports/overview', {
+      params: { format },
+      responseType: format === 'csv' ? 'blob' : 'json',
+    });
     return response.data;
   }
 }

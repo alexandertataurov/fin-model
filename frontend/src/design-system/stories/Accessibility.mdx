@@ -1,0 +1,25 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Foundations/Accessibility" />
+
+# Accessibility
+
+Guidelines to ensure WCAG 2.1 AA compliance.
+
+## Keyboard
+
+- All interactive elements are reachable via Tab
+- Visible focus states
+
+## ARIA
+
+- Provide roles/labels where semantics aren’t implicit
+
+## Color contrast
+
+- Use semantic tokens and avoid hardcoded colors
+
+## Testing
+
+- Use the A11y addon panel to inspect violations
+- Run CI step `pnpm storybook:test:ci`

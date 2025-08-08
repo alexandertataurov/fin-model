@@ -54,6 +54,7 @@ def get_db() -> Session:
 from .user import User  # noqa
 from .role import Role, UserRole, RoleType  # noqa
 from .file import UploadedFile, FileStatus, ProcessingLog  # noqa
+from .audit import AuditLog  # noqa
 from .parameter import (
     Parameter,
     ParameterType,

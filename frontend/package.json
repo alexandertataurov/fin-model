@@ -28,7 +28,8 @@
     "storybook:test:ci": "storybook test --ci",
     "chromatic": "chromatic --exit-zero-on-changes",
     "verify:stories": "node scripts/verify-stories.cjs",
-    "gen:story": "ts-node scripts/generate-story.ts"
+    "gen:story": "ts-node scripts/generate-story.ts",
+    "gen:tokens": "tsx scripts/generate-tokens.ts"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",
@@ -135,6 +136,7 @@
     "msw-storybook-addon": "2.0.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.0.2",
+    "tsx": "^4.19.2",
     "vitest": "^0.34.0"
   },
   "pnpm": {

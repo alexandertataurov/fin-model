@@ -104,6 +104,8 @@ const AdminDashboard: React.FC = () => {
     userId?: number;
     action?: string;
   }>({ skip: 0, limit: 100 });
+  const [auditSkip, setAuditSkip] = useState<number>(0);
+  const [auditTotal, setAuditTotal] = useState<number>(0);
   const [securityFrom, setSecurityFrom] = useState<string>('');
   const [securityTo, setSecurityTo] = useState<string>('');
   const [auditFrom, setAuditFrom] = useState<string>('');
@@ -128,6 +130,7 @@ const AdminDashboard: React.FC = () => {
       AdminApiService.getAuditLogs(0, 100, undefined, undefined, {
         from: auditFrom || undefined,
         to: auditTo || undefined,
+        envelope: true,
       }),
     ]);
 
@@ -177,11 +180,12 @@ const AdminDashboard: React.FC = () => {
     if (permsRes.status === 'fulfilled') setUserPermissions(permsRes.value);
     else setUserPermissions(null);
 
-    if (auditListRes.status === 'fulfilled')
-      setAuditLogs(
-        (auditListRes as any).value?.logs || (auditListRes as any).value || []
-      );
-    else setAuditLogs(null);
+    if (auditListRes.status === 'fulfilled') {
+      const env = (auditListRes as any).value as any;
+      setAuditLogs((env?.items as any[]) || env?.logs || []);
+      if (typeof env?.total === 'number') setAuditTotal(env.total);
+      setAuditSkip(0);
+    } else setAuditLogs(null);
 
     const anyFulfilled = results.some(r => r.status === 'fulfilled');
     if (!anyFulfilled) {
@@ -260,6 +264,10 @@ const AdminDashboard: React.FC = () => {
   const handleFileCleanup = async () => {
     try {
       setMaintenanceLoading(true);
+      if (!confirm('Run cleanup and permanently delete files?')) {
+        setMaintenanceLoading(false);
+        return;
+      }
       const result = await AdminApiService.cleanupFiles(false);
       toast.success(result.message);
       await loadAdminData(); // Refresh data
@@ -1502,13 +1510,81 @@ const AdminDashboard: React.FC = () => {
                         {
                           from: auditFrom || undefined,
                           to: auditTo || undefined,
+                          envelope: true,
                         }
                       );
-                      setAuditLogs((data as any)?.logs || data || []);
+                      const env = data as any;
+                      setAuditLogs((env?.items as any[]) || env?.logs || []);
+                      setAuditTotal(env?.total || 0);
+                      setAuditSkip(env?.skip || 0);
                     }}
                   >
                     Refresh
                   </Button>
+                  <div className="ml-auto flex items-center gap-2 text-xs">
+                    <span>
+                      {auditTotal > 0
+                        ? `${Math.min(auditSkip + 1, auditTotal)}-${Math.min(
+                            auditSkip + auditFilters.limit,
+                            auditTotal
+                          )} of ${auditTotal}`
+                        : '0-0 of 0'}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        const newSkip = Math.max(
+                          0,
+                          auditSkip - auditFilters.limit
+                        );
+                        setAuditSkip(newSkip);
+                        const resp = await AdminApiService.getAuditLogs(
+                          newSkip,
+                          auditFilters.limit,
+                          auditFilters.userId,
+                          auditFilters.action,
+                          {
+                            from: auditFrom || undefined,
+                            to: auditTo || undefined,
+                            envelope: true,
+                          }
+                        );
+                        const env = resp as any;
+                        setAuditLogs((env?.items as any[]) || env?.logs || []);
+                        setAuditTotal(env?.total || 0);
+                      }}
+                      disabled={auditSkip <= 0}
+                    >
+                      Prev
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        const newSkip = auditSkip + auditFilters.limit;
+                        if (newSkip >= auditTotal) return;
+                        setAuditSkip(newSkip);
+                        const resp = await AdminApiService.getAuditLogs(
+                          newSkip,
+                          auditFilters.limit,
+                          auditFilters.userId,
+                          auditFilters.action,
+                          {
+                            from: auditFrom || undefined,
+                            to: auditTo || undefined,
+                            envelope: true,
+                          }
+                        );
+                        const env = resp as any;
+                        setAuditLogs((env?.items as any[]) || env?.logs || []);
+                        setAuditTotal(env?.total || 0);
+                      }}
+                      disabled={auditSkip + auditFilters.limit >= auditTotal}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 </div>
                 <div className="border rounded">
                   <div className="max-h-96 overflow-auto text-xs font-mono">

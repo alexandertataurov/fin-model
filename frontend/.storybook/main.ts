@@ -2,7 +2,10 @@ import type { StorybookConfig } from '@storybook/react-vite';
 import { resolve } from 'path';
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.@(ts|tsx)'],
+  stories: [
+    '../src/{design-system,components}/**/*.stories.@(ts|tsx)',
+    '../src/{design-system,components}/**/*.mdx',
+  ],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-links',
@@ -53,6 +56,12 @@ const config: StorybookConfig = {
         'react-dom',
       ],
     } as any;
+
+    // Speed up cold start for common deps
+    (viteConfig as any).optimizeDeps = {
+      ...((viteConfig as any).optimizeDeps || {}),
+      include: ['react', 'react-dom'],
+    };
 
     return viteConfig;
   },

@@ -12,6 +12,7 @@ from app.models.base import get_db
 from app.models.role import RoleType
 from app.models.user import User
 from app.models.file import UploadedFile, FileStatus
+from app.models.audit import AuditLog
 from app.models.parameter import Parameter
 from app.models.financial import FinancialStatement
 from app.schemas.user import (
@@ -24,6 +25,7 @@ from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
+from fastapi.responses import JSONResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc, text
 from uuid import uuid4
@@ -117,6 +119,9 @@ class BulkUserActionRequest(BaseModel):
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
     current_user: User = Depends(
         require_permissions(Permission.USER_LIST)
     ),
@@ -126,7 +131,9 @@ def list_users(
     auth_service = AuthService(db)
 
     # Get users with pagination
-    users = db.query(User).offset(skip).limit(limit).all()
+    base_query = db.query(User)
+    total = base_query.count()
+    users = base_query.offset(skip).limit(limit).all()
 
     # Add roles to each user
     users_with_roles = []
@@ -136,6 +143,13 @@ def list_users(
         user_dict["roles"] = user_roles
         users_with_roles.append(UserWithRoles(**user_dict))
 
+    if envelope:
+        return {
+            "items": users_with_roles,
+            "skip": skip,
+            "limit": limit,
+            "total": total,
+        }
     return users_with_roles
 
 
@@ -187,6 +201,21 @@ def create_user(
     roles = auth_service.get_user_roles(created.id)
     user_dict = UserSchema.from_orm(created).dict()
     user_dict["roles"] = roles
+    # Write audit (best-effort)
+    try:
+        db.add(
+            AuditLog(
+                user_id=current_user.id,
+                action="PROFILE_UPDATED",
+                resource="user",
+                resource_id=str(created.id),
+                details=f"Created user {created.username}",
+                success="true",
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
     return UserWithRoles(**user_dict)
 
 
@@ -213,9 +242,24 @@ def update_user(
     for field, value in update_data.items():
         setattr(user, field, value)
 
-    # Note: Audit logging removed in lean version
     db.commit()
     db.refresh(user)
+
+    # Audit user update
+    try:
+        db.add(
+            AuditLog(
+                user_id=current_user.id,
+                action="PROFILE_UPDATED",
+                resource="user",
+                resource_id=str(user.id),
+                details=f"Updated user {user.username}",
+                success="true",
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
 
     return user
 
@@ -246,8 +290,23 @@ def delete_user(
     # Soft delete - deactivate user instead of actual deletion
     user.is_active = False
 
-    # Note: Audit logging removed in lean version
     db.commit()
+
+    # Audit deactivate
+    try:
+        db.add(
+            AuditLog(
+                user_id=current_user.id,
+                action="PROFILE_UPDATED",
+                resource="user",
+                resource_id=str(user.id),
+                details=f"Deactivated user {user.username}",
+                success="true",
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
 
     return {"message": "User deactivated successfully"}
 
@@ -285,6 +344,22 @@ def assign_role(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to assign role",
         )
+
+    # Audit role assignment
+    try:
+        db.add(
+            AuditLog(
+                user_id=current_user.id,
+                action="ROLE_ASSIGNED",
+                resource="user",
+                resource_id=str(user_id),
+                details=f"Assigned role {role.value} to user {user_id}",
+                success="true",
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
 
     return {"message": f"Role {role.value} assigned successfully"}
 
@@ -338,9 +413,23 @@ def remove_role(
 
     if user_role:
         user_role.is_active = False
-
-        # Note: Audit logging removed in lean version
         db.commit()
+
+        # Audit role removal
+        try:
+            db.add(
+                AuditLog(
+                    user_id=current_user.id,
+                    action="ROLE_REMOVED",
+                    resource="user",
+                    resource_id=str(user_id),
+                    details=f"Removed role {role.value} from user {user_id}",
+                    success="true",
+                )
+            )
+            db.commit()
+        except Exception:
+            db.rollback()
 
     return {"message": f"Role {role.value} removed successfully"}
 
@@ -353,54 +442,60 @@ def get_audit_logs(
     action: str = Query(None),
     from_ts: Optional[datetime] = Query(None),
     to_ts: Optional[datetime] = Query(None),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
     current_user: User = Depends(
         require_permissions(Permission.AUDIT_LOGS)
     ),
     db: Session = Depends(get_db),
 ) -> Any:
-    """Get audit logs (Admin only).
-
-    In lean version, synthesize minimal audit events from recent admin data.
-    Returns an object with logs array so the frontend can render entries.
-    """
+    """Get audit logs (Admin only) from DB with filters and envelope."""
     try:
-        logs: List[Dict[str, Any]] = []
+        query = db.query(AuditLog)
 
-        # Synthesize from recent users (created/updated)
-        recent_users = db.query(User).order_by(
-            desc(User.created_at)
-        ).offset(skip).limit(limit).all()
-
-        for u in recent_users:
-            entry = {
-                "timestamp": u.created_at or datetime.utcnow(),
-                "level": "INFO",
-                "module": "users",
-                "action": "user_created",
-                "user_id": u.id,
-                "message": f"User {u.username} created",
-            }
-            logs.append(entry)
-
-        # Include file cleanup previews as synthetic entries (placeholder)
-        # Apply filters
         if user_id is not None:
-            logs = [entry for entry in logs if entry.get("user_id") == user_id]
+            query = query.filter(AuditLog.user_id == user_id)
         if action:
-            logs = [entry for entry in logs if entry.get("action") == action]
+            query = query.filter(AuditLog.action == action)
         if from_ts:
-            logs = [
-                entry for entry in logs if entry.get("timestamp") >= from_ts
-            ]
+            query = query.filter(AuditLog.created_at >= from_ts)
         if to_ts:
-            logs = [
-                entry for entry in logs if entry.get("timestamp") <= to_ts
-            ]
+            query = query.filter(AuditLog.created_at <= to_ts)
 
-        # Truncate to limit after filters
-        logs = logs[:limit]
+        total = query.count()
+        rows = (
+            query.order_by(desc(AuditLog.created_at))
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
-        return {"logs": logs, "skip": skip, "limit": limit, "total": len(logs)}
+        items = []
+        for r in rows:
+            is_success = (
+                (r.success is True)
+                or (isinstance(r.success, str) and r.success.lower() == "true")
+            )
+            items.append(
+                {
+                    "timestamp": r.created_at,
+                    "level": "INFO" if is_success else "ERROR",
+                    "module": r.resource or "system",
+                    "action": r.action,
+                    "user_id": r.user_id,
+                    "message": r.details or "",
+                }
+            )
+
+        if envelope:
+            return {
+                "items": items,
+                "skip": skip,
+                "limit": limit,
+                "total": total,
+            }
+        return {"logs": items, "skip": skip, "limit": limit, "total": total}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -420,10 +515,12 @@ def system_health(
 
     # Get basic statistics
     total_users = db.query(User).count()
-    active_users = db.query(User).filter(User.is_active.is_(True)).count()
-    verified_users = (
-        db.query(User).filter(User.is_verified.is_(True)).count()
-    )
+    active_users = db.query(User).filter(
+        User.is_active.is_(True)
+    ).count()
+    verified_users = db.query(User).filter(
+        User.is_verified.is_(True)
+    ).count()
 
     # Note: Audit logging removed in lean version
     recent_logins = 0
@@ -683,6 +780,84 @@ def clear_rate_limits(
         )
 
 
+@router.get("/reports/overview")
+async def get_admin_overview_report(
+    format: str = Query("json", regex="^(json|csv)$"),
+    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    db: Session = Depends(get_db),
+):
+    """Generate an admin overview report in JSON or CSV.
+
+    JSON returns a structured object; CSV returns a simple text/csv payload.
+    """
+    try:
+        # Users
+        total_users = db.query(User).count()
+        active_users = db.query(User).filter(User.is_active.is_(True)).count()
+        verified_users = (
+            db.query(User).filter(User.is_verified.is_(True)).count()
+        )
+
+        # Files
+        total_files = db.query(UploadedFile).count()
+        failed_files = (
+            db.query(UploadedFile)
+            .filter(UploadedFile.status == FileStatus.FAILED.value)
+            .count()
+        )
+
+        # Financial
+        total_statements = db.query(FinancialStatement).count()
+        total_parameters = db.query(Parameter).count()
+
+        summary = {
+            "users": {
+                "total": total_users,
+                "active": active_users,
+                "verified": verified_users,
+            },
+            "files": {
+                "total": total_files,
+                "failed": failed_files,
+            },
+            "financial": {
+                "statements": total_statements,
+                "parameters": total_parameters,
+            },
+            "generated_at": datetime.utcnow().isoformat() + "Z",
+        }
+
+        if format == "json":
+            return JSONResponse(content=summary)
+
+        lines = [
+            "section,key,value",
+            f"users,total,{total_users}",
+            f"users,active,{active_users}",
+            f"users,verified,{verified_users}",
+            f"files,total,{total_files}",
+            f"files,failed,{failed_files}",
+            f"financial,statements,{total_statements}",
+            f"financial,parameters,{total_parameters}",
+        ]
+        csv_text = "\n".join(lines) + "\n"
+        return PlainTextResponse(
+            content=csv_text,
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": (
+                    "attachment; filename=admin_overview.csv"
+                )
+            },
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate report: {str(e)}",
+        )
+
+
 @router.get("/stats", response_model=SystemStatsResponse)
 async def get_system_statistics(
     current_user: User = Depends(
@@ -894,9 +1069,7 @@ async def get_system_metrics(
                 "SELECT count(*) FROM pg_stat_activity "
                 "WHERE state = 'active'"
             )
-            active_connections_result = db.execute(
-                text(active_sql)
-            ).scalar()
+            active_connections_result = db.execute(text(active_sql)).scalar()
             active_connections = int(active_connections_result or 0)
         except Exception:
             active_connections = 0

@@ -535,6 +535,31 @@ const DataManagement: React.FC = () => {
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Run Database Cleanup
                   </Button>
+
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        if (!confirm('Generate admin overview report (CSV)?'))
+                          return;
+                        const data =
+                          await AdminApiService.getAdminOverviewReport('csv');
+                        const blob = new Blob([data], { type: 'text/csv' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'admin_overview.csv';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      } catch (e) {
+                        toast.error('Failed to generate report');
+                      }
+                    }}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Generate Admin Report (CSV)
+                  </Button>
                 </div>
 
                 <Alert>
@@ -844,6 +869,7 @@ const DataManagement: React.FC = () => {
                   variant="outline"
                   onClick={async () => {
                     try {
+                      if (!confirm('Rebuild all database indexes now?')) return;
                       const res = await AdminApiService.reindexDatabase();
                       toast.success(`${res.message} (job ${res.job_id})`);
                     } catch {

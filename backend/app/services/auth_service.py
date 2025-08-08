@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from app.models.user import User
 from app.models.role import Role, UserRole, RoleType
 
-# Audit models removed in lean version
+from app.models.audit import AuditLog
 from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import (
     verify_password,
@@ -81,7 +81,9 @@ class AuthService:
         full_name = user_create.full_name
         if not full_name:
             if user_create.first_name or user_create.last_name:
-                full_name = f"{user_create.first_name or ''} {user_create.last_name or ''}".strip()
+                first = user_create.first_name or ""
+                last = user_create.last_name or ""
+                full_name = f"{first} {last}".strip()
         db_user = User(
             email=user_create.email,
             username=user_create.username,
@@ -172,20 +174,24 @@ class AuthService:
                 user.account_locked_until = datetime.now(
                     timezone.utc
                 ) + timedelta(minutes=30)
-                self.log_audit_action(
-                    user_id=user.id,
-                    action="ACCOUNT_LOCKED",
-                    success="success",
-                    details="Account locked due to multiple failed login attempts",
-                    ip_address=ip_address,
-                    user_agent=user_agent,
-                )
+            self.log_audit_action(
+                user_id=user.id,
+                action="ACCOUNT_LOCKED",
+                success="success",
+                details=(
+                    "Account locked due to multiple failed login attempts"
+                ),
+                ip_address=ip_address,
+                user_agent=user_agent,
+            )
 
             self.log_audit_action(
                 user_id=user.id,
                 action="FAILED_LOGIN",
                 success="failure",
-                details=f"Invalid password attempt {user.failed_login_attempts}",
+                details=(
+                    f"Invalid password attempt {user.failed_login_attempts}"
+                ),
                 ip_address=ip_address,
                 user_agent=user_agent,
             )
@@ -397,7 +403,7 @@ class AuthService:
             .filter(
                 UserRole.user_id == user_id,
                 UserRole.role_id == role_obj.id,
-                UserRole.is_active == True,
+                UserRole.is_active.is_(True),
             )
             .first()
         )
@@ -423,9 +429,7 @@ class AuthService:
         user_roles = (
             self.db.query(UserRole)
             .join(Role)
-            .filter(
-                UserRole.user_id == user_id, UserRole.is_active == True
-            )
+            .filter(UserRole.user_id == user_id, UserRole.is_active.is_(True))
             .all()
         )
 
@@ -463,9 +467,27 @@ class AuthService:
         user_agent: Optional[str] = None,
         details: Optional[str] = None,
     ):
-        """Log an audit action - simplified for lean version."""
-        # Audit logging removed in lean version - could add simple logging here if needed
-        pass
+        """Persist an audit action to the database."""
+        try:
+            res_id = str(resource_id) if resource_id is not None else None
+            entry = AuditLog(
+                user_id=user_id,
+                action=action,
+                resource=resource,
+                resource_id=res_id,
+                ip_address=ip_address,
+                user_agent=user_agent,
+                details=details,
+                success=str(success).lower(),
+            )
+            self.db.add(entry)
+            # Do not commit here to allow caller to control transactions
+        except Exception:
+            # Swallow audit failures to avoid breaking primary flow
+            try:
+                self.db.rollback()
+            except Exception:
+                pass
 
     def create_user_tokens(
         self, user: User, expires_delta: timedelta | None = None

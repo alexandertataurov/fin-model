@@ -17,16 +17,16 @@ from app.models.file import FileStatus
 from app.schemas.file import (
     FileUploadResponse,
     FileInfo,
-    FileListResponse,
     FileWithLogs,
     ProcessingLogEntry,
     FileProcessingRequest,
 )
 from app.schemas.financial import FilePreviewResponse
 from app.services.file_service import FileService
+from app.services.auth_service import AuthService
 from app.api.v1.endpoints.auth import get_current_active_user
-from app.core.dependencies import require_permissions
-from app.core.permissions import Permission
+# from app.core.dependencies import require_permissions
+# from app.core.permissions import Permission
 
 router = APIRouter()
 
@@ -53,6 +53,20 @@ async def upload_file(
         uploaded_file = await file_service.save_uploaded_file(
             file, current_user
         )
+        # Audit upload
+        try:
+            auth = AuthService(file_service.db)
+            auth.log_audit_action(
+                user_id=current_user.id,
+                action="PROFILE_UPDATED",
+                resource="file",
+                resource_id=str(uploaded_file.id),
+                details=f"Uploaded file {uploaded_file.original_filename}",
+                success="success",
+            )
+            file_service.db.commit()
+        except Exception:
+            file_service.db.rollback()
         return FileUploadResponse.from_orm(uploaded_file)
     except HTTPException:
         raise
@@ -302,7 +316,7 @@ def cancel_file_processing(
     """
     Cancel processing for a specific file.
     """
-    from app.core.celery_app import celery_app
+    # from app.core.celery_app import celery_app
 
     file_record = file_service.get_file_by_id(file_id, current_user)
 
@@ -318,7 +332,7 @@ def cancel_file_processing(
         )
 
     # Try to revoke the Celery task
-    # Note: This requires finding the task ID, which we should store in the database
+    # Note: Requires finding the task ID; should be stored in the database
     # For now, just update the status
 
     # Update status to cancelled

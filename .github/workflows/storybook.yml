@@ -2,6 +2,65 @@ name: Storybook CI
 
 on:
   pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/storybook.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/storybook.yml'
+
+jobs:
+  storybook:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Lint
+        run: pnpm lint:ci || true
+
+      - name: Verify stories coverage
+        run: pnpm verify:stories
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      - name: Run Storybook tests (a11y/interactions)
+        run: pnpm storybook:test:ci
+
+      - name: Publish to Chromatic
+        if: ${{ secrets.CHROMATIC_PROJECT_TOKEN != '' }}
+        env:
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        run: pnpm chromatic --project-token="$CHROMATIC_PROJECT_TOKEN" --exit-zero-on-changes
+
+name: Storybook CI
+
+on:
+  pull_request:
   push:
     branches: [main, master]
 

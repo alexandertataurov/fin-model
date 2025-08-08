@@ -42,20 +42,25 @@ class DatabaseMonitor:
             }
 
     def get_query_performance(
-        self, limit: int = 10
+        self,
+        limit: int = 10,
+        window: str | None = None,
+        from_ts: datetime | None = None,
+        to_ts: datetime | None = None,
     ) -> List[Dict[str, Any]]:
-        """Get basic query performance metrics."""
+        """Get basic query performance metrics with simple aggregates."""
         try:
-            # This is a simplified version - in a real implementation,
-            # you'd query actual performance metrics from the database
-            return [
+            # Placeholder aggregate data; replace with pg_stat_statements
+            rows = [
                 {
                     "query": "SELECT * FROM users",
-                    "execution_time": 0.001,
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "status": "success",
+                    "avg_ms": 1.2,
+                    "p95_ms": 3.4,
+                    "calls": 42,
+                    "last_seen": datetime.utcnow().isoformat(),
                 }
             ]
+            return rows[:limit]
         except Exception as e:
             logger.error(f"Failed to get query performance: {e}")
             return []
