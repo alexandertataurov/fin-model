@@ -23,6 +23,9 @@ export interface DashboardOverview {
   data_quality_score: number;
   period_info: PeriodInfo;
   generated_at: string;
+  // Backend may include these when fallback demo data is used
+  is_demo?: boolean;
+  data_state?: 'demo' | 'real';
 }
 
 export interface FinancialStatement {
@@ -133,6 +136,86 @@ export interface ExportParams {
   statement_ids?: string[];
 }
 
+// Additional response types for metrics endpoints
+export interface DashboardSimpleMetrics {
+  total_files: number;
+  completed_files: number;
+  processing_files: number;
+  total_parameters: number;
+  total_reports: number;
+}
+
+export interface DashboardCharts {
+  revenue_trend: number[];
+  expense_breakdown: Record<string, number>;
+}
+
+export interface OverviewMetricsResponse {
+  period: string;
+  file_id?: number;
+  metrics: Record<string, any>;
+  generated_at: string;
+}
+
+export interface FinancialTrendsResponse {
+  metric_type: string;
+  period_range: string;
+  file_id?: number;
+  trend_data: any[];
+  statistics?: Record<string, any>;
+  forecast?: any[];
+  generated_at: string;
+}
+
+export interface KPIResponse {
+  period: string;
+  industry?: string;
+  file_id?: number;
+  kpis: Record<string, any>;
+  benchmarks?: Record<string, any>;
+  performance_score?: number;
+  generated_at: string;
+}
+
+export interface DataSourcesResponse {
+  data_sources: Array<{
+    id: number;
+    filename: string;
+    file_type: string;
+    status: string;
+    is_valid: boolean;
+    created_at: string;
+    file_size?: number;
+    has_financial_data: boolean;
+  }>;
+  total_count: number;
+  valid_count: number;
+  generated_at: string;
+}
+
+export interface VarianceAnalysisResponse {
+  base_period: string;
+  compare_period: string;
+  variance_type: 'absolute' | 'percentage';
+  file_id?: number;
+  variances: Record<string, any>;
+  significant_changes?: any[];
+  summary?: Record<string, any>;
+  generated_at: string;
+}
+
+export interface HealthStatusResponse {
+  status: 'healthy' | 'unhealthy';
+  database: string;
+  cache: string;
+  data_availability: {
+    total_files: number;
+    processed_files: number;
+    processing_rate: number;
+  };
+  timestamp: string;
+}
+
 // Period filter options
 export enum PeriodFilter {
   MTD = 'mtd',
@@ -210,11 +293,16 @@ export class DashboardApiService {
    * Get variance analysis metrics
    */
   static async getVarianceMetrics(
-    period: DashboardPeriod,
-    fileId?: number
-  ): Promise<DashboardData> {
-    const params: any = { period };
-    if (fileId) params.file_id = fileId;
+    basePeriod: string,
+    comparePeriod: string,
+    options?: { varianceType?: 'absolute' | 'percentage'; fileId?: number }
+  ): Promise<VarianceAnalysisResponse> {
+    const params: any = {
+      base_period: basePeriod,
+      compare_period: comparePeriod,
+      variance_type: options?.varianceType || 'absolute',
+    };
+    if (options?.fileId) params.file_id = options.fileId;
 
     const response = await apiClient.get('/dashboard/metrics/variance', {
       params,
@@ -361,6 +449,86 @@ export class DashboardApiService {
    */
   static async refreshDashboard(): Promise<{ message: string }> {
     const response = await apiClient.post('/dashboard/refresh-cache');
+    return response.data;
+  }
+
+  /**
+   * Simple dashboard metrics
+   */
+  static async getDashboardMetrics(): Promise<DashboardSimpleMetrics> {
+    const response = await apiClient.get('/dashboard/metrics');
+    return response.data;
+  }
+
+  /**
+   * Simple dashboard charts used in tests/examples
+   */
+  static async getDashboardCharts(): Promise<DashboardCharts> {
+    const response = await apiClient.get('/dashboard/charts');
+    return response.data;
+  }
+
+  /**
+   * Overview metrics across statements
+   */
+  static async getOverviewMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<OverviewMetricsResponse> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    const response = await apiClient.get('/dashboard/metrics/overview', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Financial trends over time
+   */
+  static async getFinancialTrends(
+    metricType: string,
+    periodRange: string = 'last_12_months',
+    fileId?: number
+  ): Promise<FinancialTrendsResponse> {
+    const params: any = { metric_type: metricType, period_range: periodRange };
+    if (fileId) params.file_id = fileId;
+    const response = await apiClient.get('/dashboard/metrics/trends', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * KPIs with optional industry benchmarking
+   */
+  static async getKPIs(
+    period: DashboardPeriod,
+    industry?: string,
+    fileId?: number
+  ): Promise<KPIResponse> {
+    const params: any = { period };
+    if (industry) params.industry = industry;
+    if (fileId) params.file_id = fileId;
+    const response = await apiClient.get('/dashboard/metrics/kpis', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Data sources available for dashboard
+   */
+  static async getDataSources(): Promise<DataSourcesResponse> {
+    const response = await apiClient.get('/dashboard/data-sources');
+    return response.data;
+  }
+
+  /**
+   * Dashboard health status
+   */
+  static async getHealth(): Promise<HealthStatusResponse> {
+    const response = await apiClient.get('/dashboard/health');
     return response.data;
   }
 }
