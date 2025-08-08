@@ -124,11 +124,49 @@ export const leanFinancialApi = {
     return res.data;
   },
 
+  async createSensitivityAnalysis(payload: {
+    base_parameters: Record<string, number>;
+    sensitivity_parameters?: string[];
+    variation_percent?: number;
+  }) {
+    const res = await apiClient.post(
+      '/lean-financial/analysis/sensitivity',
+      payload
+    );
+    return res.data;
+  },
+
+  async analyzeParameterImpact(payload: {
+    parameter_key: string;
+    old_value: number;
+    new_value: number;
+    base_parameters: Record<string, number>;
+  }) {
+    const res = await apiClient.post(
+      '/lean-financial/analysis/parameter-impact',
+      payload
+    );
+    return res.data;
+  },
+
   async validateParameters(parameters: Record<string, number>) {
     const res = await apiClient.post(
       '/lean-financial/parameters/validate',
       parameters
     );
+    return res.data;
+  },
+
+  async exportParameters(params?: {
+    format?: 'json' | 'csv' | 'xlsx';
+    template?: string;
+  }) {
+    const res = await apiClient.get('/lean-financial/parameters/export', {
+      params: {
+        format: params?.format || 'json',
+        template: params?.template || 'base_case',
+      },
+    });
     return res.data;
   },
 
