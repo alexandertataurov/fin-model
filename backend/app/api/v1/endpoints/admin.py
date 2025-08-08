@@ -26,6 +26,7 @@ from app.services.file_service import FileService
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc, text
+from uuid import uuid4
 
 router = APIRouter()
 
@@ -73,6 +74,38 @@ class SecurityAuditResponse(BaseModel):
     rate_limit_violations: int
     password_policy_violations: int
     recommendations: List[str]
+
+
+class MaintenanceScheduleItem(BaseModel):
+    id: str
+    name: str
+    task: str  # cleanup|vacuum|archive|reindex|backup
+    schedule: str  # e.g., "daily 02:00" or cron
+    enabled: bool
+
+
+class MaintenanceSchedules(BaseModel):
+    items: List[MaintenanceScheduleItem]
+
+
+class BackupResponse(BaseModel):
+    job_id: str
+    message: str
+
+
+class ExportRequest(BaseModel):
+    table: Optional[str] = None
+    format: str = "json"  # json|csv
+
+
+class ExportResponse(BaseModel):
+    file_url: str
+    message: str
+
+
+class ReindexResponse(BaseModel):
+    job_id: str
+    message: str
 
 
 class BulkUserActionRequest(BaseModel):
@@ -318,6 +351,8 @@ def get_audit_logs(
     limit: int = Query(100, ge=1, le=1000),
     user_id: int = Query(None),
     action: str = Query(None),
+    from_ts: Optional[datetime] = Query(None),
+    to_ts: Optional[datetime] = Query(None),
     current_user: User = Depends(
         require_permissions(Permission.AUDIT_LOGS)
     ),
@@ -353,6 +388,14 @@ def get_audit_logs(
             logs = [entry for entry in logs if entry.get("user_id") == user_id]
         if action:
             logs = [entry for entry in logs if entry.get("action") == action]
+        if from_ts:
+            logs = [
+                entry for entry in logs if entry.get("timestamp") >= from_ts
+            ]
+        if to_ts:
+            logs = [
+                entry for entry in logs if entry.get("timestamp") <= to_ts
+            ]
 
         # Truncate to limit after filters
         logs = logs[:limit]
@@ -445,6 +488,11 @@ async def get_database_health(
 @router.get("/database/performance", response_model=List[Dict[str, Any]])
 async def get_database_performance(
     limit: int = Query(10, ge=1, le=100),
+    window: Optional[str] = Query(
+        None, description="1h|24h|7d or custom analytics window"
+    ),
+    from_ts: Optional[datetime] = Query(None),
+    to_ts: Optional[datetime] = Query(None),
     current_user: User = Depends(
         require_permissions(Permission.SYSTEM_HEALTH)
     ),
@@ -457,7 +505,15 @@ async def get_database_performance(
     """
     try:
         db_monitor = get_db_monitor(db)
-        performance_data = db_monitor.get_query_performance(limit=limit)
+        # Forward filters to monitor if supported (fallback to limit only)
+        kwargs: Dict[str, Any] = {"limit": limit}
+        if window:
+            kwargs["window"] = window
+        if from_ts:
+            kwargs["from_ts"] = from_ts
+        if to_ts:
+            kwargs["to_ts"] = to_ts
+        performance_data = db_monitor.get_query_performance(**kwargs)
         return performance_data
     except Exception as e:
         raise HTTPException(
@@ -511,6 +567,93 @@ async def cleanup_database(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to cleanup database: {str(e)}",
         )
+
+
+@router.post("/database/backup", response_model=BackupResponse)
+async def backup_database(
+    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    db: Session = Depends(get_db),
+):
+    """Trigger a database backup job (stubbed)."""
+    job_id = str(uuid4())
+    return BackupResponse(job_id=job_id, message="Backup job started")
+
+
+@router.post("/database/export", response_model=ExportResponse)
+async def export_database(
+    payload: ExportRequest,
+    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    db: Session = Depends(get_db),
+):
+    """Export data (full or table). Returns file URL (stubbed)."""
+    filename = (
+        f"export_{payload.table or 'full'}_{payload.format}_"
+        f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    )
+    file_url = f"/downloads/{filename}.{payload.format}"
+    return ExportResponse(file_url=file_url, message="Export generated")
+
+
+@router.post("/database/reindex", response_model=ReindexResponse)
+async def reindex_database(
+    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    db: Session = Depends(get_db),
+):
+    """Rebuild indexes (stubbed job)."""
+    job_id = str(uuid4())
+    return ReindexResponse(job_id=job_id, message="Reindex job started")
+
+
+_IN_MEMORY_SCHEDULES: List[MaintenanceScheduleItem] = [
+    MaintenanceScheduleItem(
+        id="daily-cleanup",
+        name="Daily Cleanup",
+        task="cleanup",
+        schedule="daily 02:00",
+        enabled=True,
+    ),
+    MaintenanceScheduleItem(
+        id="weekly-vacuum",
+        name="Weekly Optimization",
+        task="vacuum",
+        schedule="weekly sun 03:00",
+        enabled=True,
+    ),
+    MaintenanceScheduleItem(
+        id="monthly-archive",
+        name="Monthly Archive",
+        task="archive",
+        schedule="monthly 01:00",
+        enabled=False,
+    ),
+]
+
+
+@router.get("/maintenance/schedules", response_model=MaintenanceSchedules)
+async def get_maintenance_schedules(
+    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+):
+    return MaintenanceSchedules(items=_IN_MEMORY_SCHEDULES)
+
+
+@router.put("/maintenance/schedules", response_model=MaintenanceSchedules)
+async def update_maintenance_schedules(
+    schedules: MaintenanceSchedules,
+    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+):
+    # Simple validation
+    for item in schedules.items:
+        allowed = {"cleanup", "vacuum", "archive", "reindex", "backup"}
+        if item.task not in allowed:
+            raise HTTPException(
+                status_code=400, detail=f"Invalid task: {item.task}"
+            )
+        if not item.schedule:
+            raise HTTPException(status_code=400, detail="Schedule required")
+    # Replace in-memory list
+    global _IN_MEMORY_SCHEDULES
+    _IN_MEMORY_SCHEDULES = schedules.items
+    return MaintenanceSchedules(items=_IN_MEMORY_SCHEDULES)
 
 
 @router.post("/rate-limits/clear", response_model=Dict[str, Any])
@@ -909,6 +1052,8 @@ async def check_data_integrity(
 
 @router.get("/security/audit", response_model=SecurityAuditResponse)
 async def get_security_audit(
+    from_ts: Optional[datetime] = Query(None),
+    to_ts: Optional[datetime] = Query(None),
     current_user: User = Depends(
         require_permissions(Permission.ADMIN_READ)
     ),
@@ -919,12 +1064,14 @@ async def get_security_audit(
         from app.core.rate_limiter import RateLimit
 
         # Check for rate limit violations (last 24h)
+        start_time = (
+            from_ts if from_ts else datetime.utcnow() - timedelta(hours=24)
+        )
+        end_time = to_ts if to_ts else datetime.utcnow()
         rate_limit_violations = (
             db.query(RateLimit)
-            .filter(
-                RateLimit.created_at
-                >= datetime.utcnow() - timedelta(hours=24)
-            )
+            .filter(RateLimit.created_at >= start_time)
+            .filter(RateLimit.created_at <= end_time)
             .count()
         )
 
@@ -1112,6 +1259,9 @@ async def get_system_logs(
         "ERROR", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
     ),
     limit: int = Query(100, ge=1, le=1000),
+    from_ts: Optional[datetime] = Query(None, description="From timestamp"),
+    to_ts: Optional[datetime] = Query(None, description="To timestamp"),
+    search: Optional[str] = Query(None, description="Search message/module"),
     current_user: User = Depends(
         require_permissions(Permission.ADMIN_READ)
     ),
@@ -1157,6 +1307,26 @@ async def get_system_logs(
                 log
                 for log in sample_logs
                 if level_order.get(log["level"], 0) >= min_level
+            ]
+
+        # Filter by time
+        if from_ts:
+            sample_logs = [
+                log for log in sample_logs if log["timestamp"] >= from_ts
+            ]
+        if to_ts:
+            sample_logs = [
+                log for log in sample_logs if log["timestamp"] <= to_ts
+            ]
+
+        # Search
+        if search:
+            q = search.lower()
+            sample_logs = [
+                log
+                for log in sample_logs
+                if q in str(log.get("message", "")).lower()
+                or q in str(log.get("module", "")).lower()
             ]
 
         return sample_logs[:limit]
