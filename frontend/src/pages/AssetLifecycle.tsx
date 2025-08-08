@@ -1,61 +1,76 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/components/Card';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/components/Tabs';
 import { Button } from '@/design-system/components/Button';
 import { Input } from '@/design-system/components/Input';
 import { Label } from '@/design-system/components/Label';
 import { Badge } from '@/design-system/components/Badge';
-import { 
-  Building, 
-  TrendingUp, 
+import {
+  Building,
+  TrendingUp,
   Calculator,
   BarChart3,
   DollarSign,
   Calendar,
   Save,
-  Play
+  Play,
 } from 'lucide-react';
+import { Download } from 'lucide-react';
+import DashboardApiService, { PeriodFilter } from '@/services/dashboardApi';
+import { toast } from 'sonner';
 
 const AssetLifecycle: React.FC = () => {
   const [activeTab, setActiveTab] = useState('fixed-assets');
+  const [isExporting, setIsExporting] = useState(false);
 
   const assetSections = [
     {
       id: 'fixed-assets',
       label: 'Fixed Assets',
       icon: <Building className="h-4 w-4" />,
-      description: 'Property, plant & equipment lifecycle'
+      description: 'Property, plant & equipment lifecycle',
     },
     {
       id: 'intangible-assets',
       label: 'Intangible Assets',
       icon: <TrendingUp className="h-4 w-4" />,
-      description: 'Patents, trademarks, software, goodwill'
+      description: 'Patents, trademarks, software, goodwill',
     },
     {
       id: 'working-capital',
       label: 'Working Capital Assets',
       icon: <Calculator className="h-4 w-4" />,
-      description: 'Inventory, receivables, cash lifecycle'
+      description: 'Inventory, receivables, cash lifecycle',
     },
     {
       id: 'depreciation',
       label: 'Depreciation & Amortization',
       icon: <BarChart3 className="h-4 w-4" />,
-      description: 'Depreciation schedules and methods'
+      description: 'Depreciation schedules and methods',
     },
     {
       id: 'replacement',
       label: 'Replacement Planning',
       icon: <Calendar className="h-4 w-4" />,
-      description: 'Asset replacement schedules and costs'
+      description: 'Asset replacement schedules and costs',
     },
     {
       id: 'metrics',
       label: 'Asset Metrics',
       icon: <DollarSign className="h-4 w-4" />,
-      description: 'Performance metrics and ratios'
-    }
+      description: 'Performance metrics and ratios',
+    },
   ];
 
   return (
@@ -77,6 +92,98 @@ const AssetLifecycle: React.FC = () => {
             <Play className="h-4 w-4 mr-2" />
             Run Analysis
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isExporting}
+            onClick={async () => {
+              setIsExporting(true);
+              try {
+                const data = await DashboardApiService.exportDashboardData({
+                  format: 'json',
+                  period: PeriodFilter.YTD,
+                });
+                const blob = new Blob([JSON.stringify(data, null, 2)], {
+                  type: 'application/json',
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `dashboard_export_${new Date()
+                  .toISOString()
+                  .slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success('Report (JSON) downloaded');
+              } catch (e) {
+                toast.error('Export failed');
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export JSON
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isExporting}
+            onClick={async () => {
+              setIsExporting(true);
+              try {
+                const data = await DashboardApiService.exportDashboardData({
+                  format: 'json',
+                  period: PeriodFilter.YTD,
+                });
+                const keyMetrics: any = (data as any).key_metrics || {};
+                const headers = [
+                  'metric',
+                  'current',
+                  'previous',
+                  'change_percent',
+                  'trend',
+                  'unit',
+                  'benchmark',
+                ];
+                const rows: string[] = [headers.join(',')];
+                Object.entries(keyMetrics).forEach(
+                  ([metric, value]: [string, any]) => {
+                    const row = [
+                      metric,
+                      value?.current ?? '',
+                      value?.previous ?? '',
+                      value?.change_percent ?? '',
+                      value?.trend ?? '',
+                      value?.unit ?? '',
+                      value?.benchmark ?? '',
+                    ].map(v => String(v).toString().replace(/,/g, ''));
+                    rows.push(row.join(','));
+                  }
+                );
+                const csv = rows.join('\n');
+                const blob = new Blob([csv], {
+                  type: 'text/csv;charset=utf-8;',
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `dashboard_key_metrics_${new Date()
+                  .toISOString()
+                  .slice(0, 10)}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success('Report (CSV) downloaded');
+              } catch (e) {
+                toast.error('CSV export failed');
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
         </div>
       </div>
 
@@ -89,17 +196,25 @@ const AssetLifecycle: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-              {assetSections.map((section) => (
-                <TabsTrigger key={section.id} value={section.id} className="flex items-center gap-2">
+              {assetSections.map(section => (
+                <TabsTrigger
+                  key={section.id}
+                  value={section.id}
+                  className="flex items-center gap-2"
+                >
                   {section.icon}
                   <span className="hidden lg:inline">{section.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {assetSections.map((section) => (
+            {assetSections.map(section => (
               <TabsContent key={section.id} value={section.id} className="mt-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
@@ -107,7 +222,7 @@ const AssetLifecycle: React.FC = () => {
                     <h3 className="text-lg font-semibold">{section.label}</h3>
                     <Badge variant="secondary">{section.description}</Badge>
                   </div>
-                  
+
                   {/* Section-specific content */}
                   {section.id === 'fixed-assets' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -259,7 +374,9 @@ const AssetLifecycle: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Return on Assets</CardTitle>
+                            <CardTitle className="text-sm">
+                              Return on Assets
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="text-2xl font-bold">12.5%</div>
@@ -267,7 +384,9 @@ const AssetLifecycle: React.FC = () => {
                         </Card>
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Asset Turnover</CardTitle>
+                            <CardTitle className="text-sm">
+                              Asset Turnover
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="text-2xl font-bold">1.8x</div>
@@ -275,7 +394,9 @@ const AssetLifecycle: React.FC = () => {
                         </Card>
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Fixed Asset Turnover</CardTitle>
+                            <CardTitle className="text-sm">
+                              Fixed Asset Turnover
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="text-2xl font-bold">2.3x</div>
@@ -283,7 +404,9 @@ const AssetLifecycle: React.FC = () => {
                         </Card>
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Working Capital Turnover</CardTitle>
+                            <CardTitle className="text-sm">
+                              Working Capital Turnover
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="text-2xl font-bold">4.1x</div>
