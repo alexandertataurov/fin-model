@@ -9,10 +9,10 @@ if (typeof window !== 'undefined') {
   (window as any).React = React;
 }
 
-console.log('=== MAIN.TSX STARTING ===');
+console.info('=== MAIN.TSX STARTING ===');
 
 const rootElement = document.getElementById('root');
-console.log('Root element found:', !!rootElement);
+console.debug('Root element found:', !!rootElement);
 if (!rootElement) {
   throw new Error('Root element not found');
 }

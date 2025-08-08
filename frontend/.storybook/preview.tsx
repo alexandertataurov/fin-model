@@ -1,5 +1,32 @@
 import type { Preview } from '@storybook/react';
 import React from 'react';
+import '../src/index.css';
+import { DesignSystemProvider } from '../src/design-system/provider';
+
+const preview: Preview = {
+  parameters: {
+    actions: { argTypesRegex: '^on[A-Z].*' },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
+    layout: 'padded',
+  },
+  decorators: [
+    (Story) => (
+      <DesignSystemProvider>
+        <Story />
+      </DesignSystemProvider>
+    ),
+  ],
+};
+
+export default preview;
+
+import type { Preview } from '@storybook/react';
+import React from 'react';
 import { DesignSystemProvider } from '../src/design-system/provider';
 import { withThemeByClassName } from '@storybook/addon-themes';
 import { initialize as initializeMSW, mswDecorator } from 'msw-storybook-addon';

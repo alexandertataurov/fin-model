@@ -32,7 +32,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   // Redirect to login if not authenticated
   // Only redirect if we're sure the user is not authenticated (not loading and no user/token)
   if (!isLoading && (!isAuthenticated || !user)) {
-    console.log('AuthGuard: User not authenticated, redirecting to login', {
+    console.info('AuthGuard: User not authenticated, redirecting to login', {
       isAuthenticated,
       hasUser: !!user,
       isLoading,

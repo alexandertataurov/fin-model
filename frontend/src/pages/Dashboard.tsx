@@ -212,24 +212,24 @@ const Dashboard = () => {
 
   // Core Financial Modeling handlers
   const handleFileUpload = async (file: File) => {
-    console.log('File uploaded:', file);
+    console.info('File uploaded:', file);
     toast.success(`File "${file.name}" uploaded successfully`);
     // Refresh dashboard after file upload
     await loadDashboardData(selectedPeriod, true);
   };
 
   const handleParameterChange = (parameters: any) => {
-    console.log('Parameters changed:', parameters);
+    console.debug('Parameters changed:', parameters);
     toast.success('Parameters updated successfully');
   };
 
   const handleScenarioCreate = (scenario: any) => {
-    console.log('Scenario created:', scenario);
+    console.debug('Scenario created:', scenario);
     toast.success('New scenario created successfully');
   };
 
   const handleValuationChange = (valuation: any) => {
-    console.log('Valuation changed:', valuation);
+    console.debug('Valuation changed:', valuation);
     toast.success('DCF valuation updated');
   };
 

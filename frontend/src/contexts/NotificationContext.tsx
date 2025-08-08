@@ -138,7 +138,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       // Check if user is authenticated
       const token = getAuthToken();
       if (!token) {
-        console.log('User not authenticated, skipping notification load');
+        console.info('User not authenticated, skipping notification load');
         return;
       }
 
@@ -174,7 +174,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     // Check if user is authenticated
     const token = getAuthToken();
     if (!token) {
-      console.log('User not authenticated, skipping preferences load');
+      console.info('User not authenticated, skipping preferences load');
       return;
     }
 
@@ -332,7 +332,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   // Polling fallback
   const startPolling = useCallback(() => {
-    console.log('Starting notification polling fallback');
+    console.info('Starting notification polling fallback');
     // Poll every 30 seconds as fallback
     const pollInterval = setInterval(() => {
       refreshNotifications();

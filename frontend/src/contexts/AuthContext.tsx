@@ -223,28 +223,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     rememberMe = false
   ): Promise<boolean> => {
     try {
-      console.log('Starting login process...');
+      console.info('Starting login process...');
       setState(prev => ({ ...prev, isLoading: true }));
 
-      console.log('Calling login API...');
+      console.debug('Calling login API...');
       const response = await authApi.login({
         email,
         password,
         remember_me: rememberMe,
       });
-      console.log('Login API response:', response);
+      console.debug('Login API response:', response);
 
       // Store tokens
       localStorage.setItem(TOKEN_KEY, response.access_token);
       if (response.refresh_token) {
         localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
       }
-      console.log('Tokens stored');
+      console.debug('Tokens stored');
 
       // Get user data
-      console.log('Getting current user...');
+      console.debug('Getting current user...');
       const userData = await authApi.getCurrentUser();
-      console.log('User data received:', userData);
+      console.debug('User data received:', userData);
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
 
       // Update state atomically to prevent race conditions
@@ -255,12 +255,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshToken: response.refresh_token || null,
         isLoading: false,
       }));
-      console.log('User state updated atomically');
+      console.debug('User state updated atomically');
 
       // Load permissions after state is updated
-      console.log('Loading permissions...');
+      console.debug('Loading permissions...');
       await loadUserPermissions();
-      console.log('Login process completed successfully');
+      console.info('Login process completed successfully');
 
       // Reset WebSocket service availability for fresh connection attempts
       notificationsWebSocketService.resetServiceAvailability();
@@ -331,7 +331,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Debug authentication state changes
   useEffect(() => {
-    console.log('Auth state changed:', {
+  console.debug('Auth state changed:', {
       hasUser: !!state.user,
       hasToken: !!state.token,
       isAuthenticated,

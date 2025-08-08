@@ -120,16 +120,16 @@ export const authApi = {
   // Health check
   async healthCheck(): Promise<boolean> {
     try {
-      console.log('🏥 Checking backend health...');
+      console.info('🏥 Checking backend health...');
       const response = await fetch(`${API_BASE_URL}/health`);
-      console.log(
+      console.debug(
         '✅ Backend health check successful:',
         response.status,
         response.ok
       );
       if (response.ok) {
         const data = await response.json();
-        console.log('🏥 Health data:', data);
+        console.debug('🏥 Health data:', data);
       }
       return response.ok;
     } catch (error) {
@@ -140,12 +140,12 @@ export const authApi = {
 
   // Authentication
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    console.log('🔐 Attempting login with credentials:', {
+    console.info('🔐 Attempting login with credentials:', {
       email: credentials.email,
       remember_me: credentials.remember_me,
     });
-    console.log('🌐 API Base URL:', API_BASE_URL);
-    console.log('📡 Making request to:', `${API_BASE_URL}/api/v1/auth/login`);
+    console.debug('🌐 API Base URL:', API_BASE_URL);
+    console.debug('📡 Making request to:', `${API_BASE_URL}/api/v1/auth/login`);
 
     // Test backend connection first
     await this.testBackendConnection();
@@ -160,7 +160,7 @@ export const authApi = {
 
     try {
       const response = await api.post('/auth/login', credentials);
-      console.log('✅ Login successful:', response.data);
+      console.info('✅ Login successful:', response.data);
       return response.data;
     } catch (error: any) {
       console.error('❌ Login failed:', error);
@@ -265,11 +265,11 @@ export const authApi = {
   // Test backend connection
   async testBackendConnection(): Promise<void> {
     try {
-      console.log('🧪 Testing backend connection...');
+      console.info('🧪 Testing backend connection...');
 
       // Test 1: Direct fetch to health endpoint
       const healthResponse = await fetch(`${API_BASE_URL}/health`);
-      console.log(
+      console.debug(
         '🏥 Health endpoint response:',
         healthResponse.status,
         healthResponse.ok
@@ -277,9 +277,9 @@ export const authApi = {
 
       if (healthResponse.ok) {
         const healthData = await healthResponse.json();
-        console.log('🏥 Health data:', healthData);
+        console.debug('🏥 Health data:', healthData);
       } else {
-        console.log('🏥 Health endpoint error:', await healthResponse.text());
+        console.warn('🏥 Health endpoint error:', await healthResponse.text());
       }
 
       // Skipping the heavy test user registration/login flow in interceptor setup

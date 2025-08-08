@@ -130,7 +130,7 @@ export const Disabled: Story = {
   },
 };
 
-export const Loading: Story = {
+export const LoadingState: Story = {
   args: {
     loading: true,
     children: 'Loading…',

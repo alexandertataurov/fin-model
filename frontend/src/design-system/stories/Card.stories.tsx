@@ -327,7 +327,7 @@ export const CardGrid: Story = {
 };
 
 // Loading state
-export const Loading: Story = {
+export const LoadingState: Story = {
   render: () => (
     <Card className="w-[350px]">
       <CardHeader>

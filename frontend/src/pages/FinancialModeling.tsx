@@ -14,15 +14,15 @@ const FinancialModeling: React.FC = () => {
   };
 
   const handleParameterChange = (parameters: any) => {
-    console.log('Parameters changed', parameters);
+    console.debug('Parameters changed', parameters);
   };
 
   const handleScenarioCreate = (scenario: any) => {
-    console.log('Scenario created', scenario);
+    console.debug('Scenario created', scenario);
   };
 
   const handleValuationChange = (valuation: any) => {
-    console.log('Valuation updated', valuation);
+    console.debug('Valuation updated', valuation);
   };
 
   const handleExportResults = (results: any) => {

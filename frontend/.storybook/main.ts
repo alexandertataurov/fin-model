@@ -1,10 +1,12 @@
 import type { StorybookConfig } from '@storybook/react-vite';
-import { resolve } from 'path';
 
 const config: StorybookConfig = {
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
   stories: [
-    '../src/design-system/**/*.stories.@(ts|tsx)',
-    '../src/design-system/**/*.mdx',
+    '../src/design-system/**/*.stories.@(ts|tsx|mdx)'
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -13,69 +15,31 @@ const config: StorybookConfig = {
     '@storybook/addon-a11y',
     '@storybook/addon-viewport',
     '@storybook/addon-themes',
+    '@storybook/addon-backgrounds',
+    '@storybook/addon-measure',
+    '@storybook/addon-outline',
   ],
   docs: {
-    autodocs: 'tag',
+    autodocs: true,
   },
-  typescript: {
-    check: false,
-    reactDocgen: 'react-docgen-typescript',
-    reactDocgenTypescriptOptions: {
-      shouldExtractLiteralValuesFromEnum: true,
-      propFilter: (prop: any) =>
-        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
-    },
-  },
-  framework: {
-    name: '@storybook/react-vite',
-    options: {},
-  },
-  async viteFinal(viteConfig) {
-    // Remove the SWC React plugin to avoid duplicate React Refresh runtimes
-    if (Array.isArray(viteConfig.plugins)) {
-      viteConfig.plugins = viteConfig.plugins.filter(
-        // Keep everything except the SWC variant; Storybook adds its own React plugin
-        (plugin: any) => plugin && plugin.name !== 'vite:react-swc'
-      );
-    }
+  viteFinal: async (config) => {
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@': new URL('../src', import.meta.url).pathname,
+      '@/design-system': new URL('../src/design-system', import.meta.url).pathname,
+      '@design-system': new URL('../src/design-system', import.meta.url).pathname,
+      '@/components': new URL('../src/components', import.meta.url).pathname,
+      '@components': new URL('../src/components', import.meta.url).pathname,
+    } as Record<string, string>;
 
-    // Disable HMR inside Storybook to prevent refresh runtime clashes
-    viteConfig.server = {
-      ...(viteConfig.server || {}),
-      hmr: false,
-    };
+    config.define = {
+      ...(config.define || {}),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      global: 'globalThis',
+    } as Record<string, any>;
 
-    // Ensure dev-like env for stories without forcing user app overrides
-    viteConfig.define = {
-      ...(viteConfig.define || {}),
-      'process.env.NODE_ENV': JSON.stringify('development'),
-    };
-
-    // Add aliases used by stories
-    viteConfig.resolve = {
-      ...(viteConfig.resolve || {}),
-      alias: {
-        ...(viteConfig.resolve?.alias as Record<string, string> | undefined),
-        '@': resolve(__dirname, '../src'),
-        '@/design-system': resolve(__dirname, '../src/design-system'),
-        '@design-system': resolve(__dirname, '../src/design-system'),
-        '@/components': resolve(__dirname, '../src/components'),
-        '@components': resolve(__dirname, '../src/components'),
-      },
-      dedupe: [
-        ...(((viteConfig.resolve as any)?.dedupe as string[]) || []),
-        'react',
-        'react-dom',
-      ],
-    } as any;
-
-    // Speed up cold start for common deps
-    (viteConfig as any).optimizeDeps = {
-      ...((viteConfig as any).optimizeDeps || {}),
-      include: ['react', 'react-dom'],
-    };
-
-    return viteConfig;
+    return config;
   },
 };
 

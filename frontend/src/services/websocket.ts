@@ -23,7 +23,7 @@ class WebSocketService {
     try {
       // Prevent multiple simultaneous connections
       if (this.isConnecting) {
-        console.log('WebSocket connection already in progress');
+        console.info('WebSocket connection already in progress');
         return;
       }
 
@@ -35,7 +35,7 @@ class WebSocketService {
 
       // Don't connect if already connected
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        console.log('WebSocket already connected');
+        console.info('WebSocket already connected');
         return;
       }
 
@@ -70,7 +70,7 @@ class WebSocketService {
           ? `${baseUrl}?token=${encodeURIComponent(token)}`
           : baseUrl;
 
-      console.log(`Connecting to WebSocket: ${this.url}`);
+      console.info(`Connecting to WebSocket: ${this.url}`);
       
       // Close existing connection if any
       if (this.ws) {
@@ -101,7 +101,7 @@ class WebSocketService {
             clearTimeout(this.connectionTimeout);
             this.connectionTimeout = null;
           }
-          console.log('WebSocket connected successfully');
+          console.info('WebSocket connected successfully');
           this.reconnectAttempts = 0;
           this.isServiceAvailable = true;
           this.isConnecting = false;
@@ -123,7 +123,7 @@ class WebSocketService {
             this.connectionTimeout = null;
           }
           
-          console.log(`WebSocket closed: ${event.code} - ${event.reason}`);
+          console.warn(`WebSocket closed: ${event.code} - ${event.reason}`);
           this.isConnecting = false;
           
           // Handle specific error codes
@@ -178,7 +178,7 @@ class WebSocketService {
     
     this.isConnecting = false;
     this.reconnectAttempts = 0;
-    console.log('WebSocket disconnected');
+    console.info('WebSocket disconnected');
   }
 
   subscribe(event: string, handler: WebSocketEventHandler): () => void {
@@ -225,7 +225,7 @@ class WebSocketService {
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
     setTimeout(() => {
-      console.log(
+      console.info(
         `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`
       );
       this.connect(this.originalEndpoint);

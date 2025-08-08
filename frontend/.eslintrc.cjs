@@ -34,9 +34,25 @@ module.exports = {
 
     // Code quality rules
     'prefer-const': 'error',
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    // Allow info/debug in code; warn on others unless overridden below
+    'no-console': ['warn', { allow: ['warn', 'error', 'info', 'debug'] }],
 
     // React hooks rules - relaxed for advanced patterns
     'react-hooks/exhaustive-deps': 'warn', // Performance optimization patterns
   },
+  overrides: [
+    {
+      files: ['scripts/**/*.{js,ts,tsx}'],
+      rules: {
+        // Scripts are developer tooling; allow console usage freely
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['**/*.stories.*', '**/*.test.*', '**/__tests__/**/*'],
+      rules: {
+        'no-console': 'off',
+      },
+    },
+  ],
 };
