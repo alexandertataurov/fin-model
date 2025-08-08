@@ -2,9 +2,7 @@ import React from 'react';
 import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import {
   CheckCircle,
   AlertTriangle,

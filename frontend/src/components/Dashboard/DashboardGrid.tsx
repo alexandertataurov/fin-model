@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/design-system/components/Button';
-import { Button } from '@/design-system/components/Button';
+// duplicate import removed
 import {
   Card,
   CardContent,

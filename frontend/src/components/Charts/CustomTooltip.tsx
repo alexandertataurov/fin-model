@@ -39,7 +39,8 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
 
   const getFormattedValue = (value: number | string, name: string): string => {
     if (formatter) {
-      return formatter(value, name)[0];
+      const [val] = formatter(value, name);
+      return val;
     }
     
     // Auto-detect formatting based on name or value
@@ -47,8 +48,8 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
       return formatPercentage(value);
     }
     
-    if (typeof value === 'number' && Math.abs(value) > 100) {
-      return formatCurrency(value);
+    if (typeof value === 'number') {
+      return Math.abs(value) > 100 ? formatCurrency(value) : String(value);
     }
     
     return String(value);

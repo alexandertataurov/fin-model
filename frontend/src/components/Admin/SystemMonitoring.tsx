@@ -116,7 +116,10 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
 
       setSystemMetrics(metrics);
       setDataIntegrity(integrity);
-      setLogs(systemLogs);
+      const logsArray = Array.isArray(systemLogs)
+        ? systemLogs
+        : (systemLogs as any)?.items ?? [];
+      setLogs(logsArray);
       setSystemHealth(health);
       setLastRefresh(new Date());
 
@@ -129,7 +132,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
         toast.success('System data refreshed');
       }
     } catch (_error) {
-      console.error('Failed to load monitoring data:', error);
+      console.error('Failed to load monitoring data:', _error);
       toast.error('Failed to load system monitoring data');
     } finally {
       setLoading(false);
@@ -210,11 +213,11 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
   // Get log level badge
   const getLogLevelBadge = (level: string) => {
     const variants = {
-      ERROR: 'destructive',
-      WARNING: 'secondary',
-      INFO: 'default',
-      DEBUG: 'outline',
-      CRITICAL: 'destructive',
+      ERROR: 'destructive' as const,
+      WARNING: 'secondary' as const,
+      INFO: 'default' as const,
+      DEBUG: 'outline' as const,
+      CRITICAL: 'destructive' as const,
     };
 
     return (

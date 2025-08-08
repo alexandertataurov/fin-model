@@ -324,7 +324,7 @@ const Dashboard = () => {
               <select
                 value={selectedPeriod}
                 onChange={e =>
-                  handlePeriodChange(e.target.value as PeriodFilter)
+                  handlePeriodChange(e.target.value as unknown as PeriodFilter)
                 }
                 className="text-xs sm:text-sm border rounded px-2 py-1 bg-background"
                 disabled={loadingState.isRefreshing}

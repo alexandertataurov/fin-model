@@ -46,7 +46,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   }
 
   // Check email verification requirement
-  if (requireVerification && !user.is_verified) {
+  if (requireVerification && user && !user.is_verified) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="max-w-md w-full mx-4">

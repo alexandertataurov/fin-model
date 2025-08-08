@@ -70,7 +70,6 @@ def test_system_logs_sse_handshake(client):
     r = client.get(
         "/api/v1/admin/system/logs/stream",
         params={"level": "ERROR", "timeout_s": 5},
-        stream=True,
     )
     assert r.status_code == 200
     ct = r.headers.get("content-type", "")

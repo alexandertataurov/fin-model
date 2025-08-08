@@ -68,7 +68,7 @@ interface FinancialChartsProps {
   showControls?: boolean;
 }
 
-const FinancialCharts: React.FC<FinancialChartsProps> = ({
+  const FinancialCharts: React.FC<FinancialChartsProps> = ({
   data,
   title = 'Financial Performance',
   defaultChartType = 'line',
@@ -189,7 +189,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
     }
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltipComp = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
@@ -232,7 +232,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
               <YAxis tickFormatter={value => formatValue(value, 'currency')} />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltipComp />} />
               <Legend />
               {selectedMetricConfigs.map(metric => (
                 <Bar
@@ -253,7 +253,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
               <YAxis tickFormatter={value => formatValue(value, 'currency')} />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltipComp />} />
               <Legend />
               {selectedMetricConfigs.map(metric => (
                 <Area
@@ -277,7 +277,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
               <YAxis tickFormatter={value => formatValue(value, 'currency')} />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltipComp />} />
               <Legend />
               {selectedMetricConfigs.slice(0, 2).map(metric => (
                 <Bar
@@ -308,7 +308,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
               <YAxis tickFormatter={value => formatValue(value, 'currency')} />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltipComp />} />
               <Legend />
               {selectedMetricConfigs.map(metric => (
                 <Line

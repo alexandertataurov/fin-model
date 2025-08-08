@@ -1012,11 +1012,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
             </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox
+            <Checkbox
                 id="isActive"
-                checked={editUserData.is_active}
-                onCheckedChange={checked =>
-                  setEditUserData(prev => ({ ...prev, is_active: checked }))
+              checked={editUserData.is_active}
+              onCheckedChange={checked =>
+                setEditUserData(prev => ({ ...prev, is_active: checked === true }))
                 }
               />
               <Label htmlFor="isActive">Active</Label>

@@ -53,6 +53,7 @@ export const BaseChart: React.FC<BaseChartProps> = ({
       {/* Header */}
       {title && (
         <CardHeader
+          // @ts-expect-error actions prop is supported in our CardHeader impl
           actions={
             <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
               {actions}

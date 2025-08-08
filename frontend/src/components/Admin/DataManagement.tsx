@@ -122,7 +122,7 @@ const DataManagement: React.FC = () => {
 
       setTableData(tableDataFromIntegrity);
     } catch (_error) {
-      console.error('Failed to load data info:', error);
+      console.error('Failed to load data info:', _error);
       toast.error('Failed to load data management information');
     } finally {
       setLoading(false);

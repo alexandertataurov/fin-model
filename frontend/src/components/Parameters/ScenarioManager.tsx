@@ -7,13 +7,13 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+// duplicate import removed
 import { Input } from '@/design-system/components/Input';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+// duplicate import removed
 import { Label } from '@/design-system/components/Label';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+// duplicate import removed
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/design-system/components/Dialog';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+// duplicate import removed
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
