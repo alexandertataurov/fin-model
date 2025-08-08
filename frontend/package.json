@@ -16,6 +16,7 @@
     "analyze:build": "npm run build && npm run analyze",
     "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
     "type-check": "tsc --noEmit",
+    "type-check:ci": "tsc --noEmit -p tsconfig.typecheck.json",
     "test:minimal:ci": "cross-env CI=true vitest run",
     "verify-build": "node scripts/verify-build.js",
     "storybook": "storybook dev -p 6006 -c .storybook",
