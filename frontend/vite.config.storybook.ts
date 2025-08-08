@@ -1,7 +1,8 @@
-import { mergeConfig } from './vite.config.base';
+import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-export default mergeConfig({
+// Standalone Storybook Vite config (intentionally NOT merging base to avoid duplicate React plugins)
+export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -11,20 +12,8 @@ export default mergeConfig({
       '@components': resolve(__dirname, './src/components'),
     },
   },
-  optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'lucide-react',
-      'class-variance-authority',
-      'clsx',
-      'tailwind-merge',
-    ],
-  },
   define: {
     'process.env.NODE_ENV': '"development"',
     global: 'globalThis',
   },
-  // Avoid duplicate React refresh runtime by ensuring only one React plugin instance
-  plugins: [],
 });

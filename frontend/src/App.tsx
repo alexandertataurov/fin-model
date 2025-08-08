@@ -14,6 +14,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Dashboard from '@/pages/Dashboard';
 import FileUpload from '@/pages/FileUpload';
+import FinancialModeling from '@/pages/FinancialModeling';
 import PnLDashboard from '@/pages/PnLDashboard';
 import CashFlowDashboard from '@/pages/CashFlowDashboard';
 import BalanceSheetDashboard from '@/pages/BalanceSheetDashboard';
@@ -82,7 +83,10 @@ function App() {
                     element={<CashFlowLifecycle />}
                   />
                   {/* New streamlined routes */}
-                  <Route path="financial-modeling" element={<Dashboard />} />
+                  <Route
+                    path="financial-modeling"
+                    element={<FinancialModeling />}
+                  />
                   <Route
                     path="admin"
                     element={

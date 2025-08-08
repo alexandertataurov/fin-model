@@ -26,24 +26,6 @@ const config: StorybookConfig = {
   docs: { autodocs: 'tag' },
   typescript: { reactDocgen: 'react-docgen-typescript' },
   viteFinal: async viteConfig => {
-    // Ensure only a single React plugin instance to avoid duplicate React Refresh runtime
-    if (Array.isArray((viteConfig as any).plugins)) {
-      let hasReactPlugin = false;
-      (viteConfig as any).plugins = (viteConfig as any).plugins.filter(
-        (plugin: any) => {
-          const isReactPlugin =
-            plugin &&
-            typeof plugin === 'object' &&
-            (plugin.name === 'vite:react' || plugin.name === 'vite:react-swc');
-          if (!isReactPlugin) return true;
-          if (!hasReactPlugin) {
-            hasReactPlugin = true;
-            return true;
-          }
-          return false;
-        }
-      );
-    }
     viteConfig.resolve = viteConfig.resolve || ({ alias: {} } as any);
     const currentAlias = (viteConfig.resolve as any).alias || {};
     (viteConfig.resolve as any).alias = {
