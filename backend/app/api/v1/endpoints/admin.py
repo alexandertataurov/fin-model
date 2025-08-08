@@ -480,13 +480,13 @@ async def get_system_statistics(
         # File statistics
         total_files = db.query(UploadedFile).count()
         completed_files = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.COMPLETED
+            UploadedFile.status == FileStatus.COMPLETED.value
         ).count()
         processing_files = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.PROCESSING
+            UploadedFile.status == FileStatus.PROCESSING.value
         ).count()
         failed_files = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.FAILED
+            UploadedFile.status == FileStatus.FAILED.value
         ).count()
         
         # Financial data statistics  
@@ -682,7 +682,7 @@ async def check_data_integrity(
             db.query(UploadedFile)
             .filter(
                 and_(
-                    UploadedFile.status == FileStatus.COMPLETED,
+                    UploadedFile.status == FileStatus.COMPLETED.value,
                     UploadedFile.is_valid.is_(False),
                 )
             )
@@ -803,7 +803,7 @@ async def cleanup_orphaned_files(
             db.query(UploadedFile)
             .filter(
                 and_(
-                    UploadedFile.status == FileStatus.FAILED,
+                    UploadedFile.status == FileStatus.FAILED.value,
                     UploadedFile.created_at
                     < datetime.utcnow() - timedelta(days=7),
                 )

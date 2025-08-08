@@ -49,7 +49,8 @@ class UploadedFile(Base):
     upload_date = Column(DateTime, default=datetime.utcnow)
 
     # Processing status
-    status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)
+    # Persist the enum's string value to the database
+    status = Column(String(50), default=FileStatus.UPLOADED.value, nullable=False)
     processing_status = synonym("status")
     processing_started_at = Column(DateTime, nullable=True)
     processing_completed_at = Column(DateTime, nullable=True)
