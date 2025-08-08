@@ -23,7 +23,7 @@ from app.schemas.user import (
 from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc, text
 
@@ -626,26 +626,30 @@ async def get_system_statistics(
 
 @router.get("/users/activity")
 async def get_user_activity(
-    limit: int = Query(50),
-    active_only: Optional[str] = Query(None),
-    current_user: User = Depends(
-        require_permissions(Permission.ADMIN_READ)
-    ),
+    request: Request,
+    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
     db: Session = Depends(get_db),
 ):
     """Get user activity statistics."""
     try:
         query = db.query(User)
-        # Robust boolean parsing to avoid query param validation issues
+        # Parse params defensively
+        qp = request.query_params
+        limit_raw = qp.get("limit")
+        try:
+            limit_val = int(limit_raw) if limit_raw is not None else 50
+        except Exception:
+            limit_val = 50
+        active_raw = qp.get("active_only")
         active_only_bool = (
-            str(active_only).lower() in {"true", "1", "yes"}
-            if active_only is not None
+            str(active_raw).lower() in {"true", "1", "yes"}
+            if active_raw is not None
             else False
         )
         if active_only_bool:
             query = query.filter(User.is_active.is_(True))
 
-        users = query.order_by(desc(User.created_at)).limit(limit).all()
+        users = query.order_by(desc(User.created_at)).limit(limit_val).all()
 
         activity_data: List[Dict[str, Any]] = []
         for user in users:
