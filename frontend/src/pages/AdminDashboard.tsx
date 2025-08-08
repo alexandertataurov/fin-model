@@ -52,6 +52,7 @@ const AdminDashboard: React.FC = () => {
   const [dataIntegrity, setDataIntegrity] = useState<DataIntegrityCheck[]>([]);
   const [securityAudit, setSecurityAudit] = useState<SecurityAudit | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
 
   // Load admin data
   const loadAdminData = async () => {
@@ -75,7 +76,14 @@ const AdminDashboard: React.FC = () => {
       
     } catch (error) {
       console.error('Failed to load admin data:', error);
-      toast.error('Failed to load admin dashboard data');
+      toast.error('Failed to load admin dashboard data. Some data may not be available.');
+      
+      // Set default/empty values to prevent crashes
+      setSystemStats(null);
+      setUserActivity([]);
+      setSystemMetrics(null);
+      setDataIntegrity([]);
+      setSecurityAudit(null);
     } finally {
       setLoading(false);
     }
@@ -104,6 +112,44 @@ const AdminDashboard: React.FC = () => {
     if (!isActive) return <Badge variant="destructive">Inactive</Badge>;
     if (!isVerified) return <Badge variant="secondary">Unverified</Badge>;
     return <Badge variant="default">Active</Badge>;
+  };
+
+  // Maintenance operations
+  const handleFileCleanupPreview = async () => {
+    try {
+      setMaintenanceLoading(true);
+      const result = await AdminApiService.cleanupFiles(true);
+      toast.success(`Cleanup preview: ${result.orphaned_files} orphaned files, ${result.failed_files} failed files found`);
+    } catch (error) {
+      toast.error('Failed to preview file cleanup');
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const handleFileCleanup = async () => {
+    try {
+      setMaintenanceLoading(true);
+      const result = await AdminApiService.cleanupFiles(false);
+      toast.success(result.message);
+      await loadAdminData(); // Refresh data
+    } catch (error) {
+      toast.error('Failed to run file cleanup');
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const handleClearRateLimits = async () => {
+    try {
+      setMaintenanceLoading(true);
+      const result = await AdminApiService.clearRateLimits();
+      toast.success(`${result.message} (${result.cleared_records} records cleared)`);
+    } catch (error) {
+      toast.error('Failed to clear rate limits');
+    } finally {
+      setMaintenanceLoading(false);
+    }
   };
 
   // Load data on mount
@@ -188,7 +234,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {systemStats && (
+            {systemStats ? (
               <>
                 {/* Key Statistics */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -312,6 +358,15 @@ const AdminDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
               </>
+            ) : (
+              <div className="flex items-center justify-center py-12">
+                <Alert className="max-w-md">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Admin data is currently unavailable. Please try refreshing the page or check your connection.
+                  </AlertDescription>
+                </Alert>
+              </div>
             )}
           </TabsContent>
 
@@ -386,11 +441,20 @@ const AdminDashboard: React.FC = () => {
                     Clean up orphaned and failed files to free up storage space.
                   </p>
                   <div className="space-x-2">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={handleFileCleanupPreview}
+                      disabled={maintenanceLoading}
+                    >
                       <Download className="h-4 w-4 mr-1" />
                       Preview Cleanup
                     </Button>
-                    <Button size="sm">
+                    <Button 
+                      size="sm" 
+                      onClick={handleFileCleanup}
+                      disabled={maintenanceLoading}
+                    >
                       <Trash2 className="h-4 w-4 mr-1" />
                       Run Cleanup
                     </Button>
@@ -406,7 +470,11 @@ const AdminDashboard: React.FC = () => {
                   <p className="text-sm text-muted-foreground">
                     Clear rate limiting records to restore access for blocked users.
                   </p>
-                  <Button size="sm">
+                  <Button 
+                    size="sm" 
+                    onClick={handleClearRateLimits}
+                    disabled={maintenanceLoading}
+                  >
                     <RefreshCw className="h-4 w-4 mr-1" />
                     Clear Rate Limits
                   </Button>

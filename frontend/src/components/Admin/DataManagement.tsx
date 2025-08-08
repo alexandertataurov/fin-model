@@ -58,6 +58,7 @@ interface CleanupPreview {
 const DataManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
+  const [tableData, setTableData] = useState<TableInfo[]>([]);
   const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(null);
   const [showCleanupDialog, setShowCleanupDialog] = useState(false);
   const [cleanupInProgress, setCleanupInProgress] = useState(false);
@@ -69,15 +70,27 @@ const DataManagement: React.FC = () => {
     try {
       setLoading(true);
       
-      const [tables, health, performance] = await Promise.all([
+      const [tables, health, performance, integrity] = await Promise.all([
         AdminApiService.getTableInformation(),
         AdminApiService.getDatabaseHealth(),
-        AdminApiService.getDatabasePerformance(10)
+        AdminApiService.getDatabasePerformance(10),
+        AdminApiService.checkDataIntegrity()
       ]);
       
       setTableInfo(tables);
       setDatabaseHealth(health);
       setPerformanceData(performance);
+      
+      // Convert integrity data to TableInfo format
+      const tableDataFromIntegrity: TableInfo[] = integrity.map(item => ({
+        name: item.table_name,
+        record_count: item.record_count,
+        size_mb: tables[item.table_name]?.size_mb || 0,
+        last_updated: item.last_updated,
+        integrity_status: item.integrity_issues.length > 0 ? 'warning' : 'healthy'
+      }));
+      
+      setTableData(tableDataFromIntegrity);
       
     } catch (error) {
       console.error('Failed to load data info:', error);
@@ -160,37 +173,6 @@ const DataManagement: React.FC = () => {
     return num.toLocaleString();
   };
 
-  // Mock table data (in real implementation, this would come from API)
-  const mockTableData: TableInfo[] = [
-    {
-      name: 'users',
-      record_count: 1250,
-      size_mb: 12.5,
-      last_updated: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-      integrity_status: 'healthy'
-    },
-    {
-      name: 'uploaded_files',
-      record_count: 8430,
-      size_mb: 156.8,
-      last_updated: new Date().toISOString(),
-      integrity_status: 'warning'
-    },
-    {
-      name: 'financial_statements',
-      record_count: 2340,
-      size_mb: 45.2,
-      last_updated: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-      integrity_status: 'healthy'
-    },
-    {
-      name: 'parameters',
-      record_count: 15680,
-      size_mb: 23.4,
-      last_updated: new Date().toISOString(),
-      integrity_status: 'healthy'
-    },
-  ];
 
   useEffect(() => {
     loadDataInfo();
@@ -248,9 +230,9 @@ const DataManagement: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockTableData.length}</div>
+            <div className="text-2xl font-bold">{tableData.length}</div>
             <div className="text-xs text-muted-foreground">
-              {mockTableData.filter(t => t.integrity_status === 'healthy').length} healthy
+              {tableData.filter(t => t.integrity_status === 'healthy').length} healthy
             </div>
           </CardContent>
         </Card>
@@ -264,7 +246,7 @@ const DataManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatNumber(mockTableData.reduce((sum, t) => sum + t.record_count, 0))}
+              {formatNumber(tableData.reduce((sum, t) => sum + t.record_count, 0))}
             </div>
             <div className="text-xs text-muted-foreground">
               Across all tables
@@ -281,7 +263,7 @@ const DataManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatFileSize(mockTableData.reduce((sum, t) => sum + t.size_mb, 0))}
+              {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
             </div>
             <div className="text-xs text-muted-foreground">
               Database size
@@ -333,7 +315,7 @@ const DataManagement: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockTableData.map((table) => (
+                  {tableData.map((table) => (
                     <TableRow key={table.name}>
                       <TableCell className="font-medium">
                         <div className="flex items-center">
@@ -380,11 +362,15 @@ const DataManagement: React.FC = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">127</div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {cleanupPreview?.orphaned_files || '0'}
+                    </div>
                     <div className="text-xs text-muted-foreground">Orphaned files</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">43</div>
+                    <div className="text-2xl font-bold text-red-600">
+                      {cleanupPreview?.failed_files || '0'}
+                    </div>
                     <div className="text-xs text-muted-foreground">Failed uploads</div>
                   </div>
                 </div>
@@ -460,19 +446,25 @@ const DataManagement: React.FC = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">45ms</div>
+                    <div className="text-2xl font-bold">
+                      {databaseHealth?.performance_metrics?.avg_query_time || 'N/A'}
+                    </div>
                     <div className="text-sm text-muted-foreground">Avg Query Time</div>
                     <Progress value={25} className="mt-2" />
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">23</div>
+                    <div className="text-2xl font-bold">
+                      {databaseHealth?.connection_pool?.active_connections || 0}
+                    </div>
                     <div className="text-sm text-muted-foreground">Active Connections</div>
                     <Progress value={46} className="mt-2" />
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">99.8%</div>
-                    <div className="text-sm text-muted-foreground">Uptime</div>
-                    <Progress value={99} className="mt-2" />
+                    <div className="text-2xl font-bold">
+                      {databaseHealth?.status === 'healthy' ? '100%' : 'N/A'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Database Health</div>
+                    <Progress value={databaseHealth?.status === 'healthy' ? 100 : 0} className="mt-2" />
                   </div>
                 </div>
               </CardContent>
