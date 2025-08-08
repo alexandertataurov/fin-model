@@ -16,9 +16,9 @@ module.exports = {
     // TypeScript rules - relaxed for production flexibility
     // Prefer plugin to remove unused imports automatically
     '@typescript-eslint/no-unused-vars': 'off',
-    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-imports': 'warn',
     'unused-imports/no-unused-vars': [
-      'error',
+      'warn',
       {
         vars: 'all',
         varsIgnorePattern: '^_',

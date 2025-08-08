@@ -63,12 +63,10 @@ async function run() {
             modified++;
         }
     }
-    // eslint-disable-next-line no-console
     console.log(`Updated ${modified} story files.`);
 }
 
 run().catch((err) => {
-    // eslint-disable-next-line no-console
     console.error(err);
     process.exit(1);
 });
