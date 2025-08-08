@@ -7,7 +7,6 @@ import {
   Target,
   Settings,
   TrendingUp,
-  Calculator,
   Upload,
 } from 'lucide-react';
 

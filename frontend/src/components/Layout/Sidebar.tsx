@@ -12,11 +12,9 @@ import {
   LayoutDashboard,
   Upload,
   BarChart3,
-  FileText,
   TrendingUp,
   PieChart,
   ChevronLeft,
-  ChevronRight,
   ChevronDown,
   ChevronUp,
   Shield,
@@ -28,7 +26,6 @@ import {
   Settings,
   Activity,
   Users,
-  Database,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 

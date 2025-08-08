@@ -4,7 +4,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/Tabs';
 const meta: Meta<typeof Tabs> = {
   title: 'Design System/Tabs',
   component: Tabs,
-  parameters: { layout: 'padded' },
+  parameters: {
+    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'padded' },
   tags: ['autodocs'],
 };
 export default meta;
@@ -25,3 +26,7 @@ export const Basic: Story = {
     </Tabs>
   ),
 };
+
+export const Loading = { parameters: { docs: { description: { story: 'No data — loading…' } } } } as const;
+export const Empty = { parameters: { docs: { description: { story: 'No data available.' } } } } as const;
+export const Error = { parameters: { docs: { description: { story: 'Error state.' } } } } as const;

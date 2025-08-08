@@ -10,8 +10,6 @@ import { Input } from '@/design-system/components/Input';
 import { Label } from '@/design-system/components/Label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
 import { Slider } from '@/design-system/components/Slider';
-import { Switch } from '@/design-system/components/Switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
 import { 
   Settings, 
   Save, 
@@ -26,9 +24,7 @@ import {
   Calculator,
   BarChart3,
   Target,
-  Zap,
-  AlertTriangle,
-  CheckCircle
+  AlertTriangle
 } from 'lucide-react';
 
 // Define parameter categories based on the lean financial modeling plan

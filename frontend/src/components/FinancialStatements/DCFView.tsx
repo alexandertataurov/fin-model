@@ -3,12 +3,12 @@
  * Based on lean financial modeling plan - detailed DCF analysis and valuation
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Download, TrendingUp, TrendingDown, DollarSign, BarChart3, Target, Calculator } from 'lucide-react';
+import { Download, TrendingUp, TrendingDown, Target, Calculator } from 'lucide-react';
 
 interface DCFData {
   // Projection Parameters

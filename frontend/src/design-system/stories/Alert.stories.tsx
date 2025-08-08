@@ -4,7 +4,8 @@ import { Alert, AlertTitle, AlertDescription } from '../components/Alert';
 const meta: Meta<typeof Alert> = {
   title: 'Design System/Alert',
   component: Alert,
-  parameters: { layout: 'centered' },
+  parameters: {
+    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'centered' },
   tags: ['autodocs'],
 };
 export default meta;
@@ -32,3 +33,7 @@ export const Destructive: Story = {
     </Alert>
   ),
 };
+
+export const Loading = { parameters: { docs: { description: { story: 'No data — loading…' } } } } as const;
+export const Empty = { parameters: { docs: { description: { story: 'No data available.' } } } } as const;
+export const Error = { parameters: { docs: { description: { story: 'Error state.' } } } } as const;

@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
 import { componentStyles } from '@/design-system/utils/designSystem';

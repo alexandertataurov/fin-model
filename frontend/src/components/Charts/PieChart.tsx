@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 // Removed Material-UI imports - using Tailwind for layout
 import BaseChart from './BaseChart';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+import { formatCurrency } from '@/utils/formatters';
 
 export interface PieChartDataPoint {
   name: string;

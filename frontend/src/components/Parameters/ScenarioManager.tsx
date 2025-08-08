@@ -3,21 +3,21 @@
  * Based on lean financial modeling plan - manage multiple parameter scenarios
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
-import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Input } from '@/design-system/components/Input';
-import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Label } from '@/design-system/components/Label';
-import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/design-system/components/Dialog';
-import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
-import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
-import { formatCurrency, formatPercentage, formatNumber } from '@/utils/formatters';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { 
   Play,
   Plus, 

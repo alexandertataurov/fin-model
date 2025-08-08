@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/compon
 import { Button } from '@/design-system/components/Button';
 import { Input } from '@/design-system/components/Input';
 import { Label } from '@/design-system/components/Label';
-import { Badge } from '@/design-system/components/Badge';
 import { Separator } from '@/design-system/components/Separator';
 import {
   Calculator,
@@ -18,11 +17,8 @@ import {
   DollarSign,
   BarChart3,
   Target,
-  Zap,
   Activity,
   PieChart,
-  FileText,
-  Settings,
 } from 'lucide-react';
 
 interface DCFValuationProps {

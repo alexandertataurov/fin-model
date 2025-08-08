@@ -15,7 +15,6 @@ import {
 import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import {
-  Upload,
   Settings,
   BarChart3,
   Calculator,

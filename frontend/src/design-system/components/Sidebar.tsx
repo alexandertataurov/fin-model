@@ -12,9 +12,6 @@ import { Separator } from "./Separator";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
 } from "./Sheet";
 import { Skeleton } from "./Skeleton";
 import {

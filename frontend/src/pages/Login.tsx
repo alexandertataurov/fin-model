@@ -23,7 +23,6 @@ import {
 import {
   Mail,
   Lock,
-  TrendingUp,
   Loader2,
   AlertCircle,
   Activity,

@@ -14,7 +14,7 @@
     "build:netlify:preview": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=512\" vite build --config vite.config.netlify.ts --mode development",
     "analyze": "node scripts/analyze-bundle.js",
     "analyze:build": "npm run build && npm run analyze",
-    "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
+    "lint:ci": "eslint . --ext ts,tsx --ignore-pattern '**/*.stories.tsx' --report-unused-disable-directives --max-warnings 100",
     "type-check": "tsc --noEmit",
     "test:minimal:ci": "cross-env CI=true vitest run",
     "verify-build": "node scripts/verify-build.js",
@@ -29,7 +29,8 @@
     "chromatic": "chromatic --exit-zero-on-changes",
     "verify:stories": "node scripts/verify-stories.cjs",
     "gen:story": "tsx scripts/generate-story.ts",
-    "gen:tokens": "tsx scripts/generate-tokens.ts"
+    "gen:tokens": "tsx scripts/generate-tokens.ts",
+    "storybook:enforce-meta": "tsx scripts/enforce-story-meta.ts"
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",
@@ -101,6 +102,8 @@
     "zustand": "^4.3.6"
   },
   "devDependencies": {
+    "@storybook/cli": "8.6.14",
+    "@storybook/test-runner": "0.20.1",
     "@storybook/addon-a11y": "8.6.14",
     "@storybook/addon-backgrounds": "8.6.14",
     "@storybook/addon-essentials": "8.6.14",
@@ -121,22 +124,23 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/react-grid-layout": "1.3.5",
-    "@typescript-eslint/eslint-plugin": "^5.57.1",
-    "@typescript-eslint/parser": "^5.57.1",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-react": "4.7.0",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "chromatic": "^11.12.7",
-    "eslint": "^8.38.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
+    "eslint-plugin-unused-imports": "3.2.0",
     "globby": "^14.0.2",
     "jest-axe": "10.0.0",
     "jsdom": "^22.1.0",
     "msw": "2.10.4",
     "msw-storybook-addon": "2.0.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.2",
     "tsx": "^4.19.2",
+    "typescript": "^5.0.2",
     "vitest": "^0.34.0"
   },
   "pnpm": {

@@ -1,0 +1,24 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Design System/Foundations/Tokens Pipeline" />
+
+# Tokens Pipeline
+
+This design system uses a single JSON source of truth at `src/design-system/tokens.json`. The file is transformed into a typed runtime module `src/design-system/tokens.ts` used by components and stories.
+
+## Workflow
+
+- Edit `src/design-system/tokens.json`
+- Generate code: `npm run gen:tokens`
+- Consume tokens from `@/design-system/tokens`
+
+## Notes
+
+- Typography is normalized to arrays: `[fontSize, { lineHeight }]` in rem.
+- Spacing and radius are converted to rem.
+- Transitions get an `ease-in-out` curve if not specified.
+- CSS variables are supported via either `{":root", ".dark"}` or `{ light, dark }` shapes.
+
+> Do not edit `tokens.ts` directly. It is auto-generated.
+
+

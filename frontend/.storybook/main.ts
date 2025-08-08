@@ -3,8 +3,8 @@ import { resolve } from 'path';
 
 const config: StorybookConfig = {
   stories: [
-    '../src/{design-system,components}/**/*.stories.@(ts|tsx)',
-    '../src/{design-system,components}/**/*.mdx',
+    '../src/design-system/**/*.stories.@(ts|tsx)',
+    '../src/design-system/**/*.mdx',
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -14,6 +14,18 @@ const config: StorybookConfig = {
     '@storybook/addon-viewport',
     '@storybook/addon-themes',
   ],
+  docs: {
+    autodocs: 'tag',
+  },
+  typescript: {
+    check: false,
+    reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      propFilter: (prop: any) =>
+        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
+    },
+  },
   framework: {
     name: '@storybook/react-vite',
     options: {},

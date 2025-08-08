@@ -7,8 +7,7 @@ import {
   Upload, 
   FileSpreadsheet, 
   CheckCircle, 
-  AlertCircle, 
-  X,
+  AlertCircle,
   Download,
   Eye,
   Trash2

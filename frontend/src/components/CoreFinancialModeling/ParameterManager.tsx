@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
 import { Button } from '@/design-system/components/Button';
 import { Input } from '@/design-system/components/Input';
 import { Label } from '@/design-system/components/Label';
@@ -16,9 +15,6 @@ import {
   PieChart,
   Activity,
   Target,
-  Zap,
-  Clock,
-  BarChart3,
   RefreshCw
 } from 'lucide-react';
 

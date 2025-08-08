@@ -10,7 +10,6 @@ import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import { Input } from '@/design-system/components/Input';
 import { Label } from '@/design-system/components/Label';
-import { Separator } from '@/design-system/components/Separator';
 
 // Shared Types
 export type ModelStatus = 'idle' | 'processing' | 'complete' | 'error';

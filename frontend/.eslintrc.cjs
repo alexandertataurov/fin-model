@@ -8,13 +8,26 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh', '@typescript-eslint'],
+  plugins: ['react-refresh', '@typescript-eslint', 'unused-imports'],
   rules: {
     // React-specific rules
     'react-refresh/only-export-components': 'off',
 
     // TypeScript rules - relaxed for production flexibility
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    // Prefer plugin to remove unused imports automatically
+    '@typescript-eslint/no-unused-vars': 'off',
+    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'all',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
     '@typescript-eslint/no-explicit-any': 'off', // Allow any without warning
     '@typescript-eslint/ban-ts-comment': 'warn', // Allow @ts-ignore but warn
     '@typescript-eslint/no-non-null-assertion': 'off',

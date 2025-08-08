@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { theme-toggle } from './theme-toggle';
+import { ThemeToggle } from './theme-toggle';
 
-const meta: Meta<typeof theme-toggle> = {
-  title: 'Components/theme-toggle',
-  component: theme-toggle,
+const meta: Meta<typeof ThemeToggle> = {
+  title: 'Components/ThemeToggle',
+  component: ThemeToggle,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',

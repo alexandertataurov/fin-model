@@ -5,10 +5,13 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 type DeepRecord = Record<string, any>;
 
-const ROOT = path.resolve(__dirname, '..');
+const __filename = fileURLToPath(import.meta.url);
+const __dirnameESM = path.dirname(__filename);
+const ROOT = path.resolve(__dirnameESM, '..');
 const JSON_PATH = path.join(ROOT, 'src', 'design-system', 'tokens.json');
 const OUTPUT_PATH = path.join(ROOT, 'src', 'design-system', 'tokens.ts');
 
@@ -30,17 +33,85 @@ function serialize(obj: unknown, indent = 2): string {
     .replace(/'([0-9]+)'(?=\s*:)/g, '$1');
 }
 
+// Helpers to normalize values
+const toRem = (value: number | string): string => {
+  if (typeof value === 'number') {
+    return `${(value / 16).toFixed(4).replace(/\.0+$/, '').replace(/0+$/, '')}rem`;
+  }
+  if (/^\d+(px)?$/.test(value)) {
+    const px = parseFloat(value);
+    return `${(px / 16).toFixed(4).replace(/\.0+$/, '').replace(/0+$/, '')}rem`;
+  }
+  return value;
+};
+
+function buildTypography(jsonTypography: DeepRecord): DeepRecord {
+  // Accept either already-normalized { fontSize: { sm: ['0.875rem', { lineHeight: '1.25rem'}], ... } }
+  // or split maps { fontSizes: { sm: '14px' }, lineHeights: { sm: '20px' } }
+  const fontSize = jsonTypography.fontSize
+    ? jsonTypography.fontSize
+    : ((): DeepRecord => {
+      const sizes: DeepRecord = {};
+      const fontSizes: DeepRecord = jsonTypography.fontSizes || {};
+      const lineHeights: DeepRecord = jsonTypography.lineHeights || {};
+      Object.keys(fontSizes).forEach((key) => {
+        const size = toRem(fontSizes[key]);
+        const lhRaw = lineHeights[key];
+        // If line-height is provided in px/number, convert to rem; if percentage/unitless, keep
+        const lineHeight = lhRaw ? toRem(lhRaw) : '1.5rem';
+        sizes[key] = [size, { lineHeight }];
+      });
+      return sizes;
+    })();
+
+  const result: DeepRecord = { fontSize };
+  if (jsonTypography.fontFamily) result.fontFamily = jsonTypography.fontFamily;
+  if (jsonTypography.fontWeight) result.fontWeight = jsonTypography.fontWeight;
+  return result;
+}
+
+function normalizeSpacing(jsonSpacing: DeepRecord): DeepRecord {
+  const out: DeepRecord = {};
+  Object.keys(jsonSpacing).forEach((k) => {
+    out[k] = toRem(jsonSpacing[k]);
+  });
+  return out;
+}
+
+function normalizeRadius(jsonRadius: DeepRecord): DeepRecord {
+  const out: DeepRecord = {};
+  Object.keys(jsonRadius).forEach((k) => {
+    out[k] = toRem(jsonRadius[k]);
+  });
+  return out;
+}
+
+function normalizeTransitions(jsonTransitions: DeepRecord): DeepRecord {
+  const out: DeepRecord = {};
+  Object.keys(jsonTransitions).forEach((k) => {
+    const v = jsonTransitions[k];
+    out[k] = typeof v === 'string' && /\s/.test(v) ? v : `${v} ease-in-out`;
+  });
+  return out;
+}
+
+function normalizeCssVariables(cssVars: DeepRecord): DeepRecord {
+  // Support { light: {...}, dark: {...} } or CSS selectors { ':root': {...}, '.dark': {...} }
+  if (cssVars.light || cssVars.dark) return cssVars;
+  const light = cssVars[':root'] || {};
+  const dark = cssVars['.dark'] || {};
+  return { light, dark };
+}
+
 function buildTokensTs(tokensJson: DeepRecord): string {
-  const {
-    colors = {},
-    typography = {},
-    spacing = {},
-    borderRadius = {},
-    shadows = {},
-    transitions = {},
-    zIndex = {},
-    cssVariables = {},
-  } = tokensJson;
+  const colors = tokensJson.colors || {};
+  const typography = buildTypography(tokensJson.typography || {});
+  const spacing = normalizeSpacing(tokensJson.spacing || {});
+  const borderRadius = normalizeRadius(tokensJson.borderRadius || {});
+  const shadows = tokensJson.shadows || {};
+  const transitions = normalizeTransitions(tokensJson.transitions || {});
+  const zIndex = tokensJson.zIndex || {};
+  const cssVariables = normalizeCssVariables(tokensJson.cssVariables || {});
 
   const tokensBlock = `export const tokens = ${serialize({
     colors,

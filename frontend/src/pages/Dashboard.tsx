@@ -8,7 +8,6 @@ import {
   Target,
   Settings,
   CloudUpload,
-  ArrowRight,
   RefreshCw,
   AlertCircle,
   FileText,
@@ -22,7 +21,7 @@ import DashboardApiService, {
   DashboardOverview,
   PeriodFilter,
 } from '@/services/dashboardApi';
-import type { DashboardData, DashboardLoadingState } from '@/types/dashboard';
+import type { DashboardLoadingState } from '@/types/dashboard';
 import { toast } from 'sonner';
 import {
   useUserStatements,

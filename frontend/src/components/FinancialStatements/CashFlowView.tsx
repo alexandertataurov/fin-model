@@ -3,12 +3,12 @@
  * Based on lean financial modeling plan - detailed cash flow breakdown
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Download, TrendingUp, TrendingDown, DollarSign, BarChart3, Activity } from 'lucide-react';
+import { Download, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 
 interface CashFlowData {
   // Operating Activities

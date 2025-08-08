@@ -3,7 +3,7 @@
  * Based on lean financial modeling plan - unified financial modeling interface
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -17,7 +17,6 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/design-system/components/Tabs';
-import { Badge } from '@/design-system/components/Badge';
 import {
   formatCurrency,
   formatPercentage,
@@ -33,9 +32,7 @@ import {
   TrendingDown,
   DollarSign,
   Users,
-  Zap,
   RefreshCw,
-  Calendar,
   AlertTriangle,
   CheckCircle,
 } from 'lucide-react';

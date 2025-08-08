@@ -26,9 +26,6 @@ import {
   Line,
   AreaChart,
   Area,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -36,10 +33,6 @@ import {
   Legend,
   ResponsiveContainer,
   ComposedChart,
-  Scatter,
-  ScatterChart,
-  RadialBarChart,
-  RadialBar,
 } from 'recharts';
 import { BarChart3, Download, Eye, EyeOff } from 'lucide-react';
 

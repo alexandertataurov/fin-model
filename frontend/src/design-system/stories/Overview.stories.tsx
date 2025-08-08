@@ -5,16 +5,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '../components/Badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/Avatar';
 import { 
-  Download, 
-  Plus, 
-  Trash2, 
   Settings, 
   Eye,
   Edit,
-  Save,
-  User,
-  Mail,
-  Lock,
   Search
 } from 'lucide-react';
 
@@ -372,3 +365,7 @@ export const UsageGuidelines: Story = {
     </div>
   ),
 };
+
+export const Loading = { parameters: { docs: { description: { story: 'No data — loading…' } } } } as const;
+export const Empty = { parameters: { docs: { description: { story: 'No data available.' } } } } as const;
+export const Error = { parameters: { docs: { description: { story: 'Error state.' } } } } as const;

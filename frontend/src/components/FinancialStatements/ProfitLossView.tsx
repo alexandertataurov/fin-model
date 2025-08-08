@@ -3,7 +3,7 @@
  * Based on lean financial modeling plan - detailed P&L breakdown
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
