@@ -91,6 +91,8 @@ const AdminDashboard: React.FC = () => {
   const [logsSearch, setLogsSearch] = useState<string>('');
   const [logsFrom, setLogsFrom] = useState<string>('');
   const [logsTo, setLogsTo] = useState<string>('');
+  const [logsSkip, setLogsSkip] = useState<number>(0);
+  const [logsTotal, setLogsTotal] = useState<number>(0);
   const [systemHealth, setSystemHealth] = useState<any | null>(null);
   const [databaseHealth, setDatabaseHealth] = useState<any | null>(null);
   const [userPermissions, setUserPermissions] =
@@ -156,8 +158,11 @@ const AdminDashboard: React.FC = () => {
       setDatabaseHealth(dbHealthRes.value);
     else setDatabaseHealth(null);
 
-    if (logsRes.status === 'fulfilled') setLogs(logsRes.value);
-    else setLogs([]);
+    if (logsRes.status === 'fulfilled') {
+      const v: any = logsRes.value;
+      setLogs((v?.items as LogEntry[]) || (v as LogEntry[]) || []);
+      if (v && typeof v.total === 'number') setLogsTotal(v.total);
+    } else setLogs([]);
 
     if (permsRes.status === 'fulfilled') setUserPermissions(permsRes.value);
     else setUserPermissions(null);
@@ -189,11 +194,17 @@ const AdminDashboard: React.FC = () => {
         from: logsFrom || undefined,
         to: logsTo || undefined,
         search: logsSearch || undefined,
+        skip: logsSkip,
+        envelope: true,
       }),
     ]);
     const [metricsRes, logsRes] = results;
     if (metricsRes.status === 'fulfilled') setSystemMetrics(metricsRes.value);
-    if (logsRes.status === 'fulfilled') setLogs(logsRes.value);
+    if (logsRes.status === 'fulfilled') {
+      const env = logsRes.value as any;
+      setLogs((env.items as LogEntry[]) || env || []);
+      if (env && typeof env.total === 'number') setLogsTotal(env.total);
+    }
   };
 
   // Refresh data
@@ -1169,11 +1180,20 @@ const AdminDashboard: React.FC = () => {
                     onChange={async e => {
                       const lvl = e.target.value as typeof logsLevel;
                       setLogsLevel(lvl);
-                      const data = await AdminApiService.getSystemLogs(
+                      const resp = await AdminApiService.getSystemLogs(
                         lvl,
-                        logsLimit
+                        logsLimit,
+                        {
+                          from: logsFrom || undefined,
+                          to: logsTo || undefined,
+                          search: logsSearch || undefined,
+                          skip: logsSkip,
+                          envelope: true,
+                        }
                       );
-                      setLogs(data);
+                      const env = resp as any;
+                      setLogs((env.items as LogEntry[]) || []);
+                      setLogsTotal(env.total || 0);
                     }}
                   >
                     {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(
@@ -1190,16 +1210,20 @@ const AdminDashboard: React.FC = () => {
                     onChange={async e => {
                       const lim = Number(e.target.value);
                       setLogsLimit(lim);
-                      const data = await AdminApiService.getSystemLogs(
+                      const resp = await AdminApiService.getSystemLogs(
                         logsLevel,
                         lim,
                         {
                           from: logsFrom || undefined,
                           to: logsTo || undefined,
                           search: logsSearch || undefined,
+                          skip: logsSkip,
+                          envelope: true,
                         }
                       );
-                      setLogs(data);
+                      const env = resp as any;
+                      setLogs((env.items as LogEntry[]) || []);
+                      setLogsTotal(env.total || 0);
                     }}
                   >
                     {[50, 100, 200, 500].map(l => (
@@ -1231,20 +1255,86 @@ const AdminDashboard: React.FC = () => {
                     size="sm"
                     variant="outline"
                     onClick={async () => {
-                      const data = await AdminApiService.getSystemLogs(
+                      const resp = await AdminApiService.getSystemLogs(
                         logsLevel,
                         logsLimit,
                         {
                           from: logsFrom || undefined,
                           to: logsTo || undefined,
                           search: logsSearch || undefined,
+                          skip: 0,
+                          envelope: true,
                         }
                       );
-                      setLogs(data);
+                      const env = resp as any;
+                      setLogs((env.items as LogEntry[]) || []);
+                      setLogsTotal(env.total || 0);
+                      setLogsSkip(0);
                     }}
                   >
                     Refresh Logs
                   </Button>
+                  <div className="ml-auto flex items-center gap-2 text-xs">
+                    <span>
+                      {logsTotal > 0
+                        ? `${Math.min(logsSkip + 1, logsTotal)}-${Math.min(
+                            logsSkip + logsLimit,
+                            logsTotal
+                          )} of ${logsTotal}`
+                        : '0-0 of 0'}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        const newSkip = Math.max(0, logsSkip - logsLimit);
+                        setLogsSkip(newSkip);
+                        const resp = await AdminApiService.getSystemLogs(
+                          logsLevel,
+                          logsLimit,
+                          {
+                            from: logsFrom || undefined,
+                            to: logsTo || undefined,
+                            search: logsSearch || undefined,
+                            skip: newSkip,
+                            envelope: true,
+                          }
+                        );
+                        const env = resp as any;
+                        setLogs((env.items as LogEntry[]) || []);
+                        setLogsTotal(env.total || 0);
+                      }}
+                      disabled={logsSkip <= 0}
+                    >
+                      Prev
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        const newSkip = logsSkip + logsLimit;
+                        if (newSkip >= logsTotal) return;
+                        setLogsSkip(newSkip);
+                        const resp = await AdminApiService.getSystemLogs(
+                          logsLevel,
+                          logsLimit,
+                          {
+                            from: logsFrom || undefined,
+                            to: logsTo || undefined,
+                            search: logsSearch || undefined,
+                            skip: newSkip,
+                            envelope: true,
+                          }
+                        );
+                        const env = resp as any;
+                        setLogs((env.items as LogEntry[]) || []);
+                        setLogsTotal(env.total || 0);
+                      }}
+                      disabled={logsSkip + logsLimit >= logsTotal}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 </div>
                 <div className="border rounded">
                   <div className="max-h-96 overflow-auto text-xs font-mono">
