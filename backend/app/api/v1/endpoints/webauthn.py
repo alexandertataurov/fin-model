@@ -23,7 +23,9 @@ from datetime import timedelta
 router = APIRouter()
 
 
-@router.post("/register/begin", response_model=WebAuthnRegistrationOptionsResponse)
+@router.post(
+    "/register/begin", response_model=WebAuthnRegistrationOptionsResponse
+)
 def begin_webauthn_registration(
     request: Request,
     current_user: User = Depends(get_current_active_user),
@@ -46,7 +48,9 @@ def begin_webauthn_registration(
     webauthn_service = WebAuthnService(db)
 
     try:
-        options = webauthn_service.generate_registration_options(current_user)
+        options = webauthn_service.generate_registration_options(
+            current_user
+        )
         return WebAuthnRegistrationOptionsResponse(**options)
     except Exception as e:
         raise HTTPException(
@@ -55,7 +59,9 @@ def begin_webauthn_registration(
         )
 
 
-@router.post("/register/complete", response_model=WebAuthnCredentialResponse)
+@router.post(
+    "/register/complete", response_model=WebAuthnCredentialResponse
+)
 def complete_webauthn_registration(
     registration_request: WebAuthnRegistrationRequest,
     request: Request,
@@ -83,7 +89,8 @@ def complete_webauthn_registration(
         challenge_id = registration_request.credential.get("challenge_id")
         if not challenge_id:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Missing challenge ID"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Missing challenge ID",
             )
 
         credential = webauthn_service.verify_registration_response(
@@ -111,7 +118,8 @@ def complete_webauthn_registration(
 
 
 @router.post(
-    "/authenticate/begin", response_model=WebAuthnAuthenticationOptionsResponse
+    "/authenticate/begin",
+    response_model=WebAuthnAuthenticationOptionsResponse,
 )
 def begin_webauthn_authentication(
     username: str, request: Request, db: Session = Depends(get_db)
@@ -155,7 +163,9 @@ def begin_webauthn_authentication(
         )
 
 
-@router.post("/authenticate/complete", response_model=AuthenticationFlowResponse)
+@router.post(
+    "/authenticate/complete", response_model=AuthenticationFlowResponse
+)
 def complete_webauthn_authentication(
     auth_request: WebAuthnAuthenticationRequest,
     request: Request,
@@ -185,12 +195,14 @@ def complete_webauthn_authentication(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
         )
 
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User account is inactive"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User account is inactive",
         )
 
     try:
@@ -198,12 +210,15 @@ def complete_webauthn_authentication(
         challenge_id = auth_request.credential.get("challenge_id")
         if not challenge_id:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Missing challenge ID"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Missing challenge ID",
             )
 
         # Verify WebAuthn assertion
         success = webauthn_service.verify_authentication_response(
-            user=user, credential=auth_request.credential, challenge_id=challenge_id
+            user=user,
+            credential=auth_request.credential,
+            challenge_id=challenge_id,
         )
 
         if success:
@@ -237,9 +252,12 @@ def complete_webauthn_authentication(
         )
 
 
-@router.get("/credentials", response_model=List[WebAuthnCredentialResponse])
+@router.get(
+    "/credentials", response_model=List[WebAuthnCredentialResponse]
+)
 def get_webauthn_credentials(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Get all WebAuthn credentials for the current user.
@@ -282,13 +300,16 @@ def delete_webauthn_credential(
 
     webauthn_service = WebAuthnService(db)
 
-    success = webauthn_service.delete_credential(current_user, credential_id)
+    success = webauthn_service.delete_credential(
+        current_user, credential_id
+    )
 
     if success:
         return {"message": "WebAuthn credential deleted successfully"}
     else:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Credential not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Credential not found",
         )
 
 
@@ -323,5 +344,6 @@ def update_credential_name(
         return {"message": "Credential name updated successfully"}
     else:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Credential not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Credential not found",
         )

@@ -84,7 +84,9 @@ class BulkUserActionRequest(BaseModel):
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(require_permissions(Permission.USER_LIST)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_LIST)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """List all users (Admin only)."""
@@ -107,7 +109,9 @@ def list_users(
 @router.get("/users/{user_id}", response_model=UserWithRoles)
 def get_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get user by ID."""
@@ -128,11 +132,15 @@ def get_user(
 
 
 @router.post(
-    "/users", response_model=UserWithRoles, status_code=status.HTTP_201_CREATED
+    "/users",
+    response_model=UserWithRoles,
+    status_code=status.HTTP_201_CREATED,
 )
 def create_user(
     user_create: AdminUserCreate,
-    current_user: User = Depends(require_permissions(Permission.USER_CREATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_CREATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Create a new user (Admin only)."""
@@ -153,7 +161,9 @@ def create_user(
 def update_user(
     user_id: int,
     user_update: AdminUserUpdate,
-    current_user: User = Depends(require_permissions(Permission.USER_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Update user information."""
@@ -180,7 +190,9 @@ def update_user(
 @router.delete("/users/{user_id}")
 def delete_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_DELETE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_DELETE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Delete user (Admin only)."""
@@ -211,7 +223,9 @@ def delete_user(
 def assign_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_ASSIGN)),
+    current_user: User = Depends(
+        require_permissions(Permission.ROLE_ASSIGN)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Assign role to user."""
@@ -235,7 +249,8 @@ def assign_role(
 
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to assign role"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to assign role",
         )
 
     return {"message": f"Role {role.value} assigned successfully"}
@@ -245,7 +260,9 @@ def assign_role(
 def remove_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_REMOVE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ROLE_REMOVE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Remove role from user."""
@@ -279,7 +296,9 @@ def remove_role(
         db.query(UserRole)
         .join(Role)
         .filter(
-            UserRole.user_id == user_id, Role.name == role, UserRole.is_active == True
+            UserRole.user_id == user_id,
+            Role.name == role,
+            UserRole.is_active == True,
         )
         .first()
     )
@@ -299,17 +318,23 @@ def get_audit_logs(
     limit: int = Query(100, ge=1, le=1000),
     user_id: int = Query(None),
     action: str = Query(None),
-    current_user: User = Depends(require_permissions(Permission.AUDIT_LOGS)),
+    current_user: User = Depends(
+        require_permissions(Permission.AUDIT_LOGS)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get audit logs (Admin only)."""
     # Note: Audit logging removed in lean version
-    return {"message": "Audit logging is not available in the lean version"}
+    return {
+        "message": "Audit logging is not available in the lean version"
+    }
 
 
 @router.get("/system/health")
 def system_health(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get system health information."""
@@ -318,7 +343,9 @@ def system_health(
     # Get basic statistics
     total_users = db.query(User).count()
     active_users = db.query(User).filter(User.is_active.is_(True)).count()
-    verified_users = db.query(User).filter(User.is_verified.is_(True)).count()
+    verified_users = (
+        db.query(User).filter(User.is_verified.is_(True)).count()
+    )
 
     # Note: Audit logging removed in lean version
     recent_logins = 0
@@ -342,7 +369,9 @@ def system_health(
 
 @router.get("/permissions")
 def get_user_permissions(
-    user_with_perms: UserWithPermissions = Depends(get_current_user_with_permissions),
+    user_with_perms: UserWithPermissions = Depends(
+        get_current_user_with_permissions
+    ),
 ) -> Any:
     """Get current user's permissions."""
     return {
@@ -356,7 +385,9 @@ def get_user_permissions(
 
 @router.get("/database/health", response_model=Dict[str, Any])
 async def get_database_health(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -379,7 +410,9 @@ async def get_database_health(
 @router.get("/database/performance", response_model=List[Dict[str, Any]])
 async def get_database_performance(
     limit: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -400,7 +433,9 @@ async def get_database_performance(
 
 @router.get("/database/tables", response_model=Dict[str, Dict[str, Any]])
 async def get_table_information(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -419,8 +454,12 @@ async def get_table_information(
 
 @router.post("/database/cleanup", response_model=Dict[str, Any])
 async def cleanup_database(
-    dry_run: bool = Query(True, description="Whether to perform a dry run"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    dry_run: bool = Query(
+        True, description="Whether to perform a dry run"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -441,7 +480,9 @@ async def cleanup_database(
 
 @router.post("/rate-limits/clear", response_model=Dict[str, Any])
 def clear_rate_limits(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Clear all rate limiting records to restore access."""
@@ -466,7 +507,9 @@ def clear_rate_limits(
 
 @router.get("/stats", response_model=SystemStatsResponse)
 async def get_system_statistics(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get comprehensive system statistics."""
@@ -483,11 +526,15 @@ async def get_system_statistics(
             lambda: db.query(User).filter(User.is_active.is_(True)).count()
         )
         verified_users = safe_count(
-            lambda: db.query(User).filter(User.is_verified.is_(True)).count()
+            lambda: db.query(User)
+            .filter(User.is_verified.is_(True))
+            .count()
         )
         new_users_24h = safe_count(
             lambda: db.query(User)
-            .filter(User.created_at >= datetime.utcnow() - timedelta(hours=24))
+            .filter(
+                User.created_at >= datetime.utcnow() - timedelta(hours=24)
+            )
             .count()
         )
 
@@ -510,13 +557,17 @@ async def get_system_statistics(
         )
 
         # Financial data statistics
-        total_statements = safe_count(lambda: db.query(FinancialStatement).count())
+        total_statements = safe_count(
+            lambda: db.query(FinancialStatement).count()
+        )
         total_parameters = safe_count(lambda: db.query(Parameter).count())
 
         # Database size info
         try:
             db_size_result = db.execute(
-                text("SELECT pg_size_pretty(pg_database_size(current_database()))")
+                text(
+                    "SELECT pg_size_pretty(pg_database_size(current_database()))"
+                )
             ).scalar()
             db_size = db_size_result if db_size_result else "Unknown"
         except:
@@ -543,9 +594,14 @@ async def get_system_statistics(
                 "statements": total_statements,
                 "parameters": total_parameters,
             },
-            system={"database_size": db_size, "timestamp": datetime.utcnow()},
+            system={
+                "database_size": db_size,
+                "timestamp": datetime.utcnow(),
+            },
             performance={
-                "avg_file_size_mb": round((avg_file_size or 0) / (1024 * 1024), 2)
+                "avg_file_size_mb": round(
+                    (avg_file_size or 0) / (1024 * 1024), 2
+                )
             },
         )
 
@@ -553,9 +609,17 @@ async def get_system_statistics(
         # Graceful fallback instead of 500
         return SystemStatsResponse(
             users={"total": 0, "active": 0, "verified": 0, "new_24h": 0},
-            files={"total": 0, "completed": 0, "processing": 0, "failed": 0},
+            files={
+                "total": 0,
+                "completed": 0,
+                "processing": 0,
+                "failed": 0,
+            },
             financial_data={"statements": 0, "parameters": 0},
-            system={"database_size": "Unknown", "timestamp": datetime.utcnow()},
+            system={
+                "database_size": "Unknown",
+                "timestamp": datetime.utcnow(),
+            },
             performance={"avg_file_size_mb": 0.0},
         )
 
@@ -564,7 +628,9 @@ async def get_system_statistics(
 async def get_user_activity(
     limit: int = Query(50),
     active_only: Optional[str] = Query(None),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get user activity statistics."""
@@ -620,7 +686,9 @@ async def get_user_activity(
 
 @router.get("/system/metrics", response_model=SystemMetricsResponse)
 async def get_system_metrics(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get real-time system performance metrics."""
@@ -638,10 +706,14 @@ async def get_system_metrics(
         # Database connections (simplified)
         try:
             active_connections_result = db.execute(
-                text("SELECT count(*) FROM pg_stat_activity WHERE state = 'active'")
+                text(
+                    "SELECT count(*) FROM pg_stat_activity WHERE state = 'active'"
+                )
             ).scalar()
             active_connections = (
-                active_connections_result if active_connections_result else 0
+                active_connections_result
+                if active_connections_result
+                else 0
             )
         except Exception:
             active_connections = 0
@@ -676,7 +748,9 @@ async def get_system_metrics(
 
 @router.get("/data/integrity", response_model=List[DataIntegrityResponse])
 async def check_data_integrity(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Check data integrity across all tables."""
@@ -696,8 +770,12 @@ async def check_data_integrity(
         user_issues = []
         user_recommendations = []
         if orphaned_files > 0:
-            user_issues.append(f"{orphaned_files} files with invalid user references")
-            user_recommendations.append("Run cleanup to remove orphaned file records")
+            user_issues.append(
+                f"{orphaned_files} files with invalid user references"
+            )
+            user_recommendations.append(
+                "Run cleanup to remove orphaned file records"
+            )
 
         integrity_checks.append(
             DataIntegrityResponse(
@@ -791,7 +869,9 @@ async def check_data_integrity(
 
 @router.get("/security/audit", response_model=SecurityAuditResponse)
 async def get_security_audit(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get security audit information."""
@@ -801,7 +881,10 @@ async def get_security_audit(
         # Check for rate limit violations (last 24h)
         rate_limit_violations = (
             db.query(RateLimit)
-            .filter(RateLimit.created_at >= datetime.utcnow() - timedelta(hours=24))
+            .filter(
+                RateLimit.created_at
+                >= datetime.utcnow() - timedelta(hours=24)
+            )
             .count()
         )
 
@@ -812,7 +895,9 @@ async def get_security_audit(
         # For now, return empty list
 
         # Password policy violations (users without email verification)
-        password_violations = db.query(User).filter(User.is_verified.is_(False)).count()
+        password_violations = (
+            db.query(User).filter(User.is_verified.is_(False)).count()
+        )
 
         recommendations = []
         if rate_limit_violations > 10:
@@ -842,7 +927,9 @@ async def get_security_audit(
 @router.post("/files/cleanup", response_model=Dict[str, Any])
 async def cleanup_orphaned_files(
     dry_run: bool = Query(True),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_WRITE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_WRITE)
+    ),
     db: Session = Depends(get_db),
 ):
     """Clean up orphaned or invalid files."""
@@ -861,7 +948,8 @@ async def cleanup_orphaned_files(
             .filter(
                 and_(
                     UploadedFile.status == FileStatus.FAILED.value,
-                    UploadedFile.created_at < datetime.utcnow() - timedelta(days=7),
+                    UploadedFile.created_at
+                    < datetime.utcnow() - timedelta(days=7),
                 )
             )
             .all()
@@ -900,18 +988,27 @@ async def cleanup_orphaned_files(
 @router.post("/users/bulk-action", response_model=Dict[str, Any])
 async def bulk_user_action(
     request: BulkUserActionRequest,
-    current_user: User = Depends(require_permissions(Permission.ADMIN_WRITE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_WRITE)
+    ),
     db: Session = Depends(get_db),
 ):
     """Perform bulk actions on users."""
     try:
-        if request.action not in {"activate", "deactivate", "verify", "send_reminder"}:
+        if request.action not in {
+            "activate",
+            "deactivate",
+            "verify",
+            "send_reminder",
+        }:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid action",
             )
 
-        affected_users = db.query(User).filter(User.id.in_(request.user_ids)).all()
+        affected_users = (
+            db.query(User).filter(User.id.in_(request.user_ids)).all()
+        )
 
         if not affected_users:
             raise HTTPException(
@@ -964,9 +1061,13 @@ async def bulk_user_action(
 
 @router.get("/system/logs", response_model=List[Dict[str, Any]])
 async def get_system_logs(
-    level: str = Query("ERROR", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
+    level: str = Query(
+        "ERROR", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+    ),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
 ):
     """Get system logs (simplified - would integrate with actual logging system)."""
     try:
@@ -999,7 +1100,12 @@ async def get_system_logs(
 
         # Filter by level
         if level != "DEBUG":
-            level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
+            level_order = {
+                "INFO": 1,
+                "WARNING": 2,
+                "ERROR": 3,
+                "CRITICAL": 4,
+            }
             min_level = level_order.get(level, 1)
             sample_logs = [
                 log

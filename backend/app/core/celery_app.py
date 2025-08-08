@@ -91,7 +91,9 @@ celery_app.conf.update(
 
 # Redis client for caching
 redis_url = (
-    settings.REDIS_URL if hasattr(settings, "REDIS_URL") else "redis://localhost:6379/0"
+    settings.REDIS_URL
+    if hasattr(settings, "REDIS_URL")
+    else "redis://localhost:6379/0"
 )
 redis_client = redis.Redis.from_url(redis_url)
 

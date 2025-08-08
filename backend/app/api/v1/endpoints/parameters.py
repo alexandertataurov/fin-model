@@ -32,7 +32,11 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.post("/", response_model=ParameterResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=ParameterResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_parameter(
     parameter: ParameterCreate,
     current_user: User = Depends(get_current_active_user),
@@ -116,11 +120,15 @@ async def create_parameter(
 
 @router.get("/", response_model=List[ParameterResponse])
 async def list_parameters(
-    file_id: Optional[int] = Query(None, description="Filter by source file ID"),
+    file_id: Optional[int] = Query(
+        None, description="Filter by source file ID"
+    ),
     category: Optional[ParameterCategory] = Query(
         None, description="Filter by category"
     ),
-    parameter_type: Optional[ParameterType] = Query(None, description="Filter by type"),
+    parameter_type: Optional[ParameterType] = Query(
+        None, description="Filter by type"
+    ),
     sensitivity_level: Optional[SensitivityLevel] = Query(
         None, description="Filter by sensitivity"
     ),
@@ -144,9 +152,13 @@ async def list_parameters(
         if category:
             query = query.filter(Parameter.category == category)
         if parameter_type:
-            query = query.filter(Parameter.parameter_type == parameter_type)
+            query = query.filter(
+                Parameter.parameter_type == parameter_type
+            )
         if sensitivity_level:
-            query = query.filter(Parameter.sensitivity_level == sensitivity_level)
+            query = query.filter(
+                Parameter.sensitivity_level == sensitivity_level
+            )
 
         # Apply pagination
         parameters = query.offset(skip).limit(limit).all()
@@ -163,7 +175,9 @@ async def list_parameters(
 @router.get("/{parameter_id}", response_model=ParameterResponse)
 async def get_parameter(
     parameter_id: int,
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -171,7 +185,9 @@ async def get_parameter(
 
     Returns detailed parameter information including dependencies.
     """
-    parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+    parameter = (
+        db.query(Parameter).filter(Parameter.id == parameter_id).first()
+    )
 
     if not parameter:
         raise HTTPException(
@@ -196,7 +212,11 @@ async def update_parameter(
     """
     try:
         # Get existing parameter
-        db_parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        db_parameter = (
+            db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
+        )
 
         if not db_parameter:
             raise HTTPException(
@@ -236,7 +256,11 @@ async def delete_parameter(
     """
     try:
         # Get parameter
-        db_parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        db_parameter = (
+            db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
+        )
 
         if not db_parameter:
             raise HTTPException(
@@ -265,7 +289,9 @@ async def delete_parameter(
 @router.post("/batch-update", response_model=Dict[str, Any])
 async def batch_update_parameters(
     batch_update: BulkParameterUpdateRequest,
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -281,12 +307,17 @@ async def batch_update_parameters(
             try:
                 # Get parameter
                 db_parameter = (
-                    db.query(Parameter).filter(Parameter.id == param_update.id).first()
+                    db.query(Parameter)
+                    .filter(Parameter.id == param_update.id)
+                    .first()
                 )
 
                 if not db_parameter:
                     failed_updates.append(
-                        {"id": param_update.id, "error": "Parameter not found"}
+                        {
+                            "id": param_update.id,
+                            "error": "Parameter not found",
+                        }
                     )
                     continue
 
@@ -308,7 +339,9 @@ async def batch_update_parameters(
                         continue
 
                 # Apply updates
-                update_data = param_update.dict(exclude_unset=True, exclude={"id"})
+                update_data = param_update.dict(
+                    exclude_unset=True, exclude={"id"}
+                )
                 for field, value in update_data.items():
                     setattr(db_parameter, field, value)
 
@@ -316,7 +349,9 @@ async def batch_update_parameters(
                 updated_count += 1
 
             except Exception as e:
-                failed_updates.append({"id": param_update.id, "error": str(e)})
+                failed_updates.append(
+                    {"id": param_update.id, "error": str(e)}
+                )
 
         db.commit()
 
@@ -335,11 +370,16 @@ async def batch_update_parameters(
         )
 
 
-@router.get("/{parameter_id}/history", response_model=List[ParameterHistoryResponse])
+@router.get(
+    "/{parameter_id}/history",
+    response_model=List[ParameterHistoryResponse],
+)
 async def get_parameter_history(
     parameter_id: int,
     limit: int = Query(50, ge=1, le=500),
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -349,7 +389,11 @@ async def get_parameter_history(
     """
     try:
         # Verify parameter exists
-        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        parameter = (
+            db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
+        )
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -365,7 +409,10 @@ async def get_parameter_history(
             .all()
         )
 
-        return [ParameterHistoryResponse.from_orm(pv) for pv in parameter_values]
+        return [
+            ParameterHistoryResponse.from_orm(pv)
+            for pv in parameter_values
+        ]
 
     except Exception as e:
         raise HTTPException(
@@ -374,11 +421,15 @@ async def get_parameter_history(
         )
 
 
-@router.post("/{parameter_id}/validate", response_model=ParameterValidationResponse)
+@router.post(
+    "/{parameter_id}/validate", response_model=ParameterValidationResponse
+)
 async def validate_parameter_value(
     parameter_id: int,
     value: float = Body(..., description="Value to validate"),
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -388,7 +439,11 @@ async def validate_parameter_value(
     """
     try:
         # Get parameter
-        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        parameter = (
+            db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
+        )
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -396,7 +451,9 @@ async def validate_parameter_value(
             )
 
         # Validate value
-        validation_result = await _validate_parameter_value(parameter, value)
+        validation_result = await _validate_parameter_value(
+            parameter, value
+        )
 
         return validation_result
 
@@ -407,13 +464,17 @@ async def validate_parameter_value(
         )
 
 
-@router.post("/detect-from-file/{file_id}", response_model=List[ParameterResponse])
+@router.post(
+    "/detect-from-file/{file_id}", response_model=List[ParameterResponse]
+)
 async def detect_parameters_from_file(
     file_id: int,
     auto_create: bool = Query(
         False, description="Automatically create detected parameters"
     ),
-    current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_CREATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -474,7 +535,9 @@ async def detect_parameters_from_file(
 
                 db.add(db_parameter)
                 db.flush()
-                created_parameters.append(ParameterResponse.from_orm(db_parameter))
+                created_parameters.append(
+                    ParameterResponse.from_orm(db_parameter)
+                )
 
             db.commit()
         else:
@@ -520,7 +583,9 @@ async def detect_parameters_from_file(
 
 @router.get("/categories/", response_model=List[Dict[str, Any]])
 async def get_parameter_categories(
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
 ) -> Any:
     """
     Get available parameter categories and types.
@@ -570,7 +635,9 @@ async def get_parameter_categories(
 @router.get("/{parameter_id}/dependencies", response_model=Dict[str, Any])
 async def get_parameter_dependencies(
     parameter_id: int,
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -580,7 +647,11 @@ async def get_parameter_dependencies(
     """
     try:
         # Get parameter
-        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        parameter = (
+            db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
+        )
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -591,17 +662,25 @@ async def get_parameter_dependencies(
         depends_on = []
         if parameter.depends_on:
             depends_on_params = (
-                db.query(Parameter).filter(Parameter.id.in_(parameter.depends_on)).all()
+                db.query(Parameter)
+                .filter(Parameter.id.in_(parameter.depends_on))
+                .all()
             )
-            depends_on = [ParameterResponse.from_orm(p) for p in depends_on_params]
+            depends_on = [
+                ParameterResponse.from_orm(p) for p in depends_on_params
+            ]
 
         # Find affected parameters
         affects = []
         if parameter.affects:
             affects_params = (
-                db.query(Parameter).filter(Parameter.id.in_(parameter.affects)).all()
+                db.query(Parameter)
+                .filter(Parameter.id.in_(parameter.affects))
+                .all()
             )
-            affects = [ParameterResponse.from_orm(p) for p in affects_params]
+            affects = [
+                ParameterResponse.from_orm(p) for p in affects_params
+            ]
 
         return {
             "parameter_id": parameter_id,
@@ -653,10 +732,16 @@ async def _validate_parameter_data(
 
     # Validate current value against range
     if parameter.value is not None:
-        if parameter.min_value is not None and parameter.value < parameter.min_value:
+        if (
+            parameter.min_value is not None
+            and parameter.value < parameter.min_value
+        ):
             errors.append("value is below minimum allowed value")
 
-        if parameter.max_value is not None and parameter.value > parameter.max_value:
+        if (
+            parameter.max_value is not None
+            and parameter.value > parameter.max_value
+        ):
             errors.append("value is above maximum allowed value")
 
     return ParameterValidationResponse(
@@ -677,10 +762,14 @@ async def _validate_parameter_value(
 
     # Check range constraints
     if parameter.min_value is not None and value < parameter.min_value:
-        errors.append(f"Value {value} is below minimum {parameter.min_value}")
+        errors.append(
+            f"Value {value} is below minimum {parameter.min_value}"
+        )
 
     if parameter.max_value is not None and value > parameter.max_value:
-        errors.append(f"Value {value} is above maximum {parameter.max_value}")
+        errors.append(
+            f"Value {value} is above maximum {parameter.max_value}"
+        )
 
     # Check validation rules if they exist
     if parameter.validation_rules:
@@ -704,7 +793,9 @@ async def update_parameter_value(
     parameter_id: int,
     value: float = Body(..., description="New parameter value"),
     reason: str = Body(None, description="Reason for change"),
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -729,7 +820,9 @@ async def update_parameter_value(
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -737,11 +830,17 @@ async def update_parameter_value(
         )
 
 
-@router.post("/models/{model_id}/parameters/batch", response_model=Dict[str, Any])
+@router.post(
+    "/models/{model_id}/parameters/batch", response_model=Dict[str, Any]
+)
 async def batch_update_parameter_values(
     model_id: str,
-    updates: List[Dict[str, Any]] = Body(..., description="List of parameter updates"),
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    updates: List[Dict[str, Any]] = Body(
+        ..., description="List of parameter updates"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -769,13 +868,17 @@ async def batch_update_parameter_values(
         )
 
 
-@router.post("/models/{model_id}/recalculate", response_model=Dict[str, Any])
+@router.post(
+    "/models/{model_id}/recalculate", response_model=Dict[str, Any]
+)
 async def trigger_model_recalculation(
     model_id: str,
     changed_params: Dict[str, float] = Body(
         ..., description="Changed parameter values"
     ),
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -803,10 +906,14 @@ async def trigger_model_recalculation(
         )
 
 
-@router.get("/models/{model_id}/calculation-status", response_model=Dict[str, Any])
+@router.get(
+    "/models/{model_id}/calculation-status", response_model=Dict[str, Any]
+)
 async def get_calculation_status(
     model_id: str,
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -832,7 +939,9 @@ async def calculate_parameter_impact(
         ..., description="Min and max values for analysis"
     ),
     steps: int = Body(10, description="Number of analysis steps"),
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -842,7 +951,11 @@ async def calculate_parameter_impact(
     """
     try:
         # Get parameter and model info
-        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        parameter = (
+            db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
+        )
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -857,7 +970,8 @@ async def calculate_parameter_impact(
         )
         if not model:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Model file not found"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Model file not found",
             )
 
         # Perform impact analysis
@@ -879,11 +993,17 @@ async def calculate_parameter_impact(
         )
 
 
-@router.post("/models/{model_id}/reset-parameters", response_model=Dict[str, Any])
+@router.post(
+    "/models/{model_id}/reset-parameters", response_model=Dict[str, Any]
+)
 async def reset_parameters_to_default(
     model_id: str,
-    parameter_ids: List[str] = Body(..., description="List of parameter IDs to reset"),
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    parameter_ids: List[str] = Body(
+        ..., description="List of parameter IDs to reset"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -914,10 +1034,15 @@ async def reset_parameters_to_default(
 # Parameter Groups Endpoints
 
 
-@router.get("/models/{model_id}/parameter-groups", response_model=List[Dict[str, Any]])
+@router.get(
+    "/models/{model_id}/parameter-groups",
+    response_model=List[Dict[str, Any]],
+)
 async def list_parameter_groups(
     model_id: str,
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -938,12 +1063,16 @@ async def list_parameter_groups(
         )
 
 
-@router.post("/models/{model_id}/parameter-groups", response_model=Dict[str, Any])
+@router.post(
+    "/models/{model_id}/parameter-groups", response_model=Dict[str, Any]
+)
 async def create_parameter_group(
     model_id: str,
     name: str = Body(..., description="Group name"),
     description: str = Body(None, description="Group description"),
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -972,7 +1101,9 @@ async def create_parameter_group(
 
 @router.get("/parameter-templates", response_model=List[Dict[str, Any]])
 async def list_parameter_templates(
-    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_READ)
+    ),
 ) -> Any:
     """
     List available parameter templates.
@@ -986,9 +1117,21 @@ async def list_parameter_templates(
             "name": "Revenue Growth Model",
             "description": "Standard revenue growth parameters",
             "parameters": [
-                {"name": "annual_growth_rate", "type": "growth_rate", "default": 0.05},
-                {"name": "market_size", "type": "currency", "default": 1000000},
-                {"name": "market_share", "type": "percentage", "default": 0.1},
+                {
+                    "name": "annual_growth_rate",
+                    "type": "growth_rate",
+                    "default": 0.05,
+                },
+                {
+                    "name": "market_size",
+                    "type": "currency",
+                    "default": 1000000,
+                },
+                {
+                    "name": "market_share",
+                    "type": "percentage",
+                    "default": 0.1,
+                },
             ],
         },
         {
@@ -996,8 +1139,16 @@ async def list_parameter_templates(
             "name": "DCF Valuation",
             "description": "Discounted cash flow model parameters",
             "parameters": [
-                {"name": "discount_rate", "type": "discount_rate", "default": 0.1},
-                {"name": "terminal_growth", "type": "growth_rate", "default": 0.03},
+                {
+                    "name": "discount_rate",
+                    "type": "discount_rate",
+                    "default": 0.1,
+                },
+                {
+                    "name": "terminal_growth",
+                    "type": "growth_rate",
+                    "default": 0.03,
+                },
                 {"name": "tax_rate", "type": "tax_rate", "default": 0.25},
             ],
         },
@@ -1006,11 +1157,15 @@ async def list_parameter_templates(
     return templates
 
 
-@router.post("/models/{model_id}/apply-template", response_model=Dict[str, Any])
+@router.post(
+    "/models/{model_id}/apply-template", response_model=Dict[str, Any]
+)
 async def apply_parameter_template(
     model_id: str,
     template_id: str = Body(..., description="Template ID to apply"),
-    current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.MODEL_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """

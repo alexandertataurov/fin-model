@@ -64,12 +64,24 @@ def upgrade() -> None:
             nullable=False,
             index=True,
         ),
-        sa.Column("type", notification_type_enum, nullable=False, index=True),
+        sa.Column(
+            "type", notification_type_enum, nullable=False, index=True
+        ),
         sa.Column("title", sa.String(255), nullable=False),
         sa.Column("message", sa.Text, nullable=False),
         sa.Column("data", sa.JSON, default={}),
-        sa.Column("priority", notification_priority_enum, default="NORMAL", index=True),
-        sa.Column("status", notification_status_enum, default="PENDING", index=True),
+        sa.Column(
+            "priority",
+            notification_priority_enum,
+            default="NORMAL",
+            index=True,
+        ),
+        sa.Column(
+            "status",
+            notification_status_enum,
+            default="PENDING",
+            index=True,
+        ),
         sa.Column("is_read", sa.Boolean, default=False, index=True),
         sa.Column("is_dismissed", sa.Boolean, default=False, index=True),
         sa.Column("created_at", sa.DateTime, nullable=False, index=True),
@@ -102,9 +114,19 @@ def upgrade() -> None:
         sa.Column("quiet_end_time", sa.String(5)),
         sa.Column("quiet_timezone", sa.String(50), default="UTC"),
         sa.Column("type_preferences", sa.JSON, default={}),
-        sa.Column("min_priority_email", notification_priority_enum, default="NORMAL"),
-        sa.Column("min_priority_push", notification_priority_enum, default="HIGH"),
-        sa.Column("min_priority_in_app", notification_priority_enum, default="LOW"),
+        sa.Column(
+            "min_priority_email",
+            notification_priority_enum,
+            default="NORMAL",
+        ),
+        sa.Column(
+            "min_priority_push", notification_priority_enum, default="HIGH"
+        ),
+        sa.Column(
+            "min_priority_in_app",
+            notification_priority_enum,
+            default="LOW",
+        ),
         sa.Column("created_at", sa.DateTime, nullable=False),
         sa.Column("updated_at", sa.DateTime, nullable=False),
     )
@@ -114,10 +136,16 @@ def upgrade() -> None:
         "notification_templates",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column("name", sa.String(100), nullable=False, unique=True),
-        sa.Column("type", notification_type_enum, nullable=False, index=True),
+        sa.Column(
+            "type", notification_type_enum, nullable=False, index=True
+        ),
         sa.Column("title_template", sa.String(255), nullable=False),
         sa.Column("message_template", sa.Text, nullable=False),
-        sa.Column("default_priority", notification_priority_enum, default="NORMAL"),
+        sa.Column(
+            "default_priority",
+            notification_priority_enum,
+            default="NORMAL",
+        ),
         sa.Column("expires_after_hours", sa.Integer),
         sa.Column("description", sa.Text),
         sa.Column("is_active", sa.Boolean, default=True),
@@ -127,16 +155,24 @@ def upgrade() -> None:
 
     # Create indexes for performance
     op.create_index(
-        "ix_notifications_user_created", "notifications", ["user_id", "created_at"]
+        "ix_notifications_user_created",
+        "notifications",
+        ["user_id", "created_at"],
     )
     op.create_index(
-        "ix_notifications_user_unread", "notifications", ["user_id", "is_read"]
+        "ix_notifications_user_unread",
+        "notifications",
+        ["user_id", "is_read"],
     )
     op.create_index(
-        "ix_notifications_user_priority", "notifications", ["user_id", "priority"]
+        "ix_notifications_user_priority",
+        "notifications",
+        ["user_id", "priority"],
     )
     op.create_index(
-        "ix_notifications_expires_status", "notifications", ["expires_at", "status"]
+        "ix_notifications_expires_status",
+        "notifications",
+        ["expires_at", "status"],
     )
 
 

@@ -26,14 +26,20 @@ def upgrade():
     ):
         try:
             # Check if index already exists
-            result = conn.execute(text(f"SELECT to_regclass('{index_name}')")).scalar()
+            result = conn.execute(
+                text(f"SELECT to_regclass('{index_name}')")
+            ).scalar()
             if result is None:
                 if expression:
                     conn.execute(
-                        text(f"CREATE INDEX {index_name} ON {table_name} {expression}")
+                        text(
+                            f"CREATE INDEX {index_name} ON {table_name} {expression}"
+                        )
                     )
                 else:
-                    op.create_index(index_name, table_name, columns, unique=unique)
+                    op.create_index(
+                        index_name, table_name, columns, unique=unique
+                    )
                 print(f"✅ Created index {index_name}")
             else:
                 print(f"⚠️ Skipping index {index_name}: already exists")
@@ -45,15 +51,22 @@ def upgrade():
 
     # ix_users_created_date - expression index (use raw SQL)
     safe_create_index(
-        "ix_users_created_date", "users", None, expression="(DATE(created_at))"
+        "ix_users_created_date",
+        "users",
+        None,
+        expression="(DATE(created_at))",
     )
 
     # ix_users_active_verified - compound index
-    safe_create_index("ix_users_active_verified", "users", ["is_active", "is_verified"])
+    safe_create_index(
+        "ix_users_active_verified", "users", ["is_active", "is_verified"]
+    )
 
     # Advanced indexes for uploaded_files table
     safe_create_index(
-        "ix_files_status_created", "uploaded_files", ["status", "created_at"]
+        "ix_files_status_created",
+        "uploaded_files",
+        ["status", "created_at"],
     )
     safe_create_index(
         "ix_files_size_type", "uploaded_files", ["file_size", "file_type"]
@@ -64,12 +77,16 @@ def upgrade():
         ["processing_started_at", "processing_completed_at"],
     )
     safe_create_index(
-        "ix_files_user_status", "uploaded_files", ["uploaded_by_id", "status"]
+        "ix_files_user_status",
+        "uploaded_files",
+        ["uploaded_by_id", "status"],
     )
 
     # Advanced indexes for parameters table
     safe_create_index(
-        "ix_parameters_type_category", "parameters", ["parameter_type", "category"]
+        "ix_parameters_type_category",
+        "parameters",
+        ["parameter_type", "category"],
     )
     safe_create_index(
         "ix_parameters_sensitivity_editable",
@@ -77,7 +94,9 @@ def upgrade():
         ["sensitivity_level", "is_editable"],
     )
     safe_create_index(
-        "ix_parameters_file_sheet", "parameters", ["source_file_id", "source_sheet"]
+        "ix_parameters_file_sheet",
+        "parameters",
+        ["source_file_id", "source_sheet"],
     )
     safe_create_index(
         "ix_parameters_updated_recently",
@@ -88,10 +107,14 @@ def upgrade():
 
     # Advanced indexes for scenarios table
     safe_create_index(
-        "ix_scenarios_status_baseline", "scenarios", ["status", "is_baseline"]
+        "ix_scenarios_status_baseline",
+        "scenarios",
+        ["status", "is_baseline"],
     )
     safe_create_index(
-        "ix_scenarios_file_created", "scenarios", ["base_file_id", "created_at"]
+        "ix_scenarios_file_created",
+        "scenarios",
+        ["base_file_id", "created_at"],
     )
     safe_create_index(
         "ix_scenarios_calculation_status",
@@ -99,7 +122,9 @@ def upgrade():
         ["calculation_status", "last_calculated_at"],
     )
     safe_create_index(
-        "ix_scenarios_user_active", "scenarios", ["created_by_id", "status"]
+        "ix_scenarios_user_active",
+        "scenarios",
+        ["created_by_id", "status"],
     )
 
     # Advanced indexes for financial_statements table
@@ -131,16 +156,22 @@ def upgrade():
         ["metric_name", "period_start", "period_end"],
     )
     safe_create_index(
-        "ix_metrics_category_type", "metrics", ["metric_category", "metric_type"]
+        "ix_metrics_category_type",
+        "metrics",
+        ["metric_category", "metric_type"],
     )
     safe_create_index(
-        "ix_metrics_scenario_category", "metrics", ["scenario_id", "metric_category"]
+        "ix_metrics_scenario_category",
+        "metrics",
+        ["scenario_id", "metric_category"],
     )
     safe_create_index("ix_metrics_value_range", "metrics", ["value"])
 
     # Advanced indexes for time_series table (critical for performance)
     safe_create_index(
-        "ix_timeseries_type_date", "time_series", ["data_type", "period_date"]
+        "ix_timeseries_type_date",
+        "time_series",
+        ["data_type", "period_date"],
     )
     safe_create_index(
         "ix_timeseries_scenario_type_date",
@@ -148,18 +179,27 @@ def upgrade():
         ["scenario_id", "data_type", "period_date"],
     )
     safe_create_index(
-        "ix_timeseries_frequency_actual", "time_series", ["frequency", "is_actual"]
+        "ix_timeseries_frequency_actual",
+        "time_series",
+        ["frequency", "is_actual"],
     )
     safe_create_index(
-        "ix_timeseries_date_range", "time_series", None, expression="(period_date DESC)"
+        "ix_timeseries_date_range",
+        "time_series",
+        None,
+        expression="(period_date DESC)",
     )
     safe_create_index(
-        "ix_timeseries_subtype_date", "time_series", ["data_subtype", "period_date"]
+        "ix_timeseries_subtype_date",
+        "time_series",
+        ["data_subtype", "period_date"],
     )
 
     # Advanced indexes for calculations table
     safe_create_index(
-        "ix_calculations_order_active", "calculations", ["execution_order", "is_active"]
+        "ix_calculations_order_active",
+        "calculations",
+        ["execution_order", "is_active"],
     )
     safe_create_index(
         "ix_calculations_type_scenario",
@@ -175,43 +215,66 @@ def upgrade():
 
     # Advanced indexes for templates table
     safe_create_index(
-        "ix_templates_type_active", "templates", ["template_type", "is_active"]
+        "ix_templates_type_active",
+        "templates",
+        ["template_type", "is_active"],
     )
     safe_create_index(
-        "ix_templates_system_usage", "templates", ["is_system_template", "usage_count"]
+        "ix_templates_system_usage",
+        "templates",
+        ["is_system_template", "usage_count"],
     )
 
     # Advanced indexes for file_versions table
     safe_create_index(
-        "ix_versions_file_current", "file_versions", ["file_id", "is_current"]
+        "ix_versions_file_current",
+        "file_versions",
+        ["file_id", "is_current"],
     )
-    safe_create_index("ix_versions_hash_lookup", "file_versions", ["file_hash"])
     safe_create_index(
-        "ix_versions_change_type", "file_versions", ["change_type", "created_at"]
+        "ix_versions_hash_lookup", "file_versions", ["file_hash"]
+    )
+    safe_create_index(
+        "ix_versions_change_type",
+        "file_versions",
+        ["change_type", "created_at"],
     )
 
     # Advanced indexes for audit_logs table (for security and monitoring)
-    safe_create_index("ix_audit_action_time", "audit_logs", ["action", "created_at"])
     safe_create_index(
-        "ix_audit_user_success", "audit_logs", ["user_id", "success", "created_at"]
+        "ix_audit_action_time", "audit_logs", ["action", "created_at"]
+    )
+    safe_create_index(
+        "ix_audit_user_success",
+        "audit_logs",
+        ["user_id", "success", "created_at"],
     )
     safe_create_index(
         "ix_audit_resource_type", "audit_logs", ["resource", "resource_id"]
     )
     safe_create_index(
-        "ix_audit_recent", "audit_logs", None, expression="(created_at DESC)"
+        "ix_audit_recent",
+        "audit_logs",
+        None,
+        expression="(created_at DESC)",
     )
     safe_create_index("ix_audit_ip_address", "audit_logs", ["ip_address"])
 
     # Advanced indexes for reports
     safe_create_index(
-        "ix_report_templates_active", "report_templates", ["is_active", "report_type"]
+        "ix_report_templates_active",
+        "report_templates",
+        ["is_active", "report_type"],
     )
     safe_create_index(
-        "ix_report_schedules_next_run", "report_schedules", ["next_run_at", "is_active"]
+        "ix_report_schedules_next_run",
+        "report_schedules",
+        ["next_run_at", "is_active"],
     )
     safe_create_index(
-        "ix_report_exports_status_created", "report_exports", ["status", "created_at"]
+        "ix_report_exports_status_created",
+        "report_exports",
+        ["status", "created_at"],
     )
     safe_create_index(
         "ix_report_exports_user_format",
@@ -236,9 +299,13 @@ def upgrade():
                     conn_autocommit.execute(text(sql))
                     print(f"✅ Created concurrent index {index_name}")
                 else:
-                    print(f"⚠️ Skipping concurrent index {index_name}: already exists")
+                    print(
+                        f"⚠️ Skipping concurrent index {index_name}: already exists"
+                    )
             except Exception as e:
-                print(f"⚠️ Could not create concurrent index {index_name}: {e}")
+                print(
+                    f"⚠️ Could not create concurrent index {index_name}: {e}"
+                )
 
         safe_create_concurrent_index(
             "ix_parameters_search_gin",
@@ -327,25 +394,45 @@ def downgrade():
     # Drop covering and partial indexes
     with op.get_context().autocommit_block():
         op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_metrics_covering")
-        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_parameter_values_covering")
+        op.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS ix_parameter_values_covering"
+        )
 
         # Drop partial indexes
-        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_calculations_pending")
+        op.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS ix_calculations_pending"
+        )
         op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_scenarios_active")
         op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_files_processing")
-        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_users_active_only")
+        op.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS ix_users_active_only"
+        )
 
         # Drop full-text search indexes
-        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_templates_search_gin")
+        op.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS ix_templates_search_gin"
+        )
         op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_files_search_gin")
-        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_scenarios_search_gin")
-        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_parameters_search_gin")
+        op.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS ix_scenarios_search_gin"
+        )
+        op.execute(
+            "DROP INDEX CONCURRENTLY IF EXISTS ix_parameters_search_gin"
+        )
 
     # Drop report indexes
-    op.drop_index("ix_report_exports_user_format", table_name="report_exports")
-    op.drop_index("ix_report_exports_status_created", table_name="report_exports")
-    op.drop_index("ix_report_schedules_next_run", table_name="report_schedules")
-    op.drop_index("ix_report_templates_active", table_name="report_templates")
+    op.drop_index(
+        "ix_report_exports_user_format", table_name="report_exports"
+    )
+    op.drop_index(
+        "ix_report_exports_status_created", table_name="report_exports"
+    )
+    op.drop_index(
+        "ix_report_schedules_next_run", table_name="report_schedules"
+    )
+    op.drop_index(
+        "ix_report_templates_active", table_name="report_templates"
+    )
 
     # Drop audit indexes
     op.drop_index("ix_audit_ip_address", table_name="audit_logs")
@@ -364,15 +451,25 @@ def downgrade():
     op.drop_index("ix_templates_type_active", table_name="templates")
 
     # Drop calculation indexes
-    op.drop_index("ix_calculations_executed_recently", table_name="calculations")
-    op.drop_index("ix_calculations_type_scenario", table_name="calculations")
-    op.drop_index("ix_calculations_order_active", table_name="calculations")
+    op.drop_index(
+        "ix_calculations_executed_recently", table_name="calculations"
+    )
+    op.drop_index(
+        "ix_calculations_type_scenario", table_name="calculations"
+    )
+    op.drop_index(
+        "ix_calculations_order_active", table_name="calculations"
+    )
 
     # Drop time series indexes
     op.drop_index("ix_timeseries_subtype_date", table_name="time_series")
     op.drop_index("ix_timeseries_date_range", table_name="time_series")
-    op.drop_index("ix_timeseries_frequency_actual", table_name="time_series")
-    op.drop_index("ix_timeseries_scenario_type_date", table_name="time_series")
+    op.drop_index(
+        "ix_timeseries_frequency_actual", table_name="time_series"
+    )
+    op.drop_index(
+        "ix_timeseries_scenario_type_date", table_name="time_series"
+    )
     op.drop_index("ix_timeseries_type_date", table_name="time_series")
 
     # Drop metrics indexes
@@ -382,21 +479,35 @@ def downgrade():
     op.drop_index("ix_metrics_name_period", table_name="metrics")
 
     # Drop financial statement indexes
-    op.drop_index("ix_statements_baseline_version", table_name="financial_statements")
-    op.drop_index("ix_statements_currency_period", table_name="financial_statements")
-    op.drop_index("ix_statements_scenario_type", table_name="financial_statements")
-    op.drop_index("ix_statements_period_range", table_name="financial_statements")
+    op.drop_index(
+        "ix_statements_baseline_version", table_name="financial_statements"
+    )
+    op.drop_index(
+        "ix_statements_currency_period", table_name="financial_statements"
+    )
+    op.drop_index(
+        "ix_statements_scenario_type", table_name="financial_statements"
+    )
+    op.drop_index(
+        "ix_statements_period_range", table_name="financial_statements"
+    )
 
     # Drop scenario indexes
     op.drop_index("ix_scenarios_user_active", table_name="scenarios")
-    op.drop_index("ix_scenarios_calculation_status", table_name="scenarios")
+    op.drop_index(
+        "ix_scenarios_calculation_status", table_name="scenarios"
+    )
     op.drop_index("ix_scenarios_file_created", table_name="scenarios")
     op.drop_index("ix_scenarios_status_baseline", table_name="scenarios")
 
     # Drop parameter indexes
-    op.drop_index("ix_parameters_updated_recently", table_name="parameters")
+    op.drop_index(
+        "ix_parameters_updated_recently", table_name="parameters"
+    )
     op.drop_index("ix_parameters_file_sheet", table_name="parameters")
-    op.drop_index("ix_parameters_sensitivity_editable", table_name="parameters")
+    op.drop_index(
+        "ix_parameters_sensitivity_editable", table_name="parameters"
+    )
     op.drop_index("ix_parameters_type_category", table_name="parameters")
 
     # Drop file indexes

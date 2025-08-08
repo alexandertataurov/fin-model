@@ -33,7 +33,9 @@ async def google_login(request: Request):
 
 
 @router.get("/google/callback")
-async def google_callback(request: Request, db: Session = Depends(get_db)) -> Any:
+async def google_callback(
+    request: Request, db: Session = Depends(get_db)
+) -> Any:
     """Handle Google OAuth callback."""
     try:
         google = get_oauth_client("google")
@@ -66,7 +68,9 @@ async def google_callback(request: Request, db: Session = Depends(get_db)) -> An
         # Generate JWT token for our application
         access_token = create_access_token(
             subject=user.id,
-            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+            expires_delta=timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+            ),
         )
 
         # Redirect to frontend with token
@@ -99,7 +103,9 @@ async def microsoft_login(request: Request):
 
 
 @router.get("/microsoft/callback")
-async def microsoft_callback(request: Request, db: Session = Depends(get_db)) -> Any:
+async def microsoft_callback(
+    request: Request, db: Session = Depends(get_db)
+) -> Any:
     """Handle Microsoft OAuth callback."""
     try:
         microsoft = get_oauth_client("microsoft")
@@ -132,7 +138,9 @@ async def microsoft_callback(request: Request, db: Session = Depends(get_db)) ->
         # Generate JWT token for our application
         access_token = create_access_token(
             subject=user.id,
-            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+            expires_delta=timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+            ),
         )
 
         # Redirect to frontend with token
@@ -248,12 +256,15 @@ async def link_oauth_account(
 
     if provider not in ["google", "microsoft"]:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported OAuth provider"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported OAuth provider",
         )
 
     try:
         oauth_client = get_oauth_client(provider)
-        redirect_uri = str(request.url_for("oauth_link_callback", provider=provider))
+        redirect_uri = str(
+            request.url_for("oauth_link_callback", provider=provider)
+        )
         return await oauth_client.authorize_redirect(
             request, redirect_uri, state=str(current_user.id)
         )
@@ -286,7 +297,8 @@ async def unlink_oauth_account(
 
     if provider not in ["google", "microsoft"]:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported OAuth provider"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported OAuth provider",
         )
 
     oauth_service = OAuthService(db)
@@ -304,7 +316,9 @@ async def unlink_oauth_account(
     success = oauth_service.unlink_oauth_account(current_user, provider)
 
     if success:
-        return {"message": f"{provider.title()} account unlinked successfully"}
+        return {
+            "message": f"{provider.title()} account unlinked successfully"
+        }
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -314,7 +328,8 @@ async def unlink_oauth_account(
 
 @router.get("/accounts", response_model=list[OAuthAccountResponse])
 async def get_oauth_accounts(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Get all OAuth accounts linked to the current user.

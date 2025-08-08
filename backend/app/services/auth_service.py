@@ -47,7 +47,9 @@ class AuthService:
 
     def get_user_by_username(self, username: str) -> Optional[User]:
         """Get user by username."""
-        return self.db.query(User).filter(User.username == username).first()
+        return (
+            self.db.query(User).filter(User.username == username).first()
+        )
 
     def get_user_by_id(self, user_id: int) -> Optional[User]:
         """Get user by ID."""
@@ -161,13 +163,15 @@ class AuthService:
         # Verify password
         if not verify_password(password, user.hashed_password):
             # Increment failed login attempts
-            user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
+            user.failed_login_attempts = (
+                user.failed_login_attempts or 0
+            ) + 1
 
             # Lock account after 5 failed attempts
             if user.failed_login_attempts >= 5:
-                user.account_locked_until = datetime.now(timezone.utc) + timedelta(
-                    minutes=30
-                )
+                user.account_locked_until = datetime.now(
+                    timezone.utc
+                ) + timedelta(minutes=30)
                 self.log_audit_action(
                     user_id=user.id,
                     action="ACCOUNT_LOCKED",
@@ -207,7 +211,11 @@ class AuthService:
 
     def verify_email(self, token: str) -> bool:
         """Verify user's email with token."""
-        user = self.db.query(User).filter(User.verification_token == token).first()
+        user = (
+            self.db.query(User)
+            .filter(User.verification_token == token)
+            .first()
+        )
         if not user:
             return False
 
@@ -230,7 +238,9 @@ class AuthService:
         # Generate reset token
         reset_token = generate_secure_token()
         user.password_reset_token = reset_token
-        user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+        user.password_reset_expires = datetime.now(
+            timezone.utc
+        ) + timedelta(hours=1)
 
         self.log_audit_action(
             user_id=user.id,
@@ -244,7 +254,11 @@ class AuthService:
 
     def reset_password(self, token: str, new_password: str) -> bool:
         """Reset user password with token."""
-        user = self.db.query(User).filter(User.password_reset_token == token).first()
+        user = (
+            self.db.query(User)
+            .filter(User.password_reset_token == token)
+            .first()
+        )
         if not user:
             return False
 
@@ -303,7 +317,9 @@ class AuthService:
         self.db.commit()
         return True
 
-    def update_user(self, user_id: int, user_update: UserUpdate) -> Optional[User]:
+    def update_user(
+        self, user_id: int, user_update: UserUpdate
+    ) -> Optional[User]:
         """Update user information."""
         user = self.get_user_by_id(user_id)
         if not user:
@@ -324,7 +340,9 @@ class AuthService:
         self.db.refresh(user)
         return user
 
-    def assign_role(self, user_id: int, role: RoleType, assigned_by_id: int) -> bool:
+    def assign_role(
+        self, user_id: int, role: RoleType, assigned_by_id: int
+    ) -> bool:
         """Assign role to user."""
         user = self.get_user_by_id(user_id)
         if not user:
@@ -350,7 +368,9 @@ class AuthService:
 
         # Assign role
         user_role = UserRole(
-            user_id=user_id, role_id=role_obj.id, assigned_by=assigned_by_id
+            user_id=user_id,
+            role_id=role_obj.id,
+            assigned_by=assigned_by_id,
         )
         self.db.add(user_role)
 
@@ -364,7 +384,9 @@ class AuthService:
         self.db.commit()
         return True
 
-    def remove_role(self, user_id: int, role: RoleType, removed_by_id: int) -> bool:
+    def remove_role(
+        self, user_id: int, role: RoleType, removed_by_id: int
+    ) -> bool:
         """Remove role from user."""
         role_obj = self.db.query(Role).filter(Role.name == role).first()
         if not role_obj:
@@ -401,7 +423,9 @@ class AuthService:
         user_roles = (
             self.db.query(UserRole)
             .join(Role)
-            .filter(UserRole.user_id == user_id, UserRole.is_active == True)
+            .filter(
+                UserRole.user_id == user_id, UserRole.is_active == True
+            )
             .all()
         )
 

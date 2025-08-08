@@ -26,10 +26,15 @@ def upgrade() -> None:
         sa.Column("backup_codes", sa.JSON(), nullable=True),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column("last_used", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
 
@@ -47,12 +52,20 @@ def upgrade() -> None:
         sa.Column("refresh_token", sa.String(length=500), nullable=True),
         sa.Column("token_expires_at", sa.DateTime(), nullable=True),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column(
-            "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "updated_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
 
@@ -67,10 +80,15 @@ def upgrade() -> None:
         sa.Column("device_name", sa.String(length=255), nullable=True),
         sa.Column("device_type", sa.String(length=50), nullable=True),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column("last_used", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("credential_id"),
     )
@@ -84,31 +102,53 @@ def upgrade() -> None:
         sa.Column("challenge_data", sa.JSON(), nullable=True),
         sa.Column("expires_at", sa.DateTime(), nullable=False),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
 
     # Create indexes for better performance
     op.create_index("ix_mfa_tokens_user_id", "mfa_tokens", ["user_id"])
-    op.create_index("ix_oauth_accounts_user_id", "oauth_accounts", ["user_id"])
     op.create_index(
-        "ix_oauth_accounts_provider", "oauth_accounts", ["provider", "provider_id"]
+        "ix_oauth_accounts_user_id", "oauth_accounts", ["user_id"]
     )
     op.create_index(
-        "ix_webauthn_credentials_user_id", "webauthn_credentials", ["user_id"]
+        "ix_oauth_accounts_provider",
+        "oauth_accounts",
+        ["provider", "provider_id"],
     )
-    op.create_index("ix_mfa_challenges_user_id", "mfa_challenges", ["user_id"])
-    op.create_index("ix_mfa_challenges_expires_at", "mfa_challenges", ["expires_at"])
+    op.create_index(
+        "ix_webauthn_credentials_user_id",
+        "webauthn_credentials",
+        ["user_id"],
+    )
+    op.create_index(
+        "ix_mfa_challenges_user_id", "mfa_challenges", ["user_id"]
+    )
+    op.create_index(
+        "ix_mfa_challenges_expires_at", "mfa_challenges", ["expires_at"]
+    )
 
 
 def downgrade() -> None:
     # Drop indexes
-    op.drop_index("ix_mfa_challenges_expires_at", table_name="mfa_challenges")
+    op.drop_index(
+        "ix_mfa_challenges_expires_at", table_name="mfa_challenges"
+    )
     op.drop_index("ix_mfa_challenges_user_id", table_name="mfa_challenges")
-    op.drop_index("ix_webauthn_credentials_user_id", table_name="webauthn_credentials")
-    op.drop_index("ix_oauth_accounts_provider", table_name="oauth_accounts")
+    op.drop_index(
+        "ix_webauthn_credentials_user_id",
+        table_name="webauthn_credentials",
+    )
+    op.drop_index(
+        "ix_oauth_accounts_provider", table_name="oauth_accounts"
+    )
     op.drop_index("ix_oauth_accounts_user_id", table_name="oauth_accounts")
     op.drop_index("ix_mfa_tokens_user_id", table_name="mfa_tokens")
 

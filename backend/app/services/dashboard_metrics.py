@@ -35,8 +35,12 @@ class DashboardMetricsService:
 
         # Calculate key metrics from all financial statements
         pl_metrics = await self._calculate_pl_metrics(parsed_data, period)
-        cf_metrics = await self._calculate_cash_flow_metrics(parsed_data, period)
-        bs_metrics = await self._calculate_balance_sheet_metrics(parsed_data, period)
+        cf_metrics = await self._calculate_cash_flow_metrics(
+            parsed_data, period
+        )
+        bs_metrics = await self._calculate_balance_sheet_metrics(
+            parsed_data, period
+        )
 
         # Combine top metrics
         overview_metrics = []
@@ -56,9 +60,15 @@ class DashboardMetricsService:
         return {
             "key_metrics": overview_metrics,
             "summary": {
-                "revenue_trend": "up" if len(pl_metrics) > 0 else "neutral",
-                "cash_position": "stable" if len(cf_metrics) > 0 else "neutral",
-                "financial_health": "good" if len(bs_metrics) > 0 else "neutral",
+                "revenue_trend": "up"
+                if len(pl_metrics) > 0
+                else "neutral",
+                "cash_position": "stable"
+                if len(cf_metrics) > 0
+                else "neutral",
+                "financial_health": "good"
+                if len(bs_metrics) > 0
+                else "neutral",
             },
         }
 
@@ -85,7 +95,11 @@ class DashboardMetricsService:
         charts = await self._generate_pl_charts(parsed_data, period)
         data_quality = await self._assess_data_quality(parsed_data, "pl")
 
-        return {"metrics": metrics, "charts": charts, "data_quality": data_quality}
+        return {
+            "metrics": metrics,
+            "charts": charts,
+            "data_quality": data_quality,
+        }
 
     async def get_cash_flow_metrics(
         self, user_id: int, period: str, file_id: Optional[int] = None
@@ -107,9 +121,13 @@ class DashboardMetricsService:
             }
 
         # Calculate Cash Flow metrics
-        metrics = await self._calculate_cash_flow_metrics(parsed_data, period)
+        metrics = await self._calculate_cash_flow_metrics(
+            parsed_data, period
+        )
         charts = await self._generate_cash_flow_charts(parsed_data, period)
-        waterfall_data = await self._generate_waterfall_data(parsed_data, period)
+        waterfall_data = await self._generate_waterfall_data(
+            parsed_data, period
+        )
         data_quality = await self._assess_data_quality(parsed_data, "cf")
 
         return {
@@ -139,9 +157,15 @@ class DashboardMetricsService:
             }
 
         # Calculate Balance Sheet metrics
-        metrics = await self._calculate_balance_sheet_metrics(parsed_data, period)
-        charts = await self._generate_balance_sheet_charts(parsed_data, period)
-        ratios = await self._calculate_financial_ratios(parsed_data, period)
+        metrics = await self._calculate_balance_sheet_metrics(
+            parsed_data, period
+        )
+        charts = await self._generate_balance_sheet_charts(
+            parsed_data, period
+        )
+        ratios = await self._calculate_financial_ratios(
+            parsed_data, period
+        )
         data_quality = await self._assess_data_quality(parsed_data, "bs")
 
         return {
@@ -171,7 +195,9 @@ class DashboardMetricsService:
             }
 
         # Extract time series data
-        time_series = await self._extract_time_series_data(parsed_data, metric_type)
+        time_series = await self._extract_time_series_data(
+            parsed_data, metric_type
+        )
         statistics = await self._calculate_trend_statistics(time_series)
         forecast = await self._generate_simple_forecast(time_series)
 
@@ -202,8 +228,14 @@ class DashboardMetricsService:
 
         # Calculate KPIs
         kpis = await self._calculate_kpis(parsed_data, period)
-        benchmarks = await self._get_industry_benchmarks(industry) if industry else {}
-        performance_score = await self._calculate_performance_score(kpis, benchmarks)
+        benchmarks = (
+            await self._get_industry_benchmarks(industry)
+            if industry
+            else {}
+        )
+        performance_score = await self._calculate_performance_score(
+            kpis, benchmarks
+        )
 
         return {
             "kpis": kpis,
@@ -231,16 +263,22 @@ class DashboardMetricsService:
             }
 
         # Calculate ratios
-        ratios = await self._calculate_financial_ratios(parsed_data, period)
+        ratios = await self._calculate_financial_ratios(
+            parsed_data, period
+        )
 
         # Filter by category if specified
         if ratio_category:
             ratios = {
-                k: v for k, v in ratios.items() if v.get("category") == ratio_category
+                k: v
+                for k, v in ratios.items()
+                if v.get("category") == ratio_category
             }
 
         analysis = await self._analyze_ratios(ratios)
-        trends = await self._get_ratio_trends(parsed_data, list(ratios.keys()))
+        trends = await self._get_ratio_trends(
+            parsed_data, list(ratios.keys())
+        )
 
         return {"ratios": ratios, "analysis": analysis, "trends": trends}
 
@@ -268,7 +306,9 @@ class DashboardMetricsService:
         variances = await self._calculate_variances(
             parsed_data, base_period, compare_period, variance_type
         )
-        significant_changes = await self._identify_significant_changes(variances)
+        significant_changes = await self._identify_significant_changes(
+            variances
+        )
         summary = await self._create_variance_summary(variances)
 
         return {
@@ -319,7 +359,9 @@ class DashboardMetricsService:
                 )
 
                 refresh_stats["files_processed"] = len(files)
-                refresh_stats["metrics_updated"] = len(files) * 10  # Estimate
+                refresh_stats["metrics_updated"] = (
+                    len(files) * 10
+                )  # Estimate
         except Exception:
             # Gracefully handle DB issues by returning default stats
             pass
@@ -346,7 +388,9 @@ class DashboardMetricsService:
             if file_id:
                 query = query.filter(UploadedFile.id == file_id)
 
-            file_record = query.order_by(UploadedFile.created_at.desc()).first()
+            file_record = query.order_by(
+                UploadedFile.created_at.desc()
+            ).first()
 
             if file_record and file_record.parsed_data:
                 try:
@@ -518,8 +562,16 @@ class DashboardMetricsService:
 
         return {
             "revenue_trend": [
-                {"period": "Jan", "value": 120000, "label": "January 2024"},
-                {"period": "Feb", "value": 135000, "label": "February 2024"},
+                {
+                    "period": "Jan",
+                    "value": 120000,
+                    "label": "January 2024",
+                },
+                {
+                    "period": "Feb",
+                    "value": 135000,
+                    "label": "February 2024",
+                },
                 {"period": "Mar", "value": 125000, "label": "March 2024"},
                 {"period": "Apr", "value": 145000, "label": "April 2024"},
                 {"period": "May", "value": 155000, "label": "May 2024"},
@@ -567,9 +619,21 @@ class DashboardMetricsService:
 
         return [
             {"name": "Starting Cash", "value": 100000, "type": "start"},
-            {"name": "Operating Activities", "value": 425000, "type": "positive"},
-            {"name": "Investing Activities", "value": -150000, "type": "negative"},
-            {"name": "Financing Activities", "value": -75000, "type": "negative"},
+            {
+                "name": "Operating Activities",
+                "value": 425000,
+                "type": "positive",
+            },
+            {
+                "name": "Investing Activities",
+                "value": -150000,
+                "type": "negative",
+            },
+            {
+                "name": "Financing Activities",
+                "value": -75000,
+                "type": "negative",
+            },
             {"name": "Ending Cash", "value": 300000, "type": "total"},
         ]
 
@@ -672,8 +736,16 @@ class DashboardMetricsService:
             ],
             "charts": {
                 "revenue_trend": [
-                    {"period": "Jan", "value": 120000, "label": "January 2024"},
-                    {"period": "Feb", "value": 135000, "label": "February 2024"},
+                    {
+                        "period": "Jan",
+                        "value": 120000,
+                        "label": "January 2024",
+                    },
+                    {
+                        "period": "Feb",
+                        "value": 135000,
+                        "label": "February 2024",
+                    },
                 ]
             },
             "data_quality": {"overall_score": 0.95},
@@ -704,8 +776,16 @@ class DashboardMetricsService:
                 ]
             },
             "waterfall_data": [
-                {"name": "Starting Cash", "value": 100000, "type": "start"},
-                {"name": "Operating Activities", "value": 425000, "type": "positive"},
+                {
+                    "name": "Starting Cash",
+                    "value": 100000,
+                    "type": "start",
+                },
+                {
+                    "name": "Operating Activities",
+                    "value": 425000,
+                    "type": "positive",
+                },
             ],
             "data_quality": {"overall_score": 0.95},
         }
@@ -735,7 +815,11 @@ class DashboardMetricsService:
                 ]
             },
             "ratios": {
-                "current_ratio": {"value": 2.1, "benchmark": 2.0, "status": "good"}
+                "current_ratio": {
+                    "value": 2.1,
+                    "benchmark": 2.0,
+                    "status": "good",
+                }
             },
             "data_quality": {"overall_score": 0.95},
         }
@@ -748,8 +832,14 @@ class DashboardMetricsService:
                 {"date": "2024-02", "value": 110000},
                 {"date": "2024-03", "value": 105000},
             ],
-            "statistics": {"average": 105000, "growth_rate": 5.0, "volatility": 0.05},
-            "forecast": [{"date": "2024-04", "value": 115000, "confidence": 0.8}],
+            "statistics": {
+                "average": 105000,
+                "growth_rate": 5.0,
+                "volatility": 0.05,
+            },
+            "forecast": [
+                {"date": "2024-04", "value": 115000, "confidence": 0.8}
+            ],
         }
 
     def _get_demo_kpis(self) -> Dict[str, Any]:

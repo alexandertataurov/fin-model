@@ -77,7 +77,9 @@ def verify_mfa_setup(
     mfa_service = MFAService(db)
 
     try:
-        success = mfa_service.verify_mfa_setup(current_user, verify_request.token)
+        success = mfa_service.verify_mfa_setup(
+            current_user, verify_request.token
+        )
         if success:
             return {"message": "MFA enabled successfully"}
         else:
@@ -96,7 +98,9 @@ def verify_mfa_setup(
 
 @router.post("/verify", response_model=AuthenticationFlowResponse)
 def verify_mfa_token(
-    verify_request: MFAVerifyRequest, request: Request, db: Session = Depends(get_db)
+    verify_request: MFAVerifyRequest,
+    request: Request,
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Verify MFA token during login process.
@@ -134,13 +138,16 @@ def verify_mfa_token(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
         )
 
     # Check if MFA is enabled
     if not mfa_service.is_mfa_enabled(user):
         # MFA not enabled, proceed with normal login
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
         access_token = create_access_token(
             subject=user.id, expires_delta=access_token_expires
         )
@@ -156,7 +163,9 @@ def verify_mfa_token(
         user, verify_request.mfa_token, verify_request.use_backup
     ):
         # MFA verification successful
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
         access_token = create_access_token(
             subject=user.id, expires_delta=access_token_expires
         )
@@ -168,13 +177,15 @@ def verify_mfa_token(
         )
     else:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid MFA token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid MFA token",
         )
 
 
 @router.get("/backup-codes", response_model=MFABackupCodesResponse)
 def get_backup_codes(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Get remaining backup recovery codes for the current user.
@@ -195,7 +206,9 @@ def get_backup_codes(
         )
 
 
-@router.post("/regenerate-backup-codes", response_model=MFABackupCodesResponse)
+@router.post(
+    "/regenerate-backup-codes", response_model=MFABackupCodesResponse
+)
 def regenerate_backup_codes(
     request: Request,
     current_user: User = Depends(get_current_active_user),
@@ -255,7 +268,9 @@ def disable_mfa(
     mfa_service = MFAService(db)
 
     try:
-        success = mfa_service.disable_mfa(current_user, disable_request.password)
+        success = mfa_service.disable_mfa(
+            current_user, disable_request.password
+        )
         if success:
             return {"message": "MFA disabled successfully"}
         else:
@@ -271,7 +286,8 @@ def disable_mfa(
 
 @router.get("/status", response_model=MFAStatusResponse)
 def get_mfa_status(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Get MFA status for the current user.
@@ -293,7 +309,8 @@ def get_mfa_status(
             mfa_token = (
                 db.query(MFAToken)
                 .filter(
-                    MFAToken.user_id == current_user.id, MFAToken.is_verified == True
+                    MFAToken.user_id == current_user.id,
+                    MFAToken.is_verified == True,
                 )
                 .first()
             )

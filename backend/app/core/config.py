@@ -12,7 +12,9 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    SECRET_KEY: str = os.getenv(
+        "SECRET_KEY", "your-secret-key-change-in-production"
+    )
     ALGORITHM: str = "HS256"
 
     # Database
@@ -21,7 +23,9 @@ class Settings(BaseSettings):
     )
 
     # Test database
-    TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
+    TEST_DATABASE_URL: str = os.getenv(
+        "TEST_DATABASE_URL", "sqlite:///./test.db"
+    )
 
     # CORS - Use string type to avoid JSON parsing issues
     BACKEND_CORS_ORIGINS: str = (
@@ -39,7 +43,9 @@ class Settings(BaseSettings):
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> str:
         if isinstance(v, list):
             return ",".join(v)
-        return str(v) if v else "http://localhost:3000,http://127.0.0.1:3000"
+        return (
+            str(v) if v else "http://localhost:3000,http://127.0.0.1:3000"
+        )
 
     def get_cors_origins(self) -> List[str]:
         """Get CORS origins as a list."""
@@ -94,7 +100,9 @@ class Settings(BaseSettings):
     # WebAuthn Settings
     WEBAUTHN_RP_ID: str = os.getenv("WEBAUTHN_RP_ID", "localhost")
     WEBAUTHN_RP_NAME: str = os.getenv("WEBAUTHN_RP_NAME", "FinVision")
-    WEBAUTHN_ORIGIN: str = os.getenv("WEBAUTHN_ORIGIN", "http://localhost:3000")
+    WEBAUTHN_ORIGIN: str = os.getenv(
+        "WEBAUTHN_ORIGIN", "http://localhost:3000"
+    )
 
     # Email settings
     SMTP_HOST: str = os.getenv("SMTP_HOST", "localhost")
@@ -107,30 +115,40 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
     # File Upload Settings
-    MAX_FILE_SIZE: int = int(os.getenv("MAX_FILE_SIZE", "10485760"))  # 10MB default
+    MAX_FILE_SIZE: int = int(
+        os.getenv("MAX_FILE_SIZE", "10485760")
+    )  # 10MB default
     UPLOAD_FOLDER: str = os.getenv("UPLOAD_FOLDER", "uploads")
     ALLOWED_EXTENSIONS: List[str] = [".xlsx", ".xls", ".csv"]
 
     # Celery/Redis Settings
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
-    CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
+    CELERY_BROKER_URL: str = os.getenv(
+        "CELERY_BROKER_URL", "redis://localhost:6379"
+    )
     CELERY_RESULT_BACKEND: str = os.getenv(
         "CELERY_RESULT_BACKEND", "redis://localhost:6379"
     )
 
     # Cloud Storage Settings
-    STORAGE_PROVIDER: str = os.getenv("STORAGE_PROVIDER", "local")  # local, s3, azure
+    STORAGE_PROVIDER: str = os.getenv(
+        "STORAGE_PROVIDER", "local"
+    )  # local, s3, azure
     AWS_S3_BUCKET: str = os.getenv("AWS_S3_BUCKET", "finvision-files")
     AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
-    AZURE_CONTAINER_NAME: str = os.getenv("AZURE_CONTAINER_NAME", "finvision-files")
+    AZURE_CONTAINER_NAME: str = os.getenv(
+        "AZURE_CONTAINER_NAME", "finvision-files"
+    )
     AZURE_STORAGE_CONNECTION_STRING: str = os.getenv(
         "AZURE_STORAGE_CONNECTION_STRING", ""
     )
 
     # Virus Scanning Settings
-    VIRUS_SCANNERS: List[str] = os.getenv("VIRUS_SCANNERS", "basic").split(",")
+    VIRUS_SCANNERS: List[str] = os.getenv("VIRUS_SCANNERS", "basic").split(
+        ","
+    )
     CLAMAV_HOST: str = os.getenv("CLAMAV_HOST", "localhost")
     CLAMAV_PORT: int = int(os.getenv("CLAMAV_PORT", "3310"))
     VIRUSTOTAL_API_KEY: str = os.getenv("VIRUSTOTAL_API_KEY", "")
@@ -145,11 +163,15 @@ class Settings(BaseSettings):
     CANCELLED_FILES_RETENTION_DAYS: int = int(
         os.getenv("CANCELLED_FILES_RETENTION_DAYS", "3")
     )
-    LARGE_FILES_RETENTION_DAYS: int = int(os.getenv("LARGE_FILES_RETENTION_DAYS", "30"))
+    LARGE_FILES_RETENTION_DAYS: int = int(
+        os.getenv("LARGE_FILES_RETENTION_DAYS", "30")
+    )
     PREMIUM_FILES_RETENTION_DAYS: int = int(
         os.getenv("PREMIUM_FILES_RETENTION_DAYS", "180")
     )
-    DEMO_FILES_RETENTION_DAYS: int = int(os.getenv("DEMO_FILES_RETENTION_DAYS", "1"))
+    DEMO_FILES_RETENTION_DAYS: int = int(
+        os.getenv("DEMO_FILES_RETENTION_DAYS", "1")
+    )
 
     class Config:
         case_sensitive = True

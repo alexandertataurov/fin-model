@@ -54,7 +54,10 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_report_templates_id"), "report_templates", ["id"], unique=False
+        op.f("ix_report_templates_id"),
+        "report_templates",
+        ["id"],
+        unique=False,
     )
 
     # Create report_schedules table
@@ -63,20 +66,34 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
-        sa.Column("cron_expression", sa.String(length=100), nullable=False),
+        sa.Column(
+            "cron_expression", sa.String(length=100), nullable=False
+        ),
         sa.Column("is_active", sa.Boolean(), nullable=True),
         sa.Column("template_id", sa.Integer(), nullable=False),
         sa.Column(
             "export_format",
-            sa.Enum("PDF", "EXCEL", "CSV", "PNG", "SVG", "JSON", name="exportformat"),
+            sa.Enum(
+                "PDF",
+                "EXCEL",
+                "CSV",
+                "PNG",
+                "SVG",
+                "JSON",
+                name="exportformat",
+            ),
             nullable=True,
         ),
         sa.Column("report_config", sa.JSON(), nullable=True),
         sa.Column("email_recipients", sa.JSON(), nullable=True),
         sa.Column("delivery_config", sa.JSON(), nullable=True),
         sa.Column("created_by", sa.Integer(), nullable=False),
-        sa.Column("last_run_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("next_run_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column(
+            "last_run_at", sa.DateTime(timezone=True), nullable=True
+        ),
+        sa.Column(
+            "next_run_at", sa.DateTime(timezone=True), nullable=True
+        ),
         sa.Column("run_count", sa.Integer(), nullable=True),
         sa.Column("failure_count", sa.Integer(), nullable=True),
         sa.Column(
@@ -97,7 +114,10 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_report_schedules_id"), "report_schedules", ["id"], unique=False
+        op.f("ix_report_schedules_id"),
+        "report_schedules",
+        ["id"],
+        unique=False,
     )
 
     # Create report_exports table
@@ -107,7 +127,15 @@ def upgrade():
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column(
             "export_format",
-            sa.Enum("PDF", "EXCEL", "CSV", "PNG", "SVG", "JSON", name="exportformat"),
+            sa.Enum(
+                "PDF",
+                "EXCEL",
+                "CSV",
+                "PNG",
+                "SVG",
+                "JSON",
+                name="exportformat",
+            ),
             nullable=False,
         ),
         sa.Column(
@@ -129,11 +157,25 @@ def upgrade():
         sa.Column("schedule_id", sa.Integer(), nullable=True),
         sa.Column("generation_config", sa.JSON(), nullable=True),
         sa.Column("source_file_ids", sa.JSON(), nullable=True),
-        sa.Column("data_period_start", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("data_period_end", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("processing_started_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("processing_completed_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("processing_duration_seconds", sa.Integer(), nullable=True),
+        sa.Column(
+            "data_period_start", sa.DateTime(timezone=True), nullable=True
+        ),
+        sa.Column(
+            "data_period_end", sa.DateTime(timezone=True), nullable=True
+        ),
+        sa.Column(
+            "processing_started_at",
+            sa.DateTime(timezone=True),
+            nullable=True,
+        ),
+        sa.Column(
+            "processing_completed_at",
+            sa.DateTime(timezone=True),
+            nullable=True,
+        ),
+        sa.Column(
+            "processing_duration_seconds", sa.Integer(), nullable=True
+        ),
         sa.Column("error_message", sa.Text(), nullable=True),
         sa.Column("created_by", sa.Integer(), nullable=False),
         sa.Column("is_shared", sa.Boolean(), nullable=True),
@@ -161,12 +203,18 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_report_exports_id"), "report_exports", ["id"], unique=False
+        op.f("ix_report_exports_id"),
+        "report_exports",
+        ["id"],
+        unique=False,
     )
 
     # Create indexes for better performance
     op.create_index(
-        "ix_report_templates_type", "report_templates", ["report_type"], unique=False
+        "ix_report_templates_type",
+        "report_templates",
+        ["report_type"],
+        unique=False,
     )
     op.create_index(
         "ix_report_templates_created_by",
@@ -187,36 +235,68 @@ def upgrade():
         unique=False,
     )
     op.create_index(
-        "ix_report_exports_status", "report_exports", ["status"], unique=False
+        "ix_report_exports_status",
+        "report_exports",
+        ["status"],
+        unique=False,
     )
     op.create_index(
-        "ix_report_exports_created_by", "report_exports", ["created_by"], unique=False
+        "ix_report_exports_created_by",
+        "report_exports",
+        ["created_by"],
+        unique=False,
     )
     op.create_index(
-        "ix_report_exports_template_id", "report_exports", ["template_id"], unique=False
+        "ix_report_exports_template_id",
+        "report_exports",
+        ["template_id"],
+        unique=False,
     )
     op.create_index(
-        "ix_report_exports_expires_at", "report_exports", ["expires_at"], unique=False
+        "ix_report_exports_expires_at",
+        "report_exports",
+        ["expires_at"],
+        unique=False,
     )
 
 
 def downgrade():
     # Drop indexes
-    op.drop_index("ix_report_exports_expires_at", table_name="report_exports")
-    op.drop_index("ix_report_exports_template_id", table_name="report_exports")
-    op.drop_index("ix_report_exports_created_by", table_name="report_exports")
+    op.drop_index(
+        "ix_report_exports_expires_at", table_name="report_exports"
+    )
+    op.drop_index(
+        "ix_report_exports_template_id", table_name="report_exports"
+    )
+    op.drop_index(
+        "ix_report_exports_created_by", table_name="report_exports"
+    )
     op.drop_index("ix_report_exports_status", table_name="report_exports")
-    op.drop_index("ix_report_schedules_created_by", table_name="report_schedules")
-    op.drop_index("ix_report_schedules_template_id", table_name="report_schedules")
-    op.drop_index("ix_report_templates_created_by", table_name="report_templates")
-    op.drop_index("ix_report_templates_type", table_name="report_templates")
+    op.drop_index(
+        "ix_report_schedules_created_by", table_name="report_schedules"
+    )
+    op.drop_index(
+        "ix_report_schedules_template_id", table_name="report_schedules"
+    )
+    op.drop_index(
+        "ix_report_templates_created_by", table_name="report_templates"
+    )
+    op.drop_index(
+        "ix_report_templates_type", table_name="report_templates"
+    )
 
     # Drop tables
-    op.drop_index(op.f("ix_report_exports_id"), table_name="report_exports")
+    op.drop_index(
+        op.f("ix_report_exports_id"), table_name="report_exports"
+    )
     op.drop_table("report_exports")
-    op.drop_index(op.f("ix_report_schedules_id"), table_name="report_schedules")
+    op.drop_index(
+        op.f("ix_report_schedules_id"), table_name="report_schedules"
+    )
     op.drop_table("report_schedules")
-    op.drop_index(op.f("ix_report_templates_id"), table_name="report_templates")
+    op.drop_index(
+        op.f("ix_report_templates_id"), table_name="report_templates"
+    )
     op.drop_table("report_templates")
 
     # Drop enums

@@ -40,7 +40,9 @@ def upgrade() -> None:
                 print(f"✅ Added column {column_name} to {table_name}")
                 return True
             else:
-                print(f"⚠️ Column {column_name} already exists in {table_name}")
+                print(
+                    f"⚠️ Column {column_name} already exists in {table_name}"
+                )
                 return False
         except Exception as e:
             print(f"⚠️ Could not add column {column_name}: {e}")
@@ -51,7 +53,10 @@ def upgrade() -> None:
         "users",
         "full_name",
         sa.Column(
-            "full_name", sa.String(length=100), nullable=False, server_default=""
+            "full_name",
+            sa.String(length=100),
+            nullable=False,
+            server_default="",
         ),
     )
 
@@ -59,7 +64,12 @@ def upgrade() -> None:
     is_admin_added = safe_add_column(
         "users",
         "is_admin",
-        sa.Column("is_admin", sa.Boolean(), nullable=False, server_default="false"),
+        sa.Column(
+            "is_admin",
+            sa.Boolean(),
+            nullable=False,
+            server_default="false",
+        ),
     )
 
     # Only update full_name if we just added the column

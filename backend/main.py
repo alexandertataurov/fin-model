@@ -28,13 +28,17 @@ try:
     logger.info("fastapi_cache2 is available and will be used for caching")
 except ImportError as e:
     CACHE_AVAILABLE = False
-    logger.info(f"fastapi_cache2 not available: {e}. Using Redis caching instead.")
+    logger.info(
+        f"fastapi_cache2 not available: {e}. Using Redis caching instead."
+    )
     # Create dummy classes for fallback
 
     class FastAPICache:
         @staticmethod
         def init(*args, **kwargs):
-            logger.warning("Cache initialization skipped - fastapi_cache not available")
+            logger.warning(
+                "Cache initialization skipped - fastapi_cache not available"
+            )
 
     class InMemoryBackend:
         pass
@@ -176,7 +180,9 @@ async def cors_preflight(full_path: str):
         content={"message": "CORS preflight successful"},
         headers={
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": ("GET, POST, PUT, DELETE, OPTIONS, PATCH"),
+            "Access-Control-Allow-Methods": (
+                "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+            ),
             "Access-Control-Allow-Headers": (
                 "Content-Type, Authorization, X-Requested-With"
             ),

@@ -50,7 +50,9 @@ class UploadedFile(Base):
 
     # Processing status
     # Persist the enum's string value to the database
-    status = Column(String(50), default=FileStatus.UPLOADED.value, nullable=False)
+    status = Column(
+        String(50), default=FileStatus.UPLOADED.value, nullable=False
+    )
     processing_status = synonym("status")
     processing_started_at = Column(DateTime, nullable=True)
     processing_completed_at = Column(DateTime, nullable=True)
@@ -69,15 +71,21 @@ class UploadedFile(Base):
     # Older parts of the codebase reference ``uploaded_by_id``. Provide a
     # synonym so both attribute names work without affecting the ORM mapping.
     uploaded_by_id = synonym("user_id")
-    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
-    data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
+    template_id = Column(
+        Integer, ForeignKey("templates.id"), nullable=True
+    )
+    data_source_id = Column(
+        Integer, ForeignKey("data_sources.id"), nullable=True
+    )
 
     # Relationships
     user = relationship("User", back_populates="uploaded_files")
     parameters = relationship("Parameter", back_populates="source_file")
     scenarios = relationship("Scenario", back_populates="base_file")
     template = relationship("Template", back_populates="uploaded_files")
-    data_source = relationship("DataSource", back_populates="uploaded_files")
+    data_source = relationship(
+        "DataSource", back_populates="uploaded_files"
+    )
     versions = relationship("FileVersion", back_populates="uploaded_file")
 
     # Timestamps
@@ -96,13 +104,21 @@ class ProcessingLog(Base):
     __tablename__ = "processing_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
+    file_id = Column(
+        Integer, ForeignKey("uploaded_files.id"), nullable=False
+    )
 
     # Log details
-    step = Column(String(100), nullable=False)  # validation, parsing, extraction, etc.
+    step = Column(
+        String(100), nullable=False
+    )  # validation, parsing, extraction, etc.
     message = Column(Text, nullable=False)
-    level = Column(String(20), default="info", nullable=False)  # info, warning, error
-    details = Column(Text, nullable=True)  # JSON string with additional details
+    level = Column(
+        String(20), default="info", nullable=False
+    )  # info, warning, error
+    details = Column(
+        Text, nullable=True
+    )  # JSON string with additional details
 
     # Timing
     timestamp = Column(DateTime, default=func.now(), nullable=False)

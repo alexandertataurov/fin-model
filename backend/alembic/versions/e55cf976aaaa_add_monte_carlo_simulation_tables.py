@@ -23,7 +23,10 @@ def upgrade() -> None:
             "monte_carlo_simulations",
             sa.Column("id", sa.String(length=50), primary_key=True),
             sa.Column(
-                "scenario_id", sa.Integer, sa.ForeignKey("scenarios.id"), nullable=False
+                "scenario_id",
+                sa.Integer,
+                sa.ForeignKey("scenarios.id"),
+                nullable=False,
             ),
             sa.Column("name", sa.String(length=255), nullable=False),
             sa.Column("description", sa.Text, nullable=True),
@@ -40,12 +43,17 @@ def upgrade() -> None:
             sa.Column("created_at", sa.DateTime, default=sa.func.now()),
             sa.Column("completed_at", sa.DateTime, nullable=True),
             sa.Column(
-                "created_by_id", sa.Integer, sa.ForeignKey("users.id"), nullable=False
+                "created_by_id",
+                sa.Integer,
+                sa.ForeignKey("users.id"),
+                nullable=False,
             ),
         )
         print("✅ Created monte_carlo_simulations table")
     except Exception as e:
-        print(f"⚠️ monte_carlo_simulations table already exists or error: {e}")
+        print(
+            f"⚠️ monte_carlo_simulations table already exists or error: {e}"
+        )
 
     # Create scenario_parameters table for scenario-specific parameter overrides
     try:
@@ -53,7 +61,10 @@ def upgrade() -> None:
             "scenario_parameters",
             sa.Column("id", sa.String(length=50), primary_key=True),
             sa.Column(
-                "scenario_id", sa.Integer, sa.ForeignKey("scenarios.id"), nullable=False
+                "scenario_id",
+                sa.Integer,
+                sa.ForeignKey("scenarios.id"),
+                nullable=False,
             ),
             sa.Column(
                 "parameter_id",
@@ -62,12 +73,17 @@ def upgrade() -> None:
                 nullable=False,
             ),
             sa.Column(
-                "parameter_value", sa.Numeric(precision=15, scale=6), nullable=False
+                "parameter_value",
+                sa.Numeric(precision=15, scale=6),
+                nullable=False,
             ),
             sa.Column("override_default", sa.Boolean, default=False),
             sa.Column("created_at", sa.DateTime, default=sa.func.now()),
             sa.Column(
-                "updated_at", sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()
+                "updated_at",
+                sa.DateTime,
+                default=sa.func.now(),
+                onupdate=sa.func.now(),
             ),
         )
         print("✅ Created scenario_parameters table")
@@ -78,7 +94,9 @@ def upgrade() -> None:
     try:
         op.add_column(
             "scenarios",
-            sa.Column("scenario_type", sa.String(length=50), default="custom"),
+            sa.Column(
+                "scenario_type", sa.String(length=50), default="custom"
+            ),
         )
         print("✅ Added scenario_type column to scenarios table")
     except Exception as e:
@@ -86,7 +104,10 @@ def upgrade() -> None:
 
     # Add is_base_case field to scenarios table
     try:
-        op.add_column("scenarios", sa.Column("is_base_case", sa.Boolean, default=False))
+        op.add_column(
+            "scenarios",
+            sa.Column("is_base_case", sa.Boolean, default=False),
+        )
         print("✅ Added is_base_case column to scenarios table")
     except Exception as e:
         print(f"⚠️ is_base_case column already exists or error: {e}")
@@ -118,7 +139,9 @@ def upgrade() -> None:
 
     try:
         op.create_index(
-            "ix_scenario_parameters_scenario_id", "scenario_parameters", ["scenario_id"]
+            "ix_scenario_parameters_scenario_id",
+            "scenario_parameters",
+            ["scenario_id"],
         )
         print("✅ Created index ix_scenario_parameters_scenario_id")
     except Exception as e:
@@ -157,10 +180,18 @@ def downgrade() -> None:
     op.drop_constraint("uq_scenario_parameter", "scenario_parameters")
 
     # Remove indexes
-    op.drop_index("ix_scenario_parameters_parameter_id", "scenario_parameters")
-    op.drop_index("ix_scenario_parameters_scenario_id", "scenario_parameters")
-    op.drop_index("ix_monte_carlo_simulations_created_at", "monte_carlo_simulations")
-    op.drop_index("ix_monte_carlo_simulations_scenario_id", "monte_carlo_simulations")
+    op.drop_index(
+        "ix_scenario_parameters_parameter_id", "scenario_parameters"
+    )
+    op.drop_index(
+        "ix_scenario_parameters_scenario_id", "scenario_parameters"
+    )
+    op.drop_index(
+        "ix_monte_carlo_simulations_created_at", "monte_carlo_simulations"
+    )
+    op.drop_index(
+        "ix_monte_carlo_simulations_scenario_id", "monte_carlo_simulations"
+    )
 
     # Remove columns from scenarios
     op.drop_column("scenarios", "is_base_case")

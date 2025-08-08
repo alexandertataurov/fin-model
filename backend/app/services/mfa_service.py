@@ -57,7 +57,9 @@ class MFAService:
         return img_str
 
     @staticmethod
-    def verify_totp_token(secret: str, token: str, valid_window: int = 1) -> bool:
+    def verify_totp_token(
+        secret: str, token: str, valid_window: int = 1
+    ) -> bool:
         """
         Verify TOTP token.
 
@@ -76,7 +78,8 @@ class MFAService:
         for _ in range(count):
             # Generate 8-character alphanumeric code
             code = "".join(
-                secrets.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)
+                secrets.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+                for _ in range(8)
             )
             # Format as XXXX-XXXX
             formatted_code = f"{code[:4]}-{code[4:]}"
@@ -91,7 +94,9 @@ class MFAService:
         # Check if user already has MFA enabled
         existing_mfa = (
             self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
+            .filter(
+                MFAToken.user_id == user.id, MFAToken.is_verified == True
+            )
             .first()
         )
 
@@ -106,7 +111,11 @@ class MFAService:
         backup_codes = self.generate_backup_codes()
 
         # Create or update MFA token record
-        mfa_token = self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
+        mfa_token = (
+            self.db.query(MFAToken)
+            .filter(MFAToken.user_id == user.id)
+            .first()
+        )
 
         if mfa_token:
             # Update existing unverified token
@@ -130,7 +139,11 @@ class MFAService:
         # Generate QR code
         qr_code = self.generate_qr_code(user.email, secret)
 
-        return {"secret": secret, "qr_code": qr_code, "backup_codes": backup_codes}
+        return {
+            "secret": secret,
+            "qr_code": qr_code,
+            "backup_codes": backup_codes,
+        }
 
     def verify_mfa_setup(self, user: User, token: str) -> bool:
         """
@@ -138,7 +151,9 @@ class MFAService:
         """
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == False)
+            .filter(
+                MFAToken.user_id == user.id, MFAToken.is_verified == False
+            )
             .first()
         )
 
@@ -175,7 +190,9 @@ class MFAService:
         """
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
+            .filter(
+                MFAToken.user_id == user.id, MFAToken.is_verified == True
+            )
             .first()
         )
 
@@ -184,7 +201,10 @@ class MFAService:
 
         if use_backup:
             # Verify backup code
-            if not mfa_token.backup_codes or token not in mfa_token.backup_codes:
+            if (
+                not mfa_token.backup_codes
+                or token not in mfa_token.backup_codes
+            ):
                 return False
 
             # Remove used backup code
@@ -212,11 +232,16 @@ class MFAService:
         # Verify password
         if not verify_password(password, user.hashed_password):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid password"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid password",
             )
 
         # Remove MFA token
-        mfa_token = self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
+        mfa_token = (
+            self.db.query(MFAToken)
+            .filter(MFAToken.user_id == user.id)
+            .first()
+        )
 
         if mfa_token:
             self.db.delete(mfa_token)
@@ -229,13 +254,16 @@ class MFAService:
         """Get remaining backup codes for a user."""
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
+            .filter(
+                MFAToken.user_id == user.id, MFAToken.is_verified == True
+            )
             .first()
         )
 
         if not mfa_token:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="MFA not enabled"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="MFA not enabled",
             )
 
         return mfa_token.backup_codes or []
@@ -244,13 +272,16 @@ class MFAService:
         """Generate new backup codes for a user."""
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
+            .filter(
+                MFAToken.user_id == user.id, MFAToken.is_verified == True
+            )
             .first()
         )
 
         if not mfa_token:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="MFA not enabled"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="MFA not enabled",
             )
 
         # Generate new codes
@@ -264,7 +295,9 @@ class MFAService:
         """Check if MFA is enabled for a user."""
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
+            .filter(
+                MFAToken.user_id == user.id, MFAToken.is_verified == True
+            )
             .first()
         )
 
@@ -293,7 +326,9 @@ class MFAService:
 
         return challenge.id
 
-    def get_mfa_challenge(self, challenge_id: str) -> Optional[MFAChallenge]:
+    def get_mfa_challenge(
+        self, challenge_id: str
+    ) -> Optional[MFAChallenge]:
         """Get MFA challenge by ID."""
         challenge = (
             self.db.query(MFAChallenge)

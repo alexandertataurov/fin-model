@@ -21,7 +21,10 @@ def upgrade() -> None:
         "parameter_groups",
         sa.Column("id", sa.String(length=50), primary_key=True),
         sa.Column(
-            "model_id", sa.Integer, sa.ForeignKey("uploaded_files.id"), nullable=False
+            "model_id",
+            sa.Integer,
+            sa.ForeignKey("uploaded_files.id"),
+            nullable=False,
         ),
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("description", sa.Text, nullable=True),
@@ -29,7 +32,10 @@ def upgrade() -> None:
         sa.Column("is_expanded", sa.Boolean, default=True),
         sa.Column("created_at", sa.DateTime, default=sa.func.now()),
         sa.Column(
-            "updated_at", sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()
+            "updated_at",
+            sa.DateTime,
+            default=sa.func.now(),
+            onupdate=sa.func.now(),
         ),
     )
 
@@ -38,11 +44,23 @@ def upgrade() -> None:
         "parameter_history",
         sa.Column("id", sa.String(length=50), primary_key=True),
         sa.Column(
-            "parameter_id", sa.Integer, sa.ForeignKey("parameters.id"), nullable=False
+            "parameter_id",
+            sa.Integer,
+            sa.ForeignKey("parameters.id"),
+            nullable=False,
         ),
-        sa.Column("old_value", sa.Numeric(precision=15, scale=6), nullable=True),
-        sa.Column("new_value", sa.Numeric(precision=15, scale=6), nullable=False),
-        sa.Column("changed_by", sa.Integer, sa.ForeignKey("users.id"), nullable=False),
+        sa.Column(
+            "old_value", sa.Numeric(precision=15, scale=6), nullable=True
+        ),
+        sa.Column(
+            "new_value", sa.Numeric(precision=15, scale=6), nullable=False
+        ),
+        sa.Column(
+            "changed_by",
+            sa.Integer,
+            sa.ForeignKey("users.id"),
+            nullable=False,
+        ),
         sa.Column("changed_at", sa.DateTime, default=sa.func.now()),
         sa.Column("change_reason", sa.String(length=255), nullable=True),
     )
@@ -60,24 +78,35 @@ def upgrade() -> None:
 
     # Add control type and UI fields to parameters
     op.add_column(
-        "parameters", sa.Column("control_type", sa.String(length=50), default="input")
+        "parameters",
+        sa.Column("control_type", sa.String(length=50), default="input"),
     )
     op.add_column(
         "parameters",
-        sa.Column("step_size", sa.Numeric(precision=15, scale=6), nullable=True),
+        sa.Column(
+            "step_size", sa.Numeric(precision=15, scale=6), nullable=True
+        ),
     )
     op.add_column(
         "parameters",
-        sa.Column("display_format", sa.String(length=50), default="number"),
+        sa.Column(
+            "display_format", sa.String(length=50), default="number"
+        ),
     )
 
     # Create indexes
-    op.create_index("ix_parameter_groups_model_id", "parameter_groups", ["model_id"])
     op.create_index(
-        "ix_parameter_history_parameter_id", "parameter_history", ["parameter_id"]
+        "ix_parameter_groups_model_id", "parameter_groups", ["model_id"]
     )
     op.create_index(
-        "ix_parameter_history_changed_at", "parameter_history", ["changed_at"]
+        "ix_parameter_history_parameter_id",
+        "parameter_history",
+        ["parameter_id"],
+    )
+    op.create_index(
+        "ix_parameter_history_changed_at",
+        "parameter_history",
+        ["changed_at"],
     )
     op.create_index("ix_parameters_group_id", "parameters", ["group_id"])
 

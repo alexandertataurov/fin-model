@@ -1,4 +1,12 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Text,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .base import Base
@@ -23,9 +31,14 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     failed_login_attempts = Column(Integer, default=0, nullable=False)
     account_locked_until = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     updated_at = Column(
-        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     # Relationships
@@ -47,13 +60,18 @@ class User(Base):
 
     # Enhanced authentication relationships
     mfa_token = relationship(
-        "MFAToken", back_populates="user", uselist=False, cascade="all, delete-orphan"
+        "MFAToken",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
     )
     oauth_accounts = relationship(
         "OAuthAccount", back_populates="user", cascade="all, delete-orphan"
     )
     webauthn_credentials = relationship(
-        "WebAuthnCredential", back_populates="user", cascade="all, delete-orphan"
+        "WebAuthnCredential",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     # Notification relationships

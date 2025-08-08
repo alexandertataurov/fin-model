@@ -38,7 +38,10 @@ class IncrementalCalculator:
         self._calculation_cache = {}
 
     def recalculate_from_parameters(
-        self, model_id: str, file_path: str, changed_params: Dict[str, float]
+        self,
+        model_id: str,
+        file_path: str,
+        changed_params: Dict[str, float],
     ) -> RecalculationResult:
         """Recalculate only affected parts of the model."""
         start_time = time.time()
@@ -48,7 +51,9 @@ class IncrementalCalculator:
             graph = self._get_dependency_graph(model_id, file_path)
 
             # Find all cells affected by parameter changes
-            affected_cells = self._find_affected_cells(graph, changed_params.keys())
+            affected_cells = self._find_affected_cells(
+                graph, changed_params.keys()
+            )
 
             # Sort by dependency order (topological sort)
             calc_order = self._get_calculation_order(graph, affected_cells)
@@ -118,10 +123,15 @@ class IncrementalCalculator:
                 # Calculate changes from base
                 changes = {}
                 if base_result:
-                    for cell, new_val in calc_result.updated_values.items():
+                    for (
+                        cell,
+                        new_val,
+                    ) in calc_result.updated_values.items():
                         base_val = base_result.get(cell, 0)
                         if base_val != 0:
-                            changes[cell] = ((new_val - base_val) / base_val) * 100
+                            changes[cell] = (
+                                (new_val - base_val) / base_val
+                            ) * 100
                         else:
                             changes[cell] = new_val
 
@@ -171,7 +181,9 @@ class IncrementalCalculator:
                 calculation_order = list(nodes)
 
             return DependencyGraph(
-                nodes=nodes, edges=edges, calculation_order=calculation_order
+                nodes=nodes,
+                edges=edges,
+                calculation_order=calculation_order,
             )
 
         except Exception as e:
@@ -180,7 +192,9 @@ class IncrementalCalculator:
                 nodes=set(cell_refs), edges=[], calculation_order=cell_refs
             )
 
-    def validate_circular_references(self, file_path: str) -> Dict[str, Any]:
+    def validate_circular_references(
+        self, file_path: str
+    ) -> Dict[str, Any]:
         """Detect circular references in the model."""
         try:
             # Get all formulas and dependencies
@@ -198,7 +212,9 @@ class IncrementalCalculator:
                 return {
                     "has_circular_references": len(cycles) > 0,
                     "circular_chains": cycles,
-                    "affected_cells": set().union(*cycles) if cycles else set(),
+                    "affected_cells": set().union(*cycles)
+                    if cycles
+                    else set(),
                 }
             except nx.NetworkXError:
                 return {
@@ -215,7 +231,9 @@ class IncrementalCalculator:
                 "error": str(e),
             }
 
-    def _get_dependency_graph(self, model_id: str, file_path: str) -> DependencyGraph:
+    def _get_dependency_graph(
+        self, model_id: str, file_path: str
+    ) -> DependencyGraph:
         """Get or build dependency graph for model."""
         if model_id in self._dependency_cache:
             return self._dependency_cache[model_id]
@@ -228,9 +246,13 @@ class IncrementalCalculator:
             return graph
         except Exception:
             # Return empty graph if analysis fails
-            return DependencyGraph(nodes=set(), edges=[], calculation_order=[])
+            return DependencyGraph(
+                nodes=set(), edges=[], calculation_order=[]
+            )
 
-    def _build_dependency_graph(self, formulas: Dict[str, Any]) -> DependencyGraph:
+    def _build_dependency_graph(
+        self, formulas: Dict[str, Any]
+    ) -> DependencyGraph:
         """Build dependency graph from formula analysis."""
         nodes = set()
         edges = []
@@ -284,14 +306,23 @@ class IncrementalCalculator:
     ) -> List[str]:
         """Get calculation order for affected cells."""
         # Filter calculation order to only include affected cells
-        return [cell for cell in graph.calculation_order if cell in affected_cells]
+        return [
+            cell
+            for cell in graph.calculation_order
+            if cell in affected_cells
+        ]
 
     def _calculate_cell_value(
-        self, file_path: str, cell_ref: str, updated_values: Dict[str, float]
+        self,
+        file_path: str,
+        cell_ref: str,
+        updated_values: Dict[str, float],
     ) -> float:
         """Calculate value for a specific cell."""
         # Use formula engine with updated parameter values
-        return self.formula_engine.calculate_cell(file_path, cell_ref, updated_values)
+        return self.formula_engine.calculate_cell(
+            file_path, cell_ref, updated_values
+        )
 
     def _calculate_sensitivity_summary(
         self, results: List[Dict[str, Any]]
@@ -305,13 +336,19 @@ class IncrementalCalculator:
         min_sensitivity = {}
 
         for result in results:
-            for cell, change in result.get("percentage_changes", {}).items():
+            for cell, change in result.get(
+                "percentage_changes", {}
+            ).items():
                 if cell not in max_sensitivity:
                     max_sensitivity[cell] = change
                     min_sensitivity[cell] = change
                 else:
-                    max_sensitivity[cell] = max(max_sensitivity[cell], abs(change))
-                    min_sensitivity[cell] = min(min_sensitivity[cell], abs(change))
+                    max_sensitivity[cell] = max(
+                        max_sensitivity[cell], abs(change)
+                    )
+                    min_sensitivity[cell] = min(
+                        min_sensitivity[cell], abs(change)
+                    )
 
         # Sort by sensitivity
         sensitive_cells = sorted(
@@ -321,8 +358,12 @@ class IncrementalCalculator:
         return {
             "most_sensitive_cells": sensitive_cells[:10],  # Top 10
             "total_affected_cells": len(max_sensitivity),
-            "max_sensitivity": max(max_sensitivity.values()) if max_sensitivity else 0,
-            "min_sensitivity": min(min_sensitivity.values()) if min_sensitivity else 0,
+            "max_sensitivity": max(max_sensitivity.values())
+            if max_sensitivity
+            else 0,
+            "min_sensitivity": min(min_sensitivity.values())
+            if min_sensitivity
+            else 0,
         }
 
     def clear_cache(self, model_id: str = None):
@@ -371,15 +412,28 @@ class ParameterValidator:
         validation_rules = parameter.get("validation_rules", [])
         for rule in validation_rules:
             if not self._apply_validation_rule(rule, value):
-                errors.append(rule.get("error_message", "Validation rule failed"))
+                errors.append(
+                    rule.get("error_message", "Validation rule failed")
+                )
 
         # Business logic warnings
-        if param_type in ["growth_rate", "interest_rate"] and abs(value) > 1:
-            warnings.append("Value seems unusually high for a rate parameter")
+        if (
+            param_type in ["growth_rate", "interest_rate"]
+            and abs(value) > 1
+        ):
+            warnings.append(
+                "Value seems unusually high for a rate parameter"
+            )
 
-        return {"valid": len(errors) == 0, "errors": errors, "warnings": warnings}
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors,
+            "warnings": warnings,
+        }
 
-    def _apply_validation_rule(self, rule: Dict[str, Any], value: float) -> bool:
+    def _apply_validation_rule(
+        self, rule: Dict[str, Any], value: float
+    ) -> bool:
         """Apply custom validation rule."""
         rule_type = rule.get("type")
 
@@ -395,7 +449,9 @@ class ParameterValidator:
             try:
                 # Replace 'value' in expression with actual value
                 expression = expression.replace("value", str(value))
-                return eval(expression)  # In production, use a safer evaluator
+                return eval(
+                    expression
+                )  # In production, use a safer evaluator
             except:
                 return True  # Default to valid if expression fails
 

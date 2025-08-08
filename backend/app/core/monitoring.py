@@ -9,16 +9,22 @@ import json
 
 # Prometheus metrics
 request_count = Counter(
-    "http_requests_total", "Total HTTP requests", ["method", "endpoint", "status_code"]
+    "http_requests_total",
+    "Total HTTP requests",
+    ["method", "endpoint", "status_code"],
 )
 request_duration = Histogram(
-    "http_request_duration_seconds", "HTTP request duration", ["method", "endpoint"]
+    "http_request_duration_seconds",
+    "HTTP request duration",
+    ["method", "endpoint"],
 )
 active_connections = Gauge(
     "active_websocket_connections", "Active WebSocket connections"
 )
 database_query_duration = Histogram(
-    "database_query_duration_seconds", "Database query duration", ["query_type"]
+    "database_query_duration_seconds",
+    "Database query duration",
+    ["query_type"],
 )
 memory_usage = Gauge("memory_usage_bytes", "Memory usage in bytes")
 cpu_usage = Gauge("cpu_usage_percent", "CPU usage percentage")
@@ -59,7 +65,9 @@ class PerformanceMonitor:
         request_count.labels(
             method=method, endpoint=endpoint, status_code=status_code
         ).inc()
-        request_duration.labels(method=method, endpoint=endpoint).observe(duration)
+        request_duration.labels(method=method, endpoint=endpoint).observe(
+            duration
+        )
 
         # Store detailed metric
         metric = PerformanceMetric(
@@ -89,14 +97,18 @@ class PerformanceMonitor:
         self, query_type: str, duration: float, query: str = None
     ):
         """Record database query performance"""
-        database_query_duration.labels(query_type=query_type).observe(duration)
+        database_query_duration.labels(query_type=query_type).observe(
+            duration
+        )
 
         metric = PerformanceMetric(
             timestamp=datetime.utcnow(),
             metric_type="database_query",
             value=duration,
             tags={"query_type": query_type},
-            context={"query": query[:200] if query else None},  # Truncate long queries
+            context={
+                "query": query[:200] if query else None
+            },  # Truncate long queries
         )
         self.metrics_buffer.append(metric)
 
@@ -116,7 +128,8 @@ class PerformanceMonitor:
                 "high_memory_usage",
                 {
                     "current": memory.percent,
-                    "threshold": self.alert_thresholds["memory_usage"] * 100,
+                    "threshold": self.alert_thresholds["memory_usage"]
+                    * 100,
                 },
             )
 
@@ -131,20 +144,30 @@ class PerformanceMonitor:
 
     def trigger_alert(self, alert_type: str, context: Dict):
         """Trigger performance alert"""
-        self.logger.warning(f"Performance alert: {alert_type}", extra=context)
+        self.logger.warning(
+            f"Performance alert: {alert_type}", extra=context
+        )
         # Here you could integrate with alerting services like PagerDuty, Slack, etc.
 
     def get_metrics_summary(self, hours: int = 24) -> Dict:
         """Get metrics summary for the last N hours"""
         cutoff_time = datetime.utcnow() - timedelta(hours=hours)
-        recent_metrics = [m for m in self.metrics_buffer if m.timestamp > cutoff_time]
+        recent_metrics = [
+            m for m in self.metrics_buffer if m.timestamp > cutoff_time
+        ]
 
         if not recent_metrics:
-            return {"message": "No metrics available for the specified period"}
+            return {
+                "message": "No metrics available for the specified period"
+            }
 
         # Calculate statistics
-        request_metrics = [m for m in recent_metrics if m.metric_type == "http_request"]
-        db_metrics = [m for m in recent_metrics if m.metric_type == "database_query"]
+        request_metrics = [
+            m for m in recent_metrics if m.metric_type == "http_request"
+        ]
+        db_metrics = [
+            m for m in recent_metrics if m.metric_type == "database_query"
+        ]
 
         summary = {
             "period_hours": hours,
@@ -154,13 +177,16 @@ class PerformanceMonitor:
             / len(request_metrics)
             if request_metrics
             else 0,
-            "avg_db_query_time": sum(m.value for m in db_metrics) / len(db_metrics)
+            "avg_db_query_time": sum(m.value for m in db_metrics)
+            / len(db_metrics)
             if db_metrics
             else 0,
             "max_request_time": max(m.value for m in request_metrics)
             if request_metrics
             else 0,
-            "max_db_query_time": max(m.value for m in db_metrics) if db_metrics else 0,
+            "max_db_query_time": max(m.value for m in db_metrics)
+            if db_metrics
+            else 0,
         }
 
         return summary

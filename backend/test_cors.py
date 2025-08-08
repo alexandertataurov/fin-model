@@ -49,8 +49,12 @@ def test_cors_configuration():
                 try:
                     content = response.json()
                     print("📋 CORS Debug Info:")
-                    print(f"   Origins: {content.get('cors_origins', 'N/A')}")
-                    print(f"   Raw Origins: {content.get('raw_cors_origins', 'N/A')}")
+                    print(
+                        f"   Origins: {content.get('cors_origins', 'N/A')}"
+                    )
+                    print(
+                        f"   Raw Origins: {content.get('raw_cors_origins', 'N/A')}"
+                    )
                 except Exception:
                     response_text = response.text[:200]
                     print(f"📋 Response: {response_text}...")

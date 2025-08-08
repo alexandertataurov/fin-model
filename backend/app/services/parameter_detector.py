@@ -8,7 +8,11 @@ import openpyxl
 from openpyxl.formula.tokenizer import Tokenizer
 from openpyxl.formula.translate import Translator
 
-from app.models.parameter import ParameterType, ParameterCategory, SensitivityLevel
+from app.models.parameter import (
+    ParameterType,
+    ParameterCategory,
+    SensitivityLevel,
+)
 from app.services.excel_parser import ExcelParser
 
 
@@ -107,7 +111,9 @@ class ParameterDetector:
         try:
             # Parse the Excel file
             workbook = openpyxl.load_workbook(file_path, data_only=False)
-            data_workbook = openpyxl.load_workbook(file_path, data_only=True)
+            data_workbook = openpyxl.load_workbook(
+                file_path, data_only=True
+            )
 
             detected_parameters = []
 
@@ -122,7 +128,9 @@ class ParameterDetector:
                 detected_parameters.extend(sheet_parameters)
 
             # Build dependency graph
-            await self._build_dependency_graph(detected_parameters, workbook)
+            await self._build_dependency_graph(
+                detected_parameters, workbook
+            )
 
             # Classify sensitivity levels
             await self._classify_sensitivity_levels(detected_parameters)
@@ -144,7 +152,9 @@ class ParameterDetector:
         for row in formula_sheet.iter_rows():
             for cell in row:
                 if cell.value is not None:
-                    parameter = await self._analyze_cell(cell, data_sheet, sheet_name)
+                    parameter = await self._analyze_cell(
+                        cell, data_sheet, sheet_name
+                    )
                     if parameter:
                         parameters.append(parameter)
 
@@ -170,14 +180,18 @@ class ParameterDetector:
 
         # Get the actual value
         actual_value = (
-            data_cell.value if data_cell.value is not None else formula_cell.value
+            data_cell.value
+            if data_cell.value is not None
+            else formula_cell.value
         )
 
         # Try to convert to float
         numeric_value = self._extract_numeric_value(actual_value)
 
         # Determine if this cell is likely a parameter
-        if not await self._is_likely_parameter(formula_cell, data_cell, is_formula):
+        if not await self._is_likely_parameter(
+            formula_cell, data_cell, is_formula
+        ):
             return None
 
         # Classify the parameter
@@ -186,7 +200,9 @@ class ParameterDetector:
         )
 
         # Generate parameter name
-        param_name = await self._generate_parameter_name(formula_cell, sheet_name)
+        param_name = await self._generate_parameter_name(
+            formula_cell, sheet_name
+        )
 
         # Determine format type
         format_type = self._determine_format_type(actual_value, param_type)
@@ -209,7 +225,9 @@ class ParameterDetector:
             parameter_type=param_type,
             category=category,
             sensitivity_level=SensitivityLevel.MEDIUM,  # Will be updated later
-            description=await self._generate_description(formula_cell, param_type),
+            description=await self._generate_description(
+                formula_cell, param_type
+            ),
             unit=self._detect_unit(formula_cell),
             format_type=format_type,
             min_value=None,  # Will be set based on validation rules
@@ -242,13 +260,22 @@ class ParameterDetector:
                 return False
 
             # Skip functions that are clearly calculations (SUM, AVERAGE, etc.)
-            calc_functions = ["sum", "average", "max", "min", "count", "if"]
+            calc_functions = [
+                "sum",
+                "average",
+                "max",
+                "min",
+                "count",
+                "if",
+            ]
             if any(func in formula for func in calc_functions):
                 return False
 
         # Check if it has a numeric value
         actual_value = (
-            data_cell.value if data_cell.value is not None else formula_cell.value
+            data_cell.value
+            if data_cell.value is not None
+            else formula_cell.value
         )
         if not self._has_numeric_component(actual_value):
             return False
@@ -283,13 +310,22 @@ class ParameterDetector:
         category = ParameterCategory.ASSUMPTIONS
 
         # Check for growth rates
-        if any(re.search(pattern, context_text) for pattern in self.growth_patterns):
-            if any(re.search(r"%|percent", context_text) for pattern in [context_text]):
+        if any(
+            re.search(pattern, context_text)
+            for pattern in self.growth_patterns
+        ):
+            if any(
+                re.search(r"%|percent", context_text)
+                for pattern in [context_text]
+            ):
                 param_type = ParameterType.GROWTH_RATE
                 category = ParameterCategory.ASSUMPTIONS
 
         # Check for revenue parameters
-        elif any(re.search(pattern, context_text) for pattern in self.revenue_patterns):
+        elif any(
+            re.search(pattern, context_text)
+            for pattern in self.revenue_patterns
+        ):
             if "price" in context_text:
                 param_type = ParameterType.PRICE
             elif "volume" in context_text or "quantity" in context_text:
@@ -299,13 +335,17 @@ class ParameterDetector:
             category = ParameterCategory.REVENUE
 
         # Check for cost parameters
-        elif any(re.search(pattern, context_text) for pattern in self.cost_patterns):
+        elif any(
+            re.search(pattern, context_text)
+            for pattern in self.cost_patterns
+        ):
             param_type = ParameterType.COST_ASSUMPTION
             category = ParameterCategory.COSTS
 
         # Check for financial parameters
         elif any(
-            re.search(pattern, context_text) for pattern in self.financial_patterns
+            re.search(pattern, context_text)
+            for pattern in self.financial_patterns
         ):
             if "discount" in context_text or "wacc" in context_text:
                 param_type = ParameterType.DISCOUNT_RATE
@@ -319,7 +359,8 @@ class ParameterDetector:
 
         # Check for operational parameters
         elif any(
-            re.search(pattern, context_text) for pattern in self.operational_patterns
+            re.search(pattern, context_text)
+            for pattern in self.operational_patterns
         ):
             param_type = ParameterType.VARIABLE
             category = ParameterCategory.OPERATIONS
@@ -347,7 +388,9 @@ class ParameterDetector:
 
                     if target_row > 0 and target_col > 0:
                         target_cell = sheet.cell(target_row, target_col)
-                        if target_cell.value and isinstance(target_cell.value, str):
+                        if target_cell.value and isinstance(
+                            target_cell.value, str
+                        ):
                             context.append(target_cell.value)
                 except:
                     continue
@@ -427,7 +470,9 @@ class ParameterDetector:
         """
         return self._extract_numeric_value(value) is not None
 
-    def _determine_format_type(self, value: Any, param_type: ParameterType) -> str:
+    def _determine_format_type(
+        self, value: Any, param_type: ParameterType
+    ) -> str:
         """
         Determine the format type for the parameter.
         """
@@ -465,7 +510,9 @@ class ParameterDetector:
 
                     if target_row > 0 and target_col > 0:
                         target_cell = sheet.cell(target_row, target_col)
-                        if target_cell.value and isinstance(target_cell.value, str):
+                        if target_cell.value and isinstance(
+                            target_cell.value, str
+                        ):
                             context.append(target_cell.value.lower())
                 except:
                     continue
@@ -507,7 +554,8 @@ class ParameterDetector:
             rules["min_value"] = 0.0
             rules["max_value"] = (
                 100.0
-                if self._determine_format_type(None, param_type) == "percentage"
+                if self._determine_format_type(None, param_type)
+                == "percentage"
                 else 1.0
             )
 
@@ -579,9 +627,13 @@ class ParameterDetector:
                 for dep_ref in dependencies:
                     if dep_ref in param_map:
                         param.depends_on.append(dep_ref)
-                        param_map[dep_ref].affects.append(param.cell_reference)
+                        param_map[dep_ref].affects.append(
+                            param.cell_reference
+                        )
 
-    def _parse_formula_dependencies(self, formula: str, sheet_name: str) -> List[str]:
+    def _parse_formula_dependencies(
+        self, formula: str, sheet_name: str
+    ) -> List[str]:
         """
         Parse formula to extract cell dependencies.
         """
@@ -679,7 +731,9 @@ class ParameterDetector:
         """
         try:
             workbook = openpyxl.load_workbook(file_path, data_only=False)
-            data_workbook = openpyxl.load_workbook(file_path, data_only=True)
+            data_workbook = openpyxl.load_workbook(
+                file_path, data_only=True
+            )
 
             detected_params = []
 
@@ -694,7 +748,9 @@ class ParameterDetector:
                             formula_cell = formula_sheet.cell(row, col)
                             data_cell = data_sheet.cell(row, col)
 
-                            if self._is_simple_parameter(formula_cell, data_cell):
+                            if self._is_simple_parameter(
+                                formula_cell, data_cell
+                            ):
                                 param_data = self._extract_parameter_data(
                                     formula_cell, data_cell, sheet_name
                                 )
@@ -712,15 +768,28 @@ class ParameterDetector:
     def _is_simple_parameter(self, formula_cell, data_cell) -> bool:
         """Check if cell is a simple parameter (numeric value, not complex formula)."""
         # Must have a numeric value
-        value = data_cell.value if data_cell.value is not None else formula_cell.value
+        value = (
+            data_cell.value
+            if data_cell.value is not None
+            else formula_cell.value
+        )
         if not self._has_numeric_component(value):
             return False
 
         # If it's a formula, it should be simple
-        if isinstance(formula_cell.value, str) and formula_cell.value.startswith("="):
+        if isinstance(
+            formula_cell.value, str
+        ) and formula_cell.value.startswith("="):
             # Skip complex formulas
             formula = formula_cell.value.lower()
-            complex_functions = ["sum", "average", "vlookup", "index", "match", "if"]
+            complex_functions = [
+                "sum",
+                "average",
+                "vlookup",
+                "index",
+                "match",
+                "if",
+            ]
             if any(func in formula for func in complex_functions):
                 return False
 
@@ -730,7 +799,11 @@ class ParameterDetector:
         self, formula_cell, data_cell, sheet_name: str
     ) -> Dict[str, Any]:
         """Extract parameter data from cell for parameter service."""
-        value = data_cell.value if data_cell.value is not None else formula_cell.value
+        value = (
+            data_cell.value
+            if data_cell.value is not None
+            else formula_cell.value
+        )
         numeric_value = self._extract_numeric_value(value)
 
         # Get context for classification
@@ -738,7 +811,9 @@ class ParameterDetector:
         context_text = " ".join(context).lower()
 
         # Classify parameter
-        param_type, category = self._classify_parameter_sync(context_text, formula_cell)
+        param_type, category = self._classify_parameter_sync(
+            context_text, formula_cell
+        )
 
         # Generate name
         name = self._generate_name_sync(formula_cell, context)
@@ -769,7 +844,9 @@ class ParameterDetector:
                     target_col = cell.column + col_offset
                     if target_row > 0 and target_col > 0:
                         target_cell = sheet.cell(target_row, target_col)
-                        if target_cell.value and isinstance(target_cell.value, str):
+                        if target_cell.value and isinstance(
+                            target_cell.value, str
+                        ):
                             context.append(target_cell.value)
                 except:
                     continue
@@ -782,7 +859,8 @@ class ParameterDetector:
         """Synchronous parameter classification."""
         # Check for growth/rate patterns
         if any(
-            pattern in context_text for pattern in ["growth", "rate", "%", "percent"]
+            pattern in context_text
+            for pattern in ["growth", "rate", "%", "percent"]
         ):
             return ParameterType.GROWTH_RATE, ParameterCategory.ASSUMPTIONS
 
@@ -791,10 +869,16 @@ class ParameterDetector:
             pattern in context_text
             for pattern in ["revenue", "sales", "price", "volume"]
         ):
-            return ParameterType.REVENUE_ASSUMPTION, ParameterCategory.REVENUE
+            return (
+                ParameterType.REVENUE_ASSUMPTION,
+                ParameterCategory.REVENUE,
+            )
 
         # Check for cost patterns
-        if any(pattern in context_text for pattern in ["cost", "expense", "cogs"]):
+        if any(
+            pattern in context_text
+            for pattern in ["cost", "expense", "cogs"]
+        ):
             return ParameterType.COST_ASSUMPTION, ParameterCategory.COSTS
 
         # Check for financial patterns
@@ -821,7 +905,9 @@ class ParameterDetector:
         # Fallback to cell reference
         return f"param_{cell.coordinate.lower()}"
 
-    def _infer_min_value(self, param_type: ParameterType) -> Optional[float]:
+    def _infer_min_value(
+        self, param_type: ParameterType
+    ) -> Optional[float]:
         """Infer minimum value based on parameter type."""
         if param_type in [
             ParameterType.GROWTH_RATE,
@@ -834,9 +920,14 @@ class ParameterDetector:
             return 0.0
         return None
 
-    def _infer_max_value(self, param_type: ParameterType) -> Optional[float]:
+    def _infer_max_value(
+        self, param_type: ParameterType
+    ) -> Optional[float]:
         """Infer maximum value based on parameter type."""
-        if param_type in [ParameterType.GROWTH_RATE, ParameterType.TAX_RATE]:
+        if param_type in [
+            ParameterType.GROWTH_RATE,
+            ParameterType.TAX_RATE,
+        ]:
             return 1.0  # 100%
         elif param_type == ParameterType.DISCOUNT_RATE:
             return 0.5  # 50%
@@ -859,7 +950,8 @@ class ParameterDetector:
                 overall_avg = sum(data) / len(data)
                 if overall_avg != 0:
                     deviations = [
-                        abs(a - overall_avg) / abs(overall_avg) for a in averages
+                        abs(a - overall_avg) / abs(overall_avg)
+                        for a in averages
                     ]
                     strength = 1 - (sum(deviations) / len(deviations))
                     result["seasonal_strength"] = max(0.0, strength)
@@ -872,7 +964,9 @@ class ParameterDetector:
 
         return result
 
-    def identify_assumptions(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+    def identify_assumptions(
+        self, parsed_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Identify key assumptions from parsed financial data.
 
@@ -898,22 +992,31 @@ class ParameterDetector:
                     # Look for assumption-related sheets
                     if any(
                         keyword in sheet_name
-                        for keyword in ["assumption", "input", "parameter", "scenario"]
+                        for keyword in [
+                            "assumption",
+                            "input",
+                            "parameter",
+                            "scenario",
+                        ]
                     ):
                         # Extract numeric values that look like assumptions
                         if "cells" in sheet:
                             for cell in sheet["cells"]:
                                 if self._looks_like_assumption(cell):
-                                    assumption = self._create_assumption_from_cell(
-                                        cell, sheet_name
+                                    assumption = (
+                                        self._create_assumption_from_cell(
+                                            cell, sheet_name
+                                        )
                                     )
                                     if assumption:
-                                        category = self._categorize_assumption(
-                                            assumption
+                                        category = (
+                                            self._categorize_assumption(
+                                                assumption
+                                            )
                                         )
-                                        assumptions[f"{category}_assumptions"].append(
-                                            assumption
-                                        )
+                                        assumptions[
+                                            f"{category}_assumptions"
+                                        ].append(assumption)
 
             # Calculate confidence scores
             for category in ["growth", "operational", "financial"]:
@@ -928,7 +1031,9 @@ class ParameterDetector:
 
         return assumptions
 
-    def validate_assumptions(self, assumptions: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_assumptions(
+        self, assumptions: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Validate the reasonableness of financial assumptions.
 
@@ -949,7 +1054,10 @@ class ParameterDetector:
             # Validate growth assumptions
             if "growth_assumptions" in assumptions:
                 for assumption in assumptions["growth_assumptions"]:
-                    if isinstance(assumption, dict) and "value" in assumption:
+                    if (
+                        isinstance(assumption, dict)
+                        and "value" in assumption
+                    ):
                         try:
                             value = float(assumption["value"])
 
@@ -971,13 +1079,18 @@ class ParameterDetector:
             # Validate operational assumptions
             if "operational_assumptions" in assumptions:
                 for assumption in assumptions["operational_assumptions"]:
-                    if isinstance(assumption, dict) and "value" in assumption:
+                    if (
+                        isinstance(assumption, dict)
+                        and "value" in assumption
+                    ):
                         try:
                             value = float(assumption["value"])
                             name = assumption.get("name", "").lower()
 
                             # Check margin assumptions
-                            if "margin" in name and (value < 0 or value > 1):
+                            if "margin" in name and (
+                                value < 0 or value > 1
+                            ):
                                 validation_result["errors"].append(
                                     f"Invalid margin value: {value}"
                                 )
@@ -1039,9 +1152,13 @@ class ParameterDetector:
         """Categorize an assumption based on its name and value."""
         name = assumption.get("name", "").lower()
 
-        if any(keyword in name for keyword in ["growth", "rate", "increase"]):
+        if any(
+            keyword in name for keyword in ["growth", "rate", "increase"]
+        ):
             return "growth"
-        elif any(keyword in name for keyword in ["margin", "cost", "expense"]):
+        elif any(
+            keyword in name for keyword in ["margin", "cost", "expense"]
+        ):
             return "operational"
         else:
             return "financial"

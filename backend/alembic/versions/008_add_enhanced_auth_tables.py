@@ -40,7 +40,9 @@ def upgrade() -> None:
                 print(f"✅ Added column {column_name} to {table_name}")
                 return True
             else:
-                print(f"⚠️ Column {column_name} already exists in {table_name}")
+                print(
+                    f"⚠️ Column {column_name} already exists in {table_name}"
+                )
                 return False
         except Exception as e:
             print(f"⚠️ Could not add column {column_name}: {e}")
@@ -51,7 +53,10 @@ def upgrade() -> None:
         "users",
         "full_name",
         sa.Column(
-            "full_name", sa.String(length=100), nullable=False, server_default=""
+            "full_name",
+            sa.String(length=100),
+            nullable=False,
+            server_default="",
         ),
     )
     safe_add_column(
@@ -62,15 +67,24 @@ def upgrade() -> None:
     safe_add_column(
         "users",
         "verification_token_expires",
-        sa.Column("verification_token_expires", sa.DateTime(), nullable=True),
+        sa.Column(
+            "verification_token_expires", sa.DateTime(), nullable=True
+        ),
     )
     safe_add_column(
         "users",
         "login_attempts",
-        sa.Column("login_attempts", sa.Integer(), nullable=False, server_default="0"),
+        sa.Column(
+            "login_attempts",
+            sa.Integer(),
+            nullable=False,
+            server_default="0",
+        ),
     )
     safe_add_column(
-        "users", "locked_until", sa.Column("locked_until", sa.DateTime(), nullable=True)
+        "users",
+        "locked_until",
+        sa.Column("locked_until", sa.DateTime(), nullable=True),
     )
 
     # Helper function to safely create tables
@@ -104,7 +118,9 @@ def upgrade() -> None:
             "user_sessions",
             sa.Column("id", sa.String(), nullable=False),
             sa.Column("user_id", sa.Integer(), nullable=False),
-            sa.Column("refresh_token", sa.String(length=255), nullable=False),
+            sa.Column(
+                "refresh_token", sa.String(length=255), nullable=False
+            ),
             sa.Column("expires_at", sa.DateTime(), nullable=False),
             sa.Column(
                 "created_at",
@@ -120,7 +136,9 @@ def upgrade() -> None:
             ),
             sa.Column("ip_address", sa.String(length=45), nullable=True),
             sa.Column("user_agent", sa.Text(), nullable=True),
-            sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+            sa.ForeignKeyConstraint(
+                ["user_id"], ["users.id"], ondelete="CASCADE"
+            ),
             sa.PrimaryKeyConstraint("id"),
             sa.UniqueConstraint("refresh_token"),
         )
@@ -157,9 +175,13 @@ def upgrade() -> None:
     # Safely create indexes with existence check
     def safe_create_index(index_name, table_name, columns, unique=False):
         try:
-            result = conn.execute(text(f"SELECT to_regclass('{index_name}')")).scalar()
+            result = conn.execute(
+                text(f"SELECT to_regclass('{index_name}')")
+            ).scalar()
             if result is None:
-                op.create_index(index_name, table_name, columns, unique=unique)
+                op.create_index(
+                    index_name, table_name, columns, unique=unique
+                )
                 print(f"✅ Created index {index_name}")
             else:
                 print(f"⚠️ Skipping index {index_name}: already exists")
@@ -167,12 +189,16 @@ def upgrade() -> None:
             print(f"⚠️ Skipping index {index_name}: {e}")
 
     safe_create_index("ix_rate_limits_key", "rate_limits", ["key"])
-    safe_create_index("ix_rate_limits_window_start", "rate_limits", ["window_start"])
+    safe_create_index(
+        "ix_rate_limits_window_start", "rate_limits", ["window_start"]
+    )
 
 
 def downgrade() -> None:
     # Drop new tables
-    op.drop_index(op.f("ix_rate_limits_window_start"), table_name="rate_limits")
+    op.drop_index(
+        op.f("ix_rate_limits_window_start"), table_name="rate_limits"
+    )
     op.drop_index(op.f("ix_rate_limits_key"), table_name="rate_limits")
     op.drop_table("rate_limits")
     op.drop_table("user_sessions")

@@ -22,7 +22,9 @@ def upgrade():
         "uploaded_files",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("filename", sa.String(length=255), nullable=False),
-        sa.Column("original_filename", sa.String(length=255), nullable=False),
+        sa.Column(
+            "original_filename", sa.String(length=255), nullable=False
+        ),
         sa.Column("file_path", sa.String(length=500), nullable=False),
         sa.Column("file_size", sa.BigInteger(), nullable=False),
         sa.Column("file_type", sa.String(length=50), nullable=False),
@@ -35,10 +37,16 @@ def upgrade():
         sa.Column("parsed_data", sa.Text(), nullable=True),
         sa.Column("uploaded_by_id", sa.Integer(), nullable=False),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column(
-            "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "updated_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.ForeignKeyConstraint(
             ["uploaded_by_id"],
@@ -47,7 +55,10 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_uploaded_files_id"), "uploaded_files", ["id"], unique=False
+        op.f("ix_uploaded_files_id"),
+        "uploaded_files",
+        ["id"],
+        unique=False,
     )
 
     # Create processing_logs table
@@ -60,7 +71,10 @@ def upgrade():
         sa.Column("level", sa.String(length=20), nullable=False),
         sa.Column("details", sa.Text(), nullable=True),
         sa.Column(
-            "timestamp", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "timestamp",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.ForeignKeyConstraint(
             ["file_id"],
@@ -69,12 +83,19 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_processing_logs_id"), "processing_logs", ["id"], unique=False
+        op.f("ix_processing_logs_id"),
+        "processing_logs",
+        ["id"],
+        unique=False,
     )
 
 
 def downgrade():
-    op.drop_index(op.f("ix_processing_logs_id"), table_name="processing_logs")
+    op.drop_index(
+        op.f("ix_processing_logs_id"), table_name="processing_logs"
+    )
     op.drop_table("processing_logs")
-    op.drop_index(op.f("ix_uploaded_files_id"), table_name="uploaded_files")
+    op.drop_index(
+        op.f("ix_uploaded_files_id"), table_name="uploaded_files"
+    )
     op.drop_table("uploaded_files")

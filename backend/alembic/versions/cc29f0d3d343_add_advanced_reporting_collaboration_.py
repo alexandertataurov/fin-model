@@ -55,10 +55,14 @@ def upgrade() -> None:
             sa.Column("user_id", sa.Integer(), nullable=False),
             sa.Column(
                 "permission",
-                sa.Enum("VIEW", "EDIT", "ADMIN", name="collaborationpermission"),
+                sa.Enum(
+                    "VIEW", "EDIT", "ADMIN", name="collaborationpermission"
+                ),
                 nullable=False,
             ),
-            sa.Column("invited_by", sa.Integer(), nullable=False),  # UUID->Integer
+            sa.Column(
+                "invited_by", sa.Integer(), nullable=False
+            ),  # UUID->Integer
             sa.Column("invited_at", sa.DateTime(), nullable=True),
             sa.Column("accepted_at", sa.DateTime(), nullable=True),
             sa.Column("is_active", sa.Boolean(), nullable=True),
@@ -195,7 +199,9 @@ def upgrade() -> None:
         for idx in inspector.get_indexes("report_templates")
     ):
         op.create_index(
-            "ix_report_templates_created_by", "report_templates", ["created_by"]
+            "ix_report_templates_created_by",
+            "report_templates",
+            ["created_by"],
         )
 
     if table_exists("report_collaborations") and not any(
@@ -213,7 +219,9 @@ def upgrade() -> None:
         for idx in inspector.get_indexes("report_collaborations")
     ):
         op.create_index(
-            "ix_report_collaborations_user_id", "report_collaborations", ["user_id"]
+            "ix_report_collaborations_user_id",
+            "report_collaborations",
+            ["user_id"],
         )
 
     if table_exists("report_edits") and not any(
@@ -221,28 +229,36 @@ def upgrade() -> None:
         for idx in inspector.get_indexes("report_edits")
     ):
         op.create_index(
-            "ix_report_edits_template_id", "report_edits", ["report_template_id"]
+            "ix_report_edits_template_id",
+            "report_edits",
+            ["report_template_id"],
         )
 
     if table_exists("report_edits") and not any(
         idx["name"] == "ix_report_edits_timestamp"
         for idx in inspector.get_indexes("report_edits")
     ):
-        op.create_index("ix_report_edits_timestamp", "report_edits", ["timestamp"])
+        op.create_index(
+            "ix_report_edits_timestamp", "report_edits", ["timestamp"]
+        )
 
     if table_exists("ai_insights") and not any(
         idx["name"] == "ix_ai_insights_template_id"
         for idx in inspector.get_indexes("ai_insights")
     ):
         op.create_index(
-            "ix_ai_insights_template_id", "ai_insights", ["report_template_id"]
+            "ix_ai_insights_template_id",
+            "ai_insights",
+            ["report_template_id"],
         )
 
     if table_exists("ai_insights") and not any(
         idx["name"] == "ix_ai_insights_created_at"
         for idx in inspector.get_indexes("ai_insights")
     ):
-        op.create_index("ix_ai_insights_created_at", "ai_insights", ["created_at"])
+        op.create_index(
+            "ix_ai_insights_created_at", "ai_insights", ["created_at"]
+        )
 
     if table_exists("collaboration_sessions") and not any(
         idx["name"] == "ix_collaboration_sessions_template_id"
@@ -258,19 +274,24 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Drop indexes
     op.drop_index(
-        "ix_collaboration_sessions_template_id", table_name="collaboration_sessions"
+        "ix_collaboration_sessions_template_id",
+        table_name="collaboration_sessions",
     )
     op.drop_index("ix_ai_insights_created_at", table_name="ai_insights")
     op.drop_index("ix_ai_insights_template_id", table_name="ai_insights")
     op.drop_index("ix_report_edits_timestamp", table_name="report_edits")
     op.drop_index("ix_report_edits_template_id", table_name="report_edits")
     op.drop_index(
-        "ix_report_collaborations_user_id", table_name="report_collaborations"
+        "ix_report_collaborations_user_id",
+        table_name="report_collaborations",
     )
     op.drop_index(
-        "ix_report_collaborations_template_id", table_name="report_collaborations"
+        "ix_report_collaborations_template_id",
+        table_name="report_collaborations",
     )
-    op.drop_index("ix_report_templates_created_by", table_name="report_templates")
+    op.drop_index(
+        "ix_report_templates_created_by", table_name="report_templates"
+    )
 
     # Drop tables
     op.drop_table("collaboration_sessions")

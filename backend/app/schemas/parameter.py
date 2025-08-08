@@ -3,7 +3,11 @@ from datetime import datetime
 from pydantic import BaseModel, Field, validator
 from enum import Enum
 
-from app.models.parameter import ParameterType, ParameterCategory, SensitivityLevel
+from app.models.parameter import (
+    ParameterType,
+    ParameterCategory,
+    SensitivityLevel,
+)
 
 
 # Base Parameter Schemas
@@ -32,9 +36,15 @@ class ParameterBase(BaseModel):
 
     @validator("min_value", "max_value")
     def validate_range(cls, v, values):
-        if v is not None and "min_value" in values and values["min_value"] is not None:
+        if (
+            v is not None
+            and "min_value" in values
+            and values["min_value"] is not None
+        ):
             if v < values["min_value"]:
-                raise ValueError("max_value must be greater than min_value")
+                raise ValueError(
+                    "max_value must be greater than min_value"
+                )
         return v
 
 
@@ -241,7 +251,9 @@ class ScenarioComparisonRequest(BaseModel):
     base_scenario_id: int
     compare_scenario_ids: List[int]
     parameter_filters: Optional[List[int]] = None
-    comparison_type: str = Field("variance", pattern="^(variance|absolute|percentage)$")
+    comparison_type: str = Field(
+        "variance", pattern="^(variance|absolute|percentage)$"
+    )
 
 
 class ParameterComparison(BaseModel):
@@ -250,7 +262,9 @@ class ParameterComparison(BaseModel):
     base_value: Optional[float]
     comparison_values: Dict[int, Optional[float]]  # scenario_id -> value
     variance: Dict[int, Optional[float]]  # scenario_id -> variance
-    percentage_change: Dict[int, Optional[float]]  # scenario_id -> % change
+    percentage_change: Dict[
+        int, Optional[float]
+    ]  # scenario_id -> % change
 
 
 class ScenarioComparisonResponse(BaseModel):
@@ -267,14 +281,18 @@ class SensitivityParameterConfig(BaseModel):
     min_value: float
     max_value: float
     step_size: Optional[float] = None
-    distribution: str = Field("uniform", pattern="^(uniform|normal|triangular)$")
+    distribution: str = Field(
+        "uniform", pattern="^(uniform|normal|triangular)$"
+    )
 
 
 class SensitivityAnalysisRequest(BaseModel):
     scenario_id: int
     target_parameter_id: int  # The output parameter to analyze
     input_parameters: List[SensitivityParameterConfig]
-    analysis_type: str = Field("tornado", pattern="^(tornado|spider|monte_carlo)$")
+    analysis_type: str = Field(
+        "tornado", pattern="^(tornado|spider|monte_carlo)$"
+    )
     iterations: Optional[int] = Field(1000, ge=100, le=10000)
     confidence_level: Optional[float] = Field(0.95, ge=0.01, le=0.99)
 

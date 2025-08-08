@@ -13,9 +13,13 @@ class ReportService:
 
     def create_template(self, user_id: int, template_data: Dict[str, Any]):
         """Stub method - report templates not available in lean version."""
-        raise NotImplementedError("Report templates not available in lean version")
+        raise NotImplementedError(
+            "Report templates not available in lean version"
+        )
 
-    def get_templates(self, user_id: int, report_type=None, include_system=True):
+    def get_templates(
+        self, user_id: int, report_type=None, include_system=True
+    ):
         """Stub method - report templates not available in lean version."""
         return []
 
@@ -27,7 +31,9 @@ class ReportService:
         self, template_id: int, user_id: int, update_data: Dict[str, Any]
     ):
         """Stub method - report templates not available in lean version."""
-        raise NotImplementedError("Report templates not available in lean version")
+        raise NotImplementedError(
+            "Report templates not available in lean version"
+        )
 
     def delete_template(self, template_id: int, user_id: int) -> bool:
         """Stub method - report templates not available in lean version."""
@@ -43,7 +49,9 @@ class ReportService:
         name=None,
     ):
         """Stub method - report generation not available in lean version."""
-        raise NotImplementedError("Report generation not available in lean version")
+        raise NotImplementedError(
+            "Report generation not available in lean version"
+        )
 
     def export_chart(
         self,
@@ -55,7 +63,9 @@ class ReportService:
         filename=None,
     ):
         """Stub method - chart export not available in lean version."""
-        raise NotImplementedError("Chart export not available in lean version")
+        raise NotImplementedError(
+            "Chart export not available in lean version"
+        )
 
     def get_exports(self, user_id: int, status=None, limit=50, offset=0):
         """Stub method - report exports not available in lean version."""

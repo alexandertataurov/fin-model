@@ -62,16 +62,24 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
     notification_type = Column(String(50), nullable=False, index=True)
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
     data = Column(JSON, default={})
-    priority = Column(String(20), default=NotificationPriority.NORMAL, index=True)
-    status = Column(String(20), default=NotificationStatus.PENDING, index=True)
+    priority = Column(
+        String(20), default=NotificationPriority.NORMAL, index=True
+    )
+    status = Column(
+        String(20), default=NotificationStatus.PENDING, index=True
+    )
     is_read = Column(Boolean, default=False, index=True)
     is_dismissed = Column(Boolean, default=False, index=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    created_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, index=True
+    )
     sent_at = Column(DateTime)
     delivered_at = Column(DateTime)
     read_at = Column(DateTime)
@@ -94,7 +102,9 @@ class NotificationPreferences(Base):
     __tablename__ = "notification_preferences"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
+    user_id = Column(
+        Integer, ForeignKey("users.id"), nullable=False, unique=True
+    )
     email_enabled = Column(Boolean, default=True)
     push_enabled = Column(Boolean, default=True)
     in_app_enabled = Column(Boolean, default=True)
@@ -103,12 +113,21 @@ class NotificationPreferences(Base):
     quiet_end_time = Column(String(5))  # Format: "HH:MM"
     quiet_timezone = Column(String(50), default="UTC")
     type_preferences = Column(JSON, default={})
-    min_priority_email = Column(String(20), default=NotificationPriority.NORMAL)
-    min_priority_push = Column(String(20), default=NotificationPriority.HIGH)
-    min_priority_in_app = Column(String(20), default=NotificationPriority.LOW)
+    min_priority_email = Column(
+        String(20), default=NotificationPriority.NORMAL
+    )
+    min_priority_push = Column(
+        String(20), default=NotificationPriority.HIGH
+    )
+    min_priority_in_app = Column(
+        String(20), default=NotificationPriority.LOW
+    )
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
 
     # Relationships
@@ -128,13 +147,18 @@ class NotificationTemplate(Base):
     notification_type = Column(String(50), nullable=False, index=True)
     title_template = Column(String(255), nullable=False)
     message_template = Column(Text, nullable=False)
-    default_priority = Column(String(20), default=NotificationPriority.NORMAL)
+    default_priority = Column(
+        String(20), default=NotificationPriority.NORMAL
+    )
     expires_after_hours = Column(Integer)
     description = Column(Text)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
 
     def __repr__(self):
@@ -142,7 +166,23 @@ class NotificationTemplate(Base):
 
 
 # Create indexes for performance
-Index("ix_notifications_user_created", Notification.user_id, Notification.created_at)
-Index("ix_notifications_user_unread", Notification.user_id, Notification.is_read)
-Index("ix_notifications_user_priority", Notification.user_id, Notification.priority)
-Index("ix_notifications_expires_status", Notification.expires_at, Notification.status)
+Index(
+    "ix_notifications_user_created",
+    Notification.user_id,
+    Notification.created_at,
+)
+Index(
+    "ix_notifications_user_unread",
+    Notification.user_id,
+    Notification.is_read,
+)
+Index(
+    "ix_notifications_user_priority",
+    Notification.user_id,
+    Notification.priority,
+)
+Index(
+    "ix_notifications_expires_status",
+    Notification.expires_at,
+    Notification.status,
+)

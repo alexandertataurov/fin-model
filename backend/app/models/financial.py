@@ -104,8 +104,12 @@ class FinancialStatement(Base):
     __tablename__ = "financial_statements"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
-    statement_type = Column(String(50), nullable=False)  # StatementType enum
+    scenario_id = Column(
+        Integer, ForeignKey("scenarios.id"), nullable=False
+    )
+    statement_type = Column(
+        String(50), nullable=False
+    )  # StatementType enum
 
     # Period information
     period_start = Column(Date, nullable=False)
@@ -114,7 +118,9 @@ class FinancialStatement(Base):
 
     # Financial data
     currency = Column(String(3), nullable=False)  # ISO currency code
-    line_items = Column(JSON, nullable=False)  # JSON structure of financial line items
+    line_items = Column(
+        JSON, nullable=False
+    )  # JSON structure of financial line items
     raw_data = Column(JSON, nullable=True)  # Original extracted data
     calculated_data = Column(JSON, nullable=True)  # Derived calculations
 
@@ -131,7 +137,9 @@ class FinancialStatement(Base):
     )
 
     # Relationships
-    scenario = relationship("Scenario", back_populates="financial_statements")
+    scenario = relationship(
+        "Scenario", back_populates="financial_statements"
+    )
     created_by = relationship("User")
 
 
@@ -141,7 +149,9 @@ class Metric(Base):
     __tablename__ = "metrics"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
+    scenario_id = Column(
+        Integer, ForeignKey("scenarios.id"), nullable=False
+    )
 
     # Metric identification
     metric_name = Column(String(255), nullable=False, index=True)
@@ -180,13 +190,17 @@ class TimeSeries(Base):
     __tablename__ = "time_series"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
+    scenario_id = Column(
+        Integer, ForeignKey("scenarios.id"), nullable=False
+    )
 
     # Data identification
     data_type = Column(
         String(100), nullable=False, index=True
     )  # revenue, expenses, cash_flow, etc.
-    data_subtype = Column(String(100), nullable=True)  # product_line, department, etc.
+    data_subtype = Column(
+        String(100), nullable=True
+    )  # product_line, department, etc.
 
     # Time and value
     period_date = Column(Date, nullable=False, index=True)
@@ -197,7 +211,9 @@ class TimeSeries(Base):
     # Data quality and source
     data_source = Column(String(100), nullable=True)
     confidence_level = Column(Float, nullable=True)  # 0.0 to 1.0
-    is_actual = Column(Boolean, nullable=False, default=True)  # actual vs projected
+    is_actual = Column(
+        Boolean, nullable=False, default=True
+    )  # actual vs projected
     is_adjusted = Column(Boolean, nullable=False, default=False)
     adjustment_reason = Column(Text, nullable=True)
     data_metadata = Column(JSON, nullable=True)
@@ -220,11 +236,15 @@ class Calculation(Base):
     __tablename__ = "calculations"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
+    scenario_id = Column(
+        Integer, ForeignKey("scenarios.id"), nullable=False
+    )
 
     # Calculation definition
     calculation_name = Column(String(255), nullable=False, index=True)
-    calculation_type = Column(String(50), nullable=False)  # CalculationType enum
+    calculation_type = Column(
+        String(50), nullable=False
+    )  # CalculationType enum
     formula = Column(Text, nullable=False)
 
     # Dependencies and outputs
@@ -270,11 +290,17 @@ class Template(Base):
     # Template identification
     name = Column(String(255), nullable=False, index=True)
     description = Column(Text, nullable=True)
-    template_type = Column(String(50), nullable=False, index=True)  # TemplateType enum
+    template_type = Column(
+        String(50), nullable=False, index=True
+    )  # TemplateType enum
 
     # Template structure
-    file_structure = Column(JSON, nullable=False)  # Defines expected file structure
-    mapping_rules = Column(JSON, nullable=False)  # How to map file data to database
+    file_structure = Column(
+        JSON, nullable=False
+    )  # Defines expected file structure
+    mapping_rules = Column(
+        JSON, nullable=False
+    )  # How to map file data to database
     validation_rules = Column(JSON, nullable=True)
     transformation_rules = Column(JSON, nullable=True)
 
@@ -294,7 +320,9 @@ class Template(Base):
 
     # Relationships
     created_by = relationship("User")
-    uploaded_files = relationship("UploadedFile", back_populates="template")
+    uploaded_files = relationship(
+        "UploadedFile", back_populates="template"
+    )
 
 
 class FileVersion(Base):
@@ -303,13 +331,17 @@ class FileVersion(Base):
     __tablename__ = "file_versions"
 
     id = Column(Integer, primary_key=True, index=True)
-    file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
+    file_id = Column(
+        Integer, ForeignKey("uploaded_files.id"), nullable=False
+    )
 
     # Version information
     version_number = Column(Integer, nullable=False)
     file_path = Column(String(500), nullable=False)
     file_size = Column(BigInteger, nullable=False)
-    file_hash = Column(String(64), nullable=False, index=True)  # SHA-256 hash
+    file_hash = Column(
+        String(64), nullable=False, index=True
+    )  # SHA-256 hash
 
     # Change tracking
     change_description = Column(Text, nullable=True)
@@ -326,7 +358,9 @@ class FileVersion(Base):
     created_by = relationship("User")
 
     __table_args__ = (
-        UniqueConstraint("file_id", "version_number", name="unique_file_version"),
+        UniqueConstraint(
+            "file_id", "version_number", name="unique_file_version"
+        ),
     )
 
 
@@ -339,13 +373,17 @@ class DataSource(Base):
 
     # Source identification
     source_name = Column(String(255), nullable=False, index=True)
-    source_type = Column(String(50), nullable=False, index=True)  # SourceType enum
+    source_type = Column(
+        String(50), nullable=False, index=True
+    )  # SourceType enum
     source_identifier = Column(
         String(500), nullable=False
     )  # file ID, API endpoint, etc.
 
     # Data quality and lineage
-    data_lineage = Column(JSON, nullable=True)  # Track data transformation chain
+    data_lineage = Column(
+        JSON, nullable=True
+    )  # Track data transformation chain
     quality_metrics = Column(JSON, nullable=True)  # Data quality scores
 
     # Update and connection info
@@ -364,5 +402,7 @@ class DataSource(Base):
 
     # Relationships
     created_by = relationship("User")
-    uploaded_files = relationship("UploadedFile", back_populates="data_source")
+    uploaded_files = relationship(
+        "UploadedFile", back_populates="data_source"
+    )
     parameters = relationship("Parameter", back_populates="data_source")

@@ -41,7 +41,9 @@ class DatabaseMonitor:
                 "error": str(e),
             }
 
-    def get_query_performance(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_query_performance(
+        self, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """Get basic query performance metrics."""
         try:
             # This is a simplified version - in a real implementation,

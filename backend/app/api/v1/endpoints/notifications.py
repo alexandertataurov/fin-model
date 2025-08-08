@@ -41,7 +41,9 @@ def get_notifications(
             filters.append(Notification.is_read.is_(False))
 
         if notification_type:
-            filters.append(Notification.notification_type == notification_type)
+            filters.append(
+                Notification.notification_type == notification_type
+            )
 
         # Get notifications with pagination
         (
@@ -49,11 +51,16 @@ def get_notifications(
             total_count,
             total_pages,
         ) = notification_service.get_user_notifications(
-            user_id=current_user.id, page=page, limit=limit, filters=filters
+            user_id=current_user.id,
+            page=page,
+            limit=limit,
+            filters=filters,
         )
 
         # Get unread count
-        unread_count = notification_service.get_unread_count(current_user.id)
+        unread_count = notification_service.get_unread_count(
+            current_user.id
+        )
 
         return NotificationListResponse(
             notifications=notifications,
@@ -75,7 +82,12 @@ def get_notifications(
         # Return empty response instead of 500 error
         return NotificationListResponse(
             notifications=[],
-            pagination={"page": page, "limit": limit, "total": 0, "pages": 0},
+            pagination={
+                "page": page,
+                "limit": limit,
+                "total": 0,
+                "pages": 0,
+            },
             unread_count=0,
         )
 
@@ -90,7 +102,10 @@ def mark_all_as_read(
 
     count = notification_service.mark_all_as_read(current_user.id)
 
-    return {"message": f"Marked {count} notifications as read", "count": count}
+    return {
+        "message": f"Marked {count} notifications as read",
+        "count": count,
+    }
 
 
 @router.get("/preferences", response_model=NotificationPreferencesSchema)
@@ -102,7 +117,9 @@ def get_notification_preferences(
     try:
         notification_service = NotificationService(db)
 
-        preferences = notification_service.get_user_preferences(current_user.id)
+        preferences = notification_service.get_user_preferences(
+            current_user.id
+        )
         if not preferences:
             # Create default preferences if none exist
             preferences = notification_service.create_default_preferences(
@@ -118,7 +135,10 @@ def get_notification_preferences(
         logger.error(f"Error getting notification preferences: {str(e)}")
 
         # Check if it's a database table issue
-        if "relation" in str(e).lower() and "does not exist" in str(e).lower():
+        if (
+            "relation" in str(e).lower()
+            and "does not exist" in str(e).lower()
+        ):
             logger.warning(
                 "Notification preferences table does not exist, returning defaults"
             )
@@ -249,12 +269,15 @@ def create_notification_admin(
     # Check if user has admin permissions
     if not current_user.is_admin:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
         )
 
     notification_service = NotificationService(db)
 
-    notification = notification_service.create_notification(notification_create)
+    notification = notification_service.create_notification(
+        notification_create
+    )
 
     return notification
 
@@ -269,7 +292,8 @@ def delete_notification_admin(
     # Check if user has admin permissions
     if not current_user.is_admin:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
         )
 
     notification_service = NotificationService(db)
@@ -277,7 +301,8 @@ def delete_notification_admin(
     success = notification_service.delete_notification(notification_id)
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found",
         )
 
     return {"message": "Notification deleted"}
@@ -298,7 +323,8 @@ def get_notification(
     )
     if not notification:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found",
         )
 
     return notification
@@ -313,10 +339,13 @@ def mark_as_read(
     """Mark a notification as read."""
     notification_service = NotificationService(db)
 
-    success = notification_service.mark_as_read(notification_id, current_user.id)
+    success = notification_service.mark_as_read(
+        notification_id, current_user.id
+    )
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found",
         )
 
     return {"message": "Notification marked as read"}
@@ -336,7 +365,8 @@ def dismiss_notification(
     )
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found",
         )
 
     return {"message": "Notification dismissed"}

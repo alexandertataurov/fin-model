@@ -30,10 +30,16 @@ def upgrade() -> None:
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column(
-            "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "updated_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
@@ -48,28 +54,44 @@ def upgrade() -> None:
         sa.Column("username", sa.String(length=50), nullable=False),
         sa.Column("first_name", sa.String(length=50), nullable=False),
         sa.Column("last_name", sa.String(length=50), nullable=False),
-        sa.Column("hashed_password", sa.String(length=255), nullable=False),
+        sa.Column(
+            "hashed_password", sa.String(length=255), nullable=False
+        ),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
-        sa.Column("verification_token", sa.String(length=255), nullable=True),
-        sa.Column("password_reset_token", sa.String(length=255), nullable=True),
+        sa.Column(
+            "verification_token", sa.String(length=255), nullable=True
+        ),
+        sa.Column(
+            "password_reset_token", sa.String(length=255), nullable=True
+        ),
         sa.Column("password_reset_expires", sa.DateTime(), nullable=True),
         sa.Column("last_login", sa.DateTime(), nullable=True),
         sa.Column("failed_login_attempts", sa.Integer(), nullable=False),
         sa.Column("account_locked_until", sa.DateTime(), nullable=True),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column(
-            "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "updated_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("username"),
     )
-    op.create_index(op.f("ix_users_email"), "users", ["email"], unique=False)
+    op.create_index(
+        op.f("ix_users_email"), "users", ["email"], unique=False
+    )
     op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)
-    op.create_index(op.f("ix_users_username"), "users", ["username"], unique=False)
+    op.create_index(
+        op.f("ix_users_username"), "users", ["username"], unique=False
+    )
 
     # Create user_roles table
     op.create_table(
@@ -80,10 +102,16 @@ def upgrade() -> None:
         sa.Column("assigned_by", sa.Integer(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.Column(
-            "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "updated_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.ForeignKeyConstraint(
             ["assigned_by"],
@@ -99,7 +127,9 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_user_roles_id"), "user_roles", ["id"], unique=False)
+    op.create_index(
+        op.f("ix_user_roles_id"), "user_roles", ["id"], unique=False
+    )
 
     # Create audit_logs table
     op.create_table(
@@ -133,7 +163,10 @@ def upgrade() -> None:
         sa.Column("details", sa.Text(), nullable=True),
         sa.Column("success", sa.String(length=10), nullable=False),
         sa.Column(
-            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+            "created_at",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],
@@ -141,7 +174,9 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_audit_logs_id"), "audit_logs", ["id"], unique=False)
+    op.create_index(
+        op.f("ix_audit_logs_id"), "audit_logs", ["id"], unique=False
+    )
 
     # Insert default roles
     op.execute(

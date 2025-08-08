@@ -113,7 +113,8 @@ class MetricsCalculationService:
         for i in range(1, len(data.values)):
             if data.values[i - 1] != 0:
                 growth = (
-                    (data.values[i] - data.values[i - 1]) / data.values[i - 1]
+                    (data.values[i] - data.values[i - 1])
+                    / data.values[i - 1]
                 ) * 100
                 pop_growth.append(growth)
             else:
@@ -125,7 +126,9 @@ class MetricsCalculationService:
             current_value = data.values[-1]
             year_ago_value = data.values[-12]
             if year_ago_value != 0:
-                yoy_growth = ((current_value - year_ago_value) / year_ago_value) * 100
+                yoy_growth = (
+                    (current_value - year_ago_value) / year_ago_value
+                ) * 100
 
         # Compound Annual Growth Rate (CAGR)
         cagr = None
@@ -134,7 +137,9 @@ class MetricsCalculationService:
             # Assume periods represent years for CAGR calculation
             years = periods / 12 if len(data.values) > 12 else periods
             if years > 0:
-                cagr = (((data.values[-1] / data.values[0]) ** (1 / years)) - 1) * 100
+                cagr = (
+                    ((data.values[-1] / data.values[0]) ** (1 / years)) - 1
+                ) * 100
 
         # Average growth rate
         avg_growth = statistics.mean(pop_growth) if pop_growth else 0.0
@@ -217,7 +222,9 @@ class MetricsCalculationService:
     # Liquidity Ratio Calculations
     # ====================
 
-    def calculate_liquidity_ratios(self, bs_data: Dict[str, Any]) -> LiquidityRatios:
+    def calculate_liquidity_ratios(
+        self, bs_data: Dict[str, Any]
+    ) -> LiquidityRatios:
         """Calculate liquidity ratios from Balance Sheet data."""
 
         current_assets = self._safe_get_numeric(
@@ -229,14 +236,25 @@ class MetricsCalculationService:
 
         # Current Ratio = Current Assets / Current Liabilities
         current_ratio = None
-        if current_assets and current_liabilities and current_liabilities > 0:
+        if (
+            current_assets
+            and current_liabilities
+            and current_liabilities > 0
+        ):
             current_ratio = current_assets / current_liabilities
 
         # Quick Ratio = (Current Assets - Inventory) / Current Liabilities
         quick_ratio = None
-        if current_assets and current_liabilities and current_liabilities > 0:
+        if (
+            current_assets
+            and current_liabilities
+            and current_liabilities > 0
+        ):
             inventory = (
-                self._safe_get_numeric(bs_data, ["inventory", "inventories"]) or 0
+                self._safe_get_numeric(
+                    bs_data, ["inventory", "inventories"]
+                )
+                or 0
             )
             quick_assets = current_assets - inventory
             quick_ratio = quick_assets / current_liabilities
@@ -244,7 +262,8 @@ class MetricsCalculationService:
         # Cash Ratio = Cash / Current Liabilities
         cash_ratio = None
         cash = self._safe_get_numeric(
-            bs_data, ["cash", "cash_and_equivalents", "cash_and_cash_equivalents"]
+            bs_data,
+            ["cash", "cash_and_equivalents", "cash_and_cash_equivalents"],
         )
         if cash and current_liabilities and current_liabilities > 0:
             cash_ratio = cash / current_liabilities
@@ -282,10 +301,14 @@ class MetricsCalculationService:
         bs_statement = None
 
         for stmt in statements:
-            if stmt.statement_type == StatementType.PROFIT_LOSS and not pl_statement:
+            if (
+                stmt.statement_type == StatementType.PROFIT_LOSS
+                and not pl_statement
+            ):
                 pl_statement = stmt
             elif (
-                stmt.statement_type == StatementType.BALANCE_SHEET and not bs_statement
+                stmt.statement_type == StatementType.BALANCE_SHEET
+                and not bs_statement
             ):
                 bs_statement = stmt
 
@@ -313,8 +336,12 @@ class MetricsCalculationService:
 
         # Inventory Turnover = COGS / Average Inventory
         inventory_turnover = None
-        cogs = self._safe_get_numeric(pl_data, ["cogs", "cost_of_goods_sold"])
-        inventory = self._safe_get_numeric(bs_data, ["inventory", "inventories"])
+        cogs = self._safe_get_numeric(
+            pl_data, ["cogs", "cost_of_goods_sold"]
+        )
+        inventory = self._safe_get_numeric(
+            bs_data, ["inventory", "inventories"]
+        )
         if cogs and inventory and inventory > 0:
             inventory_turnover = cogs / inventory
 
@@ -337,7 +364,9 @@ class MetricsCalculationService:
             days_inventory_outstanding = (
                 365 / inventory_turnover if inventory_turnover > 0 else 0
             )
-            days_payable_outstanding = 0  # Would need accounts payable data
+            days_payable_outstanding = (
+                0  # Would need accounts payable data
+            )
             cash_conversion_cycle = (
                 days_inventory_outstanding
                 + days_sales_outstanding
@@ -357,7 +386,9 @@ class MetricsCalculationService:
     # ====================
 
     def calculate_leverage_ratios(
-        self, bs_data: Dict[str, Any], pl_data: Optional[Dict[str, Any]] = None
+        self,
+        bs_data: Dict[str, Any],
+        pl_data: Optional[Dict[str, Any]] = None,
     ) -> LeverageRatios:
         """Calculate leverage/debt ratios from Balance Sheet and P&L data."""
 
@@ -419,13 +450,19 @@ class MetricsCalculationService:
 
         # Group statements by type
         pl_statements = [
-            s for s in statements if s.statement_type == StatementType.PROFIT_LOSS
+            s
+            for s in statements
+            if s.statement_type == StatementType.PROFIT_LOSS
         ]
         bs_statements = [
-            s for s in statements if s.statement_type == StatementType.BALANCE_SHEET
+            s
+            for s in statements
+            if s.statement_type == StatementType.BALANCE_SHEET
         ]
         cf_statements = [
-            s for s in statements if s.statement_type == StatementType.CASH_FLOW
+            s
+            for s in statements
+            if s.statement_type == StatementType.CASH_FLOW
         ]
 
         ratios = {
@@ -449,7 +486,9 @@ class MetricsCalculationService:
         # Liquidity ratios
         if bs_statements:
             latest_bs = bs_statements[0]
-            liquidity = self.calculate_liquidity_ratios(latest_bs.line_items or {})
+            liquidity = self.calculate_liquidity_ratios(
+                latest_bs.line_items or {}
+            )
             ratios["liquidity"] = {
                 "current_ratio": liquidity.current_ratio,
                 "quick_ratio": liquidity.quick_ratio,
@@ -470,7 +509,9 @@ class MetricsCalculationService:
         # Leverage ratios
         if bs_statements:
             latest_bs = bs_statements[0]
-            pl_data = pl_statements[0].line_items if pl_statements else None
+            pl_data = (
+                pl_statements[0].line_items if pl_statements else None
+            )
             leverage = self.calculate_leverage_ratios(
                 latest_bs.line_items or {}, pl_data
             )
@@ -489,11 +530,19 @@ class MetricsCalculationService:
         """Calculate DuPont ROE analysis."""
 
         pl_statement = next(
-            (s for s in statements if s.statement_type == StatementType.PROFIT_LOSS),
+            (
+                s
+                for s in statements
+                if s.statement_type == StatementType.PROFIT_LOSS
+            ),
             None,
         )
         bs_statement = next(
-            (s for s in statements if s.statement_type == StatementType.BALANCE_SHEET),
+            (
+                s
+                for s in statements
+                if s.statement_type == StatementType.BALANCE_SHEET
+            ),
             None,
         )
 
@@ -503,14 +552,20 @@ class MetricsCalculationService:
         pl_data = pl_statement.line_items or {}
         bs_data = bs_statement.line_items or {}
 
-        net_income = self._safe_get_numeric(pl_data, ["net_income", "net_profit"])
-        revenue = self._safe_get_numeric(pl_data, ["revenue", "total_revenue"])
+        net_income = self._safe_get_numeric(
+            pl_data, ["net_income", "net_profit"]
+        )
+        revenue = self._safe_get_numeric(
+            pl_data, ["revenue", "total_revenue"]
+        )
         total_assets = self._safe_get_numeric(bs_data, ["total_assets"])
         shareholders_equity = self._safe_get_numeric(
             bs_data, ["shareholders_equity", "total_equity"]
         )
 
-        if not all([net_income, revenue, total_assets, shareholders_equity]) or any(
+        if not all(
+            [net_income, revenue, total_assets, shareholders_equity]
+        ) or any(
             x <= 0 for x in [revenue, total_assets, shareholders_equity]
         ):
             return {}
@@ -540,12 +595,17 @@ class MetricsCalculationService:
     # ====================
 
     def create_time_series_data(
-        self, statements: List[FinancialStatement], metric_key: str, metric_name: str
+        self,
+        statements: List[FinancialStatement],
+        metric_key: str,
+        metric_name: str,
     ) -> TimeSeriesData:
         """Create time series data from a list of statements."""
 
         # Sort statements by period start date
-        sorted_statements = sorted(statements, key=lambda x: x.period_start)
+        sorted_statements = sorted(
+            statements, key=lambda x: x.period_start
+        )
 
         periods = []
         values = []
@@ -562,7 +622,10 @@ class MetricsCalculationService:
 
         # Determine unit based on metric name
         unit = "currency"
-        if "ratio" in metric_name.lower() or "margin" in metric_name.lower():
+        if (
+            "ratio" in metric_name.lower()
+            or "margin" in metric_name.lower()
+        ):
             unit = "percentage"
         elif "turnover" in metric_name.lower():
             unit = "ratio"
@@ -575,7 +638,9 @@ class MetricsCalculationService:
             unit=unit,
         )
 
-    def calculate_trend_statistics(self, time_series: TimeSeriesData) -> Dict[str, Any]:
+    def calculate_trend_statistics(
+        self, time_series: TimeSeriesData
+    ) -> Dict[str, Any]:
         """Calculate statistical measures for trend analysis."""
 
         if len(time_series.values) < 2:
@@ -592,7 +657,9 @@ class MetricsCalculationService:
         growth_rates = self.calculate_growth_rates(time_series)
 
         # Volatility (coefficient of variation)
-        volatility = (std_deviation / mean_value) * 100 if mean_value != 0 else 0
+        volatility = (
+            (std_deviation / mean_value) * 100 if mean_value != 0 else 0
+        )
 
         # Min/Max analysis
         min_value = min(values)
@@ -645,7 +712,9 @@ class MetricsCalculationService:
                     "value": forecasted_value,
                     "date": forecast_date.isoformat(),
                     "type": "forecast",
-                    "confidence": max(0.5, 1.0 - (i * 0.1)),  # Decreasing confidence
+                    "confidence": max(
+                        0.5, 1.0 - (i * 0.1)
+                    ),  # Decreasing confidence
                 }
             )
 
@@ -713,7 +782,9 @@ class MetricsCalculationService:
 
         return percentile_ranks
 
-    def identify_outliers(self, values: List[float], method: str = "iqr") -> List[int]:
+    def identify_outliers(
+        self, values: List[float], method: str = "iqr"
+    ) -> List[int]:
         """Identify outliers in a series of values."""
 
         if len(values) < 4:

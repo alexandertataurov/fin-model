@@ -36,6 +36,17 @@ const config: StorybookConfig = {
       '@/components': resolve(__dirname, '../src/components'),
       '@components': resolve(__dirname, '../src/components'),
     };
+    // Ensure Storybook's virtual global module isn't bundled/resolved by Vite
+    (viteConfig.build as any) = {
+      ...(viteConfig.build || {}),
+      rollupOptions: {
+        ...((viteConfig.build as any)?.rollupOptions || {}),
+        external: [
+          ...((viteConfig.build as any)?.rollupOptions?.external || []),
+          '@storybook/globalThis',
+        ],
+      },
+    };
 
     return viteConfig;
   },

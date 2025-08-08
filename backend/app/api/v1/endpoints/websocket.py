@@ -40,13 +40,19 @@ async def health_websocket(websocket: WebSocket):
                 if message.get("type") == "ping":
                     await websocket.send_text(
                         json.dumps(
-                            {"type": "pong", "timestamp": message.get("timestamp")}
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
                         )
                     )
                 else:
                     await websocket.send_text(
                         json.dumps(
-                            {"type": "error", "message": "Only ping messages supported"}
+                            {
+                                "type": "error",
+                                "message": "Only ping messages supported",
+                            }
                         )
                     )
 
@@ -78,7 +84,9 @@ async def notifications_websocket(
         # Then authenticate
         if not token:
             logger.warning("WebSocket connection attempt without token")
-            await websocket.close(code=4001, reason="Authentication required")
+            await websocket.close(
+                code=4001, reason="Authentication required"
+            )
             return
 
         try:
@@ -89,7 +97,9 @@ async def notifications_websocket(
             return
 
         if not user_id:
-            logger.warning("WebSocket connection attempt with invalid token")
+            logger.warning(
+                "WebSocket connection attempt with invalid token"
+            )
             await websocket.close(code=4001, reason="Invalid token")
             return
 
@@ -105,12 +115,18 @@ async def notifications_websocket(
                 logger.warning(
                     f"WebSocket connection attempt for inactive user {user_id}"
                 )
-                await websocket.close(code=4001, reason="User not found or inactive")
+                await websocket.close(
+                    code=4001, reason="User not found or inactive"
+                )
                 return
 
-            logger.info(f"WebSocket authentication successful for user {user.id}")
+            logger.info(
+                f"WebSocket authentication successful for user {user.id}"
+            )
         except Exception as e:
-            logger.error(f"Database error during WebSocket authentication: {e}")
+            logger.error(
+                f"Database error during WebSocket authentication: {e}"
+            )
             await websocket.close(code=4001, reason="Database error")
             return
         finally:
@@ -170,14 +186,21 @@ async def notifications_websocket(
                     )
 
             except WebSocketDisconnect:
-                logger.info(f"User {user.id} disconnected from notifications WebSocket")
+                logger.info(
+                    f"User {user.id} disconnected from notifications WebSocket"
+                )
                 break
             except Exception as e:
                 logger.error(
                     f"Error in notifications WebSocket for user {user.id}: {e}"
                 )
                 await websocket.send_text(
-                    json.dumps({"type": "error", "message": "Internal server error"})
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
                 )
 
     except Exception as e:
@@ -218,7 +241,10 @@ async def collaboration_websocket(websocket: WebSocket, template_id: str):
                 if message.get("type") == "ping":
                     await websocket.send_text(
                         json.dumps(
-                            {"type": "pong", "timestamp": message.get("timestamp")}
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
                         )
                     )
                 elif message.get("type") == "user_presence":
@@ -248,7 +274,12 @@ async def collaboration_websocket(websocket: WebSocket, template_id: str):
             except Exception as e:
                 logger.error(f"Error in collaboration WebSocket: {e}")
                 await websocket.send_text(
-                    json.dumps({"type": "error", "message": "Internal server error"})
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
                 )
 
     except Exception as e:
@@ -288,7 +319,10 @@ async def dashboard_websocket(websocket: WebSocket, file_id: str):
                 if message.get("type") == "ping":
                     await websocket.send_text(
                         json.dumps(
-                            {"type": "pong", "timestamp": message.get("timestamp")}
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
                         )
                     )
                 else:
@@ -309,7 +343,12 @@ async def dashboard_websocket(websocket: WebSocket, file_id: str):
             except Exception as e:
                 logger.error(f"Error in dashboard WebSocket: {e}")
                 await websocket.send_text(
-                    json.dumps({"type": "error", "message": "Internal server error"})
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
                 )
 
     except Exception as e:
@@ -350,7 +389,10 @@ async def root_websocket(websocket: WebSocket):
                 if message.get("type") == "ping":
                     await websocket.send_text(
                         json.dumps(
-                            {"type": "pong", "timestamp": message.get("timestamp")}
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
                         )
                     )
                 else:
@@ -369,7 +411,12 @@ async def root_websocket(websocket: WebSocket):
             except Exception as e:
                 logger.error(f"Error in root WebSocket: {e}")
                 await websocket.send_text(
-                    json.dumps({"type": "error", "message": "Internal server error"})
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
                 )
 
     except Exception as e:

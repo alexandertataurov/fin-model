@@ -263,7 +263,9 @@ def create_notifications_table():
 
             # Create indexes
             conn.execute(
-                text("CREATE INDEX ix_notifications_user_id ON notifications(user_id)")
+                text(
+                    "CREATE INDEX ix_notifications_user_id ON notifications(user_id)"
+                )
             )
             conn.execute(
                 text(
@@ -276,10 +278,14 @@ def create_notifications_table():
                 )
             )
             conn.execute(
-                text("CREATE INDEX ix_notifications_status ON notifications(status)")
+                text(
+                    "CREATE INDEX ix_notifications_status ON notifications(status)"
+                )
             )
             conn.execute(
-                text("CREATE INDEX ix_notifications_is_read ON notifications(is_read)")
+                text(
+                    "CREATE INDEX ix_notifications_is_read ON notifications(is_read)"
+                )
             )
             conn.execute(
                 text(
@@ -319,7 +325,9 @@ def fix_notification_schema():
             # Split the script into DO blocks (each ends with 'END $$;')
             import re
 
-            do_blocks = re.findall(r"DO \$\$.*?END \$\$;", sql_script, re.DOTALL)
+            do_blocks = re.findall(
+                r"DO \$\$.*?END \$\$;", sql_script, re.DOTALL
+            )
 
             for block in do_blocks:
                 if block.strip():
@@ -348,7 +356,10 @@ def start_app():
         import uvicorn
 
         uvicorn.run(
-            app, host="0.0.0.0", port=int(os.getenv("PORT", "8000")), log_level="info"
+            app,
+            host="0.0.0.0",
+            port=int(os.getenv("PORT", "8000")),
+            log_level="info",
         )
     except Exception as e:
         print(f"❌ Error starting application: {e}")

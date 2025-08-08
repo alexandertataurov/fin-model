@@ -15,7 +15,10 @@ from app.services.lean_financial_engine import (
     CoreParameters,
     StatementType,
 )
-from app.services.lean_parameter_manager import LeanParameterManager, ParameterCategory
+from app.services.lean_parameter_manager import (
+    LeanParameterManager,
+    ParameterCategory,
+)
 from pydantic import BaseModel, Field
 
 
@@ -43,7 +46,9 @@ class ScenarioCreateRequest(BaseModel):
 
 
 class SensitivityAnalysisRequest(BaseModel):
-    base_parameters: Dict[str, float] = Field(..., description="Base parameter values")
+    base_parameters: Dict[str, float] = Field(
+        ..., description="Base parameter values"
+    )
     sensitivity_parameters: Optional[List[str]] = Field(
         None, description="Parameters to analyze"
     )
@@ -56,7 +61,9 @@ class ParameterImpactRequest(BaseModel):
     parameter_key: str = Field(..., description="Parameter to analyze")
     old_value: float = Field(..., description="Current parameter value")
     new_value: float = Field(..., description="New parameter value")
-    base_parameters: Dict[str, float] = Field(..., description="Base parameter values")
+    base_parameters: Dict[str, float] = Field(
+        ..., description="Base parameter values"
+    )
 
 
 class FinancialModelResponse(BaseModel):
@@ -71,7 +78,8 @@ class FinancialModelResponse(BaseModel):
 
 @router.get("/parameters/categories")
 async def get_parameter_categories(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Get all parameter categories and their definitions"""
     try:
@@ -101,7 +109,11 @@ async def get_parameter_categories(
                 ],
             }
 
-        return {"success": True, "data": result, "total_categories": len(result)}
+        return {
+            "success": True,
+            "data": result,
+            "total_categories": len(result),
+        }
 
     except Exception as e:
         raise HTTPException(
@@ -171,14 +183,19 @@ async def get_parameter_category(
 
 @router.get("/parameters/templates")
 async def get_parameter_templates(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Get predefined parameter templates"""
     try:
         param_manager = LeanParameterManager(db)
         templates = param_manager.create_scenario_templates()
 
-        return {"success": True, "data": templates, "template_count": len(templates)}
+        return {
+            "success": True,
+            "data": templates,
+            "template_count": len(templates),
+        }
 
     except Exception as e:
         raise HTTPException(
@@ -199,7 +216,9 @@ async def calculate_comprehensive_model(
         engine = LeanFinancialEngine(db)
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(request.parameters)
+        is_valid, errors = param_manager.validate_parameters(
+            request.parameters
+        )
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -251,7 +270,12 @@ async def calculate_individual_statement(
         engine = LeanFinancialEngine(db)
 
         # Validate statement type
-        valid_types = ["profit_loss", "balance_sheet", "cash_flow", "dcf_valuation"]
+        valid_types = [
+            "profit_loss",
+            "balance_sheet",
+            "cash_flow",
+            "dcf_valuation",
+        ]
         if statement_type not in valid_types:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -259,7 +283,9 @@ async def calculate_individual_statement(
             )
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(request.parameters)
+        is_valid, errors = param_manager.validate_parameters(
+            request.parameters
+        )
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -273,12 +299,16 @@ async def calculate_individual_statement(
 
         # Calculate specific statement
         if statement_type == "profit_loss":
-            result = engine.calculate_profit_loss(core_parameters, request.base_revenue)
+            result = engine.calculate_profit_loss(
+                core_parameters, request.base_revenue
+            )
         elif statement_type == "balance_sheet":
             pl_statement = engine.calculate_profit_loss(
                 core_parameters, request.base_revenue
             )
-            result = engine.calculate_balance_sheet(core_parameters, pl_statement)
+            result = engine.calculate_balance_sheet(
+                core_parameters, pl_statement
+            )
         elif statement_type == "cash_flow":
             pl_statement = engine.calculate_profit_loss(
                 core_parameters, request.base_revenue
@@ -322,7 +352,9 @@ async def create_scenario(
         engine = LeanFinancialEngine(db)
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(request.parameters)
+        is_valid, errors = param_manager.validate_parameters(
+            request.parameters
+        )
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -405,7 +437,9 @@ async def create_sensitivity_analysis(
 
         # Create sensitivity analysis
         sensitivity_result = param_manager.create_sensitivity_analysis(
-            base_parameters, request.sensitivity_parameters, request.variation_percent
+            base_parameters,
+            request.sensitivity_parameters,
+            request.variation_percent,
         )
 
         return {
@@ -438,7 +472,10 @@ async def analyze_parameter_impact(
 
         # Calculate parameter impact
         impact_result = param_manager.calculate_parameter_impact(
-            request.parameter_key, request.old_value, request.new_value, base_parameters
+            request.parameter_key,
+            request.old_value,
+            request.new_value,
+            base_parameters,
         )
 
         return {
@@ -505,7 +542,9 @@ async def export_parameters(
         )
 
         # Export parameters
-        exported_data = param_manager.export_parameters(core_parameters, format)
+        exported_data = param_manager.export_parameters(
+            core_parameters, format
+        )
 
         return {
             "success": True,
@@ -533,7 +572,9 @@ async def health_check():
             LeanFinancialEngine,
             CoreParameters,
         )
-        from app.services.lean_parameter_manager import LeanParameterManager
+        from app.services.lean_parameter_manager import (
+            LeanParameterManager,
+        )
 
         return {
             "success": True,
