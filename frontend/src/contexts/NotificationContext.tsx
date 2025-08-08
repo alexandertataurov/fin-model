@@ -8,15 +8,18 @@ import React, {
 } from 'react';
 import { toast } from 'sonner';
 import { notificationsWebSocketService } from '../services/websocket';
-import { makeApiCall, API_BASE_URL } from '../utils/apiUtils';
+import notificationsApi, {
+  NotificationItem as ApiNotificationItem,
+  NotificationPreferences as ApiNotificationPreferences,
+} from '@/services/notificationsApi';
 
 export interface Notification {
   id: string;
   type: string;
   title: string;
   message: string;
-  priority: 'low' | 'normal' | 'high' | 'urgent';
-  status: string;
+  priority: string;
+  status?: string;
   is_read: boolean;
   is_dismissed: boolean;
   created_at: string;
@@ -25,18 +28,19 @@ export interface Notification {
   data: Record<string, any>;
 }
 
-export interface NotificationPreferences {
-  email_enabled: boolean;
-  push_enabled: boolean;
-  in_app_enabled: boolean;
-  quiet_hours_enabled: boolean;
-  quiet_start_time?: string;
-  quiet_end_time?: string;
-  min_priority_email: string;
-  min_priority_push: string;
-  min_priority_in_app: string;
-  type_preferences: Record<string, boolean>;
-}
+export type NotificationPreferences = Pick<
+  ApiNotificationPreferences,
+  | 'email_enabled'
+  | 'push_enabled'
+  | 'in_app_enabled'
+  | 'quiet_hours_enabled'
+  | 'quiet_start_time'
+  | 'quiet_end_time'
+  | 'min_priority_email'
+  | 'min_priority_push'
+  | 'min_priority_in_app'
+  | 'type_preferences'
+>;
 
 interface NotificationContextType {
   // State
@@ -110,11 +114,21 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     return localStorage.getItem('access_token');
   }, []);
 
-  // API calls
-  const apiCall = useCallback(
-    async (endpoint: string, options: RequestInit = {}) => {
-      return makeApiCall(`/notifications${endpoint}`, options);
-    },
+  // Map API item to internal notification shape
+  const mapItemToNotification = useCallback(
+    (item: ApiNotificationItem): Notification => ({
+      id: item.id,
+      type: item.notification_type,
+      title: item.title,
+      message: item.message,
+      priority: String(item.priority).toUpperCase(),
+      is_read: item.is_read,
+      is_dismissed: item.is_dismissed,
+      created_at: item.created_at,
+      read_at: (item.read_at as any) ?? undefined,
+      expires_at: (item.expires_at as any) ?? undefined,
+      data: item.data || {},
+    }),
     []
   );
 
@@ -130,16 +144,21 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
       try {
         setIsLoading(true);
-        const data = await apiCall(`/?page=${page}&limit=20`);
-
+        const data = await notificationsApi.getNotifications({
+          page,
+          limit: 20,
+        });
+        const mapped = data.notifications.map(mapItemToNotification);
         if (append) {
-          setNotifications(prev => [...prev, ...data.notifications]);
+          setNotifications(prev => [...prev, ...mapped]);
         } else {
-          setNotifications(data.notifications);
+          setNotifications(mapped);
         }
 
-        setUnreadCount(data.unread_count);
-        setHasMore(data.pagination.page < data.pagination.pages);
+        setUnreadCount(data.unread_count ?? 0);
+        setHasMore(
+          (data.pagination?.page || 1) < (data.pagination?.pages || 1)
+        );
         setCurrentPage(page);
       } catch (error) {
         console.error('Failed to load notifications:', error);
@@ -160,25 +179,20 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/notifications/preferences`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setPreferences(data);
-      } else if (response.status === 401) {
-        console.log('User not authenticated, using default preferences');
-        setPreferences(null);
-      } else {
-        console.error('Failed to fetch preferences:', response.status);
-      }
+      const data = await notificationsApi.getPreferences();
+      const prefs: NotificationPreferences = {
+        email_enabled: data.email_enabled,
+        push_enabled: data.push_enabled,
+        in_app_enabled: data.in_app_enabled,
+        quiet_hours_enabled: data.quiet_hours_enabled,
+        quiet_start_time: (data.quiet_start_time as any) ?? undefined,
+        quiet_end_time: (data.quiet_end_time as any) ?? undefined,
+        min_priority_email: data.min_priority_email,
+        min_priority_push: data.min_priority_push,
+        min_priority_in_app: data.min_priority_in_app,
+        type_preferences: data.type_preferences || {},
+      };
+      setPreferences(prefs);
     } catch (error) {
       console.error('Error fetching preferences:', error);
     }
@@ -187,7 +201,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // Handle real-time notification
   const handleNewNotification = useCallback(
     (data: any) => {
-      const notification = data as Notification;
+      const notification: Notification =
+        data && 'notification_type' in data
+          ? mapItemToNotification(data as ApiNotificationItem)
+          : (data as Notification);
 
       // Add to notifications list
       setNotifications(prev => {
@@ -203,9 +220,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       // Show toast for high priority notifications
       if (
         showToasts &&
-        (notification.priority === 'high' || notification.priority === 'urgent')
+        ['HIGH', 'URGENT'].includes(String(notification.priority).toUpperCase())
       ) {
-        if (notification.priority === 'urgent') {
+        if (String(notification.priority).toUpperCase() === 'URGENT') {
           toast.error(notification.title, {
             description: notification.message,
             duration: 10000,
@@ -218,7 +235,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         }
       }
     },
-    [maxNotifications, showToasts]
+    [maxNotifications, showToasts, mapItemToNotification]
   );
 
   // Handle notification updates
@@ -287,42 +304,21 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/notifications/?page=1&limit=${maxNotifications}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.items || []);
-        setUnreadCount(data.unread_count || 0);
-      } else if (response.status === 401) {
-        console.log('User not authenticated, clearing notifications');
-        setNotifications([]);
-        setUnreadCount(0);
-      } else if (response.status === 500) {
-        console.log(
-          'Server error (likely missing database tables), using empty notifications'
-        );
-        setNotifications([]);
-        setUnreadCount(0);
-      } else {
-        console.error('Failed to fetch notifications:', response.status);
-      }
+      const data = await notificationsApi.getNotifications({
+        page: 1,
+        limit: maxNotifications,
+      });
+      const mapped = data.notifications.map(mapItemToNotification);
+      setNotifications(mapped);
+      setUnreadCount(data.unread_count || 0);
     } catch (error) {
       console.error('Error fetching notifications:', error);
-      // On network errors, use empty state
       setNotifications([]);
       setUnreadCount(0);
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, maxNotifications]);
+  }, [isLoading, maxNotifications, mapItemToNotification]);
 
   // Show user-friendly notification about WebSocket limitations
   const showWebSocketLimitationNotification = useCallback(() => {
@@ -341,7 +337,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const pollInterval = setInterval(() => {
       refreshNotifications();
     }, 30000);
-    
+
     // Store interval for cleanup
     return () => clearInterval(pollInterval);
   }, [refreshNotifications]);
@@ -403,12 +399,18 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
       // Show user-friendly error message
       showWebSocketLimitationNotification();
-      
+
       // Fallback to polling if WebSocket fails
       console.log('Falling back to polling for notifications');
       startPolling();
     }
-  }, [handleNewNotification, handleNotificationUpdate, handleBulkRead, showWebSocketLimitationNotification, startPolling]);
+  }, [
+    handleNewNotification,
+    handleNotificationUpdate,
+    handleBulkRead,
+    showWebSocketLimitationNotification,
+    startPolling,
+  ]);
 
   const disconnect = useCallback(() => {
     unsubscribeRefs.current.forEach(unsub => unsub());
@@ -457,7 +459,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const markAsRead = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        await apiCall(`/${id}/read`, { method: 'POST' });
+        await notificationsApi.markAsRead(id);
 
         // Update handled by WebSocket, but also update optimistically
         markAsReadOptimistic(id);
@@ -468,12 +470,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         return false;
       }
     },
-    [apiCall, markAsReadOptimistic]
+    [markAsReadOptimistic]
   );
 
   const markAllAsRead = useCallback(async (): Promise<boolean> => {
     try {
-      await apiCall('/mark-all-read', { method: 'POST' });
+      await notificationsApi.markAllAsRead();
 
       // Update optimistically
       setNotifications(prev =>
@@ -490,12 +492,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       console.error('Failed to mark all notifications as read:', error);
       return false;
     }
-  }, [apiCall]);
+  }, []);
 
   const dismissNotification = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        await apiCall(`/${id}/dismiss`, { method: 'POST' });
+        await notificationsApi.dismiss(id);
 
         // Update optimistically
         setNotifications(prev =>
@@ -510,7 +512,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         return false;
       }
     },
-    [apiCall]
+    []
   );
 
   const loadMore = useCallback(async () => {
@@ -522,10 +524,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const updatePreferences = useCallback(
     async (updates: Partial<NotificationPreferences>): Promise<boolean> => {
       try {
-        await apiCall('/preferences', {
-          method: 'PUT',
-          body: JSON.stringify(updates),
-        });
+        await notificationsApi.updatePreferences(updates);
 
         // Update local preferences
         setPreferences(prev => (prev ? { ...prev, ...updates } : null));
@@ -536,7 +535,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         return false;
       }
     },
-    [apiCall]
+    []
   );
 
   // Initialize
