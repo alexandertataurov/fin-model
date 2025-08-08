@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   TrendingUp,
   DollarSign,
@@ -62,7 +62,7 @@ const Dashboard = () => {
   const { data: ratiosData } = useFinancialRatios(selectedPeriod);
 
   // Load dashboard data
-  const loadDashboardData = async (
+  const loadDashboardData = useCallback(async (
     period: PeriodFilter = selectedPeriod,
     isRefresh = false
   ) => {
@@ -99,7 +99,7 @@ const Dashboard = () => {
         isRefreshing: false,
       }));
     }
-  };
+  }, [selectedPeriod]);
 
   // Use hooks for refresh/export
   const refreshMutation = useRefreshDashboard();
@@ -125,7 +125,7 @@ const Dashboard = () => {
   // Load data on mount
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [loadDashboardData]);
 
   const dashboardCards = [
     {
@@ -311,10 +311,10 @@ const Dashboard = () => {
             <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
               {dashboardData
                 ? `Last updated: ${new Date(
-                    dashboardData.last_updated
-                  ).toLocaleDateString()} - Data quality: ${(
-                    dashboardData.data_quality_score * 100
-                  ).toFixed(0)}%`
+                  dashboardData.last_updated
+                ).toLocaleDateString()} - Data quality: ${(
+                  dashboardData.data_quality_score * 100
+                ).toFixed(0)}%`
                 : 'Loading your financial dashboard...'}
             </p>
             {/* No demo badge */}
@@ -347,9 +347,8 @@ const Dashboard = () => {
                 className="text-xs sm:text-sm"
               >
                 <RefreshCw
-                  className={`h-3 w-3 mr-1 ${
-                    loadingState.isRefreshing ? 'animate-spin' : ''
-                  }`}
+                  className={`h-3 w-3 mr-1 ${loadingState.isRefreshing ? 'animate-spin' : ''
+                    }`}
                 />
                 Refresh
               </Button>
@@ -524,8 +523,8 @@ const Dashboard = () => {
                           statement.type === 'pl'
                             ? '/dashboards/pl'
                             : statement.type === 'balance_sheet'
-                            ? '/dashboards/balance'
-                            : '/dashboards/cashflow';
+                              ? '/dashboards/balance'
+                              : '/dashboards/cashflow';
                         navigate(path, {
                           state: { statementId: statement.id },
                         });

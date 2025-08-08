@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Database,
   FileText,
@@ -88,7 +88,7 @@ const DataManagement: React.FC = () => {
   const [savingSchedules, setSavingSchedules] = useState(false);
 
   // Load data management information
-  const loadDataInfo = async () => {
+  const loadDataInfo = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -121,13 +121,13 @@ const DataManagement: React.FC = () => {
       }));
 
       setTableData(tableDataFromIntegrity);
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to load data info:', error);
       toast.error('Failed to load data management information');
     } finally {
       setLoading(false);
     }
-  };
+  }, [performanceWindow]);
 
   // Preview cleanup
   const previewCleanup = async () => {
@@ -140,7 +140,7 @@ const DataManagement: React.FC = () => {
         estimated_cleanup_time: '2-5 minutes',
       });
       setShowCleanupDialog(true);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to preview cleanup');
     }
   };
@@ -153,7 +153,7 @@ const DataManagement: React.FC = () => {
       toast.success(result.message);
       setShowCleanupDialog(false);
       await loadDataInfo(); // Refresh data
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to execute cleanup');
     } finally {
       setCleanupInProgress(false);
@@ -170,7 +170,7 @@ const DataManagement: React.FC = () => {
         toast.success('Database cleanup completed successfully');
         await loadDataInfo();
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to cleanup database');
     }
   };
@@ -208,7 +208,7 @@ const DataManagement: React.FC = () => {
 
   useEffect(() => {
     loadDataInfo();
-  }, []);
+  }, [loadDataInfo]);
 
   useEffect(() => {
     (async () => {
@@ -217,7 +217,7 @@ const DataManagement: React.FC = () => {
           window: performanceWindow,
         });
         setPerformanceData(perf);
-      } catch (e) {
+      } catch (_e) {
         toast.error('Failed to load performance metrics');
       }
     })();
@@ -337,13 +337,12 @@ const DataManagement: React.FC = () => {
               return (
                 <>
                   <div
-                    className={`text-2xl font-bold ${
-                      score >= 80
+                    className={`text-2xl font-bold ${score >= 80
                         ? 'text-green-600'
                         : score >= 50
-                        ? 'text-yellow-600'
-                        : 'text-red-600'
-                    }`}
+                          ? 'text-yellow-600'
+                          : 'text-red-600'
+                      }`}
                   >
                     {total === 0 && !dbHealthy ? 'N/A' : `${score}%`}
                   </div>
@@ -554,7 +553,7 @@ const DataManagement: React.FC = () => {
                         a.download = 'admin_overview.csv';
                         a.click();
                         URL.revokeObjectURL(url);
-                      } catch (e) {
+                      } catch (_e) {
                         toast.error('Failed to generate report');
                       }
                     }}
@@ -600,10 +599,10 @@ const DataManagement: React.FC = () => {
                   <div className="text-center">
                     <div className="text-2xl font-bold">
                       {databaseHealth?.performance_metrics?.avg_query_time_ms !=
-                      null
+                        null
                         ? `${databaseHealth.performance_metrics.avg_query_time_ms} ms`
                         : databaseHealth?.performance_metrics?.avg_query_time ||
-                          'N/A'}
+                        'N/A'}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Avg Query Time

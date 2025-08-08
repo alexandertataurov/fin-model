@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Activity,
   Server,
@@ -99,7 +99,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
   const [systemHealth, setSystemHealth] = useState<any>(null);
 
   // Load monitoring data
-  const loadMonitoringData = async (isManualRefresh = false) => {
+  const loadMonitoringData = useCallback(async (isManualRefresh = false) => {
     try {
       if (isManualRefresh) {
         setRefreshing(true);
@@ -128,14 +128,14 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
       if (isManualRefresh) {
         toast.success('System data refreshed');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to load monitoring data:', error);
       toast.error('Failed to load system monitoring data');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [logFilter]);
 
   // Manual refresh
   const handleRefresh = () => {
@@ -176,8 +176,8 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
         ? 'text-green-500'
         : 'text-red-500'
       : trend === 'up'
-      ? 'text-red-500'
-      : 'text-green-500';
+        ? 'text-red-500'
+        : 'text-green-500';
 
     return trend === 'up' ? (
       <TrendingUp className={`${iconClass} ${colorClass}`} />
@@ -233,12 +233,12 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
 
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, refreshInterval]);
+  }, [autoRefresh, refreshInterval, loadMonitoringData]);
 
   // Initial load
   useEffect(() => {
     loadMonitoringData();
-  }, []);
+  }, [loadMonitoringData]);
 
   if (loading) {
     return (
@@ -325,11 +325,11 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
             <div className="text-xl font-bold text-blue-600">
               {systemMetrics
                 ? Math.round(
-                    100 -
-                      ((systemMetrics.cpu_usage || 0) +
-                        (systemMetrics.memory_usage || 0)) /
-                        2
-                  )
+                  100 -
+                  ((systemMetrics.cpu_usage || 0) +
+                    (systemMetrics.memory_usage || 0)) /
+                  2
+                )
                 : 'N/A'}
               %
             </div>
@@ -497,7 +497,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
                       />
                       <div className="text-xs text-muted-foreground">
                         {systemMetrics.memory_usage &&
-                        systemMetrics.memory_usage > 80
+                          systemMetrics.memory_usage > 80
                           ? 'High usage - check memory leaks'
                           : 'Normal operation'}
                       </div>
@@ -535,7 +535,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
                       />
                       <div className="text-xs text-muted-foreground">
                         {systemMetrics.disk_usage &&
-                        systemMetrics.disk_usage > 80
+                          systemMetrics.disk_usage > 80
                           ? 'Low space - cleanup recommended'
                           : 'Normal operation'}
                       </div>

@@ -196,7 +196,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     } catch (error) {
       console.error('Error fetching preferences:', error);
     }
-  }, []);
+  }, [getAuthToken]);
 
   // Handle real-time notification
   const handleNewNotification = useCallback(
@@ -298,7 +298,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     // Check if user is authenticated
     const token = getAuthToken();
     if (!token) {
-      console.log('User not authenticated, skipping notification refresh');
+      console.info('User not authenticated, skipping notification refresh');
       return;
     }
 
@@ -318,7 +318,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, maxNotifications, mapItemToNotification]);
+  }, [isLoading, maxNotifications, mapItemToNotification, getAuthToken]);
 
   // Show user-friendly notification about WebSocket limitations
   const showWebSocketLimitationNotification = useCallback(() => {
@@ -345,14 +345,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // WebSocket connection management
   const connect = useCallback(async (): Promise<void> => {
     if (isConnected) {
-      console.log('Already connected to notifications WebSocket');
+      console.info('Already connected to notifications WebSocket');
       return;
     }
 
     // Check if user is authenticated
     const token = getAuthToken();
     if (!token) {
-      console.log('User not authenticated, skipping WebSocket connection');
+      console.info('User not authenticated, skipping WebSocket connection');
       return;
     }
 
@@ -374,7 +374,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
 
     try {
-      console.log('Attempting to connect to notifications WebSocket...');
+      console.info('Attempting to connect to notifications WebSocket...');
       await notificationsWebSocketService.connect('/ws/notifications');
       setIsConnected(true);
 
@@ -392,7 +392,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         handleBulkRead
       );
 
-      console.log('Successfully connected to notifications WebSocket');
+      console.info('Successfully connected to notifications WebSocket');
     } catch (error) {
       console.error('Failed to connect to notifications WebSocket:', error);
       setIsConnected(false);
@@ -401,7 +401,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       showWebSocketLimitationNotification();
 
       // Fallback to polling if WebSocket fails
-      console.log('Falling back to polling for notifications');
+      console.info('Falling back to polling for notifications');
       startPolling();
     }
   }, [
@@ -410,6 +410,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     handleBulkRead,
     showWebSocketLimitationNotification,
     startPolling,
+    getAuthToken,
+    isConnected,
   ]);
 
   const disconnect = useCallback(() => {
@@ -549,7 +551,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         loadNotifications();
         loadPreferences();
       } else {
-        console.log(
+        console.info(
           'User not authenticated, skipping notification initialization'
         );
       }
@@ -572,14 +574,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           showWebSocketLimitationNotification();
         });
       } else {
-        console.log('User not authenticated, skipping WebSocket auto-connect');
+        console.info('User not authenticated, skipping WebSocket auto-connect');
       }
     }
 
     return () => {
       disconnect();
     };
-  }, [autoConnect, connect, disconnect, showWebSocketLimitationNotification]);
+  }, [autoConnect, connect, disconnect, showWebSocketLimitationNotification, getAuthToken]);
 
   // Monitor connection state
   useEffect(() => {
@@ -598,13 +600,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const handleAuthChange = useCallback(() => {
     const token = getAuthToken();
     if (token && !isConnected) {
-      console.log('User authenticated, connecting WebSocket');
+      console.info('User authenticated, connecting WebSocket');
       connect();
     } else if (!token && isConnected) {
-      console.log('User logged out, disconnecting WebSocket');
+      console.info('User logged out, disconnecting WebSocket');
       disconnect();
     }
-  }, [isConnected, connect, disconnect]);
+  }, [isConnected, connect, disconnect, getAuthToken]);
 
   // Listen for authentication changes
   useEffect(() => {

@@ -3,20 +3,20 @@
  * Based on lean financial modeling plan - 12-category parameter interface
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
 import { Input } from '@/design-system/components/Input';
 import { Label } from '@/design-system/components/Label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
 import { Slider } from '@/design-system/components/Slider';
-import { 
-  Settings, 
-  Save, 
-  RefreshCw, 
-  Download, 
-  Upload, 
-  TrendingUp, 
+import {
+  Settings,
+  Save,
+  RefreshCw,
+  Download,
+  Upload,
+  TrendingUp,
   DollarSign,
   Users,
   Factory,
@@ -74,7 +74,7 @@ const ParameterManager: React.FC<ParameterManagerProps> = ({
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   // Default parameter structure based on lean financial modeling plan
-  const defaultParameters: ParameterGroup[] = [
+  const defaultParameters: ParameterGroup[] = useMemo(() => ([
     {
       id: 'revenue',
       name: 'Revenue & Growth',
@@ -411,7 +411,7 @@ const ParameterManager: React.FC<ParameterManagerProps> = ({
         }
       ]
     }
-  ];
+  ]), []);
 
   useEffect(() => {
     if (initialParameters.length === 0) {
@@ -419,7 +419,7 @@ const ParameterManager: React.FC<ParameterManagerProps> = ({
     } else {
       setParameters(initialParameters);
     }
-  }, [initialParameters]);
+  }, [initialParameters, defaultParameters]);
 
   const formatValue = (parameter: ParameterDefinition): string => {
     if (parameter.is_percentage) {
@@ -453,7 +453,7 @@ const ParameterManager: React.FC<ParameterManagerProps> = ({
               if (param.max_value !== undefined) {
                 validatedValue = Math.min(validatedValue, param.max_value);
               }
-              
+
               return { ...param, value: validatedValue };
             }
             return param;
@@ -568,7 +568,7 @@ const ParameterManager: React.FC<ParameterManagerProps> = ({
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button 
+          <Button
             onClick={handleSave}
             disabled={!hasUnsavedChanges || isLoading}
             size="sm"

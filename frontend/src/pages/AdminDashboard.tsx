@@ -285,7 +285,7 @@ const AdminDashboard: React.FC = () => {
   // Load data on mount
   useEffect(() => {
     loadAdminData();
-  }, []);
+  }, [loadAdminData]);
 
   // Auto refresh metrics and logs
   useEffect(() => {
@@ -294,7 +294,7 @@ const AdminDashboard: React.FC = () => {
       loadMetricsAndLogs();
     }, 30000);
     return () => clearInterval(id);
-  }, [autoRefreshEnabled, logsLevel, logsLimit]);
+  }, [autoRefreshEnabled, logsLevel, logsLimit, loadMetricsAndLogs]);
 
   // Check if user has admin permissions
   if (!user) {
@@ -441,11 +441,10 @@ const AdminDashboard: React.FC = () => {
                           <div className="text-center">
                             <div className="flex items-center justify-center mb-2">
                               <div
-                                className={`w-3 h-3 rounded-full mr-2 ${
-                                  systemHealth?.status === 'healthy'
+                                className={`w-3 h-3 rounded-full mr-2 ${systemHealth?.status === 'healthy'
                                     ? 'bg-green-500'
                                     : 'bg-yellow-500'
-                                }`}
+                                  }`}
                               ></div>
                               <span className="text-sm font-medium">
                                 Database
@@ -460,15 +459,14 @@ const AdminDashboard: React.FC = () => {
                           <div className="text-center">
                             <div className="flex items-center justify-center mb-2">
                               <div
-                                className={`w-3 h-3 rounded-full mr-2 ${
-                                  systemMetrics?.cpu_usage &&
-                                  systemMetrics.cpu_usage > 80
+                                className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.cpu_usage &&
+                                    systemMetrics.cpu_usage > 80
                                     ? 'bg-red-500'
                                     : systemMetrics?.cpu_usage &&
                                       systemMetrics.cpu_usage > 60
-                                    ? 'bg-yellow-500'
-                                    : 'bg-green-500'
-                                }`}
+                                      ? 'bg-yellow-500'
+                                      : 'bg-green-500'
+                                  }`}
                               ></div>
                               <span className="text-sm font-medium">CPU</span>
                             </div>
@@ -481,15 +479,14 @@ const AdminDashboard: React.FC = () => {
                           <div className="text-center">
                             <div className="flex items-center justify-center mb-2">
                               <div
-                                className={`w-3 h-3 rounded-full mr-2 ${
-                                  systemMetrics?.memory_usage &&
-                                  systemMetrics.memory_usage > 80
+                                className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.memory_usage &&
+                                    systemMetrics.memory_usage > 80
                                     ? 'bg-red-500'
                                     : systemMetrics?.memory_usage &&
                                       systemMetrics.memory_usage > 60
-                                    ? 'bg-yellow-500'
-                                    : 'bg-green-500'
-                                }`}
+                                      ? 'bg-yellow-500'
+                                      : 'bg-green-500'
+                                  }`}
                               ></div>
                               <span className="text-sm font-medium">
                                 Memory
@@ -504,15 +501,14 @@ const AdminDashboard: React.FC = () => {
                           <div className="text-center">
                             <div className="flex items-center justify-center mb-2">
                               <div
-                                className={`w-3 h-3 rounded-full mr-2 ${
-                                  systemMetrics?.disk_usage &&
-                                  systemMetrics.disk_usage > 80
+                                className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.disk_usage &&
+                                    systemMetrics.disk_usage > 80
                                     ? 'bg-red-500'
                                     : systemMetrics?.disk_usage &&
                                       systemMetrics.disk_usage > 60
-                                    ? 'bg-yellow-500'
-                                    : 'bg-green-500'
-                                }`}
+                                      ? 'bg-yellow-500'
+                                      : 'bg-green-500'
+                                  }`}
                               ></div>
                               <span className="text-sm font-medium">
                                 Storage
@@ -607,11 +603,10 @@ const AdminDashboard: React.FC = () => {
                               <div
                                 className="bg-blue-500 h-1.5 rounded-full"
                                 style={{
-                                  width: `${
-                                    (systemStats.users.active /
+                                  width: `${(systemStats.users.active /
                                       systemStats.users.total) *
                                     100
-                                  }%`,
+                                    }%`,
                                 }}
                               ></div>
                             </div>
@@ -619,7 +614,7 @@ const AdminDashboard: React.FC = () => {
                               {Math.round(
                                 (systemStats.users.active /
                                   systemStats.users.total) *
-                                  100
+                                100
                               )}
                               % active
                             </span>
@@ -654,11 +649,10 @@ const AdminDashboard: React.FC = () => {
                               <div
                                 className="bg-green-500 h-1.5 rounded-full"
                                 style={{
-                                  width: `${
-                                    (systemStats.files.completed /
+                                  width: `${(systemStats.files.completed /
                                       systemStats.files.total) *
                                     100
-                                  }%`,
+                                    }%`,
                                 }}
                               ></div>
                             </div>
@@ -666,7 +660,7 @@ const AdminDashboard: React.FC = () => {
                               {Math.round(
                                 (systemStats.files.completed /
                                   systemStats.files.total) *
-                                  100
+                                100
                               )}
                               % done
                             </span>
@@ -762,15 +756,14 @@ const AdminDashboard: React.FC = () => {
                                   </span>
                                 </div>
                                 <span
-                                  className={`text-sm font-medium ${
-                                    systemMetrics.cpu_usage &&
-                                    systemMetrics.cpu_usage > 80
+                                  className={`text-sm font-medium ${systemMetrics.cpu_usage &&
+                                      systemMetrics.cpu_usage > 80
                                       ? 'text-red-500'
                                       : systemMetrics.cpu_usage &&
                                         systemMetrics.cpu_usage > 60
-                                      ? 'text-yellow-500'
-                                      : 'text-green-500'
-                                  }`}
+                                        ? 'text-yellow-500'
+                                        : 'text-green-500'
+                                    }`}
                                 >
                                   {formatPercentage(systemMetrics.cpu_usage)}
                                 </span>
@@ -790,15 +783,14 @@ const AdminDashboard: React.FC = () => {
                                   </span>
                                 </div>
                                 <span
-                                  className={`text-sm font-medium ${
-                                    systemMetrics.memory_usage &&
-                                    systemMetrics.memory_usage > 80
+                                  className={`text-sm font-medium ${systemMetrics.memory_usage &&
+                                      systemMetrics.memory_usage > 80
                                       ? 'text-red-500'
                                       : systemMetrics.memory_usage &&
                                         systemMetrics.memory_usage > 60
-                                      ? 'text-yellow-500'
-                                      : 'text-green-500'
-                                  }`}
+                                        ? 'text-yellow-500'
+                                        : 'text-green-500'
+                                    }`}
                                 >
                                   {formatPercentage(systemMetrics.memory_usage)}
                                 </span>
@@ -818,15 +810,14 @@ const AdminDashboard: React.FC = () => {
                                   </span>
                                 </div>
                                 <span
-                                  className={`text-sm font-medium ${
-                                    systemMetrics.disk_usage &&
-                                    systemMetrics.disk_usage > 80
+                                  className={`text-sm font-medium ${systemMetrics.disk_usage &&
+                                      systemMetrics.disk_usage > 80
                                       ? 'text-red-500'
                                       : systemMetrics.disk_usage &&
                                         systemMetrics.disk_usage > 60
-                                      ? 'text-yellow-500'
-                                      : 'text-green-500'
-                                  }`}
+                                        ? 'text-yellow-500'
+                                        : 'text-green-500'
+                                    }`}
                                 >
                                   {formatPercentage(systemMetrics.disk_usage)}
                                 </span>
@@ -1035,8 +1026,8 @@ const AdminDashboard: React.FC = () => {
                                 <div className="text-xs text-muted-foreground">
                                   {activity.last_login
                                     ? new Date(
-                                        activity.last_login
-                                      ).toLocaleDateString()
+                                      activity.last_login
+                                    ).toLocaleDateString()
                                     : 'Never'}
                                 </div>
                               </div>
@@ -1286,9 +1277,9 @@ const AdminDashboard: React.FC = () => {
                     <span>
                       {logsTotal > 0
                         ? `${Math.min(logsSkip + 1, logsTotal)}-${Math.min(
-                            logsSkip + logsLimit,
-                            logsTotal
-                          )} of ${logsTotal}`
+                          logsSkip + logsLimit,
+                          logsTotal
+                        )} of ${logsTotal}`
                         : '0-0 of 0'}
                     </span>
                     <Button
@@ -1515,9 +1506,9 @@ const AdminDashboard: React.FC = () => {
                     <span>
                       {auditTotal > 0
                         ? `${Math.min(auditSkip + 1, auditTotal)}-${Math.min(
-                            auditSkip + auditFilters.limit,
-                            auditTotal
-                          )} of ${auditTotal}`
+                          auditSkip + auditFilters.limit,
+                          auditTotal
+                        )} of ${auditTotal}`
                         : '0-0 of 0'}
                     </span>
                     <Button

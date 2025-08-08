@@ -41,7 +41,7 @@ api.interceptors.response.use(
           const originalRequest = error.config;
           originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
           return api.request(originalRequest);
-        } catch (refreshError) {
+        } catch (_refreshError) {
           // Refresh failed, clear tokens and let app routing handle redirect
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
