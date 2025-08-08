@@ -10,7 +10,7 @@ import {
 import { Button } from '../components/Button';
 
 const meta = {
-  title: 'Design System/Dialog',
+  title: 'Design System/Tokens/Dialog',
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 };

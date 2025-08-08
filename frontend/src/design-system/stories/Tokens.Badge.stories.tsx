@@ -2,7 +2,7 @@ import React from 'react';
 import { Badge } from '../components/Badge';
 
 const meta = {
-  title: 'Design System/Badge',
+  title: 'Design System/Tokens/Badge',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };

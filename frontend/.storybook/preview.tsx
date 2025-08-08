@@ -1,61 +1,9 @@
 import type { Preview } from '@storybook/react';
 import React from 'react';
-import { withThemeByClassName } from '@storybook/addon-themes';
-import { DesignSystemProvider, useDesignSystem } from '../src/design-system/provider';
-
-import '../src/index.css';
-
-const preview: Preview = {
-  decorators: [
-    withThemeByClassName({
-      themes: {
-        light: 'light',
-        dark: 'dark'
-      },
-      defaultTheme: 'light'
-    }),
-    (Story, context) => {
-      return (
-        <DesignSystemProvider>
-          <Story />
-        </DesignSystemProvider>
-      );
-    }
-  ],
-  parameters: {
-    layout: 'padded',
-    controls: { expanded: true },
-    actions: { argTypesRegex: '^on[A-Z].*' },
-    a11y: { disable: false },
-    docs: { source: { type: 'dynamic' } },
-    backgrounds: {
-      default: 'light',
-      values: [
-        { name: 'light', value: '#ffffff' },
-        { name: 'dark', value: '#0f172a' },
-        { name: 'muted', value: '#f1f5f9' }
-      ]
-    },
-    viewport: {
-      viewports: {
-        mobile: { name: 'Mobile', styles: { width: '375px', height: '667px' } },
-        tablet: { name: 'Tablet', styles: { width: '768px', height: '1024px' } },
-        desktop: { name: 'Desktop', styles: { width: '1440px', height: '900px' } }
-      }
-    },
-    options: {
-      storySort: {
-        order: ['Design System', 'Components', 'Pages', 'Stories']
-      }
-    }
-  }
-};
-
-export default preview;
-
-import type { Preview } from '@storybook/react';
-import React from 'react';
 import { DesignSystemProvider } from '../src/design-system/provider';
+import { withThemeByClassName } from '@storybook/addon-themes';
+import { initialize as initializeMSW, mswDecorator } from 'msw-storybook-addon';
+import { handlers } from '../src/mocks/handlers';
 
 // Import global styles (includes Tailwind directives)
 import '../src/styles/globals.css';
@@ -190,6 +138,14 @@ const preview: Preview = {
   },
   // Global decorators to wrap all stories
   decorators: [
+    withThemeByClassName({
+      themes: {
+        light: 'light',
+        dark: 'dark',
+      },
+      defaultTheme: 'light',
+    }),
+    mswDecorator,
     (Story, context) => {
       const theme =
         context.globals.theme ||

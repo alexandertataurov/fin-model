@@ -64,13 +64,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Set up CORS with enhanced configuration
+# Set up CORS with explicit origins
 cors_origins = settings.get_cors_origins()
-logger.info(f"CORS origins configured: {cors_origins}")
+logger.info(
+    "CORS origins configured: %s", cors_origins
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for now to fix CORS issues
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=[
@@ -112,6 +114,7 @@ def make_json_serializable(obj):
     else:
         return obj
 
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     errors = []
@@ -124,7 +127,6 @@ async def validation_exception_handler(request, exc):
         content={"detail": errors},
     )
 
-
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
@@ -136,10 +138,12 @@ app.include_router(websocket_router, prefix="/ws", tags=["websocket"])
 async def root():
     return JSONResponse(
         content={
-            "message": "FinVision API", 
+            "message": "FinVision API",
             "version": "1.0.0",
             "status": "running",
-            "cache_status": "enabled" if CACHE_AVAILABLE else "disabled"
+            "cache_status": (
+                "enabled" if CACHE_AVAILABLE else "disabled"
+            ),
         }
     )
 

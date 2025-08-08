@@ -1,0 +1,43 @@
+name: Storybook CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  storybook:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build Storybook
+        run: pnpm run build-storybook
+
+      - name: Verify story coverage
+        run: pnpm run verify:stories
+
+      - name: Run Storybook tests (a11y/interactions)
+        run: pnpm run storybook:test:ci
+
+      - name: Publish to Chromatic
+        if: github.event_name == 'push'
+        env:
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        run: pnpm run chromatic --yes

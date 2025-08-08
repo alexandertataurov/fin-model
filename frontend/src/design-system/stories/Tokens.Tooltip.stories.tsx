@@ -3,7 +3,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '../components/Tooltip';
 import { Button } from '../components/Button';
 
 const meta = {
-  title: 'Design System/Tooltip',
+  title: 'Design System/Tokens/Tooltip',
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 };

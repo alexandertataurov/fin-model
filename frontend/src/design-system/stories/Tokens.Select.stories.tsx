@@ -10,7 +10,7 @@ import {
 } from '../components/Select';
 
 const meta = {
-  title: 'Design System/Select',
+  title: 'Design System/Tokens/Select',
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 };

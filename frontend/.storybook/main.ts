@@ -9,7 +9,7 @@ const config: StorybookConfig = {
   stories: [
     '../src/design-system/stories/**/*.stories.@(ts|tsx)',
     '../src/components/**/*.stories.@(ts|tsx)',
-    '../src/pages/**/*.stories.@(ts|tsx)'
+    '../src/pages/**/*.stories.@(ts|tsx)',
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -21,21 +21,21 @@ const config: StorybookConfig = {
     '@storybook/addon-outline',
     '@storybook/addon-measure',
     '@storybook/blocks',
-    '@storybook/addon-themes'
+    '@storybook/addon-themes',
   ],
   docs: { autodocs: 'tag' },
   typescript: { reactDocgen: 'react-docgen-typescript' },
-  viteFinal: async (viteConfig) => {
-    viteConfig.resolve = viteConfig.resolve || { alias: [] };
-    const aliases = (viteConfig.resolve.alias as any[]) || [];
-    aliases.push(
-      { find: '@', replacement: resolve(__dirname, '../src') },
-      { find: '@/design-system', replacement: resolve(__dirname, '../src/design-system') },
-      { find: '@design-system', replacement: resolve(__dirname, '../src/design-system') },
-      { find: '@/components', replacement: resolve(__dirname, '../src/components') },
-      { find: '@components', replacement: resolve(__dirname, '../src/components') },
-    );
-    (viteConfig as any).resolve.alias = aliases;
+  viteFinal: async viteConfig => {
+    viteConfig.resolve = viteConfig.resolve || ({ alias: {} } as any);
+    const currentAlias = (viteConfig.resolve as any).alias || {};
+    (viteConfig.resolve as any).alias = {
+      ...currentAlias,
+      '@': resolve(__dirname, '../src'),
+      '@/design-system': resolve(__dirname, '../src/design-system'),
+      '@design-system': resolve(__dirname, '../src/design-system'),
+      '@/components': resolve(__dirname, '../src/components'),
+      '@components': resolve(__dirname, '../src/components'),
+    };
 
     (viteConfig.define as any) = {
       ...(viteConfig.define || {}),
@@ -43,8 +43,16 @@ const config: StorybookConfig = {
       global: 'globalThis',
     };
 
+    (viteConfig.build as any) = {
+      ...(viteConfig.build || {}),
+      rollupOptions: {
+        ...((viteConfig.build as any)?.rollupOptions || {}),
+        external: [/@storybook\/globalThis/],
+      },
+    };
+
     return viteConfig;
-  }
+  },
 };
 
 export default config;

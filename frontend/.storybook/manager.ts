@@ -3,21 +3,6 @@ import { create } from '@storybook/theming/create';
 
 const theme = create({
   base: 'light',
-  brandTitle: 'Fin Model Storybook',
-});
-
-addons.setConfig({
-  theme,
-  sidebar: {
-    showRoots: true,
-  },
-});
-
-import { addons } from '@storybook/manager-api';
-import { create } from '@storybook/theming/create';
-
-const theme = create({
-  base: 'light',
   brandTitle: 'FinVision Design System',
   brandUrl: '/',
   brandTarget: '_self',
@@ -27,7 +12,8 @@ const theme = create({
   colorSecondary: '#6b7280',
 
   // Typography
-  fontBase: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif',
+  fontBase:
+    'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif',
   fontCode: 'Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
 
   // Toolbar default and active colors
@@ -63,29 +49,7 @@ addons.setConfig({
   panelPosition: 'bottom',
   selectedPanel: 'storybook/docs/panel',
   sidebar: {
-    showRoots: false,
+    showRoots: true,
     collapsedRoots: ['other'],
-    filters: {
-      patterns: (item) => {
-        // Show all items by default
-        return true;
-      },
-    },
-  },
-  toolbar: {
-    title: { hidden: false },
-    zoom: { hidden: false },
-    eject: { hidden: false },
-    copy: { hidden: false },
-    fullscreen: { hidden: false },
-  },
-  // Performance optimizations
-  docs: {
-    defaultName: 'Documentation',
-    toc: true,
-  },
-  // Testing configuration
-  test: {
-    timeout: 10000,
   },
 });

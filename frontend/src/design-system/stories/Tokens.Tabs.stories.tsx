@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/Tabs';
 
 const meta = {
-  title: 'Design System/Tabs',
+  title: 'Design System/Tokens/Tabs',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
