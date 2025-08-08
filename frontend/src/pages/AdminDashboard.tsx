@@ -276,7 +276,7 @@ const AdminDashboard: React.FC = () => {
                             <span className="text-sm font-medium">CPU</span>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {formatPercentage(systemMetrics?.cpu_usage)}
+                            {formatPercentage(systemMetrics?.cpu_usage ?? null)}
                           </div>
                         </div>
                         <div className="text-center">
@@ -288,7 +288,7 @@ const AdminDashboard: React.FC = () => {
                             <span className="text-sm font-medium">Memory</span>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {formatPercentage(systemMetrics?.memory_usage)}
+                            {formatPercentage(systemMetrics?.memory_usage ?? null)}
                           </div>
                         </div>
                         <div className="text-center">
@@ -300,7 +300,7 @@ const AdminDashboard: React.FC = () => {
                             <span className="text-sm font-medium">Storage</span>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {formatPercentage(systemMetrics?.disk_usage)}
+                            {formatPercentage(systemMetrics?.disk_usage ?? null)}
                           </div>
                         </div>
                       </div>
