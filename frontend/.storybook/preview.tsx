@@ -8,6 +8,9 @@ import { handlers } from '../src/mocks/handlers';
 // Import global styles (includes Tailwind directives)
 import '../src/styles/globals.css';
 
+// Initialize MSW once for Storybook
+initializeMSW({ onUnhandledRequest: 'bypass' });
+
 export const globalTypes = {
   theme: {
     name: 'Theme',
@@ -53,6 +56,7 @@ export const globalTypes = {
 
 const preview: Preview = {
   parameters: {
+    msw: { handlers },
     actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
       matchers: {

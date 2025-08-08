@@ -624,7 +624,7 @@ async def get_system_statistics(
         )
 
 
-@router.get("/users/activity", response_model=List[Dict[str, Any]])
+@router.get("/users/activity")
 async def get_user_activity(
     limit: int = Query(50),
     active_only: Optional[str] = Query(None),
