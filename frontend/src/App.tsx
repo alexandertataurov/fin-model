@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { DesignSystemProvider } from '@/design-system';
 import AuthGuard from '@/components/auth/AuthGuard';
+import AdminGuard from '@/components/auth/AdminGuard';
 import Layout from '@/components/Layout/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -21,6 +22,7 @@ import Parameters from '@/pages/Parameters';
 import DCFValuation from '@/pages/DCFValuation';
 import AssetLifecycle from '@/pages/AssetLifecycle';
 import CashFlowLifecycle from '@/pages/CashFlowLifecycle';
+import AdminDashboard from '@/pages/AdminDashboard';
 import NotFound from '@/pages/NotFound';
 import Settings from '@/pages/Settings';
 import './styles/globals.css';
@@ -30,7 +32,7 @@ const AuthenticatedNotificationProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   return (
-    <NotificationProvider autoConnect={true}>{children}</NotificationProvider>
+    <NotificationProvider autoConnect={false}>{children}</NotificationProvider>
   );
 };
 
@@ -81,6 +83,14 @@ function App() {
                   />
                   {/* New streamlined routes */}
                   <Route path="financial-modeling" element={<Dashboard />} />
+                  <Route
+                    path="admin"
+                    element={
+                      <AdminGuard>
+                        <AdminDashboard />
+                      </AdminGuard>
+                    }
+                  />
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>

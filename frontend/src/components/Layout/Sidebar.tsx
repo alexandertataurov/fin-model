@@ -27,6 +27,8 @@ import {
   RefreshCw,
   Settings,
   Activity,
+  Users,
+  Database,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -46,10 +48,10 @@ interface NavItem {
 const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [expandedItems, setExpandedItems] = useState<string[]>(['dashboard']);
 
-  const navigationItems: NavItem[] = [
+  const baseNavigationItems: NavItem[] = [
     {
       id: 'dashboard',
       label: 'Dashboard',
@@ -125,16 +127,35 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
       path: '/parameters',
     },
     {
+      id: 'files',
+      label: 'File Upload',
+      icon: <Upload className="h-4 w-4" />,
+      path: '/upload',
+    },
+  ];
+
+  // Add admin navigation item only for admin users
+  const navigationItems: NavItem[] = isAdmin() ? [
+    ...baseNavigationItems,
+    {
+      id: 'admin',
+      label: 'Administration',
+      icon: <Users className="h-4 w-4" />,
+      path: '/admin',
+    },
+    {
       id: 'settings',
       label: 'Settings',
       icon: <Settings className="h-4 w-4" />,
       path: '/settings',
     },
+  ] : [
+    ...baseNavigationItems,
     {
-      id: 'files',
-      label: 'File Upload',
-      icon: <Upload className="h-4 w-4" />,
-      path: '/upload',
+      id: 'settings',
+      label: 'Settings',
+      icon: <Settings className="h-4 w-4" />,
+      path: '/settings',
     },
   ];
 
