@@ -57,6 +57,7 @@ import AdminApiService, {
   SecurityAudit,
   UserWithRoles,
   LogEntry,
+  UserPermissions,
 } from '@/services/adminApi';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
@@ -89,6 +90,15 @@ const AdminDashboard: React.FC = () => {
   const [logsLimit, setLogsLimit] = useState<number>(100);
   const [systemHealth, setSystemHealth] = useState<any | null>(null);
   const [databaseHealth, setDatabaseHealth] = useState<any | null>(null);
+  const [userPermissions, setUserPermissions] =
+    useState<UserPermissions | null>(null);
+  const [auditLogs, setAuditLogs] = useState<any[] | null>(null);
+  const [auditFilters, setAuditFilters] = useState<{
+    skip: number;
+    limit: number;
+    userId?: number;
+    action?: string;
+  }>({ skip: 0, limit: 100 });
 
   // Load admin data
   const loadAdminData = async () => {
@@ -102,6 +112,8 @@ const AdminDashboard: React.FC = () => {
       AdminApiService.getSystemHealth(),
       AdminApiService.getDatabaseHealth(),
       AdminApiService.getSystemLogs('ERROR', 100),
+      AdminApiService.getUserPermissions(),
+      AdminApiService.getAuditLogs(0, 100),
     ]);
 
     const [
@@ -113,6 +125,8 @@ const AdminDashboard: React.FC = () => {
       sysHealthRes,
       dbHealthRes,
       logsRes,
+      permsRes,
+      auditListRes,
     ] = results;
 
     if (statsRes.status === 'fulfilled') setSystemStats(statsRes.value);
@@ -141,6 +155,15 @@ const AdminDashboard: React.FC = () => {
 
     if (logsRes.status === 'fulfilled') setLogs(logsRes.value);
     else setLogs([]);
+
+    if (permsRes.status === 'fulfilled') setUserPermissions(permsRes.value);
+    else setUserPermissions(null);
+
+    if (auditListRes.status === 'fulfilled')
+      setAuditLogs(
+        (auditListRes as any).value?.logs || (auditListRes as any).value || []
+      );
+    else setAuditLogs(null);
 
     const anyFulfilled = results.some(r => r.status === 'fulfilled');
     if (!anyFulfilled) {
@@ -308,7 +331,7 @@ const AdminDashboard: React.FC = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-9">
             <TabsTrigger
               value="overview"
               className="flex items-center space-x-2"
@@ -352,6 +375,17 @@ const AdminDashboard: React.FC = () => {
             <TabsTrigger value="logs" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
               <span>Logs</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="permissions"
+              className="flex items-center space-x-2"
+            >
+              <Shield className="h-4 w-4" />
+              <span>Permissions</span>
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center space-x-2">
+              <FileText className="h-4 w-4" />
+              <span>Audit</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1194,6 +1228,163 @@ const AdminDashboard: React.FC = () => {
                       ))
                     ) : (
                       <div className="p-4 text-muted-foreground">No logs.</div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Permissions Tab */}
+          <TabsContent value="permissions" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Permissions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {userPermissions ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <div className="text-muted-foreground">User ID</div>
+                      <div className="font-medium">
+                        {userPermissions.user_id}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">Roles</div>
+                      <div className="font-medium">
+                        {userPermissions.roles.join(', ') || 'None'}
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <div className="text-muted-foreground">Permissions</div>
+                      <div className="font-medium break-words">
+                        {userPermissions.permissions.join(', ') || 'None'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">Admin</div>
+                      <div className="font-medium">
+                        {userPermissions.is_admin ? 'Yes' : 'No'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">Analyst</div>
+                      <div className="font-medium">
+                        {userPermissions.is_analyst ? 'Yes' : 'No'}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground">
+                    No permissions data.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Audit Tab */}
+          <TabsContent value="audit" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Audit Logs</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="number"
+                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    placeholder="Skip"
+                    value={auditFilters.skip}
+                    onChange={e =>
+                      setAuditFilters({
+                        ...auditFilters,
+                        skip: Number(e.target.value) || 0,
+                      })
+                    }
+                  />
+                  <input
+                    type="number"
+                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    placeholder="Limit"
+                    value={auditFilters.limit}
+                    onChange={e =>
+                      setAuditFilters({
+                        ...auditFilters,
+                        limit: Number(e.target.value) || 50,
+                      })
+                    }
+                  />
+                  <input
+                    type="number"
+                    className="border rounded px-2 py-1 bg-background text-sm w-32"
+                    placeholder="User ID"
+                    value={auditFilters.userId || ''}
+                    onChange={e =>
+                      setAuditFilters({
+                        ...auditFilters,
+                        userId: e.target.value
+                          ? Number(e.target.value)
+                          : undefined,
+                      })
+                    }
+                  />
+                  <input
+                    type="text"
+                    className="border rounded px-2 py-1 bg-background text-sm w-40"
+                    placeholder="Action"
+                    value={auditFilters.action || ''}
+                    onChange={e =>
+                      setAuditFilters({
+                        ...auditFilters,
+                        action: e.target.value || undefined,
+                      })
+                    }
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={async () => {
+                      const data = await AdminApiService.getAuditLogs(
+                        auditFilters.skip,
+                        auditFilters.limit,
+                        auditFilters.userId,
+                        auditFilters.action
+                      );
+                      setAuditLogs((data as any)?.logs || data || []);
+                    }}
+                  >
+                    Refresh
+                  </Button>
+                </div>
+                <div className="border rounded">
+                  <div className="max-h-96 overflow-auto text-xs font-mono">
+                    {auditLogs && (auditLogs as any[]).length > 0 ? (
+                      (auditLogs as any[]).map((entry: any, idx: number) => (
+                        <div key={idx} className="px-3 py-2 border-b">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold">
+                              [{entry.level || 'INFO'}]{' '}
+                              {entry.module || entry.action || 'audit'}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {entry.timestamp
+                                ? new Date(entry.timestamp).toLocaleString()
+                                : ''}
+                            </span>
+                          </div>
+                          <div>
+                            {entry.message ||
+                              entry.details ||
+                              JSON.stringify(entry)}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-muted-foreground">
+                        No audit logs.
+                      </div>
                     )}
                   </div>
                 </div>
