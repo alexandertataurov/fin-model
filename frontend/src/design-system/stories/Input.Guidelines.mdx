@@ -1,0 +1,40 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Input/Guidelines" />
+
+# Input Guidelines
+
+## Purpose
+
+Inputs capture short user text. Pair with clear labels and helpful placeholders.
+
+## Usage
+
+```tsx
+import { Input, Label } from '@/design-system';
+
+export function Example() {
+  return (
+    <div className="grid gap-2">
+      <Label htmlFor="email">Email</Label>
+      <Input id="email" type="email" placeholder="name@company.com" />
+    </div>
+  );
+}
+```
+
+## Dos
+
+- Always pair with a visible `Label`
+- Show helpful placeholders sparingly
+- Validate and explain errors inline
+
+## Don’ts
+
+- Don’t use placeholders as labels
+- Don’t hide critical help behind tooltips only
+
+## Accessibility
+
+- Connect `Label` via `htmlFor`
+- Provide `aria-invalid` and error messages when invalid

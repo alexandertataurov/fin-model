@@ -66,6 +66,9 @@ const preview: Preview = {
         { name: 'dark', class: 'dark', color: '#0b0b0b' },
       ],
     },
+    docs: {
+      toc: true,
+    },
     viewport: {
       defaultViewport: 'responsive',
     },

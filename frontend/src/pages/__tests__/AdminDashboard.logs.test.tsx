@@ -16,6 +16,7 @@ describe('AdminDashboard Logs pagination', () => {
     vi.resetAllMocks();
 
     // Minimal stubs for initial loadAdminData()
+    const now = new Date().toISOString()
     mocked.default = {
       getSystemStats: vi.fn().mockResolvedValue({
         users: {},
@@ -36,27 +37,26 @@ describe('AdminDashboard Logs pagination', () => {
       }),
       getSystemHealth: vi.fn().mockResolvedValue({ status: 'ok' }),
       getDatabaseHealth: vi.fn().mockResolvedValue({ status: 'ok' }),
-      getSystemLogs: vi.fn().mockResolvedValue({
-        items: [
-          {
-            timestamp: new Date().toISOString(),
-            level: 'ERROR',
-            message: 'A',
-            module: 'db',
-            user_id: null,
-          },
-          {
-            timestamp: new Date().toISOString(),
-            level: 'ERROR',
-            message: 'B',
-            module: 'db',
-            user_id: null,
-          },
-        ],
-        skip: 0,
-        limit: 2,
-        total: 3,
-      }),
+      getSystemLogs: vi
+        .fn()
+        .mockResolvedValueOnce({
+          items: [
+            { timestamp: now, level: 'ERROR', message: 'A', module: 'db', user_id: null },
+            { timestamp: now, level: 'ERROR', message: 'B', module: 'db', user_id: null },
+          ],
+          skip: 0,
+          limit: 2,
+          total: 4,
+        })
+        .mockResolvedValueOnce({
+          items: [
+            { timestamp: now, level: 'ERROR', message: 'C', module: 'db', user_id: null },
+            { timestamp: now, level: 'ERROR', message: 'D', module: 'db', user_id: null },
+          ],
+          skip: 2,
+          limit: 2,
+          total: 4,
+        }),
       getUserPermissions: vi
         .fn()
         .mockResolvedValue({ permissions: [], roles: [], is_admin: true }),
@@ -80,11 +80,23 @@ describe('AdminDashboard Logs pagination', () => {
     expect(rowB).toBeInTheDocument();
 
     // Prev/Next buttons should exist in Logs tab area
-    const nextBtn = screen.getByRole('button', { name: /next/i });
+    const prevBtn = screen.getByRole('button', { name: /prev/i }) as HTMLButtonElement
+    const nextBtn = screen.getByRole('button', { name: /next/i }) as HTMLButtonElement
     expect(nextBtn).toBeInTheDocument();
 
-    // Shows range text like "1-2 of 3"
-    const range = await screen.findByText(/of 3/i);
-    expect(range.textContent).toMatch(/1-2 of 3/);
+    // Shows range text like "1-2 of 4" and Prev disabled initially
+    const range = await screen.findByText(/of 4/i);
+    expect(range.textContent).toMatch(/1-2 of 4/);
+    expect(prevBtn.disabled).toBe(true)
+
+    // Go next, expect new rows and Prev enabled and new range
+    nextBtn.click()
+    const rowC = await screen.findByText('C')
+    const rowD = await screen.findByText('D')
+    expect(rowC).toBeInTheDocument()
+    expect(rowD).toBeInTheDocument()
+    const range2 = await screen.findByText(/3-4 of 4/i)
+    expect(range2).toBeInTheDocument()
+    expect(prevBtn.disabled).toBe(false)
   });
 });

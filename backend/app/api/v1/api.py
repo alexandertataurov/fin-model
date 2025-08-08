@@ -13,8 +13,6 @@ from app.api.v1.endpoints import (
     lean_financial,
     notifications,
 )
-from app.core.config import settings
-
 api_router = APIRouter()
 
 # Include authentication routes
@@ -78,21 +76,6 @@ api_router.include_router(
 api_router.include_router(
     notifications.router, prefix="/notifications", tags=["notifications"]
 )
-
-try:
-    from app.api.v1.endpoints import test_utils
-
-    if getattr(settings, "ENV", "development") in [
-        "development",
-        "dev",
-        "test",
-        "testing",
-    ]:
-        api_router.include_router(
-            test_utils.router, prefix="", tags=["test-utils"]
-        )
-except ImportError:
-    pass
 
 
 @api_router.get("/")

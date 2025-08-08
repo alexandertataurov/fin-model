@@ -48,19 +48,57 @@ class DatabaseMonitor:
         from_ts: datetime | None = None,
         to_ts: datetime | None = None,
     ) -> List[Dict[str, Any]]:
-        """Get basic query performance metrics with simple aggregates."""
+        """Get query performance metrics using pg_stat_statements.
+
+        Falls back to a minimal synthetic row if the extension is missing.
+        Note: pg_stat_statements lacks per-row timestamps; window parameters
+        are best-effort no-ops here unless a custom store exists.
+        """
         try:
-            # Placeholder aggregate data; replace with pg_stat_statements
-            rows = [
-                {
-                    "query": "SELECT * FROM users",
-                    "avg_ms": 1.2,
-                    "p95_ms": 3.4,
-                    "calls": 42,
-                    "last_seen": datetime.utcnow().isoformat(),
-                }
-            ]
-            return rows[:limit]
+            # Check pg_stat_statements availability
+            try:
+                self.db.execute(
+                    text("SELECT 1 FROM pg_stat_statements LIMIT 1")
+                )
+                has_pgss = True
+            except Exception:
+                has_pgss = False
+
+            if not has_pgss:
+                return [
+                    {
+                        "query": "pg_stat_statements not available",
+                        "avg_ms": None,
+                        "p95_ms": None,
+                        "calls": None,
+                        "last_seen": datetime.utcnow().isoformat(),
+                    }
+                ]
+
+            sql = (
+                "SELECT query, mean_time, calls, total_time "
+                "FROM pg_stat_statements "
+                "ORDER BY mean_time DESC LIMIT :limit"
+            )
+            result = self.db.execute(
+                text(sql), {"limit": int(limit)}
+            ).fetchall()
+            items: List[Dict[str, Any]] = []
+            for row in result:
+                mean_time = float(row[1]) if row[1] is not None else None
+                calls = int(row[2]) if row[2] is not None else None
+                # p95 approximation when distribution data missing
+                p95 = float(mean_time * 2) if mean_time is not None else None
+                items.append(
+                    {
+                        "query": row[0],
+                        "avg_ms": mean_time,
+                        "p95_ms": p95,
+                        "calls": calls,
+                        "last_seen": datetime.utcnow().isoformat(),
+                    }
+                )
+            return items
         except Exception as e:
             logger.error(f"Failed to get query performance: {e}")
             return []
