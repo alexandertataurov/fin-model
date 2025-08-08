@@ -26,10 +26,10 @@ const createMockAuthValue = (
     await new Promise(r => setTimeout(r, 500));
     return email === 'demo@finvision.ai' && password === 'Password123';
   },
-  logout: async () => {},
+  logout: async () => undefined,
   register: async () => true,
   refreshToken: async () => true,
-  updateUser: () => {},
+  updateUser: () => undefined,
   hasPermission: () => false,
   hasRole: () => false,
   isAdmin: () => false,

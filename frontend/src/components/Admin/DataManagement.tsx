@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Database,
   FileText,
-  Trash2,
+  // Trash2,
   RefreshCw,
   Download,
   Upload,
@@ -11,8 +11,8 @@ import {
   CheckCircle,
   BarChart3,
   HardDrive,
-  Clock,
-  Users,
+  // Clock,
+  // Users,
   Activity,
 } from 'lucide-react';
 import {
@@ -67,7 +67,7 @@ interface CleanupPreview {
 
 const DataManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
+  // const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
   const [tableData, setTableData] = useState<TableInfo[]>([]);
   const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(
     null
@@ -104,7 +104,7 @@ const DataManagement: React.FC = () => {
         ]
       );
 
-      setTableInfo(tables);
+      // setTableInfo(tables);
       setDatabaseHealth(health);
       setPerformanceData(performance);
       setSchedules(sched);
@@ -161,7 +161,7 @@ const DataManagement: React.FC = () => {
   };
 
   // Database cleanup
-  const handleDatabaseCleanup = async (dryRun: boolean = true) => {
+  const handleDatabaseCleanup = async (dryRun = true) => {
     try {
       const result = await AdminApiService.cleanupDatabase(dryRun);
       if (dryRun) {
@@ -217,7 +217,9 @@ const DataManagement: React.FC = () => {
           window: performanceWindow,
         });
         setPerformanceData(perf);
-      } catch (e) {}
+      } catch (e) {
+        toast.error('Failed to load performance metrics');
+      }
     })();
   }, [performanceWindow]);
 

@@ -116,7 +116,8 @@ export interface ParameterCreateRequest {
   group_id?: number;
 }
 
-export interface ParameterUpdateRequest extends Partial<ParameterCreateRequest> {
+export interface ParameterUpdateRequest
+  extends Partial<ParameterCreateRequest> {
   id: number;
 }
 
@@ -160,7 +161,10 @@ export const parameterApi = {
   /**
    * Update a parameter
    */
-  async updateParameter(id: number, data: Partial<ParameterUpdateRequest>): Promise<Parameter> {
+  async updateParameter(
+    id: number,
+    data: Partial<ParameterUpdateRequest>
+  ): Promise<Parameter> {
     const response = await apiClient.put(`/parameters/${id}`, data);
     return response.data;
   },
@@ -176,7 +180,9 @@ export const parameterApi = {
   /**
    * Batch update multiple parameters
    */
-  async batchUpdateParameters(data: BatchUpdateRequest): Promise<{ updated_count: number; errors: any[] }> {
+  async batchUpdateParameters(
+    data: BatchUpdateRequest
+  ): Promise<{ updated_count: number; errors: any[] }> {
     const response = await apiClient.post('/parameters/batch-update', data);
     return response.data;
   },
@@ -192,8 +198,13 @@ export const parameterApi = {
   /**
    * Validate parameter value
    */
-  async validateParameter(id: number, value: any): Promise<ParameterValidation> {
-    const response = await apiClient.post(`/parameters/${id}/validate`, { value });
+  async validateParameter(
+    id: number,
+    value: any
+  ): Promise<ParameterValidation> {
+    const response = await apiClient.post(`/parameters/${id}/validate`, {
+      value,
+    });
     return response.data;
   },
 
@@ -209,7 +220,9 @@ export const parameterApi = {
    * Detect parameters from uploaded file
    */
   async detectParametersFromFile(fileId: number): Promise<ParameterDetection> {
-    const response = await apiClient.post(`/parameters/detect-from-file/${fileId}`);
+    const response = await apiClient.post(
+      `/parameters/detect-from-file/${fileId}`
+    );
     return response.data;
   },
 
@@ -224,7 +237,10 @@ export const parameterApi = {
   /**
    * Update parameter value with recalculation
    */
-  async updateParameterWithRecalculation(id: number, value: any): Promise<{ success: boolean; calculation_triggered: boolean }> {
+  async updateParameterWithRecalculation(
+    id: number,
+    value: any
+  ): Promise<{ success: boolean; calculation_triggered: boolean }> {
     const response = await apiClient.put(`/parameters/${id}/value`, { value });
     return response.data;
   },
@@ -232,16 +248,26 @@ export const parameterApi = {
   /**
    * Batch update parameters for a specific model with recalculation
    */
-  async batchUpdateModelParameters(modelId: number, data: BatchUpdateRequest): Promise<{ updated_count: number; calculation_triggered: boolean }> {
-    const response = await apiClient.post(`/parameters/models/${modelId}/parameters/batch`, data);
+  async batchUpdateModelParameters(
+    modelId: number,
+    data: BatchUpdateRequest
+  ): Promise<{ updated_count: number; calculation_triggered: boolean }> {
+    const response = await apiClient.post(
+      `/parameters/models/${modelId}/parameters/batch`,
+      data
+    );
     return response.data;
   },
 
   /**
    * Trigger recalculation for model parameters
    */
-  async triggerModelRecalculation(modelId: number): Promise<{ success: boolean; calculation_id: string }> {
-    const response = await apiClient.post(`/parameters/models/${modelId}/recalculate`);
+  async triggerModelRecalculation(
+    modelId: number
+  ): Promise<{ success: boolean; calculation_id: string }> {
+    const response = await apiClient.post(
+      `/parameters/models/${modelId}/recalculate`
+    );
     return response.data;
   },
 
@@ -249,23 +275,34 @@ export const parameterApi = {
    * Get calculation status for model
    */
   async getModelCalculationStatus(modelId: number): Promise<CalculationStatus> {
-    const response = await apiClient.get(`/parameters/models/${modelId}/calculation-status`);
+    const response = await apiClient.get(
+      `/parameters/models/${modelId}/calculation-status`
+    );
     return response.data;
   },
 
   /**
    * Calculate parameter impact
    */
-  async calculateParameterImpact(id: number, newValue: any): Promise<ParameterImpact> {
-    const response = await apiClient.post(`/parameters/${id}/impact`, { new_value: newValue });
+  async calculateParameterImpact(
+    id: number,
+    newValue: any
+  ): Promise<ParameterImpact> {
+    const response = await apiClient.post(`/parameters/${id}/impact`, {
+      new_value: newValue,
+    });
     return response.data;
   },
 
   /**
    * Reset parameters to default values for a model
    */
-  async resetModelParameters(modelId: number): Promise<{ reset_count: number }> {
-    const response = await apiClient.post(`/parameters/models/${modelId}/reset-parameters`);
+  async resetModelParameters(
+    modelId: number
+  ): Promise<{ reset_count: number }> {
+    const response = await apiClient.post(
+      `/parameters/models/${modelId}/reset-parameters`
+    );
     return response.data;
   },
 
@@ -274,23 +311,37 @@ export const parameterApi = {
    * Get parameter groups for a model
    */
   async getParameterGroups(modelId: number): Promise<ParameterGroup[]> {
-    const response = await apiClient.get(`/parameters/models/${modelId}/parameter-groups`);
+    const response = await apiClient.get(
+      `/parameters/models/${modelId}/parameter-groups`
+    );
     return response.data;
   },
 
   /**
    * Create parameter group
    */
-  async createParameterGroup(modelId: number, data: { name: string; description?: string; parameter_ids?: number[] }): Promise<ParameterGroup> {
-    const response = await apiClient.post(`/parameters/models/${modelId}/parameter-groups`, data);
+  async createParameterGroup(
+    modelId: number,
+    data: { name: string; description?: string; parameter_ids?: number[] }
+  ): Promise<ParameterGroup> {
+    const response = await apiClient.post(
+      `/parameters/models/${modelId}/parameter-groups`,
+      data
+    );
     return response.data;
   },
 
   /**
    * Update parameter group
    */
-  async updateParameterGroup(groupId: number, data: { name?: string; description?: string; parameter_ids?: number[] }): Promise<ParameterGroup> {
-    const response = await apiClient.put(`/parameters/parameter-groups/${groupId}`, data);
+  async updateParameterGroup(
+    groupId: number,
+    data: { name?: string; description?: string; parameter_ids?: number[] }
+  ): Promise<ParameterGroup> {
+    const response = await apiClient.put(
+      `/parameters/parameter-groups/${groupId}`,
+      data
+    );
     return response.data;
   },
 
@@ -298,7 +349,9 @@ export const parameterApi = {
    * Delete parameter group
    */
   async deleteParameterGroup(groupId: number): Promise<{ success: boolean }> {
-    const response = await apiClient.delete(`/parameters/parameter-groups/${groupId}`);
+    const response = await apiClient.delete(
+      `/parameters/parameter-groups/${groupId}`
+    );
     return response.data;
   },
 
@@ -314,16 +367,30 @@ export const parameterApi = {
   /**
    * Apply parameter template to model
    */
-  async applyParameterTemplate(modelId: number, templateId: number): Promise<{ applied_count: number; created_parameters: Parameter[] }> {
-    const response = await apiClient.post(`/parameters/models/${modelId}/apply-template`, { template_id: templateId });
+  async applyParameterTemplate(
+    modelId: number,
+    templateId: number
+  ): Promise<{ applied_count: number; created_parameters: Parameter[] }> {
+    const response = await apiClient.post(
+      `/parameters/models/${modelId}/apply-template`,
+      { template_id: templateId }
+    );
     return response.data;
   },
 
   /**
    * Create parameter template from existing parameters
    */
-  async createParameterTemplate(data: { name: string; description?: string; category: string; parameter_ids: number[] }): Promise<ParameterTemplate> {
-    const response = await apiClient.post('/parameters/parameter-templates', data);
+  async createParameterTemplate(data: {
+    name: string;
+    description?: string;
+    category: string;
+    parameter_ids: number[];
+  }): Promise<ParameterTemplate> {
+    const response = await apiClient.post(
+      '/parameters/parameter-templates',
+      data
+    );
     return response.data;
   },
 };
@@ -339,17 +406,19 @@ export const parameterUtils = {
     const { value, data_type, unit } = parameter;
 
     switch (data_type) {
-      case 'number':
-        const numValue = typeof value === 'number' ? value : parseFloat(value as string);
+      case 'number': {
+        const numValue =
+          typeof value === 'number' ? value : parseFloat(value as string);
         const formatted = isNaN(numValue) ? '0' : numValue.toLocaleString();
         return unit ? `${formatted} ${unit}` : formatted;
-      
+      }
+
       case 'boolean':
         return value ? 'Yes' : 'No';
-      
+
       case 'date':
         return new Date(value as string).toLocaleDateString();
-      
+
       default:
         return String(value);
     }
@@ -358,33 +427,51 @@ export const parameterUtils = {
   /**
    * Validate parameter value based on constraints
    */
-  validateParameterValue(parameter: Parameter, value: any): ParameterValidation {
+  validateParameterValue(
+    parameter: Parameter,
+    value: any
+  ): ParameterValidation {
     const errors: string[] = [];
     const warnings: string[] = [];
 
     // Check if required parameter has value
-    if (parameter.is_required && (value === null || value === undefined || value === '')) {
+    if (
+      parameter.is_required &&
+      (value === null || value === undefined || value === '')
+    ) {
       errors.push('This parameter is required');
     }
 
     // Type validation
     switch (parameter.data_type) {
-      case 'number':
-        const numValue = typeof value === 'number' ? value : parseFloat(value as string);
+      case 'number': {
+        const numValue =
+          typeof value === 'number' ? value : parseFloat(value as string);
         if (isNaN(numValue)) {
           errors.push('Value must be a valid number');
         } else {
-          if (parameter.min_value !== undefined && numValue < parameter.min_value) {
+          if (
+            parameter.min_value !== undefined &&
+            numValue < parameter.min_value
+          ) {
             errors.push(`Value must be at least ${parameter.min_value}`);
           }
-          if (parameter.max_value !== undefined && numValue > parameter.max_value) {
+          if (
+            parameter.max_value !== undefined &&
+            numValue > parameter.max_value
+          ) {
             errors.push(`Value must not exceed ${parameter.max_value}`);
           }
         }
         break;
+      }
 
       case 'boolean':
-        if (typeof value !== 'boolean' && value !== 'true' && value !== 'false') {
+        if (
+          typeof value !== 'boolean' &&
+          value !== 'true' &&
+          value !== 'false'
+        ) {
           errors.push('Value must be true or false');
         }
         break;
@@ -408,14 +495,14 @@ export const parameterUtils = {
    */
   getCategoryColor(category: string): string {
     const colors: Record<string, string> = {
-      'Financial': '#10B981',
-      'Risk': '#EF4444',
-      'Market': '#3B82F6',
-      'Operational': '#F59E0B',
-      'Regulatory': '#8B5CF6',
-      'Environmental': '#06B6D4',
-      'Social': '#EC4899',
-      'Governance': '#6B7280',
+      Financial: '#10B981',
+      Risk: '#EF4444',
+      Market: '#3B82F6',
+      Operational: '#F59E0B',
+      Regulatory: '#8B5CF6',
+      Environmental: '#06B6D4',
+      Social: '#EC4899',
+      Governance: '#6B7280',
     };
     return colors[category] || '#9CA3AF';
   },
@@ -425,10 +512,10 @@ export const parameterUtils = {
    */
   getDataTypeIcon(dataType: string): string {
     const icons: Record<string, string> = {
-      'number': '🔢',
-      'string': '📝',
-      'boolean': '✅',
-      'date': '📅',
+      number: '🔢',
+      string: '📝',
+      boolean: '✅',
+      date: '📅',
     };
     return icons[dataType] || '❓';
   },

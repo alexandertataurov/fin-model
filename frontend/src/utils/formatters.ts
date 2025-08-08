@@ -8,7 +8,7 @@
  */
 export const formatCurrency = (
   value: number,
-  currency: string = '$'
+  currency = '$'
 ): string => {
   if (isNaN(value) || !isFinite(value)) {
     return `${currency}0.00`;
@@ -27,7 +27,7 @@ export const formatCurrency = (
  */
 export const formatPercentage = (
   value: number,
-  decimals: number = 2
+  decimals = 2
 ): string => {
   if (isNaN(value) || !isFinite(value)) {
     return '0.00%';
@@ -43,7 +43,7 @@ export const formatPercentage = (
 /**
  * Format number values with consistent styling
  */
-export const formatNumber = (value: number, decimals: number = 0): string => {
+export const formatNumber = (value: number, decimals = 0): string => {
   if (isNaN(value) || !isFinite(value)) {
     return '0';
   }
@@ -57,7 +57,7 @@ export const formatNumber = (value: number, decimals: number = 0): string => {
 /**
  * Format ratio values (e.g., debt-to-equity)
  */
-export const formatRatio = (value: number, decimals: number = 2): string => {
+export const formatRatio = (value: number, decimals = 2): string => {
   if (isNaN(value) || !isFinite(value)) {
     return '0.00';
   }

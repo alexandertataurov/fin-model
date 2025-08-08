@@ -83,11 +83,13 @@ describe('AdminDashboard Maintenance schedules', () => {
       expect(mocked.default.getMaintenanceSchedules).toBeDefined()
     );
 
-    // Toggle enabled and change schedule field to simulate edits
+    // Toggle enabled, change schedule and task to simulate edits
     const checkbox = await screen.findByRole('checkbox');
     fireEvent.click(checkbox);
     const scheduleInput = await screen.findByDisplayValue('0 2 * * *');
     fireEvent.change(scheduleInput, { target: { value: '0 1 * * *' } });
+    const taskSelect = await screen.findByDisplayValue('cleanup');
+    fireEvent.change(taskSelect, { target: { value: 'backup' } });
 
     // Click Save Schedules button
     const saveBtn = await screen.findByRole('button', {

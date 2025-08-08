@@ -9,8 +9,8 @@ interface WebSocketEventHandler {
 
 class WebSocketService {
   private ws: WebSocket | null = null;
-  private url: string = '';
-  private originalEndpoint: string = '';
+  private url = '';
+  private originalEndpoint = '';
   private subscriptions = new Map<string, WebSocketEventHandler[]>();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;

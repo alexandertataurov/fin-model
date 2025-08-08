@@ -487,7 +487,7 @@ export class DashboardApiService {
    */
   static async getFinancialTrends(
     metricType: string,
-    periodRange: string = 'last_12_months',
+    periodRange = 'last_12_months',
     fileId?: number
   ): Promise<FinancialTrendsResponse> {
     const params: any = { metric_type: metricType, period_range: periodRange };

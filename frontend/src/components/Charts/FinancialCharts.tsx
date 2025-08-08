@@ -4,42 +4,44 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
-import { Badge } from '@/design-system/components/Badge';
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  AreaChart, 
-  Area, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/components/Select';
+// import { Badge } from '@/design-system/components/Badge';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   ComposedChart,
   Scatter,
   ScatterChart,
   RadialBarChart,
-  RadialBar
+  RadialBar,
 } from 'recharts';
-import { 
-  TrendingUp, 
-  BarChart3, 
-  PieChart as PieIcon, 
-  Activity,
-  Download,
-  Settings,
-  Eye,
-  EyeOff
-} from 'lucide-react';
+import { BarChart3, Download, Eye, EyeOff } from 'lucide-react';
 
 interface FinancialData {
   period: string;
@@ -75,40 +77,112 @@ interface FinancialChartsProps {
 
 const FinancialCharts: React.FC<FinancialChartsProps> = ({
   data,
-  title = "Financial Performance",
+  title = 'Financial Performance',
   defaultChartType = 'line',
   showControls = true,
 }) => {
-  const [chartType, setChartType] = useState<'line' | 'bar' | 'area' | 'composed'>(defaultChartType);
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['revenue', 'net_income', 'free_cash_flow']);
-  const [timeRange, setTimeRange] = useState<'all' | '12m' | '6m' | '3m'>('all');
+  const [chartType, setChartType] = useState<
+    'line' | 'bar' | 'area' | 'composed'
+  >(defaultChartType);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([
+    'revenue',
+    'net_income',
+    'free_cash_flow',
+  ]);
+  const [timeRange, setTimeRange] = useState<'all' | '12m' | '6m' | '3m'>(
+    'all'
+  );
 
   const metrics: ChartMetric[] = [
-    { key: 'revenue', name: 'Revenue', color: '#3B82F6', format: 'currency', category: 'revenue' },
-    { key: 'gross_profit', name: 'Gross Profit', color: '#10B981', format: 'currency', category: 'profitability' },
-    { key: 'operating_income', name: 'Operating Income', color: '#8B5CF6', format: 'currency', category: 'profitability' },
-    { key: 'net_income', name: 'Net Income', color: '#F59E0B', format: 'currency', category: 'profitability' },
-    { key: 'ebitda', name: 'EBITDA', color: '#EF4444', format: 'currency', category: 'profitability' },
-    { key: 'free_cash_flow', name: 'Free Cash Flow', color: '#06B6D4', format: 'currency', category: 'cash_flow' },
-    { key: 'total_assets', name: 'Total Assets', color: '#84CC16', format: 'currency', category: 'balance_sheet' },
-    { key: 'equity', name: 'Equity', color: '#F97316', format: 'currency', category: 'balance_sheet' },
-    { key: 'debt', name: 'Debt', color: '#EC4899', format: 'currency', category: 'balance_sheet' },
-    { key: 'cash', name: 'Cash', color: '#14B8A6', format: 'currency', category: 'balance_sheet' },
+    {
+      key: 'revenue',
+      name: 'Revenue',
+      color: '#3B82F6',
+      format: 'currency',
+      category: 'revenue',
+    },
+    {
+      key: 'gross_profit',
+      name: 'Gross Profit',
+      color: '#10B981',
+      format: 'currency',
+      category: 'profitability',
+    },
+    {
+      key: 'operating_income',
+      name: 'Operating Income',
+      color: '#8B5CF6',
+      format: 'currency',
+      category: 'profitability',
+    },
+    {
+      key: 'net_income',
+      name: 'Net Income',
+      color: '#F59E0B',
+      format: 'currency',
+      category: 'profitability',
+    },
+    {
+      key: 'ebitda',
+      name: 'EBITDA',
+      color: '#EF4444',
+      format: 'currency',
+      category: 'profitability',
+    },
+    {
+      key: 'free_cash_flow',
+      name: 'Free Cash Flow',
+      color: '#06B6D4',
+      format: 'currency',
+      category: 'cash_flow',
+    },
+    {
+      key: 'total_assets',
+      name: 'Total Assets',
+      color: '#84CC16',
+      format: 'currency',
+      category: 'balance_sheet',
+    },
+    {
+      key: 'equity',
+      name: 'Equity',
+      color: '#F97316',
+      format: 'currency',
+      category: 'balance_sheet',
+    },
+    {
+      key: 'debt',
+      name: 'Debt',
+      color: '#EC4899',
+      format: 'currency',
+      category: 'balance_sheet',
+    },
+    {
+      key: 'cash',
+      name: 'Cash',
+      color: '#14B8A6',
+      format: 'currency',
+      category: 'balance_sheet',
+    },
   ];
 
   const filteredData = useMemo(() => {
     if (timeRange === 'all') return data;
-    
-    const monthsToShow = {
-      '3m': 3,
-      '6m': 6,
-      '12m': 12,
-    }[timeRange] || data.length;
-    
+
+    const monthsToShow =
+      {
+        '3m': 3,
+        '6m': 6,
+        '12m': 12,
+      }[timeRange] || data.length;
+
     return data.slice(-monthsToShow);
   }, [data, timeRange]);
 
-  const formatValue = (value: number, format: 'currency' | 'percentage' | 'number') => {
+  const formatValue = (
+    value: number,
+    format: 'currency' | 'percentage' | 'number'
+  ) => {
     switch (format) {
       case 'currency':
         if (Math.abs(value) >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
@@ -131,7 +205,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
             const metric = metrics.find(m => m.key === entry.dataKey);
             return (
               <p key={index} style={{ color: entry.color }} className="text-sm">
-                {`${entry.name}: ${formatValue(entry.value, metric?.format || 'currency')}`}
+                {`${entry.name}: ${formatValue(
+                  entry.value,
+                  metric?.format || 'currency'
+                )}`}
               </p>
             );
           })}
@@ -142,15 +219,17 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
   };
 
   const toggleMetric = (metricKey: string) => {
-    setSelectedMetrics(prev => 
-      prev.includes(metricKey) 
+    setSelectedMetrics(prev =>
+      prev.includes(metricKey)
         ? prev.filter(m => m !== metricKey)
         : [...prev, metricKey]
     );
   };
 
   const renderChart = () => {
-    const selectedMetricConfigs = metrics.filter(m => selectedMetrics.includes(m.key));
+    const selectedMetricConfigs = metrics.filter(m =>
+      selectedMetrics.includes(m.key)
+    );
 
     switch (chartType) {
       case 'bar':
@@ -159,10 +238,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
             <BarChart data={filteredData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
-              <YAxis tickFormatter={(value) => formatValue(value, 'currency')} />
+              <YAxis tickFormatter={value => formatValue(value, 'currency')} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              {selectedMetricConfigs.map((metric) => (
+              {selectedMetricConfigs.map(metric => (
                 <Bar
                   key={metric.key}
                   dataKey={metric.key}
@@ -180,10 +259,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
             <AreaChart data={filteredData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
-              <YAxis tickFormatter={(value) => formatValue(value, 'currency')} />
+              <YAxis tickFormatter={value => formatValue(value, 'currency')} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              {selectedMetricConfigs.map((metric) => (
+              {selectedMetricConfigs.map(metric => (
                 <Area
                   key={metric.key}
                   type="monotone"
@@ -204,10 +283,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
             <ComposedChart data={filteredData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
-              <YAxis tickFormatter={(value) => formatValue(value, 'currency')} />
+              <YAxis tickFormatter={value => formatValue(value, 'currency')} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              {selectedMetricConfigs.slice(0, 2).map((metric) => (
+              {selectedMetricConfigs.slice(0, 2).map(metric => (
                 <Bar
                   key={metric.key}
                   dataKey={metric.key}
@@ -215,7 +294,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
                   name={metric.name}
                 />
               ))}
-              {selectedMetricConfigs.slice(2).map((metric) => (
+              {selectedMetricConfigs.slice(2).map(metric => (
                 <Line
                   key={metric.key}
                   type="monotone"
@@ -235,10 +314,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
             <LineChart data={filteredData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" />
-              <YAxis tickFormatter={(value) => formatValue(value, 'currency')} />
+              <YAxis tickFormatter={value => formatValue(value, 'currency')} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              {selectedMetricConfigs.map((metric) => (
+              {selectedMetricConfigs.map(metric => (
                 <Line
                   key={metric.key}
                   type="monotone"
@@ -258,7 +337,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
     <div className="space-y-3">
       <h4 className="font-medium text-sm">Select Metrics</h4>
       <div className="grid grid-cols-2 gap-2">
-        {metrics.map((metric) => (
+        {metrics.map(metric => (
           <button
             key={metric.key}
             onClick={() => toggleMetric(metric.key)}
@@ -300,7 +379,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
             <div className="flex flex-wrap gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Chart Type</label>
-                <Select value={chartType} onValueChange={(value: any) => setChartType(value)}>
+                <Select
+                  value={chartType}
+                  onValueChange={(value: any) => setChartType(value)}
+                >
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -315,7 +397,10 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Time Range</label>
-                <Select value={timeRange} onValueChange={(value: any) => setTimeRange(value)}>
+                <Select
+                  value={timeRange}
+                  onValueChange={(value: any) => setTimeRange(value)}
+                >
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -333,29 +418,47 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
           </div>
         )}
 
-        <div className="mb-4">
-          {renderChart()}
-        </div>
+        <div className="mb-4">{renderChart()}</div>
 
         {/* Key Metrics Summary */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {selectedMetrics.slice(0, 4).map((metricKey) => {
+          {selectedMetrics.slice(0, 4).map(metricKey => {
             const metric = metrics.find(m => m.key === metricKey);
-            const latestValue = filteredData[filteredData.length - 1]?.[metricKey as keyof FinancialData] || 0;
-            const previousValue = filteredData[filteredData.length - 2]?.[metricKey as keyof FinancialData] || 0;
+            const latestValue =
+              filteredData[filteredData.length - 1]?.[
+                metricKey as keyof FinancialData
+              ] || 0;
+            const previousValue =
+              filteredData[filteredData.length - 2]?.[
+                metricKey as keyof FinancialData
+              ] || 0;
             const change = latestValue - previousValue;
-            const changePercent = previousValue !== 0 ? (change / previousValue) * 100 : 0;
+            const changePercent =
+              previousValue !== 0 ? (change / previousValue) * 100 : 0;
 
             return (
               <Card key={metricKey} className="p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-xs font-medium text-gray-600">{metric?.name}</h4>
-                  <div className={`text-xs ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {change >= 0 ? '+' : ''}{changePercent.toFixed(1)}%
+                  <h4 className="text-xs font-medium text-gray-600">
+                    {metric?.name}
+                  </h4>
+                  <div
+                    className={`text-xs ${
+                      change >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  >
+                    {change >= 0 ? '+' : ''}
+                    {changePercent.toFixed(1)}%
                   </div>
                 </div>
-                <p className="text-lg font-semibold" style={{ color: metric?.color }}>
-                  {formatValue(latestValue as number, metric?.format || 'currency')}
+                <p
+                  className="text-lg font-semibold"
+                  style={{ color: metric?.color }}
+                >
+                  {formatValue(
+                    latestValue as number,
+                    metric?.format || 'currency'
+                  )}
                 </p>
               </Card>
             );

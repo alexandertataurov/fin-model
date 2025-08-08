@@ -151,8 +151,8 @@ export class AdminApiService {
    * Get user activity data
    */
   static async getUserActivity(
-    limit: number = 50,
-    activeOnly: boolean = false
+    limit = 50,
+    activeOnly = false
   ): Promise<UserActivity[]> {
     const params: Record<string, unknown> = { limit };
     if (activeOnly) params.active_only = true;
@@ -194,9 +194,9 @@ export class AdminApiService {
    * List all users with their roles
    */
   static async listUsers(
-    skip: number = 0,
-    limit: number = 100,
-    envelope: boolean = false
+    skip = 0,
+    limit = 100,
+    envelope = false
   ): Promise<
     | UserWithRoles[]
     | { items: UserWithRoles[]; skip: number; limit: number; total: number }
@@ -305,7 +305,7 @@ export class AdminApiService {
    * Get database performance data
    */
   static async getDatabasePerformance(
-    limit: number = 10,
+    limit = 10,
     opts?: { window?: '1h' | '24h' | '7d'; from?: string; to?: string }
   ): Promise<any[]> {
     const response = await api.get('/admin/database/performance', {
@@ -330,7 +330,7 @@ export class AdminApiService {
   /**
    * Clean up database
    */
-  static async cleanupDatabase(dryRun: boolean = true): Promise<any> {
+  static async cleanupDatabase(dryRun = true): Promise<any> {
     const response = await api.post('/admin/database/cleanup', null, {
       params: { dry_run: dryRun },
     });
@@ -362,7 +362,7 @@ export class AdminApiService {
   /**
    * Clean up orphaned files
    */
-  static async cleanupFiles(dryRun: boolean = true): Promise<{
+  static async cleanupFiles(dryRun = true): Promise<{
     message: string;
     orphaned_files: number;
     failed_files: number;
@@ -393,7 +393,7 @@ export class AdminApiService {
    */
   static async getSystemLogs(
     level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL' = 'ERROR',
-    limit: number = 100,
+    limit = 100,
     opts?: {
       from?: string;
       to?: string;
@@ -423,8 +423,8 @@ export class AdminApiService {
    * Get audit logs (placeholder - not implemented in lean version)
    */
   static async getAuditLogs(
-    skip: number = 0,
-    limit: number = 100,
+    skip = 0,
+    limit = 100,
     userId?: number,
     action?: string,
     opts?: { from?: string; to?: string; envelope?: boolean }
