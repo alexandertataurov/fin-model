@@ -16,6 +16,8 @@ from app.models import user as _m_user  # noqa: F401,E402
 from app.models import role as _m_role  # noqa: F401,E402
 from app.models import file as _m_file  # noqa: F401,E402
 from app.models import audit as _m_audit  # noqa: F401,E402
+from app.models import system_log as _m_system_log  # noqa: F401,E402
+from app.models import maintenance as _m_maintenance  # noqa: F401,E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

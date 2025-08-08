@@ -55,6 +55,8 @@ from .user import User  # noqa
 from .role import Role, UserRole, RoleType  # noqa
 from .file import UploadedFile, FileStatus, ProcessingLog  # noqa
 from .audit import AuditLog  # noqa
+from .system_log import SystemLog  # noqa
+from .maintenance import MaintenanceSchedule  # noqa
 from .parameter import (
     Parameter,
     ParameterType,

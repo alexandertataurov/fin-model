@@ -1,4 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { BarChart } from './BarChart';
+
+const meta: Meta<typeof BarChart> = {
+  title: 'Components/Charts/BarChart',
+  component: BarChart,
+  tags: ['autodocs'],
+  parameters: { layout: 'padded' },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = { args: { data: [] } };
+
+import type { Meta, StoryObj } from '@storybook/react';
 import { BarChart } from '@components/Charts/BarChart';
 
 const meta: Meta<typeof BarChart> = {

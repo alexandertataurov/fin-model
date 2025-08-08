@@ -14,6 +14,8 @@ from app.models.user import User
 from app.models.file import UploadedFile, FileStatus
 from app.models.audit import AuditLog
 from app.models.parameter import Parameter
+from app.models.system_log import SystemLog
+from app.models.maintenance import MaintenanceSchedule
 from app.models.financial import FinancialStatement
 from app.schemas.user import (
     User as UserSchema,
@@ -25,10 +27,16 @@ from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import (
+    JSONResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc, text
 from uuid import uuid4
+import asyncio
+import json
 
 router = APIRouter()
 
@@ -729,14 +737,32 @@ _IN_MEMORY_SCHEDULES: List[MaintenanceScheduleItem] = [
 @router.get("/maintenance/schedules", response_model=MaintenanceSchedules)
 async def get_maintenance_schedules(
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    db: Session = Depends(get_db),
 ):
-    return MaintenanceSchedules(items=_IN_MEMORY_SCHEDULES)
+    rows = (
+        db.query(MaintenanceSchedule)
+        .order_by(MaintenanceSchedule.id)
+        .all()
+    )
+    items = []
+    for r in rows:
+        items.append(
+            MaintenanceScheduleItem(
+                id=r.id,
+                name=r.name,
+                task=r.task,
+                schedule=r.schedule,
+                enabled=r.enabled,
+            )
+        )
+    return MaintenanceSchedules(items=items)
 
 
 @router.put("/maintenance/schedules", response_model=MaintenanceSchedules)
 async def update_maintenance_schedules(
     schedules: MaintenanceSchedules,
     current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    db: Session = Depends(get_db),
 ):
     # Simple validation
     for item in schedules.items:
@@ -747,10 +773,31 @@ async def update_maintenance_schedules(
             )
         if not item.schedule:
             raise HTTPException(status_code=400, detail="Schedule required")
-    # Replace in-memory list
-    global _IN_MEMORY_SCHEDULES
-    _IN_MEMORY_SCHEDULES = schedules.items
-    return MaintenanceSchedules(items=_IN_MEMORY_SCHEDULES)
+    # Upsert schedules
+    existing = {r.id: r for r in db.query(MaintenanceSchedule).all()}
+    for item in schedules.items:
+        row = existing.get(item.id)
+        if not row:
+            row = MaintenanceSchedule(
+                id=item.id,
+                name=item.name,
+                task=item.task,
+                schedule=item.schedule,
+                enabled=item.enabled,
+            )
+            db.add(row)
+        else:
+            row.name = item.name
+            row.task = item.task
+            row.schedule = item.schedule
+            row.enabled = item.enabled
+    # Delete removed
+    keep_ids = {i.id for i in schedules.items}
+    for row in db.query(MaintenanceSchedule).all():
+        if row.id not in keep_ids:
+            db.delete(row)
+    db.commit()
+    return await get_maintenance_schedules(current_user=current_user, db=db)
 
 
 @router.post("/rate-limits/clear", response_model=Dict[str, Any])
@@ -1426,8 +1473,6 @@ async def bulk_user_action(
         )
 
 
-# Returns list by default for compatibility; can return envelope when
-# envelope=true
 @router.get("/system/logs")
 async def get_system_logs(
     level: str = Query(
@@ -1442,73 +1487,48 @@ async def get_system_logs(
     current_user: User = Depends(
         require_permissions(Permission.ADMIN_READ)
     ),
+    db: Session = Depends(get_db),
 ):
-    """Get system logs (simplified - would integrate with real logging)."""
+    """Get system logs from DB with filters and optional envelope."""
     try:
-        # Placeholder - integrate with logging infra (files, ELK, etc.)
+        query = db.query(SystemLog)
 
-        sample_logs = [
-            {
-                "timestamp": datetime.utcnow() - timedelta(hours=1),
-                "level": "ERROR",
-                "message": "Database connection timeout",
-                "module": "database",
-                "user_id": None,
-            },
-            {
-                "timestamp": datetime.utcnow() - timedelta(hours=2),
-                "level": "WARNING",
-                "message": "High memory usage detected",
-                "module": "system",
-                "user_id": None,
-            },
-            {
-                "timestamp": datetime.utcnow() - timedelta(hours=3),
-                "level": "INFO",
-                "message": "File processing completed",
-                "module": "file_service",
-                "user_id": 1,
-            },
-        ]
-
-        # Filter by level
         if level != "DEBUG":
-            level_order = {
-                "INFO": 1,
-                "WARNING": 2,
-                "ERROR": 3,
-                "CRITICAL": 4,
-            }
-            min_level = level_order.get(level, 1)
-            sample_logs = [
-                log
-                for log in sample_logs
-                if level_order.get(log["level"], 0) >= min_level
-            ]
-
-        # Filter by time
+            order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
+            min_level = order.get(level, 1)
+            query = query.filter(
+                SystemLog.level.in_(
+                    [lvl for lvl, v in order.items() if v >= min_level]
+                )
+            )
         if from_ts:
-            sample_logs = [
-                log for log in sample_logs if log["timestamp"] >= from_ts
-            ]
+            query = query.filter(SystemLog.timestamp >= from_ts)
         if to_ts:
-            sample_logs = [
-                log for log in sample_logs if log["timestamp"] <= to_ts
-            ]
-
-        # Search
+            query = query.filter(SystemLog.timestamp <= to_ts)
         if search:
-            q = search.lower()
-            sample_logs = [
-                log
-                for log in sample_logs
-                if q in str(log.get("message", "")).lower()
-                or q in str(log.get("module", "")).lower()
-            ]
+            like = f"%{search}%"
+            query = query.filter(
+                (SystemLog.message.ilike(like))
+                | (SystemLog.module.ilike(like))
+            )
 
-        total = len(sample_logs)
-        items = sample_logs[skip: skip + limit]
-
+        total = query.count()
+        rows = (
+            query.order_by(desc(SystemLog.timestamp))
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+        items = [
+            {
+                "timestamp": r.timestamp,
+                "level": r.level,
+                "message": r.message,
+                "module": r.module or "",
+                "user_id": r.user_id,
+            }
+            for r in rows
+        ]
         if envelope:
             return {
                 "items": items,
@@ -1523,6 +1543,76 @@ async def get_system_logs(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get system logs: {str(e)}",
         )
+
+
+@router.get("/system/logs/stream")
+async def stream_system_logs(
+    level: str = Query(
+        "ERROR", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+    ),
+    from_ts: Optional[datetime] = Query(None),
+    search: Optional[str] = Query(None),
+    interval_ms: int = Query(1000, ge=250, le=5000),
+    timeout_s: int = Query(30, ge=5, le=300),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
+    db: Session = Depends(get_db),
+):
+    """Server-Sent Events stream of system logs (polling-based)."""
+
+    async def event_generator():
+        end_time = datetime.utcnow() + timedelta(seconds=timeout_s)
+        last_id: int | None = None
+        level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
+        min_level = (
+            1 if level == "DEBUG" else level_order.get(level, 1)
+        )
+        while datetime.utcnow() < end_time:
+            try:
+                q = db.query(SystemLog)
+                if from_ts:
+                    q = q.filter(SystemLog.timestamp >= from_ts)
+                if search:
+                    like = f"%{search}%"
+                    q = q.filter(
+                        (SystemLog.message.ilike(like))
+                        | (SystemLog.module.ilike(like))
+                    )
+                q = q.filter(
+                    SystemLog.level.in_(
+                        [
+                            lvl
+                            for lvl, v in level_order.items()
+                            if v >= min_level
+                        ]
+                    )
+                )
+                if last_id is not None:
+                    q = q.filter(SystemLog.id > last_id)
+                rows = (
+                    q.order_by(SystemLog.id.asc()).limit(100).all()
+                )
+                if rows:
+                    last_id = rows[-1].id
+                    for r in rows:
+                        payload = {
+                            "id": r.id,
+                            "timestamp": r.timestamp.isoformat()
+                            if r.timestamp
+                            else None,
+                            "level": r.level,
+                            "module": r.module,
+                            "message": r.message,
+                            "user_id": r.user_id,
+                        }
+                        yield f"data: {json.dumps(payload)}\n\n"
+            except Exception:
+                # swallow errors; continue streaming best-effort
+                pass
+            await asyncio.sleep(interval_ms / 1000)
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 @router.post("/dev-clear-rate-limits", response_model=Dict[str, Any])

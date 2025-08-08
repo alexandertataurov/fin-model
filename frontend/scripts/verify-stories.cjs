@@ -9,8 +9,18 @@ const { globby } = require('globby');
   ];
   const storyGlobs = ['src/**/*.{stories.tsx,stories.ts}'];
 
-  const components = (await globby(componentGlobs)).filter(
+  const allComponents = (await globby(componentGlobs)).filter(
     p => !p.endsWith('.stories.tsx')
+  );
+  const ignore = [
+    /\/index\.(tsx|ts)$/,
+    /\/pages\//,
+    /dashboardConstants\.(ts|tsx)$/,
+    /theme-hooks\.(ts|tsx)$/,
+    /use-[^/]+\.(ts|tsx)$/,
+  ];
+  const components = allComponents.filter(
+    p => !ignore.some(re => re.test(p.replace(/\\/g, '/')))
   );
   const stories = await globby(storyGlobs);
 
@@ -22,10 +32,7 @@ const { globby } = require('globby');
   const missing = [];
   for (const c of components) {
     const base = toBase(c);
-    const candidates = [
-      `${base}.stories`,
-      base.replace('/components/', '/stories/'),
-    ];
+    const candidates = [base, base.replace('/components/', '/stories/')];
     if (!candidates.some(x => hasStory.has(x))) {
       missing.push(c);
     }
