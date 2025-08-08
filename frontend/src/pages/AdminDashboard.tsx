@@ -104,6 +104,10 @@ const AdminDashboard: React.FC = () => {
     userId?: number;
     action?: string;
   }>({ skip: 0, limit: 100 });
+  const [securityFrom, setSecurityFrom] = useState<string>('');
+  const [securityTo, setSecurityTo] = useState<string>('');
+  const [auditFrom, setAuditFrom] = useState<string>('');
+  const [auditTo, setAuditTo] = useState<string>('');
 
   // Load admin data
   const loadAdminData = async () => {
@@ -113,12 +117,18 @@ const AdminDashboard: React.FC = () => {
       AdminApiService.getUserActivity(20),
       AdminApiService.getSystemMetrics(),
       AdminApiService.checkDataIntegrity(),
-      AdminApiService.getSecurityAudit(),
+      AdminApiService.getSecurityAudit({
+        from: securityFrom || undefined,
+        to: securityTo || undefined,
+      }),
       AdminApiService.getSystemHealth(),
       AdminApiService.getDatabaseHealth(),
       AdminApiService.getSystemLogs('ERROR', 100),
       AdminApiService.getUserPermissions(),
-      AdminApiService.getAuditLogs(0, 100),
+      AdminApiService.getAuditLogs(0, 100, undefined, undefined, {
+        from: auditFrom || undefined,
+        to: auditTo || undefined,
+      }),
     ]);
 
     const [
@@ -1417,7 +1427,7 @@ const AdminDashboard: React.FC = () => {
                 <CardTitle>Audit Logs</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-4 flex-wrap">
                   <input
                     type="number"
                     className="border rounded px-2 py-1 bg-background text-sm w-24"
@@ -1468,6 +1478,18 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
+                  <input
+                    type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={auditFrom}
+                    onChange={e => setAuditFrom(e.target.value)}
+                  />
+                  <input
+                    type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={auditTo}
+                    onChange={e => setAuditTo(e.target.value)}
+                  />
                   <Button
                     size="sm"
                     variant="outline"
@@ -1476,7 +1498,11 @@ const AdminDashboard: React.FC = () => {
                         auditFilters.skip,
                         auditFilters.limit,
                         auditFilters.userId,
-                        auditFilters.action
+                        auditFilters.action,
+                        {
+                          from: auditFrom || undefined,
+                          to: auditTo || undefined,
+                        }
                       );
                       setAuditLogs((data as any)?.logs || data || []);
                     }}
@@ -1525,7 +1551,19 @@ const AdminDashboard: React.FC = () => {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Security Overview</CardTitle>
-                      <div className="space-x-2">
+                      <div className="space-x-2 flex items-center">
+                        <input
+                          type="date"
+                          className="border rounded px-2 py-1 bg-background text-sm"
+                          value={securityFrom}
+                          onChange={e => setSecurityFrom(e.target.value)}
+                        />
+                        <input
+                          type="date"
+                          className="border rounded px-2 py-1 bg-background text-sm"
+                          value={securityTo}
+                          onChange={e => setSecurityTo(e.target.value)}
+                        />
                         <Button
                           variant="outline"
                           size="sm"
@@ -1533,7 +1571,10 @@ const AdminDashboard: React.FC = () => {
                             try {
                               setRefreshing(true);
                               const data =
-                                await AdminApiService.getSecurityAudit();
+                                await AdminApiService.getSecurityAudit({
+                                  from: securityFrom || undefined,
+                                  to: securityTo || undefined,
+                                });
                               setSecurityAudit(data);
                               toast.success('Security audit refreshed');
                             } catch {

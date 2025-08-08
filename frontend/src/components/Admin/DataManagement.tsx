@@ -76,22 +76,39 @@ const DataManagement: React.FC = () => {
   const [cleanupInProgress, setCleanupInProgress] = useState(false);
   const [databaseHealth, setDatabaseHealth] = useState<any>(null);
   const [performanceData, setPerformanceData] = useState<any[]>([]);
+  const [performanceWindow, setPerformanceWindow] = useState<
+    '1h' | '24h' | '7d'
+  >('24h');
+  const [schedules, setSchedules] = useState<
+    import('@/services/adminApi').MaintenanceSchedules | null
+  >(null);
+  const [schedulesDraft, setSchedulesDraft] = useState<
+    import('@/services/adminApi').MaintenanceSchedules | null
+  >(null);
+  const [savingSchedules, setSavingSchedules] = useState(false);
 
   // Load data management information
   const loadDataInfo = async () => {
     try {
       setLoading(true);
 
-      const [tables, health, performance, integrity] = await Promise.all([
-        AdminApiService.getTableInformation(),
-        AdminApiService.getDatabaseHealth(),
-        AdminApiService.getDatabasePerformance(10),
-        AdminApiService.checkDataIntegrity(),
-      ]);
+      const [tables, health, performance, integrity, sched] = await Promise.all(
+        [
+          AdminApiService.getTableInformation(),
+          AdminApiService.getDatabaseHealth(),
+          AdminApiService.getDatabasePerformance(10, {
+            window: performanceWindow,
+          }),
+          AdminApiService.checkDataIntegrity(),
+          AdminApiService.getMaintenanceSchedules(),
+        ]
+      );
 
       setTableInfo(tables);
       setDatabaseHealth(health);
       setPerformanceData(performance);
+      setSchedules(sched);
+      setSchedulesDraft(sched);
 
       // Convert integrity data to TableInfo format
       const tableDataFromIntegrity: TableInfo[] = integrity.map(item => ({
@@ -192,6 +209,17 @@ const DataManagement: React.FC = () => {
   useEffect(() => {
     loadDataInfo();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const perf = await AdminApiService.getDatabasePerformance(10, {
+          window: performanceWindow,
+        });
+        setPerformanceData(perf);
+      } catch (e) {}
+    })();
+  }, [performanceWindow]);
 
   if (loading) {
     return (
@@ -390,7 +418,33 @@ const DataManagement: React.FC = () => {
                             <Button size="sm" variant="outline">
                               <BarChart3 className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={async () => {
+                                try {
+                                  const fmt = (
+                                    prompt(
+                                      'Export format: json or csv',
+                                      'csv'
+                                    ) || 'csv'
+                                  ).toLowerCase();
+                                  if (fmt !== 'json' && fmt !== 'csv') {
+                                    toast.error('Invalid format');
+                                    return;
+                                  }
+                                  const res =
+                                    await AdminApiService.exportDatabase({
+                                      table: table.name,
+                                      format: fmt as 'json' | 'csv',
+                                    });
+                                  toast.success('Table export generated');
+                                  window.open(res.file_url, '_blank');
+                                } catch {
+                                  toast.error('Export failed');
+                                }
+                              }}
+                            >
                               <Download className="h-4 w-4" />
                             </Button>
                           </div>
@@ -503,6 +557,18 @@ const DataManagement: React.FC = () => {
                 <CardTitle>Database Performance Metrics</CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="flex items-center justify-end mb-4 gap-2">
+                  <span className="text-xs text-muted-foreground">Window</span>
+                  <select
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={performanceWindow}
+                    onChange={e => setPerformanceWindow(e.target.value as any)}
+                  >
+                    <option value="1h">Last 1h</option>
+                    <option value="24h">Last 24h</option>
+                    <option value="7d">Last 7d</option>
+                  </select>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold">
@@ -609,37 +675,114 @@ const DataManagement: React.FC = () => {
                 <CardTitle>Automated Maintenance</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <div className="font-medium">Daily Cleanup</div>
-                      <div className="text-xs text-muted-foreground">
-                        Remove temp files
+                {schedulesDraft ? (
+                  <div className="space-y-2">
+                    {schedulesDraft.items.map((it, idx) => (
+                      <div
+                        key={it.id}
+                        className="p-3 border rounded flex items-center gap-3"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={it.enabled}
+                          onChange={e => {
+                            const next = { ...schedulesDraft };
+                            next.items[idx] = {
+                              ...it,
+                              enabled: e.target.checked,
+                            } as any;
+                            setSchedulesDraft(next);
+                          }}
+                        />
+                        <input
+                          className="border rounded px-2 py-1 bg-background text-sm flex-1"
+                          value={it.name}
+                          onChange={e => {
+                            const next = { ...schedulesDraft };
+                            next.items[idx] = {
+                              ...it,
+                              name: e.target.value,
+                            } as any;
+                            setSchedulesDraft(next);
+                          }}
+                        />
+                        <select
+                          className="border rounded px-2 py-1 bg-background text-sm"
+                          value={it.task}
+                          onChange={e => {
+                            const next = { ...schedulesDraft };
+                            next.items[idx] = {
+                              ...it,
+                              task: e.target.value as any,
+                            } as any;
+                            setSchedulesDraft(next);
+                          }}
+                        >
+                          {[
+                            'cleanup',
+                            'vacuum',
+                            'archive',
+                            'reindex',
+                            'backup',
+                          ].map(x => (
+                            <option key={x} value={x}>
+                              {x}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          className="border rounded px-2 py-1 bg-background text-sm w-40"
+                          placeholder="schedule"
+                          value={it.schedule}
+                          onChange={e => {
+                            const next = { ...schedulesDraft };
+                            next.items[idx] = {
+                              ...it,
+                              schedule: e.target.value,
+                            } as any;
+                            setSchedulesDraft(next);
+                          }}
+                        />
                       </div>
+                    ))}
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSchedulesDraft(schedules)}
+                        disabled={savingSchedules}
+                      >
+                        Reset
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            setSavingSchedules(true);
+                            const saved =
+                              await AdminApiService.updateMaintenanceSchedules(
+                                schedulesDraft!
+                              );
+                            setSchedules(saved);
+                            setSchedulesDraft(saved);
+                            toast.success('Schedules saved');
+                          } catch {
+                            toast.error('Failed to save schedules');
+                          } finally {
+                            setSavingSchedules(false);
+                          }
+                        }}
+                        disabled={savingSchedules}
+                      >
+                        {savingSchedules ? 'Saving...' : 'Save Schedules'}
+                      </Button>
                     </div>
-                    <Badge variant="default">Enabled</Badge>
                   </div>
-
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <div className="font-medium">Weekly Optimization</div>
-                      <div className="text-xs text-muted-foreground">
-                        Database vacuum
-                      </div>
-                    </div>
-                    <Badge variant="default">Enabled</Badge>
+                ) : (
+                  <div className="text-muted-foreground text-sm">
+                    No schedules data.
                   </div>
-
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <div className="font-medium">Monthly Archive</div>
-                      <div className="text-xs text-muted-foreground">
-                        Archive old records
-                      </div>
-                    </div>
-                    <Badge variant="secondary">Disabled</Badge>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
