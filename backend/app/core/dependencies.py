@@ -3,6 +3,7 @@ from typing import Any, Callable, List, Set
 
 from app.api.v1.endpoints.auth import get_current_active_user, get_current_user
 from app.core.permissions import Permission, PermissionChecker
+
 # Audit models removed in lean version
 from app.models.base import get_db
 from app.models.role import RoleType

@@ -14,6 +14,7 @@ from app.models.base import Base
 # Import all models so Alembic can detect them
 from app.models.user import User
 from app.models.role import Role, UserRole
+
 # Note: Audit logging removed in lean version
 from app.models.file import UploadedFile, ProcessingLog
 

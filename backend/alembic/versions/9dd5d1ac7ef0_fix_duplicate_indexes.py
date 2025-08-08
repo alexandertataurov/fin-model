@@ -11,8 +11,8 @@ from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
-revision = '9dd5d1ac7ef0'
-down_revision = '005'
+revision = "9dd5d1ac7ef0"
+down_revision = "005"
 branch_labels = None
 depends_on = None
 
@@ -24,12 +24,12 @@ def upgrade() -> None:
     We'll drop any existing problematic indexes to allow migration 006 to complete.
     """
     conn = op.get_bind()
-    
+
     # Complete list of all indexes from migration 006 that may cause conflicts
     all_indexes_to_drop = [
         # Basic indexes
         "ix_metrics_name_period",
-        "ix_metrics_category_type", 
+        "ix_metrics_category_type",
         "ix_metrics_scenario_category",
         "ix_metrics_value_range",
         "ix_timeseries_type_date",
@@ -66,33 +66,49 @@ def upgrade() -> None:
         "ix_calculations_pending",
         # Covering indexes
         "ix_parameter_values_covering",
-        "ix_metrics_covering"
+        "ix_metrics_covering",
     ]
-    
+
     # First, drop all indexes that can be dropped normally (within transaction)
-    regular_indexes = [idx for idx in all_indexes_to_drop if not idx.endswith("_gin") and idx not in [
-        "ix_users_active_only", "ix_files_processing", "ix_scenarios_active", 
-        "ix_calculations_pending", "ix_parameter_values_covering", "ix_metrics_covering"
-    ]]
-    
+    regular_indexes = [
+        idx
+        for idx in all_indexes_to_drop
+        if not idx.endswith("_gin")
+        and idx
+        not in [
+            "ix_users_active_only",
+            "ix_files_processing",
+            "ix_scenarios_active",
+            "ix_calculations_pending",
+            "ix_parameter_values_covering",
+            "ix_metrics_covering",
+        ]
+    ]
+
     for index_name in regular_indexes:
         try:
             conn.execute(text(f"DROP INDEX IF EXISTS {index_name}"))
             print(f"✅ Dropped index {index_name}")
         except Exception as e:
             print(f"⚠️ Could not drop index {index_name}: {e}")
-    
+
     # Handle concurrent indexes separately outside transaction
     concurrent_indexes = [
-        "ix_parameters_search_gin", "ix_scenarios_search_gin", "ix_files_search_gin", 
-        "ix_templates_search_gin", "ix_users_active_only", "ix_files_processing", 
-        "ix_scenarios_active", "ix_calculations_pending", "ix_parameter_values_covering", 
-        "ix_metrics_covering"
+        "ix_parameters_search_gin",
+        "ix_scenarios_search_gin",
+        "ix_files_search_gin",
+        "ix_templates_search_gin",
+        "ix_users_active_only",
+        "ix_files_processing",
+        "ix_scenarios_active",
+        "ix_calculations_pending",
+        "ix_parameter_values_covering",
+        "ix_metrics_covering",
     ]
-    
+
     # Commit current transaction before concurrent operations
     op.get_context().impl.connection.commit()
-    
+
     # Use autocommit mode for concurrent operations
     with op.get_context().autocommit_block():
         conn = op.get_bind()
@@ -107,8 +123,10 @@ def upgrade() -> None:
                     print(f"✅ Dropped index {index_name} (fallback)")
                 except Exception as e2:
                     print(f"⚠️ Could not drop index {index_name}: {e2}")
-    
-    print("✅ Migration 006 cleanup completed. The original migration 006 should now run successfully.")
+
+    print(
+        "✅ Migration 006 cleanup completed. The original migration 006 should now run successfully."
+    )
 
 
 def downgrade() -> None:
@@ -117,4 +135,4 @@ def downgrade() -> None:
     to allow migration 006 to run. The actual indexes will be managed by
     migration 006's downgrade function.
     """
-    print("⚠️ Downgrade: This migration only cleaned up duplicates. No action needed.") 
+    print("⚠️ Downgrade: This migration only cleaned up duplicates. No action needed.")

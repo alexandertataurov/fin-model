@@ -20,17 +20,21 @@ depends_on = None
 def upgrade() -> None:
     # Add missing columns to users table
     conn = op.get_bind()
-    
+
     # Helper function to safely add columns
     def safe_add_column(table_name, column_name, column_spec):
         try:
             # Check if column already exists
-            result = conn.execute(text(f"""
+            result = conn.execute(
+                text(
+                    f"""
                 SELECT column_name 
                 FROM information_schema.columns 
                 WHERE table_name = '{table_name}' AND column_name = '{column_name}'
-            """)).fetchone()
-            
+            """
+                )
+            ).fetchone()
+
             if not result:
                 op.add_column(table_name, column_spec)
                 print(f"✅ Added column {column_name} to {table_name}")
@@ -54,7 +58,7 @@ def upgrade() -> None:
     # Add is_admin column
     is_admin_added = safe_add_column(
         "users",
-        "is_admin", 
+        "is_admin",
         sa.Column("is_admin", sa.Boolean(), nullable=False, server_default="false"),
     )
 

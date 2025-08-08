@@ -55,11 +55,19 @@ api_router.include_router(
 )
 
 # Include notification routes
-api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+api_router.include_router(
+    notifications.router, prefix="/notifications", tags=["notifications"]
+)
 
 try:
     from app.api.v1.endpoints import test_utils
-    if getattr(settings, 'ENV', 'development') in ['development', 'dev', 'test', 'testing']:
+
+    if getattr(settings, "ENV", "development") in [
+        "development",
+        "dev",
+        "test",
+        "testing",
+    ]:
         api_router.include_router(test_utils.router, prefix="", tags=["test-utils"])
 except ImportError:
     pass

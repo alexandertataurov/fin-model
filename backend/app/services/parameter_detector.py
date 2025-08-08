@@ -680,20 +680,20 @@ class ParameterDetector:
         try:
             workbook = openpyxl.load_workbook(file_path, data_only=False)
             data_workbook = openpyxl.load_workbook(file_path, data_only=True)
-            
+
             detected_params = []
-            
+
             for sheet_name in workbook.sheetnames:
                 formula_sheet = workbook[sheet_name]
                 data_sheet = data_workbook[sheet_name]
-                
+
                 # Scan first 20 rows and 10 columns for parameters
                 for row in range(1, 21):
                     for col in range(1, 11):
                         try:
                             formula_cell = formula_sheet.cell(row, col)
                             data_cell = data_sheet.cell(row, col)
-                            
+
                             if self._is_simple_parameter(formula_cell, data_cell):
                                 param_data = self._extract_parameter_data(
                                     formula_cell, data_cell, sheet_name
@@ -702,61 +702,63 @@ class ParameterDetector:
                                     detected_params.append(param_data)
                         except:
                             continue
-            
+
             return detected_params
-            
+
         except Exception as e:
             # Return empty list if detection fails
             return []
-    
+
     def _is_simple_parameter(self, formula_cell, data_cell) -> bool:
         """Check if cell is a simple parameter (numeric value, not complex formula)."""
         # Must have a numeric value
         value = data_cell.value if data_cell.value is not None else formula_cell.value
         if not self._has_numeric_component(value):
             return False
-        
+
         # If it's a formula, it should be simple
-        if isinstance(formula_cell.value, str) and formula_cell.value.startswith('='):
+        if isinstance(formula_cell.value, str) and formula_cell.value.startswith("="):
             # Skip complex formulas
             formula = formula_cell.value.lower()
-            complex_functions = ['sum', 'average', 'vlookup', 'index', 'match', 'if']
+            complex_functions = ["sum", "average", "vlookup", "index", "match", "if"]
             if any(func in formula for func in complex_functions):
                 return False
-        
+
         return True
-    
-    def _extract_parameter_data(self, formula_cell, data_cell, sheet_name: str) -> Dict[str, Any]:
+
+    def _extract_parameter_data(
+        self, formula_cell, data_cell, sheet_name: str
+    ) -> Dict[str, Any]:
         """Extract parameter data from cell for parameter service."""
         value = data_cell.value if data_cell.value is not None else formula_cell.value
         numeric_value = self._extract_numeric_value(value)
-        
+
         # Get context for classification
         context = self._get_cell_context_sync(formula_cell, sheet_name)
-        context_text = ' '.join(context).lower()
-        
+        context_text = " ".join(context).lower()
+
         # Classify parameter
         param_type, category = self._classify_parameter_sync(context_text, formula_cell)
-        
+
         # Generate name
         name = self._generate_name_sync(formula_cell, context)
-        
+
         return {
-            'name': name,
-            'value': numeric_value,
-            'type': param_type,
-            'category': category,
-            'sheet': sheet_name,
-            'cell': formula_cell.coordinate,
-            'min_value': self._infer_min_value(param_type),
-            'max_value': self._infer_max_value(param_type)
+            "name": name,
+            "value": numeric_value,
+            "type": param_type,
+            "category": category,
+            "sheet": sheet_name,
+            "cell": formula_cell.coordinate,
+            "min_value": self._infer_min_value(param_type),
+            "max_value": self._infer_max_value(param_type),
         }
-    
+
     def _get_cell_context_sync(self, cell, sheet_name: str) -> List[str]:
         """Synchronous version of context extraction."""
         context = []
         sheet = cell.parent
-        
+
         # Check adjacent cells for labels
         for row_offset in [-1, 0]:
             for col_offset in [-1, 0]:
@@ -771,30 +773,40 @@ class ParameterDetector:
                             context.append(target_cell.value)
                 except:
                     continue
-        
+
         return context
-    
-    def _classify_parameter_sync(self, context_text: str, cell) -> Tuple[ParameterType, ParameterCategory]:
+
+    def _classify_parameter_sync(
+        self, context_text: str, cell
+    ) -> Tuple[ParameterType, ParameterCategory]:
         """Synchronous parameter classification."""
         # Check for growth/rate patterns
-        if any(pattern in context_text for pattern in ['growth', 'rate', '%', 'percent']):
+        if any(
+            pattern in context_text for pattern in ["growth", "rate", "%", "percent"]
+        ):
             return ParameterType.GROWTH_RATE, ParameterCategory.ASSUMPTIONS
-        
+
         # Check for revenue patterns
-        if any(pattern in context_text for pattern in ['revenue', 'sales', 'price', 'volume']):
+        if any(
+            pattern in context_text
+            for pattern in ["revenue", "sales", "price", "volume"]
+        ):
             return ParameterType.REVENUE_ASSUMPTION, ParameterCategory.REVENUE
-        
+
         # Check for cost patterns
-        if any(pattern in context_text for pattern in ['cost', 'expense', 'cogs']):
+        if any(pattern in context_text for pattern in ["cost", "expense", "cogs"]):
             return ParameterType.COST_ASSUMPTION, ParameterCategory.COSTS
-        
+
         # Check for financial patterns
-        if any(pattern in context_text for pattern in ['discount', 'wacc', 'tax', 'interest']):
+        if any(
+            pattern in context_text
+            for pattern in ["discount", "wacc", "tax", "interest"]
+        ):
             return ParameterType.INTEREST_RATE, ParameterCategory.FINANCIAL
-        
+
         # Default
         return ParameterType.CONSTANT, ParameterCategory.ASSUMPTIONS
-    
+
     def _generate_name_sync(self, cell, context: List[str]) -> str:
         """Generate parameter name from context."""
         if context:
@@ -802,22 +814,26 @@ class ParameterDetector:
             for text in context:
                 if len(text) > 2 and not text.isdigit():
                     # Clean up the text
-                    name = re.sub(r'[^\w\s]', '', text)
-                    name = re.sub(r'\s+', '_', name.strip())
+                    name = re.sub(r"[^\w\s]", "", text)
+                    name = re.sub(r"\s+", "_", name.strip())
                     return name.lower()
-        
+
         # Fallback to cell reference
         return f"param_{cell.coordinate.lower()}"
-    
+
     def _infer_min_value(self, param_type: ParameterType) -> Optional[float]:
         """Infer minimum value based on parameter type."""
-        if param_type in [ParameterType.GROWTH_RATE, ParameterType.TAX_RATE, 
-                         ParameterType.INTEREST_RATE, ParameterType.DISCOUNT_RATE]:
+        if param_type in [
+            ParameterType.GROWTH_RATE,
+            ParameterType.TAX_RATE,
+            ParameterType.INTEREST_RATE,
+            ParameterType.DISCOUNT_RATE,
+        ]:
             return 0.0
         elif param_type in [ParameterType.PRICE, ParameterType.VOLUME]:
             return 0.0
         return None
-    
+
     def _infer_max_value(self, param_type: ParameterType) -> Optional[float]:
         """Infer maximum value based on parameter type."""
         if param_type in [ParameterType.GROWTH_RATE, ParameterType.TAX_RATE]:

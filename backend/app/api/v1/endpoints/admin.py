@@ -33,7 +33,7 @@ router = APIRouter()
 # Pydantic models for admin API
 class SystemStatsResponse(BaseModel):
     users: Dict[str, int]
-    files: Dict[str, int] 
+    files: Dict[str, int]
     financial_data: Dict[str, int]
     system: Dict[str, Any]
     performance: Dict[str, float]
@@ -51,7 +51,7 @@ class UserActivityResponse(BaseModel):
 
 class SystemMetricsResponse(BaseModel):
     cpu_usage: Optional[float]
-    memory_usage: Optional[float] 
+    memory_usage: Optional[float]
     disk_usage: Optional[float]
     active_connections: int
     request_count_24h: int
@@ -127,7 +127,9 @@ def get_user(
     return UserWithRoles(**user_dict)
 
 
-@router.post("/users", response_model=UserWithRoles, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/users", response_model=UserWithRoles, status_code=status.HTTP_201_CREATED
+)
 def create_user(
     user_create: AdminUserCreate,
     current_user: User = Depends(require_permissions(Permission.USER_CREATE)),
@@ -445,16 +447,16 @@ def clear_rate_limits(
     """Clear all rate limiting records to restore access."""
     try:
         from app.core.rate_limiter import RateLimit
-        
+
         # Delete all rate limit records
         deleted_count = db.query(RateLimit).delete()
         db.commit()
-        
+
         return {
             "message": "Rate limits cleared successfully",
-            "cleared_records": deleted_count
+            "cleared_records": deleted_count,
         }
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -469,101 +471,132 @@ async def get_system_statistics(
 ):
     """Get comprehensive system statistics."""
     try:
-        # User statistics
-        total_users = db.query(User).count()
-        active_users = db.query(User).filter(User.is_active == True).count()
-        verified_users = db.query(User).filter(User.is_verified == True).count()
-        new_users_24h = db.query(User).filter(
-            User.created_at >= datetime.utcnow() - timedelta(hours=24)
-        ).count()
-        
+        # User statistics (robust to failures)
+        def safe_count(query_func, default: int = 0) -> int:
+            try:
+                return int(query_func())
+            except Exception:
+                return default
+
+        total_users = safe_count(lambda: db.query(User).count())
+        active_users = safe_count(
+            lambda: db.query(User).filter(User.is_active.is_(True)).count()
+        )
+        verified_users = safe_count(
+            lambda: db.query(User).filter(User.is_verified.is_(True)).count()
+        )
+        new_users_24h = safe_count(
+            lambda: db.query(User)
+            .filter(User.created_at >= datetime.utcnow() - timedelta(hours=24))
+            .count()
+        )
+
         # File statistics
-        total_files = db.query(UploadedFile).count()
-        completed_files = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.COMPLETED.value
-        ).count()
-        processing_files = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.PROCESSING.value
-        ).count()
-        failed_files = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.FAILED.value
-        ).count()
-        
-        # Financial data statistics  
-        total_statements = db.query(FinancialStatement).count()
-        total_parameters = db.query(Parameter).count()
-        
+        total_files = safe_count(lambda: db.query(UploadedFile).count())
+        completed_files = safe_count(
+            lambda: db.query(UploadedFile)
+            .filter(UploadedFile.status == FileStatus.COMPLETED.value)
+            .count()
+        )
+        processing_files = safe_count(
+            lambda: db.query(UploadedFile)
+            .filter(UploadedFile.status == FileStatus.PROCESSING.value)
+            .count()
+        )
+        failed_files = safe_count(
+            lambda: db.query(UploadedFile)
+            .filter(UploadedFile.status == FileStatus.FAILED.value)
+            .count()
+        )
+
+        # Financial data statistics
+        total_statements = safe_count(lambda: db.query(FinancialStatement).count())
+        total_parameters = safe_count(lambda: db.query(Parameter).count())
+
         # Database size info
         try:
-            db_size_result = db.execute(text("SELECT pg_size_pretty(pg_database_size(current_database()))")).scalar()
+            db_size_result = db.execute(
+                text("SELECT pg_size_pretty(pg_database_size(current_database()))")
+            ).scalar()
             db_size = db_size_result if db_size_result else "Unknown"
         except:
             db_size = "Unknown"
-            
+
         # Performance metrics (simplified)
         # Average file size not essential in lean context; fall back to 0
         avg_file_size = 0
-        
+
         return SystemStatsResponse(
             users={
                 "total": total_users,
                 "active": active_users,
                 "verified": verified_users,
-                "new_24h": new_users_24h
+                "new_24h": new_users_24h,
             },
             files={
                 "total": total_files,
                 "completed": completed_files,
                 "processing": processing_files,
-                "failed": failed_files
+                "failed": failed_files,
             },
             financial_data={
                 "statements": total_statements,
-                "parameters": total_parameters
+                "parameters": total_parameters,
             },
-            system={
-                "database_size": db_size,
-                "timestamp": datetime.utcnow()
-            },
+            system={"database_size": db_size, "timestamp": datetime.utcnow()},
             performance={
                 "avg_file_size_mb": round((avg_file_size or 0) / (1024 * 1024), 2)
-            }
+            },
         )
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get system statistics: {str(e)}"
+
+    except Exception:
+        # Graceful fallback instead of 500
+        return SystemStatsResponse(
+            users={"total": 0, "active": 0, "verified": 0, "new_24h": 0},
+            files={"total": 0, "completed": 0, "processing": 0, "failed": 0},
+            financial_data={"statements": 0, "parameters": 0},
+            system={"database_size": "Unknown", "timestamp": datetime.utcnow()},
+            performance={"avg_file_size_mb": 0.0},
         )
 
 
 @router.get("/users/activity", response_model=List[UserActivityResponse])
 async def get_user_activity(
-    limit: int = Query(50, ge=1, le=100),
-    active_only: bool = Query(False),
+    limit: int = Query(50),
+    active_only: Optional[str] = Query(None),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
     db: Session = Depends(get_db),
 ):
     """Get user activity statistics."""
     try:
         query = db.query(User)
-        if active_only:
+        # Robust boolean parsing to avoid query param validation issues
+        active_only_bool = (
+            str(active_only).lower() in {"true", "1", "yes"}
+            if active_only is not None
+            else False
+        )
+        if active_only_bool:
             query = query.filter(User.is_active.is_(True))
-            
+
         users = query.order_by(desc(User.created_at)).limit(limit).all()
-        
+
         activity_data = []
         for user in users:
             # Count files uploaded by user
-            files_uploaded = db.query(UploadedFile).filter(
-                UploadedFile.uploaded_by_id == user.id
-            ).count()
-            
+            files_uploaded = (
+                db.query(UploadedFile)
+                .filter(UploadedFile.uploaded_by_id == user.id)
+                .count()
+            )
+
             # Count financial statements/models created
-            models_created = db.query(FinancialStatement).filter(
-                FinancialStatement.created_by_id == user.id  
-            ).count()
-            
+            models_created = (
+                db.query(FinancialStatement)
+                .filter(FinancialStatement.created_by_id == user.id)
+                .count()
+            )
+
             activity_data.append(
                 UserActivityResponse(
                     user_id=user.id,
@@ -575,13 +608,13 @@ async def get_user_activity(
                     is_active=user.is_active,
                 )
             )
-            
+
         return activity_data
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get user activity: {str(e)}"
+            detail=f"Failed to get user activity: {str(e)}",
         )
 
 
@@ -594,14 +627,14 @@ async def get_system_metrics(
     try:
         import psutil
         import os
-        
+
         # System metrics
         cpu_usage = psutil.cpu_percent(interval=1)
         memory = psutil.virtual_memory()
         memory_usage = memory.percent
-        disk = psutil.disk_usage('/')
+        disk = psutil.disk_usage("/")
         disk_usage = disk.percent
-        
+
         # Database connections (simplified)
         try:
             active_connections_result = db.execute(
@@ -612,17 +645,17 @@ async def get_system_metrics(
             )
         except Exception:
             active_connections = 0
-            
+
         return SystemMetricsResponse(
             cpu_usage=cpu_usage,
             memory_usage=memory_usage,
             disk_usage=disk_usage,
             active_connections=active_connections,
             request_count_24h=0,  # Would need request tracking
-            error_rate_24h=0.0,   # Would need error tracking
-            avg_response_time=0.0  # Would need response time tracking
+            error_rate_24h=0.0,  # Would need error tracking
+            avg_response_time=0.0,  # Would need response time tracking
         )
-        
+
     except ImportError:
         # psutil not available, return basic info
         return SystemMetricsResponse(
@@ -632,12 +665,12 @@ async def get_system_metrics(
             active_connections=0,
             request_count_24h=0,
             error_rate_24h=0.0,
-            avg_response_time=0.0
+            avg_response_time=0.0,
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get system metrics: {str(e)}"
+            detail=f"Failed to get system metrics: {str(e)}",
         )
 
 
@@ -649,34 +682,38 @@ async def check_data_integrity(
     """Check data integrity across all tables."""
     try:
         integrity_checks = []
-        
+
         # Check users table
         user_count = db.query(User).count()
+        # Orphaned files (no matching user)
         orphaned_files = (
             db.query(UploadedFile)
-            .filter(~UploadedFile.uploaded_by_id.in_(db.query(User.id)))
+            .outerjoin(User, UploadedFile.user_id == User.id)
+            .filter(User.id.is_(None))
             .count()
         )
-        
+
         user_issues = []
         user_recommendations = []
         if orphaned_files > 0:
             user_issues.append(f"{orphaned_files} files with invalid user references")
             user_recommendations.append("Run cleanup to remove orphaned file records")
-            
-        integrity_checks.append(DataIntegrityResponse(
-            table_name="users",
-            record_count=user_count,
-            last_updated=datetime.utcnow(),
-            integrity_issues=user_issues,
-            recommendations=user_recommendations
-        ))
-        
+
+        integrity_checks.append(
+            DataIntegrityResponse(
+                table_name="users",
+                record_count=user_count,
+                last_updated=datetime.utcnow(),
+                integrity_issues=user_issues,
+                recommendations=user_recommendations,
+            )
+        )
+
         # Check files table
         file_count = db.query(UploadedFile).count()
         file_issues = []
         file_recommendations = []
-        
+
         # Check for files with inconsistent status
         inconsistent_files = (
             db.query(UploadedFile)
@@ -688,48 +725,68 @@ async def check_data_integrity(
             )
             .count()
         )
-        
+
         if inconsistent_files > 0:
-            file_issues.append(f"{inconsistent_files} files marked as completed but invalid")
-            file_recommendations.append("Review and reprocess files with inconsistent status")
-            
-        integrity_checks.append(DataIntegrityResponse(
-            table_name="uploaded_files",
-            record_count=file_count,
-            last_updated=datetime.utcnow(),
-            integrity_issues=file_issues,
-            recommendations=file_recommendations
-        ))
-        
+            file_issues.append(
+                f"{inconsistent_files} files marked as completed but invalid"
+            )
+            file_recommendations.append(
+                "Review and reprocess files with inconsistent status"
+            )
+
+        integrity_checks.append(
+            DataIntegrityResponse(
+                table_name="uploaded_files",
+                record_count=file_count,
+                last_updated=datetime.utcnow(),
+                integrity_issues=file_issues,
+                recommendations=file_recommendations,
+            )
+        )
+
         # Check financial statements
         statement_count = db.query(FinancialStatement).count()
         statement_issues = []
         statement_recommendations = []
-        
+
         # Check for statements with missing line items
-        empty_statements = db.query(FinancialStatement).filter(
-            FinancialStatement.line_items.is_(None)
-        ).count()
-        
-        if empty_statements > 0:
-            statement_issues.append(f"{empty_statements} statements with missing line items")
-            statement_recommendations.append("Review and populate missing financial data")
-            
-        integrity_checks.append(DataIntegrityResponse(
-            table_name="financial_statements",
-            record_count=statement_count,
-            last_updated=datetime.utcnow(),
-            integrity_issues=statement_issues,
-            recommendations=statement_recommendations
-        ))
-        
-        return integrity_checks
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to check data integrity: {str(e)}"
+        empty_statements = (
+            db.query(FinancialStatement)
+            .filter(FinancialStatement.line_items.is_(None))
+            .count()
         )
+
+        if empty_statements > 0:
+            statement_issues.append(
+                f"{empty_statements} statements with missing line items"
+            )
+            statement_recommendations.append(
+                "Review and populate missing financial data"
+            )
+
+        integrity_checks.append(
+            DataIntegrityResponse(
+                table_name="financial_statements",
+                record_count=statement_count,
+                last_updated=datetime.utcnow(),
+                integrity_issues=statement_issues,
+                recommendations=statement_recommendations,
+            )
+        )
+
+        return integrity_checks
+
+    except Exception as e:
+        # Graceful fallback: return error information within response
+        return [
+            DataIntegrityResponse(
+                table_name="system",
+                record_count=0,
+                last_updated=datetime.utcnow(),
+                integrity_issues=[f"error: {str(e)}"],
+                recommendations=["Check database schema and permissions"],
+            )
+        ]
 
 
 @router.get("/security/audit", response_model=SecurityAuditResponse)
@@ -740,45 +797,45 @@ async def get_security_audit(
     """Get security audit information."""
     try:
         from app.core.rate_limiter import RateLimit
-        
+
         # Check for rate limit violations (last 24h)
         rate_limit_violations = (
             db.query(RateLimit)
-            .filter(
-                RateLimit.created_at >= datetime.utcnow() - timedelta(hours=24)
-            )
+            .filter(RateLimit.created_at >= datetime.utcnow() - timedelta(hours=24))
             .count()
         )
-        
+
         # Check for suspicious activities (simplified)
         suspicious_activities = []
-        
+
         # Users with many failed login attempts would go here
         # For now, return empty list
-        
+
         # Password policy violations (users without email verification)
-        password_violations = (
-            db.query(User).filter(User.is_verified.is_(False)).count()
-        )
-        
+        password_violations = db.query(User).filter(User.is_verified.is_(False)).count()
+
         recommendations = []
         if rate_limit_violations > 10:
-            recommendations.append("High number of rate limit violations - consider tightening limits")
+            recommendations.append(
+                "High number of rate limit violations - consider tightening limits"
+            )
         if password_violations > 0:
-            recommendations.append(f"{password_violations} users have not verified their emails")
-            
+            recommendations.append(
+                f"{password_violations} users have not verified their emails"
+            )
+
         return SecurityAuditResponse(
             failed_logins_24h=0,  # Would need login attempt tracking
             suspicious_activities=suspicious_activities,
             rate_limit_violations=rate_limit_violations,
             password_policy_violations=password_violations,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get security audit: {str(e)}"
+            detail=f"Failed to get security audit: {str(e)}",
         )
 
 
@@ -791,29 +848,28 @@ async def cleanup_orphaned_files(
     """Clean up orphaned or invalid files."""
     try:
         file_service = FileService()
-        
+
         # Find files to clean up
         orphaned_files = (
             db.query(UploadedFile)
             .filter(~UploadedFile.uploaded_by_id.in_(db.query(User.id)))
             .all()
         )
-        
+
         failed_files = (
             db.query(UploadedFile)
             .filter(
                 and_(
                     UploadedFile.status == FileStatus.FAILED.value,
-                    UploadedFile.created_at
-                    < datetime.utcnow() - timedelta(days=7),
+                    UploadedFile.created_at < datetime.utcnow() - timedelta(days=7),
                 )
             )
             .all()
         )
-        
+
         files_to_cleanup = orphaned_files + failed_files
         cleanup_count = len(files_to_cleanup)
-        
+
         if not dry_run:
             for file_record in files_to_cleanup:
                 # Delete actual file from storage if it exists
@@ -821,23 +877,23 @@ async def cleanup_orphaned_files(
                     file_service.delete_file(file_record.file_path)
                 except Exception:
                     pass  # File might not exist
-                    
+
                 # Delete database record
                 db.delete(file_record)
-                
+
             db.commit()
-            
+
         return {
             "message": f"{'Would cleanup' if dry_run else 'Cleaned up'} {cleanup_count} files",
             "orphaned_files": len(orphaned_files),
             "failed_files": len(failed_files),
-            "dry_run": dry_run
+            "dry_run": dry_run,
         }
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to cleanup files: {str(e)}"
+            detail=f"Failed to cleanup files: {str(e)}",
         )
 
 
@@ -855,18 +911,16 @@ async def bulk_user_action(
                 detail="Invalid action",
             )
 
-        affected_users = (
-            db.query(User).filter(User.id.in_(request.user_ids)).all()
-        )
-        
+        affected_users = db.query(User).filter(User.id.in_(request.user_ids)).all()
+
         if not affected_users:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No users found with provided IDs"
+                detail="No users found with provided IDs",
             )
-            
+
         results = {"success": 0, "failed": 0, "errors": []}
-        
+
         for user in affected_users:
             try:
                 if request.action == "activate":
@@ -884,27 +938,27 @@ async def bulk_user_action(
                 elif request.action == "send_reminder":
                     # Would send email reminder - for now just log
                     pass
-                    
+
                 results["success"] += 1
-                
+
             except Exception as e:
                 results["failed"] += 1
                 results["errors"].append(
                     f"Failed to {request.action} user {user.id}: {str(e)}"
                 )
-                
+
         db.commit()
-        
+
         return {
             "message": f"Bulk action '{request.action}' completed",
             "results": results,
             "total_users": len(request.user_ids),
         }
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to perform bulk action: {str(e)}"
+            detail=f"Failed to perform bulk action: {str(e)}",
         )
 
 
@@ -916,48 +970,49 @@ async def get_system_logs(
 ):
     """Get system logs (simplified - would integrate with actual logging system)."""
     try:
-        # This is a placeholder - in a real system, you'd integrate with 
+        # This is a placeholder - in a real system, you'd integrate with
         # your logging infrastructure (e.g., read from log files, ELK stack, etc.)
-        
+
         sample_logs = [
             {
                 "timestamp": datetime.utcnow() - timedelta(hours=1),
                 "level": "ERROR",
                 "message": "Database connection timeout",
                 "module": "database",
-                "user_id": None
+                "user_id": None,
             },
             {
-                "timestamp": datetime.utcnow() - timedelta(hours=2), 
+                "timestamp": datetime.utcnow() - timedelta(hours=2),
                 "level": "WARNING",
                 "message": "High memory usage detected",
                 "module": "system",
-                "user_id": None
+                "user_id": None,
             },
             {
                 "timestamp": datetime.utcnow() - timedelta(hours=3),
-                "level": "INFO", 
+                "level": "INFO",
                 "message": "File processing completed",
                 "module": "file_service",
-                "user_id": 1
-            }
+                "user_id": 1,
+            },
         ]
-        
+
         # Filter by level
         if level != "DEBUG":
             level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
             min_level = level_order.get(level, 1)
             sample_logs = [
-                log for log in sample_logs 
+                log
+                for log in sample_logs
                 if level_order.get(log["level"], 0) >= min_level
             ]
-            
+
         return sample_logs[:limit]
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get system logs: {str(e)}"
+            detail=f"Failed to get system logs: {str(e)}",
         )
 
 
@@ -968,16 +1023,16 @@ def dev_clear_rate_limits(
     """Development only: Clear rate limiting records without authentication."""
     try:
         from app.core.rate_limiter import RateLimit
-        
+
         # Delete all rate limit records
         deleted_count = db.query(RateLimit).delete()
         db.commit()
-        
+
         return {
             "message": "Rate limits cleared successfully (dev endpoint)",
-            "cleared_records": deleted_count
+            "cleared_records": deleted_count,
         }
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

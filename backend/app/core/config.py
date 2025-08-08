@@ -45,7 +45,7 @@ class Settings(BaseSettings):
         """Get CORS origins as a list."""
         if self.BACKEND_CORS_ORIGINS == "*":
             return ["*"]
-        
+
         origins = []
         for origin in self.BACKEND_CORS_ORIGINS.split(","):
             origin = origin.strip()
@@ -54,27 +54,31 @@ class Settings(BaseSettings):
                 if origin.startswith("https://*."):
                     # Add common subdomains for wildcard domains
                     domain = origin.replace("https://*.", "")
-                    origins.extend([
-                        f"https://{domain}",
-                        f"https://www.{domain}",
-                        f"https://pre-production--{domain}",
-                        f"https://production--{domain}",
-                        f"https://staging--{domain}",
-                        f"https://dev--{domain}",
-                    ])
+                    origins.extend(
+                        [
+                            f"https://{domain}",
+                            f"https://www.{domain}",
+                            f"https://pre-production--{domain}",
+                            f"https://production--{domain}",
+                            f"https://staging--{domain}",
+                            f"https://dev--{domain}",
+                        ]
+                    )
                 else:
                     origins.append(origin)
-        
+
         # Add the original wildcard entries for broader compatibility
         if "https://*.netlify.app" in self.BACKEND_CORS_ORIGINS:
             origins.append("https://*.netlify.app")
         if "https://*.railway.app" in self.BACKEND_CORS_ORIGINS:
             origins.append("https://*.railway.app")
-        
+
         # Add specific Netlify domain to ensure it's included
-        origins.append("https://pre-production--advanced-financial-modeling.netlify.app")
+        origins.append(
+            "https://pre-production--advanced-financial-modeling.netlify.app"
+        )
         origins.append("https://advanced-financial-modeling.netlify.app")
-            
+
         return list(set(origins))  # Remove duplicates
 
     # JWT

@@ -23,7 +23,9 @@ class ReportService:
         """Stub method - report templates not available in lean version."""
         return None
 
-    def update_template(self, template_id: int, user_id: int, update_data: Dict[str, Any]):
+    def update_template(
+        self, template_id: int, user_id: int, update_data: Dict[str, Any]
+    ):
         """Stub method - report templates not available in lean version."""
         raise NotImplementedError("Report templates not available in lean version")
 
@@ -31,13 +33,27 @@ class ReportService:
         """Stub method - report templates not available in lean version."""
         return False
 
-    async def generate_report(self, user_id: int, export_format, template_id=None, 
-                            source_file_ids=None, custom_config=None, name=None):
+    async def generate_report(
+        self,
+        user_id: int,
+        export_format,
+        template_id=None,
+        source_file_ids=None,
+        custom_config=None,
+        name=None,
+    ):
         """Stub method - report generation not available in lean version."""
         raise NotImplementedError("Report generation not available in lean version")
 
-    def export_chart(self, user_id: int, chart_data: Dict[str, Any], 
-                    export_format=None, width=800, height=600, filename=None):
+    def export_chart(
+        self,
+        user_id: int,
+        chart_data: Dict[str, Any],
+        export_format=None,
+        width=800,
+        height=600,
+        filename=None,
+    ):
         """Stub method - chart export not available in lean version."""
         raise NotImplementedError("Chart export not available in lean version")
 

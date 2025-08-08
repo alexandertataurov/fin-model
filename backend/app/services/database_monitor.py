@@ -15,22 +15,22 @@ logger = logging.getLogger(__name__)
 
 class DatabaseMonitor:
     """Simple database monitoring service."""
-    
+
     def __init__(self, db: Session):
         self.db = db
-    
+
     def get_health_check(self) -> Dict[str, Any]:
         """Get basic database health status."""
         try:
             # Simple connection test
             result = self.db.execute(text("SELECT 1"))
             result.fetchone()
-            
+
             return {
                 "status": "healthy",
                 "timestamp": datetime.utcnow().isoformat(),
                 "connection": "active",
-                "version": "1.0.0"
+                "version": "1.0.0",
             }
         except SQLAlchemyError as e:
             logger.error(f"Database health check failed: {e}")
@@ -38,9 +38,9 @@ class DatabaseMonitor:
                 "status": "unhealthy",
                 "timestamp": datetime.utcnow().isoformat(),
                 "connection": "failed",
-                "error": str(e)
+                "error": str(e),
             }
-    
+
     def get_query_performance(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get basic query performance metrics."""
         try:
@@ -51,13 +51,13 @@ class DatabaseMonitor:
                     "query": "SELECT * FROM users",
                     "execution_time": 0.001,
                     "timestamp": datetime.utcnow().isoformat(),
-                    "status": "success"
+                    "status": "success",
                 }
             ]
         except Exception as e:
             logger.error(f"Failed to get query performance: {e}")
             return []
-    
+
     def get_table_sizes(self) -> Dict[str, Dict[str, Any]]:
         """Get basic table size information."""
         try:
@@ -67,18 +67,18 @@ class DatabaseMonitor:
                 "users": {
                     "rows": 0,
                     "size_mb": 0.1,
-                    "last_updated": datetime.utcnow().isoformat()
+                    "last_updated": datetime.utcnow().isoformat(),
                 },
                 "uploaded_files": {
                     "rows": 0,
                     "size_mb": 0.1,
-                    "last_updated": datetime.utcnow().isoformat()
-                }
+                    "last_updated": datetime.utcnow().isoformat(),
+                },
             }
         except Exception as e:
             logger.error(f"Failed to get table sizes: {e}")
             return {}
-    
+
     def cleanup_stale_data(self, dry_run: bool = True) -> Dict[str, Any]:
         """Clean up stale data (simplified implementation)."""
         try:
@@ -88,7 +88,7 @@ class DatabaseMonitor:
                     "message": "Dry run completed - no data was modified",
                     "timestamp": datetime.utcnow().isoformat(),
                     "files_to_clean": 0,
-                    "records_to_clean": 0
+                    "records_to_clean": 0,
                 }
             else:
                 # In a real implementation, you'd perform actual cleanup
@@ -97,14 +97,14 @@ class DatabaseMonitor:
                     "message": "Cleanup completed successfully",
                     "timestamp": datetime.utcnow().isoformat(),
                     "files_cleaned": 0,
-                    "records_cleaned": 0
+                    "records_cleaned": 0,
                 }
         except Exception as e:
             logger.error(f"Failed to cleanup stale data: {e}")
             return {
                 "status": "error",
                 "message": f"Cleanup failed: {str(e)}",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat(),
             }
 
 

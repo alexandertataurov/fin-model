@@ -20,17 +20,21 @@ depends_on = None
 def upgrade() -> None:
     # Add missing columns to users table with safety checks
     conn = op.get_bind()
-    
+
     # Helper function to safely add columns
     def safe_add_column(table_name, column_name, column_spec):
         try:
             # Check if column already exists
-            result = conn.execute(text(f"""
+            result = conn.execute(
+                text(
+                    f"""
                 SELECT column_name 
                 FROM information_schema.columns 
                 WHERE table_name = '{table_name}' AND column_name = '{column_name}'
-            """)).fetchone()
-            
+            """
+                )
+            ).fetchone()
+
             if not result:
                 op.add_column(table_name, column_spec)
                 print(f"✅ Added column {column_name} to {table_name}")
@@ -46,27 +50,43 @@ def upgrade() -> None:
     safe_add_column(
         "users",
         "full_name",
-        sa.Column("full_name", sa.String(length=100), nullable=False, server_default=""),
-    )
-    safe_add_column("users", "email_verified_at", sa.Column("email_verified_at", sa.DateTime(), nullable=True))
-    safe_add_column(
-        "users", "verification_token_expires", sa.Column("verification_token_expires", sa.DateTime(), nullable=True)
+        sa.Column(
+            "full_name", sa.String(length=100), nullable=False, server_default=""
+        ),
     )
     safe_add_column(
-        "users", "login_attempts", sa.Column("login_attempts", sa.Integer(), nullable=False, server_default="0")
+        "users",
+        "email_verified_at",
+        sa.Column("email_verified_at", sa.DateTime(), nullable=True),
     )
-    safe_add_column("users", "locked_until", sa.Column("locked_until", sa.DateTime(), nullable=True))
+    safe_add_column(
+        "users",
+        "verification_token_expires",
+        sa.Column("verification_token_expires", sa.DateTime(), nullable=True),
+    )
+    safe_add_column(
+        "users",
+        "login_attempts",
+        sa.Column("login_attempts", sa.Integer(), nullable=False, server_default="0"),
+    )
+    safe_add_column(
+        "users", "locked_until", sa.Column("locked_until", sa.DateTime(), nullable=True)
+    )
 
     # Helper function to safely create tables
     def safe_create_table(table_name, table_definition_func):
         try:
             # Check if table already exists
-            result = conn.execute(text(f"""
+            result = conn.execute(
+                text(
+                    f"""
                 SELECT table_name 
                 FROM information_schema.tables 
                 WHERE table_name = '{table_name}'
-            """)).fetchone()
-            
+            """
+                )
+            ).fetchone()
+
             if not result:
                 table_definition_func()
                 print(f"✅ Created table {table_name}")
@@ -87,7 +107,10 @@ def upgrade() -> None:
             sa.Column("refresh_token", sa.String(length=255), nullable=False),
             sa.Column("expires_at", sa.DateTime(), nullable=False),
             sa.Column(
-                "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+                "created_at",
+                sa.DateTime(),
+                server_default=sa.text("now()"),
+                nullable=False,
             ),
             sa.Column(
                 "last_used_at",
@@ -101,10 +124,10 @@ def upgrade() -> None:
             sa.PrimaryKeyConstraint("id"),
             sa.UniqueConstraint("refresh_token"),
         )
-    
+
     safe_create_table("user_sessions", create_user_sessions_table)
 
-    # Create rate_limiting table for tracking authentication attempts  
+    # Create rate_limiting table for tracking authentication attempts
     def create_rate_limits_table():
         op.create_table(
             "rate_limits",
@@ -114,17 +137,23 @@ def upgrade() -> None:
             sa.Column("window_start", sa.DateTime(), nullable=False),
             sa.Column("blocked_until", sa.DateTime(), nullable=True),
             sa.Column(
-                "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+                "created_at",
+                sa.DateTime(),
+                server_default=sa.text("now()"),
+                nullable=False,
             ),
             sa.Column(
-                "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+                "updated_at",
+                sa.DateTime(),
+                server_default=sa.text("now()"),
+                nullable=False,
             ),
             sa.PrimaryKeyConstraint("id"),
             sa.UniqueConstraint("key"),
         )
-    
+
     safe_create_table("rate_limits", create_rate_limits_table)
-    
+
     # Safely create indexes with existence check
     def safe_create_index(index_name, table_name, columns, unique=False):
         try:
@@ -136,7 +165,7 @@ def upgrade() -> None:
                 print(f"⚠️ Skipping index {index_name}: already exists")
         except Exception as e:
             print(f"⚠️ Skipping index {index_name}: {e}")
-    
+
     safe_create_index("ix_rate_limits_key", "rate_limits", ["key"])
     safe_create_index("ix_rate_limits_window_start", "rate_limits", ["window_start"])
 

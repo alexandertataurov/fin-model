@@ -6,6 +6,7 @@ from app.models.base import get_db
 
 router = APIRouter()
 
+
 @router.get("/test-utils/reset-token")
 def get_reset_token(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()

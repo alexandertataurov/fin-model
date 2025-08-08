@@ -13,7 +13,7 @@ from app.schemas.mfa import (
     MFABackupCodesResponse,
     MFAStatusResponse,
     AuthenticationFlowResponse,
-    MFAVerifyRequest
+    MFAVerifyRequest,
 )
 from app.core.rate_limiter import RateLimiter
 
@@ -24,7 +24,7 @@ router = APIRouter()
 def setup_mfa(
     request: Request,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Initialize MFA setup for the current user.
@@ -41,7 +41,7 @@ def setup_mfa(
     )
 
     mfa_service = MFAService(db)
-    
+
     try:
         setup_data = mfa_service.setup_mfa(current_user)
         return MFASetupResponse(**setup_data)
@@ -50,7 +50,7 @@ def setup_mfa(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to setup MFA"
+            detail="Failed to setup MFA",
         )
 
 
@@ -59,7 +59,7 @@ def verify_mfa_setup(
     verify_request: MFAVerifySetupRequest,
     request: Request,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Verify TOTP token and enable MFA for the user.
@@ -75,7 +75,7 @@ def verify_mfa_setup(
     )
 
     mfa_service = MFAService(db)
-    
+
     try:
         success = mfa_service.verify_mfa_setup(current_user, verify_request.token)
         if success:
@@ -83,22 +83,20 @@ def verify_mfa_setup(
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid verification code"
+                detail="Invalid verification code",
             )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to verify MFA setup"
+            detail="Failed to verify MFA setup",
         )
 
 
 @router.post("/verify", response_model=AuthenticationFlowResponse)
 def verify_mfa_token(
-    verify_request: MFAVerifyRequest,
-    request: Request,
-    db: Session = Depends(get_db)
+    verify_request: MFAVerifyRequest, request: Request, db: Session = Depends(get_db)
 ) -> Any:
     """
     Verify MFA token during login process.
@@ -121,7 +119,7 @@ def verify_mfa_token(
 
     auth_service = AuthService(db)
     mfa_service = MFAService(db)
-    
+
     # Get client info for audit logging
     ip_address = request.client.host if request.client else None
     user_agent = request.headers.get("user-agent")
@@ -136,8 +134,7 @@ def verify_mfa_token(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
 
     # Check if MFA is enabled
@@ -151,11 +148,13 @@ def verify_mfa_token(
             status="success",
             access_token=access_token,
             token_type="bearer",
-            message="Authentication successful"
+            message="Authentication successful",
         )
 
     # Verify MFA token
-    if mfa_service.verify_mfa_token(user, verify_request.mfa_token, verify_request.use_backup):
+    if mfa_service.verify_mfa_token(
+        user, verify_request.mfa_token, verify_request.use_backup
+    ):
         # MFA verification successful
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
@@ -165,37 +164,34 @@ def verify_mfa_token(
             status="success",
             access_token=access_token,
             token_type="bearer",
-            message="Authentication successful"
+            message="Authentication successful",
         )
     else:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid MFA token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid MFA token"
         )
 
 
 @router.get("/backup-codes", response_model=MFABackupCodesResponse)
 def get_backup_codes(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ) -> Any:
     """
     Get remaining backup recovery codes for the current user.
     """
     mfa_service = MFAService(db)
-    
+
     try:
         backup_codes = mfa_service.get_backup_codes(current_user)
         return MFABackupCodesResponse(
-            backup_codes=backup_codes,
-            remaining_count=len(backup_codes)
+            backup_codes=backup_codes, remaining_count=len(backup_codes)
         )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve backup codes"
+            detail="Failed to retrieve backup codes",
         )
 
 
@@ -203,7 +199,7 @@ def get_backup_codes(
 def regenerate_backup_codes(
     request: Request,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Generate new backup recovery codes for the current user.
@@ -220,19 +216,18 @@ def regenerate_backup_codes(
     )
 
     mfa_service = MFAService(db)
-    
+
     try:
         new_codes = mfa_service.regenerate_backup_codes(current_user)
         return MFABackupCodesResponse(
-            backup_codes=new_codes,
-            remaining_count=len(new_codes)
+            backup_codes=new_codes, remaining_count=len(new_codes)
         )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to regenerate backup codes"
+            detail="Failed to regenerate backup codes",
         )
 
 
@@ -241,7 +236,7 @@ def disable_mfa(
     disable_request: MFADisableRequest,
     request: Request,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> Any:
     """
     Disable MFA for the current user.
@@ -258,7 +253,7 @@ def disable_mfa(
     )
 
     mfa_service = MFAService(db)
-    
+
     try:
         success = mfa_service.disable_mfa(current_user, disable_request.password)
         if success:
@@ -270,45 +265,48 @@ def disable_mfa(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to disable MFA"
+            detail="Failed to disable MFA",
         )
 
 
 @router.get("/status", response_model=MFAStatusResponse)
 def get_mfa_status(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ) -> Any:
     """
     Get MFA status for the current user.
     """
     mfa_service = MFAService(db)
-    
+
     try:
         is_enabled = mfa_service.is_mfa_enabled(current_user)
         backup_codes_count = 0
         last_used = None
-        
+
         if is_enabled:
             backup_codes = mfa_service.get_backup_codes(current_user)
             backup_codes_count = len(backup_codes)
-            
+
             # Get last used timestamp
             from app.models.mfa import MFAToken
-            mfa_token = db.query(MFAToken).filter(
-                MFAToken.user_id == current_user.id,
-                MFAToken.is_verified == True
-            ).first()
+
+            mfa_token = (
+                db.query(MFAToken)
+                .filter(
+                    MFAToken.user_id == current_user.id, MFAToken.is_verified == True
+                )
+                .first()
+            )
             if mfa_token:
                 last_used = mfa_token.last_used
-        
+
         return MFAStatusResponse(
             enabled=is_enabled,
             backup_codes_count=backup_codes_count,
-            last_used=last_used
+            last_used=last_used,
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get MFA status"
+            detail="Failed to get MFA status",
         )

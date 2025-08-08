@@ -21,7 +21,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
                 method=method,
                 endpoint=endpoint,
                 duration=duration,
-                status_code=response.status_code
+                status_code=response.status_code,
             )
 
             # Add performance headers
@@ -33,10 +33,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
             # Record failed request
             duration = time.time() - start_time
             performance_monitor.record_request(
-                method=method,
-                endpoint=endpoint,
-                duration=duration,
-                status_code=500
+                method=method, endpoint=endpoint, duration=duration, status_code=500
             )
             raise
 
@@ -53,7 +50,11 @@ def monitor_db_query(query_type: str):
                 return result
             except Exception as e:
                 duration = time.time() - start_time
-                performance_monitor.record_database_query(f"{query_type}_error", duration)
+                performance_monitor.record_database_query(
+                    f"{query_type}_error", duration
+                )
                 raise
+
         return wrapper
-    return decorator 
+
+    return decorator

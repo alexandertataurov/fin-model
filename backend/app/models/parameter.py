@@ -205,7 +205,9 @@ class Scenario(Base):
     description = Column(Text, nullable=True)
 
     # Scenario Properties
-    scenario_type = Column(String(50), default="custom")  # base, optimistic, pessimistic, custom
+    scenario_type = Column(
+        String(50), default="custom"
+    )  # base, optimistic, pessimistic, custom
     is_baseline = Column(Boolean, default=False)
     is_base_case = Column(Boolean, default=False)
     is_template = Column(Boolean, default=False)

@@ -64,7 +64,8 @@ class NotificationService:
 
         # Convert to response models
         notification_responses = [
-            NotificationResponse.model_validate(notification) for notification in notifications
+            NotificationResponse.model_validate(notification)
+            for notification in notifications
         ]
 
         return notification_responses, total_count, total_pages
@@ -175,9 +176,7 @@ class NotificationService:
             return NotificationPreferencesSchema.model_validate(preferences)
         return None
 
-    def create_default_preferences(
-        self, user_id: int
-    ) -> NotificationPreferencesSchema:
+    def create_default_preferences(self, user_id: int) -> NotificationPreferencesSchema:
         """Create default notification preferences for a user."""
         preferences = NotificationPreferences(
             user_id=user_id,
@@ -231,9 +230,7 @@ class NotificationService:
         """Get notification statistics for a user."""
         # Get total notifications
         total_notifications = (
-            self.db.query(Notification)
-            .filter(Notification.user_id == user_id)
-            .count()
+            self.db.query(Notification).filter(Notification.user_id == user_id).count()
         )
 
         # Get unread notifications
@@ -287,8 +284,12 @@ class NotificationService:
             total_notifications=total_notifications,
             unread_notifications=unread_notifications,
             recent_notifications=recent_notifications,
-            type_distribution={stat.notification_type: stat.count for stat in type_stats},
-            priority_distribution={stat.priority: stat.count for stat in priority_stats},
+            type_distribution={
+                stat.notification_type: stat.count for stat in type_stats
+            },
+            priority_distribution={
+                stat.priority: stat.count for stat in priority_stats
+            },
         )
 
     def get_notification_types(self) -> List[Dict[str, Any]]:

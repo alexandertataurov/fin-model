@@ -8,8 +8,15 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from app.models.parameter import (
-    Parameter, ParameterGroup, ParameterHistory, ParameterType, 
-    ParameterCategory, SensitivityLevel, Scenario, ParameterValue, ScenarioParameter
+    Parameter,
+    ParameterGroup,
+    ParameterHistory,
+    ParameterType,
+    ParameterCategory,
+    SensitivityLevel,
+    Scenario,
+    ParameterValue,
+    ScenarioParameter,
 )
 from app.models.file import UploadedFile
 from app.services.formula_engine import FormulaEngine
@@ -468,44 +475,51 @@ class ParameterService:
             "display_order": group.display_order,
             "is_expanded": group.is_expanded,
         }
-    
+
     # Scenario Parameter Management Methods
-    
+
     def create_scenario_parameter_override(
-        self, 
-        scenario_id: int, 
-        parameter_id: int, 
-        value: float, 
+        self,
+        scenario_id: int,
+        parameter_id: int,
+        value: float,
         user_id: int,
-        reason: str = None
+        reason: str = None,
     ) -> ScenarioParameter:
         """Create or update scenario-specific parameter override."""
-        
+
         # Validate scenario exists and user has access
-        scenario = self.db.query(Scenario).filter(
-            Scenario.id == scenario_id,
-            Scenario.created_by_id == user_id
-        ).first()
-        
+        scenario = (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+
         if not scenario:
             raise ValueError(f"Scenario {scenario_id} not found or access denied")
-        
+
         # Validate parameter exists
-        parameter = self.db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        parameter = (
+            self.db.query(Parameter).filter(Parameter.id == parameter_id).first()
+        )
         if not parameter:
             raise ValueError(f"Parameter {parameter_id} not found")
-        
+
         # Validate parameter value
         validation = self.validate_parameter_value(parameter, value)
         if not validation.valid:
             raise ValueError(f"Parameter validation failed: {validation.errors}")
-        
+
         # Check if override already exists
-        existing_override = self.db.query(ScenarioParameter).filter(
-            ScenarioParameter.scenario_id == scenario_id,
-            ScenarioParameter.parameter_id == parameter_id
-        ).first()
-        
+        existing_override = (
+            self.db.query(ScenarioParameter)
+            .filter(
+                ScenarioParameter.scenario_id == scenario_id,
+                ScenarioParameter.parameter_id == parameter_id,
+            )
+            .first()
+        )
+
         if existing_override:
             # Update existing override
             existing_override.parameter_value = value
@@ -518,16 +532,20 @@ class ParameterService:
                 scenario_id=scenario_id,
                 parameter_id=parameter_id,
                 parameter_value=value,
-                override_default=True
+                override_default=True,
             )
             self.db.add(scenario_param)
-        
+
         # Record change in parameter value history for the scenario
-        param_value = self.db.query(ParameterValue).filter(
-            ParameterValue.scenario_id == scenario_id,
-            ParameterValue.parameter_id == parameter_id
-        ).first()
-        
+        param_value = (
+            self.db.query(ParameterValue)
+            .filter(
+                ParameterValue.scenario_id == scenario_id,
+                ParameterValue.parameter_id == parameter_id,
+            )
+            .first()
+        )
+
         if param_value:
             # Update existing parameter value
             old_value = param_value.value
@@ -543,215 +561,229 @@ class ParameterService:
                 value=value,
                 original_value=parameter.current_value or parameter.value,
                 change_reason=reason or "Scenario parameter override",
-                changed_by_id=user_id
+                changed_by_id=user_id,
             )
             self.db.add(param_value)
-        
+
         self.db.commit()
         self.db.refresh(scenario_param)
-        
+
         return scenario_param
-    
+
     def get_scenario_parameters(
-        self, 
-        scenario_id: int, 
-        user_id: int,
-        include_overrides_only: bool = False
+        self, scenario_id: int, user_id: int, include_overrides_only: bool = False
     ) -> Dict[str, Any]:
         """Get all parameters for a scenario, including overrides."""
-        
+
         # Validate scenario access
-        scenario = self.db.query(Scenario).filter(
-            Scenario.id == scenario_id,
-            Scenario.created_by_id == user_id
-        ).first()
-        
+        scenario = (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+
         if not scenario:
             raise ValueError(f"Scenario {scenario_id} not found or access denied")
-        
+
         # Get scenario parameter overrides
-        scenario_overrides = self.db.query(ScenarioParameter).filter(
-            ScenarioParameter.scenario_id == scenario_id
-        ).all()
-        
+        scenario_overrides = (
+            self.db.query(ScenarioParameter)
+            .filter(ScenarioParameter.scenario_id == scenario_id)
+            .all()
+        )
+
         override_map = {sp.parameter_id: sp for sp in scenario_overrides}
-        
+
         if include_overrides_only:
             # Only return parameters with overrides
             parameter_ids = list(override_map.keys())
-            parameters = self.db.query(Parameter).filter(
-                Parameter.id.in_(parameter_ids)
-            ).all()
+            parameters = (
+                self.db.query(Parameter).filter(Parameter.id.in_(parameter_ids)).all()
+            )
         else:
             # Get all parameters for the base file
-            parameters = self.db.query(Parameter).filter(
-                Parameter.source_file_id == scenario.base_file_id
-            ).all()
-        
+            parameters = (
+                self.db.query(Parameter)
+                .filter(Parameter.source_file_id == scenario.base_file_id)
+                .all()
+            )
+
         # Build result with scenario-specific values
         scenario_params = []
         for param in parameters:
             param_dict = self._parameter_to_dict(param)
-            
+
             # Check for scenario override
             if param.id in override_map:
                 override = override_map[param.id]
-                param_dict.update({
-                    'scenario_value': override.parameter_value,
-                    'has_override': True,
-                    'override_default': override.override_default,
-                    'last_updated': override.updated_at.isoformat() if override.updated_at else None
-                })
+                param_dict.update(
+                    {
+                        "scenario_value": override.parameter_value,
+                        "has_override": True,
+                        "override_default": override.override_default,
+                        "last_updated": override.updated_at.isoformat()
+                        if override.updated_at
+                        else None,
+                    }
+                )
             else:
-                param_dict.update({
-                    'scenario_value': param.current_value or param.value,
-                    'has_override': False,
-                    'override_default': False
-                })
-            
+                param_dict.update(
+                    {
+                        "scenario_value": param.current_value or param.value,
+                        "has_override": False,
+                        "override_default": False,
+                    }
+                )
+
             scenario_params.append(param_dict)
-        
+
         return {
-            'scenario_id': scenario_id,
-            'scenario_name': scenario.name,
-            'parameters': scenario_params,
-            'total_parameters': len(parameters),
-            'overridden_parameters': len(override_map)
+            "scenario_id": scenario_id,
+            "scenario_name": scenario.name,
+            "parameters": scenario_params,
+            "total_parameters": len(parameters),
+            "overridden_parameters": len(override_map),
         }
-    
+
     def batch_update_scenario_parameters(
-        self,
-        scenario_id: int,
-        parameter_updates: List[Dict[str, Any]],
-        user_id: int
+        self, scenario_id: int, parameter_updates: List[Dict[str, Any]], user_id: int
     ) -> Dict[str, Any]:
         """Update multiple scenario parameters in batch."""
-        
+
         # Validate scenario access
-        scenario = self.db.query(Scenario).filter(
-            Scenario.id == scenario_id,
-            Scenario.created_by_id == user_id
-        ).first()
-        
+        scenario = (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+
         if not scenario:
             raise ValueError(f"Scenario {scenario_id} not found or access denied")
-        
+
         updated_parameters = []
         validation_errors = []
-        
+
         for update in parameter_updates:
             try:
-                param_id = update['parameter_id']
-                value = update['value']
-                reason = update.get('reason', 'Batch parameter update')
-                
+                param_id = update["parameter_id"]
+                value = update["value"]
+                reason = update.get("reason", "Batch parameter update")
+
                 scenario_param = self.create_scenario_parameter_override(
                     scenario_id=scenario_id,
                     parameter_id=param_id,
                     value=value,
                     user_id=user_id,
-                    reason=reason
+                    reason=reason,
                 )
-                
-                updated_parameters.append({
-                    'parameter_id': param_id,
-                    'value': value,
-                    'success': True
-                })
-                
+
+                updated_parameters.append(
+                    {"parameter_id": param_id, "value": value, "success": True}
+                )
+
             except Exception as e:
-                param_id = update.get('parameter_id', 'unknown')
-                validation_errors.append({
-                    'parameter_id': param_id,
-                    'error': str(e),
-                    'success': False
-                })
-        
+                param_id = update.get("parameter_id", "unknown")
+                validation_errors.append(
+                    {"parameter_id": param_id, "error": str(e), "success": False}
+                )
+
         return {
-            'scenario_id': scenario_id,
-            'updated_parameters': updated_parameters,
-            'validation_errors': validation_errors,
-            'total_updates': len(parameter_updates),
-            'successful_updates': len(updated_parameters),
-            'failed_updates': len(validation_errors)
+            "scenario_id": scenario_id,
+            "updated_parameters": updated_parameters,
+            "validation_errors": validation_errors,
+            "total_updates": len(parameter_updates),
+            "successful_updates": len(updated_parameters),
+            "failed_updates": len(validation_errors),
         }
-    
+
     def remove_scenario_parameter_override(
-        self,
-        scenario_id: int,
-        parameter_id: int,
-        user_id: int
+        self, scenario_id: int, parameter_id: int, user_id: int
     ) -> bool:
         """Remove scenario-specific parameter override, reverting to default."""
-        
+
         # Validate scenario access
-        scenario = self.db.query(Scenario).filter(
-            Scenario.id == scenario_id,
-            Scenario.created_by_id == user_id
-        ).first()
-        
+        scenario = (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .first()
+        )
+
         if not scenario:
             raise ValueError(f"Scenario {scenario_id} not found or access denied")
-        
+
         # Remove scenario parameter override
-        scenario_override = self.db.query(ScenarioParameter).filter(
-            ScenarioParameter.scenario_id == scenario_id,
-            ScenarioParameter.parameter_id == parameter_id
-        ).first()
-        
+        scenario_override = (
+            self.db.query(ScenarioParameter)
+            .filter(
+                ScenarioParameter.scenario_id == scenario_id,
+                ScenarioParameter.parameter_id == parameter_id,
+            )
+            .first()
+        )
+
         if scenario_override:
             self.db.delete(scenario_override)
-        
+
         # Update parameter value to revert to default
-        param_value = self.db.query(ParameterValue).filter(
-            ParameterValue.scenario_id == scenario_id,
-            ParameterValue.parameter_id == parameter_id
-        ).first()
-        
+        param_value = (
+            self.db.query(ParameterValue)
+            .filter(
+                ParameterValue.scenario_id == scenario_id,
+                ParameterValue.parameter_id == parameter_id,
+            )
+            .first()
+        )
+
         if param_value:
             # Get original parameter for default value
-            parameter = self.db.query(Parameter).filter(Parameter.id == parameter_id).first()
+            parameter = (
+                self.db.query(Parameter).filter(Parameter.id == parameter_id).first()
+            )
             if parameter:
                 param_value.value = parameter.current_value or parameter.value
                 param_value.change_reason = "Removed scenario override"
                 param_value.changed_at = datetime.utcnow()
                 param_value.changed_by_id = user_id
-        
+
         self.db.commit()
         return True
-    
+
     def copy_scenario_parameters(
         self,
         source_scenario_id: int,
         target_scenario_id: int,
         user_id: int,
-        parameter_ids: Optional[List[int]] = None
+        parameter_ids: Optional[List[int]] = None,
     ) -> Dict[str, Any]:
         """Copy parameter overrides from one scenario to another."""
-        
+
         # Validate both scenarios
-        scenarios = self.db.query(Scenario).filter(
-            Scenario.id.in_([source_scenario_id, target_scenario_id]),
-            Scenario.created_by_id == user_id
-        ).all()
-        
+        scenarios = (
+            self.db.query(Scenario)
+            .filter(
+                Scenario.id.in_([source_scenario_id, target_scenario_id]),
+                Scenario.created_by_id == user_id,
+            )
+            .all()
+        )
+
         if len(scenarios) != 2:
             raise ValueError("One or both scenarios not found or access denied")
-        
+
         # Get source scenario parameter overrides
         source_overrides = self.db.query(ScenarioParameter).filter(
             ScenarioParameter.scenario_id == source_scenario_id
         )
-        
+
         if parameter_ids:
             source_overrides = source_overrides.filter(
                 ScenarioParameter.parameter_id.in_(parameter_ids)
             )
-        
+
         source_overrides = source_overrides.all()
-        
+
         copied_parameters = []
-        
+
         for source_override in source_overrides:
             try:
                 self.create_scenario_parameter_override(
@@ -759,89 +791,102 @@ class ParameterService:
                     parameter_id=source_override.parameter_id,
                     value=source_override.parameter_value,
                     user_id=user_id,
-                    reason=f"Copied from scenario {source_scenario_id}"
+                    reason=f"Copied from scenario {source_scenario_id}",
                 )
-                
-                copied_parameters.append({
-                    'parameter_id': source_override.parameter_id,
-                    'value': source_override.parameter_value,
-                    'success': True
-                })
-                
+
+                copied_parameters.append(
+                    {
+                        "parameter_id": source_override.parameter_id,
+                        "value": source_override.parameter_value,
+                        "success": True,
+                    }
+                )
+
             except Exception as e:
-                copied_parameters.append({
-                    'parameter_id': source_override.parameter_id,
-                    'error': str(e),
-                    'success': False
-                })
-        
+                copied_parameters.append(
+                    {
+                        "parameter_id": source_override.parameter_id,
+                        "error": str(e),
+                        "success": False,
+                    }
+                )
+
         return {
-            'source_scenario_id': source_scenario_id,
-            'target_scenario_id': target_scenario_id,
-            'copied_parameters': copied_parameters,
-            'total_copied': len([p for p in copied_parameters if p['success']]),
-            'total_failed': len([p for p in copied_parameters if not p['success']])
+            "source_scenario_id": source_scenario_id,
+            "target_scenario_id": target_scenario_id,
+            "copied_parameters": copied_parameters,
+            "total_copied": len([p for p in copied_parameters if p["success"]]),
+            "total_failed": len([p for p in copied_parameters if not p["success"]]),
         }
-    
+
     def get_scenario_parameter_differences(
-        self,
-        scenario_id_1: int,
-        scenario_id_2: int,
-        user_id: int
+        self, scenario_id_1: int, scenario_id_2: int, user_id: int
     ) -> Dict[str, Any]:
         """Compare parameter values between two scenarios."""
-        
+
         # Validate both scenarios
-        scenarios = self.db.query(Scenario).filter(
-            Scenario.id.in_([scenario_id_1, scenario_id_2]),
-            Scenario.created_by_id == user_id
-        ).all()
-        
+        scenarios = (
+            self.db.query(Scenario)
+            .filter(
+                Scenario.id.in_([scenario_id_1, scenario_id_2]),
+                Scenario.created_by_id == user_id,
+            )
+            .all()
+        )
+
         if len(scenarios) != 2:
             raise ValueError("One or both scenarios not found or access denied")
-        
+
         # Get parameter values for both scenarios
-        scenario_1_params = self.get_scenario_parameters(scenario_id_1, user_id)['parameters']
-        scenario_2_params = self.get_scenario_parameters(scenario_id_2, user_id)['parameters']
-        
+        scenario_1_params = self.get_scenario_parameters(scenario_id_1, user_id)[
+            "parameters"
+        ]
+        scenario_2_params = self.get_scenario_parameters(scenario_id_2, user_id)[
+            "parameters"
+        ]
+
         # Create parameter maps
-        params_1_map = {p['id']: p for p in scenario_1_params}
-        params_2_map = {p['id']: p for p in scenario_2_params}
-        
+        params_1_map = {p["id"]: p for p in scenario_1_params}
+        params_2_map = {p["id"]: p for p in scenario_2_params}
+
         differences = []
-        
+
         # Compare parameters
         all_param_ids = set(params_1_map.keys()) | set(params_2_map.keys())
-        
+
         for param_id in all_param_ids:
             param_1 = params_1_map.get(param_id)
             param_2 = params_2_map.get(param_id)
-            
+
             if not param_1 or not param_2:
                 continue  # Skip parameters not in both scenarios
-            
-            value_1 = param_1.get('scenario_value', 0)
-            value_2 = param_2.get('scenario_value', 0)
-            
+
+            value_1 = param_1.get("scenario_value", 0)
+            value_2 = param_2.get("scenario_value", 0)
+
             if value_1 != value_2:
                 difference = value_2 - value_1
-                percent_change = (difference / value_1 * 100) if value_1 != 0 else float('inf')
-                
-                differences.append({
-                    'parameter_id': param_id,
-                    'parameter_name': param_1.get('name'),
-                    'scenario_1_value': value_1,
-                    'scenario_2_value': value_2,
-                    'absolute_difference': difference,
-                    'percent_change': percent_change,
-                    'scenario_1_has_override': param_1.get('has_override', False),
-                    'scenario_2_has_override': param_2.get('has_override', False)
-                })
-        
+                percent_change = (
+                    (difference / value_1 * 100) if value_1 != 0 else float("inf")
+                )
+
+                differences.append(
+                    {
+                        "parameter_id": param_id,
+                        "parameter_name": param_1.get("name"),
+                        "scenario_1_value": value_1,
+                        "scenario_2_value": value_2,
+                        "absolute_difference": difference,
+                        "percent_change": percent_change,
+                        "scenario_1_has_override": param_1.get("has_override", False),
+                        "scenario_2_has_override": param_2.get("has_override", False),
+                    }
+                )
+
         return {
-            'scenario_1_id': scenario_id_1,
-            'scenario_2_id': scenario_id_2,
-            'differences': differences,
-            'total_differences': len(differences),
-            'total_parameters_compared': len(all_param_ids)
+            "scenario_1_id": scenario_id_1,
+            "scenario_2_id": scenario_id_2,
+            "differences": differences,
+            "total_differences": len(differences),
+            "total_parameters_compared": len(all_param_ids),
         }

@@ -3,7 +3,17 @@ from typing import Optional, Dict, Any
 from uuid import uuid4
 from enum import Enum
 
-from sqlalchemy import Column, String, Text, Boolean, DateTime, Integer, JSON, ForeignKey, Index
+from sqlalchemy import (
+    Column,
+    String,
+    Text,
+    Boolean,
+    DateTime,
+    Integer,
+    JSON,
+    ForeignKey,
+    Index,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -12,6 +22,7 @@ from .base import Base
 
 class NotificationType(str, Enum):
     """Notification types enum."""
+
     SYSTEM_UPDATE = "SYSTEM_UPDATE"
     FILE_PROCESSED = "FILE_PROCESSED"
     REPORT_READY = "REPORT_READY"
@@ -27,6 +38,7 @@ class NotificationType(str, Enum):
 
 class NotificationPriority(str, Enum):
     """Notification priority enum."""
+
     LOW = "LOW"
     NORMAL = "NORMAL"
     HIGH = "HIGH"
@@ -35,6 +47,7 @@ class NotificationPriority(str, Enum):
 
 class NotificationStatus(str, Enum):
     """Notification status enum."""
+
     PENDING = "PENDING"
     SENT = "SENT"
     DELIVERED = "DELIVERED"
@@ -45,6 +58,7 @@ class NotificationStatus(str, Enum):
 
 class Notification(Base):
     """Notification model."""
+
     __tablename__ = "notifications"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -76,6 +90,7 @@ class Notification(Base):
 
 class NotificationPreferences(Base):
     """Notification preferences model."""
+
     __tablename__ = "notification_preferences"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -85,14 +100,16 @@ class NotificationPreferences(Base):
     in_app_enabled = Column(Boolean, default=True)
     quiet_hours_enabled = Column(Boolean, default=False)
     quiet_start_time = Column(String(5))  # Format: "HH:MM"
-    quiet_end_time = Column(String(5))    # Format: "HH:MM"
+    quiet_end_time = Column(String(5))  # Format: "HH:MM"
     quiet_timezone = Column(String(50), default="UTC")
     type_preferences = Column(JSON, default={})
     min_priority_email = Column(String(20), default=NotificationPriority.NORMAL)
     min_priority_push = Column(String(20), default=NotificationPriority.HIGH)
     min_priority_in_app = Column(String(20), default=NotificationPriority.LOW)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     user = relationship("User", back_populates="notification_preferences")
@@ -103,6 +120,7 @@ class NotificationPreferences(Base):
 
 class NotificationTemplate(Base):
     """Notification template model."""
+
     __tablename__ = "notification_templates"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -115,14 +133,16 @@ class NotificationTemplate(Base):
     description = Column(Text)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     def __repr__(self):
         return f"<NotificationTemplate(name='{self.name}', type='{self.notification_type}')>"
 
 
 # Create indexes for performance
-Index('ix_notifications_user_created', Notification.user_id, Notification.created_at)
-Index('ix_notifications_user_unread', Notification.user_id, Notification.is_read)
-Index('ix_notifications_user_priority', Notification.user_id, Notification.priority)
-Index('ix_notifications_expires_status', Notification.expires_at, Notification.status)
+Index("ix_notifications_user_created", Notification.user_id, Notification.created_at)
+Index("ix_notifications_user_unread", Notification.user_id, Notification.is_read)
+Index("ix_notifications_user_priority", Notification.user_id, Notification.priority)
+Index("ix_notifications_expires_status", Notification.expires_at, Notification.status)

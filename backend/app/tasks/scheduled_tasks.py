@@ -181,7 +181,7 @@ def update_analytics_cache(self):
             # Store in Redis cache for faster retrieval
             import json
             from app.core.celery_app import redis_client
-            
+
             redis_client.setex("analytics_cache", 3600, json.dumps(cache_data))
 
             return {

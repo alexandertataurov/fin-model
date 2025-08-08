@@ -37,20 +37,6 @@ const config: StorybookConfig = {
       '@components': resolve(__dirname, '../src/components'),
     };
 
-    (viteConfig.define as any) = {
-      ...(viteConfig.define || {}),
-      'process.env.NODE_ENV': JSON.stringify('development'),
-      global: 'globalThis',
-    };
-
-    (viteConfig.build as any) = {
-      ...(viteConfig.build || {}),
-      rollupOptions: {
-        ...((viteConfig.build as any)?.rollupOptions || {}),
-        external: [/@storybook\/globalThis/],
-      },
-    };
-
     return viteConfig;
   },
 };

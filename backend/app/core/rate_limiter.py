@@ -77,7 +77,11 @@ class RateLimiter:
 
         # Check if currently blocked
         if rate_limit.blocked_until:
-            blocked_until_utc = rate_limit.blocked_until.replace(tzinfo=timezone.utc) if rate_limit.blocked_until.tzinfo is None else rate_limit.blocked_until
+            blocked_until_utc = (
+                rate_limit.blocked_until.replace(tzinfo=timezone.utc)
+                if rate_limit.blocked_until.tzinfo is None
+                else rate_limit.blocked_until
+            )
             if now < blocked_until_utc:
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -85,7 +89,11 @@ class RateLimiter:
                 )
 
         # Check if we need to reset the window
-        window_start_utc = rate_limit.window_start.replace(tzinfo=timezone.utc) if rate_limit.window_start.tzinfo is None else rate_limit.window_start
+        window_start_utc = (
+            rate_limit.window_start.replace(tzinfo=timezone.utc)
+            if rate_limit.window_start.tzinfo is None
+            else rate_limit.window_start
+        )
         if window_start_utc < window_start:
             # Reset window
             rate_limit.window_start = now

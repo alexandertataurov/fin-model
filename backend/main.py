@@ -12,6 +12,7 @@ from datetime import datetime
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.api.v1.endpoints.websocket import router as websocket_router
+
 # Temporarily disable monitoring middleware
 # from app.middleware.monitoring_middleware import MonitoringMiddleware
 
@@ -22,21 +23,18 @@ logger = logging.getLogger(__name__)
 try:
     from fastapi_cache2 import FastAPICache
     from fastapi_cache2.backends.inmemory import InMemoryBackend
+
     CACHE_AVAILABLE = True
     logger.info("fastapi_cache2 is available and will be used for caching")
 except ImportError as e:
     CACHE_AVAILABLE = False
-    logger.info(
-        f"fastapi_cache2 not available: {e}. Using Redis caching instead."
-    )
+    logger.info(f"fastapi_cache2 not available: {e}. Using Redis caching instead.")
     # Create dummy classes for fallback
 
     class FastAPICache:
         @staticmethod
         def init(*args, **kwargs):
-            logger.warning(
-                "Cache initialization skipped - fastapi_cache not available"
-            )
+            logger.warning("Cache initialization skipped - fastapi_cache not available")
 
     class InMemoryBackend:
         pass
@@ -66,9 +64,7 @@ app = FastAPI(
 
 # Set up CORS with explicit origins
 cors_origins = settings.get_cors_origins()
-logger.info(
-    "CORS origins configured: %s", cors_origins
-)
+logger.info("CORS origins configured: %s", cors_origins)
 
 app.add_middleware(
     CORSMiddleware,
@@ -101,14 +97,14 @@ app.add_middleware(
 def make_json_serializable(obj):
     """Recursively convert non-JSON-serializable objects to strings."""
     if isinstance(obj, bytes):
-        return obj.decode('utf-8', errors='ignore')
+        return obj.decode("utf-8", errors="ignore")
     elif isinstance(obj, dict):
         return {k: make_json_serializable(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [make_json_serializable(item) for item in obj]
     elif isinstance(obj, Exception):
         return str(obj)
-    elif hasattr(obj, '__dict__'):
+    elif hasattr(obj, "__dict__"):
         # For objects with attributes, convert to string
         return str(obj)
     else:
@@ -127,6 +123,7 @@ async def validation_exception_handler(request, exc):
         content={"detail": errors},
     )
 
+
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
@@ -141,9 +138,7 @@ async def root():
             "message": "FinVision API",
             "version": "1.0.0",
             "status": "running",
-            "cache_status": (
-                "enabled" if CACHE_AVAILABLE else "disabled"
-            ),
+            "cache_status": ("enabled" if CACHE_AVAILABLE else "disabled"),
         }
     )
 
@@ -156,7 +151,7 @@ async def health_check():
             "status": "healthy",
             "timestamp": datetime.utcnow().isoformat(),
             "version": "1.0.0",
-            "cache_status": "enabled" if CACHE_AVAILABLE else "disabled"
+            "cache_status": "enabled" if CACHE_AVAILABLE else "disabled",
         }
     )
 
@@ -181,14 +176,12 @@ async def cors_preflight(full_path: str):
         content={"message": "CORS preflight successful"},
         headers={
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": (
-                "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-            ),
+            "Access-Control-Allow-Methods": ("GET, POST, PUT, DELETE, OPTIONS, PATCH"),
             "Access-Control-Allow-Headers": (
                 "Content-Type, Authorization, X-Requested-With"
             ),
             "Access-Control-Max-Age": "86400",
-        }
+        },
     )
 
 

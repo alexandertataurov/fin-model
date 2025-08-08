@@ -7,10 +7,13 @@ from .base import Base
 
 class MFAToken(Base):
     """Multi-Factor Authentication tokens for users."""
+
     __tablename__ = "mfa_tokens"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     secret_key = Column(String(255), nullable=False)  # TOTP secret
     backup_codes = Column(JSON)  # Recovery codes array
     is_verified = Column(Boolean, default=False, nullable=False)
@@ -26,10 +29,13 @@ class MFAToken(Base):
 
 class OAuthAccount(Base):
     """OAuth provider accounts linked to users."""
+
     __tablename__ = "oauth_accounts"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     provider = Column(String(50), nullable=False)  # google, microsoft, etc.
     provider_id = Column(String(255), nullable=False)  # Provider's user ID
     email = Column(String(255), nullable=True)  # Email from provider
@@ -39,7 +45,9 @@ class OAuthAccount(Base):
     refresh_token = Column(String(500), nullable=True)  # For token refresh
     token_expires_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
 
     # Relationships
     user = relationship("User", back_populates="oauth_accounts")
@@ -50,11 +58,16 @@ class OAuthAccount(Base):
 
 class WebAuthnCredential(Base):
     """WebAuthn credentials for passwordless authentication."""
+
     __tablename__ = "webauthn_credentials"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    credential_id = Column(String(500), nullable=False, unique=True)  # Base64-encoded credential ID
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    credential_id = Column(
+        String(500), nullable=False, unique=True
+    )  # Base64-encoded credential ID
     public_key = Column(String(1000), nullable=False)  # Base64-encoded public key
     sign_count = Column(Integer, default=0, nullable=False)
     device_name = Column(String(255), nullable=True)  # User-friendly device name
@@ -71,10 +84,13 @@ class WebAuthnCredential(Base):
 
 class MFAChallenge(Base):
     """Temporary storage for MFA challenges during authentication."""
+
     __tablename__ = "mfa_challenges"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     challenge_type = Column(String(50), nullable=False)  # totp, webauthn
     challenge_data = Column(JSON, nullable=True)  # WebAuthn challenge data
     expires_at = Column(DateTime, nullable=False)
