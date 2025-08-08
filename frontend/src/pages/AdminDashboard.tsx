@@ -1202,61 +1202,132 @@ const AdminDashboard: React.FC = () => {
           </TabsContent>
           {/* Security Tab */}
           <TabsContent value="security" className="space-y-4">
-            {securityAudit && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security Audit</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">
-                        {securityAudit.failed_logins_24h}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Failed logins (24h)
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">
-                        {securityAudit.rate_limit_violations}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Rate limit violations
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">
-                        {securityAudit.password_policy_violations}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Policy violations
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">
-                        {securityAudit.suspicious_activities.length}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Suspicious activities
+            {securityAudit ? (
+              <>
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Security Overview</CardTitle>
+                      <div className="space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              setRefreshing(true);
+                              const data =
+                                await AdminApiService.getSecurityAudit();
+                              setSecurityAudit(data);
+                              toast.success('Security audit refreshed');
+                            } catch {
+                              toast.error('Failed to refresh security audit');
+                            } finally {
+                              setRefreshing(false);
+                            }
+                          }}
+                        >
+                          Refresh
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleClearRateLimits}
+                          disabled={maintenanceLoading}
+                        >
+                          Clear Rate Limits
+                        </Button>
                       </div>
                     </div>
-                  </div>
-
-                  {securityAudit.recommendations.length > 0 && (
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        <div className="space-y-1">
-                          {securityAudit.recommendations.map((rec, idx) => (
-                            <div key={idx}>{rec}</div>
-                          ))}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {securityAudit.failed_logins_24h}
                         </div>
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </CardContent>
-              </Card>
+                        <div className="text-sm text-muted-foreground">
+                          Failed logins (24h)
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {securityAudit.rate_limit_violations}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Rate limit violations
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {securityAudit.password_policy_violations}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Policy violations
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {securityAudit.suspicious_activities.length}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Suspicious activities
+                        </div>
+                      </div>
+                    </div>
+
+                    {securityAudit.recommendations.length > 0 && (
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          <div className="space-y-1">
+                            {securityAudit.recommendations.map((rec, idx) => (
+                              <div key={idx}>{rec}</div>
+                            ))}
+                          </div>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Suspicious Activities</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {securityAudit.suspicious_activities.length > 0 ? (
+                      <div className="space-y-2 text-sm">
+                        {securityAudit.suspicious_activities.map(
+                          (act: any, idx: number) => (
+                            <div key={idx} className="p-3 border rounded">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">
+                                  {act.type || 'Event'}
+                                </span>
+                                <span className="text-muted-foreground">
+                                  {act.timestamp
+                                    ? new Date(act.timestamp).toLocaleString()
+                                    : ''}
+                                </span>
+                              </div>
+                              <div className="text-muted-foreground">
+                                {act.details || act.message || ''}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-muted-foreground">
+                        No suspicious activities detected.
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <div className="text-muted-foreground">
+                No security data available.
+              </div>
             )}
           </TabsContent>
 

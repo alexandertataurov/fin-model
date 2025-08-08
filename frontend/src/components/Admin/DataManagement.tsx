@@ -13,19 +13,24 @@ import {
   HardDrive,
   Clock,
   Users,
-  Activity
+  Activity,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/design-system/components/Table';
 import {
   Dialog,
@@ -36,7 +41,12 @@ import {
   DialogTitle,
 } from '@/design-system/components/Dialog';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/components/Tabs';
 import AdminApiService from '@/services/adminApi';
 import { toast } from 'sonner';
 
@@ -59,7 +69,9 @@ const DataManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
   const [tableData, setTableData] = useState<TableInfo[]>([]);
-  const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(null);
+  const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(
+    null
+  );
   const [showCleanupDialog, setShowCleanupDialog] = useState(false);
   const [cleanupInProgress, setCleanupInProgress] = useState(false);
   const [databaseHealth, setDatabaseHealth] = useState<any>(null);
@@ -69,29 +81,29 @@ const DataManagement: React.FC = () => {
   const loadDataInfo = async () => {
     try {
       setLoading(true);
-      
+
       const [tables, health, performance, integrity] = await Promise.all([
         AdminApiService.getTableInformation(),
         AdminApiService.getDatabaseHealth(),
         AdminApiService.getDatabasePerformance(10),
-        AdminApiService.checkDataIntegrity()
+        AdminApiService.checkDataIntegrity(),
       ]);
-      
+
       setTableInfo(tables);
       setDatabaseHealth(health);
       setPerformanceData(performance);
-      
+
       // Convert integrity data to TableInfo format
       const tableDataFromIntegrity: TableInfo[] = integrity.map(item => ({
         name: item.table_name,
         record_count: item.record_count,
         size_mb: tables[item.table_name]?.size_mb || 0,
         last_updated: item.last_updated,
-        integrity_status: item.integrity_issues.length > 0 ? 'warning' : 'healthy'
+        integrity_status:
+          item.integrity_issues.length > 0 ? 'warning' : 'healthy',
       }));
-      
+
       setTableData(tableDataFromIntegrity);
-      
     } catch (error) {
       console.error('Failed to load data info:', error);
       toast.error('Failed to load data management information');
@@ -108,7 +120,7 @@ const DataManagement: React.FC = () => {
         orphaned_files: result.orphaned_files,
         failed_files: result.failed_files,
         total_size_mb: (result.orphaned_files + result.failed_files) * 2.5, // Estimated
-        estimated_cleanup_time: '2-5 minutes'
+        estimated_cleanup_time: '2-5 minutes',
       });
       setShowCleanupDialog(true);
     } catch (error) {
@@ -150,7 +162,11 @@ const DataManagement: React.FC = () => {
   const getTableStatusBadge = (status: string) => {
     switch (status) {
       case 'healthy':
-        return <Badge variant="default" className="bg-green-100 text-green-800">Healthy</Badge>;
+        return (
+          <Badge variant="default" className="bg-green-100 text-green-800">
+            Healthy
+          </Badge>
+        );
       case 'warning':
         return <Badge variant="secondary">Warning</Badge>;
       case 'error':
@@ -172,7 +188,6 @@ const DataManagement: React.FC = () => {
   const formatNumber = (num: number): string => {
     return num.toLocaleString();
   };
-
 
   useEffect(() => {
     loadDataInfo();
@@ -207,7 +222,7 @@ const DataManagement: React.FC = () => {
             Manage database tables, file cleanup, and data integrity
           </p>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <Button size="sm" variant="outline" onClick={previewCleanup}>
             <Archive className="h-4 w-4 mr-2" />
@@ -232,7 +247,8 @@ const DataManagement: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold">{tableData.length}</div>
             <div className="text-xs text-muted-foreground">
-              {tableData.filter(t => t.integrity_status === 'healthy').length} healthy
+              {tableData.filter(t => t.integrity_status === 'healthy').length}{' '}
+              healthy
             </div>
           </CardContent>
         </Card>
@@ -246,7 +262,9 @@ const DataManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatNumber(tableData.reduce((sum, t) => sum + t.record_count, 0))}
+              {formatNumber(
+                tableData.reduce((sum, t) => sum + t.record_count, 0)
+              )}
             </div>
             <div className="text-xs text-muted-foreground">
               Across all tables
@@ -265,9 +283,7 @@ const DataManagement: React.FC = () => {
             <div className="text-2xl font-bold">
               {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
             </div>
-            <div className="text-xs text-muted-foreground">
-              Database size
-            </div>
+            <div className="text-xs text-muted-foreground">Database size</div>
           </CardContent>
         </Card>
 
@@ -279,10 +295,34 @@ const DataManagement: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">98%</div>
-            <div className="text-xs text-muted-foreground">
-              Overall system health
-            </div>
+            {(() => {
+              const total = tableData.length || 0;
+              const healthy = tableData.filter(
+                t => t.integrity_status === 'healthy'
+              ).length;
+              const integrityPct =
+                total > 0 ? Math.round((healthy / total) * 100) : null;
+              const dbHealthy = databaseHealth?.status === 'healthy';
+              const score = dbHealthy ? 100 : integrityPct ?? 0;
+              return (
+                <>
+                  <div
+                    className={`text-2xl font-bold ${
+                      score >= 80
+                        ? 'text-green-600'
+                        : score >= 50
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                    }`}
+                  >
+                    {total === 0 && !dbHealthy ? 'N/A' : `${score}%`}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Overall system health
+                  </div>
+                </>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
@@ -315,34 +355,49 @@ const DataManagement: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tableData.map((table) => (
-                    <TableRow key={table.name}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center">
-                          <Database className="h-4 w-4 mr-2 text-muted-foreground" />
-                          {table.name}
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatNumber(table.record_count)}</TableCell>
-                      <TableCell>{formatFileSize(table.size_mb)}</TableCell>
-                      <TableCell className="text-sm">
-                        {new Date(table.last_updated).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        {getTableStatusBadge(table.integrity_status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-1">
-                          <Button size="sm" variant="outline">
-                            <BarChart3 className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
+                  {tableData.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center text-muted-foreground py-6"
+                      >
+                        No table information available.
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    tableData.map(table => (
+                      <TableRow key={table.name}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center">
+                            <Database className="h-4 w-4 mr-2 text-muted-foreground" />
+                            {table.name}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {formatNumber(table.record_count)}
+                        </TableCell>
+                        <TableCell>{formatFileSize(table.size_mb)}</TableCell>
+                        <TableCell className="text-sm">
+                          {table.last_updated
+                            ? new Date(table.last_updated).toLocaleDateString()
+                            : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {getTableStatusBadge(table.integrity_status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-1">
+                            <Button size="sm" variant="outline">
+                              <BarChart3 className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -365,31 +420,35 @@ const DataManagement: React.FC = () => {
                     <div className="text-2xl font-bold text-yellow-600">
                       {cleanupPreview?.orphaned_files || '0'}
                     </div>
-                    <div className="text-xs text-muted-foreground">Orphaned files</div>
+                    <div className="text-xs text-muted-foreground">
+                      Orphaned files
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-red-600">
                       {cleanupPreview?.failed_files || '0'}
                     </div>
-                    <div className="text-xs text-muted-foreground">Failed uploads</div>
+                    <div className="text-xs text-muted-foreground">
+                      Failed uploads
+                    </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Button 
-                    className="w-full" 
-                    variant="outline" 
+                  <Button
+                    className="w-full"
+                    variant="outline"
                     onClick={previewCleanup}
                   >
                     <Archive className="h-4 w-4 mr-2" />
                     Preview Cleanup
                   </Button>
-                  
+
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription className="text-xs">
-                      Cleanup will permanently remove files that cannot be recovered.
-                      Always preview before executing.
+                      Cleanup will permanently remove files that cannot be
+                      recovered. Always preview before executing.
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -405,17 +464,17 @@ const DataManagement: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     variant="outline"
                     onClick={() => handleDatabaseCleanup(true)}
                   >
                     <Database className="h-4 w-4 mr-2" />
                     Preview Database Cleanup
                   </Button>
-                  
-                  <Button 
-                    className="w-full" 
+
+                  <Button
+                    className="w-full"
                     variant="outline"
                     onClick={() => handleDatabaseCleanup(false)}
                   >
@@ -423,12 +482,12 @@ const DataManagement: React.FC = () => {
                     Run Database Cleanup
                   </Button>
                 </div>
-                
+
                 <Alert>
                   <CheckCircle className="h-4 w-4" />
                   <AlertDescription className="text-xs">
-                    Database cleanup removes stale records and optimizes queries.
-                    Safe to run regularly.
+                    Database cleanup removes stale records and optimizes
+                    queries. Safe to run regularly.
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -447,24 +506,59 @@ const DataManagement: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {databaseHealth?.performance_metrics?.avg_query_time || 'N/A'}
+                      {databaseHealth?.performance_metrics?.avg_query_time_ms !=
+                      null
+                        ? `${databaseHealth.performance_metrics.avg_query_time_ms} ms`
+                        : databaseHealth?.performance_metrics?.avg_query_time ||
+                          'N/A'}
                     </div>
-                    <div className="text-sm text-muted-foreground">Avg Query Time</div>
-                    <Progress value={25} className="mt-2" />
+                    <div className="text-sm text-muted-foreground">
+                      Avg Query Time
+                    </div>
+                    <Progress
+                      value={(() => {
+                        const ms =
+                          databaseHealth?.performance_metrics
+                            ?.avg_query_time_ms;
+                        if (typeof ms !== 'number') return 0;
+                        const pct = Math.min((ms / 1000) * 100, 100); // 1000ms threshold
+                        return pct;
+                      })()}
+                      className="mt-2"
+                    />
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {databaseHealth?.connection_pool?.active_connections || 0}
+                      {databaseHealth?.connection_pool?.active_connections ??
+                        'N/A'}
                     </div>
-                    <div className="text-sm text-muted-foreground">Active Connections</div>
-                    <Progress value={46} className="mt-2" />
+                    <div className="text-sm text-muted-foreground">
+                      Active Connections
+                    </div>
+                    <Progress
+                      value={(() => {
+                        const active =
+                          databaseHealth?.connection_pool?.active_connections;
+                        const max =
+                          databaseHealth?.connection_pool?.max_connections ||
+                          100;
+                        if (typeof active !== 'number') return 0;
+                        return Math.min((active / max) * 100, 100);
+                      })()}
+                      className="mt-2"
+                    />
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
                       {databaseHealth?.status === 'healthy' ? '100%' : 'N/A'}
                     </div>
-                    <div className="text-sm text-muted-foreground">Database Health</div>
-                    <Progress value={databaseHealth?.status === 'healthy' ? 100 : 0} className="mt-2" />
+                    <div className="text-sm text-muted-foreground">
+                      Database Health
+                    </div>
+                    <Progress
+                      value={databaseHealth?.status === 'healthy' ? 100 : 0}
+                      className="mt-2"
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -475,11 +569,33 @@ const DataManagement: React.FC = () => {
                 <CardTitle>Slow Query Analysis</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center text-muted-foreground py-8">
-                  <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No slow queries detected in the last 24 hours</p>
-                  <p className="text-xs">Queries slower than 1000ms are flagged</p>
-                </div>
+                {performanceData && performanceData.length > 0 ? (
+                  <div className="space-y-2 text-sm">
+                    {performanceData.map((item, idx) => (
+                      <div key={idx} className="p-3 border rounded">
+                        <div className="font-mono text-xs break-all mb-1">
+                          {item.query || item.sql || 'Query'}
+                        </div>
+                        <div className="flex gap-4">
+                          <span className="text-muted-foreground">
+                            avg: {item.avg_time_ms ?? item.avg_time ?? 'N/A'}
+                          </span>
+                          <span className="text-muted-foreground">
+                            calls: {item.calls ?? item.count ?? 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No slow queries detected in the selected window</p>
+                    <p className="text-xs">
+                      Queries slower than 1000ms are flagged
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -497,23 +613,29 @@ const DataManagement: React.FC = () => {
                   <div className="flex items-center justify-between p-3 border rounded">
                     <div>
                       <div className="font-medium">Daily Cleanup</div>
-                      <div className="text-xs text-muted-foreground">Remove temp files</div>
+                      <div className="text-xs text-muted-foreground">
+                        Remove temp files
+                      </div>
                     </div>
                     <Badge variant="default">Enabled</Badge>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 border rounded">
                     <div>
                       <div className="font-medium">Weekly Optimization</div>
-                      <div className="text-xs text-muted-foreground">Database vacuum</div>
+                      <div className="text-xs text-muted-foreground">
+                        Database vacuum
+                      </div>
                     </div>
                     <Badge variant="default">Enabled</Badge>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 border rounded">
                     <div>
                       <div className="font-medium">Monthly Archive</div>
-                      <div className="text-xs text-muted-foreground">Archive old records</div>
+                      <div className="text-xs text-muted-foreground">
+                        Archive old records
+                      </div>
                     </div>
                     <Badge variant="secondary">Disabled</Badge>
                   </div>
@@ -530,17 +652,17 @@ const DataManagement: React.FC = () => {
                   <Upload className="h-4 w-4 mr-2" />
                   Backup Database
                 </Button>
-                
+
                 <Button className="w-full" variant="outline">
                   <Download className="h-4 w-4 mr-2" />
                   Export Data
                 </Button>
-                
+
                 <Button className="w-full" variant="outline">
                   <BarChart3 className="h-4 w-4 mr-2" />
                   Generate Report
                 </Button>
-                
+
                 <Button className="w-full" variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Rebuild Indexes
@@ -560,7 +682,7 @@ const DataManagement: React.FC = () => {
               Review the files that will be cleaned up before proceeding.
             </DialogDescription>
           </DialogHeader>
-          
+
           {cleanupPreview && (
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
@@ -568,16 +690,20 @@ const DataManagement: React.FC = () => {
                   <div className="text-2xl font-bold text-yellow-600">
                     {cleanupPreview.orphaned_files}
                   </div>
-                  <div className="text-sm text-muted-foreground">Orphaned files</div>
+                  <div className="text-sm text-muted-foreground">
+                    Orphaned files
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">
                     {cleanupPreview.failed_files}
                   </div>
-                  <div className="text-sm text-muted-foreground">Failed uploads</div>
+                  <div className="text-sm text-muted-foreground">
+                    Failed uploads
+                  </div>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Estimated space saved:</span>
@@ -587,29 +713,37 @@ const DataManagement: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Estimated time:</span>
-                  <span className="font-medium">{cleanupPreview.estimated_cleanup_time}</span>
+                  <span className="font-medium">
+                    {cleanupPreview.estimated_cleanup_time}
+                  </span>
                 </div>
               </div>
-              
+
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  This operation cannot be undone. Files will be permanently deleted.
+                  This operation cannot be undone. Files will be permanently
+                  deleted.
                 </AlertDescription>
               </Alert>
             </div>
           )}
-          
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCleanupDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCleanupDialog(false)}
+            >
               Cancel
             </Button>
-            <Button 
-              onClick={executeCleanup} 
+            <Button
+              onClick={executeCleanup}
               disabled={cleanupInProgress}
               className="bg-red-600 hover:bg-red-700"
             >
-              {cleanupInProgress && <RefreshCw className="h-4 w-4 mr-2 animate-spin" />}
+              {cleanupInProgress && (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              )}
               Execute Cleanup
             </Button>
           </DialogFooter>
