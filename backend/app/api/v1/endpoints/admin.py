@@ -624,7 +624,7 @@ async def get_system_statistics(
         )
 
 
-@router.get("/users/activity")
+@router.get("/users/activity-list")
 async def get_user_activity(
     request: Request,
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),

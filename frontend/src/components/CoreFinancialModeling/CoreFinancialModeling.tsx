@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -6,7 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/design-system/components/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/components/Tabs';
 import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import {
@@ -33,6 +38,8 @@ import {
   PARAMETER_CATEGORIES,
   VALUATION_SECTIONS,
 } from './shared';
+import leanFinancialApi from '@/services/leanFinancialApi';
+import { toast } from 'sonner';
 
 // Consolidated interface for all component props
 interface CoreFinancialModelingProps {
@@ -52,6 +59,13 @@ export function CoreFinancialModeling({
 }: CoreFinancialModelingProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
   const [modelStatus, setModelStatus] = useState<ModelStatus>('idle');
+  const [isLoading, setIsLoading] = useState(false);
+  const [templates, setTemplates] = useState<Record<
+    string,
+    Record<string, number>
+  > | null>(null);
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>('');
+  const [calcResult, setCalcResult] = useState<any | null>(null);
 
   // Consolidated handlers
   const handleFileUpload = (file: File) => {
@@ -96,6 +110,45 @@ export function CoreFinancialModeling({
     { name: 'Optimistic', status: 'Inactive' as const },
     { name: 'Pessimistic', status: 'Inactive' as const },
   ];
+
+  useEffect(() => {
+    // Load templates for quick start
+    const loadTemplates = async () => {
+      try {
+        const res = await leanFinancialApi.getParameterTemplates();
+        setTemplates(res.data || {});
+        const firstKey = Object.keys(res.data || {})[0];
+        if (firstKey) setSelectedTemplateKey(firstKey);
+      } catch (e) {
+        // silent
+      }
+    };
+    loadTemplates();
+  }, []);
+
+  const selectedTemplateParams = useMemo(() => {
+    if (!templates || !selectedTemplateKey) return {} as Record<string, number>;
+    return templates[selectedTemplateKey] || {};
+  }, [templates, selectedTemplateKey]);
+
+  const runComprehensiveCalc = async () => {
+    try {
+      setIsLoading(true);
+      setModelStatus('processing');
+      const res = await leanFinancialApi.calculateComprehensive(
+        selectedTemplateParams
+      );
+      setCalcResult(res.data);
+      setModelStatus('complete');
+      toast.success('Comprehensive model calculated');
+      onValuationChange?.(res.data?.dcf_valuation);
+    } catch (err) {
+      setModelStatus('idle');
+      toast.error('Calculation failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -190,6 +243,39 @@ export function CoreFinancialModeling({
                 label="DCF Valuation"
                 onClick={() => handleTabChange('valuation')}
               />
+              <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Template:
+                  </span>
+                  <select
+                    value={selectedTemplateKey}
+                    onChange={e => setSelectedTemplateKey(e.target.value)}
+                    className="border rounded px-2 py-1 text-sm bg-background"
+                  >
+                    {templates && Object.keys(templates).length > 0 ? (
+                      Object.keys(templates).map(key => (
+                        <option key={key} value={key}>
+                          {key}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">Loading...</option>
+                    )}
+                  </select>
+                </div>
+                <Button onClick={runComprehensiveCalc} disabled={isLoading}>
+                  {isLoading ? 'Calculating…' : 'Run Comprehensive Calculation'}
+                </Button>
+                {calcResult && (
+                  <Button
+                    variant="outline"
+                    onClick={() => onExportResults?.(calcResult)}
+                  >
+                    Export Results
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -316,6 +402,32 @@ export function CoreFinancialModeling({
               icon={PieChart}
               actionLabel="View Asset Lifecycle"
             />
+            {calcResult && (
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Latest Calculation Summary</CardTitle>
+                  <CardDescription>
+                    Results from the lean financial engine
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <h4 className="font-semibold mb-2">P&L</h4>
+                      <pre className="text-xs bg-muted p-3 rounded overflow-x-auto">
+                        {JSON.stringify(calcResult.profit_loss, null, 2)}
+                      </pre>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">DCF</h4>
+                      <pre className="text-xs bg-muted p-3 rounded overflow-x-auto">
+                        {JSON.stringify(calcResult.dcf_valuation, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </TabsContent>
       </Tabs>

@@ -134,7 +134,8 @@ export class AdminApiService {
   ): Promise<UserActivity[]> {
     const params: Record<string, unknown> = { limit };
     if (activeOnly) params.active_only = true;
-    const response = await api.get('/admin/users/activity', { params });
+    // Use new robust endpoint path to avoid legacy validation conflicts
+    const response = await api.get('/admin/users/activity-list', { params });
     return response.data;
   }
 
