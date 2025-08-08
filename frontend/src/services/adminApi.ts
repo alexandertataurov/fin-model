@@ -132,9 +132,9 @@ export class AdminApiService {
     limit: number = 50,
     activeOnly: boolean = false
   ): Promise<UserActivity[]> {
-    const response = await api.get('/admin/users/activity', {
-      params: { limit, active_only: activeOnly },
-    });
+    const params: Record<string, unknown> = { limit };
+    if (activeOnly) params.active_only = true;
+    const response = await api.get('/admin/users/activity', { params });
     return response.data;
   }
 

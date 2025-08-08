@@ -25,4 +25,6 @@ export default mergeConfig({
     'process.env.NODE_ENV': '"development"',
     global: 'globalThis',
   },
+  // Avoid duplicate React refresh runtime by ensuring only one React plugin instance
+  plugins: [],
 });
