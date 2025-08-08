@@ -192,6 +192,11 @@ export const authApi = {
     return response.data;
   },
 
+  async updateCurrentUser(userData: Partial<User>): Promise<User> {
+    const response = await api.put('/auth/me', userData);
+    return response.data;
+  },
+
   async getUserPermissions(): Promise<UserPermissions> {
     const response = await api.get('/admin/permissions');
     return response.data;

@@ -7,7 +7,7 @@ export interface MFASetupResponse {
 }
 
 export interface MFAVerifySetupRequest {
-  totp_code: string;
+  token: string;
 }
 
 export interface MFAVerifyRequest {
@@ -17,12 +17,13 @@ export interface MFAVerifyRequest {
 
 export interface MFAStatusResponse {
   enabled: boolean;
-  backup_codes_remaining: number;
-  setup_date?: string;
+  backup_codes_count: number;
+  last_used?: string;
 }
 
 export interface MFABackupCodesResponse {
   backup_codes: string[];
+  remaining_count: number;
 }
 
 export interface MFADisableRequest {
@@ -42,7 +43,9 @@ export const mfaApi = {
   /**
    * Verify and enable MFA with TOTP code
    */
-  async verifySetup(data: MFAVerifySetupRequest): Promise<{ success: boolean; backup_codes: string[] }> {
+  async verifySetup(
+    data: MFAVerifySetupRequest
+  ): Promise<{ message?: string; backup_codes: string[] }> {
     const response = await apiClient.post('/mfa/verify-setup', data);
     return response.data;
   },

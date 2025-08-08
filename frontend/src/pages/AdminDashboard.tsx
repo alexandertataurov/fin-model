@@ -23,22 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/compon
 import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/design-system/components/Table';
-import { 
-  Select,
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/design-system/components/Select';
-import { Checkbox } from '@/design-system/components/Checkbox';
 import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,6 +34,9 @@ import AdminApiService, {
   SecurityAudit,
   UserWithRoles
 } from '@/services/adminApi';
+import UserManagement from '@/components/Admin/UserManagement';
+import SystemMonitoring from '@/components/Admin/SystemMonitoring';
+import DataManagement from '@/components/Admin/DataManagement';
 import { toast } from 'sonner';
 
 const AdminDashboard: React.FC = () => {
@@ -64,8 +51,6 @@ const AdminDashboard: React.FC = () => {
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [dataIntegrity, setDataIntegrity] = useState<DataIntegrityCheck[]>([]);
   const [securityAudit, setSecurityAudit] = useState<SecurityAudit | null>(null);
-  const [users, setUsers] = useState<UserWithRoles[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   // Load admin data
@@ -74,13 +59,12 @@ const AdminDashboard: React.FC = () => {
       setLoading(true);
       
       // Load all admin data in parallel
-      const [stats, activity, metrics, integrity, audit, userList] = await Promise.all([
+      const [stats, activity, metrics, integrity, audit] = await Promise.all([
         AdminApiService.getSystemStats(),
         AdminApiService.getUserActivity(20),
         AdminApiService.getSystemMetrics(),
         AdminApiService.checkDataIntegrity(),
-        AdminApiService.getSecurityAudit(),
-        AdminApiService.listUsers(0, 50)
+        AdminApiService.getSecurityAudit()
       ]);
       
       setSystemStats(stats);
@@ -88,7 +72,6 @@ const AdminDashboard: React.FC = () => {
       setSystemMetrics(metrics);
       setDataIntegrity(integrity);
       setSecurityAudit(audit);
-      setUsers(userList);
       
     } catch (error) {
       console.error('Failed to load admin data:', error);
@@ -104,45 +87,6 @@ const AdminDashboard: React.FC = () => {
     await loadAdminData();
     setRefreshing(false);
     toast.success('Admin dashboard refreshed');
-  };
-
-  // Bulk user actions
-  const handleBulkAction = async (action: 'activate' | 'deactivate' | 'verify' | 'send_reminder') => {
-    if (selectedUsers.length === 0) {
-      toast.error('No users selected');
-      return;
-    }
-
-    try {
-      const result = await AdminApiService.bulkUserAction(selectedUsers, action);
-      toast.success(result.message);
-      setSelectedUsers([]);
-      await loadAdminData(); // Refresh data
-    } catch (error) {
-      toast.error(`Failed to ${action} users`);
-    }
-  };
-
-  // Clean up functions
-  const handleCleanupFiles = async (dryRun: boolean = true) => {
-    try {
-      const result = await AdminApiService.cleanupFiles(dryRun);
-      toast.success(result.message);
-      if (!dryRun) {
-        await loadAdminData(); // Refresh data after actual cleanup
-      }
-    } catch (error) {
-      toast.error('Failed to cleanup files');
-    }
-  };
-
-  const handleClearRateLimits = async () => {
-    try {
-      const result = await AdminApiService.clearRateLimits();
-      toast.success(`${result.message} (${result.cleared_records} records cleared)`);
-    } catch (error) {
-      toast.error('Failed to clear rate limits');
-    }
   };
 
   // Format percentage for display
@@ -372,214 +316,18 @@ const AdminDashboard: React.FC = () => {
           </TabsContent>
 
           {/* Users Tab */}
-          <TabsContent value="users" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">User Management</h2>
-              <div className="flex items-center space-x-2">
-                <Button 
-                  size="sm" 
-                  onClick={() => handleBulkAction('activate')}
-                  disabled={selectedUsers.length === 0}
-                >
-                  <UserCheck className="h-4 w-4 mr-1" />
-                  Activate
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => handleBulkAction('deactivate')}
-                  disabled={selectedUsers.length === 0}
-                >
-                  <UserX className="h-4 w-4 mr-1" />
-                  Deactivate
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => handleBulkAction('verify')}
-                  disabled={selectedUsers.length === 0}
-                >
-                  <Mail className="h-4 w-4 mr-1" />
-                  Verify
-                </Button>
-              </div>
-            </div>
-
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={selectedUsers.length === users.length}
-                          onCheckedChange={(checked) => {
-                            setSelectedUsers(checked ? users.map(u => u.id) : []);
-                          }}
-                        />
-                      </TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Roles</TableHead>
-                      <TableHead>Last Login</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <Checkbox
-                            checked={selectedUsers.includes(user.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedUsers([...selectedUsers, user.id]);
-                              } else {
-                                setSelectedUsers(selectedUsers.filter(id => id !== user.id));
-                              }
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{user.username}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {user.first_name} {user.last_name}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{getStatusBadge(user.is_active, user.is_verified)}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {user.roles.map(role => (
-                              <Badge key={role} variant="outline" className="text-xs">
-                                {role}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {user.last_login_at ? 
-                            new Date(user.last_login_at).toLocaleDateString() : 
-                            'Never'
-                          }
-                        </TableCell>
-                        <TableCell>
-                          <Button size="sm" variant="outline">Edit</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+          <TabsContent value="users">
+            <UserManagement onUserUpdated={loadAdminData} />
           </TabsContent>
 
           {/* System Tab */}
-          <TabsContent value="system" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {systemMetrics && (
-                <>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Cpu className="h-4 w-4 mr-2" />
-                        CPU & Memory
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span>CPU Usage</span>
-                          <span>{formatPercentage(systemMetrics.cpu_usage)}</span>
-                        </div>
-                        <Progress value={systemMetrics.cpu_usage || 0} />
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span>Memory Usage</span>
-                          <span>{formatPercentage(systemMetrics.memory_usage)}</span>
-                        </div>
-                        <Progress value={systemMetrics.memory_usage || 0} />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <HardDrive className="h-4 w-4 mr-2" />
-                        Storage & Network
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span>Disk Usage</span>
-                          <span>{formatPercentage(systemMetrics.disk_usage)}</span>
-                        </div>
-                        <Progress value={systemMetrics.disk_usage || 0} />
-                      </div>
-                      <div className="text-sm">
-                        <div className="flex justify-between">
-                          <span>Active DB Connections</span>
-                          <span>{systemMetrics.active_connections}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
-              )}
-            </div>
+          <TabsContent value="system">
+            <SystemMonitoring />
           </TabsContent>
 
           {/* Database Tab */}
-          <TabsContent value="database" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Data Integrity Checks</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {dataIntegrity.map((check) => (
-                    <div key={check.table_name} className="border rounded p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium">{check.table_name}</h4>
-                        <Badge variant={check.integrity_issues.length > 0 ? "destructive" : "default"}>
-                          {check.record_count} records
-                        </Badge>
-                      </div>
-                      
-                      {check.integrity_issues.length > 0 && (
-                        <Alert className="mb-2">
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>
-                            <div className="space-y-1">
-                              {check.integrity_issues.map((issue, idx) => (
-                                <div key={idx}>{issue}</div>
-                              ))}
-                            </div>
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                      
-                      {check.recommendations.length > 0 && (
-                        <div className="text-sm text-muted-foreground">
-                          <strong>Recommendations:</strong>
-                          <ul className="list-disc list-inside mt-1">
-                            {check.recommendations.map((rec, idx) => (
-                              <li key={idx}>{rec}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="database">
+            <DataManagement />
           </TabsContent>
 
           {/* Security Tab */}
@@ -638,11 +386,11 @@ const AdminDashboard: React.FC = () => {
                     Clean up orphaned and failed files to free up storage space.
                   </p>
                   <div className="space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => handleCleanupFiles(true)}>
+                    <Button size="sm" variant="outline">
                       <Download className="h-4 w-4 mr-1" />
                       Preview Cleanup
                     </Button>
-                    <Button size="sm" onClick={() => handleCleanupFiles(false)}>
+                    <Button size="sm">
                       <Trash2 className="h-4 w-4 mr-1" />
                       Run Cleanup
                     </Button>
@@ -658,7 +406,7 @@ const AdminDashboard: React.FC = () => {
                   <p className="text-sm text-muted-foreground">
                     Clear rate limiting records to restore access for blocked users.
                   </p>
-                  <Button size="sm" onClick={handleClearRateLimits}>
+                  <Button size="sm">
                     <RefreshCw className="h-4 w-4 mr-1" />
                     Clear Rate Limits
                   </Button>

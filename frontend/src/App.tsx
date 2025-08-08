@@ -22,6 +22,7 @@ import DCFValuation from '@/pages/DCFValuation';
 import AssetLifecycle from '@/pages/AssetLifecycle';
 import CashFlowLifecycle from '@/pages/CashFlowLifecycle';
 import NotFound from '@/pages/NotFound';
+import Settings from '@/pages/Settings';
 import './styles/globals.css';
 
 // Component to conditionally render NotificationProvider with autoConnect
@@ -71,6 +72,7 @@ function App() {
                   />
                   <Route path="scenarios" element={<Scenarios />} />
                   <Route path="parameters" element={<Parameters />} />
+                  <Route path="settings" element={<Settings />} />
                   <Route path="dcf-valuation" element={<DCFValuation />} />
                   <Route path="asset-lifecycle" element={<AssetLifecycle />} />
                   <Route

@@ -1,14 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../components/Button';
-import { 
-  Download, 
-  Plus, 
-  Trash2, 
-  Settings, 
+import {
+  Download,
+  Plus,
+  Trash2,
+  Settings,
   Eye,
   Edit,
   Save,
-  X
 } from 'lucide-react';
 
 const meta: Meta<typeof Button> = {
@@ -18,19 +17,30 @@ const meta: Meta<typeof Button> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'A versatile button component with multiple variants, sizes, and states.',
+        component:
+          'A versatile button component with multiple variants, sizes, and states.',
       },
     },
   },
   argTypes: {
     variant: {
       control: { type: 'select' },
-      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
+      options: [
+        'default',
+        'destructive',
+        'outline',
+        'secondary',
+        'ghost',
+        'link',
+        'success',
+        'warning',
+        'info',
+      ],
       description: 'The visual style variant of the button',
     },
     size: {
       control: { type: 'select' },
-      options: ['default', 'sm', 'lg', 'icon'],
+      options: ['xs', 'sm', 'md', 'lg', 'xl', 'icon'],
       description: 'The size of the button',
     },
     disabled: {
@@ -122,13 +132,8 @@ export const Disabled: Story = {
 
 export const Loading: Story = {
   args: {
-    disabled: true,
-    children: (
-      <>
-        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        Loading...
-      </>
-    ),
+    loading: true,
+    children: 'Loading…',
   },
 };
 
@@ -196,6 +201,9 @@ export const AllVariants: Story = {
         <Button variant="default">Default</Button>
         <Button variant="secondary">Secondary</Button>
         <Button variant="destructive">Destructive</Button>
+        <Button variant="success">Success</Button>
+        <Button variant="warning">Warning</Button>
+        <Button variant="info">Info</Button>
       </div>
       <div className="space-y-2">
         <Button variant="outline">Outline</Button>
@@ -210,9 +218,11 @@ export const AllVariants: Story = {
 export const AllSizes: Story = {
   render: () => (
     <div className="flex items-center gap-2">
-      <Button size="sm">Small</Button>
-      <Button size="default">Default</Button>
-      <Button size="lg">Large</Button>
+      <Button size="xs">XS</Button>
+      <Button size="sm">SM</Button>
+      <Button size="md">MD</Button>
+      <Button size="lg">LG</Button>
+      <Button size="xl">XL</Button>
       <Button size="icon">
         <Settings className="h-4 w-4" />
       </Button>

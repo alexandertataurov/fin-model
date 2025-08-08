@@ -124,7 +124,9 @@
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" debug_token_validation.py)",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" test_final_auth.py)",
       "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" debug_websocket_token.py)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''✅ Backend application imports successfully'')\")",
+      "Bash(\"C:\\Python Dev Folder\\fin-model\\fin-model\\.venv\\Scripts\\python.exe\" -c \"from app.main import app; print(''Backend application imports successfully'')\")"
     ],
     "deny": []
   }

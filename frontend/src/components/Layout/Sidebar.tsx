@@ -125,6 +125,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
       path: '/parameters',
     },
     {
+      id: 'settings',
+      label: 'Settings',
+      icon: <Settings className="h-4 w-4" />,
+      path: '/settings',
+    },
+    {
       id: 'files',
       label: 'File Upload',
       icon: <Upload className="h-4 w-4" />,
