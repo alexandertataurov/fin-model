@@ -1,227 +1,50 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { resolve } from 'path';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
 const config: StorybookConfig = {
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
   stories: [
-    '../src/design-system/**/*.stories.@(js|jsx|ts|tsx|mdx)',
-    '../src/components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
-    // removed '../docs/**/*.stories...' to avoid warnings when no stories exist
+    '../src/design-system/stories/**/*.stories.@(ts|tsx)',
+    '../src/components/**/*.stories.@(ts|tsx)',
+    '../src/pages/**/*.stories.@(ts|tsx)'
   ],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-a11y',
     '@storybook/addon-interactions',
+    '@storybook/addon-viewport',
     '@storybook/addon-links',
+    '@storybook/addon-backgrounds',
+    '@storybook/addon-outline',
+    '@storybook/addon-measure',
+    '@storybook/blocks',
+    '@storybook/addon-themes'
   ],
-  framework: {
-    name: '@storybook/react-vite',
-    options: {
-      builder: {
-        viteConfigPath: 'vite.config.storybook.ts',
-      },
-    },
-  },
-  docs: {
-    autodocs: 'tag',
-    defaultName: 'Documentation',
-  },
-  typescript: {
-    check: false,
-    reactDocgen: 'react-docgen-typescript',
-    reactDocgenTypescriptOptions: {
-      shouldExtractLiteralValuesFromEnum: true,
-      propFilter: prop =>
-        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
-    },
-  },
-  managerHead: head => `
-    ${head}
-    <style>
-      .sidebar-item[data-item-id*="design-system"] {
-        font-weight: 600;
-        color: #3b82f6;
-      }
-      .sidebar-item[data-item-id*="components"] {
-        font-weight: 500;
-      }
-      .sidebar-item[data-item-id*="auth"] {
-        font-weight: 500;
-      }
-      .sidebar-item[data-item-id*="getting-started"] {
-        font-weight: 600;
-        color: #059669;
-      }
-      .sidebar-item[data-item-id*="overview"] {
-        font-weight: 600;
-        color: #7c3aed;
-      }
-    </style>
-  `,
-  viteFinal: async config => {
-    // Add path resolution
-    if (config.resolve) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@': resolve(__dirname, '../src'),
-        // support both '@/design-system' and '@design-system'
-        '@/design-system': resolve(__dirname, '../src/design-system'),
-        '@design-system': resolve(__dirname, '../src/design-system'),
-        // support both '@/components' and '@components'
-        '@/components': resolve(__dirname, '../src/components'),
-        '@components': resolve(__dirname, '../src/components'),
-        '@/utils': resolve(__dirname, '../src/utils'),
-      };
-    }
+  docs: { autodocs: 'tag' },
+  typescript: { reactDocgen: 'react-docgen-typescript' },
+  viteFinal: async (viteConfig) => {
+    viteConfig.resolve = viteConfig.resolve || { alias: [] };
+    const aliases = (viteConfig.resolve.alias as any[]) || [];
+    aliases.push(
+      { find: '@', replacement: resolve(__dirname, '../src') },
+      { find: '@/design-system', replacement: resolve(__dirname, '../src/design-system') },
+      { find: '@design-system', replacement: resolve(__dirname, '../src/design-system') },
+      { find: '@/components', replacement: resolve(__dirname, '../src/components') },
+      { find: '@components', replacement: resolve(__dirname, '../src/components') },
+    );
+    (viteConfig as any).resolve.alias = aliases;
 
-    // Ensure CSS is properly handled with Tailwind
-    config.css = {
-      ...config.css,
-      postcss: {
-        plugins: [
-          tailwindcss(resolve(__dirname, '../tailwind.config.js')),
-          autoprefixer,
-        ],
-      },
-    };
-
-    // Optimize dependencies
-    config.optimizeDeps = {
-      ...config.optimizeDeps,
-      include: [
-        ...(config.optimizeDeps?.include || []),
-        'tailwindcss',
-        'autoprefixer',
-        'lucide-react',
-        'class-variance-authority',
-        'clsx',
-        'tailwind-merge',
-        '@radix-ui/react-slot',
-        '@radix-ui/react-dialog',
-        '@radix-ui/react-select',
-        '@radix-ui/react-tabs',
-        '@radix-ui/react-checkbox',
-        '@radix-ui/react-switch',
-        '@radix-ui/react-alert-dialog',
-        '@radix-ui/react-popover',
-        '@radix-ui/react-tooltip',
-        '@radix-ui/react-accordion',
-        '@radix-ui/react-avatar',
-        '@radix-ui/react-breadcrumb',
-        '@radix-ui/react-context-menu',
-        '@radix-ui/react-dropdown-menu',
-        '@radix-ui/react-hover-card',
-        '@radix-ui/react-menubar',
-        '@radix-ui/react-navigation-menu',
-        '@radix-ui/react-progress',
-        '@radix-ui/react-radio-group',
-        '@radix-ui/react-scroll-area',
-        '@radix-ui/react-separator',
-        '@radix-ui/react-slider',
-        '@radix-ui/react-toast',
-        '@radix-ui/react-toggle',
-        '@radix-ui/react-toggle-group',
-      ],
-    };
-
-    // Fix for @storybook/globalThis import issue
-    config.define = {
-      ...config.define,
-      'process.env.NODE_ENV': '"development"',
-      __STORYBOOK_REACT_REFRESH__: 'false',
-      __STORYBOOK_HMR__: 'false',
+    (viteConfig.define as any) = {
+      ...(viteConfig.define || {}),
+      'process.env.NODE_ENV': JSON.stringify('development'),
       global: 'globalThis',
     };
 
-    // Ensure proper JSX handling
-    config.esbuild = {
-      ...config.esbuild,
-      jsx: 'automatic',
-      jsxImportSource: 'react',
-    };
-
-    // Disable HMR for better performance
-    config.server = {
-      ...config.server,
-      hmr: false,
-    };
-
-    // Add external dependencies to prevent build issues
-    config.build = {
-      ...config.build,
-      rollupOptions: {
-        ...config.build?.rollupOptions,
-        external: (id: string) => {
-          const externals = ['@storybook/globalThis'];
-          return externals.some(external => id.includes(external));
-        },
-      },
-    };
-
-    // Performance optimizations
-    config.optimizeDeps = {
-      ...config.optimizeDeps,
-      include: [
-        ...(config.optimizeDeps?.include || []),
-        'tailwindcss',
-        'autoprefixer',
-        'lucide-react',
-        'class-variance-authority',
-        'clsx',
-        'tailwind-merge',
-        '@radix-ui/react-slot',
-        '@radix-ui/react-dialog',
-        '@radix-ui/react-select',
-        '@radix-ui/react-tabs',
-        '@radix-ui/react-checkbox',
-        '@radix-ui/react-switch',
-        '@radix-ui/react-alert-dialog',
-        '@radix-ui/react-popover',
-        '@radix-ui/react-tooltip',
-      ],
-    };
-
-    // Build optimizations
-    config.build = {
-      ...config.build,
-      target: 'esnext',
-      minify: 'esbuild',
-      rollupOptions: {
-        ...config.build?.rollupOptions,
-        output: {
-          ...config.build?.rollupOptions?.output,
-          manualChunks: {
-            'storybook-vendor': ['react', 'react-dom'],
-            'storybook-addons': [
-              '@storybook/addon-essentials',
-              '@storybook/addon-a11y',
-              '@storybook/addon-interactions',
-            ],
-            'ui-components': [
-              'lucide-react',
-              'class-variance-authority',
-              'clsx',
-              'tailwind-merge',
-            ],
-            'radix-components': [
-              '@radix-ui/react-slot',
-              '@radix-ui/react-dialog',
-              '@radix-ui/react-select',
-              '@radix-ui/react-tabs',
-              '@radix-ui/react-checkbox',
-              '@radix-ui/react-switch',
-              '@radix-ui/react-alert-dialog',
-              '@radix-ui/react-popover',
-              '@radix-ui/react-tooltip',
-            ],
-          },
-        },
-      },
-    };
-
-    return config;
-  },
+    return viteConfig;
+  }
 };
 
 export default config;

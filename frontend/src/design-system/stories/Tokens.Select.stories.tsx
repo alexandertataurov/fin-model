@@ -1,8 +1,16 @@
 import React from 'react';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectGroup, SelectLabel } from '../components/Select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel,
+} from '../components/Select';
 
 const meta = {
-  title: 'Design System/Tokens/Select',
+  title: 'Design System/Select',
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 };

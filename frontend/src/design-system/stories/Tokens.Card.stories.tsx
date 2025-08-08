@@ -1,15 +1,28 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/Card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '../components/Card';
 
 const meta = {
-  title: 'Design System/Tokens/Card',
+  title: 'Design System/Card',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
 export default meta;
 
-const variants = ['default','elevated','outline','ghost','interactive'] as const;
-const paddings = ['none','sm','md','lg','xl'] as const;
+const variants = [
+  'default',
+  'elevated',
+  'outline',
+  'ghost',
+  'interactive',
+] as const;
+const paddings = ['none', 'sm', 'md', 'lg', 'xl'] as const;
 
 export const Variants = {
   render: () => (
@@ -21,7 +34,9 @@ export const Variants = {
             <CardDescription>Card in {v} variant</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-muted-foreground">Token-driven styles</div>
+            <div className="text-sm text-muted-foreground">
+              Token-driven styles
+            </div>
           </CardContent>
           <CardFooter>
             <div className="text-xs text-muted-foreground">Footer</div>

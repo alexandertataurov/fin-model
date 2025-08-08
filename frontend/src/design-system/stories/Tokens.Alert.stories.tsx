@@ -3,7 +3,7 @@ import { Alert, AlertTitle, AlertDescription } from '../components/Alert';
 import { Info, TriangleAlert, CheckCircle2, OctagonAlert } from 'lucide-react';
 
 const meta = {
-  title: 'Design System/Tokens/Alert',
+  title: 'Design System/Alert',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };

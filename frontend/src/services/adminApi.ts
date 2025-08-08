@@ -309,6 +309,17 @@ export class AdminApiService {
   }
 
   /**
+   * Development-only: clear rate limits without authentication
+   */
+  static async devClearRateLimits(): Promise<{
+    message: string;
+    cleared_records: number;
+  }> {
+    const response = await api.post('/admin/dev-clear-rate-limits');
+    return response.data;
+  }
+
+  /**
    * Clean up orphaned files
    */
   static async cleanupFiles(dryRun: boolean = true): Promise<{

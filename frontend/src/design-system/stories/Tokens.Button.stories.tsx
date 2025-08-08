@@ -2,14 +2,24 @@ import React from 'react';
 import { Button } from '../components/Button';
 
 const meta = {
-  title: 'Design System/Tokens/Button',
+  title: 'Design System/Button',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
 export default meta;
 
-const variants = ['default','secondary','outline','ghost','link','destructive','success','warning','info'] as const;
-const sizes = ['xs','sm','md','lg','xl'] as const;
+const variants = [
+  'default',
+  'secondary',
+  'outline',
+  'ghost',
+  'link',
+  'destructive',
+  'success',
+  'warning',
+  'info',
+] as const;
+const sizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
 export const VariantsAndSizes = {
   render: () => (

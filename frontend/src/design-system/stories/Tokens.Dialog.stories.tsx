@@ -1,9 +1,16 @@
 import React from 'react';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/Dialog';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '../components/Dialog';
 import { Button } from '../components/Button';
 
 const meta = {
-  title: 'Design System/Tokens/Dialog',
+  title: 'Design System/Dialog',
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 };
@@ -18,7 +25,9 @@ export const Basic = {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Token-driven dialog</DialogTitle>
-          <DialogDescription>Uses background, border, and radius tokens.</DialogDescription>
+          <DialogDescription>
+            Uses background, border, and radius tokens.
+          </DialogDescription>
         </DialogHeader>
       </DialogContent>
     </Dialog>

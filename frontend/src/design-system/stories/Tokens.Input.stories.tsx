@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from '../components/Input';
 
 const meta = {
-  title: 'Design System/Tokens/Input',
+  title: 'Design System/Input',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
