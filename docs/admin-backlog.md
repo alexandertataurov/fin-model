@@ -2,36 +2,55 @@
 
 - Backend
 
-  - [ ] Audit logs: persist real audit events (models + hooks) for user/role changes, auth, files, maintenance; replace synthetic data in `/admin/audit-logs` with DB results. Support `skip`, `limit`, `user_id`, `action`, `from`, `to`. Return `{ logs, skip, limit, total }`.
-  - [ ] System logs: integrate with logging store (DB/file). Enhance `/admin/system/logs` with pagination, `from`/`to`, `search`, and streaming option; remove sample logs.
-  - [ ] DB operations: add endpoints
-    - [ ] `POST /admin/database/backup` (pg_dump or job), returns `{ job_id | file_url }`.
-    - [ ] `POST /admin/database/export` (full/table), params: `table?`, `format=json|csv`, returns `{ file_url }`.
-    - [ ] `POST /admin/database/reindex` (blocking or job), returns `{ message | job_id }`.
-  - [ ] Maintenance schedules: `GET/PUT /admin/maintenance/schedules` to CRUD daily/weekly tasks (cleanup, vacuum, archive). Validate cron/time windows.
-  - [ ] DB performance: extend `/admin/database/performance` with `window=1h|24h|7d` (or `from`/`to`) and include aggregates (avg, p95, calls) per query.
-  - [ ] Security audit: extend `/admin/security/audit` to accept `from`/`to`; implement failed login tracking and simple heuristics for suspicious activity (e.g., many failures per IP/user).
-  - [ ] Admin reports export: `GET /admin/reports/overview?format=json|csv` to feed “Generate Report”.
-  - [ ] Standardize pagination envelopes across admin endpoints (`{ items, skip, limit, total }`).
+  - Audit logs
+    - [ ] Persist real audit events (models + hooks) for user/role changes, auth, files, maintenance; replace synthetic data in `/admin/audit-logs` with DB results
+    - [x] Support filters: `skip`, `limit`, `user_id`, `action`, `from`, `to`
+    - [x] Return envelope `{ logs, skip, limit, total }`
+  - System logs (`/admin/system/logs`)
+    - [x] Filters: `from`, `to`, `search`
+    - [ ] Pagination envelope `{ items, skip, limit, total }`
+    - [ ] Integrate with real logging store (DB/file); remove sample logs
+    - [ ] Optional streaming endpoint
+  - DB operations endpoints
+    - [x] `POST /admin/database/backup` → `{ job_id, message }`
+    - [x] `POST /admin/database/export` → `{ file_url, message }`
+    - [x] `POST /admin/database/reindex` → `{ job_id, message }`
+  - Maintenance schedules
+    - [x] `GET/PUT /admin/maintenance/schedules` with validation (in-memory store)
+    - [ ] Persist schedules (DB/cron) and execute
+  - DB performance
+    - [x] Extend `/admin/database/performance` with `window`, `from`, `to`
+    - [ ] Include aggregates (avg, p95, calls) per query
+  - Security audit
+    - [x] Support `from`/`to` on `/admin/security/audit`
+    - [ ] Implement failed login tracking and suspicious activity heuristics
+  - Reports
+    - [ ] `GET /admin/reports/overview?format=json|csv` to feed “Generate Report”
+  - Consistency
+    - [ ] Standardize pagination envelopes across admin endpoints (`{ items, skip, limit, total }`)
 
 - Frontend
 
-  - [ ] Update `AdminApiService.getAuditLogs` return type to `{ logs: AuditEntry[]; skip; limit; total }` (not `{ message }`). Create `AuditEntry` type separate from `LogEntry`.
-  - [ ] Wire Data Management → Manual Operations buttons in `frontend/src/components/Admin/DataManagement.tsx`:
-    - [ ] Backup Database → `POST /admin/database/backup` with confirm + toast.
-    - [ ] Export Data → `POST /admin/database/export` (allow table + format select, download file).
-    - [ ] Rebuild Indexes → `POST /admin/database/reindex` with progress/result toast.
-    - [ ] Generate Report → call `/admin/reports/overview?format=` and download.
-  - [ ] Maintenance schedules UI: replace static badges with editable schedule list (toggle enable, time, task type) calling `GET/PUT /admin/maintenance/schedules`.
-  - [ ] Logs tab: add `from`/`to`, text search, paging/infinite scroll; pass to `/admin/system/logs`.
-  - [ ] Performance tab: add window selector (1h/24h/7d) and forward to `/admin/database/performance`.
-  - [ ] Security tab: add date range filters and table for `suspicious_activities` with columns (type, user/ip, timestamp, details).
-  - [ ] Data tables export per-table in Data Management (Download button) → `/admin/database/export?table=...`.
+  - [ ] Update `AdminApiService.getAuditLogs` type to `{ logs: AuditEntry[]; skip; limit; total }`; add `AuditEntry` type
+  - Data Management → Manual Ops wiring (`frontend/src/components/Admin/DataManagement.tsx`)
+    - [ ] Backup Database → `POST /admin/database/backup` (confirm + toast)
+    - [ ] Export Data → `POST /admin/database/export` (table + format select, download)
+    - [ ] Rebuild Indexes → `POST /admin/database/reindex` (progress toast)
+    - [ ] Generate Report → `/admin/reports/overview?format=` (download)
+  - [ ] Maintenance schedules UI: editable list (toggle enable, time, task type) using `GET/PUT /admin/maintenance/schedules`
+  - Logs tab
+    - [ ] Add `from`/`to` date pickers
+    - [ ] Add text search
+    - [ ] Add paging/infinite scroll; adapt to pagination envelope
+  - [ ] Performance tab: add window selector (1h/24h/7d) → `/admin/database/performance`
+  - [ ] Security tab: add date range filters; table for `suspicious_activities` (type, user/ip, timestamp, details)
+  - [ ] Data tables export per-table (Download button) → `/admin/database/export?table=...`
 
 - Validation/Safety
 
-  - [ ] Permission gates: ensure destructive ops use `Permission.ADMIN_ACCESS` and show confirm dialogs on UI.
-  - [ ] Empty-state/placeholder coverage for every tab; no demo/sample data rendered.
+  - [x] Backend permission gates on destructive ops use `Permission.ADMIN_ACCESS`
+  - [ ] UI confirm dialogs for destructive actions
+  - [x] Empty-state/placeholder coverage (no demo/sample data)
 
 - Quality
   - [ ] Basic API tests for new admin endpoints.

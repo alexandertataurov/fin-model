@@ -116,6 +116,28 @@ export interface LogEntry {
   user_id: number | null;
 }
 
+export interface AuditEntry {
+  timestamp: string;
+  level?: string;
+  module?: string;
+  action?: string;
+  user_id?: number | null;
+  message?: string;
+  details?: any;
+}
+
+export interface MaintenanceScheduleItem {
+  id: string;
+  name: string;
+  task: 'cleanup' | 'vacuum' | 'archive' | 'reindex' | 'backup';
+  schedule: string;
+  enabled: boolean;
+}
+
+export interface MaintenanceSchedules {
+  items: MaintenanceScheduleItem[];
+}
+
 export class AdminApiService {
   /**
    * Get comprehensive system statistics
@@ -354,10 +376,17 @@ export class AdminApiService {
    */
   static async getSystemLogs(
     level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL' = 'ERROR',
-    limit: number = 100
+    limit: number = 100,
+    opts?: { from?: string; to?: string; search?: string }
   ): Promise<LogEntry[]> {
     const response = await api.get('/admin/system/logs', {
-      params: { level, limit },
+      params: {
+        level,
+        limit,
+        from_ts: opts?.from,
+        to_ts: opts?.to,
+        search: opts?.search,
+      },
     });
     return response.data;
   }
@@ -369,11 +398,56 @@ export class AdminApiService {
     skip: number = 0,
     limit: number = 100,
     userId?: number,
-    action?: string
-  ): Promise<{ message: string }> {
+    action?: string,
+    opts?: { from?: string; to?: string }
+  ): Promise<{
+    logs: AuditEntry[];
+    skip: number;
+    limit: number;
+    total: number;
+  }> {
     const response = await api.get('/admin/audit-logs', {
-      params: { skip, limit, user_id: userId, action },
+      params: {
+        skip,
+        limit,
+        user_id: userId,
+        action,
+        from_ts: opts?.from,
+        to_ts: opts?.to,
+      },
     });
+    return response.data;
+  }
+
+  // Maintenance schedules
+  static async getMaintenanceSchedules(): Promise<MaintenanceSchedules> {
+    const response = await api.get('/admin/maintenance/schedules');
+    return response.data;
+  }
+
+  static async updateMaintenanceSchedules(
+    schedules: MaintenanceSchedules
+  ): Promise<MaintenanceSchedules> {
+    const response = await api.put('/admin/maintenance/schedules', schedules);
+    return response.data;
+  }
+
+  // Manual operations
+  static async backupDatabase(): Promise<{ job_id: string; message: string }> {
+    const response = await api.post('/admin/database/backup');
+    return response.data;
+  }
+
+  static async exportDatabase(payload: {
+    table?: string;
+    format: 'json' | 'csv';
+  }): Promise<{ file_url: string; message: string }> {
+    const response = await api.post('/admin/database/export', payload);
+    return response.data;
+  }
+
+  static async reindexDatabase(): Promise<{ job_id: string; message: string }> {
+    const response = await api.post('/admin/database/reindex');
     return response.data;
   }
 }

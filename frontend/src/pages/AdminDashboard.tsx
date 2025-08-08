@@ -88,6 +88,9 @@ const AdminDashboard: React.FC = () => {
     'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
   >('ERROR');
   const [logsLimit, setLogsLimit] = useState<number>(100);
+  const [logsSearch, setLogsSearch] = useState<string>('');
+  const [logsFrom, setLogsFrom] = useState<string>('');
+  const [logsTo, setLogsTo] = useState<string>('');
   const [systemHealth, setSystemHealth] = useState<any | null>(null);
   const [databaseHealth, setDatabaseHealth] = useState<any | null>(null);
   const [userPermissions, setUserPermissions] =
@@ -182,7 +185,11 @@ const AdminDashboard: React.FC = () => {
   const loadMetricsAndLogs = async () => {
     const results = await Promise.allSettled([
       AdminApiService.getSystemMetrics(),
-      AdminApiService.getSystemLogs(logsLevel, logsLimit),
+      AdminApiService.getSystemLogs(logsLevel, logsLimit, {
+        from: logsFrom || undefined,
+        to: logsTo || undefined,
+        search: logsSearch || undefined,
+      }),
     ]);
     const [metricsRes, logsRes] = results;
     if (metricsRes.status === 'fulfilled') setSystemMetrics(metricsRes.value);
@@ -1155,7 +1162,7 @@ const AdminDashboard: React.FC = () => {
                 <CardTitle>System Logs</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
                   <select
                     className="border rounded px-2 py-1 bg-background text-sm"
                     value={logsLevel}
@@ -1185,7 +1192,12 @@ const AdminDashboard: React.FC = () => {
                       setLogsLimit(lim);
                       const data = await AdminApiService.getSystemLogs(
                         logsLevel,
-                        lim
+                        lim,
+                        {
+                          from: logsFrom || undefined,
+                          to: logsTo || undefined,
+                          search: logsSearch || undefined,
+                        }
                       );
                       setLogs(data);
                     }}
@@ -1196,13 +1208,37 @@ const AdminDashboard: React.FC = () => {
                       </option>
                     ))}
                   </select>
+                  <input
+                    type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={logsFrom}
+                    onChange={e => setLogsFrom(e.target.value)}
+                  />
+                  <input
+                    type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={logsTo}
+                    onChange={e => setLogsTo(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    placeholder="Search"
+                    value={logsSearch}
+                    onChange={e => setLogsSearch(e.target.value)}
+                  />
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={async () => {
                       const data = await AdminApiService.getSystemLogs(
                         logsLevel,
-                        logsLimit
+                        logsLimit,
+                        {
+                          from: logsFrom || undefined,
+                          to: logsTo || undefined,
+                          search: logsSearch || undefined,
+                        }
                       );
                       setLogs(data);
                     }}

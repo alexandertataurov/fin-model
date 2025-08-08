@@ -648,22 +648,66 @@ const DataManagement: React.FC = () => {
                 <CardTitle>Manual Operations</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button className="w-full" variant="outline">
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      if (!confirm('Run database backup now?')) return;
+                      const res = await AdminApiService.backupDatabase();
+                      toast.success(`${res.message} (job ${res.job_id})`);
+                    } catch {
+                      toast.error('Backup failed');
+                    }
+                  }}
+                >
                   <Upload className="h-4 w-4 mr-2" />
                   Backup Database
                 </Button>
 
-                <Button className="w-full" variant="outline">
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const table =
+                        prompt(
+                          'Enter table name (leave empty for full export)'
+                        ) || undefined;
+                      const format = (
+                        prompt('Enter format: json or csv', 'json') || 'json'
+                      ).toLowerCase();
+                      if (format !== 'json' && format !== 'csv') {
+                        toast.error('Invalid format');
+                        return;
+                      }
+                      const res = await AdminApiService.exportDatabase({
+                        table,
+                        format: format as 'json' | 'csv',
+                      });
+                      toast.success('Export generated');
+                      window.open(res.file_url, '_blank');
+                    } catch {
+                      toast.error('Export failed');
+                    }
+                  }}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Export Data
                 </Button>
 
-                <Button className="w-full" variant="outline">
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Generate Report
-                </Button>
-
-                <Button className="w-full" variant="outline">
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const res = await AdminApiService.reindexDatabase();
+                      toast.success(`${res.message} (job ${res.job_id})`);
+                    } catch {
+                      toast.error('Reindex failed');
+                    }
+                  }}
+                >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Rebuild Indexes
                 </Button>
