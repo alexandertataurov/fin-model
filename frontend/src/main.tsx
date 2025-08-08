@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Ensure React is available globally
 if (typeof window !== 'undefined') {
@@ -18,10 +19,13 @@ if (!rootElement) {
 
 try {
   const root = ReactDOM.createRoot(rootElement);
+  const queryClient = new QueryClient();
 
   root.render(
     <React.StrictMode>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </React.StrictMode>
   );
 } catch (error) {
