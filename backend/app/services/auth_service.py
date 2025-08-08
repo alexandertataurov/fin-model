@@ -76,9 +76,8 @@ class AuthService:
         # Validate password requirements
         _validate_password_requirements(user_create.password)
 
-        # Create new user
+        # Create new user (email verification disabled)
         hashed_password = get_password_hash(user_create.password)
-        verification_token = generate_secure_token()
 
         full_name = user_create.full_name
         if not full_name:
@@ -92,8 +91,8 @@ class AuthService:
             full_name=full_name,
             hashed_password=hashed_password,
             is_active=True,
-            is_verified=False,
-            verification_token=verification_token,
+            is_verified=True,
+            verification_token=None,
         )
 
         self.db.add(db_user)

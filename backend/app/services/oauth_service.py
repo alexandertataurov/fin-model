@@ -1,11 +1,9 @@
 from typing import Optional, Dict, Any
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
 
 from app.models.user import User
 from app.models.mfa import OAuthAccount
-from app.core.config import settings
 
 
 class OAuthService:
@@ -117,7 +115,9 @@ class OAuthService:
 
         # Assign default role
         from app.models.role import Role, UserRole, RoleType
-        default_role = self.db.query(Role).filter(Role.name == RoleType.VIEWER).first()
+        default_role = self.db.query(Role).filter(
+            Role.name == RoleType.VIEWER
+        ).first()
         if default_role:
             user_role = UserRole(
                 user_id=new_user.id,
@@ -129,6 +129,49 @@ class OAuthService:
         self.db.commit()
         self.db.refresh(new_user)
         return new_user
+
+    def link_oauth_account_to_user(
+        self,
+        user: User,
+        provider: str,
+        provider_id: str,
+        email: Optional[str] = None,
+        name: Optional[str] = None,
+        profile_picture: Optional[str] = None,
+        access_token: Optional[str] = None,
+        refresh_token: Optional[str] = None,
+        token_expires_at: Optional[datetime] = None,
+    ) -> None:
+        """Link an OAuth account to an existing user, updating if present."""
+        existing = self.db.query(OAuthAccount).filter(
+            OAuthAccount.user_id == user.id,
+            OAuthAccount.provider == provider,
+        ).first()
+
+        if existing:
+            existing.provider_id = provider_id
+            existing.email = email
+            existing.display_name = name
+            existing.profile_picture = profile_picture
+            existing.access_token = access_token
+            existing.refresh_token = refresh_token
+            existing.token_expires_at = token_expires_at
+            existing.updated_at = datetime.now(timezone.utc)
+        else:
+            account = OAuthAccount(
+                user_id=user.id,
+                provider=provider,
+                provider_id=provider_id,
+                email=email,
+                display_name=name,
+                profile_picture=profile_picture,
+                access_token=access_token,
+                refresh_token=refresh_token,
+                token_expires_at=token_expires_at,
+            )
+            self.db.add(account)
+
+        self.db.commit()
 
     def generate_unique_username(self, email: str) -> str:
         """Generate a unique username from email."""
@@ -143,7 +186,9 @@ class OAuthService:
             base_username = "user"
         
         # Check if username exists
-        existing_user = self.db.query(User).filter(User.username == base_username).first()
+        existing_user = self.db.query(User).filter(
+            User.username == base_username
+        ).first()
         if not existing_user:
             return base_username
         
@@ -151,7 +196,9 @@ class OAuthService:
         counter = 1
         while True:
             candidate = f"{base_username}{counter}"
-            existing_user = self.db.query(User).filter(User.username == candidate).first()
+            existing_user = self.db.query(User).filter(
+                User.username == candidate
+            ).first()
             if not existing_user:
                 return candidate
             counter += 1
@@ -202,7 +249,9 @@ class OAuthService:
         
         return other_accounts > 0
 
-    def refresh_oauth_token(self, oauth_account: OAuthAccount) -> Optional[Dict[str, Any]]:
+    def refresh_oauth_token(
+        self, oauth_account: OAuthAccount
+    ) -> Optional[Dict[str, Any]]:
         """
         Refresh OAuth access token using refresh token.
         This is a placeholder - actual implementation would call provider APIs.
@@ -211,7 +260,9 @@ class OAuthService:
         # For now, return None to indicate no refresh was performed
         return None
 
-    def get_provider_user_info(self, provider: str, access_token: str) -> Optional[Dict[str, Any]]:
+    def get_provider_user_info(
+        self, provider: str, access_token: str
+    ) -> Optional[Dict[str, Any]]:
         """
         Get user information from OAuth provider using access token.
         This is a placeholder for actual provider API calls.

@@ -12,7 +12,20 @@ import {
   UserCheck,
   UserX,
   Eye,
-  Download
+  Download,
+  Calendar,
+  Clock,
+  Activity,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  X,
+  Plus,
+  BarChart3,
+  Globe,
+  MapPin,
+  Smartphone,
+  Bell
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
@@ -279,7 +292,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header with actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -290,7 +303,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
         <div className="flex items-center space-x-2">
           <Button size="sm" variant="outline" onClick={handleExportUsers}>
             <Download className="h-4 w-4 mr-2" />
-            Export
+            Export CSV
           </Button>
           <Button size="sm">
             <UserPlus className="h-4 w-4 mr-2" />
@@ -299,81 +312,250 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
         </div>
       </div>
 
-      {/* Filters and search */}
+      {/* User Analytics Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <Users className="h-4 w-4 mr-2 text-blue-500" />
+              Total Users
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{users.length}</div>
+            <div className="flex items-center mt-2">
+              <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                <div 
+                  className="bg-blue-500 h-1.5 rounded-full" 
+                  style={{ 
+                    width: `${users.length > 0 ? (users.filter(u => u.is_active).length / users.length) * 100 : 0}%` 
+                  }}
+                ></div>
+              </div>
+              <span className="text-xs text-muted-foreground ml-2">
+                {users.length > 0 ? Math.round((users.filter(u => u.is_active).length / users.length) * 100) : 0}% active
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+              Active Users
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {users.filter(u => u.is_active).length}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {users.filter(u => u.is_active && u.is_verified).length} verified
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <Mail className="h-4 w-4 mr-2 text-purple-500" />
+              Verification Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {users.filter(u => u.is_verified).length}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {users.filter(u => !u.is_verified).length} pending verification
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <Shield className="h-4 w-4 mr-2 text-orange-500" />
+              User Roles
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{uniqueRoles.length}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {users.filter(u => u.roles.length > 0).length} users with roles
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Enhanced Filters and Search */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center">
+            <Filter className="h-5 w-5 mr-2" />
+            Search & Filter Users
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="md:col-span-2">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search users..."
+                  placeholder="Search by name, email, or username..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
+                  className="pl-9"
                 />
               </div>
             </div>
             
+            {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="verified">Verified</SelectItem>
-                <SelectItem value="unverified">Unverified</SelectItem>
+                <SelectItem value="active">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                    Active
+                  </div>
+                </SelectItem>
+                <SelectItem value="inactive">
+                  <div className="flex items-center">
+                    <X className="h-4 w-4 mr-2 text-red-500" />
+                    Inactive
+                  </div>
+                </SelectItem>
+                <SelectItem value="verified">
+                  <div className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2 text-blue-500" />
+                    Verified
+                  </div>
+                </SelectItem>
+                <SelectItem value="unverified">
+                  <div className="flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-2 text-yellow-500" />
+                    Unverified
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
 
+            {/* Role Filter */}
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Role" />
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
                 {uniqueRoles.map(role => (
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                  <SelectItem key={role} value={role}>
+                    <div className="flex items-center">
+                      <Shield className="h-4 w-4 mr-2 text-orange-500" />
+                      {role}
+                    </div>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+          
+          {/* Filter Summary */}
+          <div className="flex items-center justify-between pt-2 border-t">
+            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+              <span>Showing {filteredUsers.length} of {users.length} users</span>
+              {(searchTerm || statusFilter !== 'all' || roleFilter !== 'all') && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setStatusFilter('all');
+                    setRoleFilter('all');
+                  }}
+                  className="h-auto p-1 text-xs"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear filters
+                </Button>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="text-xs">
+                <Activity className="h-3 w-3 mr-1" />
+                {users.filter(u => u.is_active).length} active
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                <Mail className="h-3 w-3 mr-1" />
+                {users.filter(u => u.is_verified).length} verified
+              </Badge>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Bulk actions */}
+      {/* Enhanced Bulk Actions */}
       {selectedUsers.length > 0 && (
-        <Card>
+        <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                {selectedUsers.length} user(s) selected
-              </span>
-              <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-primary">
+                    {selectedUsers.length} user{selectedUsers.length > 1 ? 's' : ''} selected
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedUsers([])}
+                  className="h-auto p-1"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-2">
                 <Button 
                   size="sm" 
                   onClick={() => handleBulkAction('activate')}
+                  className="bg-green-600 hover:bg-green-700"
                 >
                   <UserCheck className="h-4 w-4 mr-1" />
-                  Activate
+                  Activate ({selectedUsers.filter(id => !users.find(u => u.id === id)?.is_active).length})
                 </Button>
                 <Button 
                   size="sm" 
                   variant="outline"
                   onClick={() => handleBulkAction('deactivate')}
+                  className="border-red-200 text-red-600 hover:bg-red-50"
                 >
                   <UserX className="h-4 w-4 mr-1" />
-                  Deactivate
+                  Deactivate ({selectedUsers.filter(id => users.find(u => u.id === id)?.is_active).length})
                 </Button>
                 <Button 
                   size="sm" 
                   variant="outline"
                   onClick={() => handleBulkAction('verify')}
+                  className="border-blue-200 text-blue-600 hover:bg-blue-50"
                 >
                   <Mail className="h-4 w-4 mr-1" />
-                  Verify
+                  Verify ({selectedUsers.filter(id => !users.find(u => u.id === id)?.is_verified).length})
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => handleBulkAction('send_reminder')}
+                  className="border-purple-200 text-purple-600 hover:bg-purple-50"
+                >
+                  <Bell className="h-4 w-4 mr-1" />
+                  Send Reminder
                 </Button>
               </div>
             </div>
@@ -381,77 +563,166 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
         </Card>
       )}
 
-      {/* Users table */}
+      {/* Enhanced Users Table */}
       <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Users className="h-5 w-5 mr-2" />
+              User Directory
+              <Badge variant="secondary" className="ml-2">
+                {filteredUsers.length} users
+              </Badge>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Total: {users.length} users
+            </div>
+          </CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-8 text-center">Loading users...</div>
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading users...</p>
+            </div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="p-12 text-center text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p className="text-lg font-medium mb-2">No users found</p>
+              <p className="text-sm">Try adjusting your search filters or add new users.</p>
+            </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-muted/50">
                   <TableHead className="w-12">
                     <Checkbox
                       checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Roles</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="w-12"></TableHead>
+                  <TableHead className="font-semibold">User Information</TableHead>
+                  <TableHead className="font-semibold">Contact</TableHead>
+                  <TableHead className="font-semibold">Status</TableHead>
+                  <TableHead className="font-semibold">Roles & Permissions</TableHead>
+                  <TableHead className="font-semibold">Activity</TableHead>
+                  <TableHead className="w-12 font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
                     <TableCell>
                       <Checkbox
                         checked={selectedUsers.includes(user.id)}
                         onCheckedChange={(checked) => handleUserSelection(user.id, checked)}
                       />
                     </TableCell>
+                    
+                    {/* User Information */}
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          user.is_active ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          <span className="text-sm font-medium">
                             {user.first_name?.[0]?.toUpperCase() || user.username[0]?.toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <div className="font-medium">{user.username}</div>
+                          <div className="font-medium flex items-center">
+                            {user.username}
+                            {user.is_verified && (
+                              <CheckCircle className="h-4 w-4 ml-2 text-green-500" />
+                            )}
+                          </div>
                           <div className="text-sm text-muted-foreground">
-                            {user.first_name} {user.last_name}
+                            {user.first_name && user.last_name 
+                              ? `${user.first_name} ${user.last_name}` 
+                              : 'No name provided'
+                            }
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center mt-1">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            Joined {new Date(user.created_at).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
                     </TableCell>
+
+                    {/* Contact Information */}
                     <TableCell>
-                      <div className="text-sm">{user.email}</div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(user)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {user.roles.map(role => (
-                          <Badge key={role} variant="outline" className="text-xs">
-                            {role}
-                          </Badge>
-                        ))}
+                      <div className="space-y-1">
+                        <div className="flex items-center text-sm">
+                          <Mail className="h-3 w-3 mr-2 text-muted-foreground" />
+                          <span className="truncate max-w-[200px]">{user.email}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Email {user.is_verified ? 'verified' : 'not verified'}
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">
-                      {user.last_login_at ? 
-                        new Date(user.last_login_at).toLocaleDateString() : 
-                        'Never'
-                      }
+
+                    {/* Status */}
+                    <TableCell>
+                      <div className="space-y-1">
+                        {getStatusBadge(user)}
+                        <div className="text-xs text-muted-foreground">
+                          {user.is_active ? (
+                            <span className="flex items-center text-green-600">
+                              <Activity className="h-3 w-3 mr-1" />
+                              Active account
+                            </span>
+                          ) : (
+                            <span className="flex items-center text-red-600">
+                              <X className="h-3 w-3 mr-1" />
+                              Inactive account
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-sm">
-                      {new Date(user.created_at).toLocaleDateString()}
+
+                    {/* Roles & Permissions */}
+                    <TableCell>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1">
+                          {user.roles.length > 0 ? (
+                            user.roles.map(role => (
+                              <Badge key={role} variant="outline" className="text-xs">
+                                <Shield className="h-3 w-3 mr-1" />
+                                {role}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge variant="secondary" className="text-xs">
+                              No roles assigned
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {user.roles.length} role{user.roles.length !== 1 ? 's' : ''} assigned
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    {/* Activity */}
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-sm">
+                          <Clock className="h-3 w-3 mr-2 text-muted-foreground" />
+                          {user.last_login_at ? (
+                            <span>
+                              {new Date(user.last_login_at).toLocaleDateString()}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Never logged in</span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Last login
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

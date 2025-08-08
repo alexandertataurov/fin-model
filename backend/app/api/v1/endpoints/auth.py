@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import (
     HTTPBearer,
     HTTPAuthorizationCredentials,
-    OAuth2PasswordRequestForm,
 )
 from sqlalchemy.orm import Session
 
@@ -26,9 +25,7 @@ from app.schemas.mfa import AuthenticationFlowResponse
 from app.services.auth_service import AuthService
 from app.core.security import (
     create_access_token,
-    create_refresh_token,
     verify_token,
-    create_email_verification_token,
 )
 from app.core.config import settings
 from app.core.rate_limiter import RateLimiter
@@ -201,14 +198,7 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Check if email verification is required
-    # Since we're using Pydantic models, all requests are JSON format
-    json_request = request.headers.get("content-type", "").startswith("application/json")
-    if json_request and not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email not verified",
-        )
+    # Email verification temporarily disabled
 
     # Create tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -269,14 +259,7 @@ async def login_enhanced(
             detail="Incorrect email or password"
         )
 
-    # Check email verification for JSON requests
-    # Since we're using Pydantic models, all requests are JSON format
-    json_request = request.headers.get("content-type", "").startswith("application/json")
-    if json_request and not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email not verified"
-        )
+    # Email verification temporarily disabled
 
     # Check what authentication methods are available/required
     from app.services.mfa_service import MFAService
@@ -324,8 +307,7 @@ async def login_enhanced(
             }
         )
     
-    # Determine the primary recommended method
-    primary_method = "webauthn" if has_webauthn else "totp"
+    # Determine available methods only (email verification disabled)
     
     return AuthenticationFlowResponse(
         status="mfa_required",

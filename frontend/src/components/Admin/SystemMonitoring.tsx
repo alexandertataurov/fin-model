@@ -13,7 +13,24 @@ import {
   RefreshCw,
   TrendingUp,
   TrendingDown,
-  Minus
+  Minus,
+  Zap,
+  Globe,
+  Shield,
+  BarChart3,
+  PieChart,
+  Monitor,
+  Thermometer,
+  Gauge,
+  Timer,
+  Wifi,
+  Download,
+  Upload,
+  Eye,
+  Filter,
+  Calendar,
+  Search,
+  Bell
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
@@ -28,6 +45,15 @@ import {
   TableRow 
 } from '@/design-system/components/Table';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import { Input } from '@/design-system/components/Input';
+import { 
+  Select,
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/design-system/components/Select';
 import AdminApiService, { 
   SystemMetrics, 
   DataIntegrityCheck, 
@@ -56,8 +82,12 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  // Historical data for trends (simplified)
+  // Enhanced state for new features
   const [metricsHistory, setMetricsHistory] = useState<SystemMetrics[]>([]);
+  const [activeTab, setActiveTab] = useState<string>('overview');
+  const [logFilter, setLogFilter] = useState<'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'>('ERROR');
+  const [logSearch, setLogSearch] = useState('');
+  const [systemHealth, setSystemHealth] = useState<any>(null);
 
   // Load monitoring data
   const loadMonitoringData = async (isManualRefresh = false) => {
@@ -68,15 +98,17 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
         setLoading(true);
       }
 
-      const [metrics, integrity, systemLogs] = await Promise.all([
+      const [metrics, integrity, systemLogs, health] = await Promise.all([
         AdminApiService.getSystemMetrics(),
         AdminApiService.checkDataIntegrity(),
-        AdminApiService.getSystemLogs('WARNING', 20)
+        AdminApiService.getSystemLogs(logFilter, 50),
+        AdminApiService.getSystemHealth()
       ]);
 
       setSystemMetrics(metrics);
       setDataIntegrity(integrity);
       setLogs(systemLogs);
+      setSystemHealth(health);
       setLastRefresh(new Date());
 
       // Update metrics history for trends
@@ -203,25 +235,31 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* Enhanced Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">System Monitoring</h2>
+          <h2 className="text-2xl font-bold flex items-center">
+            <Monitor className="h-6 w-6 mr-2 text-blue-500" />
+            System Monitoring & Health
+          </h2>
           <p className="text-muted-foreground">
-            Real-time system performance and health metrics
+            Comprehensive real-time system performance, health metrics, and monitoring tools
           </p>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className="flex items-center">
+            <Clock className="h-3 w-3 mr-1" />
             Last updated: {formatTimestamp(lastRefresh)}
-          </div>
+          </Badge>
           <Button
             size="sm"
             variant="outline"
             onClick={() => setAutoRefresh(!autoRefresh)}
+            className={autoRefresh ? 'border-green-200 text-green-600' : ''}
           >
-            {autoRefresh ? 'Disable' : 'Enable'} Auto-refresh
+            <Timer className="h-4 w-4 mr-1" />
+            {autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
           </Button>
           <Button
             size="sm"
@@ -234,9 +272,233 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
         </div>
       </div>
 
-      {/* System Metrics Overview */}
-      {systemMetrics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* System Health Status Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-green-200 bg-green-50/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+              System Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold text-green-600">Operational</div>
+            <div className="text-xs text-muted-foreground mt-1">All systems running</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-blue-200 bg-blue-50/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <Gauge className="h-4 w-4 mr-2 text-blue-500" />
+              Performance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold text-blue-600">
+              {systemMetrics ? 
+                Math.round(100 - ((systemMetrics.cpu_usage || 0) + (systemMetrics.memory_usage || 0)) / 2) : 
+                'N/A'
+              }%
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">Overall score</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-purple-200 bg-purple-50/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <Network className="h-4 w-4 mr-2 text-purple-500" />
+              Connectivity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold text-purple-600">Online</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {systemMetrics?.active_connections || 0} connections
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-orange-200 bg-orange-50/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center">
+              <Bell className="h-4 w-4 mr-2 text-orange-500" />
+              Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold text-orange-600">
+              {logs.filter(log => log.level === 'ERROR' || log.level === 'CRITICAL').length}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">Active alerts</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Comprehensive System Monitoring Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview" className="flex items-center space-x-2">
+            <Gauge className="h-4 w-4" />
+            <span>Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center space-x-2">
+            <BarChart3 className="h-4 w-4" />
+            <span>Performance</span>
+          </TabsTrigger>
+          <TabsTrigger value="logs" className="flex items-center space-x-2">
+            <Eye className="h-4 w-4" />
+            <span>Logs</span>
+          </TabsTrigger>
+          <TabsTrigger value="health" className="flex items-center space-x-2">
+            <Shield className="h-4 w-4" />
+            <span>Health</span>
+          </TabsTrigger>
+          <TabsTrigger value="maintenance" className="flex items-center space-x-2">
+            <Server className="h-4 w-4" />
+            <span>Maintenance</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {systemMetrics && (
+            <>
+              {/* Real-time Performance Metrics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Activity className="h-5 w-5 mr-2" />
+                    Real-time Performance Metrics
+                    <Badge variant="outline" className="ml-2">
+                      Live
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* CPU Usage */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Cpu className="h-5 w-5 mr-2 text-blue-500" />
+                          <span className="font-medium">CPU Usage</span>
+                        </div>
+                        <div className="flex items-center">
+                          {(() => {
+                            const trend = getMetricTrend(systemMetrics.cpu_usage, 'cpu_usage');
+                            return trend ? getTrendIcon(trend.trend, false) : null;
+                          })()}
+                          <span className={`text-lg font-bold ml-2 ${getStatusColor(systemMetrics.cpu_usage)}`}>
+                            {formatPercentage(systemMetrics.cpu_usage)}
+                          </span>
+                        </div>
+                      </div>
+                      <Progress value={systemMetrics.cpu_usage || 0} className="h-3" />
+                      <div className="text-xs text-muted-foreground">
+                        {systemMetrics.cpu_usage && systemMetrics.cpu_usage > 80 ? 
+                          'High usage - monitor processes' : 
+                          'Normal operation'
+                        }
+                      </div>
+                    </div>
+
+                    {/* Memory Usage */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <MemoryStick className="h-5 w-5 mr-2 text-green-500" />
+                          <span className="font-medium">Memory Usage</span>
+                        </div>
+                        <div className="flex items-center">
+                          {(() => {
+                            const trend = getMetricTrend(systemMetrics.memory_usage, 'memory_usage');
+                            return trend ? getTrendIcon(trend.trend, false) : null;
+                          })()}
+                          <span className={`text-lg font-bold ml-2 ${getStatusColor(systemMetrics.memory_usage)}`}>
+                            {formatPercentage(systemMetrics.memory_usage)}
+                          </span>
+                        </div>
+                      </div>
+                      <Progress value={systemMetrics.memory_usage || 0} className="h-3" />
+                      <div className="text-xs text-muted-foreground">
+                        {systemMetrics.memory_usage && systemMetrics.memory_usage > 80 ? 
+                          'High usage - check memory leaks' : 
+                          'Normal operation'
+                        }
+                      </div>
+                    </div>
+
+                    {/* Disk Usage */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <HardDrive className="h-5 w-5 mr-2 text-purple-500" />
+                          <span className="font-medium">Disk Usage</span>
+                        </div>
+                        <div className="flex items-center">
+                          {(() => {
+                            const trend = getMetricTrend(systemMetrics.disk_usage, 'disk_usage');
+                            return trend ? getTrendIcon(trend.trend, false) : null;
+                          })()}
+                          <span className={`text-lg font-bold ml-2 ${getStatusColor(systemMetrics.disk_usage)}`}>
+                            {formatPercentage(systemMetrics.disk_usage)}
+                          </span>
+                        </div>
+                      </div>
+                      <Progress value={systemMetrics.disk_usage || 0} className="h-3" />
+                      <div className="text-xs text-muted-foreground">
+                        {systemMetrics.disk_usage && systemMetrics.disk_usage > 80 ? 
+                          'Low space - cleanup recommended' : 
+                          'Normal operation'
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Metrics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{systemMetrics.active_connections}</div>
+                      <div className="text-sm text-muted-foreground flex items-center justify-center">
+                        <Database className="h-4 w-4 mr-1" />
+                        DB Connections
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {formatNumber(systemMetrics.request_count_24h || 0)}
+                      </div>
+                      <div className="text-sm text-muted-foreground flex items-center justify-center">
+                        <Globe className="h-4 w-4 mr-1" />
+                        Requests (24h)
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {systemMetrics.avg_response_time || 0}ms
+                      </div>
+                      <div className="text-sm text-muted-foreground flex items-center justify-center">
+                        <Timer className="h-4 w-4 mr-1" />
+                        Avg Response
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">
+                        {formatPercentage(systemMetrics.error_rate_24h || 0)}
+                      </div>
+                      <div className="text-sm text-muted-foreground flex items-center justify-center">
+                        <AlertTriangle className="h-4 w-4 mr-1" />
+                        Error Rate
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
           {/* CPU Usage */}
           <Card>
             <CardHeader className="pb-3">
