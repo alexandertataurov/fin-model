@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-vite';
+import { resolve } from 'path';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
@@ -34,6 +35,24 @@ const config: StorybookConfig = {
       ...(viteConfig.define || {}),
       'process.env.NODE_ENV': JSON.stringify('development'),
     };
+
+    // Add aliases used by stories
+    viteConfig.resolve = {
+      ...(viteConfig.resolve || {}),
+      alias: {
+        ...(viteConfig.resolve?.alias as Record<string, string> | undefined),
+        '@': resolve(__dirname, '../src'),
+        '@/design-system': resolve(__dirname, '../src/design-system'),
+        '@design-system': resolve(__dirname, '../src/design-system'),
+        '@/components': resolve(__dirname, '../src/components'),
+        '@components': resolve(__dirname, '../src/components'),
+      },
+      dedupe: [
+        ...(((viteConfig.resolve as any)?.dedupe as string[]) || []),
+        'react',
+        'react-dom',
+      ],
+    } as any;
 
     return viteConfig;
   },

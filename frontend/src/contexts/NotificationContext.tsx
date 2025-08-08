@@ -166,7 +166,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         setIsLoading(false);
       }
     },
-    [apiCall, getAuthToken]
+    [getAuthToken, mapItemToNotification]
   );
 
   // Load user preferences
