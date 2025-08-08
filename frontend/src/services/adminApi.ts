@@ -1,10 +1,10 @@
 /**
  * Admin API Service
- * 
+ *
  * Frontend API client for administrative functionality
  */
 
-import { apiClient } from './api';
+import api from './api';
 
 // Types for admin API responses
 export interface SystemStats {
@@ -79,7 +79,7 @@ export interface UserWithRoles {
   is_verified: boolean;
   created_at: string;
   updated_at: string;
-  last_login_at: string | null;
+  last_login: string | null;
   roles: string[];
 }
 
@@ -117,12 +117,11 @@ export interface LogEntry {
 }
 
 export class AdminApiService {
-  
   /**
    * Get comprehensive system statistics
    */
   static async getSystemStats(): Promise<SystemStats> {
-    const response = await apiClient.get('/admin/stats');
+    const response = await api.get('/admin/stats');
     return response.data;
   }
 
@@ -133,8 +132,8 @@ export class AdminApiService {
     limit: number = 50,
     activeOnly: boolean = false
   ): Promise<UserActivity[]> {
-    const response = await apiClient.get('/admin/users/activity', {
-      params: { limit, active_only: activeOnly }
+    const response = await api.get('/admin/users/activity', {
+      params: { limit, active_only: activeOnly },
     });
     return response.data;
   }
@@ -143,7 +142,7 @@ export class AdminApiService {
    * Get real-time system metrics
    */
   static async getSystemMetrics(): Promise<SystemMetrics> {
-    const response = await apiClient.get('/admin/system/metrics');
+    const response = await api.get('/admin/system/metrics');
     return response.data;
   }
 
@@ -151,7 +150,7 @@ export class AdminApiService {
    * Check data integrity across all tables
    */
   static async checkDataIntegrity(): Promise<DataIntegrityCheck[]> {
-    const response = await apiClient.get('/admin/data/integrity');
+    const response = await api.get('/admin/data/integrity');
     return response.data;
   }
 
@@ -159,7 +158,7 @@ export class AdminApiService {
    * Get security audit information
    */
   static async getSecurityAudit(): Promise<SecurityAudit> {
-    const response = await apiClient.get('/admin/security/audit');
+    const response = await api.get('/admin/security/audit');
     return response.data;
   }
 
@@ -170,8 +169,8 @@ export class AdminApiService {
     skip: number = 0,
     limit: number = 100
   ): Promise<UserWithRoles[]> {
-    const response = await apiClient.get('/admin/users', {
-      params: { skip, limit }
+    const response = await api.get('/admin/users', {
+      params: { skip, limit },
     });
     return response.data;
   }
@@ -180,7 +179,7 @@ export class AdminApiService {
    * Get user by ID with roles
    */
   static async getUser(userId: number): Promise<UserWithRoles> {
-    const response = await apiClient.get(`/admin/users/${userId}`);
+    const response = await api.get(`/admin/users/${userId}`);
     return response.data;
   }
 
@@ -196,8 +195,23 @@ export class AdminApiService {
       last_name: string;
       is_active: boolean;
     }>
-  ): Promise<UserWithRoles> {
-    const response = await apiClient.put(`/admin/users/${userId}`, updates);
+  ): Promise<UserWithRoles | any> {
+    const response = await api.put(`/admin/users/${userId}`, updates);
+    return response.data;
+  }
+
+  /**
+   * Create a new user (admin)
+   */
+  static async createUser(payload: {
+    email: string;
+    username: string;
+    first_name?: string;
+    last_name?: string;
+    password: string;
+    role?: 'admin' | 'analyst' | 'viewer' | 'editor';
+  }): Promise<UserWithRoles | any> {
+    const response = await api.post('/admin/users', payload);
     return response.data;
   }
 
@@ -205,7 +219,7 @@ export class AdminApiService {
    * Delete (deactivate) user
    */
   static async deleteUser(userId: number): Promise<{ message: string }> {
-    const response = await apiClient.delete(`/admin/users/${userId}`);
+    const response = await api.delete(`/admin/users/${userId}`);
     return response.data;
   }
 
@@ -216,7 +230,7 @@ export class AdminApiService {
     userId: number,
     role: string
   ): Promise<{ message: string }> {
-    const response = await apiClient.post(`/admin/users/${userId}/roles/${role}`);
+    const response = await api.post(`/admin/users/${userId}/roles/${role}`);
     return response.data;
   }
 
@@ -227,7 +241,7 @@ export class AdminApiService {
     userId: number,
     role: string
   ): Promise<{ message: string }> {
-    const response = await apiClient.delete(`/admin/users/${userId}/roles/${role}`);
+    const response = await api.delete(`/admin/users/${userId}/roles/${role}`);
     return response.data;
   }
 
@@ -235,7 +249,7 @@ export class AdminApiService {
    * Get current user's permissions
    */
   static async getUserPermissions(): Promise<UserPermissions> {
-    const response = await apiClient.get('/admin/permissions');
+    const response = await api.get('/admin/permissions');
     return response.data;
   }
 
@@ -243,7 +257,7 @@ export class AdminApiService {
    * Get system health information
    */
   static async getSystemHealth(): Promise<any> {
-    const response = await apiClient.get('/admin/system/health');
+    const response = await api.get('/admin/system/health');
     return response.data;
   }
 
@@ -251,7 +265,7 @@ export class AdminApiService {
    * Get database health information
    */
   static async getDatabaseHealth(): Promise<DatabaseHealth> {
-    const response = await apiClient.get('/admin/database/health');
+    const response = await api.get('/admin/database/health');
     return response.data;
   }
 
@@ -259,8 +273,8 @@ export class AdminApiService {
    * Get database performance data
    */
   static async getDatabasePerformance(limit: number = 10): Promise<any[]> {
-    const response = await apiClient.get('/admin/database/performance', {
-      params: { limit }
+    const response = await api.get('/admin/database/performance', {
+      params: { limit },
     });
     return response.data;
   }
@@ -269,7 +283,7 @@ export class AdminApiService {
    * Get table information
    */
   static async getTableInformation(): Promise<Record<string, any>> {
-    const response = await apiClient.get('/admin/database/tables');
+    const response = await api.get('/admin/database/tables');
     return response.data;
   }
 
@@ -277,8 +291,8 @@ export class AdminApiService {
    * Clean up database
    */
   static async cleanupDatabase(dryRun: boolean = true): Promise<any> {
-    const response = await apiClient.post('/admin/database/cleanup', null, {
-      params: { dry_run: dryRun }
+    const response = await api.post('/admin/database/cleanup', null, {
+      params: { dry_run: dryRun },
     });
     return response.data;
   }
@@ -286,8 +300,11 @@ export class AdminApiService {
   /**
    * Clear rate limits
    */
-  static async clearRateLimits(): Promise<{ message: string; cleared_records: number }> {
-    const response = await apiClient.post('/admin/rate-limits/clear');
+  static async clearRateLimits(): Promise<{
+    message: string;
+    cleared_records: number;
+  }> {
+    const response = await api.post('/admin/rate-limits/clear');
     return response.data;
   }
 
@@ -300,8 +317,8 @@ export class AdminApiService {
     failed_files: number;
     dry_run: boolean;
   }> {
-    const response = await apiClient.post('/admin/files/cleanup', null, {
-      params: { dry_run: dryRun }
+    const response = await api.post('/admin/files/cleanup', null, {
+      params: { dry_run: dryRun },
     });
     return response.data;
   }
@@ -313,11 +330,9 @@ export class AdminApiService {
     userIds: number[],
     action: 'activate' | 'deactivate' | 'verify' | 'send_reminder'
   ): Promise<BulkActionResult> {
-    const response = await apiClient.post('/admin/users/bulk-action', {
+    const response = await api.post('/admin/users/bulk-action', {
       user_ids: userIds,
-      action
-    }, {
-      params: { action }
+      action,
     });
     return response.data;
   }
@@ -329,8 +344,8 @@ export class AdminApiService {
     level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL' = 'ERROR',
     limit: number = 100
   ): Promise<LogEntry[]> {
-    const response = await apiClient.get('/admin/system/logs', {
-      params: { level, limit }
+    const response = await api.get('/admin/system/logs', {
+      params: { level, limit },
     });
     return response.data;
   }
@@ -344,8 +359,8 @@ export class AdminApiService {
     userId?: number,
     action?: string
   ): Promise<{ message: string }> {
-    const response = await apiClient.get('/admin/audit-logs', {
-      params: { skip, limit, user_id: userId, action }
+    const response = await api.get('/admin/audit-logs', {
+      params: { skip, limit, user_id: userId, action },
     });
     return response.data;
   }

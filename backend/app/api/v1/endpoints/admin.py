@@ -14,14 +14,18 @@ from app.models.user import User
 from app.models.file import UploadedFile, FileStatus
 from app.models.parameter import Parameter
 from app.models.financial import FinancialStatement
-from app.schemas.user import User as UserSchema
-from app.schemas.user import UserUpdate, UserWithRoles
+from app.schemas.user import (
+    User as UserSchema,
+    UserWithRoles,
+    AdminUserUpdate,
+    AdminUserCreate,
+)
 from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, desc, text
+from sqlalchemy import and_, desc, text
 
 router = APIRouter()
 
@@ -71,6 +75,11 @@ class SecurityAuditResponse(BaseModel):
     recommendations: List[str]
 
 
+class BulkUserActionRequest(BaseModel):
+    user_ids: List[int]
+    action: str
+
+
 @router.get("/users", response_model=List[UserWithRoles])
 def list_users(
     skip: int = Query(0, ge=0),
@@ -118,10 +127,30 @@ def get_user(
     return UserWithRoles(**user_dict)
 
 
+@router.post("/users", response_model=UserWithRoles, status_code=status.HTTP_201_CREATED)
+def create_user(
+    user_create: AdminUserCreate,
+    current_user: User = Depends(require_permissions(Permission.USER_CREATE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Create a new user (Admin only)."""
+    auth_service = AuthService(db)
+
+    created = auth_service.create_user(
+        user_create,
+        role=user_create.role or RoleType.VIEWER,
+    )
+
+    roles = auth_service.get_user_roles(created.id)
+    user_dict = UserSchema.from_orm(created).dict()
+    user_dict["roles"] = roles
+    return UserWithRoles(**user_dict)
+
+
 @router.put("/users/{user_id}", response_model=UserSchema)
 def update_user(
     user_id: int,
-    user_update: UserUpdate,
+    user_update: AdminUserUpdate,
     current_user: User = Depends(require_permissions(Permission.USER_UPDATE)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -284,12 +313,10 @@ def system_health(
     """Get system health information."""
     from datetime import datetime
 
-    from sqlalchemy import func
-
     # Get basic statistics
     total_users = db.query(User).count()
-    active_users = db.query(User).filter(User.is_active == True).count()
-    verified_users = db.query(User).filter(User.is_verified == True).count()
+    active_users = db.query(User).filter(User.is_active.is_(True)).count()
+    verified_users = db.query(User).filter(User.is_verified.is_(True)).count()
 
     # Note: Audit logging removed in lean version
     recent_logins = 0
@@ -474,7 +501,8 @@ async def get_system_statistics(
             db_size = "Unknown"
             
         # Performance metrics (simplified)
-        avg_file_size = db.query(func.avg(UploadedFile.file_size)).scalar() or 0
+        # Average file size not essential in lean context; fall back to 0
+        avg_file_size = 0
         
         return SystemStatsResponse(
             users={
@@ -520,7 +548,7 @@ async def get_user_activity(
     try:
         query = db.query(User)
         if active_only:
-            query = query.filter(User.is_active == True)
+            query = query.filter(User.is_active.is_(True))
             
         users = query.order_by(desc(User.created_at)).limit(limit).all()
         
@@ -536,15 +564,17 @@ async def get_user_activity(
                 FinancialStatement.created_by_id == user.id  
             ).count()
             
-            activity_data.append(UserActivityResponse(
-                user_id=user.id,
-                username=user.username,
-                last_login=user.last_login_at,
-                login_count=0,  # Would need login tracking table
-                files_uploaded=files_uploaded,
-                models_created=models_created,
-                is_active=user.is_active
-            ))
+            activity_data.append(
+                UserActivityResponse(
+                    user_id=user.id,
+                    username=user.username,
+                    last_login=user.last_login,
+                    login_count=0,  # Would need login tracking table
+                    files_uploaded=files_uploaded,
+                    models_created=models_created,
+                    is_active=user.is_active,
+                )
+            )
             
         return activity_data
         
@@ -577,8 +607,10 @@ async def get_system_metrics(
             active_connections_result = db.execute(
                 text("SELECT count(*) FROM pg_stat_activity WHERE state = 'active'")
             ).scalar()
-            active_connections = active_connections_result if active_connections_result else 0
-        except:
+            active_connections = (
+                active_connections_result if active_connections_result else 0
+            )
+        except Exception:
             active_connections = 0
             
         return SystemMetricsResponse(
@@ -620,9 +652,11 @@ async def check_data_integrity(
         
         # Check users table
         user_count = db.query(User).count()
-        orphaned_files = db.query(UploadedFile).filter(
-            ~UploadedFile.uploaded_by_id.in_(db.query(User.id))
-        ).count()
+        orphaned_files = (
+            db.query(UploadedFile)
+            .filter(~UploadedFile.uploaded_by_id.in_(db.query(User.id)))
+            .count()
+        )
         
         user_issues = []
         user_recommendations = []
@@ -644,12 +678,16 @@ async def check_data_integrity(
         file_recommendations = []
         
         # Check for files with inconsistent status
-        inconsistent_files = db.query(UploadedFile).filter(
-            and_(
-                UploadedFile.status == FileStatus.COMPLETED,
-                UploadedFile.is_valid == False
+        inconsistent_files = (
+            db.query(UploadedFile)
+            .filter(
+                and_(
+                    UploadedFile.status == FileStatus.COMPLETED,
+                    UploadedFile.is_valid.is_(False),
+                )
             )
-        ).count()
+            .count()
+        )
         
         if inconsistent_files > 0:
             file_issues.append(f"{inconsistent_files} files marked as completed but invalid")
@@ -704,9 +742,13 @@ async def get_security_audit(
         from app.core.rate_limiter import RateLimit
         
         # Check for rate limit violations (last 24h)
-        rate_limit_violations = db.query(RateLimit).filter(
-            RateLimit.created_at >= datetime.utcnow() - timedelta(hours=24)
-        ).count()
+        rate_limit_violations = (
+            db.query(RateLimit)
+            .filter(
+                RateLimit.created_at >= datetime.utcnow() - timedelta(hours=24)
+            )
+            .count()
+        )
         
         # Check for suspicious activities (simplified)
         suspicious_activities = []
@@ -715,9 +757,9 @@ async def get_security_audit(
         # For now, return empty list
         
         # Password policy violations (users without email verification)
-        password_violations = db.query(User).filter(
-            User.is_verified == False
-        ).count()
+        password_violations = (
+            db.query(User).filter(User.is_verified.is_(False)).count()
+        )
         
         recommendations = []
         if rate_limit_violations > 10:
@@ -751,16 +793,23 @@ async def cleanup_orphaned_files(
         file_service = FileService()
         
         # Find files to clean up
-        orphaned_files = db.query(UploadedFile).filter(
-            ~UploadedFile.uploaded_by_id.in_(db.query(User.id))
-        ).all()
+        orphaned_files = (
+            db.query(UploadedFile)
+            .filter(~UploadedFile.uploaded_by_id.in_(db.query(User.id)))
+            .all()
+        )
         
-        failed_files = db.query(UploadedFile).filter(
-            and_(
-                UploadedFile.status == FileStatus.FAILED,
-                UploadedFile.created_at < datetime.utcnow() - timedelta(days=7)
+        failed_files = (
+            db.query(UploadedFile)
+            .filter(
+                and_(
+                    UploadedFile.status == FileStatus.FAILED,
+                    UploadedFile.created_at
+                    < datetime.utcnow() - timedelta(days=7),
+                )
             )
-        ).all()
+            .all()
+        )
         
         files_to_cleanup = orphaned_files + failed_files
         cleanup_count = len(files_to_cleanup)
@@ -770,7 +819,7 @@ async def cleanup_orphaned_files(
                 # Delete actual file from storage if it exists
                 try:
                     file_service.delete_file(file_record.file_path)
-                except:
+                except Exception:
                     pass  # File might not exist
                     
                 # Delete database record
@@ -794,14 +843,21 @@ async def cleanup_orphaned_files(
 
 @router.post("/users/bulk-action", response_model=Dict[str, Any])
 async def bulk_user_action(
-    user_ids: List[int],
-    action: str = Query(..., regex="^(activate|deactivate|verify|send_reminder)$"),
+    request: BulkUserActionRequest,
     current_user: User = Depends(require_permissions(Permission.ADMIN_WRITE)),
     db: Session = Depends(get_db),
 ):
     """Perform bulk actions on users."""
     try:
-        affected_users = db.query(User).filter(User.id.in_(user_ids)).all()
+        if request.action not in {"activate", "deactivate", "verify", "send_reminder"}:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid action",
+            )
+
+        affected_users = (
+            db.query(User).filter(User.id.in_(request.user_ids)).all()
+        )
         
         if not affected_users:
             raise HTTPException(
@@ -813,17 +869,19 @@ async def bulk_user_action(
         
         for user in affected_users:
             try:
-                if action == "activate":
+                if request.action == "activate":
                     user.is_active = True
-                elif action == "deactivate":
+                elif request.action == "deactivate":
                     if user.id == current_user.id:
                         results["failed"] += 1
-                        results["errors"].append(f"Cannot deactivate your own account (user {user.id})")
+                        results["errors"].append(
+                            f"Cannot deactivate your own account (user {user.id})"
+                        )
                         continue
                     user.is_active = False
-                elif action == "verify":
+                elif request.action == "verify":
                     user.is_verified = True
-                elif action == "send_reminder":
+                elif request.action == "send_reminder":
                     # Would send email reminder - for now just log
                     pass
                     
@@ -831,14 +889,16 @@ async def bulk_user_action(
                 
             except Exception as e:
                 results["failed"] += 1
-                results["errors"].append(f"Failed to {action} user {user.id}: {str(e)}")
+                results["errors"].append(
+                    f"Failed to {request.action} user {user.id}: {str(e)}"
+                )
                 
         db.commit()
         
         return {
-            "message": f"Bulk action '{action}' completed",
+            "message": f"Bulk action '{request.action}' completed",
             "results": results,
-            "total_users": len(user_ids)
+            "total_users": len(request.user_ids),
         }
         
     except Exception as e:
