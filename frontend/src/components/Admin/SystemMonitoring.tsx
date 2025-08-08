@@ -70,6 +70,7 @@ import AdminApiService, {
   LogEntry,
 } from '@/services/adminApi';
 import { toast } from 'sonner';
+import { formatNumber } from '@/utils/formatters';
 
 interface SystemMonitoringProps {
   refreshInterval?: number; // in milliseconds

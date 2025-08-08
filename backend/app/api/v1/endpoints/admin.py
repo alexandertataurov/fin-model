@@ -624,7 +624,7 @@ async def get_system_statistics(
         )
 
 
-@router.get("/users/activity", response_model=List[UserActivityResponse])
+@router.get("/users/activity", response_model=List[Dict[str, Any]])
 async def get_user_activity(
     limit: int = Query(50),
     active_only: Optional[str] = Query(None),
@@ -647,7 +647,7 @@ async def get_user_activity(
 
         users = query.order_by(desc(User.created_at)).limit(limit).all()
 
-        activity_data = []
+        activity_data: List[Dict[str, Any]] = []
         for user in users:
             # Count files uploaded by user
             files_uploaded = (
@@ -664,15 +664,15 @@ async def get_user_activity(
             )
 
             activity_data.append(
-                UserActivityResponse(
-                    user_id=user.id,
-                    username=user.username,
-                    last_login=user.last_login,
-                    login_count=0,  # Would need login tracking table
-                    files_uploaded=files_uploaded,
-                    models_created=models_created,
-                    is_active=user.is_active,
-                )
+                {
+                    "user_id": user.id,
+                    "username": user.username,
+                    "last_login": user.last_login.isoformat() if user.last_login else None,
+                    "login_count": 0,
+                    "files_uploaded": files_uploaded,
+                    "models_created": models_created,
+                    "is_active": bool(user.is_active),
+                }
             )
 
         return activity_data
