@@ -45,7 +45,7 @@ const ForgotPassword: React.FC = () => {
     },
   });
 
-  const onSubmit = async (values: ForgotPasswordFormData) => {
+  const onSubmit = async (values: ForgotPasswordFormData) => handlePasswordReset(values);
     setIsLoading(true);
     setError(null);
     setSuccess(null);
