@@ -12,6 +12,7 @@ from app.services.chart_data_service import (
 from app.services.metrics_calculation_service import (
     MetricsCalculationService,
 )
+from app.services.numeric_utils import extract_numeric_value
 
 
 class EnhancedChartMethods:
@@ -377,7 +378,7 @@ class EnhancedChartMethods:
             # Revenue metrics
             if latest_pl:
                 line_items = latest_pl.line_items or {}
-                revenue = self._extract_metric_value(
+                revenue = extract_numeric_value(
                     line_items, ["revenue", "total_revenue"]
                 )
                 if revenue:
@@ -435,7 +436,7 @@ class EnhancedChartMethods:
             # Cash flow metrics
             if latest_cf:
                 line_items = latest_cf.line_items or {}
-                operating_cf = self._extract_metric_value(
+                operating_cf = extract_numeric_value(
                     line_items, ["operating_cash_flow"]
                 )
                 if operating_cf:
@@ -531,42 +532,3 @@ class EnhancedChartMethods:
                 "options": chart_dataset.get("options", {}),
             }
 
-    def _extract_metric_value(
-        self, data: Dict[str, Any], possible_keys: List[str]
-    ) -> Optional[float]:
-        """Extract numeric value from data using possible key names."""
-
-        for key in possible_keys:
-            # Try exact match
-            if key in data:
-                value = data[key]
-                if isinstance(value, (int, float)):
-                    return float(value)
-                elif isinstance(value, str):
-                    try:
-                        return float(
-                            value.replace(",", "")
-                            .replace("$", "")
-                            .replace("(", "-")
-                            .replace(")", "")
-                        )
-                    except (ValueError, TypeError):
-                        continue
-
-            # Try case-insensitive match
-            for data_key, value in data.items():
-                if data_key.lower() == key.lower():
-                    if isinstance(value, (int, float)):
-                        return float(value)
-                    elif isinstance(value, str):
-                        try:
-                            return float(
-                                value.replace(",", "")
-                                .replace("$", "")
-                                .replace("(", "-")
-                                .replace(")", "")
-                            )
-                        except (ValueError, TypeError):
-                            continue
-
-        return None
