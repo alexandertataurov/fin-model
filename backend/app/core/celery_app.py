@@ -11,6 +11,7 @@ celery_app = Celery(
         "app.tasks.file_processing",
         "app.tasks.notifications",
         "app.tasks.scheduled_tasks",
+        "app.tasks.maintenance",
     ],
 )
 
@@ -46,6 +47,7 @@ celery_app.conf.update(
         "app.tasks.file_processing.*": {"queue": "file_processing"},
         "app.tasks.notifications.*": {"queue": "notifications"},
         "app.tasks.scheduled_tasks.*": {"queue": "scheduled"},
+        "app.tasks.maintenance.*": {"queue": "maintenance"},
     },
     # Define queues
     task_queues={
@@ -69,6 +71,10 @@ celery_app.conf.update(
             "exchange": "high_priority",
             "routing_key": "high_priority",
         },
+        "maintenance": {
+            "exchange": "maintenance",
+            "routing_key": "maintenance",
+        },
     },
     # Monitoring
     worker_send_task_events=True,
@@ -91,9 +97,7 @@ celery_app.conf.update(
 
 # Redis client for caching
 redis_url = (
-    settings.REDIS_URL
-    if hasattr(settings, "REDIS_URL")
-    else "redis://localhost:6379/0"
+    settings.REDIS_URL if hasattr(settings, "REDIS_URL") else "redis://localhost:6379/0"
 )
 redis_client = redis.Redis.from_url(redis_url)
 

@@ -1,10 +1,19 @@
 /**
  * Admin API Service
  *
- * Frontend API client for administrative functionality
+ * Frontend API client for administrative functionality with normalized responses
  */
 
 import api from './api';
+import { 
+  AdminDataTransformer,
+  NormalizedSystemStats,
+  NormalizedUserActivity,
+  NormalizedSystemMetrics,
+  NormalizedLogEntry,
+  NormalizedAuditEntry,
+  PaginatedResponse,
+} from '@/types/admin';
 
 // Types for admin API responses
 export interface SystemStats {
@@ -140,11 +149,19 @@ export interface MaintenanceSchedules {
 
 export class AdminApiService {
   /**
-   * Get comprehensive system statistics
+   * Get comprehensive system statistics (normalized)
    */
   static async getSystemStats(): Promise<SystemStats> {
     const response = await api.get('/admin/stats');
     return response.data;
+  }
+
+  /**
+   * Get normalized system statistics
+   */
+  static async getNormalizedSystemStats(): Promise<NormalizedSystemStats> {
+    const response = await api.get('/admin/stats');
+    return AdminDataTransformer.normalizeSystemStats(response.data);
   }
 
   /**
@@ -159,6 +176,19 @@ export class AdminApiService {
     // Use new robust endpoint path to avoid legacy validation conflicts
     const response = await api.get('/admin/users/activity-list', { params });
     return response.data;
+  }
+
+  /**
+   * Get normalized user activity data
+   */
+  static async getNormalizedUserActivity(
+    limit = 50,
+    activeOnly = false
+  ): Promise<NormalizedUserActivity[]> {
+    const params: Record<string, unknown> = { limit };
+    if (activeOnly) params.active_only = true;
+    const response = await api.get('/admin/users/activity-list', { params });
+    return AdminDataTransformer.normalizeUserActivity(response.data);
   }
 
   /**

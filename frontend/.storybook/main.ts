@@ -120,19 +120,6 @@ const config: StorybookConfig = {
       }
     </style>
   `,
-  // Improved story organization
-  storySort: {
-    order: [
-      'Docs',
-      'Getting Started',
-      'Design System',
-      ['Overview', 'Foundations', 'Tokens', 'Templates', '*'],
-      'Components',
-      ['Auth', 'Dashboard', 'Parameters', 'Scenarios', 'Charts', 'FileUpload', '*'],
-      'Pages',
-      '*'
-    ],
-  },
 };
 
 export default config;
