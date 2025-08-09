@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type DependencyList } from 'react';
 import { dashboardWebSocketService as websocketService } from '@/services/websocket';
 
 export type SetupSubscription = () => void | (() => void);
@@ -6,7 +6,7 @@ export type SetupSubscription = () => void | (() => void);
 export const useWebSocketSubscription = (
   isLive: boolean,
   setupSubscription: SetupSubscription,
-  deps: any[] = [],
+  deps: DependencyList = [],
   onConnectionChange?: (connected: boolean) => void,
 ) => {
   const [isConnected, setIsConnected] = useState(false);
@@ -50,7 +50,7 @@ export const useWebSocketSubscription = (
         unsubscribeRef.current = null;
       }
     };
-  }, [isLive, onConnectionChange, ...deps]);
+  }, [isLive, onConnectionChange, setupSubscription, deps]);
 
   return isConnected;
 };
