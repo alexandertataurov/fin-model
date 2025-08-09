@@ -32,6 +32,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/design-system/components/Table';
+import { Input } from '@/design-system/components/Input';
+import { Checkbox } from '@/design-system/components/Checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/components/Select';
 import {
   Dialog,
   DialogContent,
@@ -600,15 +609,19 @@ const DataManagement: React.FC = () => {
               <CardContent>
                 <div className="flex items-center justify-end mb-4 gap-2">
                   <span className="text-xs text-muted-foreground">Window</span>
-                  <select
-                    className="border rounded px-2 py-1 bg-background text-sm"
+                  <Select
                     value={performanceWindow}
-                    onChange={e => setPerformanceWindow(e.target.value as any)}
+                    onValueChange={val => setPerformanceWindow(val as any)}
                   >
-                    <option value="1h">Last 1h</option>
-                    <option value="24h">Last 24h</option>
-                    <option value="7d">Last 7d</option>
-                  </select>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1h">Last 1h</SelectItem>
+                      <SelectItem value="24h">Last 24h</SelectItem>
+                      <SelectItem value="7d">Last 7d</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center">
@@ -723,20 +736,19 @@ const DataManagement: React.FC = () => {
                         key={it.id}
                         className="p-3 border rounded flex items-center gap-3"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={it.enabled}
-                          onChange={e => {
+                          onCheckedChange={checked => {
                             const next = { ...schedulesDraft };
                             next.items[idx] = {
                               ...it,
-                              enabled: e.target.checked,
+                              enabled: !!checked,
                             } as any;
                             setSchedulesDraft(next);
                           }}
                         />
-                        <input
-                          className="border rounded px-2 py-1 bg-background text-sm flex-1"
+                        <Input
+                          className="flex-1"
                           value={it.name}
                           onChange={e => {
                             const next = { ...schedulesDraft };
@@ -747,32 +759,36 @@ const DataManagement: React.FC = () => {
                             setSchedulesDraft(next);
                           }}
                         />
-                        <select
-                          className="border rounded px-2 py-1 bg-background text-sm"
+                        <Select
                           value={it.task}
-                          onChange={e => {
+                          onValueChange={val => {
                             const next = { ...schedulesDraft };
                             next.items[idx] = {
                               ...it,
-                              task: e.target.value as any,
+                              task: val as any,
                             } as any;
                             setSchedulesDraft(next);
                           }}
                         >
-                          {[
-                            'cleanup',
-                            'vacuum',
-                            'archive',
-                            'reindex',
-                            'backup',
-                          ].map(x => (
-                            <option key={x} value={x}>
-                              {x}
-                            </option>
-                          ))}
-                        </select>
-                        <input
-                          className="border rounded px-2 py-1 bg-background text-sm w-40"
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              'cleanup',
+                              'vacuum',
+                              'archive',
+                              'reindex',
+                              'backup',
+                            ].map(x => (
+                              <SelectItem key={x} value={x}>
+                                {x}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          className="w-40"
                           placeholder="schedule"
                           value={it.schedule}
                           onChange={e => {
