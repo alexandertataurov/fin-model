@@ -18,6 +18,7 @@ export default defineConfig({
     target: 'esnext',
     minify: 'esbuild',
     rollupOptions: {
+      external: ['@storybook/globalThis'],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
@@ -35,13 +36,12 @@ export default defineConfig({
   server: {
     hmr: false, // Disable HMR in Storybook
   },
-  // CSS optimization
+  // CSS optimization - simplified for Storybook
   css: {
-    postcss: {
-      plugins: [
-        require('tailwindcss')({ config: resolve(__dirname, './tailwind.config.js') }),
-        require('autoprefixer')(),
-      ],
-    },
+    postcss: './postcss.config.js',
+  },
+  // Define global variables
+  define: {
+    global: 'globalThis',
   },
 });

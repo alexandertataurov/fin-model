@@ -427,8 +427,8 @@ const FlowComponents = () => {
                             {steps.map((step, index) => (
                                 <div key={step.id} className="flex items-center">
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step.id <= currentStep
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'bg-muted text-muted-foreground'
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-muted text-muted-foreground'
                                         }`}>
                                         {step.id < currentStep ? '✓' : step.id}
                                     </div>

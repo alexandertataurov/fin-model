@@ -16,6 +16,8 @@ from app.models.audit import AuditLog
 from app.models.parameter import Parameter
 from app.models.system_log import SystemLog
 from app.models.maintenance import MaintenanceSchedule
+from app.services.system_log_service import SystemLogService
+from app.services.maintenance_service import MaintenanceService
 from app.models.financial import FinancialStatement
 from app.schemas.user import (
     User as UserSchema,
@@ -1435,37 +1437,18 @@ async def get_system_logs(
 ):
     """Get system logs from DB with filters and optional envelope."""
     try:
-        query = db.query(SystemLog)
+        log_service = SystemLogService(db)
+        items = log_service.get_logs(
+            level=level,
+            limit=limit,
+            skip=skip,
+            from_ts=from_ts,
+            to_ts=to_ts,
+            search=search,
+        )
 
-        if level != "DEBUG":
-            order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
-            min_level = order.get(level, 1)
-            query = query.filter(
-                SystemLog.level.in_([lvl for lvl, v in order.items() if v >= min_level])
-            )
-        if from_ts:
-            query = query.filter(SystemLog.timestamp >= from_ts)
-        if to_ts:
-            query = query.filter(SystemLog.timestamp <= to_ts)
-        if search:
-            like = f"%{search}%"
-            query = query.filter(
-                (SystemLog.message.ilike(like)) | (SystemLog.module.ilike(like))
-            )
-
-        total = query.count()
-        rows = query.order_by(desc(SystemLog.timestamp)).offset(skip).limit(limit).all()
-        items = [
-            {
-                "timestamp": r.timestamp,
-                "level": r.level,
-                "message": r.message,
-                "module": r.module or "",
-                "user_id": r.user_id,
-            }
-            for r in rows
-        ]
         if envelope:
+            total = log_service.get_log_count(level)
             return {
                 "items": items,
                 "skip": skip,
@@ -1473,7 +1456,6 @@ async def get_system_logs(
                 "total": total,
             }
         return items
-
     except Exception:
         # Graceful fallback: return empty results to avoid 500s in admin UI
         empty = {"items": [], "skip": skip, "limit": limit, "total": 0}

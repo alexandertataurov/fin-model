@@ -1,7 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { resolve } from 'path';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
 const config: StorybookConfig = {
   framework: {
@@ -38,9 +36,10 @@ const config: StorybookConfig = {
   ],
   addons: [
     '@storybook/addon-essentials',
-    '@storybook/addon-a11y',
-    '@storybook/addon-interactions',
-    '@storybook/addon-links',
+    // Temporarily disabled due to build issues
+    // '@storybook/addon-a11y',
+    // '@storybook/addon-interactions',
+    // '@storybook/addon-links',
   ],
   docs: {
     autodocs: 'tag',
@@ -50,17 +49,6 @@ const config: StorybookConfig = {
     { from: '../public', to: '/public' },
   ],
   viteFinal: async (config) => {
-    // Ensure PostCSS with Tailwind runs inside Storybook
-    (config as any).css = {
-      ...(config as any).css,
-      postcss: {
-        plugins: [
-          tailwindcss({ config: resolve(__dirname, '../tailwind.config.js') }) as any,
-          autoprefixer() as any,
-        ],
-      },
-    };
-
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
