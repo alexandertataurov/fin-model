@@ -56,7 +56,7 @@ const Settings: React.FC = () => {
       updateUser(updated);
       toast.success('Profile updated');
     } catch (_e: any) {
-      toast.error(e?.response?.data?.detail || 'Failed to update profile');
+      toast.error(_e?.response?.data?.detail || 'Failed to update profile');
     } finally {
       setProfileSaving(false);
     }
@@ -94,7 +94,7 @@ const Settings: React.FC = () => {
       setConfirmPassword('');
       toast.success('Password changed');
     } catch (_e: any) {
-      toast.error(e?.response?.data?.detail || 'Failed to change password');
+      toast.error(_e?.response?.data?.detail || 'Failed to change password');
     } finally {
       setChangingPassword(false);
     }
@@ -140,7 +140,7 @@ const Settings: React.FC = () => {
       setSetupSecret(res.secret);
       toast.info('Scan the QR code with your authenticator app');
     } catch (_e: any) {
-      toast.error(e?.response?.data?.detail || 'Failed to begin MFA setup');
+      toast.error(_e?.response?.data?.detail || 'Failed to begin MFA setup');
     } finally {
       setMfaLoading(false);
     }
@@ -158,7 +158,7 @@ const Settings: React.FC = () => {
       await loadMfa();
       toast.success('MFA enabled');
     } catch (_e: any) {
-      toast.error(e?.response?.data?.detail || 'Verification failed');
+      toast.error(_e?.response?.data?.detail || 'Verification failed');
     } finally {
       setMfaLoading(false);
     }
@@ -171,7 +171,7 @@ const Settings: React.FC = () => {
       await loadMfa();
       toast.success('MFA disabled');
     } catch (_e: any) {
-      toast.error(e?.response?.data?.detail || 'Failed to disable MFA');
+      toast.error(_e?.response?.data?.detail || 'Failed to disable MFA');
     } finally {
       setMfaLoading(false);
     }
@@ -183,7 +183,7 @@ const Settings: React.FC = () => {
       setBackupCodes(res.backup_codes);
       toast.success('New backup codes generated');
     } catch (_e: any) {
-      toast.error(e?.response?.data?.detail || 'Failed to regenerate codes');
+      toast.error(_e?.response?.data?.detail || 'Failed to regenerate codes');
     }
   };
 
@@ -234,7 +234,7 @@ const Settings: React.FC = () => {
         toast.error('Failed to register security key');
       }
     } catch (_e: any) {
-      toast.error(e?.message || 'WebAuthn registration failed');
+      toast.error(_e?.message || 'WebAuthn registration failed');
     } finally {
       setWebauthnLoading(false);
     }

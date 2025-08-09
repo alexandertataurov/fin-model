@@ -1,5 +1,6 @@
 import { StateCreator } from 'zustand';
-import AdminApiService, { LogEntry } from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
+import type { LogEntry } from '@/services/admin';
 import {
   LogsState,
   NormalizedApiResponse,
@@ -46,7 +47,7 @@ export const createLogsSlice: StateCreator<LogsSlice, [], [], LogsSlice> = (
 
     try {
       const { logs } = get() as any;
-      const response = await AdminApiService.getSystemLogs(logs.level, logs.limit, {
+      const response: any = await AdminApi.getSystemLogs(logs.level, logs.limit, {
         from: logs.from || undefined,
         to: logs.to || undefined,
         search: logs.search || undefined,
@@ -60,8 +61,8 @@ export const createLogsSlice: StateCreator<LogsSlice, [], [], LogsSlice> = (
             ...state.logs,
             data: response.items,
             items: response.items,
-            total: response.total,
-            skip: response.skip,
+            total: response.total ?? response.pagination?.total ?? response.items.length,
+            skip: response.skip ?? response.pagination?.page ?? 0,
             loading: false,
             lastUpdated: Date.now(),
           },

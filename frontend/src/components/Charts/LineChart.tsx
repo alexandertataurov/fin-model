@@ -154,7 +154,6 @@ export const LineChart: React.FC<LineChartProps> = ({
           data-testid="tooltip"
           content={
             <CustomTooltip
-              currency={currency}
               formatter={formatTooltip}
               labelFormatter={label => `Period: ${label}`}
             />

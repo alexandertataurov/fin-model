@@ -164,7 +164,6 @@ export const BarChart: React.FC<BarChartProps> = ({
           data-testid="tooltip"
           content={
             <CustomTooltip
-              currency={currency}
               formatter={formatTooltip}
               labelFormatter={(label) => `Category: ${label}`}
               showTotal={true}

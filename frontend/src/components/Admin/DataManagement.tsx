@@ -97,7 +97,13 @@ const DataManagement: React.FC = () => {
     message: string,
     onConfirm: () => void | Promise<void>
   ) => {
-    setConfirmState({ open: true, message, onConfirm });
+    setConfirmState({
+      open: true,
+      message,
+      onConfirm: async () => {
+        await onConfirm();
+      },
+    });
   };
 
   // Load data management information
@@ -556,8 +562,7 @@ const DataManagement: React.FC = () => {
                     onClick={() =>
                       showConfirm('Generate admin overview report (CSV)?', async () => {
                         try {
-                          const data =
-                            await AdminApiService.getAdminOverviewReport('csv');
+                          const data = await AdminApi.getAdminOverviewReport('csv');
                           const blob = new Blob([data], {
                             type: 'text/csv',
                           });
@@ -838,7 +843,7 @@ const DataManagement: React.FC = () => {
                   onClick={() =>
                     showConfirm('Run database backup now?', async () => {
                       try {
-                        const res = await AdminApiService.backupDatabase();
+                        const res = await AdminApi.backupDatabase();
                         toast.success(`${res.message} (job ${res.job_id})`);
                       } catch {
                         toast.error('Backup failed');
@@ -887,7 +892,7 @@ const DataManagement: React.FC = () => {
                   onClick={() =>
                     showConfirm('Rebuild all database indexes now?', async () => {
                       try {
-                        const res = await AdminApiService.reindexDatabase();
+                        const res = await AdminApi.reindexDatabase();
                         toast.success(`${res.message} (job ${res.job_id})`);
                       } catch {
                         toast.error('Reindex failed');

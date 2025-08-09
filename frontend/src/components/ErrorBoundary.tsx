@@ -45,11 +45,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
         this.setState({
             error,
-            errorInfo: errorInfo.componentStack,
+            errorInfo: errorInfo.componentStack || null,
         });
 
         if (this.props.onError) {
-            this.props.onError(error, errorInfo.componentStack);
+            this.props.onError(error, errorInfo.componentStack || '');
         }
 
         // Log to external service in production

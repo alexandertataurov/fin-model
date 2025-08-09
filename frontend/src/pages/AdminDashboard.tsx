@@ -35,9 +35,11 @@ import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
 import OverviewTab from '@/components/AdminDashboard/OverviewTab';
+import HealthTab from '@/components/AdminDashboard/HealthTab';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import * as AdminApi from '@/services/admin';
+import type { LogEntry, SecurityAudit } from '@/services/admin';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -47,9 +49,7 @@ const AdminDashboard: React.FC = () => {
   const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
 
   // Local log state for tests
-  const [logs, setLogs] = useState<import('@/services/adminApi').LogEntry[]>(
-    []
-  );
+  const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [logsTotal, setLogsTotal] = useState(0);
   const [logsSkip, setLogsSkip] = useState(0);
   const [logsLimit, setLogsLimit] = useState(100);
@@ -60,6 +60,22 @@ const AdminDashboard: React.FC = () => {
   const [logsTo, setLogsTo] = useState('');
   const [logsSearch, setLogsSearch] = useState('');
   const [userPermissions, _setUserPermissions] = useState<any>(null);
+  const [securityAudit, setSecurityAudit] = useState<SecurityAudit | null>(
+    null
+  );
+  const [securityFrom, setSecurityFrom] = useState('');
+  const [securityTo, setSecurityTo] = useState('');
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [auditTotal, setAuditTotal] = useState(0);
+  const [auditSkip, setAuditSkip] = useState(0);
+  const [auditFilters, setAuditFilters] = useState({
+    skip: 0,
+    limit: 50,
+    userId: undefined as number | undefined,
+    action: undefined as string | undefined,
+  });
+  const [auditFrom, setAuditFrom] = useState('');
+  const [auditTo, setAuditTo] = useState('');
 
   // Use centralized store
   const {
@@ -74,6 +90,7 @@ const AdminDashboard: React.FC = () => {
     systemHealth: _systemHealth,
     databaseHealth: _databaseHealth,
     audit: _audit,
+    logs: _logs,
     fetchOverviewData,
     fetchHealthData,
     fetchLogsData,
@@ -162,7 +179,7 @@ const AdminDashboard: React.FC = () => {
   const handleFileCleanup = async () => {
     try {
       setMaintenanceLoading(true);
-      const result = await AdminApiService.cleanupFiles(false);
+      const result = await AdminApi.cleanupFiles(false);
       toast.success(result.message);
       await loadAdminData(); // Refresh data
     } catch (_error) {
@@ -210,7 +227,7 @@ const AdminDashboard: React.FC = () => {
   const isInitialLoading =
     !systemStats.data &&
     !userActivity.data &&
-    !logs.data &&
+    !_logs.data &&
     systemStats.loading;
 
   if (isInitialLoading) {
@@ -392,7 +409,7 @@ const AdminDashboard: React.FC = () => {
                         }
                       );
                       const env = resp as any;
-                      setLogs((env.items as LogEntry[]) || []);
+                      setLogEntries((env.items as LogEntry[]) || []);
                       setLogsTotal(env.total || 0);
                     }}
                   >
@@ -422,7 +439,7 @@ const AdminDashboard: React.FC = () => {
                         }
                       );
                       const env = resp as any;
-                      setLogs((env.items as LogEntry[]) || []);
+                      setLogEntries((env.items as LogEntry[]) || []);
                       setLogsTotal(env.total || 0);
                     }}
                   >
@@ -467,7 +484,7 @@ const AdminDashboard: React.FC = () => {
                         }
                       );
                       const env = resp as any;
-                      setLogs((env.items as LogEntry[]) || []);
+                      setLogEntries((env.items as LogEntry[]) || []);
                       setLogsTotal(env.total || 0);
                       setLogsSkip(0);
                     }}
@@ -501,7 +518,7 @@ const AdminDashboard: React.FC = () => {
                           }
                         );
                         const env = resp as any;
-                        setLogs((env.items as LogEntry[]) || []);
+                        setLogEntries((env.items as LogEntry[]) || []);
                         setLogsTotal(env.total || 0);
                       }}
                       disabled={logsSkip <= 0}
@@ -527,7 +544,7 @@ const AdminDashboard: React.FC = () => {
                           }
                         );
                         const env = resp as any;
-                        setLogs((env.items as LogEntry[]) || []);
+                        setLogEntries((env.items as LogEntry[]) || []);
                         setLogsTotal(env.total || 0);
                       }}
                       disabled={logsSkip + logsLimit >= logsTotal}
@@ -538,8 +555,8 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="border rounded">
                   <div className="max-h-96 overflow-auto text-xs font-mono">
-                    {logs.length > 0 ? (
-                      logs.map((log, idx) => (
+                    {logEntries.length > 0 ? (
+                      logEntries.map((log, idx) => (
                         <div key={idx} className="px-3 py-2 border-b">
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">
@@ -827,7 +844,6 @@ const AdminDashboard: React.FC = () => {
                           size="sm"
                           onClick={async () => {
                             try {
-                              setRefreshing(true);
                               const data = await AdminApi.getSecurityAudit({
                                 from: securityFrom || undefined,
                                 to: securityTo || undefined,
@@ -837,7 +853,6 @@ const AdminDashboard: React.FC = () => {
                             } catch {
                               toast.error('Failed to refresh security audit');
                             } finally {
-                              setRefreshing(false);
                             }
                           }}
                         >
@@ -894,9 +909,11 @@ const AdminDashboard: React.FC = () => {
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
                           <div className="space-y-1">
-                            {securityAudit.recommendations.map((rec, idx) => (
-                              <div key={idx}>{rec}</div>
-                            ))}
+                            {securityAudit.recommendations.map(
+                              (rec: string, idx: number) => (
+                                <div key={idx}>{rec}</div>
+                              )
+                            )}
                           </div>
                         </AlertDescription>
                       </Alert>

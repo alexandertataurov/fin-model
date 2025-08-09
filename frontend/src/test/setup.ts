@@ -4,8 +4,7 @@ import React from 'react';
 
 // Polyfills for JSDOM gaps used by UI libs
 if (typeof window !== 'undefined' && !('matchMedia' in window)) {
-    // @ts-expect-error - matchMedia not implemented in jsdom
-    window.matchMedia = () => ({
+    (window as any).matchMedia = () => ({
         matches: false,
         media: '',
         onchange: null,
@@ -17,9 +16,7 @@ if (typeof window !== 'undefined' && !('matchMedia' in window)) {
     });
 }
 
-// @ts-expect-error - ResizeObserver not available in jsdom
 if (typeof globalThis.ResizeObserver === 'undefined') {
-    // @ts-expect-error - define dummy ResizeObserver
     globalThis.ResizeObserver = class {
         observe() { }
         unobserve() { }
@@ -30,10 +27,8 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
 // Ensure TextEncoder/TextDecoder exist in Node envs
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { TextEncoder, TextDecoder } = require('util');
-// @ts-expect-error - TextEncoder missing in Node environment
-if (!globalThis.TextEncoder) globalThis.TextEncoder = TextEncoder;
-// @ts-expect-error - TextDecoder missing in Node environment
-if (!globalThis.TextDecoder) globalThis.TextDecoder = TextDecoder;
+if (!(globalThis as any).TextEncoder) (globalThis as any).TextEncoder = TextEncoder;
+if (!(globalThis as any).TextDecoder) (globalThis as any).TextDecoder = TextDecoder;
 
 // Silence toasts during tests
 vi.mock('sonner', () => ({
@@ -62,14 +57,11 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 // Force confirm stub (jsdom implements confirm but throws by default)
-// @ts-expect-error - window may be undefined in Node
 if (typeof window !== 'undefined') {
-    // @ts-expect-error - stub confirm for tests
-    window.confirm = () => true;
+    (window as any).confirm = () => true;
 }
 
 // Ensure global confirm is stubbed too
-// @ts-expect-error - stub global confirm for tests
 vi.stubGlobal('confirm', () => true);
 
 // Lightweight UI component mocks to avoid heavy Radix behavior in tests
@@ -93,14 +85,10 @@ vi.mock('@/design-system/components/Switch', () => ({
 }));
 
 // Disable repeating timers to prevent hanging tests due to open intervals
-// @ts-expect-error - override setInterval for tests
 if (typeof globalThis.setInterval === 'function') {
-    // @ts-expect-error - stub setInterval implementation
     vi.stubGlobal('setInterval', (_cb: any, _ms?: number) => 0 as any);
 }
-// @ts-expect-error - override clearInterval for tests
 if (typeof globalThis.clearInterval === 'function') {
-    // @ts-expect-error - stub clearInterval implementation
     vi.stubGlobal('clearInterval', (_id: any) => { });
 }
 

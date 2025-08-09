@@ -221,7 +221,7 @@ const OverviewTab: React.FC = () => {
                     <div>
                       <p className="font-medium">{user.username}</p>
                       <p className="text-xs text-muted-foreground">
-                        Last login: {new Date(user.last_login).toLocaleString()}
+                        Last login: {user.last_login ? new Date(user.last_login).toLocaleString() : ''}
                       </p>
                     </div>
                     <div className="text-right">
