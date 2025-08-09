@@ -6,8 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import matchers from '@testing-library/jest-dom/matchers';
-expect.extend(matchers as any);
+import '@testing-library/jest-dom/vitest';
 import userEvent from '@testing-library/user-event';
 import { OverviewSection } from '../OverviewSection';
 import { useAdminStore } from '../../../stores/admin';
