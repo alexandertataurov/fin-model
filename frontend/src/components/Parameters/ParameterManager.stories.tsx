@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ParameterManager } from './ParameterManager';
+import ParameterManager from './ParameterManager';
 
 const meta: Meta<typeof ParameterManager> = {
   title: 'Components/ParameterManager',

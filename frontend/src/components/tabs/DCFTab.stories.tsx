@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DCFTab } from './DCFTab';
+import DCFTab from './DCFTab';
 
 const meta: Meta<typeof DCFTab> = {
   title: 'Components/DCFTab',

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ProtectedRoute } from './ProtectedRoute';
+import ProtectedRoute from './ProtectedRoute';
 
 const meta: Meta<typeof ProtectedRoute> = {
   title: 'Components/ProtectedRoute',

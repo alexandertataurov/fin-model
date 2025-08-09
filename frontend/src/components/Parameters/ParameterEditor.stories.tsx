@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ParameterEditor } from './ParameterEditor';
+import ParameterEditor from './ParameterEditor';
 
 const meta: Meta<typeof ParameterEditor> = {
   title: 'Components/ParameterEditor',

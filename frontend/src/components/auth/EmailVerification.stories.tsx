@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { EmailVerification } from './EmailVerification';
+import EmailVerification from './EmailVerification';
 
 const meta: Meta<typeof EmailVerification> = {
   title: 'Components/EmailVerification',

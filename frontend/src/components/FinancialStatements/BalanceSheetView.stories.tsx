@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BalanceSheetView } from './BalanceSheetView';
+import BalanceSheetView from './BalanceSheetView';
 
 const meta: Meta<typeof BalanceSheetView> = {
   title: 'Components/BalanceSheetView',

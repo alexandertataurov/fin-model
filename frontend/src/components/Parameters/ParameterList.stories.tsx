@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ParameterList } from './ParameterList';
+import ParameterList from './ParameterList';
 
 const meta: Meta<typeof ParameterList> = {
   title: 'Components/ParameterList',

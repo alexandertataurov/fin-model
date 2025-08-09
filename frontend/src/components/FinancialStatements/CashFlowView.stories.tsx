@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CashFlowView } from './CashFlowView';
+import CashFlowView from './CashFlowView';
 
 const meta: Meta<typeof CashFlowView> = {
   title: 'Components/CashFlowView',

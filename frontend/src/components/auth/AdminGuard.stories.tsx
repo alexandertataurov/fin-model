@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AdminGuard } from './AdminGuard';
+import AdminGuard from './AdminGuard';
 
 const meta: Meta<typeof AdminGuard> = {
   title: 'Components/AdminGuard',

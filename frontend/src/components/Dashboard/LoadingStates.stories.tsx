@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { LoadingStates } from './LoadingStates';
+import LoadingStates from './LoadingStates';
 
 const meta: Meta<typeof LoadingStates> = {
   title: 'Components/LoadingStates',

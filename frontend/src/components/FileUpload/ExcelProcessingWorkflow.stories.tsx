@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ExcelProcessingWorkflow } from './ExcelProcessingWorkflow';
+import ExcelProcessingWorkflow from './ExcelProcessingWorkflow';
 
 const meta: Meta<typeof ExcelProcessingWorkflow> = {
   title: 'Components/ExcelProcessingWorkflow',

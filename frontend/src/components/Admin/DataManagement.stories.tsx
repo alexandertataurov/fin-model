@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DataManagement } from './DataManagement';
+import DataManagement from './DataManagement';
 
 const meta: Meta<typeof DataManagement> = {
   title: 'Components/DataManagement',

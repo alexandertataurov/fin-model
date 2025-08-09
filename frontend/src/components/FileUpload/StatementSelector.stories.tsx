@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { StatementSelector } from './StatementSelector';
+import StatementSelector from './StatementSelector';
 
 const meta: Meta<typeof StatementSelector> = {
   title: 'Components/StatementSelector',

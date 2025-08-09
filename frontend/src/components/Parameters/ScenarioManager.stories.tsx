@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ScenarioManager } from './ScenarioManager';
+import ScenarioManager from './ScenarioManager';
 
 const meta: Meta<typeof ScenarioManager> = {
   title: 'Components/ScenarioManager',

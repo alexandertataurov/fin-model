@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DCFView } from './DCFView';
+import DCFView from './DCFView';
 
 const meta: Meta<typeof DCFView> = {
   title: 'Components/DCFView',

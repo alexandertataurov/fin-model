@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FileList } from './FileList';
+import FileList from './FileList';
 
 const meta: Meta<typeof FileList> = {
   title: 'Components/FileList',
