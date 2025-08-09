@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -7,9 +8,9 @@ import { vi } from 'vitest';
 
 // Mock the useAuth hook but preserve other exports like AuthProvider
 vi.mock('../contexts/AuthContext', async () => {
-  const actual = await vi.importActual<typeof import('../contexts/AuthContext')>(
-    '../contexts/AuthContext'
-  );
+  const actual = await vi.importActual<
+    typeof import('../contexts/AuthContext')
+  >('../contexts/AuthContext');
   return {
     ...actual,
     useAuth: () => ({
@@ -94,7 +95,12 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 }
 
 const customRender = (ui: ReactElement, options: CustomRenderOptions = {}) => {
-  const { queryClient, route = '/', withRouter = true, ...renderOptions } = options;
+  const {
+    queryClient,
+    route = '/',
+    withRouter = true,
+    ...renderOptions
+  } = options;
 
   // Set the initial route if provided
   if (route !== '/') {
