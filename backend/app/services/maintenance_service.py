@@ -4,10 +4,11 @@ Provides centralized management of maintenance schedules.
 """
 
 import logging
-from typing import List, Optional
 from datetime import datetime
-from sqlalchemy.orm import Session
+from typing import List, Optional
+
 from app.models.maintenance import MaintenanceSchedule
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +121,7 @@ class MaintenanceService:
         try:
             return (
                 self.db.query(MaintenanceSchedule)
-                .filter(MaintenanceSchedule.enabled == True)
+                .filter(MaintenanceSchedule.enabled.is_(True))
                 .all()
             )
         except Exception as e:
@@ -131,3 +132,53 @@ class MaintenanceService:
         """Validate that a task is allowed."""
         allowed_tasks = {"cleanup", "vacuum", "archive", "reindex", "backup"}
         return task in allowed_tasks
+
+    def upsert_schedule(
+        self,
+        *,
+        id: str,
+        name: str,
+        task: str,
+        schedule: str,
+        enabled: bool,
+    ) -> MaintenanceSchedule:
+        """Create or update a maintenance schedule."""
+        try:
+            schedule_obj = self.db.get(MaintenanceSchedule, id)
+            if schedule_obj:
+                schedule_obj.name = name
+                schedule_obj.task = task
+                schedule_obj.schedule = schedule
+                schedule_obj.enabled = enabled
+                schedule_obj.updated_at = datetime.utcnow()
+            else:
+                schedule_obj = MaintenanceSchedule(
+                    id=id,
+                    name=name,
+                    task=task,
+                    schedule=schedule,
+                    enabled=enabled,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                self.db.add(schedule_obj)
+
+            self.db.commit()
+            return schedule_obj
+        except Exception as e:
+            logger.error(f"Failed to upsert maintenance schedule {id}: {e}")
+            self.db.rollback()
+            raise
+
+    def remove_missing(self, keep_ids: set[str]) -> None:
+        """Delete schedules not present in the provided set of IDs."""
+        try:
+            (
+                self.db.query(MaintenanceSchedule)
+                .filter(~MaintenanceSchedule.id.in_(keep_ids))
+                .delete(synchronize_session=False)
+            )
+            self.db.commit()
+        except Exception as e:
+            logger.error(f"Failed to remove missing maintenance schedules: {e}")
+            self.db.rollback()

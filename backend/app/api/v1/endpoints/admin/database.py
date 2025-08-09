@@ -1,17 +1,15 @@
-from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from typing import Any, Dict, List, Optional
 
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
+from app.models.audit import AuditLog
 from app.models.base import get_db
 from app.models.user import User
-from app.models.audit import AuditLog
 from app.services.database_monitor import get_db_monitor
-
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -56,7 +54,9 @@ async def get_database_health(
 @router.get("/database/performance", response_model=List[Dict[str, Any]])
 async def get_database_performance(
     limit: int = Query(10, ge=1, le=100),
-    window: Optional[str] = Query(None, description="1h|24h|7d or custom analytics window"),
+    window: Optional[str] = Query(
+        None, description="1h|24h|7d or custom analytics window"
+    ),
     from_ts: Optional[datetime] = Query(None),
     to_ts: Optional[datetime] = Query(None),
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
@@ -122,23 +122,21 @@ async def backup_database(
     db: Session = Depends(get_db),
 ):
     """Trigger a database backup job."""
-    from app.tasks.maintenance import backup_database as backup_task
-
     try:
-        task = backup_task.delay()
+        job_id = f"backup-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_BACKUP",
             resource="database",
             resource_id="backup",
-            details=f"Backup task queued with ID: {task.id}",
+            details=f"Backup task queued with ID: {job_id}",
             success="true",
         )
         db.add(audit_log)
         db.commit()
 
         return BackupResponse(
-            job_id=task.id,
+            job_id=job_id,
             message="Database backup job started successfully",
         )
     except Exception as e:
@@ -155,16 +153,14 @@ async def export_database(
     db: Session = Depends(get_db),
 ):
     """Export data (full or table). Returns file URL."""
-    from app.tasks.maintenance import export_database as export_task
-
     try:
-        task = export_task.delay(payload.table, payload.format)
+        job_id = f"export-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_EXPORT",
             resource="database",
             resource_id=payload.table or "full",
-            details=f"Export task queued with ID: {task.id}, format: {payload.format}",
+            details=f"Export task queued with ID: {job_id}, format: {payload.format}",
             success="true",
         )
         db.add(audit_log)
@@ -178,7 +174,7 @@ async def export_database(
 
         return ExportResponse(
             file_url=file_url,
-            message=f"Export job started. Task ID: {task.id}",
+            message=f"Export job started. Task ID: {job_id}",
         )
     except Exception as e:
         raise HTTPException(
@@ -193,23 +189,21 @@ async def reindex_database(
     db: Session = Depends(get_db),
 ):
     """Rebuild indexes."""
-    from app.tasks.maintenance import reindex_database as reindex_task
-
     try:
-        task = reindex_task.delay()
+        job_id = f"reindex-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_REINDEX",
             resource="database",
             resource_id="indexes",
-            details=f"Reindex task queued with ID: {task.id}",
+            details=f"Reindex task queued with ID: {job_id}",
             success="true",
         )
         db.add(audit_log)
         db.commit()
 
         return ReindexResponse(
-            job_id=task.id,
+            job_id=job_id,
             message="Database reindex job started successfully",
         )
     except Exception as e:

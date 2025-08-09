@@ -1,10 +1,5 @@
+from datetime import datetime
 from typing import Any, Dict, List, Optional
-from datetime import datetime, timezone
-
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import desc
-from sqlalchemy.orm import Session
-from pydantic import BaseModel
 
 from app.core.dependencies import (
     UserWithPermissions,
@@ -12,18 +7,19 @@ from app.core.dependencies import (
     require_permissions,
 )
 from app.core.permissions import Permission
+from app.models.audit import AuditLog
 from app.models.base import get_db
+from app.models.file import UploadedFile
+from app.models.financial import FinancialStatement
 from app.models.role import RoleType
 from app.models.user import User
-from app.models.file import UploadedFile
-from app.models.audit import AuditLog
-from app.models.financial import FinancialStatement
-from app.schemas.user import (
-    User as UserSchema,
-    AdminUserUpdate,
-    AdminUserCreate,
-)
+from app.schemas.user import AdminUserCreate, AdminUserUpdate
+from app.schemas.user import User as UserSchema
 from app.services.auth_service import AuthService
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import BaseModel
+from sqlalchemy import desc, func
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -43,15 +39,17 @@ class BulkUserActionRequest(BaseModel):
     action: str
 
 
-@router.get("/users/activity-list")
+@router.get("/users/activity-list", response_model=List[UserActivityResponse])
 async def get_user_activity(
     request: Request,
+    limit: int = Query(50, ge=1, le=1000),
+    active_only: bool = Query(False),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
     db: Session = Depends(get_db),
 ):
     """Get user activity statistics."""
     try:
-        query = db.query(User)
+        # Parse params defensively
         qp = request.query_params
         limit_raw = qp.get("limit")
         try:
@@ -64,50 +62,66 @@ async def get_user_activity(
             if active_raw is not None
             else False
         )
+
+        # Aggregate counts using joins
+        file_counts = (
+            db.query(
+                UploadedFile.user_id.label("user_id"),
+                func.count(UploadedFile.id).label("files_uploaded"),
+            )
+            .group_by(UploadedFile.user_id)
+            .subquery()
+        )
+        model_counts = (
+            db.query(
+                FinancialStatement.created_by_id.label("user_id"),
+                func.count(FinancialStatement.id).label("models_created"),
+            )
+            .group_by(FinancialStatement.created_by_id)
+            .subquery()
+        )
+        login_counts = (
+            db.query(
+                AuditLog.user_id.label("user_id"),
+                func.count(AuditLog.id).label("login_count"),
+            )
+            .filter(AuditLog.action == "LOGIN", AuditLog.success == "true")
+            .group_by(AuditLog.user_id)
+            .subquery()
+        )
+
+        query = (
+            db.query(
+                User.id.label("user_id"),
+                User.username,
+                User.last_login,
+                User.is_active,
+                func.coalesce(file_counts.c.files_uploaded, 0).label("files_uploaded"),
+                func.coalesce(model_counts.c.models_created, 0).label("models_created"),
+                func.coalesce(login_counts.c.login_count, 0).label("login_count"),
+            )
+            .outerjoin(file_counts, User.id == file_counts.c.user_id)
+            .outerjoin(model_counts, User.id == model_counts.c.user_id)
+            .outerjoin(login_counts, User.id == login_counts.c.user_id)
+        )
+
         if active_only_bool:
             query = query.filter(User.is_active.is_(True))
 
-        users = query.order_by(desc(User.created_at)).limit(limit_val).all()
+        results = query.order_by(desc(User.created_at)).limit(limit_val).all()
 
-        activity_data: List[Dict[str, Any]] = []
-        for user in users:
-            files_uploaded = (
-                db.query(UploadedFile)
-                .filter(UploadedFile.uploaded_by_id == user.id)
-                .count()
+        return [
+            UserActivityResponse(
+                user_id=row.user_id,
+                username=row.username,
+                last_login=row.last_login,
+                login_count=row.login_count,
+                files_uploaded=row.files_uploaded,
+                models_created=row.models_created,
+                is_active=bool(row.is_active),
             )
-
-            models_created = (
-                db.query(FinancialStatement)
-                .filter(FinancialStatement.created_by_id == user.id)
-                .count()
-            )
-
-            login_count = (
-                db.query(AuditLog)
-                .filter(
-                    AuditLog.user_id == user.id,
-                    AuditLog.action == "LOGIN",
-                    AuditLog.success == "true",
-                )
-                .count()
-            )
-
-            activity_data.append(
-                {
-                    "user_id": user.id,
-                    "username": user.username,
-                    "last_login": (
-                        user.last_login.isoformat() if user.last_login else None
-                    ),
-                    "login_count": login_count,
-                    "files_uploaded": files_uploaded,
-                    "models_created": models_created,
-                    "is_active": bool(user.is_active),
-                }
-            )
-
-        return activity_data
+            for row in results
+        ]
 
     except Exception as e:
         raise HTTPException(
@@ -132,9 +146,9 @@ def list_users(
 ) -> Any:
     """List all users with advanced filtering (Admin only)."""
     from app.core.admin_exceptions import (
+        create_pagination_response,
         handle_admin_error,
         validate_pagination_params,
-        create_pagination_response,
     )
 
     try:
@@ -485,9 +499,7 @@ async def bulk_user_action(
                 elif request.action == "deactivate":
                     if user.id == current_user.id:
                         results["failed"] += 1
-                        msg = (
-                            "Cannot deactivate your own account " f"(user {user.id})"
-                        )
+                        msg = "Cannot deactivate your own account " f"(user {user.id})"
                         results["errors"].append(msg)
                         continue
                     user.is_active = False
