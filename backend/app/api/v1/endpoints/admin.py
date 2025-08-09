@@ -1,6 +1,8 @@
-from typing import Any, Dict, List, Optional
+import asyncio
+import json
+import logging
 from datetime import datetime, timedelta, timezone
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional, Union
 
 from app.core.dependencies import (
     UserWithPermissions,
@@ -8,24 +10,21 @@ from app.core.dependencies import (
     require_permissions,
 )
 from app.core.permissions import Permission
-from app.models.base import get_db
-from app.models.role import RoleType
-from app.models.user import User
-from app.models.file import UploadedFile, FileStatus
 from app.models.audit import AuditLog
-from app.models.parameter import Parameter
-from app.models.system_log import SystemLog
-from app.models.maintenance import MaintenanceSchedule
+from app.models.base import get_db
+from app.models.file import FileStatus, UploadedFile
 from app.models.financial import FinancialStatement
-from app.schemas.user import (
-    User as UserSchema,
-    AdminUserUpdate,
-    AdminUserCreate,
-)
+from app.models.maintenance import MaintenanceSchedule
+from app.models.parameter import Parameter
+from app.models.role import RoleType
+from app.models.system_log import SystemLog
+from app.models.user import User
+from app.schemas.user import AdminUserCreate, AdminUserUpdate
+from app.schemas.user import User as UserSchema
+from app.schemas.user import UserWithRoles
 from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
-from app.services.system_log_service import SystemLogService
 from app.services.maintenance_service import MaintenanceService
 from app.services.audit_service import log_audit
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
@@ -35,10 +34,6 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, desc, text, func
-import asyncio
-import json
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -126,10 +121,18 @@ class BulkUserActionRequest(BaseModel):
     user_ids: List[int]
     action: str
 
+class UserPermissionsResponse(BaseModel):
+    user_id: int
+    roles: List[str]
+    permissions: List[str]
+    is_admin: bool
+    is_analyst: bool
 
-@router.get("/users/activity-list")
+
+@router.get("/users/activity-list", response_model=List[UserActivityResponse])
 async def get_user_activity(
-    request: Request,
+    limit: int = Query(50, ge=1, le=1000),
+    active_only: bool = Query(False),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
     db: Session = Depends(get_db),
 ):
@@ -139,25 +142,12 @@ async def get_user_activity(
     """
     try:
         query = db.query(User)
-        # Parse params defensively
-        qp = request.query_params
-        limit_raw = qp.get("limit")
-        try:
-            limit_val = int(limit_raw) if limit_raw is not None else 50
-        except Exception:
-            limit_val = 50
-        active_raw = qp.get("active_only")
-        active_only_bool = (
-            str(active_raw).lower() in {"true", "1", "yes"}
-            if active_raw is not None
-            else False
-        )
-        if active_only_bool:
+        if active_only:
             query = query.filter(User.is_active.is_(True))
 
-        users = query.order_by(desc(User.created_at)).limit(limit_val).all()
+        users = query.order_by(desc(User.created_at)).limit(limit).all()
 
-        activity_data: List[Dict[str, Any]] = []
+        activity_data: List[UserActivityResponse] = []
         for user in users:
             # Count files uploaded by user
             files_uploaded = (
@@ -179,23 +169,21 @@ async def get_user_activity(
                 .filter(
                     AuditLog.user_id == user.id,
                     AuditLog.action == "LOGIN",
-                    AuditLog.success == "true"
+                    AuditLog.success == "true",
                 )
                 .count()
             )
 
             activity_data.append(
-                {
-                    "user_id": user.id,
-                    "username": user.username,
-                    "last_login": (
-                        user.last_login.isoformat() if user.last_login else None
-                    ),
-                    "login_count": login_count,
-                    "files_uploaded": files_uploaded,
-                    "models_created": models_created,
-                    "is_active": bool(user.is_active),
-                }
+                UserActivityResponse(
+                    user_id=user.id,
+                    username=user.username,
+                    last_login=user.last_login,
+                    login_count=login_count,
+                    files_uploaded=files_uploaded,
+                    models_created=models_created,
+                    is_active=bool(user.is_active),
+                )
             )
 
         return activity_data
@@ -207,7 +195,10 @@ async def get_user_activity(
         )
 
 
-@router.get("/users", response_model=Any)
+@router.get(
+    "/users",
+    response_model=Union[List[UserWithRoles], Dict[str, Any]],
+)
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -223,9 +214,9 @@ def list_users(
 ) -> Any:
     """List all users with advanced filtering (Admin only)."""
     from app.core.admin_exceptions import (
+        create_pagination_response,
         handle_admin_error,
         validate_pagination_params,
-        create_pagination_response
     )
 
     try:
@@ -250,9 +241,9 @@ def list_users(
         if search:
             search_term = f"%{search}%"
             base_query = base_query.filter(
-                (User.username.ilike(search_term)) |
-                (User.email.ilike(search_term)) |
-                (User.full_name.ilike(search_term))
+                (User.username.ilike(search_term))
+                | (User.email.ilike(search_term))
+                | (User.full_name.ilike(search_term))
             )
 
         if created_after:
@@ -265,31 +256,29 @@ def list_users(
         total = base_query.count()
 
         # Apply pagination and ordering
-        users = (base_query.order_by(desc(User.created_at))
-                .offset(skip).limit(limit).all())
+        users = (
+            base_query.order_by(desc(User.created_at)).offset(skip).limit(limit).all()
+        )
 
         # Add roles to each user
-        users_with_roles = []
+        users_with_roles: List[UserWithRoles] = []
         for user in users:
             user_roles = auth_service.get_user_roles(user.id)
             user_dict = UserSchema.model_validate(user).model_dump()
-            user_dict["roles"] = user_roles
-            users_with_roles.append(user_dict)
+            users_with_roles.append(UserWithRoles(**user_dict, roles=user_roles))
+
+        items = [u.model_dump() for u in users_with_roles]
 
         # Return paginated response
         return create_pagination_response(
-            items=users_with_roles,
-            total=total,
-            skip=skip,
-            limit=limit,
-            envelope=envelope
+            items=items, total=total, skip=skip, limit=limit, envelope=envelope
         )
 
     except Exception as e:
         raise handle_admin_error(e, "list users", current_user.id)
 
 
-@router.get("/users/{user_id}", response_model=Any)
+@router.get("/users/{user_id}", response_model=UserWithRoles)
 def get_user(
     user_id: int,
     current_user: User = Depends(require_permissions(Permission.USER_READ)),
@@ -307,14 +296,12 @@ def get_user(
     # Get user roles
     user_roles = auth_service.get_user_roles(user.id)
     user_dict = UserSchema.model_validate(user).model_dump()
-    user_dict["roles"] = user_roles
-
-    return user_dict
+    return UserWithRoles(**user_dict, roles=user_roles)
 
 
 @router.post(
     "/users",
-    response_model=Any,
+    response_model=UserWithRoles,
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -332,7 +319,7 @@ def create_user(
 
     roles = auth_service.get_user_roles(created.id)
     user_dict = UserSchema.model_validate(created).model_dump()
-    user_dict["roles"] = roles
+    user_with_roles = UserWithRoles(**user_dict, roles=roles)
     # Write audit (best-effort)
     log_audit(
         db,
@@ -382,7 +369,7 @@ def update_user(
     return user
 
 
-@router.delete("/users/{user_id}")
+@router.delete("/users/{user_id}", response_model=Dict[str, str])
 def delete_user(
     user_id: int,
     current_user: User = Depends(require_permissions(Permission.USER_DELETE)),
@@ -421,7 +408,7 @@ def delete_user(
     return {"message": "User deactivated successfully"}
 
 
-@router.post("/users/{user_id}/roles/{role}")
+@router.post("/users/{user_id}/roles/{role}", response_model=Dict[str, str])
 def assign_role(
     user_id: int,
     role: RoleType,
@@ -466,7 +453,7 @@ def assign_role(
     return {"message": f"Role {role.value} assigned successfully"}
 
 
-@router.delete("/users/{user_id}/roles/{role}")
+@router.delete("/users/{user_id}/roles/{role}", response_model=Dict[str, str])
 def remove_role(
     user_id: int,
     role: RoleType,
@@ -526,7 +513,7 @@ def remove_role(
     return {"message": f"Role {role.value} removed successfully"}
 
 
-@router.get("/audit-logs")
+@router.get("/audit-logs", response_model=Dict[str, Any])
 def get_audit_logs(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -543,12 +530,12 @@ def get_audit_logs(
 ) -> Any:
     """Get audit logs with advanced filtering (Admin only)."""
     from app.core.admin_exceptions import (
-        handle_admin_error, 
-        validate_pagination_params,
+        create_pagination_response,
+        handle_admin_error,
         validate_date_range,
-        create_pagination_response
+        validate_pagination_params,
     )
-    
+
     try:
         # Validate parameters
         validate_pagination_params(skip, limit)
@@ -572,9 +559,9 @@ def get_audit_logs(
         if search:
             search_term = f"%{search}%"
             query = query.filter(
-                (AuditLog.details.ilike(search_term)) |
-                (AuditLog.user_agent.ilike(search_term)) |
-                (AuditLog.ip_address.ilike(search_term))
+                (AuditLog.details.ilike(search_term))
+                | (AuditLog.user_agent.ilike(search_term))
+                | (AuditLog.ip_address.ilike(search_term))
             )
         if from_ts:
             query = query.filter(AuditLog.created_at >= from_ts)
@@ -609,21 +596,17 @@ def get_audit_logs(
         # Return paginated response
         if envelope:
             return create_pagination_response(
-                items=items,
-                total=total,
-                skip=skip,
-                limit=limit,
-                envelope=True
+                items=items, total=total, skip=skip, limit=limit, envelope=True
             )
         else:
             # Maintain backward compatibility
             return {"logs": items, "skip": skip, "limit": limit, "total": total}
-            
+
     except Exception as e:
         raise handle_admin_error(e, "get audit logs", current_user.id)
 
 
-@router.get("/system/health")
+@router.get("/system/health", response_model=Dict[str, Any])
 def system_health(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
     db: Session = Depends(get_db),
@@ -655,18 +638,18 @@ def system_health(
     }
 
 
-@router.get("/permissions")
+@router.get("/permissions", response_model=UserPermissionsResponse)
 def get_user_permissions(
     user_with_perms: UserWithPermissions = Depends(get_current_user_with_permissions),
-) -> Any:
+) -> UserPermissionsResponse:
     """Get current user's permissions."""
-    return {
-        "user_id": user_with_perms.user.id,
-        "roles": user_with_perms.roles,
-        "permissions": [p.value for p in user_with_perms.permissions],
-        "is_admin": user_with_perms.is_admin(),
-        "is_analyst": user_with_perms.is_analyst(),
-    }
+    return UserPermissionsResponse(
+        user_id=user_with_perms.user.id,
+        roles=user_with_perms.roles,
+        permissions=[p.value for p in user_with_perms.permissions],
+        is_admin=user_with_perms.is_admin(),
+        is_analyst=user_with_perms.is_analyst(),
+    )
 
 
 @router.get("/database/health", response_model=Dict[str, Any])
@@ -774,11 +757,11 @@ async def backup_database(
 ):
     """Trigger a database backup job."""
     from app.tasks.maintenance import backup_database as backup_task
-    
+
     try:
         # Queue the backup task
         task = backup_task.delay()
-        
+
         # Log the operation
         log_audit(
             db,
@@ -790,8 +773,7 @@ async def backup_database(
         )
         
         return BackupResponse(
-            job_id=task.id, 
-            message="Database backup job started successfully"
+            job_id=task.id, message="Database backup job started successfully"
         )
     except Exception as e:
         raise HTTPException(
@@ -808,11 +790,11 @@ async def export_database(
 ):
     """Export data (full or table). Returns file URL."""
     from app.tasks.maintenance import export_database as export_task
-    
+
     try:
         # Queue the export task
         task = export_task.delay(payload.table, payload.format)
-        
+
         # Log the operation
         log_audit(
             db,
@@ -829,10 +811,9 @@ async def export_database(
             f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         )
         file_url = f"/downloads/{filename}.{payload.format}"
-        
+
         return ExportResponse(
-            file_url=file_url, 
-            message=f"Export job started. Task ID: {task.id}"
+            file_url=file_url, message=f"Export job started. Task ID: {task.id}"
         )
     except Exception as e:
         raise HTTPException(
@@ -848,11 +829,11 @@ async def reindex_database(
 ):
     """Rebuild indexes."""
     from app.tasks.maintenance import reindex_database as reindex_task
-    
+
     try:
         # Queue the reindex task
         task = reindex_task.delay()
-        
+
         # Log the operation
         log_audit(
             db,
@@ -864,8 +845,7 @@ async def reindex_database(
         )
         
         return ReindexResponse(
-            job_id=task.id, 
-            message="Database reindex job started successfully"
+            job_id=task.id, message="Database reindex job started successfully"
         )
     except Exception as e:
         raise HTTPException(
@@ -940,14 +920,14 @@ async def update_maintenance_schedules(
     return await get_maintenance_schedules(current_user=current_user, db=db)
 
 
-@router.get("/maintenance/tasks/{task_id}")
+@router.get("/maintenance/tasks/{task_id}", response_model=Dict[str, Any])
 async def get_maintenance_task_status(
     task_id: str,
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
 ):
     """Get the status of a maintenance task."""
     from app.tasks.maintenance import get_task_status
-    
+
     try:
         status = get_task_status(task_id)
         return status
@@ -983,7 +963,7 @@ def clear_rate_limits(
         )
 
 
-@router.get("/reports/overview")
+@router.get("/reports/overview", response_model=Dict[str, Any])
 async def get_admin_overview_report(
     format: str = Query("json", pattern="^(json|csv)$"),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
@@ -1167,9 +1147,6 @@ async def get_system_statistics(
         )
 
 
-
-
-
 @router.get("/system/metrics", response_model=SystemMetricsResponse)
 async def get_system_metrics(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
@@ -1198,37 +1175,39 @@ async def get_system_metrics(
 
         # Calculate real metrics from audit logs (last 24 hours)
         from datetime import datetime, timedelta, timezone
+
         twenty_four_hours_ago = datetime.now(timezone.utc) - timedelta(hours=24)
-        
+
         # Count successful requests (logins, etc.) in last 24h
         request_count_24h = (
             db.query(AuditLog)
             .filter(
-                AuditLog.created_at >= twenty_four_hours_ago,
-                AuditLog.success == "true"
+                AuditLog.created_at >= twenty_four_hours_ago, AuditLog.success == "true"
             )
             .count()
         )
-        
+
         # Calculate error rate from failed operations
         total_requests = (
             db.query(AuditLog)
             .filter(AuditLog.created_at >= twenty_four_hours_ago)
             .count()
         )
-        
+
         failed_requests = (
             db.query(AuditLog)
             .filter(
                 AuditLog.created_at >= twenty_four_hours_ago,
-                AuditLog.success == "false"
+                AuditLog.success == "false",
             )
             .count()
         )
-        
-        error_rate_24h = (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
-        
-        # Estimate avg response time (simplified - could be enhanced with actual middleware timing)
+
+        error_rate_24h = (
+            (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
+        )
+
+        # Estimate average response time
         avg_response_time = 0.15 if total_requests > 0 else 0.0
 
         return SystemMetricsResponse(
@@ -1403,57 +1382,68 @@ async def get_security_audit(
             .filter(
                 AuditLog.action == "FAILED_LOGIN",
                 AuditLog.created_at >= start_time,
-                AuditLog.created_at <= end_time
+                AuditLog.created_at <= end_time,
             )
             .count()
         )
 
         # Check for suspicious activities
         suspicious_activities = []
-        
+
         # Find users with multiple failed login attempts
         failed_login_users = (
-            db.query(AuditLog.user_id, func.count(AuditLog.id).label('fail_count'))
+            db.query(AuditLog.user_id, func.count(AuditLog.id).label("fail_count"))
             .filter(
                 AuditLog.action == "FAILED_LOGIN",
                 AuditLog.created_at >= start_time,
-                AuditLog.created_at <= end_time
+                AuditLog.created_at <= end_time,
             )
             .group_by(AuditLog.user_id)
             .having(func.count(AuditLog.id) >= 5)
             .all()
         )
-        
+
         for user_id, fail_count in failed_login_users:
             user = db.query(User).filter(User.id == user_id).first()
             username = user.username if user else f"user_id:{user_id}"
-            suspicious_activities.append({
-                "type": "multiple_failed_logins",
-                "description": f"User {username} has {fail_count} failed login attempts",
-                "severity": "high" if fail_count >= 10 else "medium",
-                "user_id": user_id
-            })
-            
+            suspicious_activities.append(
+                {
+                    "type": "multiple_failed_logins",
+                    "description": (
+                        f"User {username} has {fail_count} failed login attempts"
+                    ),
+                    "severity": "high" if fail_count >= 10 else "medium",
+                    "user_id": user_id,
+                }
+            )
+
         # Find suspicious IP patterns (multiple accounts from same IP)
         suspicious_ips = (
-            db.query(AuditLog.ip_address, func.count(func.distinct(AuditLog.user_id)).label('user_count'))
+            db.query(
+                AuditLog.ip_address,
+                func.count(func.distinct(AuditLog.user_id)).label("user_count"),
+            )
             .filter(
                 AuditLog.created_at >= start_time,
                 AuditLog.created_at <= end_time,
-                AuditLog.ip_address.isnot(None)
+                AuditLog.ip_address.isnot(None),
             )
             .group_by(AuditLog.ip_address)
             .having(func.count(func.distinct(AuditLog.user_id)) >= 5)
             .all()
         )
-        
+
         for ip_address, user_count in suspicious_ips:
-            suspicious_activities.append({
-                "type": "multiple_users_same_ip",
-                "description": f"IP {ip_address} used by {user_count} different users",
-                "severity": "medium",
-                "ip_address": ip_address
-            })
+            suspicious_activities.append(
+                {
+                    "type": "multiple_users_same_ip",
+                    "description": (
+                        f"IP {ip_address} used by {user_count} different users"
+                    ),
+                    "severity": "medium",
+                    "ip_address": ip_address,
+                }
+            )
 
         # Password policy violations (users without email verification)
         password_violations = db.query(User).filter(User.is_verified.is_(False)).count()
@@ -1616,7 +1606,10 @@ async def bulk_user_action(
         )
 
 
-@router.get("/system/logs")
+@router.get(
+    "/system/logs",
+    response_model=Union[List[Dict[str, Any]], Dict[str, Any]],
+)
 async def get_system_logs(
     level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
     limit: int = Query(100, ge=1, le=1000),
