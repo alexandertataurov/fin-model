@@ -27,7 +27,7 @@ import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAdminStore } from '@/stores/admin';
-import { StatsSkeleton, CardSkeleton } from '@/components/ui/LoadingSkeleton';
+import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
 
 // Helper functions
@@ -56,7 +56,6 @@ export const OverviewSection: React.FC = () => {
         systemStats,
         userActivity,
         systemMetrics,
-        securityAudit,
         fetchOverviewData,
     } = useAdminStore();
 

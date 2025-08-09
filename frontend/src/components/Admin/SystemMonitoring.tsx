@@ -93,11 +93,11 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
   // Enhanced state for new features
   const [metricsHistory, setMetricsHistory] = useState<SystemMetrics[]>([]);
   const [activeTab, setActiveTab] = useState<string>('overview');
-  const [logFilter, setLogFilter] = useState<
+  const [logFilter] = useState<
     'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
   >('ERROR');
-  const [logSearch, setLogSearch] = useState('');
-  const [systemHealth, setSystemHealth] = useState<any>(null);
+  const [_logSearch, _setLogSearch] = useState('');
+  const [_systemHealth, _setSystemHealth] = useState<any>(null);
 
   // Load monitoring data
   const loadMonitoringData = useCallback(async (isManualRefresh = false) => {
@@ -121,7 +121,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
         ? systemLogs
         : (systemLogs as any)?.items ?? [];
       setLogs(logsArray);
-      setSystemHealth(health);
+      _setSystemHealth(health);
       setLastRefresh(new Date());
 
       // Update metrics history for trends

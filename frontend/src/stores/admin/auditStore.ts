@@ -4,7 +4,6 @@ import {
   AuditState,
   NormalizedApiResponse,
   createNormalizedResponse,
-  updateNormalizedResponse,
 } from './types';
 
 export interface AuditSlice {
