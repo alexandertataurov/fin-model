@@ -43,7 +43,7 @@ function App() {
       <DesignSystemProvider>
         <AuthProvider>
           <Router>
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="min-h-screen bg-surface text-on-surface">
               <Routes>
                 {/* Public Authentication Routes */}
                 <Route path="/login" element={<Login />} />

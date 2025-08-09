@@ -7,6 +7,16 @@ The design system exposes a consolidated set of tokens generated from `frontend/
 - `color.hover.primary` → `#2563eb`
 - `color.active.primary` → `#1d4ed8`
 
+## Semantic Colors
+
+- `color.surface` → Alias for `color.background`
+- `color.onSurface` → Alias for `color.foreground`
+- `color.danger` → Alias for `color.destructive.500`
+
+Use semantic tokens in components instead of referencing base tokens directly. This
+improves flexibility when theming and keeps visual intent separate from the
+underlying palette.
+
 ## Border Width
 
 - `border.width.sm` → `1px`
