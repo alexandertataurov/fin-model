@@ -25,6 +25,7 @@ from app.schemas.financial import FilePreviewResponse
 from app.services.file_service import FileService
 from app.services.auth_service import AuthService
 from app.api.v1.endpoints.auth import get_current_active_user
+
 # from app.core.dependencies import require_permissions
 # from app.core.permissions import Permission
 
@@ -409,9 +410,7 @@ def get_file_preview(
         for sheet_name, df in sheets_data.items():
             # Get preview rows
             preview_data = (
-                df.head(max_rows).to_dict("records")
-                if not df.empty
-                else []
+                df.head(max_rows).to_dict("records") if not df.empty else []
             )
 
             sheet_info = {

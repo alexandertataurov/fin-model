@@ -83,9 +83,9 @@ def verify_token(token: str, token_type: str = "access") -> Optional[str]:
             return None
 
         # Check expiration
-        if payload.get(
-            "exp"
-        ) and datetime.utcnow() > datetime.fromtimestamp(payload["exp"]):
+        if payload.get("exp") and datetime.utcnow() > datetime.fromtimestamp(
+            payload["exp"]
+        ):
             return None
 
         user_id: str = payload.get("sub")

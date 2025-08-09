@@ -6,13 +6,9 @@ from datetime import datetime
 class MFASetupResponse(BaseModel):
     """Response for MFA setup initialization."""
 
-    secret: str = Field(
-        ..., description="TOTP secret key for manual entry"
-    )
+    secret: str = Field(..., description="TOTP secret key for manual entry")
     qr_code: str = Field(..., description="Base64-encoded QR code image")
-    backup_codes: List[str] = Field(
-        ..., description="Recovery backup codes"
-    )
+    backup_codes: List[str] = Field(..., description="Recovery backup codes")
 
 
 class MFAVerifySetupRequest(BaseModel):
@@ -28,20 +24,14 @@ class MFAVerifyRequest(BaseModel):
 
     username: str = Field(..., description="Username or email")
     password: str = Field(..., description="User password")
-    mfa_token: str = Field(
-        ..., description="6-digit TOTP code or backup code"
-    )
-    use_backup: bool = Field(
-        False, description="Whether using a backup code"
-    )
+    mfa_token: str = Field(..., description="6-digit TOTP code or backup code")
+    use_backup: bool = Field(False, description="Whether using a backup code")
 
 
 class MFADisableRequest(BaseModel):
     """Request to disable MFA."""
 
-    password: str = Field(
-        ..., description="Current password for verification"
-    )
+    password: str = Field(..., description="Current password for verification")
 
 
 class MFABackupCodesResponse(BaseModel):
@@ -50,9 +40,7 @@ class MFABackupCodesResponse(BaseModel):
     backup_codes: List[str] = Field(
         ..., description="List of backup recovery codes"
     )
-    remaining_count: int = Field(
-        ..., description="Number of remaining codes"
-    )
+    remaining_count: int = Field(..., description="Number of remaining codes")
 
 
 class MFAStatusResponse(BaseModel):
@@ -70,15 +58,11 @@ class MFAStatusResponse(BaseModel):
 class OAuthLoginRequest(BaseModel):
     """Request for OAuth login callback."""
 
-    provider: str = Field(
-        ..., description="OAuth provider (google, microsoft)"
-    )
+    provider: str = Field(..., description="OAuth provider (google, microsoft)")
     authorization_code: str = Field(
         ..., description="Authorization code from provider"
     )
-    state: str = Field(
-        ..., description="State parameter for CSRF protection"
-    )
+    state: str = Field(..., description="State parameter for CSRF protection")
 
 
 class OAuthAccountLinkRequest(BaseModel):
@@ -160,9 +144,7 @@ class AuthenticationFlowResponse(BaseModel):
     access_token: Optional[str] = Field(
         None, description="JWT access token if authentication complete"
     )
-    token_type: Optional[str] = Field(
-        None, description="Token type (bearer)"
-    )
+    token_type: Optional[str] = Field(None, description="Token type (bearer)")
     challenge_id: Optional[str] = Field(
         None, description="Challenge ID for next step"
     )

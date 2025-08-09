@@ -206,9 +206,7 @@ def get_backup_codes(
         )
 
 
-@router.post(
-    "/regenerate-backup-codes", response_model=MFABackupCodesResponse
-)
+@router.post("/regenerate-backup-codes", response_model=MFABackupCodesResponse)
 def regenerate_backup_codes(
     request: Request,
     current_user: User = Depends(get_current_active_user),

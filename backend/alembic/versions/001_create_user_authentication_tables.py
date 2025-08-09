@@ -54,17 +54,11 @@ def upgrade() -> None:
         sa.Column("username", sa.String(length=50), nullable=False),
         sa.Column("first_name", sa.String(length=50), nullable=False),
         sa.Column("last_name", sa.String(length=50), nullable=False),
-        sa.Column(
-            "hashed_password", sa.String(length=255), nullable=False
-        ),
+        sa.Column("hashed_password", sa.String(length=255), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
-        sa.Column(
-            "verification_token", sa.String(length=255), nullable=True
-        ),
-        sa.Column(
-            "password_reset_token", sa.String(length=255), nullable=True
-        ),
+        sa.Column("verification_token", sa.String(length=255), nullable=True),
+        sa.Column("password_reset_token", sa.String(length=255), nullable=True),
         sa.Column("password_reset_expires", sa.DateTime(), nullable=True),
         sa.Column("last_login", sa.DateTime(), nullable=True),
         sa.Column("failed_login_attempts", sa.Integer(), nullable=False),
@@ -85,9 +79,7 @@ def upgrade() -> None:
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("username"),
     )
-    op.create_index(
-        op.f("ix_users_email"), "users", ["email"], unique=False
-    )
+    op.create_index(op.f("ix_users_email"), "users", ["email"], unique=False)
     op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)
     op.create_index(
         op.f("ix_users_username"), "users", ["username"], unique=False

@@ -101,9 +101,7 @@ class SensitivityAnalyzer:
             raise ValueError("Target parameter not found")
 
         # Load workbook and apply base scenario values
-        self.formula_engine.load_workbook_data(
-            scenario.base_file.file_path
-        )
+        self.formula_engine.load_workbook_data(scenario.base_file.file_path)
         await self._apply_scenario_values(scenario_id)
 
         # Calculate base value
@@ -254,9 +252,7 @@ class SensitivityAnalyzer:
         parameter_correlations = {}
 
         # Load base scenario
-        self.formula_engine.load_workbook_data(
-            scenario.base_file.file_path
-        )
+        self.formula_engine.load_workbook_data(scenario.base_file.file_path)
         await self._apply_scenario_values(scenario_id)
 
         for i in range(iterations):
@@ -431,9 +427,7 @@ class SensitivityAnalyzer:
             raise ValueError("Target parameter not found")
 
         # Load workbook and apply base scenario values
-        self.formula_engine.load_workbook_data(
-            scenario.base_file.file_path
-        )
+        self.formula_engine.load_workbook_data(scenario.base_file.file_path)
         await self._apply_scenario_values(scenario_id)
 
         # Calculate base value
@@ -465,15 +459,11 @@ class SensitivityAnalyzer:
 
             for variation_pct in variation_percentages:
                 # Calculate new parameter value
-                new_param_value = base_param_value * (
-                    1 + variation_pct / 100
-                )
+                new_param_value = base_param_value * (1 + variation_pct / 100)
 
                 # Apply the new value
                 cell_ref = f"{param.source_sheet}!{param.source_cell}"
-                self.formula_engine.update_cell_value(
-                    cell_ref, new_param_value
-                )
+                self.formula_engine.update_cell_value(cell_ref, new_param_value)
 
                 # Calculate target value
                 target_result = self.formula_engine.calculate_cell(
@@ -483,11 +473,7 @@ class SensitivityAnalyzer:
                 if target_result.error is None:
                     # Calculate percentage change in target
                     target_change_pct = (
-                        (
-                            (target_result.value - base_value)
-                            / base_value
-                            * 100
-                        )
+                        ((target_result.value - base_value) / base_value * 100)
                         if base_value != 0
                         else 0
                     )
@@ -648,24 +634,15 @@ class SensitivityAnalyzer:
                     config.min_value, config.max_value, iterations
                 )
             elif config.distribution == "normal":
-                mean = (
-                    config.mean
-                    or (config.min_value + config.max_value) / 2
-                )
+                mean = config.mean or (config.min_value + config.max_value) / 2
                 std_dev = (
-                    config.std_dev
-                    or (config.max_value - config.min_value) / 6
+                    config.std_dev or (config.max_value - config.min_value) / 6
                 )
                 sample = np.random.normal(mean, std_dev, iterations)
                 # Clip to bounds
-                sample = np.clip(
-                    sample, config.min_value, config.max_value
-                )
+                sample = np.clip(sample, config.min_value, config.max_value)
             elif config.distribution == "triangular":
-                mode = (
-                    config.mean
-                    or (config.min_value + config.max_value) / 2
-                )
+                mode = config.mean or (config.min_value + config.max_value) / 2
                 sample = np.random.triangular(
                     config.min_value, mode, config.max_value, iterations
                 )
@@ -692,9 +669,7 @@ class SensitivityAnalyzer:
         for param_value in scenario_values:
             parameter = param_value.parameter
             if parameter and parameter.source_cell:
-                cell_ref = (
-                    f"{parameter.source_sheet}!{parameter.source_cell}"
-                )
+                cell_ref = f"{parameter.source_sheet}!{parameter.source_cell}"
                 self.formula_engine.update_cell_value(
                     cell_ref, param_value.value
                 )
@@ -781,9 +756,7 @@ class SensitivityAnalyzer:
             "scatter_plots": [
                 {
                     "parameter_id": config.parameter_id,
-                    "x_values": parameter_samples[i][
-                        : len(outcomes)
-                    ].tolist(),
+                    "x_values": parameter_samples[i][: len(outcomes)].tolist(),
                     "y_values": outcomes.tolist(),
                     "title": f"Parameter vs Target",
                 }
@@ -813,9 +786,9 @@ class SensitivityAnalyzer:
                     "variations": [
                         {
                             "variation_pct": var_pct,
-                            "target_change_pct": data[
-                                "variation_results"
-                            ].get(var_pct, 0),
+                            "target_change_pct": data["variation_results"].get(
+                                var_pct, 0
+                            ),
                         }
                         for var_pct in variation_percentages
                     ],

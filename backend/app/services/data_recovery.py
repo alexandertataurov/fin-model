@@ -128,17 +128,13 @@ class DataRecoveryService:
 
             # Check partial processing options
             if file_record.validation_errors:
-                partial_actions = (
-                    self._analyze_partial_processing_recovery(
-                        file_record, db
-                    )
+                partial_actions = self._analyze_partial_processing_recovery(
+                    file_record, db
                 )
                 recovery_actions.extend(partial_actions)
 
             # Check storage recovery options
-            storage_actions = self._analyze_storage_recovery(
-                file_record, db
-            )
+            storage_actions = self._analyze_storage_recovery(file_record, db)
             recovery_actions.extend(storage_actions)
 
             # Sort by priority (lower number = higher priority)
@@ -379,22 +375,15 @@ class DataRecoveryService:
                 return await self._execute_backup_restore(
                     file_record, recovery_action, db
                 )
-            elif (
-                recovery_action.action_type == RecoveryType.FILE_CORRUPTION
-            ):
+            elif recovery_action.action_type == RecoveryType.FILE_CORRUPTION:
                 return await self._execute_corruption_recovery(
                     file_record, recovery_action, db
                 )
-            elif (
-                recovery_action.action_type
-                == RecoveryType.PROCESSING_FAILURE
-            ):
+            elif recovery_action.action_type == RecoveryType.PROCESSING_FAILURE:
                 return await self._execute_processing_recovery(
                     file_record, recovery_action, db
                 )
-            elif (
-                recovery_action.action_type == RecoveryType.STORAGE_FAILURE
-            ):
+            elif recovery_action.action_type == RecoveryType.STORAGE_FAILURE:
                 return await self._execute_storage_recovery(
                     file_record, recovery_action, db
                 )
@@ -542,9 +531,7 @@ class DataRecoveryService:
                     partial_result.extracted_data
                 )
                 file_record.status = FileStatus.COMPLETED
-                file_record.is_valid = (
-                    partial_result.completion_percentage > 50
-                )
+                file_record.is_valid = partial_result.completion_percentage > 50
 
                 # Store recovery information
                 recovery_info = {
@@ -566,9 +553,7 @@ class DataRecoveryService:
                 )
 
                 db.commit()
-                actions_taken.append(
-                    "File record updated with recovered data"
-                )
+                actions_taken.append("File record updated with recovered data")
 
                 return RecoveryResult(
                     success=True,
@@ -581,8 +566,7 @@ class DataRecoveryService:
                     recovery_timestamp=datetime.utcnow(),
                     warnings=warnings
                     + [
-                        i.description
-                        for i in partial_result.issues_encountered
+                        i.description for i in partial_result.issues_encountered
                     ],
                     next_steps=partial_result.recommendations,
                 )

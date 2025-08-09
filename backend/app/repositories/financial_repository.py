@@ -223,25 +223,15 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
             query = query.filter(self.model.period_date <= period_end)
 
         if aggregation == "sum":
-            result = query.with_entities(
-                func.sum(self.model.value)
-            ).scalar()
+            result = query.with_entities(func.sum(self.model.value)).scalar()
         elif aggregation == "avg":
-            result = query.with_entities(
-                func.avg(self.model.value)
-            ).scalar()
+            result = query.with_entities(func.avg(self.model.value)).scalar()
         elif aggregation == "min":
-            result = query.with_entities(
-                func.min(self.model.value)
-            ).scalar()
+            result = query.with_entities(func.min(self.model.value)).scalar()
         elif aggregation == "max":
-            result = query.with_entities(
-                func.max(self.model.value)
-            ).scalar()
+            result = query.with_entities(func.max(self.model.value)).scalar()
         else:
-            result = query.with_entities(
-                func.sum(self.model.value)
-            ).scalar()
+            result = query.with_entities(func.sum(self.model.value)).scalar()
 
         return float(result) if result else 0.0
 
@@ -262,8 +252,7 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
                     and_(
                         self.model.scenario_id == scenario_id,
                         self.model.data_type == data_type,
-                        self.model.period_date
-                        == data_point["period_date"],
+                        self.model.period_date == data_point["period_date"],
                         self.model.data_subtype
                         == data_point.get("data_subtype"),
                     )
@@ -319,9 +308,7 @@ class CalculationRepository(BaseRepository[Calculation]):
             .all()
         )
 
-    def get_pending_calculations(
-        self, scenario_id: int
-    ) -> List[Calculation]:
+    def get_pending_calculations(self, scenario_id: int) -> List[Calculation]:
         """Get calculations that haven't been executed yet."""
         return (
             self.db.query(self.model)
@@ -368,9 +355,7 @@ class TemplateRepository(BaseRepository[Template]):
         self, template_type: Optional[str] = None
     ) -> List[Template]:
         """Get active templates, optionally filtered by type."""
-        query = self.db.query(self.model).filter(
-            self.model.is_active == True
-        )
+        query = self.db.query(self.model).filter(self.model.is_active == True)
 
         if template_type:
             query = query.filter(self.model.template_type == template_type)
@@ -438,14 +423,12 @@ class FileVersionRepository(BaseRepository[FileVersion]):
             .first()
         )
 
-    def set_current_version(
-        self, file_id: int, version_number: int
-    ) -> bool:
+    def set_current_version(self, file_id: int, version_number: int) -> bool:
         """Set a specific version as current."""
         # First, unset all current versions for this file
-        self.db.query(self.model).filter(
-            self.model.file_id == file_id
-        ).update({"is_current": False})
+        self.db.query(self.model).filter(self.model.file_id == file_id).update(
+            {"is_current": False}
+        )
 
         # Set the specified version as current
         result = (

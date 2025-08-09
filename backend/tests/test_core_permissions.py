@@ -66,5 +66,3 @@ def test_can_access_resource_admin_and_ownership_rules():
         required_permission=Permission.MODEL_UPDATE,
     )
     assert can is False
-
-

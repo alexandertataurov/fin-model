@@ -109,9 +109,7 @@ class NotificationService:
             return True
         return False
 
-    def dismiss_notification(
-        self, notification_id: UUID, user_id: int
-    ) -> bool:
+    def dismiss_notification(self, notification_id: UUID, user_id: int) -> bool:
         """Dismiss a notification."""
         notification = (
             self.db.query(Notification)
@@ -175,9 +173,7 @@ class NotificationService:
         )
 
         if preferences:
-            return NotificationPreferencesSchema.model_validate(
-                preferences
-            )
+            return NotificationPreferencesSchema.model_validate(preferences)
         return None
 
     def create_default_preferences(

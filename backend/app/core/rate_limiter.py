@@ -17,16 +17,12 @@ class RateLimit(Base):
 
     __tablename__ = "rate_limits"
 
-    id = Column(
-        String, primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     key = Column(String(255), nullable=False, unique=True, index=True)
     attempts = Column(Integer, nullable=False, default=0)
     window_start = Column(DateTime, nullable=False, index=True)
     blocked_until = Column(DateTime, nullable=True)
-    created_at = Column(
-        DateTime, server_default=func.now(), nullable=False
-    )
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime,
         server_default=func.now(),
@@ -74,16 +70,12 @@ class RateLimiter:
 
         # Get or create rate limit record
         rate_limit = (
-            self.db.query(RateLimit)
-            .filter(RateLimit.key == rate_key)
-            .first()
+            self.db.query(RateLimit).filter(RateLimit.key == rate_key).first()
         )
 
         if not rate_limit:
             # Create new rate limit record
-            rate_limit = RateLimit(
-                key=rate_key, attempts=1, window_start=now
-            )
+            rate_limit = RateLimit(key=rate_key, attempts=1, window_start=now)
             self.db.add(rate_limit)
             self.db.commit()
             return True
@@ -121,9 +113,7 @@ class RateLimiter:
         # Check if limit exceeded
         if rate_limit.attempts > max_attempts:
             # Block the IP
-            rate_limit.blocked_until = now + timedelta(
-                minutes=block_minutes
-            )
+            rate_limit.blocked_until = now + timedelta(minutes=block_minutes)
             self.db.commit()
 
             raise HTTPException(
@@ -134,17 +124,13 @@ class RateLimiter:
         self.db.commit()
         return True
 
-    def record_successful_auth(
-        self, request: Request, endpoint: str
-    ) -> None:
+    def record_successful_auth(self, request: Request, endpoint: str) -> None:
         """Record successful authentication to potentially reset counters"""
         client_ip = self._get_client_ip(request)
         rate_key = f"{endpoint}:{client_ip}"
 
         rate_limit = (
-            self.db.query(RateLimit)
-            .filter(RateLimit.key == rate_key)
-            .first()
+            self.db.query(RateLimit).filter(RateLimit.key == rate_key).first()
         )
         if rate_limit:
             # Reset attempts on successful auth
@@ -209,9 +195,7 @@ def rate_limit(
             for arg in args:
                 if isinstance(arg, Request):
                     request = arg
-                elif hasattr(
-                    arg, "query"
-                ):  # Check if it's a database session
+                elif hasattr(arg, "query"):  # Check if it's a database session
                     db = arg
 
             # Also check kwargs

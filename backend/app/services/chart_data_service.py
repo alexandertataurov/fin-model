@@ -218,9 +218,7 @@ class ChartDataService:
                         name=flow_type.replace("_", " ").title(),
                         data=flow_data,
                         type=ChartType.LINE,
-                        color=self.color_palette[
-                            i % len(self.color_palette)
-                        ],
+                        color=self.color_palette[i % len(self.color_palette)],
                     )
                 )
 
@@ -337,9 +335,7 @@ class ChartDataService:
             self._extract_numeric_value(line_items, ["total_assets"]) or 0
         )
 
-        for i, (category_key, category_name) in enumerate(
-            asset_categories
-        ):
+        for i, (category_key, category_name) in enumerate(asset_categories):
             asset_value = self._extract_numeric_value(
                 line_items, [category_key, category_key.replace("_", " ")]
             )
@@ -355,9 +351,7 @@ class ChartDataService:
                         x=category_name,
                         y=asset_value,
                         label=f"${asset_value:,.0f}",
-                        color=self.color_palette[
-                            i % len(self.color_palette)
-                        ],
+                        color=self.color_palette[i % len(self.color_palette)],
                         metadata={
                             "category": category_key,
                             "percentage": percentage,
@@ -365,9 +359,7 @@ class ChartDataService:
                     )
                 )
 
-        series = ChartSeries(
-            name="Assets", data=asset_data, type=ChartType.PIE
-        )
+        series = ChartSeries(name="Assets", data=asset_data, type=ChartType.PIE)
 
         return ChartDataset(
             title="Asset Composition",
@@ -427,9 +419,7 @@ class ChartDataService:
                         name=metric.replace("_", " ").title(),
                         data=metric_data,
                         type=ChartType.BAR,
-                        color=self.color_palette[
-                            i % len(self.color_palette)
-                        ],
+                        color=self.color_palette[i % len(self.color_palette)],
                     )
                 )
 
@@ -519,9 +509,7 @@ class ChartDataService:
                         name=margin_name,
                         data=margin_data,
                         type=ChartType.BAR,
-                        color=self.color_palette[
-                            i % len(self.color_palette)
-                        ],
+                        color=self.color_palette[i % len(self.color_palette)],
                     )
                 )
 
@@ -584,9 +572,7 @@ class ChartDataService:
                 or 100000
             )  # Default fallback
 
-        ending_cash = (
-            starting_cash + operating_cf + investing_cf + financing_cf
-        )
+        ending_cash = starting_cash + operating_cf + investing_cf + financing_cf
 
         waterfall_data = [
             ChartDataPoint(
@@ -603,9 +589,7 @@ class ChartDataService:
                 if operating_cf >= 0
                 else self.color_palette[1],
                 metadata={
-                    "type": "positive"
-                    if operating_cf >= 0
-                    else "negative",
+                    "type": "positive" if operating_cf >= 0 else "negative",
                     "cumulative": starting_cash + operating_cf,
                 },
             ),
@@ -617,12 +601,8 @@ class ChartDataService:
                 if investing_cf >= 0
                 else self.color_palette[1],
                 metadata={
-                    "type": "positive"
-                    if investing_cf >= 0
-                    else "negative",
-                    "cumulative": starting_cash
-                    + operating_cf
-                    + investing_cf,
+                    "type": "positive" if investing_cf >= 0 else "negative",
+                    "cumulative": starting_cash + operating_cf + investing_cf,
                 },
             ),
             ChartDataPoint(
@@ -633,9 +613,7 @@ class ChartDataService:
                 if financing_cf >= 0
                 else self.color_palette[1],
                 metadata={
-                    "type": "positive"
-                    if financing_cf >= 0
-                    else "negative",
+                    "type": "positive" if financing_cf >= 0 else "negative",
                     "cumulative": ending_cash,
                 },
             ),
@@ -751,9 +729,7 @@ class ChartDataService:
                         name=ratio_name,
                         data=ratio_data,
                         type=ChartType.LINE,
-                        color=self.color_palette[
-                            i % len(self.color_palette)
-                        ],
+                        color=self.color_palette[i % len(self.color_palette)],
                     )
                 )
 
@@ -960,9 +936,7 @@ class ChartDataService:
                 f"Object of type {type(obj)} is not JSON serializable"
             )
 
-        return json.dumps(
-            recharts_format, default=json_serializer, indent=2
-        )
+        return json.dumps(recharts_format, default=json_serializer, indent=2)
 
     def create_multi_period_comparison(
         self,
@@ -1000,8 +974,7 @@ class ChartDataService:
                     growth_rate = None
                     if previous_value and previous_value != 0:
                         growth_rate = (
-                            (current_value - previous_value)
-                            / previous_value
+                            (current_value - previous_value) / previous_value
                         ) * 100
 
                     period_label = self._format_period_label(
@@ -1013,9 +986,7 @@ class ChartDataService:
                             y=current_value,
                             label=f"${current_value:,.0f}"
                             + (
-                                f" ({growth_rate:+.1f}%)"
-                                if growth_rate
-                                else ""
+                                f" ({growth_rate:+.1f}%)" if growth_rate else ""
                             ),
                             metadata={
                                 "statement_id": stmt.id,
@@ -1034,9 +1005,7 @@ class ChartDataService:
                         name=metric.replace("_", " ").title(),
                         data=metric_data,
                         type=ChartType.BAR,
-                        color=self.color_palette[
-                            i % len(self.color_palette)
-                        ],
+                        color=self.color_palette[i % len(self.color_palette)],
                     )
                 )
 

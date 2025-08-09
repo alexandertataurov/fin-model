@@ -85,10 +85,7 @@ class ExcelExporter:
         ]
 
         for sheet_name in sheet_order:
-            if (
-                sheet_name.lower().replace(" ", "_").replace("&", "")
-                in data
-            ):
+            if sheet_name.lower().replace(" ", "_").replace("&", "") in data:
                 sheet_data = data[
                     sheet_name.lower().replace(" ", "_").replace("&", "")
                 ]
@@ -169,9 +166,7 @@ class ExcelExporter:
             # Headers
             worksheet.cell(row=current_row, column=1, value="Metric")
             worksheet.cell(row=current_row, column=2, value="Value")
-            worksheet.cell(
-                row=current_row, column=3, value="Previous Period"
-            )
+            worksheet.cell(row=current_row, column=3, value="Previous Period")
             worksheet.cell(row=current_row, column=4, value="Change %")
 
             # Style headers
@@ -311,7 +306,9 @@ class ExcelExporter:
 
         # Create Excel table
         if len(df) > 0:
-            table_range = f"A{start_data_row-1}:{chr(64+len(df.columns))}{current_row-1}"
+            table_range = (
+                f"A{start_data_row-1}:{chr(64+len(df.columns))}{current_row-1}"
+            )
             table = Table(displayName=f"TimeSeriesData", ref=table_range)
             style = TableStyleInfo(
                 name="TableStyleMedium9",
@@ -383,8 +380,7 @@ class ExcelExporter:
                     ):
                         cell.number_format = self.currency_format
                     elif (
-                        "percentage"
-                        in str(df.columns[col_idx - 1]).lower()
+                        "percentage" in str(df.columns[col_idx - 1]).lower()
                         or "rate" in str(df.columns[col_idx - 1]).lower()
                     ):
                         cell.number_format = self.percentage_format
@@ -651,12 +647,8 @@ class ExcelExporter:
                 except:
                     pass
 
-            adjusted_width = min(
-                max_length + 2, 50
-            )  # Cap at 50 characters
-            worksheet.column_dimensions[
-                column_letter
-            ].width = adjusted_width
+            adjusted_width = min(max_length + 2, 50)  # Cap at 50 characters
+            worksheet.column_dimensions[column_letter].width = adjusted_width
 
     def export_raw_data_csv(
         self,

@@ -1,0 +1,95 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
+
+import * as AdminApi from '@/services/adminApi';
+import AdminDashboard from '@/pages/AdminDashboard';
+
+vi.mock('@/services/adminApi');
+
+const mocked = AdminApi as unknown as {
+    default: any;
+};
+
+const baseStats = {
+    users: { total: 10, active: 5, verified: 7, new_24h: 1 },
+    files: { total: 100, completed: 90, processing: 2, failed: 1 },
+    financial_data: { statements: 12, parameters: 34 },
+    system: { database_size: '1 GB' },
+    performance: { avg_file_size_mb: 1.2 },
+};
+
+const baseMetrics = {
+    cpu_usage: 10,
+    memory_usage: 20,
+    disk_usage: 30,
+    active_connections: 2,
+    request_count_24h: 20,
+};
+
+const baseSecurity = {
+    failed_logins_24h: 0,
+    suspicious_activities: [],
+    rate_limit_violations: 0,
+    password_policy_violations: 0,
+    recommendations: [],
+};
+
+describe('AdminDashboard Audit and Permissions', () => {
+    beforeEach(() => {
+        vi.resetAllMocks();
+
+        mocked.default = {
+            getSystemStats: vi.fn().mockResolvedValue(baseStats),
+            getUserActivity: vi.fn().mockResolvedValue([]),
+            getSystemMetrics: vi.fn().mockResolvedValue(baseMetrics),
+            checkDataIntegrity: vi.fn().mockResolvedValue([]),
+            getSecurityAudit: vi.fn().mockResolvedValue(baseSecurity),
+            getSystemHealth: vi.fn().mockResolvedValue({ status: 'healthy' }),
+            getDatabaseHealth: vi.fn().mockResolvedValue({ status: 'ok' }),
+            getSystemLogs: vi.fn().mockResolvedValue({ items: [], total: 0, skip: 0, limit: 100 }),
+            getUserPermissions: vi
+                .fn()
+                .mockResolvedValue({ user_id: 99, roles: ['admin', 'analyst'], permissions: ['read', 'write'], is_admin: true, is_analyst: true }),
+            getAuditLogs: vi
+                .fn()
+                .mockResolvedValueOnce({ items: Array.from({ length: 3 }, (_, i) => ({ message: `log ${i + 1}` })), total: 6, skip: 0, limit: 3 })
+                .mockResolvedValueOnce({ items: Array.from({ length: 3 }, (_, i) => ({ message: `log ${i + 4}` })), total: 6, skip: 3, limit: 3 }),
+        };
+    });
+
+    it('displays permissions information', async () => {
+        render(<AdminDashboard />);
+
+        const permissionsTab = await screen.findByRole('tab', { name: /permissions/i });
+        await userEvent.click(permissionsTab);
+
+        expect(await screen.findByText('99')).toBeInTheDocument();
+        expect(await screen.findByText(/admin, analyst/i)).toBeInTheDocument();
+        expect(await screen.findByText(/read, write/i)).toBeInTheDocument();
+        expect(await screen.findByText(/Yes/i)).toBeInTheDocument();
+    });
+
+    it('paginates audit logs via Next/Prev controls', async () => {
+        render(<AdminDashboard />);
+
+        const auditTab = await screen.findByRole('tab', { name: /audit/i });
+        await userEvent.click(auditTab);
+
+        // Initial range text should reflect 1-3 of 6
+        expect(await screen.findByText(/1-3 of 6/i)).toBeInTheDocument();
+
+        const nextBtn = await screen.findByRole('button', { name: /next/i });
+        await userEvent.click(nextBtn);
+
+        expect(await screen.findByText(/4-6 of 6/i)).toBeInTheDocument();
+
+        const prevBtn = await screen.findByRole('button', { name: /prev/i });
+        await userEvent.click(prevBtn);
+
+        expect(await screen.findByText(/1-3 of 6/i)).toBeInTheDocument();
+    });
+});
+
+

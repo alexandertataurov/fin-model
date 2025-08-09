@@ -71,9 +71,7 @@ class UploadedFile(Base):
     # Older parts of the codebase reference ``uploaded_by_id``. Provide a
     # synonym so both attribute names work without affecting the ORM mapping.
     uploaded_by_id = synonym("user_id")
-    template_id = Column(
-        Integer, ForeignKey("templates.id"), nullable=True
-    )
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     data_source_id = Column(
         Integer, ForeignKey("data_sources.id"), nullable=True
     )
@@ -83,9 +81,7 @@ class UploadedFile(Base):
     parameters = relationship("Parameter", back_populates="source_file")
     scenarios = relationship("Scenario", back_populates="base_file")
     template = relationship("Template", back_populates="uploaded_files")
-    data_source = relationship(
-        "DataSource", back_populates="uploaded_files"
-    )
+    data_source = relationship("DataSource", back_populates="uploaded_files")
     versions = relationship("FileVersion", back_populates="uploaded_file")
 
     # Timestamps
@@ -104,9 +100,7 @@ class ProcessingLog(Base):
     __tablename__ = "processing_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    file_id = Column(
-        Integer, ForeignKey("uploaded_files.id"), nullable=False
-    )
+    file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
 
     # Log details
     step = Column(
@@ -116,9 +110,7 @@ class ProcessingLog(Base):
     level = Column(
         String(20), default="info", nullable=False
     )  # info, warning, error
-    details = Column(
-        Text, nullable=True
-    )  # JSON string with additional details
+    details = Column(Text, nullable=True)  # JSON string with additional details
 
     # Timing
     timestamp = Column(DateTime, default=func.now(), nullable=False)

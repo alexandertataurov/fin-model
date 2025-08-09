@@ -113,8 +113,7 @@ class MetricsCalculationService:
         for i in range(1, len(data.values)):
             if data.values[i - 1] != 0:
                 growth = (
-                    (data.values[i] - data.values[i - 1])
-                    / data.values[i - 1]
+                    (data.values[i] - data.values[i - 1]) / data.values[i - 1]
                 ) * 100
                 pop_growth.append(growth)
             else:
@@ -236,24 +235,14 @@ class MetricsCalculationService:
 
         # Current Ratio = Current Assets / Current Liabilities
         current_ratio = None
-        if (
-            current_assets
-            and current_liabilities
-            and current_liabilities > 0
-        ):
+        if current_assets and current_liabilities and current_liabilities > 0:
             current_ratio = current_assets / current_liabilities
 
         # Quick Ratio = (Current Assets - Inventory) / Current Liabilities
         quick_ratio = None
-        if (
-            current_assets
-            and current_liabilities
-            and current_liabilities > 0
-        ):
+        if current_assets and current_liabilities and current_liabilities > 0:
             inventory = (
-                self._safe_get_numeric(
-                    bs_data, ["inventory", "inventories"]
-                )
+                self._safe_get_numeric(bs_data, ["inventory", "inventories"])
                 or 0
             )
             quick_assets = current_assets - inventory
@@ -336,9 +325,7 @@ class MetricsCalculationService:
 
         # Inventory Turnover = COGS / Average Inventory
         inventory_turnover = None
-        cogs = self._safe_get_numeric(
-            pl_data, ["cogs", "cost_of_goods_sold"]
-        )
+        cogs = self._safe_get_numeric(pl_data, ["cogs", "cost_of_goods_sold"])
         inventory = self._safe_get_numeric(
             bs_data, ["inventory", "inventories"]
         )
@@ -364,9 +351,7 @@ class MetricsCalculationService:
             days_inventory_outstanding = (
                 365 / inventory_turnover if inventory_turnover > 0 else 0
             )
-            days_payable_outstanding = (
-                0  # Would need accounts payable data
-            )
+            days_payable_outstanding = 0  # Would need accounts payable data
             cash_conversion_cycle = (
                 days_inventory_outstanding
                 + days_sales_outstanding
@@ -460,9 +445,7 @@ class MetricsCalculationService:
             if s.statement_type == StatementType.BALANCE_SHEET
         ]
         cf_statements = [
-            s
-            for s in statements
-            if s.statement_type == StatementType.CASH_FLOW
+            s for s in statements if s.statement_type == StatementType.CASH_FLOW
         ]
 
         ratios = {
@@ -509,9 +492,7 @@ class MetricsCalculationService:
         # Leverage ratios
         if bs_statements:
             latest_bs = bs_statements[0]
-            pl_data = (
-                pl_statements[0].line_items if pl_statements else None
-            )
+            pl_data = pl_statements[0].line_items if pl_statements else None
             leverage = self.calculate_leverage_ratios(
                 latest_bs.line_items or {}, pl_data
             )
@@ -555,9 +536,7 @@ class MetricsCalculationService:
         net_income = self._safe_get_numeric(
             pl_data, ["net_income", "net_profit"]
         )
-        revenue = self._safe_get_numeric(
-            pl_data, ["revenue", "total_revenue"]
-        )
+        revenue = self._safe_get_numeric(pl_data, ["revenue", "total_revenue"])
         total_assets = self._safe_get_numeric(bs_data, ["total_assets"])
         shareholders_equity = self._safe_get_numeric(
             bs_data, ["shareholders_equity", "total_equity"]
@@ -565,9 +544,7 @@ class MetricsCalculationService:
 
         if not all(
             [net_income, revenue, total_assets, shareholders_equity]
-        ) or any(
-            x <= 0 for x in [revenue, total_assets, shareholders_equity]
-        ):
+        ) or any(x <= 0 for x in [revenue, total_assets, shareholders_equity]):
             return {}
 
         # DuPont Components
@@ -603,9 +580,7 @@ class MetricsCalculationService:
         """Create time series data from a list of statements."""
 
         # Sort statements by period start date
-        sorted_statements = sorted(
-            statements, key=lambda x: x.period_start
-        )
+        sorted_statements = sorted(statements, key=lambda x: x.period_start)
 
         periods = []
         values = []
@@ -622,10 +597,7 @@ class MetricsCalculationService:
 
         # Determine unit based on metric name
         unit = "currency"
-        if (
-            "ratio" in metric_name.lower()
-            or "margin" in metric_name.lower()
-        ):
+        if "ratio" in metric_name.lower() or "margin" in metric_name.lower():
             unit = "percentage"
         elif "turnover" in metric_name.lower():
             unit = "ratio"

@@ -49,9 +49,7 @@ class CloudStorageInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_file_url(
-        self, file_path: str, expiry_hours: int = 24
-    ) -> str:
+    async def get_file_url(self, file_path: str, expiry_hours: int = 24) -> str:
         """Get presigned URL for file access."""
         pass
 
@@ -70,17 +68,13 @@ class S3StorageService(CloudStorageInterface):
                 "boto3 is required for S3 storage. Install with: pip install boto3"
             )
 
-        self.bucket_name = getattr(
-            settings, "AWS_S3_BUCKET", "finvision-files"
-        )
+        self.bucket_name = getattr(settings, "AWS_S3_BUCKET", "finvision-files")
         self.region = getattr(settings, "AWS_REGION", "us-east-1")
 
         try:
             self.s3_client = boto3.client(
                 "s3",
-                aws_access_key_id=getattr(
-                    settings, "AWS_ACCESS_KEY_ID", None
-                ),
+                aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
                 aws_secret_access_key=getattr(
                     settings, "AWS_SECRET_ACCESS_KEY", None
                 ),
@@ -143,16 +137,12 @@ class S3StorageService(CloudStorageInterface):
     async def delete_file(self, file_path: str) -> bool:
         """Delete file from S3."""
         try:
-            self.s3_client.delete_object(
-                Bucket=self.bucket_name, Key=file_path
-            )
+            self.s3_client.delete_object(Bucket=self.bucket_name, Key=file_path)
             return True
         except ClientError as e:
             raise Exception(f"Failed to delete file from S3: {str(e)}")
 
-    async def get_file_url(
-        self, file_path: str, expiry_hours: int = 24
-    ) -> str:
+    async def get_file_url(self, file_path: str, expiry_hours: int = 24) -> str:
         """Get presigned URL for S3 file."""
         try:
             url = self.s3_client.generate_presigned_url(
@@ -167,9 +157,7 @@ class S3StorageService(CloudStorageInterface):
     async def file_exists(self, file_path: str) -> bool:
         """Check if file exists in S3."""
         try:
-            self.s3_client.head_object(
-                Bucket=self.bucket_name, Key=file_path
-            )
+            self.s3_client.head_object(Bucket=self.bucket_name, Key=file_path)
             return True
         except ClientError:
             return False
@@ -197,8 +185,8 @@ class AzureBlobStorageService(CloudStorageInterface):
             )
 
         try:
-            self.blob_service_client = (
-                BlobServiceClient.from_connection_string(connection_string)
+            self.blob_service_client = BlobServiceClient.from_connection_string(
+                connection_string
             )
         except Exception as e:
             raise ValueError(
@@ -252,9 +240,7 @@ class AzureBlobStorageService(CloudStorageInterface):
             )
             return blob_client.download_blob().readall()
         except AzureError as e:
-            raise Exception(
-                f"Failed to download file from Azure: {str(e)}"
-            )
+            raise Exception(f"Failed to download file from Azure: {str(e)}")
 
     async def delete_file(self, file_path: str) -> bool:
         """Delete file from Azure Blob Storage."""
@@ -267,9 +253,7 @@ class AzureBlobStorageService(CloudStorageInterface):
         except AzureError as e:
             raise Exception(f"Failed to delete file from Azure: {str(e)}")
 
-    async def get_file_url(
-        self, file_path: str, expiry_hours: int = 24
-    ) -> str:
+    async def get_file_url(self, file_path: str, expiry_hours: int = 24) -> str:
         """Get SAS URL for Azure blob."""
         try:
             from azure.storage.blob import (
@@ -306,9 +290,7 @@ class LocalStorageService(CloudStorageInterface):
     """Local file system storage (fallback)."""
 
     def __init__(self):
-        self.storage_path = Path(
-            getattr(settings, "UPLOAD_FOLDER", "uploads")
-        )
+        self.storage_path = Path(getattr(settings, "UPLOAD_FOLDER", "uploads"))
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
     async def upload_file(
@@ -340,9 +322,7 @@ class LocalStorageService(CloudStorageInterface):
             return True
         return False
 
-    async def get_file_url(
-        self, file_path: str, expiry_hours: int = 24
-    ) -> str:
+    async def get_file_url(self, file_path: str, expiry_hours: int = 24) -> str:
         """Get local file path (no URL generation for local storage)."""
         return str(self.storage_path / file_path)
 
@@ -359,9 +339,7 @@ class CloudStorageManager:
 
     def _initialize_storage_provider(self) -> CloudStorageInterface:
         """Initialize the appropriate storage provider based on configuration."""
-        provider_type = getattr(
-            settings, "STORAGE_PROVIDER", "local"
-        ).lower()
+        provider_type = getattr(settings, "STORAGE_PROVIDER", "local").lower()
 
         if provider_type == "s3" and AWS_AVAILABLE:
             try:
@@ -419,13 +397,9 @@ class CloudStorageManager:
         """Delete file from storage."""
         return await self.storage_provider.delete_file(file_path)
 
-    async def get_file_url(
-        self, file_path: str, expiry_hours: int = 24
-    ) -> str:
+    async def get_file_url(self, file_path: str, expiry_hours: int = 24) -> str:
         """Get file access URL."""
-        return await self.storage_provider.get_file_url(
-            file_path, expiry_hours
-        )
+        return await self.storage_provider.get_file_url(file_path, expiry_hours)
 
     async def file_exists(self, file_path: str) -> bool:
         """Check if file exists."""

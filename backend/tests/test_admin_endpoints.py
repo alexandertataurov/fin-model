@@ -48,7 +48,9 @@ def test_user_crud_and_roles(client: TestClient):
     user_id = user["id"]
 
     # List users with envelope
-    r = client.get("/api/v1/admin/users", params={"envelope": True, "limit": 5, "skip": 0})
+    r = client.get(
+        "/api/v1/admin/users", params={"envelope": True, "limit": 5, "skip": 0}
+    )
     assert r.status_code == 200
     data = r.json()
     assert {"items", "skip", "limit", "total"} <= data.keys()
@@ -76,7 +78,9 @@ def test_user_crud_and_roles(client: TestClient):
     r_roles = client.get(f"/api/v1/admin/users/{user_id}")
     assert r_roles.status_code == 200
     roles = r_roles.json().get("roles", [])
-    assert roles.count("analyst") == 1 or roles.count("analyst") == roles.count("analyst")
+    assert roles.count("analyst") == 1 or roles.count("analyst") == roles.count(
+        "analyst"
+    )
 
     # Remove role (API may return 400 due to enum/name mismatch in legacy code)
     r = client.delete(f"/api/v1/admin/users/{user_id}/roles/analyst")
@@ -97,7 +101,10 @@ def test_permissions_and_audit_endpoints(client: TestClient):
     assert {"user_id", "roles", "permissions", "is_admin"} <= body.keys()
 
     # Audit logs envelope
-    r = client.get("/api/v1/admin/audit-logs", params={"envelope": True, "limit": 2, "skip": 0})
+    r = client.get(
+        "/api/v1/admin/audit-logs",
+        params={"envelope": True, "limit": 2, "skip": 0},
+    )
     assert r.status_code == 200
     data = r.json()
     assert {"items", "skip", "limit", "total"} <= data.keys()
@@ -197,7 +204,9 @@ def test_system_logs_filters_edge_cases(client: TestClient):
     assert r.status_code == 200
     items = r.json()
     assert isinstance(items, list)
-    assert all(item["level"] in ["WARNING", "ERROR", "CRITICAL"] for item in items)
+    assert all(
+        item["level"] in ["WARNING", "ERROR", "CRITICAL"] for item in items
+    )
 
 
 def test_reports_overview_json_csv(client: TestClient):
@@ -249,7 +258,11 @@ def test_security_audit_and_data_integrity(client: TestClient):
     r = client.get("/api/v1/admin/security/audit")
     assert r.status_code == 200
     a = r.json()
-    assert {"failed_logins_24h", "rate_limit_violations", "password_policy_violations"} <= a.keys()
+    assert {
+        "failed_logins_24h",
+        "rate_limit_violations",
+        "password_policy_violations",
+    } <= a.keys()
 
     r = client.get("/api/v1/admin/data/integrity")
     assert r.status_code == 200
@@ -271,5 +284,3 @@ def test_user_activity_list_endpoint(client: TestClient):
     assert len(data) <= 2
     if data:
         assert {"user_id", "username", "is_active"} <= data[0].keys()
-
-

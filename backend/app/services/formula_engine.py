@@ -185,9 +185,7 @@ class ExcelFunction:
         return rate
 
     @staticmethod
-    def VLOOKUP(
-        lookup_value, table_array, col_index_num, range_lookup=False
-    ):
+    def VLOOKUP(lookup_value, table_array, col_index_num, range_lookup=False):
         """Excel VLOOKUP function (simplified)."""
         # This is a simplified implementation
         # In a full implementation, you'd handle the table_array properly
@@ -239,9 +237,7 @@ class FormulaEngine:
         Load workbook data for formula calculation.
         """
         workbook = openpyxl.load_workbook(workbook_path, data_only=False)
-        data_workbook = openpyxl.load_workbook(
-            workbook_path, data_only=True
-        )
+        data_workbook = openpyxl.load_workbook(workbook_path, data_only=True)
 
         for sheet_name in workbook.sheetnames:
             formula_sheet = workbook[sheet_name]
@@ -290,9 +286,7 @@ class FormulaEngine:
 
         return self.dependency_graph
 
-    def evaluate(
-        self, formula: str, context: Dict[str, Any] = None
-    ) -> Any:
+    def evaluate(self, formula: str, context: Dict[str, Any] = None) -> Any:
         """Evaluate a formula expression for backward compatibility."""
         if context:
             # Update cell values with provided context
@@ -416,16 +410,11 @@ class FormulaEngine:
             # Parse formula with openpyxl tokenizer
             tokens = Tokenizer(formula).items
             sheet_name = (
-                current_cell.split("!")[0]
-                if "!" in current_cell
-                else "Sheet1"
+                current_cell.split("!")[0] if "!" in current_cell else "Sheet1"
             )
 
             for token in tokens:
-                if (
-                    token.type == Token.OPERAND
-                    and token.subtype == Token.RANGE
-                ):
+                if token.type == Token.OPERAND and token.subtype == Token.RANGE:
                     ref = token.value
 
                     # Handle different reference formats
@@ -447,9 +436,7 @@ class FormulaEngine:
             cell_pattern = r"[A-Z]+\d+"
             matches = re.findall(cell_pattern, formula.upper())
             sheet_name = (
-                current_cell.split("!")[0]
-                if "!" in current_cell
-                else "Sheet1"
+                current_cell.split("!")[0] if "!" in current_cell else "Sheet1"
             )
 
             for match in matches:
@@ -523,9 +510,7 @@ class FormulaEngine:
 
         # Detect circular references
         circular_refs = []
-        remaining_nodes = [
-            node for node in all_nodes if in_degree[node] > 0
-        ]
+        remaining_nodes = [node for node in all_nodes if in_degree[node] > 0]
 
         if remaining_nodes:
             # Find strongly connected components for circular references
@@ -603,9 +588,7 @@ class FormulaEngine:
 
         while queue:
             current = queue.popleft()
-            dependents = self.dependency_graph.reverse_nodes.get(
-                current, set()
-            )
+            dependents = self.dependency_graph.reverse_nodes.get(current, set())
 
             for dependent in dependents:
                 if dependent not in affected:
@@ -629,14 +612,10 @@ class FormulaEngine:
             formula = formula[1:]
 
         # Replace cell references with values
-        processed_formula = self._replace_cell_references(
-            formula, cell_ref
-        )
+        processed_formula = self._replace_cell_references(formula, cell_ref)
 
         # Replace Excel functions with Python equivalents
-        processed_formula = self._replace_excel_functions(
-            processed_formula
-        )
+        processed_formula = self._replace_excel_functions(processed_formula)
 
         # Evaluate the expression
         try:
@@ -646,9 +625,7 @@ class FormulaEngine:
         except Exception as e:
             raise Exception(f"Formula evaluation error: {str(e)}")
 
-    def _replace_cell_references(
-        self, formula: str, current_cell: str
-    ) -> str:
+    def _replace_cell_references(self, formula: str, current_cell: str) -> str:
         """
         Replace cell references with their values.
         """
@@ -677,9 +654,7 @@ class FormulaEngine:
             ref = match.group(1)
             full_ref = f"{sheet_name}!{ref}"
 
-            value = self.cell_values.get(
-                ref, self.cell_values.get(full_ref, 0)
-            )
+            value = self.cell_values.get(ref, self.cell_values.get(full_ref, 0))
 
             # Handle different data types
             if isinstance(value, str):
@@ -732,9 +707,7 @@ class FormulaEngine:
             return result
         except ZeroDivisionError:
             # Re-raise division by zero to be handled by caller
-            raise ZeroDivisionError(
-                "Division by zero in formula evaluation"
-            )
+            raise ZeroDivisionError("Division by zero in formula evaluation")
         except Exception as e:
             raise Exception(f"Expression evaluation failed: {str(e)}")
 
@@ -743,9 +716,7 @@ class FormulaEngine:
         Handle unknown Excel functions.
         """
         # Unknown function should raise an error for strict evaluation
-        print(
-            f"Warning: Unknown function {func_name} called with args {args}"
-        )
+        print(f"Warning: Unknown function {func_name} called with args {args}")
         raise Exception(f"Unknown function {func_name}")
 
     def update_cell_value(
@@ -947,9 +918,7 @@ class FormulaEngine:
 
         for pattern in dangerous_patterns:
             # Use word boundaries to match complete words only
-            if re.search(
-                r"\b" + re.escape(pattern) + r"\b", expression_lower
-            ):
+            if re.search(r"\b" + re.escape(pattern) + r"\b", expression_lower):
                 return True
 
         # Check for suspicious characters/patterns

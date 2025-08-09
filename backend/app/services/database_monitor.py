@@ -5,7 +5,7 @@ Provides basic database health monitoring and performance metrics.
 
 import logging
 from typing import Dict, List, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -28,7 +28,7 @@ class DatabaseMonitor:
 
             return {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "connection": "active",
                 "version": "1.0.0",
             }
@@ -36,7 +36,7 @@ class DatabaseMonitor:
             logger.error(f"Database health check failed: {e}")
             return {
                 "status": "unhealthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "connection": "failed",
                 "error": str(e),
             }
@@ -71,7 +71,7 @@ class DatabaseMonitor:
                         "avg_ms": None,
                         "p95_ms": None,
                         "calls": None,
-                        "last_seen": datetime.utcnow().isoformat(),
+                        "last_seen": datetime.now(timezone.utc).isoformat(),
                     }
                 ]
 
@@ -95,7 +95,7 @@ class DatabaseMonitor:
                         "avg_ms": mean_time,
                         "p95_ms": p95,
                         "calls": calls,
-                        "last_seen": datetime.utcnow().isoformat(),
+                        "last_seen": datetime.now(timezone.utc).isoformat(),
                     }
                 )
             return items
@@ -112,12 +112,12 @@ class DatabaseMonitor:
                 "users": {
                     "rows": 0,
                     "size_mb": 0.1,
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "last_updated": datetime.now(timezone.utc).isoformat(),
                 },
                 "uploaded_files": {
                     "rows": 0,
                     "size_mb": 0.1,
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "last_updated": datetime.now(timezone.utc).isoformat(),
                 },
             }
         except Exception as e:
@@ -131,7 +131,7 @@ class DatabaseMonitor:
                 return {
                     "status": "dry_run",
                     "message": "Dry run completed - no data was modified",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "files_to_clean": 0,
                     "records_to_clean": 0,
                 }
@@ -140,7 +140,7 @@ class DatabaseMonitor:
                 return {
                     "status": "completed",
                     "message": "Cleanup completed successfully",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "files_cleaned": 0,
                     "records_cleaned": 0,
                 }
@@ -149,7 +149,7 @@ class DatabaseMonitor:
             return {
                 "status": "error",
                 "message": f"Cleanup failed: {str(e)}",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
 

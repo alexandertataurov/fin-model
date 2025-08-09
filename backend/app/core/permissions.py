@@ -138,9 +138,7 @@ class PermissionChecker:
         for role_str in user_roles:
             try:
                 role = RoleType(role_str)
-                if required_permission in ROLE_PERMISSIONS.get(
-                    role, set()
-                ):
+                if required_permission in ROLE_PERMISSIONS.get(role, set()):
                     return True
             except ValueError:
                 continue

@@ -42,9 +42,7 @@ def list_statements(
 
     statements = query.offset(skip).limit(limit).all()
 
-    return [
-        FinancialStatementResponse.from_orm(stmt) for stmt in statements
-    ]
+    return [FinancialStatementResponse.from_orm(stmt) for stmt in statements]
 
 
 @router.get("/{statement_id}", response_model=FinancialStatementResponse)

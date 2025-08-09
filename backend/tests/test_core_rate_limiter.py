@@ -39,7 +39,7 @@ def test_increment_and_block_after_max_attempts():
         rl.check_rate_limit(req, "login", max_attempts=2)
         rl.check_rate_limit(req, "login", max_attempts=2)
     with pytest.raises(Exception) as exc:
-            rl.check_rate_limit(req, "login", max_attempts=2)
+        rl.check_rate_limit(req, "login", max_attempts=2)
     # FastAPI HTTPException string repr can be empty; check attributes instead
     assert getattr(exc.value, "status_code", 429) == 429
 
@@ -70,10 +70,10 @@ def test_record_successful_auth_resets_attempts():
 def test_get_client_ip_header_precedence():
     with SessionLocal() as db:
         rl = RateLimiter(db)
-        req = DummyRequest(ip="9.9.9.9", headers={"X-Forwarded-For": "1.1.1.1, 2.2.2.2"})
+        req = DummyRequest(
+            ip="9.9.9.9", headers={"X-Forwarded-For": "1.1.1.1, 2.2.2.2"}
+        )
         # first call creates record using header IP
         rl.check_rate_limit(req, "login")
         rec = db.query(RateLimit).first()
         assert rec.key.startswith("login:1.1.1.1")
-
-

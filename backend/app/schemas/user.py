@@ -45,9 +45,7 @@ class UserCreate(UserBase):
     @classmethod
     def validate_password(cls, v):
         if len(v) < 12:
-            raise ValueError(
-                "Password must be at least 12 characters long"
-            )
+            raise ValueError("Password must be at least 12 characters long")
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
@@ -113,9 +111,7 @@ class UserUpdate(BaseModel):
             if len(v) < 1:
                 raise ValueError("Name fields cannot be empty")
             if len(v) > 50:
-                raise ValueError(
-                    "Name fields must be less than 50 characters"
-                )
+                raise ValueError("Name fields must be less than 50 characters")
             return v.strip()
         return v
 
@@ -150,9 +146,7 @@ class AdminUserUpdate(BaseModel):
             if len(v) < 1:
                 raise ValueError("Name fields cannot be empty")
             if len(v) > 50:
-                raise ValueError(
-                    "Name fields must be less than 50 characters"
-                )
+                raise ValueError("Name fields must be less than 50 characters")
             return v.strip()
         return v
 
@@ -176,9 +170,7 @@ class PasswordChange(BaseModel):
     @classmethod
     def validate_new_password(cls, v):
         if len(v) < 12:
-            raise ValueError(
-                "Password must be at least 12 characters long"
-            )
+            raise ValueError("Password must be at least 12 characters long")
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
@@ -209,9 +201,7 @@ class PasswordResetConfirm(BaseModel):
     @classmethod
     def validate_new_password(cls, v):
         if len(v) < 12:
-            raise ValueError(
-                "Password must be at least 12 characters long"
-            )
+            raise ValueError("Password must be at least 12 characters long")
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 

@@ -84,9 +84,7 @@ async def notifications_websocket(
         # Then authenticate
         if not token:
             logger.warning("WebSocket connection attempt without token")
-            await websocket.close(
-                code=4001, reason="Authentication required"
-            )
+            await websocket.close(code=4001, reason="Authentication required")
             return
 
         try:
@@ -97,9 +95,7 @@ async def notifications_websocket(
             return
 
         if not user_id:
-            logger.warning(
-                "WebSocket connection attempt with invalid token"
-            )
+            logger.warning("WebSocket connection attempt with invalid token")
             await websocket.close(code=4001, reason="Invalid token")
             return
 
@@ -124,9 +120,7 @@ async def notifications_websocket(
                 f"WebSocket authentication successful for user {user.id}"
             )
         except Exception as e:
-            logger.error(
-                f"Database error during WebSocket authentication: {e}"
-            )
+            logger.error(f"Database error during WebSocket authentication: {e}")
             await websocket.close(code=4001, reason="Database error")
             return
         finally:

@@ -13,12 +13,11 @@ from app.api.v1.endpoints import (
     lean_financial,
     notifications,
 )
+
 api_router = APIRouter()
 
 # Include authentication routes
-api_router.include_router(
-    auth.router, prefix="/auth", tags=["authentication"]
-)
+api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 
 # Include MFA routes
 api_router.include_router(
@@ -26,9 +25,7 @@ api_router.include_router(
 )
 
 # Include OAuth routes
-api_router.include_router(
-    oauth.router, prefix="/auth/oauth", tags=["oauth"]
-)
+api_router.include_router(oauth.router, prefix="/auth/oauth", tags=["oauth"])
 
 # Include WebAuthn routes
 api_router.include_router(
@@ -41,9 +38,7 @@ api_router.include_router(
 )
 
 # Include file upload routes
-api_router.include_router(
-    files.router, prefix="/files", tags=["file-upload"]
-)
+api_router.include_router(files.router, prefix="/files", tags=["file-upload"])
 
 # Include dashboard routes
 api_router.include_router(

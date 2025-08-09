@@ -60,10 +60,58 @@ vi.mock('react-router-dom', async (importOriginal) => {
     } as unknown as typeof import('react-router-dom');
 });
 
-// Basic confirm stub
-if (typeof window !== 'undefined' && typeof window.confirm !== 'function') {
+// Force confirm stub (jsdom implements confirm but throws by default)
+// @ts-ignore
+if (typeof window !== 'undefined') {
     // @ts-ignore
     window.confirm = () => true;
 }
+
+// Ensure global confirm is stubbed too
+// @ts-ignore
+vi.stubGlobal('confirm', () => true);
+
+// Lightweight UI component mocks to avoid heavy Radix behavior in tests
+vi.mock('@/design-system/components/Tabs', () => ({
+    Tabs: ({ children }: any) => React.createElement('div', { 'data-testid': 'Tabs' }, children),
+    TabsList: ({ children }: any) => React.createElement('div', { role: 'tablist' }, children),
+    TabsTrigger: ({ children }: any) => React.createElement('button', { role: 'tab' }, children),
+    TabsContent: ({ children }: any) => React.createElement('div', null, children),
+}));
+
+vi.mock('@/design-system/components/Switch', () => ({
+    Switch: ({ checked, onCheckedChange }: any) => React.createElement(
+        'button',
+        {
+            role: 'switch',
+            'aria-checked': !!checked,
+            onClick: () => onCheckedChange?.(!checked),
+        },
+        ''
+    ),
+}));
+
+// Disable repeating timers to prevent hanging tests due to open intervals
+// @ts-ignore
+if (typeof globalThis.setInterval === 'function') {
+    // @ts-ignore
+    vi.stubGlobal('setInterval', (_cb: any, _ms?: number) => 0 as any);
+}
+// @ts-ignore
+if (typeof globalThis.clearInterval === 'function') {
+    // @ts-ignore
+    vi.stubGlobal('clearInterval', (_id: any) => { });
+}
+
+// Stub heavy admin sub-components to speed up render
+vi.mock('@/components/Admin/UserManagement', () => ({
+    default: () => React.createElement('div', { 'data-testid': 'UserManagement' }),
+}));
+vi.mock('@/components/Admin/SystemMonitoring', () => ({
+    default: () => React.createElement('div', { 'data-testid': 'SystemMonitoring' }),
+}));
+vi.mock('@/components/Admin/DataManagement', () => ({
+    default: () => React.createElement('div', { 'data-testid': 'DataManagement' }),
+}));
 
 

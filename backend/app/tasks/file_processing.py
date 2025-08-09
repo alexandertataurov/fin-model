@@ -63,9 +63,7 @@ def process_uploaded_file(
 
         # Get file record
         file_record = (
-            db.query(UploadedFile)
-            .filter(UploadedFile.id == file_id)
-            .first()
+            db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         )
         if not file_record:
             raise ValueError(f"File with ID {file_id} not found")
@@ -196,9 +194,7 @@ def process_uploaded_file(
         )
 
         # Update file record with results
-        final_status = (
-            FileStatus.COMPLETED if is_valid else FileStatus.FAILED
-        )
+        final_status = FileStatus.COMPLETED if is_valid else FileStatus.FAILED
         file_service.update_file_status(
             file_id,
             final_status,
@@ -275,9 +271,7 @@ def process_uploaded_file(
 
         # Send error notification
         file_record = (
-            db.query(UploadedFile)
-            .filter(UploadedFile.id == file_id)
-            .first()
+            db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         )
         if file_record:
             send_processing_notification.__wrapped__(
@@ -341,9 +335,7 @@ def reprocess_file(
         "reprocessing_started",
         "File reprocessing initiated",
         "info",
-        json.dumps(
-            {"task_id": self.request.id, "options": processing_options}
-        ),
+        json.dumps({"task_id": self.request.id, "options": processing_options}),
     )
 
     # Call the main processing task
@@ -355,9 +347,7 @@ def reprocess_file(
     base=DatabaseTask,
     name="app.tasks.file_processing.cleanup_old_files",
 )
-def cleanup_old_files(
-    self, db: Session, days_old: int = 30
-) -> Dict[str, Any]:
+def cleanup_old_files(self, db: Session, days_old: int = 30) -> Dict[str, Any]:
     """
     Clean up old uploaded files and their data.
 
@@ -403,9 +393,7 @@ def cleanup_old_files(
             cleaned_count += 1
 
         except Exception as e:
-            errors.append(
-                f"Failed to delete file {file_record.id}: {str(e)}"
-            )
+            errors.append(f"Failed to delete file {file_record.id}: {str(e)}")
 
     if cleaned_count > 0:
         db.commit()
@@ -465,6 +453,4 @@ def get_processing_status(task_id: str) -> Dict[str, Any]:
 
 
 # Expose raw function for unit tests
-process_uploaded_file.__wrapped__ = (
-    process_uploaded_file.__wrapped__.__func__
-)
+process_uploaded_file.__wrapped__ = process_uploaded_file.__wrapped__.__func__

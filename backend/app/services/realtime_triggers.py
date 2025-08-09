@@ -20,9 +20,7 @@ class RealtimeDataService:
     """Service for handling real-time data updates and broadcasting to WebSocket clients"""
 
     def __init__(self, websocket_manager_instance=None):
-        self.websocket_manager = (
-            websocket_manager_instance or websocket_manager
-        )
+        self.websocket_manager = websocket_manager_instance or websocket_manager
         self.setup_database_triggers()
 
     def setup_database_triggers(self):
@@ -52,9 +50,7 @@ class RealtimeDataService:
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
-                    asyncio.create_task(
-                        self.handle_parameter_update(target)
-                    )
+                    asyncio.create_task(self.handle_parameter_update(target))
                 else:
                     # For testing environments without running event loop
                     pass
@@ -84,9 +80,7 @@ class RealtimeDataService:
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
-                    asyncio.create_task(
-                        self.handle_file_status_update(target)
-                    )
+                    asyncio.create_task(self.handle_file_status_update(target))
                 else:
                     # For testing environments without running event loop
                     pass
@@ -94,9 +88,7 @@ class RealtimeDataService:
                 # No event loop available, skip real-time updates
                 pass
 
-        logger.info(
-            "Database triggers for real-time updates have been set up"
-        )
+        logger.info("Database triggers for real-time updates have been set up")
 
     async def handle_financial_data_update(
         self, financial_statement: FinancialStatement
@@ -120,17 +112,13 @@ class RealtimeDataService:
             }
 
             # Broadcast to dashboard channel for this scenario
-            dashboard_channel_id = (
-                f"scenario_{financial_statement.scenario_id}"
-            )
+            dashboard_channel_id = f"scenario_{financial_statement.scenario_id}"
             await self.websocket_manager.broadcast_to_channel(
                 ChannelType.DASHBOARD, dashboard_channel_id, message
             )
 
             # Also broadcast to financial data channel
-            financial_channel_id = (
-                f"scenario_{financial_statement.scenario_id}"
-            )
+            financial_channel_id = f"scenario_{financial_statement.scenario_id}"
             await self.websocket_manager.broadcast_to_channel(
                 ChannelType.FINANCIAL_DATA, financial_channel_id, message
             )
@@ -285,9 +273,7 @@ class RealtimeDataService:
             )
 
         except Exception as e:
-            logger.error(
-                f"Error broadcasting aggregated metrics update: {e}"
-            )
+            logger.error(f"Error broadcasting aggregated metrics update: {e}")
 
     async def send_report_notification(self, report: ReportExport):
         """Send notification when report generation is complete"""
@@ -374,9 +360,7 @@ class RealtimeDataService:
                 )
 
         except Exception as e:
-            logger.error(
-                f"Error sending file processing notification: {e}"
-            )
+            logger.error(f"Error sending file processing notification: {e}")
 
     async def broadcast_chart_data_update(
         self,

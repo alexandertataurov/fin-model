@@ -25,11 +25,11 @@ try:
         port = int(os.environ.get("PORT", 8000))
         print(f"🌐 Starting server on port {port}")
         uvicorn.run(
-            app, 
-            host="0.0.0.0", 
+            app,
+            host="0.0.0.0",
             port=port,
             timeout_graceful_shutdown=30,
-            timeout_keep_alive=30
+            timeout_keep_alive=30,
         )
 
 except Exception as e:

@@ -49,9 +49,7 @@ def monitor_db_query(query_type: str):
             try:
                 result = await func(*args, **kwargs)
                 duration = time.time() - start_time
-                performance_monitor.record_database_query(
-                    query_type, duration
-                )
+                performance_monitor.record_database_query(query_type, duration)
                 return result
             except Exception as e:
                 duration = time.time() - start_time

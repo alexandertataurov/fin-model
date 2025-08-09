@@ -101,9 +101,7 @@ def generate_cleanup_report(self):
 
     except Exception as e:
         error_msg = f"Cleanup report generation failed: {str(e)}"
-        send_system_alert.delay(
-            "report_generation_error", error_msg, "medium"
-        )
+        send_system_alert.delay("report_generation_error", error_msg, "medium")
         raise
 
 
@@ -145,9 +143,7 @@ def health_check(self):
             scanner_status = scanner_manager.get_scanner_status()
             health_status["services"]["virus_scanner"] = scanner_status
         except Exception as e:
-            health_status["services"][
-                "virus_scanner"
-            ] = f"unhealthy: {str(e)}"
+            health_status["services"]["virus_scanner"] = f"unhealthy: {str(e)}"
             # Virus scanner issues are not critical for overall health
 
         # Send alert if system is unhealthy
@@ -162,9 +158,7 @@ def health_check(self):
 
     except Exception as e:
         error_msg = f"Health check failed: {str(e)}"
-        send_system_alert.delay(
-            "health_check_error", error_msg, "critical"
-        )
+        send_system_alert.delay("health_check_error", error_msg, "critical")
         raise
 
 
@@ -200,9 +194,7 @@ def update_analytics_cache(self):
             import json
             from app.core.celery_app import redis_client
 
-            redis_client.setex(
-                "analytics_cache", 3600, json.dumps(cache_data)
-            )
+            redis_client.setex("analytics_cache", 3600, json.dumps(cache_data))
 
             return {
                 "success": True,
@@ -212,9 +204,7 @@ def update_analytics_cache(self):
 
     except Exception as e:
         error_msg = f"Analytics cache update failed: {str(e)}"
-        send_system_alert.delay(
-            "analytics_cache_error", error_msg, "medium"
-        )
+        send_system_alert.delay("analytics_cache_error", error_msg, "medium")
         raise
 
 

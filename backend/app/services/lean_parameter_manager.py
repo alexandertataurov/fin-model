@@ -91,9 +91,7 @@ class LeanParameterManager:
 
     def __init__(self, db: Session):
         self.db = db
-        self.parameter_definitions = (
-            self._initialize_parameter_definitions()
-        )
+        self.parameter_definitions = self._initialize_parameter_definitions()
 
     def _initialize_parameter_definitions(
         self,
@@ -213,9 +211,7 @@ class LeanParameterManager:
                 "$",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.TAX_ENVIRONMENT
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.TAX_ENVIRONMENT] = ParameterGroup(
             ParameterCategory.TAX_ENVIRONMENT,
             "Tax Environment",
             "Tax-related parameters and rates",
@@ -274,9 +270,7 @@ class LeanParameterManager:
                 "%",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.REVENUE_PARAMETERS
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.REVENUE_PARAMETERS] = ParameterGroup(
             ParameterCategory.REVENUE_PARAMETERS,
             "Revenue Parameters",
             "Revenue growth and pricing parameters",
@@ -347,9 +341,7 @@ class LeanParameterManager:
                 "%",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.COGS_PARAMETERS
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.COGS_PARAMETERS] = ParameterGroup(
             ParameterCategory.COGS_PARAMETERS,
             "Cost of Goods Sold",
             "Direct costs and manufacturing parameters",
@@ -420,9 +412,7 @@ class LeanParameterManager:
                 "%",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.OPERATING_EXPENSES
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.OPERATING_EXPENSES] = ParameterGroup(
             ParameterCategory.OPERATING_EXPENSES,
             "Operating Expenses",
             "Sales, marketing, R&D, and administrative expenses",
@@ -725,9 +715,7 @@ class LeanParameterManager:
                 "%",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.ASSET_LIFECYCLE
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.ASSET_LIFECYCLE] = ParameterGroup(
             ParameterCategory.ASSET_LIFECYCLE,
             "Asset Lifecycle",
             "Asset management and replacement parameters",
@@ -1031,9 +1019,7 @@ class LeanParameterManager:
                 "enterprise_value": base_model[
                     "dcf_valuation"
                 ].enterprise_value,
-                "value_per_share": base_model[
-                    "dcf_valuation"
-                ].value_per_share,
+                "value_per_share": base_model["dcf_valuation"].value_per_share,
                 "net_income": base_model["profit_loss"].net_income,
             },
             "sensitivity_analysis": {},
@@ -1059,9 +1045,7 @@ class LeanParameterManager:
                     param_key,
                     base_value * (1 - variation_percent),
                 )
-                down_model = engine.calculate_comprehensive_model(
-                    down_params
-                )
+                down_model = engine.calculate_comprehensive_model(down_params)
 
                 sensitivity_results["sensitivity_analysis"][param_key] = {
                     "base_value": base_value,
@@ -1077,9 +1061,7 @@ class LeanParameterManager:
                         "ev_change_percent": (
                             (
                                 up_model["dcf_valuation"].enterprise_value
-                                - base_model[
-                                    "dcf_valuation"
-                                ].enterprise_value
+                                - base_model["dcf_valuation"].enterprise_value
                             )
                             / base_model["dcf_valuation"].enterprise_value
                             * 100
@@ -1095,12 +1077,8 @@ class LeanParameterManager:
                         ].value_per_share,
                         "ev_change_percent": (
                             (
-                                down_model[
-                                    "dcf_valuation"
-                                ].enterprise_value
-                                - base_model[
-                                    "dcf_valuation"
-                                ].enterprise_value
+                                down_model["dcf_valuation"].enterprise_value
+                                - base_model["dcf_valuation"].enterprise_value
                             )
                             / base_model["dcf_valuation"].enterprise_value
                             * 100

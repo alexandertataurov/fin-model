@@ -94,9 +94,7 @@ class MFAService:
         # Check if user already has MFA enabled
         existing_mfa = (
             self.db.query(MFAToken)
-            .filter(
-                MFAToken.user_id == user.id, MFAToken.is_verified == True
-            )
+            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
             .first()
         )
 
@@ -112,9 +110,7 @@ class MFAService:
 
         # Create or update MFA token record
         mfa_token = (
-            self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id)
-            .first()
+            self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
         )
 
         if mfa_token:
@@ -151,9 +147,7 @@ class MFAService:
         """
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(
-                MFAToken.user_id == user.id, MFAToken.is_verified == False
-            )
+            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == False)
             .first()
         )
 
@@ -190,9 +184,7 @@ class MFAService:
         """
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(
-                MFAToken.user_id == user.id, MFAToken.is_verified == True
-            )
+            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
             .first()
         )
 
@@ -238,9 +230,7 @@ class MFAService:
 
         # Remove MFA token
         mfa_token = (
-            self.db.query(MFAToken)
-            .filter(MFAToken.user_id == user.id)
-            .first()
+            self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
         )
 
         if mfa_token:
@@ -254,9 +244,7 @@ class MFAService:
         """Get remaining backup codes for a user."""
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(
-                MFAToken.user_id == user.id, MFAToken.is_verified == True
-            )
+            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
             .first()
         )
 
@@ -272,9 +260,7 @@ class MFAService:
         """Generate new backup codes for a user."""
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(
-                MFAToken.user_id == user.id, MFAToken.is_verified == True
-            )
+            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
             .first()
         )
 
@@ -295,9 +281,7 @@ class MFAService:
         """Check if MFA is enabled for a user."""
         mfa_token = (
             self.db.query(MFAToken)
-            .filter(
-                MFAToken.user_id == user.id, MFAToken.is_verified == True
-            )
+            .filter(MFAToken.user_id == user.id, MFAToken.is_verified == True)
             .first()
         )
 
@@ -326,9 +310,7 @@ class MFAService:
 
         return challenge.id
 
-    def get_mfa_challenge(
-        self, challenge_id: str
-    ) -> Optional[MFAChallenge]:
+    def get_mfa_challenge(self, challenge_id: str) -> Optional[MFAChallenge]:
         """Get MFA challenge by ID."""
         challenge = (
             self.db.query(MFAChallenge)

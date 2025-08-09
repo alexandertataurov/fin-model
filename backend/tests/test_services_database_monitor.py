@@ -63,5 +63,3 @@ def test_table_sizes_and_cleanup_paths():
 
         done = mon.cleanup_stale_data(dry_run=False)
         assert done["status"] in ("completed", "error")
-
-

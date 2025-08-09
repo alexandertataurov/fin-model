@@ -40,9 +40,7 @@ def upgrade() -> None:
     # maintenance_schedules table
     op.create_table(
         "maintenance_schedules",
-        sa.Column(
-            "id", sa.String(length=64), primary_key=True, nullable=False
-        ),
+        sa.Column("id", sa.String(length=64), primary_key=True, nullable=False),
         sa.Column("name", sa.String(length=128), nullable=False),
         sa.Column("task", sa.String(length=32), nullable=False),
         sa.Column("schedule", sa.String(length=128), nullable=False),

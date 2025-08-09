@@ -53,9 +53,7 @@ async def get_dashboard_metrics(
         .count()
     )
     total_parameters = (
-        db.query(Parameter)
-        .filter(Parameter.user_id == current_user.id)
-        .count()
+        db.query(Parameter).filter(Parameter.user_id == current_user.id).count()
     )
     # Note: Report functionality removed in lean version
     total_reports = 0
@@ -413,12 +411,8 @@ async def get_financial_ratios(
 
 @router.get("/metrics/variance")
 async def get_variance_analysis(
-    base_period: str = Query(
-        ..., description="Base period for comparison"
-    ),
-    compare_period: str = Query(
-        ..., description="Period to compare against"
-    ),
+    base_period: str = Query(..., description="Base period for comparison"),
+    compare_period: str = Query(..., description="Period to compare against"),
     variance_type: str = Query(
         "absolute", description="Type of variance (absolute, percentage)"
     ),
@@ -452,9 +446,7 @@ async def get_variance_analysis(
             "variance_type": variance_type,
             "file_id": file_id,
             "variances": variance_data["variances"],
-            "significant_changes": variance_data.get(
-                "significant_changes", []
-            ),
+            "significant_changes": variance_data.get("significant_changes", []),
             "summary": variance_data.get("summary", {}),
             "generated_at": datetime.utcnow().isoformat(),
         }
@@ -777,9 +769,7 @@ async def get_statement_key_metrics(
 
 @router.get("/export/{format}")
 async def export_dashboard_data(
-    format: str = Path(
-        ..., description="Export format (pdf, excel, json)"
-    ),
+    format: str = Path(..., description="Export format (pdf, excel, json)"),
     period: str = Query(
         PeriodFilter.YTD.value, description="Time period for export"
     ),
@@ -895,9 +885,7 @@ async def list_user_statements(
         statement_type_filter = None
         if statement_type:
             try:
-                statement_type_filter = StatementType(
-                    statement_type.upper()
-                )
+                statement_type_filter = StatementType(statement_type.upper())
             except ValueError:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -911,8 +899,7 @@ async def list_user_statements(
         )
 
         serialized_statements = [
-            dashboard_service._serialize_statement(stmt)
-            for stmt in statements
+            dashboard_service._serialize_statement(stmt) for stmt in statements
         ]
 
         return {
@@ -933,12 +920,8 @@ async def list_user_statements(
 
 @router.get("/time-series")
 async def get_time_series_data(
-    metric_key: str = Query(
-        ..., description="Metric key to track over time"
-    ),
-    statement_type: str = Query(
-        ..., description="Statement type for metric"
-    ),
+    metric_key: str = Query(..., description="Metric key to track over time"),
+    statement_type: str = Query(..., description="Statement type for metric"),
     current_user: User = Depends(
         require_permissions(Permission.DASHBOARD_READ)
     ),
@@ -988,9 +971,7 @@ async def get_time_series_data(
         )
 
         # Calculate statistics
-        statistics = metrics_service.calculate_trend_statistics(
-            time_series
-        )
+        statistics = metrics_service.calculate_trend_statistics(time_series)
 
         # Generate forecast
         forecast = metrics_service.generate_simple_forecast(
@@ -1088,9 +1069,7 @@ async def get_period_comparisons(
             if value_1 is not None and value_2 is not None:
                 absolute_change = value_2 - value_1
                 percentage_change = (
-                    ((value_2 - value_1) / value_1 * 100)
-                    if value_1 != 0
-                    else 0
+                    ((value_2 - value_1) / value_1 * 100) if value_1 != 0 else 0
                 )
 
                 comparisons[key] = {

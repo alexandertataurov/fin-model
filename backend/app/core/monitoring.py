@@ -97,9 +97,7 @@ class PerformanceMonitor:
         self, query_type: str, duration: float, query: str = None
     ):
         """Record database query performance"""
-        database_query_duration.labels(query_type=query_type).observe(
-            duration
-        )
+        database_query_duration.labels(query_type=query_type).observe(duration)
 
         metric = PerformanceMetric(
             timestamp=datetime.utcnow(),
@@ -128,8 +126,7 @@ class PerformanceMonitor:
                 "high_memory_usage",
                 {
                     "current": memory.percent,
-                    "threshold": self.alert_thresholds["memory_usage"]
-                    * 100,
+                    "threshold": self.alert_thresholds["memory_usage"] * 100,
                 },
             )
 
@@ -144,9 +141,7 @@ class PerformanceMonitor:
 
     def trigger_alert(self, alert_type: str, context: Dict):
         """Trigger performance alert"""
-        self.logger.warning(
-            f"Performance alert: {alert_type}", extra=context
-        )
+        self.logger.warning(f"Performance alert: {alert_type}", extra=context)
         # Here you could integrate with alerting services like PagerDuty, Slack, etc.
 
     def get_metrics_summary(self, hours: int = 24) -> Dict:
@@ -157,9 +152,7 @@ class PerformanceMonitor:
         ]
 
         if not recent_metrics:
-            return {
-                "message": "No metrics available for the specified period"
-            }
+            return {"message": "No metrics available for the specified period"}
 
         # Calculate statistics
         request_metrics = [

@@ -72,9 +72,7 @@ class Notification(Base):
     priority = Column(
         String(20), default=NotificationPriority.NORMAL, index=True
     )
-    status = Column(
-        String(20), default=NotificationStatus.PENDING, index=True
-    )
+    status = Column(String(20), default=NotificationStatus.PENDING, index=True)
     is_read = Column(Boolean, default=False, index=True)
     is_dismissed = Column(Boolean, default=False, index=True)
     created_at = Column(
@@ -113,15 +111,9 @@ class NotificationPreferences(Base):
     quiet_end_time = Column(String(5))  # Format: "HH:MM"
     quiet_timezone = Column(String(50), default="UTC")
     type_preferences = Column(JSON, default={})
-    min_priority_email = Column(
-        String(20), default=NotificationPriority.NORMAL
-    )
-    min_priority_push = Column(
-        String(20), default=NotificationPriority.HIGH
-    )
-    min_priority_in_app = Column(
-        String(20), default=NotificationPriority.LOW
-    )
+    min_priority_email = Column(String(20), default=NotificationPriority.NORMAL)
+    min_priority_push = Column(String(20), default=NotificationPriority.HIGH)
+    min_priority_in_app = Column(String(20), default=NotificationPriority.LOW)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(
         DateTime,
@@ -147,9 +139,7 @@ class NotificationTemplate(Base):
     notification_type = Column(String(50), nullable=False, index=True)
     title_template = Column(String(255), nullable=False)
     message_template = Column(Text, nullable=False)
-    default_priority = Column(
-        String(20), default=NotificationPriority.NORMAL
-    )
+    default_priority = Column(String(20), default=NotificationPriority.NORMAL)
     expires_after_hours = Column(Integer)
     description = Column(Text)
     is_active = Column(Boolean, default=True)

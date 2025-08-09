@@ -316,9 +316,7 @@ async def unlink_oauth_account(
     success = oauth_service.unlink_oauth_account(current_user, provider)
 
     if success:
-        return {
-            "message": f"{provider.title()} account unlinked successfully"
-        }
+        return {"message": f"{provider.title()} account unlinked successfully"}
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

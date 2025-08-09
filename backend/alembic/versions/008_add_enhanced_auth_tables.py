@@ -40,9 +40,7 @@ def upgrade() -> None:
                 print(f"✅ Added column {column_name} to {table_name}")
                 return True
             else:
-                print(
-                    f"⚠️ Column {column_name} already exists in {table_name}"
-                )
+                print(f"⚠️ Column {column_name} already exists in {table_name}")
                 return False
         except Exception as e:
             print(f"⚠️ Could not add column {column_name}: {e}")
@@ -67,9 +65,7 @@ def upgrade() -> None:
     safe_add_column(
         "users",
         "verification_token_expires",
-        sa.Column(
-            "verification_token_expires", sa.DateTime(), nullable=True
-        ),
+        sa.Column("verification_token_expires", sa.DateTime(), nullable=True),
     )
     safe_add_column(
         "users",
@@ -118,9 +114,7 @@ def upgrade() -> None:
             "user_sessions",
             sa.Column("id", sa.String(), nullable=False),
             sa.Column("user_id", sa.Integer(), nullable=False),
-            sa.Column(
-                "refresh_token", sa.String(length=255), nullable=False
-            ),
+            sa.Column("refresh_token", sa.String(length=255), nullable=False),
             sa.Column("expires_at", sa.DateTime(), nullable=False),
             sa.Column(
                 "created_at",
@@ -179,9 +173,7 @@ def upgrade() -> None:
                 text(f"SELECT to_regclass('{index_name}')")
             ).scalar()
             if result is None:
-                op.create_index(
-                    index_name, table_name, columns, unique=unique
-                )
+                op.create_index(index_name, table_name, columns, unique=unique)
                 print(f"✅ Created index {index_name}")
             else:
                 print(f"⚠️ Skipping index {index_name}: already exists")
@@ -196,9 +188,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Drop new tables
-    op.drop_index(
-        op.f("ix_rate_limits_window_start"), table_name="rate_limits"
-    )
+    op.drop_index(op.f("ix_rate_limits_window_start"), table_name="rate_limits")
     op.drop_index(op.f("ix_rate_limits_key"), table_name="rate_limits")
     op.drop_table("rate_limits")
     op.drop_table("user_sessions")

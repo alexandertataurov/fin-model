@@ -253,9 +253,7 @@ class ParameterComparison(BaseModel):
     base_value: Optional[float]
     comparison_values: Dict[int, Optional[float]]  # scenario_id -> value
     variance: Dict[int, Optional[float]]  # scenario_id -> variance
-    percentage_change: Dict[
-        int, Optional[float]
-    ]  # scenario_id -> % change
+    percentage_change: Dict[int, Optional[float]]  # scenario_id -> % change
 
 
 class ScenarioComparisonResponse(BaseModel):

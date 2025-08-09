@@ -47,9 +47,7 @@ class AuthService:
 
     def get_user_by_username(self, username: str) -> Optional[User]:
         """Get user by username."""
-        return (
-            self.db.query(User).filter(User.username == username).first()
-        )
+        return self.db.query(User).filter(User.username == username).first()
 
     def get_user_by_id(self, user_id: int) -> Optional[User]:
         """Get user by ID."""
@@ -165,9 +163,7 @@ class AuthService:
         # Verify password
         if not verify_password(password, user.hashed_password):
             # Increment failed login attempts
-            user.failed_login_attempts = (
-                user.failed_login_attempts or 0
-            ) + 1
+            user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
 
             # Lock account after 5 failed attempts
             if user.failed_login_attempts >= 5:
@@ -218,9 +214,7 @@ class AuthService:
     def verify_email(self, token: str) -> bool:
         """Verify user's email with token."""
         user = (
-            self.db.query(User)
-            .filter(User.verification_token == token)
-            .first()
+            self.db.query(User).filter(User.verification_token == token).first()
         )
         if not user:
             return False
@@ -244,9 +238,9 @@ class AuthService:
         # Generate reset token
         reset_token = generate_secure_token()
         user.password_reset_token = reset_token
-        user.password_reset_expires = datetime.now(
-            timezone.utc
-        ) + timedelta(hours=1)
+        user.password_reset_expires = datetime.now(timezone.utc) + timedelta(
+            hours=1
+        )
 
         self.log_audit_action(
             user_id=user.id,

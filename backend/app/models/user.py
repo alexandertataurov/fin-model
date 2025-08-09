@@ -4,8 +4,6 @@ from sqlalchemy import (
     String,
     Boolean,
     DateTime,
-    ForeignKey,
-    Text,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -31,9 +29,7 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     failed_login_attempts = Column(Integer, default=0, nullable=False)
     account_locked_until = Column(DateTime, nullable=True)
-    created_at = Column(
-        DateTime, server_default=func.now(), nullable=False
-    )
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime,
         server_default=func.now(),
@@ -92,6 +88,6 @@ class User(Base):
     def is_locked(self):
         if self.account_locked_until is None:
             return False
-        from datetime import datetime
+        from datetime import datetime, timezone
 
-        return datetime.utcnow() < self.account_locked_until
+        return datetime.now(timezone.utc) < self.account_locked_until

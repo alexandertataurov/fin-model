@@ -216,9 +216,7 @@ async def calculate_comprehensive_model(
         engine = LeanFinancialEngine(db)
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(
-            request.parameters
-        )
+        is_valid, errors = param_manager.validate_parameters(request.parameters)
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -283,9 +281,7 @@ async def calculate_individual_statement(
             )
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(
-            request.parameters
-        )
+        is_valid, errors = param_manager.validate_parameters(request.parameters)
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -352,9 +348,7 @@ async def create_scenario(
         engine = LeanFinancialEngine(db)
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(
-            request.parameters
-        )
+        is_valid, errors = param_manager.validate_parameters(request.parameters)
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -542,9 +536,7 @@ async def export_parameters(
         )
 
         # Export parameters
-        exported_data = param_manager.export_parameters(
-            core_parameters, format
-        )
+        exported_data = param_manager.export_parameters(core_parameters, format)
 
         return {
             "success": True,

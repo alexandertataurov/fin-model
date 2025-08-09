@@ -248,9 +248,7 @@ class FileService:
 
         return log_entry
 
-    def get_file_logs(
-        self, file_id: int, user: User
-    ) -> List[ProcessingLog]:
+    def get_file_logs(self, file_id: int, user: User) -> List[ProcessingLog]:
         """Get processing logs for a file."""
         # First check if user has access to this file
         file_record = self.get_file_by_id(file_id, user)
@@ -317,6 +315,4 @@ class FileService:
         from app.services.file_cleanup import FileCleanupService
 
         cleanup_service = FileCleanupService(self.db, self)
-        return asyncio.run(
-            cleanup_service.cleanup_expired_files(dry_run=False)
-        )
+        return asyncio.run(cleanup_service.cleanup_expired_files(dry_run=False))

@@ -49,9 +49,7 @@ def send_processing_notification(
     try:
         # Get file and user information
         file_record = (
-            db.query(UploadedFile)
-            .filter(UploadedFile.id == file_id)
-            .first()
+            db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         )
         user = db.query(User).filter(User.id == user_id).first()
 
@@ -143,9 +141,7 @@ def send_weekly_summary(self, db: Session) -> dict:
 
         for stats in stats_query:
             user = (
-                db.query(User)
-                .filter(User.id == stats.uploaded_by_id)
-                .first()
+                db.query(User).filter(User.id == stats.uploaded_by_id).first()
             )
             if user:
                 summary_data = {

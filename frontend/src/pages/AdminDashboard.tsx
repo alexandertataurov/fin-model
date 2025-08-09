@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users,
@@ -102,7 +102,7 @@ const AdminDashboard: React.FC = () => {
   const [auditTo, setAuditTo] = useState<string>('');
 
   // Load admin data
-  const loadAdminData = async () => {
+  const loadAdminData = useCallback(async () => {
     setLoading(true);
     const results = await Promise.allSettled([
       AdminApiService.getSystemStats(),
@@ -189,9 +189,9 @@ const AdminDashboard: React.FC = () => {
     }
 
     setLoading(false);
-  };
+  }, [securityFrom, securityTo, auditFrom, auditTo]);
 
-  const loadMetricsAndLogs = async () => {
+  const loadMetricsAndLogs = useCallback(async () => {
     const results = await Promise.allSettled([
       AdminApiService.getSystemMetrics(),
       AdminApiService.getSystemLogs(logsLevel, logsLimit, {
@@ -209,7 +209,7 @@ const AdminDashboard: React.FC = () => {
       setLogs((env.items as LogEntry[]) || env || []);
       if (env && typeof env.total === 'number') setLogsTotal(env.total);
     }
-  };
+  }, [logsLevel, logsLimit, logsFrom, logsTo, logsSearch, logsSkip]);
 
   // Refresh data
   const handleRefresh = async () => {
@@ -300,7 +300,7 @@ const AdminDashboard: React.FC = () => {
       loadMetricsAndLogs();
     }, 30000);
     return () => clearInterval(id);
-  }, [autoRefreshEnabled, logsLevel, logsLimit, loadMetricsAndLogs]);
+  }, [autoRefreshEnabled, loadMetricsAndLogs]);
 
   // Check if user has admin permissions
   if (!user) {

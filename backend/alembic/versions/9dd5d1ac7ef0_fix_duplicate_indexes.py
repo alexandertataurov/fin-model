@@ -121,9 +121,7 @@ def upgrade() -> None:
             except Exception as e:
                 try:
                     # Fallback to non-concurrent if needed
-                    conn.execute(
-                        text(f"DROP INDEX IF EXISTS {index_name}")
-                    )
+                    conn.execute(text(f"DROP INDEX IF EXISTS {index_name}"))
                     print(f"✅ Dropped index {index_name} (fallback)")
                 except Exception as e2:
                     print(f"⚠️ Could not drop index {index_name}: {e2}")

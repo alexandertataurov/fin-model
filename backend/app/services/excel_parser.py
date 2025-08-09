@@ -181,9 +181,7 @@ class ExcelParser:
             sheets = []
             for sheet_name in workbook.sheetnames:
                 sheet = workbook[sheet_name]
-                data = [
-                    list(row) for row in sheet.iter_rows(values_only=True)
-                ]
+                data = [list(row) for row in sheet.iter_rows(values_only=True)]
                 sheets.append(
                     {"name": sheet_name, "type": "financial", "data": data}
                 )
@@ -223,17 +221,13 @@ class ExcelParser:
             parsed_data.financial_metrics = self._calculate_basic_metrics(
                 parsed_data.sheets
             )
-            parsed_data.validation_summary = self._validate_data(
-                parsed_data
-            )
+            parsed_data.validation_summary = self._validate_data(parsed_data)
             return parsed_data
         except Exception as e:
             error_data = ParsedData(
                 file_name=file_info.name,
                 file_path=str(file_path),
-                file_size=file_info.stat().st_size
-                if file_info.exists()
-                else 0,
+                file_size=file_info.stat().st_size if file_info.exists() else 0,
             )
             error_data.validation_summary = ValidationSummary(
                 is_valid=False,
@@ -298,9 +292,7 @@ class ExcelParser:
         sheet_info.formula_count = formula_count
 
         # Identify financial sections
-        sheet_info.financial_sections = self._identify_financial_sections(
-            sheet
-        )
+        sheet_info.financial_sections = self._identify_financial_sections(sheet)
 
         return sheet_info
 
@@ -489,9 +481,7 @@ class ExcelParser:
         references = re.findall(pattern, formula.upper())
         return list(set(references))  # Remove duplicates
 
-    def _identify_financial_sections(
-        self, sheet: Worksheet
-    ) -> Dict[str, Any]:
+    def _identify_financial_sections(self, sheet: Worksheet) -> Dict[str, Any]:
         """Identify financial sections in the sheet."""
         sections = {}
 
@@ -522,9 +512,7 @@ class ExcelParser:
 
         return sections
 
-    def _extract_time_series(
-        self, sheets: List[SheetInfo]
-    ) -> Dict[str, Any]:
+    def _extract_time_series(self, sheets: List[SheetInfo]) -> Dict[str, Any]:
         """Extract time series data from sheets."""
         time_series = {}
 
@@ -532,9 +520,8 @@ class ExcelParser:
             # Look for date patterns in the first few rows
             date_columns = []
             for cell in sheet.cells[:50]:  # Check first 50 cells
-                if (
-                    cell.data_type == DataType.DATE
-                    or self._looks_like_date(cell.value)
+                if cell.data_type == DataType.DATE or self._looks_like_date(
+                    cell.value
                 ):
                     date_columns.append(cell.column)
 
@@ -552,8 +539,7 @@ class ExcelParser:
             return False
 
         return any(
-            re.search(pattern, value.lower())
-            for pattern in self.date_patterns
+            re.search(pattern, value.lower()) for pattern in self.date_patterns
         )
 
     def _calculate_basic_metrics(

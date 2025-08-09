@@ -89,9 +89,7 @@ def upgrade() -> None:
     )
     op.add_column(
         "parameters",
-        sa.Column(
-            "display_format", sa.String(length=50), default="number"
-        ),
+        sa.Column("display_format", sa.String(length=50), default="number"),
     )
 
     # Create indexes

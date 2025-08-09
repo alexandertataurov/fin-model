@@ -37,9 +37,9 @@ class EnhancedChartMethods:
             revenue_chart = self.chart_service.create_revenue_trend_chart(
                 statements, TimeGranularity.MONTHLY
             )
-            chart_data[
-                "revenue_trend"
-            ] = self.chart_service.to_recharts_format(revenue_chart)
+            chart_data["revenue_trend"] = self.chart_service.to_recharts_format(
+                revenue_chart
+            )
         except Exception as e:
             print(f"Error generating revenue trend chart: {e}")
             chart_data["revenue_trend"] = None
@@ -70,13 +70,9 @@ class EnhancedChartMethods:
                 if s.statement_type == StatementType.PROFIT_LOSS
             ]
             if pl_statements:
-                latest_pl = pl_statements[
-                    0
-                ]  # Assuming sorted by date desc
+                latest_pl = pl_statements[0]  # Assuming sorted by date desc
                 expense_chart = (
-                    self.chart_service.create_expense_breakdown_chart(
-                        latest_pl
-                    )
+                    self.chart_service.create_expense_breakdown_chart(latest_pl)
                 )
                 chart_data[
                     "expense_breakdown"
@@ -93,13 +89,9 @@ class EnhancedChartMethods:
                 if s.statement_type == StatementType.BALANCE_SHEET
             ]
             if bs_statements:
-                latest_bs = bs_statements[
-                    0
-                ]  # Assuming sorted by date desc
-                asset_chart = (
-                    self.chart_service.create_asset_composition_chart(
-                        latest_bs
-                    )
+                latest_bs = bs_statements[0]  # Assuming sorted by date desc
+                asset_chart = self.chart_service.create_asset_composition_chart(
+                    latest_bs
                 )
                 chart_data[
                     "asset_composition"
@@ -116,9 +108,7 @@ class EnhancedChartMethods:
                 if s.statement_type == StatementType.CASH_FLOW
             ]
             if cf_statements:
-                latest_cf = cf_statements[
-                    0
-                ]  # Assuming sorted by date desc
+                latest_cf = cf_statements[0]  # Assuming sorted by date desc
                 waterfall_chart = (
                     self.chart_service.create_cash_flow_waterfall_chart(
                         latest_cf
@@ -138,13 +128,9 @@ class EnhancedChartMethods:
                 for s in statements
                 if s.statement_type == StatementType.PROFIT_LOSS
             ]
-            if (
-                len(pl_statements) >= 2
-            ):  # Need at least 2 periods for trend
-                margin_chart = (
-                    self.chart_service.create_margin_analysis_chart(
-                        pl_statements
-                    )
+            if len(pl_statements) >= 2:  # Need at least 2 periods for trend
+                margin_chart = self.chart_service.create_margin_analysis_chart(
+                    pl_statements
                 )
                 chart_data[
                     "margin_analysis"
@@ -160,9 +146,7 @@ class EnhancedChartMethods:
                 for s in statements
                 if s.statement_type == StatementType.BALANCE_SHEET
             ]
-            if (
-                len(bs_statements) >= 2
-            ):  # Need at least 2 periods for trend
+            if len(bs_statements) >= 2:  # Need at least 2 periods for trend
                 liquidity_chart = (
                     self.chart_service.create_liquidity_ratios_chart(
                         bs_statements
@@ -207,31 +191,25 @@ class EnhancedChartMethods:
         try:
             # Revenue Trend
             if len(user_statements) > 1:
-                revenue_chart = (
-                    self.chart_service.create_revenue_trend_chart(
-                        user_statements, TimeGranularity.QUARTERLY
-                    )
+                revenue_chart = self.chart_service.create_revenue_trend_chart(
+                    user_statements, TimeGranularity.QUARTERLY
                 )
-                charts[
-                    "revenue_trend"
-                ] = self.chart_service.to_recharts_format(revenue_chart)
+                charts["revenue_trend"] = self.chart_service.to_recharts_format(
+                    revenue_chart
+                )
 
             # Expense Breakdown
-            expense_chart = (
-                self.chart_service.create_expense_breakdown_chart(
-                    statement
-                )
+            expense_chart = self.chart_service.create_expense_breakdown_chart(
+                statement
             )
-            charts[
-                "expense_breakdown"
-            ] = self.chart_service.to_recharts_format(expense_chart)
+            charts["expense_breakdown"] = self.chart_service.to_recharts_format(
+                expense_chart
+            )
 
             # Margin Analysis
             if len(user_statements) > 1:
-                margin_chart = (
-                    self.chart_service.create_margin_analysis_chart(
-                        user_statements
-                    )
+                margin_chart = self.chart_service.create_margin_analysis_chart(
+                    user_statements
                 )
                 charts[
                     "margin_analysis"
@@ -270,14 +248,12 @@ class EnhancedChartMethods:
 
         try:
             # Asset Composition
-            asset_chart = (
-                self.chart_service.create_asset_composition_chart(
-                    statement
-                )
+            asset_chart = self.chart_service.create_asset_composition_chart(
+                statement
             )
-            charts[
-                "asset_composition"
-            ] = self.chart_service.to_recharts_format(asset_chart)
+            charts["asset_composition"] = self.chart_service.to_recharts_format(
+                asset_chart
+            )
 
             # Liquidity Ratios Trend
             if len(user_statements) > 1:
@@ -323,9 +299,7 @@ class EnhancedChartMethods:
         try:
             # Cash Flow Waterfall
             waterfall_chart = (
-                self.chart_service.create_cash_flow_waterfall_chart(
-                    statement
-                )
+                self.chart_service.create_cash_flow_waterfall_chart(statement)
             )
             charts[
                 "cash_flow_waterfall"
@@ -333,10 +307,8 @@ class EnhancedChartMethods:
 
             # Cash Flow Trends
             if len(user_statements) > 1:
-                trend_chart = (
-                    self.chart_service.create_cash_flow_trend_chart(
-                        user_statements
-                    )
+                trend_chart = self.chart_service.create_cash_flow_trend_chart(
+                    user_statements
                 )
                 charts[
                     "cash_flow_trend"
@@ -370,8 +342,8 @@ class EnhancedChartMethods:
 
         try:
             # Calculate comprehensive financial ratios
-            financial_ratios = (
-                self.metrics_service.calculate_financial_ratios(statements)
+            financial_ratios = self.metrics_service.calculate_financial_ratios(
+                statements
             )
 
             # Get latest statements by type

@@ -144,14 +144,14 @@ class DashboardService:
             )
 
             # Generate chart data using enhanced chart service
-            chart_data = await self.enhanced_charts.generate_enhanced_dashboard_charts(
-                statements, period.value
+            chart_data = (
+                await self.enhanced_charts.generate_enhanced_dashboard_charts(
+                    statements, period.value
+                )
             )
 
             # Calculate data quality
-            data_quality_score = self._calculate_data_quality_score(
-                statements
-            )
+            data_quality_score = self._calculate_data_quality_score(statements)
 
             # Period information
             period_info = self._get_period_info(period)
@@ -160,9 +160,7 @@ class DashboardService:
                 statements=[
                     self._serialize_statement(stmt) for stmt in statements
                 ],
-                active_statement=self._serialize_statement(
-                    active_statement
-                )
+                active_statement=self._serialize_statement(active_statement)
                 if active_statement
                 else None,
                 key_metrics=key_metrics,
@@ -291,10 +289,7 @@ class DashboardService:
         """Get Cash Flow dashboard data for a specific statement."""
 
         statement = self._get_statement_by_id(statement_id, user_id)
-        if (
-            not statement
-            or statement.statement_type != StatementType.CASH_FLOW
-        ):
+        if not statement or statement.statement_type != StatementType.CASH_FLOW:
             raise ValueError("Cash Flow statement not found")
 
         # Extract Cash Flow specific data
@@ -429,9 +424,7 @@ class DashboardService:
             if s.statement_type == StatementType.BALANCE_SHEET
         ]
         cf_statements = [
-            s
-            for s in statements
-            if s.statement_type == StatementType.CASH_FLOW
+            s for s in statements if s.statement_type == StatementType.CASH_FLOW
         ]
 
         metrics = {}
@@ -469,9 +462,7 @@ class DashboardService:
             )
             if revenue and cogs:
                 gross_margin = (
-                    ((revenue - cogs) / revenue) * 100
-                    if revenue > 0
-                    else 0
+                    ((revenue - cogs) / revenue) * 100 if revenue > 0 else 0
                 )
                 metrics["gross_margin"] = {
                     "name": "Gross Margin",
@@ -568,9 +559,7 @@ class DashboardService:
                         return float(value)
                     elif (
                         isinstance(value, str)
-                        and value.replace(".", "")
-                        .replace("-", "")
-                        .isdigit()
+                        and value.replace(".", "").replace("-", "").isdigit()
                     ):
                         return float(value)
 
@@ -594,27 +583,21 @@ class DashboardService:
             if s.statement_type == StatementType.PROFIT_LOSS
         ]
         if pl_statements:
-            charts[
-                "revenue_trend"
-            ] = await self._generate_revenue_trend_chart(pl_statements)
+            charts["revenue_trend"] = await self._generate_revenue_trend_chart(
+                pl_statements
+            )
             charts[
                 "expense_breakdown"
-            ] = await self._generate_expense_breakdown_chart(
-                pl_statements[0]
-            )
+            ] = await self._generate_expense_breakdown_chart(pl_statements[0])
 
         # Cash flow waterfall (from Cash Flow statements)
         cf_statements = [
-            s
-            for s in statements
-            if s.statement_type == StatementType.CASH_FLOW
+            s for s in statements if s.statement_type == StatementType.CASH_FLOW
         ]
         if cf_statements:
             charts[
                 "cash_flow_waterfall"
-            ] = await self._generate_cash_flow_waterfall_chart(
-                cf_statements[0]
-            )
+            ] = await self._generate_cash_flow_waterfall_chart(cf_statements[0])
 
         # Asset composition (from Balance Sheet statements)
         bs_statements = [
@@ -625,9 +608,7 @@ class DashboardService:
         if bs_statements:
             charts[
                 "asset_composition"
-            ] = await self._generate_asset_composition_chart(
-                bs_statements[0]
-            )
+            ] = await self._generate_asset_composition_chart(bs_statements[0])
 
         return charts
 
@@ -638,9 +619,7 @@ class DashboardService:
 
         chart_data = []
 
-        for statement in sorted(
-            pl_statements, key=lambda x: x.period_start
-        ):
+        for statement in sorted(pl_statements, key=lambda x: x.period_start):
             line_items = statement.line_items or {}
             revenue = self._extract_metric_value(
                 line_items, ["revenue", "total_revenue", "net_sales"]
@@ -698,9 +677,7 @@ class DashboardService:
     # P&L Specific Methods
     # ====================
 
-    def _extract_pl_data(
-        self, statement: FinancialStatement
-    ) -> Dict[str, Any]:
+    def _extract_pl_data(self, statement: FinancialStatement) -> Dict[str, Any]:
         """Extract P&L specific data structure."""
 
         line_items = statement.line_items or {}
@@ -810,9 +787,9 @@ class DashboardService:
         )
 
         # Profit margins chart
-        charts[
-            "profit_margins"
-        ] = await self._generate_profit_margins_chart(statement)
+        charts["profit_margins"] = await self._generate_profit_margins_chart(
+            statement
+        )
 
         # Expense breakdown chart
         charts[
@@ -945,11 +922,7 @@ class DashboardService:
         # Current Ratio
         current_assets = bs_data["assets"]["current_assets"]
         current_liabilities = bs_data["liabilities"]["current_liabilities"]
-        if (
-            current_assets
-            and current_liabilities
-            and current_liabilities > 0
-        ):
+        if current_assets and current_liabilities and current_liabilities > 0:
             ratio = current_assets / current_liabilities
             metrics.append(
                 {
@@ -1120,9 +1093,7 @@ class DashboardService:
         # Free Cash Flow (OCF - CapEx)
         capex = cf_data["investing"]["capex"] or 0
         if operating_cf:
-            free_cf = operating_cf - abs(
-                capex
-            )  # CapEx is usually negative
+            free_cf = operating_cf - abs(capex)  # CapEx is usually negative
             metrics.append(
                 {
                     "name": "Free Cash Flow",
@@ -1200,9 +1171,7 @@ class DashboardService:
                 {
                     "period": "Operating",
                     "value": operating_cf,
-                    "type": "positive"
-                    if operating_cf >= 0
-                    else "negative",
+                    "type": "positive" if operating_cf >= 0 else "negative",
                     "category": "operating",
                 }
             )
@@ -1214,9 +1183,7 @@ class DashboardService:
                 {
                     "period": "Investing",
                     "value": investing_cf,
-                    "type": "positive"
-                    if investing_cf >= 0
-                    else "negative",
+                    "type": "positive" if investing_cf >= 0 else "negative",
                     "category": "investing",
                 }
             )
@@ -1228,9 +1195,7 @@ class DashboardService:
                 {
                     "period": "Financing",
                     "value": financing_cf,
-                    "type": "positive"
-                    if financing_cf >= 0
-                    else "negative",
+                    "type": "positive" if financing_cf >= 0 else "negative",
                     "category": "financing",
                 }
             )
@@ -1283,8 +1248,7 @@ class DashboardService:
             return 0.0
 
         total_score = sum(
-            self._calculate_statement_quality_score(stmt)
-            for stmt in statements
+            self._calculate_statement_quality_score(stmt) for stmt in statements
         )
         return total_score / len(statements)
 
@@ -1443,9 +1407,7 @@ class DashboardService:
             if s.statement_type == StatementType.BALANCE_SHEET
         ]
         cf_statements = [
-            s
-            for s in statements
-            if s.statement_type == StatementType.CASH_FLOW
+            s for s in statements if s.statement_type == StatementType.CASH_FLOW
         ]
 
         metrics = {}
@@ -1521,9 +1483,7 @@ class DashboardService:
                 }
             )
 
-        long_term_liabilities = bs_data["liabilities"][
-            "long_term_liabilities"
-        ]
+        long_term_liabilities = bs_data["liabilities"]["long_term_liabilities"]
         if long_term_liabilities and long_term_liabilities > 0:
             chart_data.append(
                 {
@@ -1547,11 +1507,7 @@ class DashboardService:
         current_assets = bs_data["assets"]["current_assets"]
         current_liabilities = bs_data["liabilities"]["current_liabilities"]
 
-        if (
-            current_assets
-            and current_liabilities
-            and current_liabilities > 0
-        ):
+        if current_assets and current_liabilities and current_liabilities > 0:
             current_ratio = current_assets / current_liabilities
             chart_data.append(
                 {

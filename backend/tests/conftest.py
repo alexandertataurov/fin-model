@@ -30,4 +30,3 @@ def setup_test_db():
 def db_session() -> Session:
     with SessionLocal() as session:
         yield session
-

@@ -44,9 +44,7 @@ class Settings(BaseSettings):
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> str:
         if isinstance(v, list):
             return ",".join(v)
-        return (
-            str(v) if v else "http://localhost:3000,http://127.0.0.1:3000"
-        )
+        return str(v) if v else "http://localhost:3000,http://127.0.0.1:3000"
 
     def get_cors_origins(self) -> List[str]:
         """Get CORS origins as a list."""
@@ -101,9 +99,7 @@ class Settings(BaseSettings):
     # WebAuthn Settings
     WEBAUTHN_RP_ID: str = os.getenv("WEBAUTHN_RP_ID", "localhost")
     WEBAUTHN_RP_NAME: str = os.getenv("WEBAUTHN_RP_NAME", "FinVision")
-    WEBAUTHN_ORIGIN: str = os.getenv(
-        "WEBAUTHN_ORIGIN", "http://localhost:3000"
-    )
+    WEBAUTHN_ORIGIN: str = os.getenv("WEBAUTHN_ORIGIN", "http://localhost:3000")
 
     # Email settings
     SMTP_HOST: str = os.getenv("SMTP_HOST", "localhost")
@@ -147,9 +143,7 @@ class Settings(BaseSettings):
     )
 
     # Virus Scanning Settings
-    VIRUS_SCANNERS: List[str] = os.getenv("VIRUS_SCANNERS", "basic").split(
-        ","
-    )
+    VIRUS_SCANNERS: List[str] = os.getenv("VIRUS_SCANNERS", "basic").split(",")
     CLAMAV_HOST: str = os.getenv("CLAMAV_HOST", "localhost")
     CLAMAV_PORT: int = int(os.getenv("CLAMAV_PORT", "3310"))
     VIRUSTOTAL_API_KEY: str = os.getenv("VIRUSTOTAL_API_KEY", "")

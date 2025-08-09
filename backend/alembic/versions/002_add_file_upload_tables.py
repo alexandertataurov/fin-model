@@ -22,9 +22,7 @@ def upgrade():
         "uploaded_files",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("filename", sa.String(length=255), nullable=False),
-        sa.Column(
-            "original_filename", sa.String(length=255), nullable=False
-        ),
+        sa.Column("original_filename", sa.String(length=255), nullable=False),
         sa.Column("file_path", sa.String(length=500), nullable=False),
         sa.Column("file_size", sa.BigInteger(), nullable=False),
         sa.Column("file_type", sa.String(length=50), nullable=False),
@@ -91,11 +89,7 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_index(
-        op.f("ix_processing_logs_id"), table_name="processing_logs"
-    )
+    op.drop_index(op.f("ix_processing_logs_id"), table_name="processing_logs")
     op.drop_table("processing_logs")
-    op.drop_index(
-        op.f("ix_uploaded_files_id"), table_name="uploaded_files"
-    )
+    op.drop_index(op.f("ix_uploaded_files_id"), table_name="uploaded_files")
     op.drop_table("uploaded_files")

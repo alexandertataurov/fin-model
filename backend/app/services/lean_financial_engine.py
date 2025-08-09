@@ -373,9 +373,7 @@ class LeanFinancialEngine:
         # Gross Profit
         pl.gross_profit = pl.total_revenue - pl.total_cogs
         pl.gross_margin_percentage = (
-            pl.gross_profit / pl.total_revenue
-            if pl.total_revenue > 0
-            else 0
+            pl.gross_profit / pl.total_revenue if pl.total_revenue > 0 else 0
         )
 
         # Operating Expenses
@@ -391,9 +389,7 @@ class LeanFinancialEngine:
             pl.total_revenue * parameters.executive_salaries_percentage
         )
         pl.admin_salaries = pl.total_revenue * 0.03
-        pl.office_rent = (
-            pl.total_revenue * parameters.office_rent_percentage
-        )
+        pl.office_rent = pl.total_revenue * parameters.office_rent_percentage
         pl.utilities = pl.total_revenue * 0.005
         pl.insurance = pl.total_revenue * 0.003
         pl.total_operating_expenses = (
@@ -466,9 +462,7 @@ class LeanFinancialEngine:
         bs = BalanceSheet()
 
         # Initialize prior values if available
-        prior_cash = (
-            prior_balance_sheet.cash if prior_balance_sheet else 100000
-        )
+        prior_cash = prior_balance_sheet.cash if prior_balance_sheet else 100000
         prior_ppe = (
             prior_balance_sheet.property_plant_equipment
             if prior_balance_sheet
@@ -487,8 +481,7 @@ class LeanFinancialEngine:
         bs.cash_equivalents = bs.cash * 0.1
         bs.marketable_securities = bs.cash * 0.05
         bs.accounts_receivable = (
-            pl_statement.total_revenue
-            * parameters.accounts_receivable_days
+            pl_statement.total_revenue * parameters.accounts_receivable_days
         ) / 365
         bs.allowance_for_doubtful_accounts = bs.accounts_receivable * 0.02
         bs.net_accounts_receivable = (
@@ -514,8 +507,7 @@ class LeanFinancialEngine:
             pl_statement.total_revenue * parameters.growth_capex_percentage
         )
         bs.accumulated_depreciation = prior_accumulated_dep + (
-            bs.property_plant_equipment
-            * parameters.depreciation_percentage
+            bs.property_plant_equipment * parameters.depreciation_percentage
         )
         bs.net_property_plant_equipment = (
             bs.property_plant_equipment - bs.accumulated_depreciation
@@ -537,9 +529,7 @@ class LeanFinancialEngine:
         )
 
         # Total Assets
-        bs.total_assets = (
-            bs.total_current_assets + bs.total_non_current_assets
-        )
+        bs.total_assets = bs.total_current_assets + bs.total_non_current_assets
 
         # Current Liabilities
         bs.accounts_payable = (
@@ -608,14 +598,10 @@ class LeanFinancialEngine:
             else 0
         )
         bs.debt_to_equity_ratio = (
-            bs.total_liabilities / bs.total_equity
-            if bs.total_equity > 0
-            else 0
+            bs.total_liabilities / bs.total_equity if bs.total_equity > 0 else 0
         )
         bs.debt_to_assets_ratio = (
-            bs.total_liabilities / bs.total_assets
-            if bs.total_assets > 0
-            else 0
+            bs.total_liabilities / bs.total_assets if bs.total_assets > 0 else 0
         )
         bs.working_capital = (
             bs.total_current_assets - bs.total_current_liabilities
@@ -701,9 +687,7 @@ class LeanFinancialEngine:
             )
         )
         cf.software_development = -(pl_statement.total_revenue * 0.01)
-        cf.intangible_assets_investment = -(
-            pl_statement.total_revenue * 0.005
-        )
+        cf.intangible_assets_investment = -(pl_statement.total_revenue * 0.005)
         cf.marketable_securities_purchase = -(
             balance_sheet.marketable_securities * 0.1
         )
@@ -752,9 +736,7 @@ class LeanFinancialEngine:
         cf.common_stock_issuance = 0
         cf.stock_repurchase = 0
         cf.dividends_paid = (
-            -pl_statement.net_income * 0.2
-            if pl_statement.net_income > 0
-            else 0
+            -pl_statement.net_income * 0.2 if pl_statement.net_income > 0 else 0
         )
         cf.financing_cash_flow = (
             cf.short_term_debt_issuance
@@ -774,9 +756,7 @@ class LeanFinancialEngine:
         cf.beginning_cash_balance = (
             prior_balance_sheet.cash if prior_balance_sheet else 100000
         )
-        cf.ending_cash_balance = (
-            cf.beginning_cash_balance + cf.net_cash_flow
-        )
+        cf.ending_cash_balance = cf.beginning_cash_balance + cf.net_cash_flow
 
         # Cash Flow Metrics
         cf.operating_cash_flow_margin = (
@@ -784,9 +764,7 @@ class LeanFinancialEngine:
             if pl_statement.total_revenue > 0
             else 0
         )
-        cf.free_cash_flow = (
-            cf.operating_cash_flow + cf.capital_expenditures
-        )
+        cf.free_cash_flow = cf.operating_cash_flow + cf.capital_expenditures
         cf.free_cash_flow_margin = (
             cf.free_cash_flow / pl_statement.total_revenue
             if pl_statement.total_revenue > 0
@@ -888,9 +866,7 @@ class LeanFinancialEngine:
         dcf.enterprise_value = (
             dcf.present_value_fcf + dcf.present_value_terminal
         )
-        dcf.net_debt = (
-            base_revenue * 0.1
-        )  # Assume net debt of 10% of revenue
+        dcf.net_debt = base_revenue * 0.1  # Assume net debt of 10% of revenue
         dcf.equity_value = dcf.enterprise_value - dcf.net_debt
         dcf.shares_outstanding = 1000000  # Assume 1M shares
         dcf.value_per_share = dcf.equity_value / dcf.shares_outstanding
@@ -919,9 +895,7 @@ class LeanFinancialEngine:
         )
 
         # Calculate DCF Valuation
-        dcf_valuation = self.calculate_dcf_valuation(
-            parameters, base_revenue
-        )
+        dcf_valuation = self.calculate_dcf_valuation(parameters, base_revenue)
 
         return {
             "profit_loss": pl_statement,

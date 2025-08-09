@@ -352,9 +352,7 @@ def logout(
 
 
 @router.post("/refresh", response_model=Token)
-def refresh_token(
-    refresh_request: dict, db: Session = Depends(get_db)
-) -> Any:
+def refresh_token(refresh_request: dict, db: Session = Depends(get_db)) -> Any:
     """Refresh access token."""
     token = (
         refresh_request.get("refresh_token")
@@ -495,9 +493,7 @@ def request_password_reset(
     auth_service.request_password_reset(password_reset.email)
 
     return {
-        "message": (
-            "If the email exists, a password reset link has been sent"
-        )
+        "message": ("If the email exists, a password reset link has been sent")
     }
 
 
@@ -508,9 +504,7 @@ def reset_password(
     """Reset password with token."""
     auth_service = AuthService(db)
 
-    if auth_service.reset_password(
-        reset_data.token, reset_data.new_password
-    ):
+    if auth_service.reset_password(reset_data.token, reset_data.new_password):
         return {"message": "Password reset successfully"}
     else:
         raise HTTPException(

@@ -110,9 +110,7 @@ class ScenarioManager:
                     raise ValueError("Parent scenario not found")
 
             # Generate version number
-            version = await self._generate_version_number(
-                parent_scenario_id
-            )
+            version = await self._generate_version_number(parent_scenario_id)
 
             # Create scenario
             scenario = Scenario(
@@ -593,9 +591,7 @@ class ScenarioManager:
         # Start calculation audit
         audit = CalculationAudit(
             scenario_id=scenario_id,
-            calculation_type="full"
-            if force_recalculation
-            else "incremental",
+            calculation_type="full" if force_recalculation else "incremental",
             triggered_by="user",
             start_time=datetime.utcnow(),
             created_by_id=user_id,
@@ -610,9 +606,7 @@ class ScenarioManager:
             self.db.commit()
 
             # Load workbook data
-            self.formula_engine.load_workbook_data(
-                scenario.base_file.file_path
-            )
+            self.formula_engine.load_workbook_data(scenario.base_file.file_path)
 
             # Apply scenario parameter values
             await self._apply_scenario_values(scenario_id)
@@ -924,9 +918,7 @@ class ScenarioManager:
             param_value = ParameterValue(
                 parameter_id=parameter.id,
                 scenario_id=scenario_id,
-                value=parameter.current_value
-                or parameter.default_value
-                or 0,
+                value=parameter.current_value or parameter.default_value or 0,
                 original_value=parameter.current_value
                 or parameter.default_value
                 or 0,
@@ -961,18 +953,14 @@ class ScenarioManager:
                 ParameterValue.parameter_id.in_(parameter_filters)
             )
 
-        base_values = {
-            pv.parameter_id: pv.value for pv in base_query.all()
-        }
+        base_values = {pv.parameter_id: pv.value for pv in base_query.all()}
         compare_values = {
             pv.parameter_id: pv.value for pv in compare_query.all()
         }
 
         # Find differences
         differences = []
-        all_param_ids = set(base_values.keys()) | set(
-            compare_values.keys()
-        )
+        all_param_ids = set(base_values.keys()) | set(compare_values.keys())
 
         total_variance = 0
         significant_changes = 0
@@ -1064,16 +1052,12 @@ class ScenarioManager:
             parameter = param_value.parameter
             if parameter and parameter.source_cell:
                 # Create cell reference
-                cell_ref = (
-                    f"{parameter.source_sheet}!{parameter.source_cell}"
-                )
+                cell_ref = f"{parameter.source_sheet}!{parameter.source_cell}"
                 self.formula_engine.update_cell_value(
                     cell_ref, param_value.value
                 )
 
-    async def get_scenario_statistics(
-        self, user_id: int
-    ) -> Dict[str, Any]:
+    async def get_scenario_statistics(self, user_id: int) -> Dict[str, Any]:
         """
         Get comprehensive statistics about user's scenarios.
         """
@@ -1204,9 +1188,7 @@ class ScenarioManager:
                         )
 
                 if len(scenario_data) >= 2:
-                    values = [
-                        item["parameter_value"] for item in scenario_data
-                    ]
+                    values = [item["parameter_value"] for item in scenario_data]
 
                     sensitivity_results["sensitivity_data"] = scenario_data
                     sensitivity_results["summary_statistics"] = {
@@ -1214,9 +1196,7 @@ class ScenarioManager:
                         "max_value": max(values),
                         "mean_value": sum(values) / len(values),
                         "range": max(values) - min(values),
-                        "coefficient_of_variation": self._calculate_cv(
-                            values
-                        ),
+                        "coefficient_of_variation": self._calculate_cv(values),
                     }
 
                     cv = sensitivity_results["summary_statistics"][
@@ -1279,9 +1259,7 @@ class ScenarioManager:
             )
 
             if not base_scenario:
-                raise ValueError(
-                    f"Base scenario {base_scenario_id} not found"
-                )
+                raise ValueError(f"Base scenario {base_scenario_id} not found")
 
             # Get base parameter values
             base_parameters = (
@@ -1291,8 +1269,7 @@ class ScenarioManager:
             )
 
             base_values = {
-                param.parameter.name: param.value
-                for param in base_parameters
+                param.parameter.name: param.value for param in base_parameters
             }
 
             # Run simulation iterations
@@ -1316,9 +1293,7 @@ class ScenarioManager:
                         )
 
                 # Calculate outcome metric (simplified)
-                outcome = self._calculate_simulation_outcome(
-                    iteration_values
-                )
+                outcome = self._calculate_simulation_outcome(iteration_values)
                 simulation_outcomes.append(outcome)
 
                 if i < 100:  # Store detailed data for first 100 iterations
@@ -1332,8 +1307,7 @@ class ScenarioManager:
 
             # Calculate summary statistics
             simulation_results["summary_statistics"] = {
-                "mean": sum(simulation_outcomes)
-                / len(simulation_outcomes),
+                "mean": sum(simulation_outcomes) / len(simulation_outcomes),
                 "min": min(simulation_outcomes),
                 "max": max(simulation_outcomes),
                 "std_dev": self._calculate_std_dev(simulation_outcomes),

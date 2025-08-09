@@ -63,9 +63,7 @@ class ReportService:
         filename=None,
     ):
         """Stub method - chart export not available in lean version."""
-        raise NotImplementedError(
-            "Chart export not available in lean version"
-        )
+        raise NotImplementedError("Chart export not available in lean version")
 
     def get_exports(self, user_id: int, status=None, limit=50, offset=0):
         """Stub method - report exports not available in lean version."""

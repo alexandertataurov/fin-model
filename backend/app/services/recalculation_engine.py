@@ -192,9 +192,7 @@ class IncrementalCalculator:
                 nodes=set(cell_refs), edges=[], calculation_order=cell_refs
             )
 
-    def validate_circular_references(
-        self, file_path: str
-    ) -> Dict[str, Any]:
+    def validate_circular_references(self, file_path: str) -> Dict[str, Any]:
         """Detect circular references in the model."""
         try:
             # Get all formulas and dependencies
@@ -212,9 +210,7 @@ class IncrementalCalculator:
                 return {
                     "has_circular_references": len(cycles) > 0,
                     "circular_chains": cycles,
-                    "affected_cells": set().union(*cycles)
-                    if cycles
-                    else set(),
+                    "affected_cells": set().union(*cycles) if cycles else set(),
                 }
             except nx.NetworkXError:
                 return {
@@ -246,9 +242,7 @@ class IncrementalCalculator:
             return graph
         except Exception:
             # Return empty graph if analysis fails
-            return DependencyGraph(
-                nodes=set(), edges=[], calculation_order=[]
-            )
+            return DependencyGraph(nodes=set(), edges=[], calculation_order=[])
 
     def _build_dependency_graph(
         self, formulas: Dict[str, Any]
@@ -307,9 +301,7 @@ class IncrementalCalculator:
         """Get calculation order for affected cells."""
         # Filter calculation order to only include affected cells
         return [
-            cell
-            for cell in graph.calculation_order
-            if cell in affected_cells
+            cell for cell in graph.calculation_order if cell in affected_cells
         ]
 
     def _calculate_cell_value(
@@ -336,9 +328,7 @@ class IncrementalCalculator:
         min_sensitivity = {}
 
         for result in results:
-            for cell, change in result.get(
-                "percentage_changes", {}
-            ).items():
+            for cell, change in result.get("percentage_changes", {}).items():
                 if cell not in max_sensitivity:
                     max_sensitivity[cell] = change
                     min_sensitivity[cell] = change
@@ -417,13 +407,8 @@ class ParameterValidator:
                 )
 
         # Business logic warnings
-        if (
-            param_type in ["growth_rate", "interest_rate"]
-            and abs(value) > 1
-        ):
-            warnings.append(
-                "Value seems unusually high for a rate parameter"
-            )
+        if param_type in ["growth_rate", "interest_rate"] and abs(value) > 1:
+            warnings.append("Value seems unusually high for a rate parameter")
 
         return {
             "valid": len(errors) == 0,
@@ -449,9 +434,7 @@ class ParameterValidator:
             try:
                 # Replace 'value' in expression with actual value
                 expression = expression.replace("value", str(value))
-                return eval(
-                    expression
-                )  # In production, use a safer evaluator
+                return eval(expression)  # In production, use a safer evaluator
             except:
                 return True  # Default to valid if expression fails
 

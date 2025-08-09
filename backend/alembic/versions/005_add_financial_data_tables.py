@@ -59,9 +59,7 @@ def upgrade():
             "calculated_data", sa.JSON(), nullable=True
         ),  # Derived calculations
         sa.Column("version", sa.Integer(), nullable=False, default=1),
-        sa.Column(
-            "is_baseline", sa.Boolean(), nullable=False, default=False
-        ),
+        sa.Column("is_baseline", sa.Boolean(), nullable=False, default=False),
         sa.Column("notes", sa.Text(), nullable=True),
         sa.Column("created_by_id", sa.Integer(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
@@ -140,9 +138,7 @@ def upgrade():
     op.create_index(
         "ix_metrics_scenario", "metrics", ["scenario_id"], unique=False
     )
-    op.create_index(
-        "ix_metrics_name", "metrics", ["metric_name"], unique=False
-    )
+    op.create_index("ix_metrics_name", "metrics", ["metric_name"], unique=False)
     op.create_index(
         "ix_metrics_category", "metrics", ["metric_category"], unique=False
     )
@@ -180,15 +176,11 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("data_source", sa.String(length=100), nullable=True),
-        sa.Column(
-            "confidence_level", sa.Float(), nullable=True
-        ),  # 0.0 to 1.0
+        sa.Column("confidence_level", sa.Float(), nullable=True),  # 0.0 to 1.0
         sa.Column(
             "is_actual", sa.Boolean(), nullable=False, default=True
         ),  # actual vs projected
-        sa.Column(
-            "is_adjusted", sa.Boolean(), nullable=False, default=False
-        ),
+        sa.Column("is_adjusted", sa.Boolean(), nullable=False, default=False),
         sa.Column("adjustment_reason", sa.Text(), nullable=True),
         sa.Column("data_metadata", sa.JSON(), nullable=True),
         sa.Column("created_by_id", sa.Integer(), nullable=False),
@@ -228,9 +220,7 @@ def upgrade():
         "calculations",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("scenario_id", sa.Integer(), nullable=False),
-        sa.Column(
-            "calculation_name", sa.String(length=255), nullable=False
-        ),
+        sa.Column("calculation_name", sa.String(length=255), nullable=False),
         sa.Column(
             "calculation_type",
             sa.Enum(
@@ -310,9 +300,7 @@ def upgrade():
         ),  # How to map file data to database
         sa.Column("validation_rules", sa.JSON(), nullable=True),
         sa.Column("transformation_rules", sa.JSON(), nullable=True),
-        sa.Column(
-            "sample_file_path", sa.String(length=500), nullable=True
-        ),
+        sa.Column("sample_file_path", sa.String(length=500), nullable=True),
         sa.Column(
             "version", sa.String(length=50), nullable=False, default="1.0"
         ),
@@ -336,9 +324,7 @@ def upgrade():
     op.create_index(
         "ix_templates_type", "templates", ["template_type"], unique=False
     )
-    op.create_index(
-        "ix_templates_name", "templates", ["name"], unique=False
-    )
+    op.create_index("ix_templates_name", "templates", ["name"], unique=False)
 
     # Create file_versions table
     op.create_table(
@@ -364,9 +350,7 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("processing_metadata", sa.JSON(), nullable=True),
-        sa.Column(
-            "is_current", sa.Boolean(), nullable=False, default=False
-        ),
+        sa.Column("is_current", sa.Boolean(), nullable=False, default=False),
         sa.Column("created_by_id", sa.Integer(), nullable=False),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(
@@ -424,9 +408,7 @@ def upgrade():
         sa.Column(
             "quality_metrics", sa.JSON(), nullable=True
         ),  # Data quality scores
-        sa.Column(
-            "refresh_frequency", sa.String(length=50), nullable=True
-        ),
+        sa.Column("refresh_frequency", sa.String(length=50), nullable=True),
         sa.Column("last_updated", sa.DateTime(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False, default=True),
         sa.Column("connection_config", sa.JSON(), nullable=True),

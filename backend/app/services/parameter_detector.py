@@ -111,9 +111,7 @@ class ParameterDetector:
         try:
             # Parse the Excel file
             workbook = openpyxl.load_workbook(file_path, data_only=False)
-            data_workbook = openpyxl.load_workbook(
-                file_path, data_only=True
-            )
+            data_workbook = openpyxl.load_workbook(file_path, data_only=True)
 
             detected_parameters = []
 
@@ -128,9 +126,7 @@ class ParameterDetector:
                 detected_parameters.extend(sheet_parameters)
 
             # Build dependency graph
-            await self._build_dependency_graph(
-                detected_parameters, workbook
-            )
+            await self._build_dependency_graph(detected_parameters, workbook)
 
             # Classify sensitivity levels
             await self._classify_sensitivity_levels(detected_parameters)
@@ -311,8 +307,7 @@ class ParameterDetector:
 
         # Check for growth rates
         if any(
-            re.search(pattern, context_text)
-            for pattern in self.growth_patterns
+            re.search(pattern, context_text) for pattern in self.growth_patterns
         ):
             if any(
                 re.search(r"%|percent", context_text)
@@ -336,8 +331,7 @@ class ParameterDetector:
 
         # Check for cost parameters
         elif any(
-            re.search(pattern, context_text)
-            for pattern in self.cost_patterns
+            re.search(pattern, context_text) for pattern in self.cost_patterns
         ):
             param_type = ParameterType.COST_ASSUMPTION
             category = ParameterCategory.COSTS
@@ -554,8 +548,7 @@ class ParameterDetector:
             rules["min_value"] = 0.0
             rules["max_value"] = (
                 100.0
-                if self._determine_format_type(None, param_type)
-                == "percentage"
+                if self._determine_format_type(None, param_type) == "percentage"
                 else 1.0
             )
 
@@ -627,9 +620,7 @@ class ParameterDetector:
                 for dep_ref in dependencies:
                     if dep_ref in param_map:
                         param.depends_on.append(dep_ref)
-                        param_map[dep_ref].affects.append(
-                            param.cell_reference
-                        )
+                        param_map[dep_ref].affects.append(param.cell_reference)
 
     def _parse_formula_dependencies(
         self, formula: str, sheet_name: str
@@ -731,9 +722,7 @@ class ParameterDetector:
         """
         try:
             workbook = openpyxl.load_workbook(file_path, data_only=False)
-            data_workbook = openpyxl.load_workbook(
-                file_path, data_only=True
-            )
+            data_workbook = openpyxl.load_workbook(file_path, data_only=True)
 
             detected_params = []
 
@@ -876,8 +865,7 @@ class ParameterDetector:
 
         # Check for cost patterns
         if any(
-            pattern in context_text
-            for pattern in ["cost", "expense", "cogs"]
+            pattern in context_text for pattern in ["cost", "expense", "cogs"]
         ):
             return ParameterType.COST_ASSUMPTION, ParameterCategory.COSTS
 
@@ -905,9 +893,7 @@ class ParameterDetector:
         # Fallback to cell reference
         return f"param_{cell.coordinate.lower()}"
 
-    def _infer_min_value(
-        self, param_type: ParameterType
-    ) -> Optional[float]:
+    def _infer_min_value(self, param_type: ParameterType) -> Optional[float]:
         """Infer minimum value based on parameter type."""
         if param_type in [
             ParameterType.GROWTH_RATE,
@@ -920,9 +906,7 @@ class ParameterDetector:
             return 0.0
         return None
 
-    def _infer_max_value(
-        self, param_type: ParameterType
-    ) -> Optional[float]:
+    def _infer_max_value(self, param_type: ParameterType) -> Optional[float]:
         """Infer maximum value based on parameter type."""
         if param_type in [
             ParameterType.GROWTH_RATE,
@@ -1009,10 +993,8 @@ class ParameterDetector:
                                         )
                                     )
                                     if assumption:
-                                        category = (
-                                            self._categorize_assumption(
-                                                assumption
-                                            )
+                                        category = self._categorize_assumption(
+                                            assumption
                                         )
                                         assumptions[
                                             f"{category}_assumptions"
@@ -1054,10 +1036,7 @@ class ParameterDetector:
             # Validate growth assumptions
             if "growth_assumptions" in assumptions:
                 for assumption in assumptions["growth_assumptions"]:
-                    if (
-                        isinstance(assumption, dict)
-                        and "value" in assumption
-                    ):
+                    if isinstance(assumption, dict) and "value" in assumption:
                         try:
                             value = float(assumption["value"])
 
@@ -1079,18 +1058,13 @@ class ParameterDetector:
             # Validate operational assumptions
             if "operational_assumptions" in assumptions:
                 for assumption in assumptions["operational_assumptions"]:
-                    if (
-                        isinstance(assumption, dict)
-                        and "value" in assumption
-                    ):
+                    if isinstance(assumption, dict) and "value" in assumption:
                         try:
                             value = float(assumption["value"])
                             name = assumption.get("name", "").lower()
 
                             # Check margin assumptions
-                            if "margin" in name and (
-                                value < 0 or value > 1
-                            ):
+                            if "margin" in name and (value < 0 or value > 1):
                                 validation_result["errors"].append(
                                     f"Invalid margin value: {value}"
                                 )
@@ -1152,13 +1126,9 @@ class ParameterDetector:
         """Categorize an assumption based on its name and value."""
         name = assumption.get("name", "").lower()
 
-        if any(
-            keyword in name for keyword in ["growth", "rate", "increase"]
-        ):
+        if any(keyword in name for keyword in ["growth", "rate", "increase"]):
             return "growth"
-        elif any(
-            keyword in name for keyword in ["margin", "cost", "expense"]
-        ):
+        elif any(keyword in name for keyword in ["margin", "cost", "expense"]):
             return "operational"
         else:
             return "financial"

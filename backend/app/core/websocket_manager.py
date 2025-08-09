@@ -121,9 +121,7 @@ class WebSocketManager:
             return True
 
         except Exception as e:
-            logger.error(
-                f"Failed to connect WebSocket for user {user_id}: {e}"
-            )
+            logger.error(f"Failed to connect WebSocket for user {user_id}: {e}")
             self.stats["connection_errors"] += 1
             return False
 
@@ -168,9 +166,7 @@ class WebSocketManager:
             )
 
         except Exception as e:
-            logger.error(
-                f"Error during disconnect for user {user_id}: {e}"
-            )
+            logger.error(f"Error during disconnect for user {user_id}: {e}")
 
     async def broadcast_to_channel(
         self,
@@ -272,9 +268,7 @@ class WebSocketManager:
                     ].last_activity = datetime.utcnow()
 
             except Exception as e:
-                logger.error(
-                    f"Error sending message to user {user_id}: {e}"
-                )
+                logger.error(f"Error sending message to user {user_id}: {e}")
                 failed_connections.append(connection)
 
         # Clean up failed connections
@@ -372,9 +366,7 @@ class WebSocketManager:
         self, max_idle_minutes: int = 30
     ) -> int:
         """Clean up connections that have been idle for too long"""
-        cutoff_time = datetime.utcnow().timestamp() - (
-            max_idle_minutes * 60
-        )
+        cutoff_time = datetime.utcnow().timestamp() - (max_idle_minutes * 60)
         stale_connections = []
 
         for websocket, metadata in self.connection_metadata.items():

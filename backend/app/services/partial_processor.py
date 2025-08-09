@@ -239,9 +239,7 @@ class PartialProcessor:
                     sheet, result["issues"]
                 )
                 sheet_data["labels"] = text_data["labels"]
-                result["recovery_actions"].extend(
-                    text_data["recovery_actions"]
-                )
+                result["recovery_actions"].extend(text_data["recovery_actions"])
 
                 # Extract formulas (if accessible)
                 formula_data = self._extract_formulas_with_recovery(
@@ -268,9 +266,7 @@ class PartialProcessor:
                 )
 
                 # Attempt basic cell-by-cell recovery
-                basic_data = self._basic_cell_recovery(
-                    sheet, result["issues"]
-                )
+                basic_data = self._basic_cell_recovery(sheet, result["issues"])
                 if basic_data:
                     result["data"] = basic_data
                     result["success"] = True
@@ -304,9 +300,7 @@ class PartialProcessor:
             for col_idx, cell_value in enumerate(row):
                 if isinstance(cell_value, (int, float)):
                     col_letter = chr(65 + col_idx)  # A, B, C, etc.
-                    numeric_values[
-                        f"{col_letter}{sheet.max_row}"
-                    ] = cell_value
+                    numeric_values[f"{col_letter}{sheet.max_row}"] = cell_value
                 elif isinstance(cell_value, str):
                     # Try to convert string to number
                     try:
@@ -316,9 +310,7 @@ class PartialProcessor:
                             .replace(",", "")
                             .isdigit()
                         ):
-                            numeric_val = float(
-                                cell_value.replace(",", "")
-                            )
+                            numeric_val = float(cell_value.replace(",", ""))
                             col_letter = chr(65 + col_idx)
                             numeric_values[
                                 f"{col_letter}{sheet.max_row}"
@@ -487,9 +479,7 @@ class PartialProcessor:
                 # Filter metrics to only include data from processed sheets
                 filtered_metrics = []
 
-                for metric in partial_extraction.get(
-                    "financial_metrics", []
-                ):
+                for metric in partial_extraction.get("financial_metrics", []):
                     # Check if metric comes from a processed sheet
                     metric_sheet = self._identify_metric_sheet(
                         metric, processed_sheets
@@ -501,9 +491,7 @@ class PartialProcessor:
                     "financial_metrics": filtered_metrics,
                     "extraction_confidence": len(filtered_metrics)
                     / max(
-                        len(
-                            partial_extraction.get("financial_metrics", [])
-                        ),
+                        len(partial_extraction.get("financial_metrics", [])),
                         1,
                     ),
                     "sheets_contributing": processed_sheets,

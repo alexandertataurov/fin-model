@@ -77,12 +77,8 @@ class ParameterService:
         parameters = []
         for param_data in detected_params:
             parameter = Parameter(
-                name=param_data.get(
-                    "name", f"Parameter_{len(parameters) + 1}"
-                ),
-                parameter_type=param_data.get(
-                    "type", ParameterType.CONSTANT
-                ),
+                name=param_data.get("name", f"Parameter_{len(parameters) + 1}"),
+                parameter_type=param_data.get("type", ParameterType.CONSTANT),
                 category=param_data.get(
                     "category", ParameterCategory.ASSUMPTIONS
                 ),
@@ -111,9 +107,7 @@ class ParameterService:
             name=config["name"],
             display_name=config.get("display_name"),
             description=config.get("description"),
-            parameter_type=config.get(
-                "parameter_type", ParameterType.CONSTANT
-            ),
+            parameter_type=config.get("parameter_type", ParameterType.CONSTANT),
             category=config.get("category", ParameterCategory.ASSUMPTIONS),
             value=config["value"],
             default_value=config["value"],
@@ -140,9 +134,7 @@ class ParameterService:
     ) -> RecalculationResult:
         """Update parameter value and trigger recalculation."""
         parameter = (
-            self.db.query(Parameter)
-            .filter(Parameter.id == param_id)
-            .first()
+            self.db.query(Parameter).filter(Parameter.id == param_id).first()
         )
         if not parameter:
             raise ValueError(f"Parameter {param_id} not found")
@@ -251,9 +243,7 @@ class ParameterService:
                 model.file_path, changed_params
             )
 
-            calculation_time = (
-                datetime.utcnow() - start_time
-            ).total_seconds()
+            calculation_time = (datetime.utcnow() - start_time).total_seconds()
 
             return RecalculationResult(
                 success=True,
@@ -303,9 +293,7 @@ class ParameterService:
     def get_parameter_dependencies(self, param_id: str) -> Dict[str, Any]:
         """Get parameter dependency tree."""
         parameter = (
-            self.db.query(Parameter)
-            .filter(Parameter.id == param_id)
-            .first()
+            self.db.query(Parameter).filter(Parameter.id == param_id).first()
         )
         if not parameter:
             return {}
@@ -389,9 +377,7 @@ class ParameterService:
 
         if not grouped:
             return {
-                "parameters": [
-                    self._parameter_to_dict(p) for p in parameters
-                ]
+                "parameters": [self._parameter_to_dict(p) for p in parameters]
             }
 
         # Group parameters
@@ -406,9 +392,7 @@ class ParameterService:
         ungrouped_params = []
 
         for group in groups:
-            group_params = [
-                p for p in parameters if p.group_id == group.id
-            ]
+            group_params = [p for p in parameters if p.group_id == group.id]
             grouped_params[group.id] = {
                 "group": self._group_to_dict(group),
                 "parameters": [
@@ -451,9 +435,7 @@ class ParameterService:
         else:
             return "number"
 
-    def _infer_step_size(
-        self, param_data: Dict[str, Any]
-    ) -> Optional[float]:
+    def _infer_step_size(self, param_data: Dict[str, Any]) -> Optional[float]:
         """Infer step size for parameter controls."""
         param_type = param_data.get("type")
 
@@ -482,9 +464,7 @@ class ParameterService:
 
         return True
 
-    def _build_dependency_tree(
-        self, parameter: Parameter
-    ) -> Dict[str, Any]:
+    def _build_dependency_tree(self, parameter: Parameter) -> Dict[str, Any]:
         """Build dependency tree for parameter."""
         # Simplified implementation - would need more complex logic
         # for full dependency tracking
@@ -621,9 +601,7 @@ class ParameterService:
             # Update existing parameter value
             old_value = param_value.value
             param_value.value = value
-            param_value.change_reason = (
-                reason or "Scenario parameter override"
-            )
+            param_value.change_reason = reason or "Scenario parameter override"
             param_value.changed_at = datetime.utcnow()
             param_value.changed_by_id = user_id
         else:
@@ -712,8 +690,7 @@ class ParameterService:
             else:
                 param_dict.update(
                     {
-                        "scenario_value": param.current_value
-                        or param.value,
+                        "scenario_value": param.current_value or param.value,
                         "has_override": False,
                         "override_default": False,
                     }
@@ -847,9 +824,7 @@ class ParameterService:
                 .first()
             )
             if parameter:
-                param_value.value = (
-                    parameter.current_value or parameter.value
-                )
+                param_value.value = parameter.current_value or parameter.value
                 param_value.change_reason = "Removed scenario override"
                 param_value.changed_at = datetime.utcnow()
                 param_value.changed_by_id = user_id
@@ -877,9 +852,7 @@ class ParameterService:
         )
 
         if len(scenarios) != 2:
-            raise ValueError(
-                "One or both scenarios not found or access denied"
-            )
+            raise ValueError("One or both scenarios not found or access denied")
 
         # Get source scenario parameter overrides
         source_overrides = self.db.query(ScenarioParameter).filter(
@@ -926,9 +899,7 @@ class ParameterService:
             "source_scenario_id": source_scenario_id,
             "target_scenario_id": target_scenario_id,
             "copied_parameters": copied_parameters,
-            "total_copied": len(
-                [p for p in copied_parameters if p["success"]]
-            ),
+            "total_copied": len([p for p in copied_parameters if p["success"]]),
             "total_failed": len(
                 [p for p in copied_parameters if not p["success"]]
             ),
@@ -950,9 +921,7 @@ class ParameterService:
         )
 
         if len(scenarios) != 2:
-            raise ValueError(
-                "One or both scenarios not found or access denied"
-            )
+            raise ValueError("One or both scenarios not found or access denied")
 
         # Get parameter values for both scenarios
         scenario_1_params = self.get_scenario_parameters(

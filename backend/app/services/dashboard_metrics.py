@@ -60,12 +60,8 @@ class DashboardMetricsService:
         return {
             "key_metrics": overview_metrics,
             "summary": {
-                "revenue_trend": "up"
-                if len(pl_metrics) > 0
-                else "neutral",
-                "cash_position": "stable"
-                if len(cf_metrics) > 0
-                else "neutral",
+                "revenue_trend": "up" if len(pl_metrics) > 0 else "neutral",
+                "cash_position": "stable" if len(cf_metrics) > 0 else "neutral",
                 "financial_health": "good"
                 if len(bs_metrics) > 0
                 else "neutral",
@@ -121,9 +117,7 @@ class DashboardMetricsService:
             }
 
         # Calculate Cash Flow metrics
-        metrics = await self._calculate_cash_flow_metrics(
-            parsed_data, period
-        )
+        metrics = await self._calculate_cash_flow_metrics(parsed_data, period)
         charts = await self._generate_cash_flow_charts(parsed_data, period)
         waterfall_data = await self._generate_waterfall_data(
             parsed_data, period
@@ -160,12 +154,8 @@ class DashboardMetricsService:
         metrics = await self._calculate_balance_sheet_metrics(
             parsed_data, period
         )
-        charts = await self._generate_balance_sheet_charts(
-            parsed_data, period
-        )
-        ratios = await self._calculate_financial_ratios(
-            parsed_data, period
-        )
+        charts = await self._generate_balance_sheet_charts(parsed_data, period)
+        ratios = await self._calculate_financial_ratios(parsed_data, period)
         data_quality = await self._assess_data_quality(parsed_data, "bs")
 
         return {
@@ -229,9 +219,7 @@ class DashboardMetricsService:
         # Calculate KPIs
         kpis = await self._calculate_kpis(parsed_data, period)
         benchmarks = (
-            await self._get_industry_benchmarks(industry)
-            if industry
-            else {}
+            await self._get_industry_benchmarks(industry) if industry else {}
         )
         performance_score = await self._calculate_performance_score(
             kpis, benchmarks
@@ -263,9 +251,7 @@ class DashboardMetricsService:
             }
 
         # Calculate ratios
-        ratios = await self._calculate_financial_ratios(
-            parsed_data, period
-        )
+        ratios = await self._calculate_financial_ratios(parsed_data, period)
 
         # Filter by category if specified
         if ratio_category:
@@ -276,9 +262,7 @@ class DashboardMetricsService:
             }
 
         analysis = await self._analyze_ratios(ratios)
-        trends = await self._get_ratio_trends(
-            parsed_data, list(ratios.keys())
-        )
+        trends = await self._get_ratio_trends(parsed_data, list(ratios.keys()))
 
         return {"ratios": ratios, "analysis": analysis, "trends": trends}
 
@@ -359,9 +343,7 @@ class DashboardMetricsService:
                 )
 
                 refresh_stats["files_processed"] = len(files)
-                refresh_stats["metrics_updated"] = (
-                    len(files) * 10
-                )  # Estimate
+                refresh_stats["metrics_updated"] = len(files) * 10  # Estimate
         except Exception:
             # Gracefully handle DB issues by returning default stats
             pass
@@ -388,9 +370,7 @@ class DashboardMetricsService:
             if file_id:
                 query = query.filter(UploadedFile.id == file_id)
 
-            file_record = query.order_by(
-                UploadedFile.created_at.desc()
-            ).first()
+            file_record = query.order_by(UploadedFile.created_at.desc()).first()
 
             if file_record and file_record.parsed_data:
                 try:

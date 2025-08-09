@@ -104,9 +104,7 @@ class FinancialExtractor:
         return {
             "financial_metrics": statements.get("financial_metrics", {}),
             "time_series_data": statements.get("time_series_data", []),
-            "extraction_metadata": {
-                "sheets": len(parsed.get("sheets", []))
-            },
+            "extraction_metadata": {"sheets": len(parsed.get("sheets", []))},
         }
 
     def extract_statements(self, source: Any) -> Dict[str, Any]:
@@ -120,9 +118,7 @@ class FinancialExtractor:
 
         return self._extract_from_parsed(parsed_data)
 
-    def _extract_from_parsed(
-        self, parsed: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _extract_from_parsed(self, parsed: Dict[str, Any]) -> Dict[str, Any]:
         """Simplified extraction used for unit tests."""
         statements = {
             "income_statement": [],
@@ -186,24 +182,16 @@ class FinancialExtractor:
             sheets_info = self._analyze_sheets_structure(workbook)
 
             # Extract financial metrics
-            metrics = self._extract_financial_metrics(
-                workbook, sheets_info
-            )
+            metrics = self._extract_financial_metrics(workbook, sheets_info)
 
             # Extract time series data
-            time_series = self._extract_time_series_data(
-                workbook, sheets_info
-            )
+            time_series = self._extract_time_series_data(workbook, sheets_info)
 
             # Identify key assumptions
-            assumptions = self._identify_key_assumptions(
-                workbook, sheets_info
-            )
+            assumptions = self._identify_key_assumptions(workbook, sheets_info)
 
             # Map sheet relationships
-            relationships = self._map_sheet_relationships(
-                workbook, sheets_info
-            )
+            relationships = self._map_sheet_relationships(workbook, sheets_info)
 
             # Track calculation dependencies
             dependencies = self._track_calculation_dependencies(
@@ -221,14 +209,10 @@ class FinancialExtractor:
             )
 
             return {
-                "financial_metrics": [
-                    metric.__dict__ for metric in metrics
-                ],
+                "financial_metrics": [metric.__dict__ for metric in metrics],
                 "time_series_data": [ts.__dict__ for ts in time_series],
                 "key_assumptions": assumptions,
-                "sheet_relationships": [
-                    rel.__dict__ for rel in relationships
-                ],
+                "sheet_relationships": [rel.__dict__ for rel in relationships],
                 "calculation_dependencies": [
                     dep.__dict__ for dep in dependencies
                 ],
@@ -254,9 +238,7 @@ class FinancialExtractor:
                 },
             }
 
-    def calculate_ratios(
-        self, statements: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def calculate_ratios(self, statements: Dict[str, Any]) -> Dict[str, Any]:
         """
         Calculate financial ratios from extracted financial statements.
 
@@ -377,9 +359,7 @@ class FinancialExtractor:
                                     item.get("account", "")
                                 ).lower()
                                 norm_account = account_val.replace(" ", "")
-                                norm_keyword = keyword.lower().replace(
-                                    "_", ""
-                                )
+                                norm_keyword = keyword.lower().replace("_", "")
                                 if norm_keyword in norm_account:
                                     try:
                                         return float(item.get("value"))
@@ -419,9 +399,7 @@ class FinancialExtractor:
                 "data_range": self._get_data_range(sheet),
                 "has_formulas": self._has_formulas(sheet),
                 "has_time_series": self._detect_time_series(sheet),
-                "financial_section": self._identify_financial_sections(
-                    sheet
-                ),
+                "financial_section": self._identify_financial_sections(sheet),
             }
 
             sheets_info.append(sheet_info)
@@ -620,9 +598,7 @@ class FinancialExtractor:
                 )
                 if ts_data and len(ts_data.data_points) > 1:
                     # Calculate trend and growth
-                    ts_data.trend = self._calculate_trend(
-                        ts_data.data_points
-                    )
+                    ts_data.trend = self._calculate_trend(ts_data.data_points)
                     ts_data.growth_rate = self._calculate_growth_rate(
                         ts_data.data_points
                     )
@@ -685,9 +661,7 @@ class FinancialExtractor:
                 assumptions[category].update(category_assumptions)
 
         # Look for cells with percentage formatting (common for rates)
-        percentage_assumptions = self._find_percentage_assumptions(
-            workbook
-        )
+        percentage_assumptions = self._find_percentage_assumptions(workbook)
         assumptions["percentage_based"] = percentage_assumptions
 
         return assumptions
@@ -792,9 +766,7 @@ class FinancialExtractor:
 
         # Accuracy: based on confidence scores of individual metrics
         if metrics:
-            avg_confidence = sum(m.confidence for m in metrics) / len(
-                metrics
-            )
+            avg_confidence = sum(m.confidence for m in metrics) / len(metrics)
             quality_scores["accuracy"] = avg_confidence
 
         # Reliability: based on presence of formulas vs hardcoded values
@@ -831,8 +803,7 @@ class FinancialExtractor:
     def _initialize_metric_calculators(self) -> Dict[str, Any]:
         """Initialize metric calculation functions."""
         return {
-            "gross_margin": lambda revenue, cogs: (revenue - cogs)
-            / revenue
+            "gross_margin": lambda revenue, cogs: (revenue - cogs) / revenue
             if revenue != 0
             else 0,
             "current_ratio": lambda current_assets, current_liabilities: current_assets
@@ -864,13 +835,10 @@ class FinancialExtractor:
         """Identify the type of financial statement."""
         name_lower = sheet_name.lower()
         if any(
-            term in name_lower
-            for term in ["pnl", "p&l", "income", "profit"]
+            term in name_lower for term in ["pnl", "p&l", "income", "profit"]
         ):
             return "pnl"
-        elif any(
-            term in name_lower for term in ["balance", "position", "bs"]
-        ):
+        elif any(term in name_lower for term in ["balance", "position", "bs"]):
             return "balance_sheet"
         elif any(term in name_lower for term in ["cash", "flow", "cf"]):
             return "cash_flow"
@@ -928,9 +896,7 @@ class FinancialExtractor:
                                     "confidence": self._calculate_match_confidence(
                                         cell_text, term
                                     ),
-                                    "formula": value_cell.get(
-                                        "formula", ""
-                                    ),
+                                    "formula": value_cell.get("formula", ""),
                                 }
         return None
 
@@ -1021,9 +987,7 @@ class FinancialExtractor:
         """Calculate growth rate."""
         return 0.0
 
-    def _calculate_volatility(
-        self, data_points: List[Dict[str, Any]]
-    ) -> float:
+    def _calculate_volatility(self, data_points: List[Dict[str, Any]]) -> float:
         """Calculate volatility."""
         return 0.0
 

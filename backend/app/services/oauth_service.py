@@ -62,9 +62,7 @@ class OAuthService:
             return oauth_account.user
 
         # Check if user exists with same email
-        existing_user = (
-            self.db.query(User).filter(User.email == email).first()
-        )
+        existing_user = self.db.query(User).filter(User.email == email).first()
 
         if existing_user:
             # Link OAuth account to existing user
@@ -123,9 +121,7 @@ class OAuthService:
         from app.models.role import Role, UserRole, RoleType
 
         default_role = (
-            self.db.query(Role)
-            .filter(Role.name == RoleType.VIEWER)
-            .first()
+            self.db.query(Role).filter(Role.name == RoleType.VIEWER).first()
         )
         if default_role:
             user_role = UserRole(
@@ -201,9 +197,7 @@ class OAuthService:
 
         # Check if username exists
         existing_user = (
-            self.db.query(User)
-            .filter(User.username == base_username)
-            .first()
+            self.db.query(User).filter(User.username == base_username).first()
         )
         if not existing_user:
             return base_username
@@ -213,9 +207,7 @@ class OAuthService:
         while True:
             candidate = f"{base_username}{counter}"
             existing_user = (
-                self.db.query(User)
-                .filter(User.username == candidate)
-                .first()
+                self.db.query(User).filter(User.username == candidate).first()
             )
             if not existing_user:
                 return candidate

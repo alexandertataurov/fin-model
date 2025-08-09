@@ -65,9 +65,7 @@ class ConnectionManager:
             try:
                 await websocket.send_text(message)
             except Exception as e:
-                logger.warning(
-                    f"Failed to send message to user {user_id}: {e}"
-                )
+                logger.warning(f"Failed to send message to user {user_id}: {e}")
                 disconnected_websockets.append(websocket)
 
         # Clean up disconnected websockets
@@ -189,8 +187,7 @@ class ConnectionManager:
     def get_connection_count(self) -> int:
         """Get total number of active connections."""
         return sum(
-            len(connections)
-            for connections in self.active_connections.values()
+            len(connections) for connections in self.active_connections.values()
         )
 
 

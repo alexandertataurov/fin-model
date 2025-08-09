@@ -141,12 +141,8 @@ class Parameter(Base):
     depends_on = Column(
         JSON, nullable=True
     )  # List of parameter IDs this depends on
-    affects = Column(
-        JSON, nullable=True
-    )  # List of parameter IDs this affects
-    formula = Column(
-        Text, nullable=True
-    )  # Excel formula if this is calculated
+    affects = Column(JSON, nullable=True)  # List of parameter IDs this affects
+    formula = Column(Text, nullable=True)  # Excel formula if this is calculated
 
     # Validation Rules
     validation_rules = Column(JSON, nullable=True)
@@ -181,9 +177,7 @@ class ParameterGroup(Base):
     __tablename__ = "parameter_groups"
 
     id = Column(String(50), primary_key=True)
-    model_id = Column(
-        Integer, ForeignKey("uploaded_files.id"), nullable=False
-    )
+    model_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     display_order = Column(Integer, nullable=True)
@@ -206,9 +200,7 @@ class ParameterHistory(Base):
     __tablename__ = "parameter_history"
 
     id = Column(String(50), primary_key=True)
-    parameter_id = Column(
-        Integer, ForeignKey("parameters.id"), nullable=False
-    )
+    parameter_id = Column(Integer, ForeignKey("parameters.id"), nullable=False)
     old_value = Column(Float, nullable=True)
     new_value = Column(Float, nullable=False)
     changed_by = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -268,13 +260,9 @@ class Scenario(Base):
     # Relationships
     base_file = relationship("UploadedFile", back_populates="scenarios")
     created_by = relationship("User", back_populates="scenarios")
-    parameter_values = relationship(
-        "ParameterValue", back_populates="scenario"
-    )
+    parameter_values = relationship("ParameterValue", back_populates="scenario")
     parent_scenario = relationship("Scenario", remote_side=[id])
-    child_scenarios = relationship(
-        "Scenario", back_populates="parent_scenario"
-    )
+    child_scenarios = relationship("Scenario", back_populates="parent_scenario")
     financial_statements = relationship(
         "FinancialStatement", back_populates="scenario"
     )
@@ -291,18 +279,12 @@ class ParameterValue(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # References
-    parameter_id = Column(
-        Integer, ForeignKey("parameters.id"), nullable=False
-    )
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
+    parameter_id = Column(Integer, ForeignKey("parameters.id"), nullable=False)
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
 
     # Value Information
     value = Column(Float, nullable=False)
-    original_value = Column(
-        Float, nullable=True
-    )  # Value before modification
+    original_value = Column(Float, nullable=True)  # Value before modification
 
     # Change Tracking
     change_reason = Column(String(255), nullable=True)
@@ -316,9 +298,7 @@ class ParameterValue(Base):
     validation_errors = Column(JSON, nullable=True)
 
     # Relationships
-    parameter = relationship(
-        "Parameter", back_populates="parameter_values"
-    )
+    parameter = relationship("Parameter", back_populates="parameter_values")
     scenario = relationship("Scenario", back_populates="parameter_values")
     changed_by = relationship("User")
 
@@ -331,9 +311,7 @@ class FormulaNode(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Node Information
-    cell_reference = Column(
-        String(50), nullable=False
-    )  # e.g., "Sheet1!A1"
+    cell_reference = Column(String(50), nullable=False)  # e.g., "Sheet1!A1"
     formula = Column(Text, nullable=True)
     value = Column(Float, nullable=True)
     data_type = Column(
@@ -341,23 +319,15 @@ class FormulaNode(Base):
     )  # number, text, boolean, error
 
     # File Association
-    file_id = Column(
-        Integer, ForeignKey("uploaded_files.id"), nullable=False
-    )
+    file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
     sheet_name = Column(String(255), nullable=False)
 
     # Dependencies
-    depends_on_cells = Column(
-        JSON, nullable=True
-    )  # List of cell references
-    referenced_by_cells = Column(
-        JSON, nullable=True
-    )  # List of cell references
+    depends_on_cells = Column(JSON, nullable=True)  # List of cell references
+    referenced_by_cells = Column(JSON, nullable=True)  # List of cell references
 
     # Parameter Association
-    parameter_id = Column(
-        Integer, ForeignKey("parameters.id"), nullable=True
-    )
+    parameter_id = Column(Integer, ForeignKey("parameters.id"), nullable=True)
 
     # Calculation Properties
     calculation_order = Column(Integer, nullable=True)
@@ -389,9 +359,7 @@ class SensitivityAnalysis(Base):
     )  # tornado, spider, monte_carlo
 
     # References
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
     target_parameter_id = Column(
         Integer, ForeignKey("parameters.id"), nullable=False
     )
@@ -400,9 +368,7 @@ class SensitivityAnalysis(Base):
     input_parameters = Column(
         JSON, nullable=False
     )  # List of parameter IDs and ranges
-    analysis_config = Column(
-        JSON, nullable=True
-    )  # Additional configuration
+    analysis_config = Column(JSON, nullable=True)  # Additional configuration
 
     # Results
     results = Column(JSON, nullable=True)
@@ -438,17 +404,13 @@ class CalculationAudit(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Calculation Information
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
     calculation_type = Column(
         String(50), nullable=False
     )  # full, incremental, parameter_change
 
     # Trigger Information
-    triggered_by = Column(
-        String(50), nullable=False
-    )  # user, system, scheduled
+    triggered_by = Column(String(50), nullable=False)  # user, system, scheduled
     trigger_details = Column(JSON, nullable=True)
 
     # Performance Metrics
@@ -459,9 +421,7 @@ class CalculationAudit(Base):
     formulas_evaluated = Column(Integer, nullable=True)
 
     # Results
-    status = Column(
-        String(50), nullable=False
-    )  # success, error, cancelled
+    status = Column(String(50), nullable=False)  # success, error, cancelled
     error_message = Column(Text, nullable=True)
     warnings = Column(JSON, nullable=True)
 
@@ -483,12 +443,8 @@ class ScenarioParameter(Base):
     __tablename__ = "scenario_parameters"
 
     id = Column(String(50), primary_key=True)
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
-    parameter_id = Column(
-        Integer, ForeignKey("parameters.id"), nullable=False
-    )
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
+    parameter_id = Column(Integer, ForeignKey("parameters.id"), nullable=False)
     parameter_value = Column(Float, nullable=False)
     override_default = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -507,9 +463,7 @@ class MonteCarloSimulation(Base):
     __tablename__ = "monte_carlo_simulations"
 
     id = Column(String(50), primary_key=True)
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     iterations = Column(Integer, nullable=False)

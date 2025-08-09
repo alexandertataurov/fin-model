@@ -104,12 +104,8 @@ class FinancialStatement(Base):
     __tablename__ = "financial_statements"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
-    statement_type = Column(
-        String(50), nullable=False
-    )  # StatementType enum
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
+    statement_type = Column(String(50), nullable=False)  # StatementType enum
 
     # Period information
     period_start = Column(Date, nullable=False)
@@ -137,9 +133,7 @@ class FinancialStatement(Base):
     )
 
     # Relationships
-    scenario = relationship(
-        "Scenario", back_populates="financial_statements"
-    )
+    scenario = relationship("Scenario", back_populates="financial_statements")
     created_by = relationship("User")
 
 
@@ -149,9 +143,7 @@ class Metric(Base):
     __tablename__ = "metrics"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
 
     # Metric identification
     metric_name = Column(String(255), nullable=False, index=True)
@@ -190,9 +182,7 @@ class TimeSeries(Base):
     __tablename__ = "time_series"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
 
     # Data identification
     data_type = Column(
@@ -236,9 +226,7 @@ class Calculation(Base):
     __tablename__ = "calculations"
 
     id = Column(Integer, primary_key=True, index=True)
-    scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=False
-    )
+    scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
 
     # Calculation definition
     calculation_name = Column(String(255), nullable=False, index=True)
@@ -320,9 +308,7 @@ class Template(Base):
 
     # Relationships
     created_by = relationship("User")
-    uploaded_files = relationship(
-        "UploadedFile", back_populates="template"
-    )
+    uploaded_files = relationship("UploadedFile", back_populates="template")
 
 
 class FileVersion(Base):
@@ -331,17 +317,13 @@ class FileVersion(Base):
     __tablename__ = "file_versions"
 
     id = Column(Integer, primary_key=True, index=True)
-    file_id = Column(
-        Integer, ForeignKey("uploaded_files.id"), nullable=False
-    )
+    file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
 
     # Version information
     version_number = Column(Integer, nullable=False)
     file_path = Column(String(500), nullable=False)
     file_size = Column(BigInteger, nullable=False)
-    file_hash = Column(
-        String(64), nullable=False, index=True
-    )  # SHA-256 hash
+    file_hash = Column(String(64), nullable=False, index=True)  # SHA-256 hash
 
     # Change tracking
     change_description = Column(Text, nullable=True)
@@ -402,7 +384,5 @@ class DataSource(Base):
 
     # Relationships
     created_by = relationship("User")
-    uploaded_files = relationship(
-        "UploadedFile", back_populates="data_source"
-    )
+    uploaded_files = relationship("UploadedFile", back_populates="data_source")
     parameters = relationship("Parameter", back_populates="data_source")
