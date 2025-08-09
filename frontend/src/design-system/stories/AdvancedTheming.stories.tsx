@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React, { useState, useEffect } from 'react';
-import { 
-  Button, 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
   CardTitle,
   Badge,
   Input,
@@ -22,9 +22,9 @@ import {
   TabsList,
   TabsTrigger,
   Alert,
-  AlertDescription
+  AlertDescription,
 } from '@/design-system';
-import tokens from '../tokens.json';
+import { tokens } from '../tokens';
 
 // Theme context and provider
 interface ThemeContextType {
@@ -34,16 +34,20 @@ interface ThemeContextType {
   updateCustomColor: (key: string, value: string) => void;
 }
 
-const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = React.createContext<ThemeContextType | undefined>(
+  undefined
+);
 
-const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [theme, setTheme] = useState('light');
   const [customColors, setCustomColors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // Apply theme to document
     document.documentElement.setAttribute('data-theme', theme);
-    
+
     // Apply custom colors as CSS variables
     Object.entries(customColors).forEach(([key, value]) => {
       document.documentElement.style.setProperty(`--${key}`, value);
@@ -55,7 +59,9 @@ const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, customColors, updateCustomColor }}>
+    <ThemeContext.Provider
+      value={{ theme, setTheme, customColors, updateCustomColor }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -72,24 +78,26 @@ const useTheme = () => {
 // Theme Switcher Component
 const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
-  
+
   const themes = [
     { id: 'light', name: 'Light', icon: '☀️' },
     { id: 'dark', name: 'Dark', icon: '🌙' },
     { id: 'brand', name: 'Brand', icon: '🎨' },
     { id: 'high-contrast', name: 'High Contrast', icon: '🔍' },
-    { id: 'sepia', name: 'Sepia', icon: '📜' }
+    { id: 'sepia', name: 'Sepia', icon: '📜' },
   ];
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Theme Switcher</CardTitle>
-        <CardDescription>Switch between different theme variations</CardDescription>
+        <CardDescription>
+          Switch between different theme variations
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {themes.map((themeOption) => (
+          {themes.map(themeOption => (
             <Button
               key={themeOption.id}
               variant={theme === themeOption.id ? 'default' : 'outline'}
@@ -109,22 +117,46 @@ const ThemeSwitcher = () => {
 // Color Palette Display
 const ColorPalette = () => {
   const { theme } = useTheme();
-  
+
   const colorCategories = {
     'Primary Colors': ['primary', 'primary-foreground', 'primary-hover'],
-    'Secondary Colors': ['secondary', 'secondary-foreground', 'secondary-hover'],
+    'Secondary Colors': [
+      'secondary',
+      'secondary-foreground',
+      'secondary-hover',
+    ],
     'Accent Colors': ['accent', 'accent-foreground'],
-    'Background Colors': ['background', 'foreground', 'card', 'card-foreground'],
+    'Background Colors': [
+      'background',
+      'foreground',
+      'card',
+      'card-foreground',
+    ],
     'Border Colors': ['border', 'input', 'ring'],
-    'Status Colors': ['destructive', 'destructive-foreground', 'success', 'warning', 'info'],
-    'Muted Colors': ['muted', 'muted-foreground', 'popover', 'popover-foreground']
+    'Status Colors': [
+      'destructive',
+      'destructive-foreground',
+      'success',
+      'warning',
+      'info',
+    ],
+    'Muted Colors': [
+      'muted',
+      'muted-foreground',
+      'popover',
+      'popover-foreground',
+    ],
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Color Palette - {theme.charAt(0).toUpperCase() + theme.slice(1)} Theme</CardTitle>
-        <CardDescription>Current theme color tokens and their values</CardDescription>
+        <CardTitle>
+          Color Palette - {theme.charAt(0).toUpperCase() + theme.slice(1)} Theme
+        </CardTitle>
+        <CardDescription>
+          Current theme color tokens and their values
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -132,13 +164,18 @@ const ColorPalette = () => {
             <div key={category}>
               <h4 className="font-medium mb-3">{category}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {colors.map((colorKey) => {
+                {colors.map(colorKey => {
                   const cssVar = `--${colorKey}`;
-                  const computedValue = getComputedStyle(document.documentElement).getPropertyValue(cssVar);
-                  
+                  const computedValue = getComputedStyle(
+                    document.documentElement
+                  ).getPropertyValue(cssVar);
+
                   return (
-                    <div key={colorKey} className="flex items-center gap-3 p-3 border rounded-lg">
-                      <div 
+                    <div
+                      key={colorKey}
+                      className="flex items-center gap-3 p-3 border rounded-lg"
+                    >
+                      <div
                         className="w-8 h-8 rounded border shadow-sm"
                         style={{ backgroundColor: `var(--${colorKey})` }}
                       />
@@ -163,10 +200,10 @@ const ColorPalette = () => {
 // Custom Color Editor
 const CustomColorEditor = () => {
   const { customColors, updateCustomColor } = useTheme();
-  
+
   const [newColorKey, setNewColorKey] = useState('');
   const [newColorValue, setNewColorValue] = useState('#000000');
-  
+
   const addCustomColor = () => {
     if (newColorKey && newColorValue) {
       updateCustomColor(newColorKey, newColorValue);
@@ -174,7 +211,7 @@ const CustomColorEditor = () => {
       setNewColorValue('#000000');
     }
   };
-  
+
   const removeCustomColor = (key: string) => {
     const { [key]: removed, ...rest } = customColors;
     Object.entries(rest).forEach(([k, v]) => updateCustomColor(k, v));
@@ -196,7 +233,7 @@ const CustomColorEditor = () => {
                 id="colorKey"
                 placeholder="e.g., custom-primary"
                 value={newColorKey}
-                onChange={(e) => setNewColorKey(e.target.value)}
+                onChange={e => setNewColorKey(e.target.value)}
               />
             </div>
             <div className="w-24">
@@ -205,31 +242,39 @@ const CustomColorEditor = () => {
                 id="colorValue"
                 type="color"
                 value={newColorValue}
-                onChange={(e) => setNewColorValue(e.target.value)}
+                onChange={e => setNewColorValue(e.target.value)}
                 className="h-10"
               />
             </div>
             <div className="flex items-end">
-              <Button onClick={addCustomColor} disabled={!newColorKey || !newColorValue}>
+              <Button
+                onClick={addCustomColor}
+                disabled={!newColorKey || !newColorValue}
+              >
                 Add
               </Button>
             </div>
           </div>
-          
+
           {/* Existing custom colors */}
           {Object.keys(customColors).length > 0 && (
             <div>
               <Label>Custom Colors</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
                 {Object.entries(customColors).map(([key, value]) => (
-                  <div key={key} className="flex items-center gap-3 p-3 border rounded-lg">
-                    <div 
+                  <div
+                    key={key}
+                    className="flex items-center gap-3 p-3 border rounded-lg"
+                  >
+                    <div
                       className="w-6 h-6 rounded border shadow-sm"
                       style={{ backgroundColor: value }}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="font-mono text-sm">{key}</div>
-                      <div className="text-xs text-muted-foreground">{value}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {value}
+                      </div>
                     </div>
                     <Button
                       size="sm"
@@ -252,19 +297,22 @@ const CustomColorEditor = () => {
 // Typography System
 const TypographySystem = () => {
   const { theme } = useTheme();
-  
+
   const typographyTokens = {
-    'Display': ['display-1', 'display-2', 'display-3'],
-    'Headings': ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-    'Body': ['body-large', 'body', 'body-small'],
-    'Labels': ['label-large', 'label', 'label-small'],
-    'Captions': ['caption', 'caption-small']
+    Display: ['display-1', 'display-2', 'display-3'],
+    Headings: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    Body: ['body-large', 'body', 'body-small'],
+    Labels: ['label-large', 'label', 'label-small'],
+    Captions: ['caption', 'caption-small'],
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Typography System - {theme.charAt(0).toUpperCase() + theme.slice(1)} Theme</CardTitle>
+        <CardTitle>
+          Typography System - {theme.charAt(0).toUpperCase() + theme.slice(1)}{' '}
+          Theme
+        </CardTitle>
         <CardDescription>Font sizes, weights, and line heights</CardDescription>
       </CardHeader>
       <CardContent>
@@ -273,20 +321,24 @@ const TypographySystem = () => {
             <div key={category}>
               <h4 className="font-medium mb-3">{category}</h4>
               <div className="space-y-3">
-                {tokens.map((token) => (
+                {tokens.map(token => (
                   <div key={token} className="p-3 border rounded-lg">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-mono text-sm text-muted-foreground">{token}</span>
+                      <span className="font-mono text-sm text-muted-foreground">
+                        {token}
+                      </span>
                       <Badge variant="outline" className="text-xs">
-                        {getComputedStyle(document.documentElement).getPropertyValue(`--font-size-${token}`) || 'Default'}
+                        {getComputedStyle(
+                          document.documentElement
+                        ).getPropertyValue(`--font-size-${token}`) || 'Default'}
                       </Badge>
                     </div>
-                    <div 
+                    <div
                       className="text-foreground"
-                      style={{ 
+                      style={{
                         fontSize: `var(--font-size-${token})`,
                         fontWeight: `var(--font-weight-${token})`,
-                        lineHeight: `var(--line-height-${token})`
+                        lineHeight: `var(--line-height-${token})`,
                       }}
                     >
                       The quick brown fox jumps over the lazy dog
@@ -305,7 +357,7 @@ const TypographySystem = () => {
 // Spacing and Layout
 const SpacingAndLayout = () => {
   const { theme } = useTheme();
-  
+
   const spacingTokens = ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'];
   const borderRadiusTokens = ['none', 'sm', 'md', 'lg', 'xl', 'full'];
   const shadowTokens = ['none', 'sm', 'md', 'lg', 'xl', '2xl'];
@@ -313,8 +365,13 @@ const SpacingAndLayout = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Spacing & Layout - {theme.charAt(0).toUpperCase() + theme.slice(1)} Theme</CardTitle>
-        <CardDescription>Spacing, border radius, and shadow tokens</CardDescription>
+        <CardTitle>
+          Spacing & Layout - {theme.charAt(0).toUpperCase() + theme.slice(1)}{' '}
+          Theme
+        </CardTitle>
+        <CardDescription>
+          Spacing, border radius, and shadow tokens
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -322,64 +379,70 @@ const SpacingAndLayout = () => {
           <div>
             <h4 className="font-medium mb-3">Spacing Scale</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {spacingTokens.map((token) => (
+              {spacingTokens.map(token => (
                 <div key={token} className="text-center">
-                  <div 
+                  <div
                     className="mx-auto mb-2 bg-primary rounded"
-                    style={{ 
+                    style={{
                       width: `var(--spacing-${token})`,
-                      height: `var(--spacing-${token})`
+                      height: `var(--spacing-${token})`,
                     }}
                   />
                   <div className="font-mono text-xs">{token}</div>
                   <div className="text-xs text-muted-foreground">
-                    {getComputedStyle(document.documentElement).getPropertyValue(`--spacing-${token}`) || 'Default'}
+                    {getComputedStyle(
+                      document.documentElement
+                    ).getPropertyValue(`--spacing-${token}`) || 'Default'}
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          
+
           {/* Border Radius */}
           <div>
             <h4 className="font-medium mb-3">Border Radius</h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {borderRadiusTokens.map((token) => (
+              {borderRadiusTokens.map(token => (
                 <div key={token} className="text-center">
-                  <div 
+                  <div
                     className="mx-auto mb-2 bg-primary"
-                    style={{ 
+                    style={{
                       width: '60px',
                       height: '60px',
-                      borderRadius: `var(--radius-${token})`
+                      borderRadius: `var(--radius-${token})`,
                     }}
                   />
                   <div className="font-mono text-xs">{token}</div>
                   <div className="text-xs text-muted-foreground">
-                    {getComputedStyle(document.documentElement).getPropertyValue(`--radius-${token}`) || 'Default'}
+                    {getComputedStyle(
+                      document.documentElement
+                    ).getPropertyValue(`--radius-${token}`) || 'Default'}
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          
+
           {/* Shadows */}
           <div>
             <h4 className="font-medium mb-3">Shadow System</h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {shadowTokens.map((token) => (
+              {shadowTokens.map(token => (
                 <div key={token} className="text-center">
-                  <div 
+                  <div
                     className="mx-auto mb-2 bg-background border rounded-lg"
-                    style={{ 
+                    style={{
                       width: '80px',
                       height: '60px',
-                      boxShadow: `var(--shadow-${token})`
+                      boxShadow: `var(--shadow-${token})`,
                     }}
                   />
                   <div className="font-mono text-xs">{token}</div>
                   <div className="text-xs text-muted-foreground">
-                    {getComputedStyle(document.documentElement).getPropertyValue(`--shadow-${token}`) || 'Default'}
+                    {getComputedStyle(
+                      document.documentElement
+                    ).getPropertyValue(`--shadow-${token}`) || 'Default'}
                   </div>
                 </div>
               ))}
@@ -394,12 +457,16 @@ const SpacingAndLayout = () => {
 // Theme Preview
 const ThemePreview = () => {
   const { theme } = useTheme();
-  
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Theme Preview - {theme.charAt(0).toUpperCase() + theme.slice(1)} Theme</CardTitle>
-        <CardDescription>See how components look in the current theme</CardDescription>
+        <CardTitle>
+          Theme Preview - {theme.charAt(0).toUpperCase() + theme.slice(1)} Theme
+        </CardTitle>
+        <CardDescription>
+          See how components look in the current theme
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -414,7 +481,7 @@ const ThemePreview = () => {
                 <Button variant="outline">Outline</Button>
               </div>
             </div>
-            
+
             <div className="space-y-3">
               <Label>Form Elements</Label>
               <div className="space-y-2">
@@ -431,7 +498,7 @@ const ThemePreview = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Cards and content */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
@@ -441,11 +508,12 @@ const ThemePreview = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  This card demonstrates how the current theme affects component appearance.
+                  This card demonstrates how the current theme affects component
+                  appearance.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Status</CardTitle>
@@ -458,24 +526,30 @@ const ThemePreview = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Button size="sm" className="w-full">Primary Action</Button>
-                  <Button size="sm" variant="outline" className="w-full">Secondary</Button>
+                  <Button size="sm" className="w-full">
+                    Primary Action
+                  </Button>
+                  <Button size="sm" variant="outline" className="w-full">
+                    Secondary
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Alert examples */}
           <div className="space-y-2">
             <Alert>
-              <AlertDescription>This is an informational alert in the current theme.</AlertDescription>
+              <AlertDescription>
+                This is an informational alert in the current theme.
+              </AlertDescription>
             </Alert>
             <Alert className="border-destructive bg-destructive/10">
               <AlertDescription className="text-destructive">
@@ -497,14 +571,15 @@ const AdvancedThemingShowcase = () => {
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Advanced Theming System</h1>
           <p className="text-lg text-muted-foreground">
-            Comprehensive theming with Light/Dark/Brand variations and custom color management
+            Comprehensive theming with Light/Dark/Brand variations and custom
+            color management
           </p>
         </div>
-        
+
         <Separator />
-        
+
         <ThemeSwitcher />
-        
+
         <Tabs defaultValue="colors" className="w-full">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="colors">Colors</TabsTrigger>
@@ -513,23 +588,23 @@ const AdvancedThemingShowcase = () => {
             <TabsTrigger value="custom">Custom</TabsTrigger>
             <TabsTrigger value="preview">Preview</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="colors" className="space-y-6">
             <ColorPalette />
           </TabsContent>
-          
+
           <TabsContent value="typography" className="space-y-6">
             <TypographySystem />
           </TabsContent>
-          
+
           <TabsContent value="spacing" className="space-y-6">
             <SpacingAndLayout />
           </TabsContent>
-          
+
           <TabsContent value="custom" className="space-y-6">
             <CustomColorEditor />
           </TabsContent>
-          
+
           <TabsContent value="preview" className="space-y-6">
             <ThemePreview />
           </TabsContent>
@@ -543,10 +618,11 @@ const meta: Meta = {
   title: 'Design System/Advanced Theming',
   tags: ['autodocs'],
   parameters: {
-    docs: { 
-      description: { 
-        component: 'Advanced theming system with Light/Dark/Brand variations, toolbar toggle, and comprehensive theming token documentation. Includes color palette, typography system, spacing, and custom color management.' 
-      } 
+    docs: {
+      description: {
+        component:
+          'Advanced theming system with Light/Dark/Brand variations, toolbar toggle, and comprehensive theming token documentation. Includes color palette, typography system, spacing, and custom color management.',
+      },
     },
     layout: 'padded',
   },
@@ -558,48 +634,83 @@ type StoryObj = StoryObj<typeof meta>;
 export const ThemeSwitcherDemo: StoryObj = {
   render: () => <ThemeSwitcher />,
   parameters: {
-    docs: { description: { story: 'Interactive theme switcher with multiple theme variations including Light, Dark, Brand, High Contrast, and Sepia.' } }
-  }
+    docs: {
+      description: {
+        story:
+          'Interactive theme switcher with multiple theme variations including Light, Dark, Brand, High Contrast, and Sepia.',
+      },
+    },
+  },
 };
 
 export const ColorPaletteDemo: StoryObj = {
   render: () => <ColorPalette />,
   parameters: {
-    docs: { description: { story: 'Dynamic color palette display showing current theme colors with visual swatches and CSS variable values.' } }
-  }
+    docs: {
+      description: {
+        story:
+          'Dynamic color palette display showing current theme colors with visual swatches and CSS variable values.',
+      },
+    },
+  },
 };
 
 export const TypographySystemDemo: StoryObj = {
   render: () => <TypographySystem />,
   parameters: {
-    docs: { description: { story: 'Typography system showcase displaying font sizes, weights, and line heights for the current theme.' } }
-  }
+    docs: {
+      description: {
+        story:
+          'Typography system showcase displaying font sizes, weights, and line heights for the current theme.',
+      },
+    },
+  },
 };
 
 export const SpacingAndLayoutDemo: StoryObj = {
   render: () => <SpacingAndLayout />,
   parameters: {
-    docs: { description: { story: 'Spacing scale, border radius, and shadow system visualization with interactive token display.' } }
-  }
+    docs: {
+      description: {
+        story:
+          'Spacing scale, border radius, and shadow system visualization with interactive token display.',
+      },
+    },
+  },
 };
 
 export const CustomColorEditorDemo: StoryObj = {
   render: () => <CustomColorEditor />,
   parameters: {
-    docs: { description: { story: 'Interactive custom color editor for adding, modifying, and removing custom color tokens.' } }
-  }
+    docs: {
+      description: {
+        story:
+          'Interactive custom color editor for adding, modifying, and removing custom color tokens.',
+      },
+    },
+  },
 };
 
 export const ThemePreviewDemo: StoryObj = {
   render: () => <ThemePreview />,
   parameters: {
-    docs: { description: { story: 'Live theme preview showing how components appear in the current theme with real-time updates.' } }
-  }
+    docs: {
+      description: {
+        story:
+          'Live theme preview showing how components appear in the current theme with real-time updates.',
+      },
+    },
+  },
 };
 
 export const CompleteThemingShowcase: StoryObj = {
   render: () => <AdvancedThemingShowcase />,
   parameters: {
-    docs: { description: { story: 'Complete advanced theming showcase with all features including theme switching, color management, typography, spacing, and live previews.' } }
-  }
+    docs: {
+      description: {
+        story:
+          'Complete advanced theming showcase with all features including theme switching, color management, typography, spacing, and live previews.',
+      },
+    },
+  },
 };

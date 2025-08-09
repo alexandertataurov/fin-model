@@ -1,0 +1,20 @@
+{
+  "name": "fin-model",
+  "version": "1.0.0",
+  "description": "FinVision is a comprehensive web-based financial modeling and analysis platform that transforms static Excel financial models into dynamic, interactive dashboards with real-time parameter adjustment capabilities.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:tokens": "style-dictionary build --config config/style-dictionary.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "style-dictionary": "^4.4.0"
+  }
+}
