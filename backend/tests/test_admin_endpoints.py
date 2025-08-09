@@ -53,7 +53,8 @@ def test_user_crud_and_roles(client: TestClient):
     )
     assert r.status_code == 200
     data = r.json()
-    assert {"items", "skip", "limit", "total"} <= data.keys()
+    assert {"items", "pagination"} <= data.keys()
+    assert {"skip", "limit", "total"} <= data["pagination"].keys()
 
     # Get user by id
     r = client.get(f"/api/v1/admin/users/{user_id}")

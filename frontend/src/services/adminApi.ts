@@ -226,13 +226,16 @@ export class AdminApiService {
   static async listUsers(
     skip = 0,
     limit = 100,
-    envelope = false
-  ): Promise<
-    | UserWithRoles[]
-    | { items: UserWithRoles[]; skip: number; limit: number; total: number }
-  > {
+    envelope = false,
+    opts?: {
+      search?: string;
+      is_active?: boolean;
+      is_verified?: boolean;
+      is_admin?: boolean;
+    }
+  ): Promise<UserWithRoles[] | PaginatedResponse<UserWithRoles>> {
     const response = await api.get('/admin/users', {
-      params: { skip, limit, envelope },
+      params: { skip, limit, envelope, ...(opts || {}) },
     });
     return response.data;
   }
@@ -431,10 +434,7 @@ export class AdminApiService {
       skip?: number;
       envelope?: boolean;
     }
-  ): Promise<
-    | LogEntry[]
-    | { items: LogEntry[]; skip: number; limit: number; total: number }
-  > {
+  ): Promise<LogEntry[] | PaginatedResponse<LogEntry>> {
     const response = await api.get('/admin/system/logs', {
       params: {
         level,
@@ -465,7 +465,7 @@ export class AdminApiService {
         limit: number;
         total: number;
       }
-    | { items: AuditEntry[]; skip: number; limit: number; total: number }
+    | PaginatedResponse<AuditEntry>
   > {
     const response = await api.get('/admin/audit-logs', {
       params: {
