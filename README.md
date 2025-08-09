@@ -11,6 +11,11 @@ FinVision is a comprehensive web-based financial modeling and analysis platform 
 - **Professional Reporting**: Generate publication-ready reports and presentations
 - **Role-Based Access Control**: Secure access with Admin/Analyst/Viewer roles
 
+## 📚 Documentation & Governance
+
+- [Contributing Guidelines](docs/contributing.md) – naming conventions, component guidelines, and review procedures (also on our [internal wiki](https://wiki.internal/FinVision/Contributing)).
+- [RFC Process](docs/rfc.md) – propose significant design system changes (also on our [internal wiki](https://wiki.internal/FinVision/RFC)).
+
 ## 🏗️ Architecture
 
 ### Frontend
@@ -303,7 +308,7 @@ See `/tasks/README.md` for detailed task breakdowns and progress tracking.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-Refer to the [Contributing Guidelines](docs/contributing.md) for token naming rules, component expectations, and review workflow. For major changes, start with the [RFC process](docs/rfc.md).
+Refer to the [Contributing Guidelines](docs/contributing.md) (also on our [internal wiki](https://wiki.internal/FinVision/Contributing)) for naming rules, component expectations, and review workflow. For major changes, start with the [RFC process](docs/rfc.md) (also on our [internal wiki](https://wiki.internal/FinVision/RFC)).
 
 ### Code Quality
 
