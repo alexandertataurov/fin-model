@@ -24,6 +24,7 @@ from app.schemas.admin import (
 )
 from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
+from app.services import rate_limit_service
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import PlainTextResponse
 from sqlalchemy import and_, func, text
@@ -545,37 +546,10 @@ def clear_rate_limits(
     db: Session = Depends(get_db),
 ) -> Any:
     """Clear all rate limiting records to restore access."""
-    try:
-        from app.core.rate_limiter import RateLimit
-
-        deleted_count = db.query(RateLimit).delete()
-        db.commit()
-
-        return {
-            "message": "Rate limits cleared successfully",
-            "cleared_records": deleted_count,
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to clear rate limits: {str(e)}",
-        )
+    return rate_limit_service.clear_rate_limits(db)
 
 
 @router.post("/dev-clear-rate-limits", response_model=Dict[str, Any])
 def dev_clear_rate_limits(db: Session = Depends(get_db)) -> Any:
     """Development utility to clear rate limits without auth."""
-    try:
-        from app.core.rate_limiter import RateLimit
-
-        deleted_count = db.query(RateLimit).delete()
-        db.commit()
-        return {
-            "message": "Rate limits cleared successfully",
-            "cleared_records": deleted_count,
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to clear rate limits: {str(e)}",
-        )
+    return rate_limit_service.clear_rate_limits(db)

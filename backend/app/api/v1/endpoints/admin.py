@@ -29,6 +29,7 @@ from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
 from app.services.system_log_service import SystemLogService
+from app.services import rate_limit_service
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
 from pydantic import BaseModel
@@ -947,23 +948,7 @@ def clear_rate_limits(
     db: Session = Depends(get_db),
 ) -> Any:
     """Clear all rate limiting records to restore access."""
-    try:
-        from app.core.rate_limiter import RateLimit
-
-        # Delete all rate limit records
-        deleted_count = db.query(RateLimit).delete()
-        db.commit()
-
-        return {
-            "message": "Rate limits cleared successfully",
-            "cleared_records": deleted_count,
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to clear rate limits: {str(e)}",
-        )
+    return rate_limit_service.clear_rate_limits(db)
 
 
 @router.get("/reports/overview", response_model=Dict[str, Any])
