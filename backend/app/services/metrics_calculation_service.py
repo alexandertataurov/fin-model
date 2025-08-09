@@ -10,6 +10,7 @@ from enum import Enum
 import statistics
 
 from app.models.financial import FinancialStatement, StatementType
+from app.services.numeric_utils import extract_numeric_value
 
 
 class MetricCategory(Enum):
@@ -157,7 +158,7 @@ class MetricsCalculationService:
     def calculate_margins(self, pl_data: Dict[str, Any]) -> Margins:
         """Calculate profit margins from P&L data."""
 
-        revenue = self._safe_get_numeric(
+        revenue = extract_numeric_value(
             pl_data, ["revenue", "total_revenue", "net_sales"]
         )
 
@@ -170,7 +171,7 @@ class MetricsCalculationService:
             )
 
         # Gross Margin = (Revenue - COGS) / Revenue
-        cogs = self._safe_get_numeric(
+        cogs = extract_numeric_value(
             pl_data, ["cogs", "cost_of_goods_sold", "cost_of_sales"]
         )
         gross_margin = None
@@ -179,7 +180,7 @@ class MetricsCalculationService:
             gross_margin = (gross_profit / revenue) * 100
 
         # Operating Margin = Operating Income / Revenue
-        operating_income = self._safe_get_numeric(
+        operating_income = extract_numeric_value(
             pl_data, ["operating_income", "operating_profit", "ebit"]
         )
         operating_margin = None
@@ -187,7 +188,7 @@ class MetricsCalculationService:
             operating_margin = (operating_income / revenue) * 100
 
         # Net Margin = Net Income / Revenue
-        net_income = self._safe_get_numeric(
+        net_income = extract_numeric_value(
             pl_data, ["net_income", "net_profit", "profit_after_tax"]
         )
         net_margin = None
@@ -195,10 +196,14 @@ class MetricsCalculationService:
             net_margin = (net_income / revenue) * 100
 
         # EBITDA Margin = EBITDA / Revenue
-        ebitda = self._safe_get_numeric(pl_data, ["ebitda"])
-        if ebitda is None and operating_income is not None:
+        ebitda = extract_numeric_value(pl_data, ["ebitda"])
+        ebitda_margin = None
+        if ebitda is not None:
+            ebitda_margin = (ebitda / revenue) * 100
+        elif operating_income is not None:
+            # Estimate EBITDA as Operating Income + Depreciation
             depreciation = (
-                self._safe_get_numeric(
+                extract_numeric_value(
                     pl_data, ["depreciation", "depreciation_amortization"]
                 )
                 or 0
@@ -222,10 +227,10 @@ class MetricsCalculationService:
     ) -> LiquidityRatios:
         """Calculate liquidity ratios from Balance Sheet data."""
 
-        current_assets = self._safe_get_numeric(
+        current_assets = extract_numeric_value(
             bs_data, ["current_assets", "total_current_assets"]
         )
-        current_liabilities = self._safe_get_numeric(
+        current_liabilities = extract_numeric_value(
             bs_data, ["current_liabilities", "total_current_liabilities"]
         )
 
@@ -238,7 +243,7 @@ class MetricsCalculationService:
         quick_ratio = None
         if current_assets and current_liabilities and current_liabilities > 0:
             inventory = (
-                self._safe_get_numeric(bs_data, ["inventory", "inventories"])
+                extract_numeric_value(bs_data, ["inventory", "inventories"])
                 or 0
             )
             quick_assets = current_assets - inventory
@@ -246,7 +251,7 @@ class MetricsCalculationService:
 
         # Cash Ratio = Cash / Current Liabilities
         cash_ratio = None
-        cash = self._safe_get_numeric(
+        cash = extract_numeric_value(
             bs_data,
             ["cash", "cash_and_equivalents", "cash_and_cash_equivalents"],
         )
@@ -260,7 +265,7 @@ class MetricsCalculationService:
 
         # Working Capital Ratio = Working Capital / Total Assets
         working_capital_ratio = None
-        total_assets = self._safe_get_numeric(bs_data, ["total_assets"])
+        total_assets = extract_numeric_value(bs_data, ["total_assets"])
         if working_capital and total_assets and total_assets > 0:
             working_capital_ratio = working_capital / total_assets
 
@@ -309,10 +314,10 @@ class MetricsCalculationService:
         pl_data = pl_statement.line_items or {}
         bs_data = bs_statement.line_items or {}
 
-        revenue = self._safe_get_numeric(
+        revenue = extract_numeric_value(
             pl_data, ["revenue", "total_revenue", "net_sales"]
         )
-        total_assets = self._safe_get_numeric(bs_data, ["total_assets"])
+        total_assets = extract_numeric_value(bs_data, ["total_assets"])
 
         # Asset Turnover = Revenue / Total Assets
         asset_turnover = None
@@ -321,8 +326,8 @@ class MetricsCalculationService:
 
         # Inventory Turnover = COGS / Average Inventory
         inventory_turnover = None
-        cogs = self._safe_get_numeric(pl_data, ["cogs", "cost_of_goods_sold"])
-        inventory = self._safe_get_numeric(
+        cogs = extract_numeric_value(pl_data, ["cogs", "cost_of_goods_sold"])
+        inventory = extract_numeric_value(
             bs_data, ["inventory", "inventories"]
         )
         if cogs and inventory and inventory > 0:
@@ -330,7 +335,7 @@ class MetricsCalculationService:
 
         # Receivables Turnover = Revenue / Accounts Receivable
         receivables_turnover = None
-        accounts_receivable = self._safe_get_numeric(
+        accounts_receivable = extract_numeric_value(
             bs_data, ["accounts_receivable", "receivables"]
         )
         if revenue and accounts_receivable and accounts_receivable > 0:
@@ -373,13 +378,13 @@ class MetricsCalculationService:
     ) -> LeverageRatios:
         """Calculate leverage/debt ratios from Balance Sheet and P&L data."""
 
-        total_debt = self._safe_get_numeric(
+        total_debt = extract_numeric_value(
             bs_data, ["total_debt", "total_liabilities"]
         )
-        total_equity = self._safe_get_numeric(
+        total_equity = extract_numeric_value(
             bs_data, ["shareholders_equity", "total_equity"]
         )
-        total_assets = self._safe_get_numeric(bs_data, ["total_assets"])
+        total_assets = extract_numeric_value(bs_data, ["total_assets"])
 
         # Debt-to-Equity Ratio = Total Debt / Total Equity
         debt_to_equity = None
@@ -399,10 +404,10 @@ class MetricsCalculationService:
         # Interest Coverage Ratio = EBIT / Interest Expense
         interest_coverage = None
         if pl_data:
-            ebit = self._safe_get_numeric(
+            ebit = extract_numeric_value(
                 pl_data, ["ebit", "operating_income", "operating_profit"]
             )
-            interest_expense = self._safe_get_numeric(
+            interest_expense = extract_numeric_value(
                 pl_data, ["interest_expense", "financial_costs"]
             )
             if ebit and interest_expense and interest_expense > 0:
@@ -529,12 +534,12 @@ class MetricsCalculationService:
         pl_data = pl_statement.line_items or {}
         bs_data = bs_statement.line_items or {}
 
-        net_income = self._safe_get_numeric(
+        net_income = extract_numeric_value(
             pl_data, ["net_income", "net_profit"]
         )
-        revenue = self._safe_get_numeric(pl_data, ["revenue", "total_revenue"])
-        total_assets = self._safe_get_numeric(bs_data, ["total_assets"])
-        shareholders_equity = self._safe_get_numeric(
+        revenue = extract_numeric_value(pl_data, ["revenue", "total_revenue"])
+        total_assets = extract_numeric_value(bs_data, ["total_assets"])
+        shareholders_equity = extract_numeric_value(
             bs_data, ["shareholders_equity", "total_equity"]
         )
 
@@ -584,7 +589,7 @@ class MetricsCalculationService:
 
         for statement in sorted_statements:
             line_items = statement.line_items or {}
-            value = self._safe_get_numeric(line_items, [metric_key])
+            value = extract_numeric_value(line_items, [metric_key])
 
             if value is not None:
                 periods.append(statement.period_start.strftime("%Y-%m"))
@@ -692,45 +697,6 @@ class MetricsCalculationService:
     # Utility Methods
     # ====================
 
-    def _safe_get_numeric(
-        self, data: Dict[str, Any], possible_keys: List[str]
-    ) -> Optional[float]:
-        """Safely extract a numeric value from data using possible key names."""
-
-        for key in possible_keys:
-            # Try exact match
-            if key in data:
-                value = data[key]
-                if isinstance(value, (int, float)):
-                    return float(value)
-                elif isinstance(value, str):
-                    try:
-                        return float(
-                            value.replace(",", "")
-                            .replace("$", "")
-                            .replace("(", "-")
-                            .replace(")", "")
-                        )
-                    except (ValueError, TypeError):
-                        continue
-
-            # Try case-insensitive match
-            for data_key, value in data.items():
-                if data_key.lower() == key.lower():
-                    if isinstance(value, (int, float)):
-                        return float(value)
-                    elif isinstance(value, str):
-                        try:
-                            return float(
-                                value.replace(",", "")
-                                .replace("$", "")
-                                .replace("(", "-")
-                                .replace(")", "")
-                            )
-                        except (ValueError, TypeError):
-                            continue
-
-        return None
 
     def calculate_percentile_ranks(
         self, values: List[float], benchmarks: Dict[str, float]
