@@ -1,19 +1,13 @@
 {
-<<<<<<< HEAD
   "name": "finvision-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "packageManager": "npm@10.9.3",
-=======
-  "name": "fin-model",
-  "version": "1.0.0",
   "description": "FinVision is a comprehensive web-based financial modeling and analysis platform that transforms static Excel financial models into dynamic, interactive dashboards with real-time parameter adjustment capabilities.",
-  "main": "index.js",
   "directories": {
     "doc": "docs"
   },
->>>>>>> pre-production
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:tokens": "style-dictionary build --config config/style-dictionary.json && cp dist/tokens/json/tokens.json frontend/src/design-system/tokens.json && npm --prefix frontend run gen:tokens && npx --prefix frontend tsx scripts/generate-tailwind-config.ts"
