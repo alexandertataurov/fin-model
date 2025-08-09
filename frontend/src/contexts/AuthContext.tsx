@@ -207,7 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         roles,
       }));
     } catch (_error) {
-      console.error('Error loading permissions:', error);
+      console.error('Error loading permissions:', _error);
       // Error loading permissions - continue with empty permissions
       setState(prev => ({
         ...prev,
@@ -268,7 +268,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return true;
     } catch (_error) {
-      console.error('Login failed:', error);
+      console.error('Login failed:', _error);
       // Login failed
       setState(prev => ({ ...prev, isLoading: false }));
       return false;
@@ -298,7 +298,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (_error) {
       // Registration failed - re-throw for component to handle
       setState(prev => ({ ...prev, isLoading: false }));
-      throw error;
+      throw _error;
     }
   };
 

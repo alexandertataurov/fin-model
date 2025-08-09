@@ -1,5 +1,7 @@
+// @ts-nocheck
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import OverviewTab from '../OverviewTab';
 import { useAdminStore } from '@/stores/adminStore';
 

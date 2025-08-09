@@ -24,9 +24,9 @@ export const useAdminStore = create<AdminStoreState>()(
     autoRefreshEnabled: true,
     refreshing: false,
     maintenanceLoading: false,
-    ...createOverviewSlice(set as any, get as any),
-    ...createLogsSlice(set as any, get as any),
-    ...createAuditSlice(set as any, get as any),
+    ...createOverviewSlice(set as any, get as any, undefined as any),
+    ...createLogsSlice(set as any, get as any, undefined as any),
+    ...createAuditSlice(set as any, get as any, undefined as any),
     setActiveTab: (tab: string) => set({ activeTab: tab }),
     setAutoRefresh: (enabled: boolean) => set({ autoRefreshEnabled: enabled }),
     refreshAll: async () => {

@@ -137,7 +137,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
       else if (statusFilter === 'unverified') params.is_verified = false;
       if (roleFilter === 'admin') params.is_admin = true;
 
-      const resp = await AdminApiService.listUsers(
+      const resp = await AdminApi.listUsers(
         page * rowsPerPage,
         rowsPerPage,
         true,

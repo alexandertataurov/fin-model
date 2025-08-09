@@ -66,13 +66,19 @@ export async function getNormalizedUserActivity(
 export async function listUsers(
   skip = 0,
   limit = 100,
-  envelope = false
+  envelope = false,
+  opts?: {
+    search?: string;
+    is_active?: boolean;
+    is_verified?: boolean;
+    is_admin?: boolean;
+  }
 ): Promise<
   | UserWithRoles[]
   | { items: UserWithRoles[]; skip: number; limit: number; total: number }
 > {
   const response = await api.get('/admin/users', {
-    params: { skip, limit, envelope },
+    params: { skip, limit, envelope, ...(opts || {}) },
   });
   return response.data;
 }
