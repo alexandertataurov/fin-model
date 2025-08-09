@@ -1,36 +1,50 @@
 import type { StorybookConfig } from '@storybook/react-vite';
-import { resolve } from 'node:path';
+import { resolve } from 'path';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
 const config: StorybookConfig = {
   framework: {
     name: '@storybook/react-vite',
-    options: {},
+    options: {
+      builder: {
+        viteConfigPath: 'vite.config.storybook.ts',
+      },
+    },
   },
   typescript: {
     // Enable auto-generated prop tables from TypeScript
     reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      propFilter: prop =>
+        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
+    },
+  },
+  // Performance optimizations
+  core: {
+    disableTelemetry: true,
+    enableCrashReports: false,
+  },
+  features: {
+    storyStoreV7: true,
+    buildStoriesJson: true,
+    breakingChangesV7: true,
   },
   stories: [
-    '../src/design-system/**/*.stories.@(ts|tsx|mdx)',
-    // Keep app pages if any, but exclude component-level duplicates
-    '../src/pages/**/*.stories.@(ts|tsx|mdx)'
+    '../src/design-system/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    '../src/components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    '../docs/**/*.stories.@(js|jsx|ts|tsx|mdx)',
   ],
   addons: [
     '@storybook/addon-essentials',
-    '@storybook/addon-links',
-    '@storybook/addon-interactions',
     '@storybook/addon-a11y',
-    '@storybook/addon-viewport',
-    '@storybook/addon-themes',
-    '@storybook/addon-backgrounds',
-    '@storybook/addon-measure',
-    '@storybook/addon-outline',
-    'msw-storybook-addon',
+    '@storybook/addon-interactions',
+    '@storybook/addon-links',
   ],
   docs: {
-    autodocs: true,
+    autodocs: 'tag',
+    defaultName: 'Documentation',
   },
   staticDirs: [
     { from: '../public', to: '/public' },
@@ -80,6 +94,40 @@ const config: StorybookConfig = {
     };
 
     return config;
+  },
+  // Enhanced navigation structure
+  managerHead: head => `
+    ${head}
+    <style>
+      .sidebar-item[data-item-id*="design-system"] {
+        font-weight: 600;
+        color: #3b82f6;
+      }
+      .sidebar-item[data-item-id*="components"] {
+        font-weight: 500;
+      }
+      .sidebar-item[data-item-id*="getting-started"] {
+        font-weight: 600;
+        color: #059669;
+      }
+      .sidebar-item[data-item-id*="templates"] {
+        font-weight: 600;
+        color: #7c3aed;
+      }
+    </style>
+  `,
+  // Improved story organization
+  storySort: {
+    order: [
+      'Docs',
+      'Getting Started',
+      'Design System',
+      ['Overview', 'Foundations', 'Tokens', 'Templates', '*'],
+      'Components',
+      ['Auth', 'Dashboard', 'Parameters', 'Scenarios', 'Charts', 'FileUpload', '*'],
+      'Pages',
+      '*'
+    ],
   },
 };
 

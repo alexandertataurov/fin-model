@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
-// Standalone Storybook Vite config (intentionally NOT merging base to avoid duplicate React plugins)
 export default defineConfig({
+  plugins: [react()],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -12,8 +13,35 @@ export default defineConfig({
       '@components': resolve(__dirname, './src/components'),
     },
   },
-  define: {
-    'process.env.NODE_ENV': '"development"',
-    global: 'globalThis',
+  // Performance optimizations
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          designSystem: ['@/design-system'],
+        },
+      },
+    },
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+    exclude: ['@storybook/addon-essentials'],
+  },
+  // Faster HMR
+  server: {
+    hmr: false, // Disable HMR in Storybook
+  },
+  // CSS optimization
+  css: {
+    postcss: {
+      plugins: [
+        require('tailwindcss')({ config: resolve(__dirname, './tailwind.config.js') }),
+        require('autoprefixer')(),
+      ],
+    },
   },
 });
