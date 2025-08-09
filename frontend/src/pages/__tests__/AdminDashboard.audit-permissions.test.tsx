@@ -3,14 +3,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import * as AdminApi from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
 import AdminDashboard from '@/pages/AdminDashboard';
 
-vi.mock('@/services/adminApi');
+vi.mock('@/services/admin');
 
-const mocked = AdminApi as unknown as {
-    default: any;
-};
+const mocked = AdminApi as unknown as Record<string, any>;
 
 const baseStats = {
     users: { total: 10, active: 5, verified: 7, new_24h: 1 },
@@ -40,7 +38,7 @@ describe('AdminDashboard Audit and Permissions', () => {
     beforeEach(() => {
         vi.resetAllMocks();
 
-        mocked.default = {
+        Object.assign(mocked, {
             getSystemStats: vi.fn().mockResolvedValue(baseStats),
             getUserActivity: vi.fn().mockResolvedValue([]),
             getSystemMetrics: vi.fn().mockResolvedValue(baseMetrics),
@@ -56,7 +54,7 @@ describe('AdminDashboard Audit and Permissions', () => {
                 .fn()
                 .mockResolvedValueOnce({ items: Array.from({ length: 3 }, (_, i) => ({ message: `log ${i + 1}` })), total: 6, skip: 0, limit: 3 })
                 .mockResolvedValueOnce({ items: Array.from({ length: 3 }, (_, i) => ({ message: `log ${i + 4}` })), total: 6, skip: 3, limit: 3 }),
-        };
+        });
     });
 
     it('displays permissions information', async () => {
@@ -95,5 +93,3 @@ describe('AdminDashboard Audit and Permissions', () => {
         expect(page2Items.length).toBe(3);
     });
 });
-
-

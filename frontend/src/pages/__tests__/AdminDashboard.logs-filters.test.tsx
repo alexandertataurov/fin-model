@@ -3,18 +3,18 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 
-import * as AdminApi from '@/services/adminApi'
+import * as AdminApi from '@/services/admin'
 import AdminDashboard from '@/pages/AdminDashboard'
 
-vi.mock('@/services/adminApi')
+vi.mock('@/services/admin')
 
-const mocked = AdminApi as unknown as { default: any }
+const mocked = AdminApi as unknown as Record<string, any>
 
 describe('AdminDashboard Logs filters', () => {
     beforeEach(() => {
         vi.resetAllMocks()
         const now = new Date().toISOString()
-        mocked.default = {
+        Object.assign(mocked, {
             getSystemStats: vi.fn().mockResolvedValue({ users: {}, files: {}, financial_data: {}, system: {}, performance: {} }),
             getUserActivity: vi.fn().mockResolvedValue([]),
             getSystemMetrics: vi.fn().mockResolvedValue({ cpu_usage: 0 }),
@@ -30,7 +30,7 @@ describe('AdminDashboard Logs filters', () => {
                     { timestamp: now, level: 'ERROR', message: 'B', module: 'db', user_id: null },
                 ], skip: 0, limit: 50, total: 2
             }),
-        }
+        })
     })
 
     it('applies level/limit/date/search and calls service with correct params', async () => {
@@ -65,7 +65,7 @@ describe('AdminDashboard Logs filters', () => {
         const refreshBtn = Array.from(logsSection.querySelectorAll('button')).find(b => /refresh logs/i.test(b.textContent || '')) as HTMLButtonElement
         await userEvent.click(refreshBtn)
 
-        expect(mocked.default.getSystemLogs).toHaveBeenCalledWith('INFO', 50, expect.objectContaining({
+        expect(mocked.getSystemLogs).toHaveBeenCalledWith('INFO', 50, expect.objectContaining({
             from: '2025-01-01', to: '2025-01-31', search: 'timeout', skip: 0, envelope: true,
         }))
 
@@ -76,5 +76,3 @@ describe('AdminDashboard Logs filters', () => {
         expect(nextBtn.disabled).toBe(true)
     })
 })
-
-

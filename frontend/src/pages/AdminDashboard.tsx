@@ -46,6 +46,7 @@ import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
 import { StatsSkeleton, CardSkeleton, TableSkeleton, HealthSkeleton } from '@/components/ui/LoadingSkeleton';
 import { toast } from 'sonner';
+import * as AdminApi from '@/services/admin';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -137,7 +138,7 @@ const AdminDashboard: React.FC = () => {
   const handleFileCleanupPreview = async () => {
     try {
       setMaintenanceLoading(true);
-      const result = await AdminApiService.cleanupFiles(true);
+      const result = await AdminApi.cleanupFiles(true);
       toast.success(
         `Cleanup preview: ${result.orphaned_files} orphaned files, ${result.failed_files} failed files found`
       );
@@ -155,7 +156,7 @@ const AdminDashboard: React.FC = () => {
         setMaintenanceLoading(false);
         return;
       }
-      const result = await AdminApiService.cleanupFiles(false);
+      const result = await AdminApi.cleanupFiles(false);
       toast.success(result.message);
       await loadAdminData(); // Refresh data
     } catch (error) {
@@ -168,7 +169,7 @@ const AdminDashboard: React.FC = () => {
   const handleClearRateLimits = async () => {
     try {
       setMaintenanceLoading(true);
-      const result = await AdminApiService.clearRateLimits();
+      const result = await AdminApi.clearRateLimits();
       toast.success(
         `${result.message} (${result.cleared_records} records cleared)`
       );
@@ -1084,7 +1085,7 @@ const AdminDashboard: React.FC = () => {
                     onChange={async e => {
                       const lvl = e.target.value as typeof logsLevel;
                       setLogsLevel(lvl);
-                      const resp = await AdminApiService.getSystemLogs(
+                      const resp = await AdminApi.getSystemLogs(
                         lvl,
                         logsLimit,
                         {
@@ -1114,7 +1115,7 @@ const AdminDashboard: React.FC = () => {
                     onChange={async e => {
                       const lim = Number(e.target.value);
                       setLogsLimit(lim);
-                      const resp = await AdminApiService.getSystemLogs(
+                      const resp = await AdminApi.getSystemLogs(
                         logsLevel,
                         lim,
                         {
@@ -1159,7 +1160,7 @@ const AdminDashboard: React.FC = () => {
                     size="sm"
                     variant="outline"
                     onClick={async () => {
-                      const resp = await AdminApiService.getSystemLogs(
+                      const resp = await AdminApi.getSystemLogs(
                         logsLevel,
                         logsLimit,
                         {
@@ -1193,7 +1194,7 @@ const AdminDashboard: React.FC = () => {
                       onClick={async () => {
                         const newSkip = Math.max(0, logsSkip - logsLimit);
                         setLogsSkip(newSkip);
-                        const resp = await AdminApiService.getSystemLogs(
+                        const resp = await AdminApi.getSystemLogs(
                           logsLevel,
                           logsLimit,
                           {
@@ -1219,7 +1220,7 @@ const AdminDashboard: React.FC = () => {
                         const newSkip = logsSkip + logsLimit;
                         if (newSkip >= logsTotal) return;
                         setLogsSkip(newSkip);
-                        const resp = await AdminApiService.getSystemLogs(
+                        const resp = await AdminApi.getSystemLogs(
                           logsLevel,
                           logsLimit,
                           {
@@ -1388,7 +1389,7 @@ const AdminDashboard: React.FC = () => {
                     size="sm"
                     variant="outline"
                     onClick={async () => {
-                      const data = await AdminApiService.getAuditLogs(
+                      const data = await AdminApi.getAuditLogs(
                         auditFilters.skip,
                         auditFilters.limit,
                         auditFilters.userId,
@@ -1425,7 +1426,7 @@ const AdminDashboard: React.FC = () => {
                           auditSkip - auditFilters.limit
                         );
                         setAuditSkip(newSkip);
-                        const resp = await AdminApiService.getAuditLogs(
+                        const resp = await AdminApi.getAuditLogs(
                           newSkip,
                           auditFilters.limit,
                           auditFilters.userId,
@@ -1451,7 +1452,7 @@ const AdminDashboard: React.FC = () => {
                         const newSkip = auditSkip + auditFilters.limit;
                         if (newSkip >= auditTotal) return;
                         setAuditSkip(newSkip);
-                        const resp = await AdminApiService.getAuditLogs(
+                        const resp = await AdminApi.getAuditLogs(
                           newSkip,
                           auditFilters.limit,
                           auditFilters.userId,
@@ -1533,7 +1534,7 @@ const AdminDashboard: React.FC = () => {
                             try {
                               setRefreshing(true);
                               const data =
-                                await AdminApiService.getSecurityAudit({
+                                await AdminApi.getSecurityAudit({
                                   from: securityFrom || undefined,
                                   to: securityTo || undefined,
                                 });
