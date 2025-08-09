@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Badge } from '@/design-system/components/Badge';
 import { Button } from '@/design-system/components/Button';
@@ -15,6 +15,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { dashboardWebSocketService as websocketService } from '../../services/websocket';
+import useWebSocketSubscription from '@/hooks/useWebSocketSubscription';
 
 export interface MetricData {
   id: string;
@@ -195,7 +196,6 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
 }) => {
   const [metrics, setMetrics] = useState<MetricData[]>(initialMetrics);
   const [isLive, setIsLive] = useState(true);
-  const [isConnected, setIsConnected] = useState(false);
   const [updateTimestamps, setUpdateTimestamps] = useState<Map<string, Date>>(
     new Map()
   );
@@ -203,8 +203,6 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
     new Set()
   );
   const [totalUpdates, setTotalUpdates] = useState(0);
-
-  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Handle metric updates from WebSocket
   const handleMetricUpdate = useCallback(
@@ -262,82 +260,36 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
     [fileId, isLive]
   );
 
-  // WebSocket subscription management
-  useEffect(() => {
-    if (!isLive) return;
+  const setupWebSocketSubscription = useCallback(() => {
+    const metricUnsubscribe = websocketService.subscribe(
+      'metric_update',
+      handleMetricUpdate
+    );
 
-    const setupWebSocketSubscription = () => {
-      const wsConnected = websocketService.isConnectionReady();
-      setIsConnected(wsConnected);
-      onConnectionChange?.(wsConnected);
+    const recalcUnsubscribe = websocketService.subscribe(
+      'metrics_recalculation',
+      handleMetricsRecalculation
+    );
 
-      if (wsConnected) {
-        // Subscribe to metric updates
-        const metricUnsubscribe = websocketService.subscribe(
-          'metric_update',
-          handleMetricUpdate
-        );
-
-        // Subscribe to metrics recalculation
-        const recalcUnsubscribe = websocketService.subscribe(
-          'metrics_recalculation',
-          handleMetricsRecalculation
-        );
-
-        unsubscribeRef.current = () => {
-          metricUnsubscribe();
-          recalcUnsubscribe();
-        };
-
-        // Send subscription message for metrics
-        websocketService.send('subscribe_metrics', { file_id: fileId });
-
-        // Subscribed to real-time metrics
-      }
-    };
-
-    setupWebSocketSubscription();
-
-    const unsubscribeStatus = websocketService.subscribeStatus(state => {
-      const wsConnected = state === 'connected';
-      if (wsConnected !== isConnected) {
-        setIsConnected(wsConnected);
-        onConnectionChange?.(wsConnected);
-      }
-
-      if (wsConnected && !unsubscribeRef.current) {
-        setupWebSocketSubscription();
-      } else if (!wsConnected && unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-    });
+    websocketService.send('subscribe_metrics', { file_id: fileId });
 
     return () => {
-      unsubscribeStatus();
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
+      metricUnsubscribe();
+      recalcUnsubscribe();
     };
-  }, [
+  }, [fileId, handleMetricUpdate, handleMetricsRecalculation]);
+
+  const isConnected = useWebSocketSubscription(
     isLive,
-    fileId,
-    handleMetricUpdate,
-    handleMetricsRecalculation,
-    isConnected,
-    onConnectionChange,
-  ]);
+    setupWebSocketSubscription,
+    [fileId, handleMetricUpdate, handleMetricsRecalculation],
+    onConnectionChange
+  );
 
   // Toggle live updates
   const toggleLiveUpdates = useCallback(() => {
     setIsLive(prev => {
       const newState = !prev;
-
-      if (!newState && unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
 
       return newState;
     });

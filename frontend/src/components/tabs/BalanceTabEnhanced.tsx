@@ -14,8 +14,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar,
   LineChart,
   Line,
   ResponsiveContainer,
@@ -25,6 +23,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import CurrencyBarChart from '../Charts/CurrencyBarChart';
 import {
   TrendingUp,
   TrendingDown,
@@ -377,38 +376,11 @@ export function BalanceTabEnhanced({
             title="Liability Structure"
             onRemove={removeWidget}
           >
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={balanceData.liability_breakdown}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="name"
-                  className="text-xs"
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis
-                  className="text-xs"
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={value => formatCurrency(value)}
-                />
-                <Tooltip
-                  formatter={(value: number) => [
-                    formatCurrency(value),
-                    'Amount',
-                  ]}
-                  labelClassName="text-foreground"
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px',
-                  }}
-                />
-                <Bar
-                  dataKey="value"
-                  fill="var(--chart-4)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <CurrencyBarChart
+              data={balanceData.liability_breakdown}
+              tooltipLabel="Amount"
+              barColor="var(--chart-4)"
+            />
           </DraggableWidget>
         )}
 

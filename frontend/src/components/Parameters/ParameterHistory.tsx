@@ -12,6 +12,7 @@ import {
   TableRow 
 } from '@/design-system/components/Table'
 import { Clock, User, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react'
+import LoadingState from './LoadingState'
 import type { Parameter } from './ParameterPanel'
 
 interface ParameterHistoryProps {
@@ -112,12 +113,7 @@ export function ParameterHistory({
         </CardHeader>
 
         <CardContent>
-          {loading && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading history...</p>
-            </div>
-          )}
+          {loading && <LoadingState message="Loading history..." />}
 
           {error && (
             <div className="text-center py-8 text-red-500">

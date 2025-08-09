@@ -4,6 +4,7 @@ import { Badge } from '@/design-system/components/Badge';
 import { cn } from '@/utils/cn';
 import { Play, Pause, RotateCcw, WifiOff, Wifi } from 'lucide-react';
 import { dashboardWebSocketService as websocketService } from '../../services/websocket';
+import useWebSocketSubscription from '@/hooks/useWebSocketSubscription';
 import BaseChart from './BaseChart';
 
 export interface RealtimeChartProps {
@@ -45,11 +46,9 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
 }) => {
   const [chartData, setChartData] = useState(initialData);
   const [isLive, setIsLive] = useState(true);
-  const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [updateCount, setUpdateCount] = useState(0);
 
-  const unsubscribeRef = useRef<(() => void) | null>(null);
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdateRef = useRef<any>(null);
 
@@ -114,76 +113,33 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
     [fileId, chartType, isLive, throttledUpdate]
   );
 
-  // WebSocket subscription management
-  useEffect(() => {
-    if (!isLive) return;
+  const setupWebSocketSubscription = useCallback(() => {
+    const unsubscribe = websocketService.subscribe(
+      'chart_data_update',
+      handleChartUpdate
+    );
 
-    const setupWebSocketSubscription = () => {
-      // Check if WebSocket is connected
-      const wsConnected = websocketService.isConnectionReady();
-      setIsConnected(wsConnected);
-      onConnectionChange?.(wsConnected);
-
-      if (wsConnected) {
-        // Subscribe to chart data updates
-        unsubscribeRef.current = websocketService.subscribe(
-          'chart_data_update',
-          handleChartUpdate
-        );
-
-        // Send subscription message for this specific chart
-        websocketService.send('subscribe_chart', {
-          file_id: fileId,
-          chart_type: chartType,
-          max_points: maxDataPoints,
-        });
-
-        // Subscribed to real-time updates for chart
-      }
-    };
-
-    setupWebSocketSubscription();
-
-    const unsubscribeStatus = websocketService.subscribeStatus(state => {
-      const wsConnected = state === 'connected';
-      if (wsConnected !== isConnected) {
-        setIsConnected(wsConnected);
-        onConnectionChange?.(wsConnected);
-      }
-
-      if (wsConnected && !unsubscribeRef.current) {
-        setupWebSocketSubscription();
-      } else if (!wsConnected && unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
+    websocketService.send('subscribe_chart', {
+      file_id: fileId,
+      chart_type: chartType,
+      max_points: maxDataPoints,
     });
 
-    return () => {
-      unsubscribeStatus();
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-    };
-  }, [
+    return unsubscribe;
+  }, [fileId, chartType, maxDataPoints, handleChartUpdate]);
+
+  const isConnected = useWebSocketSubscription(
     isLive,
-    fileId,
-    chartType,
-    maxDataPoints,
-    handleChartUpdate,
-    isConnected,
-    onConnectionChange,
-  ]);
+    setupWebSocketSubscription,
+    [fileId, chartType, maxDataPoints, handleChartUpdate],
+    onConnectionChange
+  );
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
-      }
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
       }
     };
   }, []);
@@ -192,12 +148,6 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
   const toggleLiveUpdates = useCallback(() => {
     setIsLive(prev => {
       const newState = !prev;
-
-      if (!newState && unsubscribeRef.current) {
-        // Unsubscribe when pausing
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
 
       return newState;
     });
