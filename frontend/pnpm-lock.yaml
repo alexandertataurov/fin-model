@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 lockfileVersion: '6.0'
 =======
 lockfileVersion: '9.0'
 >>>>>>> 1e86ba1 (chore(frontend): update pnpm lock)
+=======
+# lockfileVersion: '9.0'
+>>>>>>> b150727 (Update frontend/pnpm-lock.yaml)
 
 settings:
   autoInstallPeers: true
