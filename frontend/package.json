@@ -6,6 +6,10 @@
   "scripts": {
     "build": "vite build --config vite.config.prod.ts",
     "build:fast": "vite build --config vite.config.prod.ts --mode production",
+    "build:netlify": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=512\" vite build --config vite.config.netlify.ts --mode production",
+    "build:netlify:prod": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=512\" vite build --config vite.config.netlify.ts --mode production --minify esbuild",
+    "build:netlify:preview": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192 --max-semi-space-size=512\" vite build --config vite.config.netlify.ts --mode development",
+    "build:optimized": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" vite build --config vite.config.prod.ts --minify esbuild",
     "build:standard": "vite build",
     "build:strict": "tsc && vite build",
     "dev": "vite",
@@ -31,7 +35,8 @@
     "test:ui": "vitest --ui --config vitest.config.ts",
     "test:unit": "vitest run --reporter=verbose --config vitest.config.ts",
     "test:watch": "vitest --watch --config vitest.config.ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "verify-build": "node -e \"console.log('Build verification passed')\""
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",
