@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "packageManager": "npm@10.9.3",
   "scripts": {
     "build": "vite build --config vite.config.prod.ts",
     "build:fast": "vite build --config vite.config.prod.ts --mode production",
@@ -160,7 +159,8 @@
         "@types/react",
         "@types/react-dom"
       ]
-    }
+    },
+    "ignoredBuiltDependencies": []
   },
   "msw": {
     "workerDirectory": [

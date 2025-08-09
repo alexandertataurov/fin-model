@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "npm@10.9.3",
   "description": "FinVision is a comprehensive web-based financial modeling and analysis platform that transforms static Excel financial models into dynamic, interactive dashboards with real-time parameter adjustment capabilities.",
   "directories": {
     "doc": "docs"
