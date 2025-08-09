@@ -6,21 +6,26 @@ The design system exposes a consolidated set of tokens generated from `frontend/
 
 - `color.hover.primary` → `#2563eb`
 - `color.active.primary` → `#1d4ed8`
+- `color.hover.secondary` → `#475569`
+- `color.active.destructive` → `#b91c1c`
 
 ## Border Width
 
 - `border.width.sm` → `1px`
 - `border.width.md` → `2px`
+- `border.width.lg` → `4px`
 
 ## Typography Letter Spacing
 
 - `typography.letterSpacing.tight` → `-0.025em`
 - `typography.letterSpacing.wide` → `0.025em`
+- `typography.letterSpacing.tighter` → `-0.05em`
 
 ## Motion Easing
 
 - `motion.easing.in` → `cubic-bezier(0.4, 0, 1, 1)`
 - `motion.easing.inOut` → `cubic-bezier(0.4, 0, 0.2, 1)`
+- `motion.easing.out` → `cubic-bezier(0, 0, 0.2, 1)`
 
 These tokens can be consumed in components via the `getToken` helper:
 
