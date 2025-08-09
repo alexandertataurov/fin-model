@@ -15,13 +15,8 @@ import type {
   LogEntry,
   UserPermissions,
   AuditEntry,
-<<<<<<< HEAD
-} from '@/services/admin';
-=======
 } from '@/services/adminApi';
 import { UserActivity } from '@/types/admin';
->>>>>>> pre-production
-import { toast } from 'sonner';
 import { createAsyncResource } from './utils';
 
 // Normalized data types
