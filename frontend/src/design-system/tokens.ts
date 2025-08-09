@@ -2,6 +2,7 @@ import tokensJson from './tokens.json';
 
 export const tokens = tokensJson as const;
 
+
 export const cssVariables = {
   light: {},
   dark: {},
@@ -16,3 +17,4 @@ export const getCSSVariable = (name: string) => {
 };
 
 export default tokens;
+
