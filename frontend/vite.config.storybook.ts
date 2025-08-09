@@ -13,30 +13,20 @@ export default defineConfig({
       '@components': resolve(__dirname, './src/components'),
     },
   },
-  // Performance optimizations
+  // Simplified build config for Storybook compatibility
   build: {
     target: 'esnext',
-    minify: 'esbuild',
     rollupOptions: {
-      external: ['@storybook/globalThis'],
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          designSystem: ['@/design-system'],
-        },
+        format: 'es',
       },
     },
   },
   // Optimize dependencies
   optimizeDeps: {
     include: ['react', 'react-dom'],
-    exclude: ['@storybook/addon-essentials'],
   },
-  // Faster HMR
-  server: {
-    hmr: false, // Disable HMR in Storybook
-  },
-  // CSS optimization - simplified for Storybook
+  // CSS optimization
   css: {
     postcss: './postcss.config.js',
   },

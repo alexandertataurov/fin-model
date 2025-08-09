@@ -65,6 +65,12 @@ const config: StorybookConfig = {
       global: 'globalThis',
     } as Record<string, any>;
 
+    // Fix dynamic import issues
+    config.build = config.build || {};
+    config.build.rollupOptions = config.build.rollupOptions || {};
+    config.build.rollupOptions.output = config.build.rollupOptions.output || {};
+    config.build.rollupOptions.output.format = 'es';
+
     if (Array.isArray(config.plugins)) {
       // Remove any duplicate React plugins to avoid duplicate RefreshRuntime
       const hasReactPlugin = config.plugins.some((p: any) => p && (p.name === 'vite:react'));
