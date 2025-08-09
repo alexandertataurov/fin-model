@@ -4,7 +4,7 @@ Provides centralized management of maintenance schedules.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from app.models.maintenance import MaintenanceSchedule
@@ -59,8 +59,8 @@ class MaintenanceService:
                 schedule=schedule,
                 enabled=enabled,
                 created_by=created_by,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
             )
             self.db.add(schedule_obj)
             self.db.commit()
@@ -93,7 +93,7 @@ class MaintenanceService:
             if enabled is not None:
                 schedule_obj.enabled = enabled
 
-            schedule_obj.updated_at = datetime.utcnow()
+            schedule_obj.updated_at = datetime.now(timezone.utc)
             self.db.commit()
             return schedule_obj
         except Exception as e:
@@ -150,7 +150,7 @@ class MaintenanceService:
                 schedule_obj.task = task
                 schedule_obj.schedule = schedule
                 schedule_obj.enabled = enabled
-                schedule_obj.updated_at = datetime.utcnow()
+                schedule_obj.updated_at = datetime.now(timezone.utc)
             else:
                 schedule_obj = MaintenanceSchedule(
                     id=id,
@@ -158,8 +158,8 @@ class MaintenanceService:
                     task=task,
                     schedule=schedule,
                     enabled=enabled,
-                    created_at=datetime.utcnow(),
-                    updated_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc),
                 )
                 self.db.add(schedule_obj)
 

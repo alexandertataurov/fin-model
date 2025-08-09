@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from app.api.v1.endpoints.admin import router as admin_router
 from app.models.audit import AuditLog
@@ -28,7 +28,7 @@ def _seed_data():
             is_active=True,
             is_admin=False,
             is_verified=True,
-            last_login=datetime.utcnow(),
+            last_login=datetime.now(timezone.utc),
         )
         u2 = User(
             email="u2@example.com",
@@ -38,7 +38,7 @@ def _seed_data():
             is_active=True,
             is_admin=False,
             is_verified=True,
-            last_login=datetime.utcnow(),
+            last_login=datetime.now(timezone.utc),
         )
         db.add_all([u1, u2])
         db.commit()
