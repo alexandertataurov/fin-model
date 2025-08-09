@@ -196,19 +196,15 @@ class MetricsCalculationService:
 
         # EBITDA Margin = EBITDA / Revenue
         ebitda = self._safe_get_numeric(pl_data, ["ebitda"])
-        ebitda_margin = None
-        if ebitda is not None:
-            ebitda_margin = (ebitda / revenue) * 100
-        elif operating_income is not None:
-            # Estimate EBITDA as Operating Income + Depreciation
+        if ebitda is None and operating_income is not None:
             depreciation = (
                 self._safe_get_numeric(
                     pl_data, ["depreciation", "depreciation_amortization"]
                 )
                 or 0
             )
-            estimated_ebitda = operating_income + depreciation
-            ebitda_margin = (estimated_ebitda / revenue) * 100
+            ebitda = operating_income + depreciation
+        ebitda_margin = (ebitda / revenue) * 100 if ebitda is not None else None
 
         return Margins(
             gross_margin=gross_margin,
