@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BaseChart } from './BaseChart';
+import BaseChart from './BaseChart';
 
 const meta: Meta<typeof BaseChart> = {
   title: 'Components/BaseChart',

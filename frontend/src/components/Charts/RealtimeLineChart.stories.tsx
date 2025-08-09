@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { RealtimeLineChart } from './RealtimeLineChart';
+import RealtimeLineChart from './RealtimeLineChart';
 
 const meta: Meta<typeof RealtimeLineChart> = {
   title: 'Components/RealtimeLineChart',

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DistributionChart } from './DistributionChart';
+import DistributionChart from './DistributionChart';
 
 const meta: Meta<typeof DistributionChart> = {
   title: 'Components/DistributionChart',

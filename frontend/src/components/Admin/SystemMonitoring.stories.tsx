@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SystemMonitoring } from './SystemMonitoring';
+import SystemMonitoring from './SystemMonitoring';
 
 const meta: Meta<typeof SystemMonitoring> = {
   title: 'Components/SystemMonitoring',

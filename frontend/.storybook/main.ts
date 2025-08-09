@@ -13,7 +13,8 @@ const config: StorybookConfig = {
     reactDocgen: 'react-docgen-typescript',
   },
   stories: [
-    '../src/design-system/**/*.stories.@(ts|tsx|mdx)'
+    '../src/design-system/**/*.stories.@(ts|tsx|mdx)',
+    '../src/**/*.stories.@(ts|tsx|mdx)'
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -30,6 +31,7 @@ const config: StorybookConfig = {
   docs: {
     autodocs: true,
   },
+  staticDirs: ['../public'],
   viteFinal: async (config) => {
     // Ensure PostCSS with Tailwind runs inside Storybook
     (config as any).css = {

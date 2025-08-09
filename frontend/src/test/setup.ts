@@ -45,8 +45,9 @@ vi.mock('sonner', () => ({
 }));
 
 // Provide authenticated user so admin pages render without routing/provider
+// Allow tests to override via globalThis.__TEST_USER__
 vi.mock('@/contexts/AuthContext', () => ({
-    useAuth: () => ({ user: { id: 1, username: 'Test User', email: 'test@example.com' } }),
+    useAuth: () => ({ user: (globalThis as any).__TEST_USER__ ?? { id: 1, username: 'Test User', email: 'test@example.com' } }),
 }));
 
 // Stub navigation to avoid needing a Router wrapper in unit tests

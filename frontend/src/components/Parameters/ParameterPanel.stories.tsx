@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ParameterPanel } from './ParameterPanel';
+import ParameterPanel from './ParameterPanel';
 
 const meta: Meta<typeof ParameterPanel> = {
   title: 'Components/ParameterPanel',

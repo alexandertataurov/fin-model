@@ -28,17 +28,13 @@ try:
     logger.info("fastapi_cache2 is available and will be used for caching")
 except ImportError as e:
     CACHE_AVAILABLE = False
-    logger.info(
-        f"fastapi_cache2 not available: {e}. Using Redis caching instead."
-    )
+    logger.info(f"fastapi_cache2 not available: {e}. Using Redis caching instead.")
     # Create dummy classes for fallback
 
     class FastAPICache:
         @staticmethod
         def init(*args, **kwargs):
-            logger.warning(
-                "Cache initialization skipped - fastapi_cache not available"
-            )
+            logger.warning("Cache initialization skipped - fastapi_cache not available")
 
     class InMemoryBackend:
         pass
@@ -68,11 +64,22 @@ app = FastAPI(
 
 # Set up CORS with explicit origins
 cors_origins = settings.get_cors_origins()
+# With credentials enabled, '*' is invalid; strip it when combined
+if "*" in cors_origins and len(cors_origins) > 1:
+    cors_origins = [o for o in cors_origins if o != "*"]
 logger.info("CORS origins configured: %s", cors_origins)
+
+# Regex to allow any Netlify/Railway subdomain and Netlify deploy-preview style
+cors_origin_regex = (
+    r"^https://[A-Za-z0-9-]+\.[A-Za-z0-9-]+\.(netlify|railway)\.app$|"
+    r"^https://[A-Za-z0-9-]+--[A-Za-z0-9-]+\.netlify\.app$"
+)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
+    # Allow any Netlify/Railway subdomain via regex
+    allow_origin_regex=cors_origin_regex,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=[
@@ -173,22 +180,7 @@ async def cors_debug():
     )
 
 
-@app.options("/{full_path:path}")
-async def cors_preflight(full_path: str):
-    """Handle CORS preflight requests for all paths."""
-    return JSONResponse(
-        content={"message": "CORS preflight successful"},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": (
-                "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-            ),
-            "Access-Control-Allow-Headers": (
-                "Content-Type, Authorization, X-Requested-With"
-            ),
-            "Access-Control-Max-Age": "86400",
-        },
-    )
+# Note: Let CORSMiddleware handle OPTIONS automatically.
 
 
 if __name__ == "__main__":

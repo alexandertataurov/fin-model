@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ImpactAnalysis } from './ImpactAnalysis';
+import ImpactAnalysis from './ImpactAnalysis';
 
 const meta: Meta<typeof ImpactAnalysis> = {
   title: 'Components/ImpactAnalysis',

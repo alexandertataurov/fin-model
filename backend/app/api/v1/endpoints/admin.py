@@ -1412,6 +1412,13 @@ async def get_system_logs(
         return items
 
     except Exception as e:
+        # Graceful fallback for missing table or schema issues
+        msg = str(e)
+        if ("relation" in msg.lower() and "system_logs" in msg.lower()) or (
+            "no such table" in msg.lower() and "system_logs" in msg.lower()
+        ):
+            empty = {"items": [], "skip": skip, "limit": limit, "total": 0}
+            return empty if envelope else []
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get system logs: {str(e)}",

@@ -42,7 +42,10 @@ const preview: Preview = {
       defaultTheme: 'light',
     }),
     (Story) => (
-      <DesignSystemProvider>
+      <DesignSystemProvider
+        defaultDensity={(globalThis as any).STORYBOOK_GLOBALS?.density || 'comfortable'}
+        defaultRadius={(globalThis as any).STORYBOOK_GLOBALS?.radius || 'md'}
+      >
         <div className="min-h-screen bg-background text-foreground">
           <Story />
         </div>

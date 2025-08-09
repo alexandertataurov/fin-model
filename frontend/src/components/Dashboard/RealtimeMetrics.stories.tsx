@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { RealtimeMetrics } from './RealtimeMetrics';
+import RealtimeMetrics from './RealtimeMetrics';
 
 const meta: Meta<typeof RealtimeMetrics> = {
   title: 'Components/RealtimeMetrics',

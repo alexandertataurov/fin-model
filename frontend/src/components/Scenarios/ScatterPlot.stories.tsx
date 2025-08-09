@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ScatterPlot } from './ScatterPlot';
+import ScatterPlot from './ScatterPlot';
 
 const meta: Meta<typeof ScatterPlot> = {
   title: 'Components/ScatterPlot',

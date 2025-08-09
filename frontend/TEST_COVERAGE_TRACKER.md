@@ -14,19 +14,19 @@
 - [x] UI: Logs filters pass correct params
   - [x] level, limit, date-from/to, search
   - [x] prev/next disabled/enabled logic with totals
+- [x] UI: Auto-refresh toggle
+  - [x] when off, prevents periodic getSystemMetrics/getSystemLogs
+- [x] UI: Access control
+  - [x] redirects to /login when unauthenticated
 
 ## Pending (to implement)
 
-- [ ] UI: Audit filters pass correct params
+- [ ] UI: Audit filters pass correct params (stabilize timing)
   - [ ] skip/limit, userId, action, date-from/to
   - [ ] prev/next disabled/enabled logic with totals
-- [ ] UI: Auto-refresh toggle
-  - [ ] when off, prevents periodic getSystemMetrics/getSystemLogs
 - [ ] UI: Robustness
   - [ ] partial failures → warning toast
   - [ ] all failures → error toast
-- [ ] UI: Access control
-  - [ ] redirects to /login when unauthenticated
 - [ ] UI: Health tab
   - [ ] system/db health present vs absent render states
 - [ ] UI: Metrics alerts

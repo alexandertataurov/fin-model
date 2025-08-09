@@ -19,41 +19,31 @@ api_router = APIRouter()
 # Include authentication routes
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 
-# Include MFA routes
-api_router.include_router(
-    mfa.router, prefix="/auth/mfa", tags=["multi-factor-auth"]
-)
+# Include MFA routes (both new and legacy prefixes)
+api_router.include_router(mfa.router, prefix="/auth/mfa", tags=["multi-factor-auth"])
+api_router.include_router(mfa.router, prefix="/mfa", tags=["multi-factor-auth"])
 
 # Include OAuth routes
 api_router.include_router(oauth.router, prefix="/auth/oauth", tags=["oauth"])
 
-# Include WebAuthn routes
-api_router.include_router(
-    webauthn.router, prefix="/auth/webauthn", tags=["webauthn"]
-)
+# Include WebAuthn routes (both new and legacy prefixes)
+api_router.include_router(webauthn.router, prefix="/auth/webauthn", tags=["webauthn"])
+api_router.include_router(webauthn.router, prefix="/webauthn", tags=["webauthn"])
 
 # Include admin routes
-api_router.include_router(
-    admin.router, prefix="/admin", tags=["administration"]
-)
+api_router.include_router(admin.router, prefix="/admin", tags=["administration"])
 
 # Include file upload routes
 api_router.include_router(files.router, prefix="/files", tags=["file-upload"])
 
 # Include dashboard routes
-api_router.include_router(
-    dashboard.router, prefix="/dashboard", tags=["dashboard"]
-)
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 
 # Include parameter management routes
-api_router.include_router(
-    parameters.router, prefix="/parameters", tags=["parameters"]
-)
+api_router.include_router(parameters.router, prefix="/parameters", tags=["parameters"])
 
 # Include scenario management routes
-api_router.include_router(
-    scenarios.router, prefix="/scenarios", tags=["scenarios"]
-)
+api_router.include_router(scenarios.router, prefix="/scenarios", tags=["scenarios"])
 
 # Include financial statements routes
 api_router.include_router(

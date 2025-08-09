@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ParameterGroup } from './ParameterGroup';
+import ParameterGroup from './ParameterGroup';
 
 const meta: Meta<typeof ParameterGroup> = {
   title: 'Components/ParameterGroup',

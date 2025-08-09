@@ -366,56 +366,56 @@ const AdminDashboard: React.FC = () => {
           <TabsList className="w-full overflow-x-auto flex gap-1.5">
             <TabsTrigger
               value="overview"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 shrink-0"
             >
               <Activity className="h-4 w-4" />
               <span className="hidden lg:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center space-x-2">
+            <TabsTrigger value="users" className="flex items-center space-x-2 shrink-0">
               <Users className="h-4 w-4" />
               <span className="hidden lg:inline">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="system" className="flex items-center space-x-2">
+            <TabsTrigger value="system" className="flex items-center space-x-2 shrink-0">
               <Server className="h-4 w-4" />
               <span className="hidden lg:inline">System</span>
             </TabsTrigger>
             <TabsTrigger
               value="database"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 shrink-0"
             >
               <Database className="h-4 w-4" />
               <span className="hidden lg:inline">Database</span>
             </TabsTrigger>
             <TabsTrigger
               value="security"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 shrink-0"
             >
               <Shield className="h-4 w-4" />
               <span className="hidden lg:inline">Security</span>
             </TabsTrigger>
             <TabsTrigger
               value="maintenance"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 shrink-0"
             >
               <Settings className="h-4 w-4" />
               <span className="hidden lg:inline">Maintenance</span>
             </TabsTrigger>
-            <TabsTrigger value="health" className="flex items-center space-x-2">
+            <TabsTrigger value="health" className="flex items-center space-x-2 shrink-0">
               <Activity className="h-4 w-4" />
               <span className="hidden lg:inline">Health</span>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="flex items-center space-x-2">
+            <TabsTrigger value="logs" className="flex items-center space-x-2 shrink-0">
               <FileText className="h-4 w-4" />
               <span className="hidden lg:inline">Logs</span>
             </TabsTrigger>
             <TabsTrigger
               value="permissions"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 shrink-0"
             >
               <Shield className="h-4 w-4" />
               <span className="hidden lg:inline">Permissions</span>
             </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center space-x-2">
+            <TabsTrigger value="audit" className="flex items-center space-x-2 shrink-0">
               <FileText className="h-4 w-4" />
               <span className="hidden lg:inline">Audit</span>
             </TabsTrigger>

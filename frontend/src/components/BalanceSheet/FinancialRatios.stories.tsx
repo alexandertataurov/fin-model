@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FinancialRatios } from './FinancialRatios';
+import FinancialRatios from './FinancialRatios';
 
 const meta: Meta<typeof FinancialRatios> = {
   title: 'Components/FinancialRatios',
