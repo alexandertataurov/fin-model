@@ -255,7 +255,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
   const getDistributionFields = (
     distribution: Distribution,
     onChange: (updates: Partial<Distribution>) => void
-  ) => {
+  const renderNormalDistribution = (distribution: Distribution, onChange: (updates: Partial<Distribution>) => void) => ( <div className="grid grid-cols-2 gap-2"> <div> <Label>Mean</Label> <Input type="number" value={distribution.mean || 0} onChange={e => onChange({ mean: Number(e.target.value) })} /> </div> </div> );
     switch (distribution.type) {
       case 'normal':
         return (
