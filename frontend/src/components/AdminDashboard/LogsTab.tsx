@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/design-system/components/Card';
-import { useLogFilters } from '@/hooks/useLogFilters';
+import { useAdminStore } from '@/stores/adminStore';
 import LogFilterForm from './LogFilterForm';
 
 const LogsTab: React.FC = () => {
@@ -25,12 +25,12 @@ const LogsTab: React.FC = () => {
           from={from}
           to={to}
           search={search}
-          total={total}
           skip={skip}
-          onFilterChange={handleFilterChange}
+          total={total}
+          onChange={handleFilterChange}
+          onRefresh={handleRefresh}
           onPrev={handlePrev}
           onNext={handleNext}
-          onRefresh={handleRefresh}
         />
         <div className="border rounded">
           <div className="max-h-96 overflow-auto text-xs font-mono">

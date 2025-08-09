@@ -1,33 +1,35 @@
 import React from 'react';
 import { Button } from '@/design-system/components/Button';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/design-system/components/Select';
 import { Input } from '@/design-system/components/Input';
-import type { LogsState } from '@/stores/admin/types';
+import { DatePicker } from '@/design-system/components/DatePicker';
 
 interface LogFilterFormProps {
-  level: LogsState['level'];
+  level: string;
   limit: number;
   from: string;
   to: string;
   search: string;
-  total: number;
   skip: number;
-  onFilterChange: (
-    updates: Partial<Omit<LogsState, 'items' | 'total'>>
-  ) => Promise<void> | void;
-  onPrev: () => Promise<void> | void;
-  onNext: () => Promise<void> | void;
-  onRefresh: () => Promise<void> | void;
+  total: number;
+  onChange: (updates: Partial<{
+    level: string;
+    limit: number;
+    from: string;
+    to: string;
+    search: string;
+    skip: number;
+  }>) => void | Promise<void>;
+  onRefresh: () => void | Promise<void>;
+  onPrev: () => void | Promise<void>;
+  onNext: () => void | Promise<void>;
 }
-
-const levels: LogsState['level'][] = [
-  'DEBUG',
-  'INFO',
-  'WARNING',
-  'ERROR',
-  'CRITICAL',
-];
-
-const limits = [50, 100, 200, 500];
 
 const LogFilterForm: React.FC<LogFilterFormProps> = ({
   level,
@@ -35,59 +37,51 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
   from,
   to,
   search,
-  total,
   skip,
-  onFilterChange,
+  total,
+  onChange,
+  onRefresh,
   onPrev,
   onNext,
-  onRefresh,
 }) => {
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
-      <select
-        className="border rounded px-2 py-1 bg-background text-sm"
-        value={level}
-        onChange={e =>
-          onFilterChange({ level: e.target.value as any, skip: 0 })
-        }
+      <Select value={level} onValueChange={v => onChange({ level: v, skip: 0 })}>
+        <SelectTrigger className="w-[110px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(l => (
+            <SelectItem key={l} value={l}>
+              {l}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={String(limit)}
+        onValueChange={v => onChange({ limit: Number(v), skip: 0 })}
       >
-        {levels.map(l => (
-          <option key={l} value={l}>
-            {l}
-          </option>
-        ))}
-      </select>
-      <select
-        className="border rounded px-2 py-1 bg-background text-sm"
-        value={limit}
-        onChange={e =>
-          onFilterChange({ limit: Number(e.target.value), skip: 0 })
-        }
-      >
-        {limits.map(l => (
-          <option key={l} value={l}>
-            {l}
-          </option>
-        ))}
-      </select>
-      <Input
-        type="date"
-        className="w-40"
-        value={from}
-        onChange={e => onFilterChange({ from: e.target.value, skip: 0 })}
-      />
-      <Input
-        type="date"
-        className="w-40"
-        value={to}
-        onChange={e => onFilterChange({ to: e.target.value, skip: 0 })}
-      />
+        <SelectTrigger className="w-[90px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {[50, 100, 200, 500].map(l => (
+            <SelectItem key={l} value={String(l)}>
+              {l}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <DatePicker value={from} onChange={e => onChange({ from: e.target.value, skip: 0 })} />
+      <DatePicker value={to} onChange={e => onChange({ to: e.target.value, skip: 0 })} />
       <Input
         type="text"
         placeholder="Search"
-        className="w-40"
         value={search}
-        onChange={e => onFilterChange({ search: e.target.value, skip: 0 })}
+        onChange={e => onChange({ search: e.target.value, skip: 0 })}
       />
       <Button size="sm" variant="outline" onClick={onRefresh}>
         Refresh Logs
@@ -98,12 +92,7 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
             ? `${Math.min(skip + 1, total)}-${Math.min(skip + limit, total)} of ${total}`
             : '0-0 of 0'}
         </span>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onPrev}
-          disabled={skip <= 0}
-        >
+        <Button size="sm" variant="outline" onClick={onPrev} disabled={skip <= 0}>
           Prev
         </Button>
         <Button
