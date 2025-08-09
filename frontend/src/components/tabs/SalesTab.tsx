@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { DraggableWidget } from '../draggable-widget'
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
 import { TrendingUp, Users, Target, ShoppingCart, Plus } from 'lucide-react'
-import { Button } from '../ui/button'
-import { Progress } from '../ui/progress'
+import { Button } from '@/design-system/components/Button'
+import { Progress } from '@/design-system/components/Progress'
 
 const salesData = [
   { month: 'Jan', sales: 45000, leads: 320, conversion: 14.1 },

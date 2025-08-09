@@ -80,7 +80,10 @@ class SensitivityAnalyzer:
         # Get base scenario
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -89,7 +92,9 @@ class SensitivityAnalyzer:
 
         # Get target parameter
         target_param = (
-            self.db.query(Parameter).filter(Parameter.id == target_parameter_id).first()
+            self.db.query(Parameter)
+            .filter(Parameter.id == target_parameter_id)
+            .first()
         )
 
         if not target_param:
@@ -130,7 +135,9 @@ class SensitivityAnalyzer:
         )
 
         # Generate chart data
-        chart_data = await self._generate_tornado_chart_data(sensitivity_results)
+        chart_data = await self._generate_tornado_chart_data(
+            sensitivity_results
+        )
 
         # Create analysis record
         analysis = SensitivityAnalysis(
@@ -164,7 +171,8 @@ class SensitivityAnalyzer:
                 if sensitivity_results
                 else None,
                 "total_variance_explained": sum(
-                    abs(r.sensitivity_coefficient) for r in sensitivity_results[:5]
+                    abs(r.sensitivity_coefficient)
+                    for r in sensitivity_results[:5]
                 ),
             },
             status="completed",
@@ -215,7 +223,10 @@ class SensitivityAnalyzer:
         # Get base scenario and target parameter
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -223,7 +234,9 @@ class SensitivityAnalyzer:
             raise ValueError("Scenario not found")
 
         target_param = (
-            self.db.query(Parameter).filter(Parameter.id == target_parameter_id).first()
+            self.db.query(Parameter)
+            .filter(Parameter.id == target_parameter_id)
+            .first()
         )
 
         if not target_param:
@@ -254,10 +267,14 @@ class SensitivityAnalyzer:
                 if param and param.source_cell:
                     cell_ref = f"{param.source_sheet}!{param.source_cell}"
                     sample_value = parameter_samples[j][i]
-                    self.formula_engine.update_cell_value(cell_ref, sample_value)
+                    self.formula_engine.update_cell_value(
+                        cell_ref, sample_value
+                    )
 
             # Calculate target value
-            target_cell_ref = f"{target_param.source_sheet}!{target_param.source_cell}"
+            target_cell_ref = (
+                f"{target_param.source_sheet}!{target_param.source_cell}"
+            )
             result = self.formula_engine.calculate_cell(target_cell_ref)
 
             if result.error is None:
@@ -269,7 +286,9 @@ class SensitivityAnalyzer:
         valid_outcomes = [x for x in outcomes if not np.isnan(x)]
 
         if len(valid_outcomes) < iterations * 0.5:
-            raise ValueError("Too many calculation errors in Monte Carlo simulation")
+            raise ValueError(
+                "Too many calculation errors in Monte Carlo simulation"
+            )
 
         # Calculate statistics
         outcomes_array = np.array(valid_outcomes)
@@ -321,7 +340,9 @@ class SensitivityAnalyzer:
             results=[
                 {
                     "parameter_id": config.parameter_id,
-                    "correlation": parameter_correlations.get(config.parameter_id, 0),
+                    "correlation": parameter_correlations.get(
+                        config.parameter_id, 0
+                    ),
                 }
                 for config in input_parameters
             ],
@@ -370,7 +391,15 @@ class SensitivityAnalyzer:
         target_parameter_id: int,
         input_parameters: List[SensitivityConfig],
         user_id: int,
-        variation_percentages: List[float] = [-30, -20, -10, 0, 10, 20, 30],
+        variation_percentages: List[float] = [
+            -30,
+            -20,
+            -10,
+            0,
+            10,
+            20,
+            30,
+        ],
     ) -> Dict[str, Any]:
         """
         Run spider chart analysis showing parameter variation effects.
@@ -378,7 +407,10 @@ class SensitivityAnalyzer:
         # Get base scenario and target parameter
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -386,7 +418,9 @@ class SensitivityAnalyzer:
             raise ValueError("Scenario not found")
 
         target_param = (
-            self.db.query(Parameter).filter(Parameter.id == target_parameter_id).first()
+            self.db.query(Parameter)
+            .filter(Parameter.id == target_parameter_id)
+            .first()
         )
 
         if not target_param:
@@ -416,7 +450,9 @@ class SensitivityAnalyzer:
                 continue
 
             # Get base parameter value
-            base_param_value = await self._get_parameter_value(param, scenario_id)
+            base_param_value = await self._get_parameter_value(
+                param, scenario_id
+            )
 
             # Calculate target values for each variation
             variation_results = {}
@@ -446,7 +482,9 @@ class SensitivityAnalyzer:
                     variation_results[variation_pct] = 0
 
                 # Reset parameter value
-                self.formula_engine.update_cell_value(cell_ref, base_param_value)
+                self.formula_engine.update_cell_value(
+                    cell_ref, base_param_value
+                )
 
             spider_results[config.parameter_id] = {
                 "parameter_name": param.display_name or param.name,
@@ -532,21 +570,29 @@ class SensitivityAnalyzer:
         Calculate sensitivity coefficient for a single parameter.
         """
         # Get base parameter value
-        base_param_value = await self._get_parameter_value(parameter, scenario_id)
+        base_param_value = await self._get_parameter_value(
+            parameter, scenario_id
+        )
 
         # Calculate at min and max values
         cell_ref = f"{parameter.source_sheet}!{parameter.source_cell}"
-        target_cell_ref = f"{target_param.source_sheet}!{target_param.source_cell}"
+        target_cell_ref = (
+            f"{target_param.source_sheet}!{target_param.source_cell}"
+        )
 
         # Min value calculation
         self.formula_engine.update_cell_value(cell_ref, config.min_value)
         min_result = self.formula_engine.calculate_cell(target_cell_ref)
-        min_target_value = min_result.value if min_result.error is None else base_value
+        min_target_value = (
+            min_result.value if min_result.error is None else base_value
+        )
 
         # Max value calculation
         self.formula_engine.update_cell_value(cell_ref, config.max_value)
         max_result = self.formula_engine.calculate_cell(target_cell_ref)
-        max_target_value = max_result.value if max_result.error is None else base_value
+        max_target_value = (
+            max_result.value if max_result.error is None else base_value
+        )
 
         # Reset to base value
         self.formula_engine.update_cell_value(cell_ref, base_param_value)
@@ -589,7 +635,9 @@ class SensitivityAnalyzer:
                 )
             elif config.distribution == "normal":
                 mean = config.mean or (config.min_value + config.max_value) / 2
-                std_dev = config.std_dev or (config.max_value - config.min_value) / 6
+                std_dev = (
+                    config.std_dev or (config.max_value - config.min_value) / 6
+                )
                 sample = np.random.normal(mean, std_dev, iterations)
                 # Clip to bounds
                 sample = np.clip(sample, config.min_value, config.max_value)
@@ -622,7 +670,9 @@ class SensitivityAnalyzer:
             parameter = param_value.parameter
             if parameter and parameter.source_cell:
                 cell_ref = f"{parameter.source_sheet}!{parameter.source_cell}"
-                self.formula_engine.update_cell_value(cell_ref, param_value.value)
+                self.formula_engine.update_cell_value(
+                    cell_ref, param_value.value
+                )
 
     async def _get_parameter_value(
         self, parameter: Parameter, scenario_id: int
@@ -721,7 +771,9 @@ class SensitivityAnalyzer:
         }
 
     async def _generate_spider_chart_data(
-        self, spider_results: Dict[int, Dict], variation_percentages: List[float]
+        self,
+        spider_results: Dict[int, Dict],
+        variation_percentages: List[float],
     ) -> Dict[str, Any]:
         """
         Generate chart data for spider chart visualization.

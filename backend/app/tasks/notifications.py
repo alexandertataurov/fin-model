@@ -48,7 +48,9 @@ def send_processing_notification(
     """
     try:
         # Get file and user information
-        file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        file_record = (
+            db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        )
         user = db.query(User).filter(User.id == user_id).first()
 
         if not file_record or not user:
@@ -89,11 +91,16 @@ def send_processing_notification(
         }
 
     except Exception as e:
-        return {"status": "error", "message": f"Failed to send notification: {str(e)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to send notification: {str(e)}",
+        }
 
 
 @celery_app.task(
-    bind=True, base=DatabaseTask, name="app.tasks.notifications.send_weekly_summary"
+    bind=True,
+    base=DatabaseTask,
+    name="app.tasks.notifications.send_weekly_summary",
 )
 def send_weekly_summary(self, db: Session) -> dict:
     """
@@ -133,7 +140,9 @@ def send_weekly_summary(self, db: Session) -> dict:
         notifications_sent = 0
 
         for stats in stats_query:
-            user = db.query(User).filter(User.id == stats.uploaded_by_id).first()
+            user = (
+                db.query(User).filter(User.id == stats.uploaded_by_id).first()
+            )
             if user:
                 summary_data = {
                     "user_email": user.email,
@@ -143,7 +152,8 @@ def send_weekly_summary(self, db: Session) -> dict:
                     "completed_files": stats.completed_files,
                     "failed_files": stats.failed_files,
                     "success_rate": round(
-                        (stats.completed_files / stats.total_files) * 100, 1
+                        (stats.completed_files / stats.total_files) * 100,
+                        1,
                     )
                     if stats.total_files > 0
                     else 0,
@@ -175,7 +185,9 @@ def send_weekly_summary(self, db: Session) -> dict:
 
 
 @celery_app.task(name="app.tasks.notifications.send_system_alert")
-def send_system_alert(alert_type: str, message: str, severity: str = "info") -> dict:
+def send_system_alert(
+    alert_type: str, message: str, severity: str = "info"
+) -> dict:
     """
     Send system alert notifications to administrators.
 
@@ -196,7 +208,12 @@ def send_system_alert(alert_type: str, message: str, severity: str = "info") -> 
         }
 
         # For now, just log the alert
-        severity_icons = {"low": "ℹ️", "medium": "⚠️", "high": "🚨", "critical": "💥"}
+        severity_icons = {
+            "low": "ℹ️",
+            "medium": "⚠️",
+            "high": "🚨",
+            "critical": "💥",
+        }
 
         icon = severity_icons.get(severity, "📢")
         print(f"{icon} SYSTEM ALERT [{severity.upper()}]: {alert_type}")
@@ -204,10 +221,17 @@ def send_system_alert(alert_type: str, message: str, severity: str = "info") -> 
 
         # TODO: Send to admin channels (email, Slack, etc.)
 
-        return {"status": "success", "message": "System alert sent", "data": alert_data}
+        return {
+            "status": "success",
+            "message": "System alert sent",
+            "data": alert_data,
+        }
 
     except Exception as e:
-        return {"status": "error", "message": f"Failed to send system alert: {str(e)}"}
+        return {
+            "status": "error",
+            "message": f"Failed to send system alert: {str(e)}",
+        }
 
 
 # Expose raw function for unit tests

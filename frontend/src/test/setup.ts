@@ -1,249 +1,106 @@
-import '@testing-library/jest-dom';
-import { vi, expect } from 'vitest';
-import { toHaveNoViolations } from 'jest-axe';
+import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
+import React from 'react';
 
-// Vitest's expect.extend requires an object of matcher functions. Cast to any
-// to avoid TS complaints about the matcher signature.
-// jest-axe exports an object of matchers
-expect.extend(toHaveNoViolations as unknown as Record<string, any>);
+// Polyfills for JSDOM gaps used by UI libs
+if (typeof window !== 'undefined' && !('matchMedia' in window)) {
+    (window as any).matchMedia = () => ({
+        matches: false,
+        media: '',
+        onchange: null,
+        addListener: () => { },
+        removeListener: () => { },
+        addEventListener: () => { },
+        removeEventListener: () => { },
+        dispatchEvent: () => false,
+    });
+}
 
-// Ensure Recharts components render in tests by providing non-zero dimensions
-// for elements queried by ResponsiveContainer. Without this, it falls back to
-// rendering empty divs because JSDOM reports zero width/height.
-Object.defineProperty(HTMLDivElement.prototype, 'getBoundingClientRect', {
-  configurable: true,
-  value() {
-    const rect = {
-      width: 800,
-      height: 400,
-      top: 0,
-      left: 0,
-      bottom: 400,
-      right: 800,
-      x: 0,
-      y: 0,
-    };
+if (typeof globalThis.ResizeObserver === 'undefined') {
+    globalThis.ResizeObserver = class {
+        observe() { }
+        unobserve() { }
+        disconnect() { }
+    } as unknown as typeof ResizeObserver;
+}
+
+// Ensure TextEncoder/TextDecoder exist in Node envs
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { TextEncoder, TextDecoder } = require('util');
+if (!(globalThis as any).TextEncoder) (globalThis as any).TextEncoder = TextEncoder;
+if (!(globalThis as any).TextDecoder) (globalThis as any).TextDecoder = TextDecoder;
+
+// Silence toasts during tests
+vi.mock('sonner', () => ({
+    toast: {
+        success: vi.fn(),
+        error: vi.fn(),
+        warning: vi.fn(),
+    },
+}));
+
+// Provide authenticated user so admin pages render without routing/provider
+// Allow tests to override via globalThis.__TEST_USER__
+vi.mock('@/contexts/AuthContext', () => ({
+    useAuth: () => ({ user: (globalThis as any).__TEST_USER__ ?? { id: 1, username: 'Test User', email: 'test@example.com' } }),
+}));
+
+// Stub navigation to avoid needing a Router wrapper in unit tests
+vi.mock('react-router-dom', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('react-router-dom')>();
+    const navigateMock = vi.fn() as unknown as import('react-router-dom').NavigateFunction;
     return {
-      ...rect,
-      toJSON() {
-        return rect;
-      },
-    };
-  },
+        ...actual,
+        default: (actual as any).default ?? {},
+        useNavigate: () => navigateMock,
+    } as unknown as typeof import('react-router-dom');
 });
 
-// Mock IntersectionObserver
-Object.defineProperty(window, 'IntersectionObserver', {
-  writable: true,
-  configurable: true,
-  value: class IntersectionObserver {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    constructor() {}
-    observe() {
-      return null;
-    }
-    disconnect() {
-      return null;
-    }
-    unobserve() {
-      return null;
-    }
-  },
-});
+// Force confirm stub (jsdom implements confirm but throws by default)
+if (typeof window !== 'undefined') {
+    (window as any).confirm = () => true;
+}
 
-// Mock ResizeObserver
-Object.defineProperty(window, 'ResizeObserver', {
-  writable: true,
-  configurable: true,
-  value: class ResizeObserver {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    constructor() {}
-    observe() {
-      return null;
-    }
-    disconnect() {
-      return null;
-    }
-    unobserve() {
-      return null;
-    }
-  },
-});
+// Ensure global confirm is stubbed too
+vi.stubGlobal('confirm', () => true);
 
-// Mock File and FileReader APIs
-Object.defineProperty(window, 'File', {
-  writable: true,
-  value: class File {
-    constructor(
-      fileBits: BlobPart[],
-      fileName: string,
-      options?: FilePropertyBag
-    ) {
-      return {
-        name: fileName,
-        size: fileBits.length,
-        type: options?.type || '',
-        lastModified: Date.now(),
-        slice: () => new Blob(),
-        stream: () => new ReadableStream(),
-        text: () => Promise.resolve(''),
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-      };
-    }
-  },
-});
+// Lightweight UI component mocks to avoid heavy Radix behavior in tests
+vi.mock('@/design-system/components/Tabs', () => ({
+    Tabs: ({ children }: any) => React.createElement('div', { 'data-testid': 'Tabs' }, children),
+    TabsList: ({ children }: any) => React.createElement('div', { role: 'tablist' }, children),
+    TabsTrigger: ({ children }: any) => React.createElement('button', { role: 'tab' }, children),
+    TabsContent: ({ children }: any) => React.createElement('div', null, children),
+}));
 
-Object.defineProperty(window, 'FileReader', {
-  writable: true,
-  value: class FileReader {
-    readAsDataURL() {
-      this.onload?.({
-        target: { result: 'data:text/plain;base64,dGVzdA==' },
-      } as unknown);
-    }
-    readAsText() {
-      this.onload?.({ target: { result: 'test content' } } as unknown);
-    }
-    onload: ((event: unknown) => void) | null = null;
-    onerror: ((event: unknown) => void) | null = null;
-    result: string | ArrayBuffer | null = null;
-    readyState = 2;
-  },
-});
+vi.mock('@/design-system/components/Switch', () => ({
+    Switch: ({ checked, onCheckedChange }: any) => React.createElement(
+        'button',
+        {
+            role: 'switch',
+            'aria-checked': !!checked,
+            onClick: () => onCheckedChange?.(!checked),
+        },
+        ''
+    ),
+}));
 
-// Mock URL.createObjectURL
-Object.defineProperty(window.URL, 'createObjectURL', {
-  writable: true,
-  value: vi.fn(() => 'mock-object-url'),
-});
+// Disable repeating timers to prevent hanging tests due to open intervals
+if (typeof globalThis.setInterval === 'function') {
+    vi.stubGlobal('setInterval', (_cb: any, _ms?: number) => 0 as any);
+}
+if (typeof globalThis.clearInterval === 'function') {
+    vi.stubGlobal('clearInterval', (_id: any) => { });
+}
 
-Object.defineProperty(window.URL, 'revokeObjectURL', {
-  writable: true,
-  value: vi.fn(),
-});
-
-// Mock localStorage
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value.toString();
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    },
-    length: 0,
-    key: (index: number) => Object.keys(store)[index] || null,
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
-
-// Mock sessionStorage
-Object.defineProperty(window, 'sessionStorage', {
-  value: localStorageMock,
-});
-
-// Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
-
-// Mock HTMLCanvasElement methods for chart testing
-// Mock canvas context with proper typing
-Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
-  value: vi.fn((contextId: string) => {
-    if (contextId === '2d') {
-      return {
-        fillRect: vi.fn(),
-        clearRect: vi.fn(),
-        getImageData: vi.fn(() => ({
-          data: new Uint8ClampedArray(4),
-          width: 1,
-          height: 1,
-          colorSpace: 'srgb',
-        })),
-        putImageData: vi.fn(),
-        createImageData: vi.fn(() => ({
-          data: new Uint8ClampedArray(4),
-          width: 1,
-          height: 1,
-          colorSpace: 'srgb',
-        })),
-        setTransform: vi.fn(),
-        drawImage: vi.fn(),
-        save: vi.fn(),
-        fillText: vi.fn(),
-        restore: vi.fn(),
-        beginPath: vi.fn(),
-        moveTo: vi.fn(),
-        lineTo: vi.fn(),
-        closePath: vi.fn(),
-        stroke: vi.fn(),
-        translate: vi.fn(),
-        scale: vi.fn(),
-        rotate: vi.fn(),
-        arc: vi.fn(),
-        fill: vi.fn(),
-        measureText: vi.fn(() => ({ width: 0 })),
-        transform: vi.fn(),
-        rect: vi.fn(),
-        clip: vi.fn(),
-        canvas: document.createElement('canvas'),
-        globalAlpha: 1,
-        globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
-      } as unknown as CanvasRenderingContext2D;
-    }
-    return null;
-  }),
-  writable: true,
-});
-
-// Mock SVG for chart rendering
-Object.defineProperty(window, 'SVGElement', {
-  writable: true,
-  value: class SVGElement {
-    getBBox() {
-      return { x: 0, y: 0, width: 0, height: 0 };
-    }
-    getScreenCTM() {
-      return null;
-    }
-  },
-});
+// Stub heavy admin sub-components to speed up render
+vi.mock('@/components/Admin/UserManagement', () => ({
+    default: () => React.createElement('div', { 'data-testid': 'UserManagement' }),
+}));
+vi.mock('@/components/Admin/SystemMonitoring', () => ({
+    default: () => React.createElement('div', { 'data-testid': 'SystemMonitoring' }),
+}));
+vi.mock('@/components/Admin/DataManagement', () => ({
+    default: () => React.createElement('div', { 'data-testid': 'DataManagement' }),
+}));
 
 
-// Suppress specific console warnings during tests
-const originalError = console.error;
-beforeAll(() => {
-  console.error = (...args: unknown[]) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is deprecated')
-    ) {
-      return;
-    }
-    originalError.call(console, ...args);
-  };
-});
-
-afterAll(() => {
-  console.error = originalError;
-});

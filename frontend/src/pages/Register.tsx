@@ -1,480 +1,346 @@
 import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import { checkPasswordStrength } from '../services/authApi';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/design-system/components/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Input, Checkbox } from '@/design-system';
 import {
-  Eye,
-  EyeOff,
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/design-system';
+import {
   Mail,
   Lock,
   User,
-  TrendingUp,
-  AlertCircle,
-  Check,
-  X,
+  UserCheck,
+  Loader2,
+  Activity,
 } from 'lucide-react';
-import {
-  Box,
-  Typography,
-  Divider,
-  Link,
-  CircularProgress,
-} from '@mui/material';
+import { componentStyles } from '@/design-system/utils/designSystem';
+import FormStatusAlert from '@/components/auth/FormStatusAlert';
 
-const validationSchema = yup.object({
-  email: yup
-    .string()
-    .email('Enter a valid email')
-    .required('Email is required'),
-  username: yup
-    .string()
-    .min(3, 'Username should be at least 3 characters')
-    .max(50, 'Username should be less than 50 characters')
-    .matches(
-      /^[a-zA-Z0-9_-]+$/,
-      'Username can only contain letters, numbers, hyphens, and underscores'
-    )
-    .required('Username is required'),
-  first_name: yup
-    .string()
-    .min(1, 'First name is required')
-    .max(50, 'First name should be less than 50 characters')
-    .required('First name is required'),
-  last_name: yup
-    .string()
-    .min(1, 'Last name is required')
-    .max(50, 'Last name should be less than 50 characters')
-    .required('Last name is required'),
-  password: yup
-    .string()
-    .min(8, 'Password should be of minimum 8 characters length')
-    .required('Password is required'),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('password')], 'Passwords must match')
-    .required('Confirm password is required'),
-});
+const registerSchema = z
+  .object({
+    email: z.string().min(1, 'Email is required').email('Enter a valid email'),
+    username: z.string().min(3, 'Username must be at least 3 characters'),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+      ),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+    acceptTerms: z
+      .boolean()
+      .refine(val => val === true, 'You must accept the terms and conditions'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
-interface FormValues {
-  email: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  password: string;
-  confirmPassword: string;
-}
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const formik = useFormik<FormValues>({
-    initialValues: {
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
       email: '',
       username: '',
-      first_name: '',
-      last_name: '',
+      firstName: '',
+      lastName: '',
       password: '',
       confirmPassword: '',
-    },
-    validationSchema: validationSchema,
-    onSubmit: async values => {
-      setIsLoading(true);
-      setError(null);
-      setSuccess(null);
-
-      try {
-        await register({
-          email: values.email,
-          username: values.username,
-          first_name: values.first_name,
-          last_name: values.last_name,
-          password: values.password,
-        });
-
-        // If we get here, registration was successful
-        setSuccess(
-          'Registration successful! Please check your email for verification instructions.'
-        );
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
-      } catch (err: unknown) {
-        const error = err as {
-          response?: { status?: number; data?: { detail?: string } };
-        };
-        if (error.response?.status === 400) {
-          const detail = error.response?.data?.detail;
-          if (detail === 'Email already registered') {
-            setError(
-              'This email is already registered. Please use a different email or try logging in.'
-            );
-          } else if (detail === 'Username already taken') {
-            setError(
-              'This username is already taken. Please choose a different username.'
-            );
-          } else {
-            setError(
-              detail ||
-                'Registration failed. Please check your information and try again.'
-            );
-          }
-        } else {
-          setError('An error occurred. Please try again later.');
-        }
-      } finally {
-        setIsLoading(false);
-      }
+      acceptTerms: false,
     },
   });
 
-  const passwordStrength = checkPasswordStrength(formik.values.password);
+  const onSubmit = async (values: RegisterFormData) => {
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
 
+    try {
+      await register({
+        email: values.email,
+        username: values.username,
+        first_name: values.firstName,
+        last_name: values.lastName,
+        password: values.password,
+      });
 
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
+      setSuccess(
+        'Registration successful! Please check your email for verification instructions.'
+      );
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { status?: number; data?: { detail?: string } };
+      };
 
-  const handleClickShowConfirmPassword = () => {
-    setShowConfirmPassword(!showConfirmPassword);
+      if (error.response?.status === 409) {
+        setError('An account with this email or username already exists.');
+      } else if (error.response?.status === 429) {
+        setError('Too many registration attempts. Please try again later.');
+      } else {
+        setError('An error occurred during registration. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
-      <div className="w-full max-w-2xl">
-        <Card className="bg-card/95 backdrop-blur-md border-border/20 shadow-2xl">
-          <div className="p-6 pb-6 text-center space-y-4">
-            <div className="flex justify-center">
-              <div className="p-3 rounded-full bg-primary/10">
-                <TrendingUp className="h-8 w-8 text-primary" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">
-                Join FinVision
-              </h1>
-              <p className="text-muted-foreground">
-                Create your account to start financial modeling
-              </p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 bg-primary rounded-xl flex items-center justify-center mb-4">
+            <Activity className="h-8 w-8 text-primary-foreground" />
           </div>
+          <h1 className={componentStyles.heading.h2}>Create your account</h1>
+          <p className="text-muted-foreground mt-2">
+            Join FinVision to start your financial modeling journey
+          </p>
+        </div>
 
-          <CardContent className="space-y-6 pt-0">
-            <form onSubmit={formik.handleSubmit} className="space-y-4">
-              {error && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-                  <AlertCircle className="h-4 w-4" />
-                  {error}
-                </div>
-              )}
+        {/* Register Card */}
+        <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-xl font-semibold text-center">
+              Sign Up
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormStatusAlert error={error} success={success} />
 
-              {success && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
-                  <Check className="h-4 w-4" />
-                  {success}
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="first_name" required>
-                    First Name
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
-                    <Input
-                      id="first_name"
-                      name="first_name"
-                      placeholder="Enter your first name"
-                      value={formik.values.first_name}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={
-                        formik.touched.first_name &&
-                        Boolean(formik.errors.first_name)
-                      }
-                      helperText={
-                        formik.touched.first_name
-                          ? formik.errors.first_name
-                          : undefined
-                      }
-                      autoComplete="given-name"
-                      className="pl-9"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="last_name" required>
-                    Last Name
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
-                    <Input
-                      id="last_name"
-                      name="last_name"
-                      placeholder="Enter your last name"
-                      value={formik.values.last_name}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      error={
-                        formik.touched.last_name &&
-                        Boolean(formik.errors.last_name)
-                      }
-                      helperText={
-                        formik.touched.last_name
-                          ? formik.errors.last_name
-                          : undefined
-                      }
-                      autoComplete="family-name"
-                      className="pl-9"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" required>
-                  Email Address
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.email && Boolean(formik.errors.email)}
-                    helperText={
-                      formik.touched.email ? formik.errors.email : undefined
-                    }
-                    autoComplete="email"
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="username" required>
-                  Username
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
-                  <Input
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
-                    value={formik.values.username}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.username && Boolean(formik.errors.username)
-                    }
-                    helperText={
-                      formik.touched.username ? formik.errors.username : undefined
-                    }
-                    autoComplete="username"
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" required>
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.password && Boolean(formik.errors.password)
-                    }
-                    helperText={
-                      formik.touched.password ? formik.errors.password : undefined
-                    }
-                    autoComplete="new-password"
-                    className="pl-9 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleClickShowPassword}
-                    className="absolute right-3 top-[10px] text-muted-foreground hover:text-foreground transition-colors z-10"
-                    aria-label="toggle password visibility"
->
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="John"
+                              className="pl-9"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </button>
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <UserCheck className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Doe"
+                              className="pl-9"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
-                {/* Password Strength Indicator */}
-                {formik.values.password && (
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">
-                        Password Strength:
-                      </span>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full font-medium ${
-                          passwordStrength.strength === 'strong'
-                            ? 'bg-green-100 text-green-800'
-                            : passwordStrength.strength === 'medium'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {passwordStrength.strength.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 ${
-                          passwordStrength.strength === 'strong'
-                            ? 'bg-green-500'
-                            : passwordStrength.strength === 'medium'
-                            ? 'bg-yellow-500'
-                            : 'bg-red-500'
-                        }`}
-                        style={{
-                          width: `${(passwordStrength.score / 5) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {Object.entries(passwordStrength.checks).map(
-                        ([key, passed]) => (
-                          <span
-                            key={key}
-                            className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                              passed
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-600'
-                            }`}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="john.doe@example.com"
+                            type="email"
+                            autoComplete="email"
+                            className="pl-9"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="johndoe"
+                            className="pl-9"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            type="password"
+                            placeholder="Create a strong password"
+                            className="pl-9"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            type="password"
+                            placeholder="Confirm your password"
+                            className="pl-9"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="acceptTerms"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal">
+                          I accept the{' '}
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto font-normal text-sm"
                           >
-                            {passed ? (
-                              <Check className="h-3 w-3" />
-                            ) : (
-                              <X className="h-3 w-3" />
-                            )}
-                            {key}
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+                            Terms of Service
+                          </Button>{' '}
+                          and{' '}
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto font-normal text-sm"
+                          >
+                            Privacy Policy
+                          </Button>
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" required>
-                  Confirm Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-[10px] h-4 w-4 text-muted-foreground z-10" />
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Confirm your password"
-                    value={formik.values.confirmPassword}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.confirmPassword &&
-                      Boolean(formik.errors.confirmPassword)
-                    }
-                    helperText={
-                      formik.touched.confirmPassword
-                        ? formik.errors.confirmPassword
-                        : undefined
-                    }
-                    autoComplete="new-password"
-                    className="pl-9 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleClickShowConfirmPassword}
-                    className="absolute right-3 top-[10px] text-muted-foreground hover:text-foreground transition-colors z-10"
-                    aria-label="toggle confirm password visibility"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isLoading || !passwordStrength.isValid}
-                className="w-full mt-6"
-                size="lg"
-            >
-              {isLoading ? (
-                <>
-                  <CircularProgress size={20} sx={{ mr: 1 }} />
-                  Creating Account...
-                </>
-              ) : (
-                'Create Account'
-              )}
-            </Button>
-
-            <Divider sx={{ mb: 3 }}>
-              <Typography variant="body2" color="text.secondary">
-                or
-              </Typography>
-            </Divider>
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                Already have an account?{' '}
-                <Link
-                  component={RouterLink}
-                  to="/login"
-                  color="primary"
-                  sx={{ fontWeight: 'bold', textDecoration: 'none' }}
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full"
+                  size="lg"
                 >
-                  Sign in here
-                </Link>
-              </Typography>
-            </Box>
-          </form>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    'Create Account'
+                  )}
+                </Button>
+
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Already have an account?{' '}
+                    <RouterLink
+                      to="/login"
+                      className="font-medium text-primary hover:text-primary/80 hover:underline transition-colors"
+                    >
+                      Sign in here
+                    </RouterLink>
+                  </p>
+                </div>
+              </form>
+            </Form>
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <Box sx={{ textAlign: 'center', mt: 3 }}>
-          {/* DESIGN_FIX: replaced hard-coded footer color with token */}
-          <Typography variant="body2" className="text-muted-foreground">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
             © 2024 FinVision. All rights reserved.
-          </Typography>
-        </Box>
+          </p>
+        </div>
       </div>
     </div>
   );

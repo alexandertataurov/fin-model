@@ -21,37 +21,39 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 8
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Install backend dependencies
-        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Frontend linting
         working-directory: ./frontend
-        run: npm run lint:ci
+        run: pnpm run lint:ci
 
       - name: Frontend type checking
         working-directory: ./frontend
-        run: npm run type-check
+        run: pnpm run type-check
 
       - name: Backend linting
         working-directory: ./backend
@@ -60,7 +62,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Security scan
-        uses: github/super-linter@v4
+        uses: github/super-linter@985ef206aaca4d560cb9ee2af2b42ba44adc1d55 # v4
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,20 +103,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Cache Python dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
@@ -162,14 +156,14 @@ jobs:
           cd backend && pytest -m security --cov-append --cov-report=xml
 
       - name: Upload backend coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3
         with:
           file: ./backend/coverage.xml
           flags: backend
           name: backend-coverage
 
       - name: Archive backend test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: backend-test-results
@@ -185,44 +179,47 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 8
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run unit tests
         working-directory: ./frontend
-        run: npm run test:coverage
+        run: pnpm run test:coverage
 
       - name: Run component tests
         working-directory: ./frontend
-        run: npm run test:unit
+        run: pnpm run test:unit
 
       - name: Run integration tests
         working-directory: ./frontend
-        run: npm run test:integration
+        run: pnpm run test:integration
 
       - name: Run performance tests
         working-directory: ./frontend
-        run: npm run test:performance
+        run: pnpm run test:performance
 
       - name: Upload frontend coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3
         with:
           file: ./frontend/coverage/coverage-final.json
           flags: frontend
           name: frontend-coverage
 
       - name: Archive frontend test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: frontend-test-results
@@ -238,34 +235,36 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 8
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Build frontend
         working-directory: ./frontend
         run: |
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
 
       - name: Build backend
-        working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Archive build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: build-artifacts
           path: |
@@ -306,27 +305,32 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: build-artifacts
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 8
+
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
-          cd frontend && npm ci
-          cd ../backend && pip install -r requirements.txt
+          cd frontend && pnpm install --frozen-lockfile
+          pip install -r requirements.txt
 
       - name: Start backend server
         working-directory: ./backend
@@ -343,7 +347,7 @@ jobs:
       - name: Start frontend server
         working-directory: ./frontend
         run: |
-          npm run preview &
+          pnpm run preview &
           sleep 5
 
       - name: Run E2E tests
@@ -361,7 +365,7 @@ jobs:
           npx cypress run --spec "cypress/e2e/report-generation.cy.ts"
 
       - name: Archive E2E test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: e2e-test-results
@@ -379,15 +383,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: build-artifacts
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -402,7 +406,7 @@ jobs:
         run: |
           # Start application in background
           cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 &
-          cd frontend && npm run preview &
+          cd frontend && pnpm run preview &
           sleep 10
 
       - name: Run load tests
@@ -418,10 +422,10 @@ jobs:
       - name: Frontend performance tests
         working-directory: ./frontend
         run: |
-          npm run test:performance
+          pnpm run test:performance
 
       - name: Archive performance results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: performance-test-results
@@ -438,22 +442,22 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: build-artifacts
 
       - name: Run OWASP ZAP scan
-        uses: zaproxy/action-full-scan@v0.7.0
+        uses: zaproxy/action-full-scan@54904a3b0151aead96cafe3c1327bff19daf6a81 # v0.7.0
         with:
           target: "http://localhost:5173"
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a"
 
       - name: Run Snyk security scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@77490d94e966421e076e95ad8fa87aa55e5ca409 # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -467,10 +471,10 @@ jobs:
       - name: Run dependency security audit
         working-directory: ./frontend
         run: |
-          npm audit --audit-level=high
+          pnpm audit --audit-level=high
 
       - name: Archive security results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: security-test-results
@@ -487,31 +491,36 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: build-artifacts
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 8
+
       - name: Start application
         run: |
-          cd frontend && npm run preview &
+          cd frontend && pnpm install --frozen-lockfile && pnpm run preview &
           sleep 5
 
       - name: Run axe accessibility tests
         working-directory: ./frontend
         run: |
-          npm run test:a11y
+          pnpm run test:a11y
 
       - name: Run Pa11y accessibility tests
         run: |
-          npm install -g pa11y
+          pnpm add -g pa11y
           pa11y http://localhost:5173 --reporter json > pa11y-report.json
 
       - name: Run Lighthouse accessibility audit
@@ -520,7 +529,7 @@ jobs:
           npx cypress run --spec "cypress/e2e/performance-lighthouse.cy.ts"
 
       - name: Archive accessibility results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: accessibility-test-results
@@ -542,21 +551,26 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: build-artifacts
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 8
+
       - name: Start application
         run: |
-          cd frontend && npm run preview &
+          cd frontend && pnpm install --frozen-lockfile && pnpm run preview &
           sleep 5
 
       - name: Run cross-browser tests
@@ -565,7 +579,7 @@ jobs:
           npx cypress run --browser ${{ matrix.browser }} --spec "cypress/e2e/auth-flow.cy.ts,cypress/e2e/dashboard-interactions.cy.ts"
 
       - name: Archive cross-browser results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: cross-browser-results-${{ matrix.browser }}
@@ -590,13 +604,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download all test artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
 
       - name: Setup Python for report generation
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -605,7 +619,7 @@ jobs:
           python run_tests.py --report-only
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@0f06977fde99088e583f6fa8ec622da326e818c3 # v2
         if: always()
         with:
           files: |
@@ -623,7 +637,7 @@ jobs:
           echo "### Accessibility Tests: ${{ needs.accessibility-tests.result }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload comprehensive report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: comprehensive-test-report
           path: |
@@ -639,10 +653,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Download test artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
 
       - name: Validate quality gates
         run: |
@@ -679,7 +693,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Deploy to staging
         run: |

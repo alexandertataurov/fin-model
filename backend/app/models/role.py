@@ -31,7 +31,10 @@ class Role(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(
-        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     # Relationships
@@ -53,11 +56,16 @@ class UserRole(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(
-        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     # Relationships
-    user = relationship("User", back_populates="user_roles", foreign_keys=[user_id])
+    user = relationship(
+        "User", back_populates="user_roles", foreign_keys=[user_id]
+    )
     role = relationship("Role", back_populates="user_roles")
     assigned_by_user = relationship("User", foreign_keys=[assigned_by])
 

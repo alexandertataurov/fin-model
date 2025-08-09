@@ -54,7 +54,9 @@ def create_access_token(
 
 def create_refresh_token(subject: Union[str, Any]) -> str:
     """Create a JWT refresh token."""
-    expire = datetime.utcnow() + timedelta(days=30)  # Refresh tokens last 30 days
+    expire = datetime.utcnow() + timedelta(
+        days=30
+    )  # Refresh tokens last 30 days
 
     to_encode = {
         "exp": expire,
@@ -116,7 +118,9 @@ def create_email_verification_token(email: str) -> str:
 
 def create_password_reset_token(email: str) -> str:
     """Create a token for password reset."""
-    expire = datetime.utcnow() + timedelta(hours=1)  # Password reset tokens last 1 hour
+    expire = datetime.utcnow() + timedelta(
+        hours=1
+    )  # Password reset tokens last 1 hour
 
     to_encode = {
         "exp": expire,
@@ -149,7 +153,9 @@ def check_password_strength(password: str) -> dict:
     if len(password) >= 8:
         feedback["score"] += 1
     else:
-        feedback["feedback"].append("Password should be at least 8 characters long")
+        feedback["feedback"].append(
+            "Password should be at least 8 characters long"
+        )
 
     if len(password) >= 12:
         feedback["score"] += 1

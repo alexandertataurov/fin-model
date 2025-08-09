@@ -7,9 +7,7 @@ import { mount } from 'cypress/react18';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '../src/components/ui/theme-provider';
 
 // Extend Cypress Chainable interface - using declare module instead of namespace
 declare module 'cypress' {
@@ -20,13 +18,6 @@ declare module 'cypress' {
 }
 
 Cypress.Commands.add('mount', mount);
-
-// Create a test theme
-const testTheme = createTheme({
-  palette: {
-    mode: 'light',
-  },
-});
 
 // Create test QueryClient
 const testQueryClient = new QueryClient({
@@ -41,8 +32,7 @@ Cypress.Commands.add('mountWithProviders', (component: React.ReactNode) => {
   return mount(
     <BrowserRouter>
       <QueryClientProvider client={testQueryClient}>
-        <ThemeProvider theme={testTheme}>
-          <CssBaseline />
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           {component}
         </ThemeProvider>
       </QueryClientProvider>
@@ -51,9 +41,9 @@ Cypress.Commands.add('mountWithProviders', (component: React.ReactNode) => {
 });
 
 // Handle uncaught exceptions
-Cypress.on('uncaught:exception', (err) => {
+Cypress.on('uncaught:exception', err => {
   if (err.message.includes('ResizeObserver loop limit exceeded')) {
     return false;
   }
   return true;
-}); 
+});

@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["python311", "postgresql_16.dev", "gcc"]
+
+[phases.install]
+cmds = [
+  "python -m venv --copies /opt/venv", 
+  ". /opt/venv/bin/activate && pip install -r requirements.txt"
+]
+
+[variables]
+PYTHONPATH = "/app"
+PYTHON_ENV = "production" 

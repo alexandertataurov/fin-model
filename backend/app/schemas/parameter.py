@@ -1,9 +1,13 @@
 from typing import Dict, List, Any, Optional, Union, Tuple
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import Enum
 
-from app.models.parameter import ParameterType, ParameterCategory, SensitivityLevel
+from app.models.parameter import (
+    ParameterType,
+    ParameterCategory,
+    SensitivityLevel,
+)
 
 
 # Base Parameter Schemas
@@ -30,11 +34,12 @@ class ParameterBase(BaseModel):
     is_required: bool = True
     is_editable: bool = True
 
-    @validator("min_value", "max_value")
+    @field_validator("min_value", "max_value")
+    @classmethod
     def validate_range(cls, v, values):
-        if v is not None and "min_value" in values and values["min_value"] is not None:
-            if v < values["min_value"]:
-                raise ValueError("max_value must be greater than min_value")
+        min_val = values.get("min_value") if isinstance(values, dict) else None
+        if v is not None and min_val is not None and v < min_val:
+            raise ValueError("max_value must be greater than min_value")
         return v
 
 
@@ -62,8 +67,7 @@ class ParameterResponse(ParameterBase):
     updated_at: datetime
     created_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Parameter Value Schemas
@@ -92,8 +96,7 @@ class ParameterValueResponse(ParameterValueBase):
     is_valid: bool = True
     validation_errors: Optional[List[str]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Scenario Schemas
@@ -130,8 +133,7 @@ class ScenarioResponse(ScenarioBase):
     updated_at: datetime
     created_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ScenarioVersionResponse(BaseModel):
@@ -143,8 +145,7 @@ class ScenarioVersionResponse(BaseModel):
     created_by_id: int
     is_current: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Parameter Detection Schemas
@@ -241,7 +242,9 @@ class ScenarioComparisonRequest(BaseModel):
     base_scenario_id: int
     compare_scenario_ids: List[int]
     parameter_filters: Optional[List[int]] = None
-    comparison_type: str = Field("variance", pattern="^(variance|absolute|percentage)$")
+    comparison_type: str = Field(
+        "variance", pattern="^(variance|absolute|percentage)$"
+    )
 
 
 class ParameterComparison(BaseModel):
@@ -267,14 +270,18 @@ class SensitivityParameterConfig(BaseModel):
     min_value: float
     max_value: float
     step_size: Optional[float] = None
-    distribution: str = Field("uniform", pattern="^(uniform|normal|triangular)$")
+    distribution: str = Field(
+        "uniform", pattern="^(uniform|normal|triangular)$"
+    )
 
 
 class SensitivityAnalysisRequest(BaseModel):
     scenario_id: int
     target_parameter_id: int  # The output parameter to analyze
     input_parameters: List[SensitivityParameterConfig]
-    analysis_type: str = Field("tornado", pattern="^(tornado|spider|monte_carlo)$")
+    analysis_type: str = Field(
+        "tornado", pattern="^(tornado|spider|monte_carlo)$"
+    )
     iterations: Optional[int] = Field(1000, ge=100, le=10000)
     confidence_level: Optional[float] = Field(0.95, ge=0.01, le=0.99)
 
@@ -358,8 +365,7 @@ class ParameterTemplateResponse(BaseModel):
     created_at: datetime
     created_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Search and Filter Schemas
@@ -394,8 +400,7 @@ class ParameterAuditLog(BaseModel):
     change_reason: Optional[str] = None
     ip_address: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ParameterHistoryResponse(BaseModel):

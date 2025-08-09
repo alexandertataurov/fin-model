@@ -1,22 +1,41 @@
-from typing import Optional, List, Dict
+import logging
 from datetime import datetime, timedelta, timezone
-from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
-from app.models.user import User
-from app.models.role import Role, UserRole, RoleType
-from app.models.audit import AuditLog, AuditAction
-from app.schemas.user import UserCreate, UserUpdate, UserLogin
+from typing import Dict, List, Optional
+
 from app.core.security import (
-    verify_password,
-    get_password_hash,
     create_access_token,
     create_refresh_token,
-    create_email_verification_token,
-    create_password_reset_token,
-    verify_email_verification_token,
-    verify_password_reset_token,
     generate_secure_token,
+    get_password_hash,
+    verify_password,
 )
+from app.models.audit import AuditLog
+from app.models.role import Role, RoleType, UserRole
+from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
+
+def _validate_password_requirements(password: str):
+    import re
+
+    requirements = [
+        (len(password) >= 8, "at least 8 characters"),
+        (re.search(r"[A-Z]", password), "an uppercase letter (A-Z)"),
+        (re.search(r"[a-z]", password), "a lowercase letter (a-z)"),
+        (re.search(r"\d", password), "a number (0-9)"),
+        (
+            re.search(r"[!@#$%^&*()_+=\[\]{}|;:,.<>?-]", password),
+            "a special character (!@#$...)",
+        ),
+    ]
+    failed = [desc for ok, desc in requirements if not ok]
+    if failed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Password must contain: {', '.join(failed)}.",
+        )
 
 
 class AuthService:
@@ -52,14 +71,18 @@ class AuthService:
                 detail="User already registered",
             )
 
-        # Create new user
+        # Validate password requirements
+        _validate_password_requirements(user_create.password)
+
+        # Create new user (email verification disabled)
         hashed_password = get_password_hash(user_create.password)
-        verification_token = generate_secure_token()
 
         full_name = user_create.full_name
         if not full_name:
             if user_create.first_name or user_create.last_name:
-                full_name = f"{user_create.first_name or ''} {user_create.last_name or ''}".strip()
+                first = user_create.first_name or ""
+                last = user_create.last_name or ""
+                full_name = f"{first} {last}".strip()
         db_user = User(
             email=user_create.email,
             username=user_create.username,
@@ -68,8 +91,8 @@ class AuthService:
             full_name=full_name,
             hashed_password=hashed_password,
             is_active=True,
-            is_verified=False,
-            verification_token=verification_token,
+            is_verified=True,
+            verification_token=None,
         )
 
         self.db.add(db_user)
@@ -103,7 +126,7 @@ class AuthService:
             user = self.get_user_by_username(identifier)
         if not user:
             self.log_audit_action(
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
                 details=f"User not found: {identifier}",
                 ip_address=ip_address,
@@ -115,7 +138,7 @@ class AuthService:
         if user.is_locked:
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
                 details="Account is locked",
                 ip_address=ip_address,
@@ -130,7 +153,7 @@ class AuthService:
         if not user.is_active:
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
                 details="Account is not active",
                 ip_address=ip_address,
@@ -148,20 +171,20 @@ class AuthService:
                 user.account_locked_until = datetime.now(timezone.utc) + timedelta(
                     minutes=30
                 )
-                self.log_audit_action(
-                    user_id=user.id,
-                    action=AuditAction.ACCOUNT_LOCKED,
-                    success="success",
-                    details="Account locked due to multiple failed login attempts",
-                    ip_address=ip_address,
-                    user_agent=user_agent,
-                )
+            self.log_audit_action(
+                user_id=user.id,
+                action="ACCOUNT_LOCKED",
+                success="success",
+                details=("Account locked due to multiple failed login attempts"),
+                ip_address=ip_address,
+                user_agent=user_agent,
+            )
 
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.FAILED_LOGIN,
+                action="FAILED_LOGIN",
                 success="failure",
-                details=f"Invalid password attempt {user.failed_login_attempts}",
+                details=(f"Invalid password attempt {user.failed_login_attempts}"),
                 ip_address=ip_address,
                 user_agent=user_agent,
             )
@@ -176,7 +199,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.LOGIN,
+            action="LOGIN",
             success="success",
             ip_address=ip_address,
             user_agent=user_agent,
@@ -195,7 +218,7 @@ class AuthService:
         user.verification_token = None
 
         self.log_audit_action(
-            user_id=user.id, action=AuditAction.EMAIL_VERIFICATION, success="success"
+            user_id=user.id, action="EMAIL_VERIFICATION", success="success"
         )
 
         self.db.commit()
@@ -214,7 +237,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.PASSWORD_RESET,
+            action="PASSWORD_RESET",
             success="success",
             details="Password reset requested",
         )
@@ -235,6 +258,9 @@ class AuthService:
         ):
             return False
 
+        # Validate password requirements
+        _validate_password_requirements(new_password)
+
         # Update password
         user.hashed_password = get_password_hash(new_password)
         user.password_reset_token = None
@@ -244,7 +270,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.PASSWORD_RESET,
+            action="PASSWORD_RESET",
             success="success",
             details="Password reset completed",
         )
@@ -264,7 +290,7 @@ class AuthService:
         if not verify_password(current_password, user.hashed_password):
             self.log_audit_action(
                 user_id=user.id,
-                action=AuditAction.PASSWORD_CHANGE,
+                action="PASSWORD_CHANGE",
                 success="failure",
                 details="Invalid current password",
             )
@@ -274,7 +300,7 @@ class AuthService:
         user.hashed_password = get_password_hash(new_password)
 
         self.log_audit_action(
-            user_id=user.id, action=AuditAction.PASSWORD_CHANGE, success="success"
+            user_id=user.id, action="PASSWORD_CHANGE", success="success"
         )
 
         self.db.commit()
@@ -292,7 +318,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user.id,
-            action=AuditAction.PROFILE_UPDATED,
+            action="PROFILE_UPDATED",
             success="success",
             details=f"Updated fields: {list(update_data.keys())}",
         )
@@ -317,7 +343,7 @@ class AuthService:
             .filter(
                 UserRole.user_id == user_id,
                 UserRole.role_id == role_obj.id,
-                UserRole.is_active == True,
+                UserRole.is_active,
             )
             .first()
         )
@@ -327,13 +353,15 @@ class AuthService:
 
         # Assign role
         user_role = UserRole(
-            user_id=user_id, role_id=role_obj.id, assigned_by=assigned_by_id
+            user_id=user_id,
+            role_id=role_obj.id,
+            assigned_by=assigned_by_id,
         )
         self.db.add(user_role)
 
         self.log_audit_action(
             user_id=user_id,
-            action=AuditAction.ROLE_ASSIGNED,
+            action="ROLE_ASSIGNED",
             success="success",
             details=f"Role {role.value} assigned by user {assigned_by_id}",
         )
@@ -352,7 +380,7 @@ class AuthService:
             .filter(
                 UserRole.user_id == user_id,
                 UserRole.role_id == role_obj.id,
-                UserRole.is_active == True,
+                UserRole.is_active.is_(True),
             )
             .first()
         )
@@ -365,7 +393,7 @@ class AuthService:
 
         self.log_audit_action(
             user_id=user_id,
-            action=AuditAction.ROLE_REMOVED,
+            action="ROLE_REMOVED",
             success="success",
             details=f"Role {role.value} removed by user {removed_by_id}",
         )
@@ -378,7 +406,7 @@ class AuthService:
         user_roles = (
             self.db.query(UserRole)
             .join(Role)
-            .filter(UserRole.user_id == user_id, UserRole.is_active == True)
+            .filter(UserRole.user_id == user_id, UserRole.is_active.is_(True))
             .all()
         )
 
@@ -395,7 +423,7 @@ class AuthService:
         # Log the logout action
         self.log_audit_action(
             user_id=user_id,
-            action=AuditAction.LOGOUT,
+            action="LOGOUT",
             success="success",
             ip_address=ip_address,
             user_agent=user_agent,
@@ -407,7 +435,7 @@ class AuthService:
 
     def log_audit_action(
         self,
-        action: AuditAction,
+        action: str,  # Changed from AuditAction to string for lean version
         success: str = "success",
         user_id: Optional[int] = None,
         resource: Optional[str] = None,
@@ -416,20 +444,28 @@ class AuthService:
         user_agent: Optional[str] = None,
         details: Optional[str] = None,
     ):
-        """Log an audit action."""
-        audit_log = AuditLog(
-            user_id=user_id,
-            action=action,
-            resource=resource,
-            resource_id=resource_id,
-            ip_address=ip_address,
-            user_agent=user_agent,
-            details=details,
-            success=success,
-        )
-
-        self.db.add(audit_log)
-        # Note: commit is handled by the calling method
+        """Persist an audit action to the database."""
+        try:
+            res_id = str(resource_id) if resource_id is not None else None
+            entry = AuditLog(
+                user_id=user_id,
+                action=action,
+                resource=resource,
+                resource_id=res_id,
+                ip_address=ip_address,
+                user_agent=user_agent,
+                details=details,
+                success=str(success).lower(),
+            )
+            self.db.add(entry)
+            # Do not commit here to allow caller to control transactions
+        except Exception:
+            # Swallow audit failures to avoid breaking primary flow
+            logging.getLogger(__name__).exception("Failed to write audit log")
+            try:
+                self.db.rollback()
+            except Exception:
+                logging.getLogger(__name__).exception("Audit log rollback failed")
 
     def create_user_tokens(
         self, user: User, expires_delta: timedelta | None = None

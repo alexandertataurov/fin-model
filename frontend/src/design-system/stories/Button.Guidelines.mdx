@@ -1,0 +1,61 @@
+import { Meta, Story } from '@storybook/blocks';
+
+<Meta title="Design System/Button/Guidelines" />
+
+# Button Guidelines
+
+## Purpose
+
+Buttons trigger actions. Use clear labels and appropriate variants to express intent.
+
+## Anatomy
+
+- Label (required)
+- Optional leading/trailing icon
+- Hit area ≥ 40x40px
+
+## Variants
+
+- default, secondary, outline, ghost, link, destructive, success, warning, info
+
+## Sizes
+
+- xs, sm, md, lg, xl
+
+## Usage
+
+```tsx
+import { Button } from '@/design-system';
+
+export function Example() {
+  return (
+    <div className="flex gap-2">
+      <Button>Primary</Button>
+      <Button variant="secondary">Secondary</Button>
+      <Button variant="destructive">Delete</Button>
+    </div>
+  );
+}
+```
+
+## Dos
+
+- Use concise, action-oriented labels
+- Pick variants that match semantic meaning (e.g., destructive for irreversible)
+- Ensure adequate contrast in all themes
+
+## Don’ts
+
+- Don’t overload pages with many primary buttons
+- Don’t use destructive variant for safe actions
+- Don’t rely on color alone to convey meaning
+
+## Accessibility
+
+- Provide accessible names (button text is sufficient)
+- Maintain visible focus styles
+- Ensure targets are large enough on touch devices
+
+## Loading & Disabled
+
+Use the `loading` prop for async actions; prefer disabling while pending to prevent double submits.

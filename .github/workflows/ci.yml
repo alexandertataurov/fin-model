@@ -11,34 +11,72 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          node-version: "20"
 
-      - name: Install dependencies
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@2f8e54208210a422b2efd51efaa6bd6d7ca8920f # v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install frontend dependencies (optimized for CI)
         working-directory: ./frontend
-        run: npm ci
+        run: |
+          # Install all dependencies for CI (includes dev tools for linting/testing)
+          pnpm install --frozen-lockfile
+          # List what's installed for debugging
+          echo "Checking installed packages..."
+          ls node_modules/.bin/ | grep -E "(eslint|tsc|vitest)" || echo "Tools not found in .bin"
+          # Verify essential tools are available
+          echo "Verifying CI tools..."
+          npx eslint --version && echo "✅ ESLint found"
+          npx tsc --version && echo "✅ TypeScript found"  
+          npx vitest --version && echo "✅ Vitest found"
 
       - name: Run linting
         working-directory: ./frontend
-        run: npm run lint:ci
+        run: |
+          # Use pnpm to run linting
+          pnpm run lint:ci
 
       - name: Run type checking
         working-directory: ./frontend
-        run: npm run type-check
+        run: |
+          # Use pnpm to run type checking
+          pnpm run type-check:ci
 
       - name: Run tests
         working-directory: ./frontend
-        run: npm run test
+        run: |
+          # Use pnpm to run tests
+          pnpm run test:minimal:ci
+        env:
+          NODE_ENV: test
 
-      - name: Build
+      - name: Build (optimized)
         working-directory: ./frontend
-        run: npm run build
+        run: pnpm run build:netlify:prod
+        env:
+          NODE_ENV: production
+          NODE_OPTIONS: "--max-old-space-size=8192"
 
   backend-test:
     runs-on: ubuntu-latest
@@ -69,17 +107,25 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@2f8e54208210a422b2efd51efaa6bd6d7ca8920f # v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt --cache-dir ~/.cache/pip
 
       - name: Run linting
         working-directory: ./backend
@@ -103,7 +149,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Build Docker images
         run: |

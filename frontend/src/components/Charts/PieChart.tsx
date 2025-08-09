@@ -7,8 +7,9 @@ import {
   Legend,
   Tooltip,
 } from 'recharts';
-import { Box, Typography } from '@mui/material';
+// Removed Material-UI imports - using Tailwind for layout
 import BaseChart from './BaseChart';
+import { formatCurrency } from '@/utils/formatters';
 
 export interface PieChartDataPoint {
   name: string;
@@ -23,7 +24,6 @@ interface PieChartProps {
   height?: number;
   loading?: boolean;
   error?: string;
-  currency?: string;
   showLegend?: boolean;
   showLabels?: boolean;
   showPercentages?: boolean;
@@ -38,18 +38,10 @@ interface PieChartProps {
   formatTooltip?: (value: number | string, name: string) => [string, string];
 }
 
-// DESIGN_FIX: use chart color tokens instead of hex values
-const defaultColors = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-];
+import { DEFAULT_CHART_COLORS } from '../../constants/colors';
+
+// Use centralized chart color constants
+const defaultColors = DEFAULT_CHART_COLORS;
 
 export const PieChart: React.FC<PieChartProps> = ({
   data,
@@ -58,7 +50,6 @@ export const PieChart: React.FC<PieChartProps> = ({
   height = 400,
   loading = false,
   error,
-  currency = '$',
   showLegend = true,
   showLabels = true,
   showPercentages = true,
@@ -75,20 +66,6 @@ export const PieChart: React.FC<PieChartProps> = ({
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === '$' ? 'USD' : currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const formatPercentage = (value: number): string => {
-    const percentage = (value / total) * 100;
-    return `${percentage.toFixed(1)}%`;
-  };
-
   const renderCustomizedLabel = (entry: { value: number; name: string }) => {
     if (!showLabels) return null;
 
@@ -101,7 +78,13 @@ export const PieChart: React.FC<PieChartProps> = ({
     return entry.name;
   };
 
-  const customTooltip = ({ active, payload }: { active?: boolean; payload?: unknown[] }) => {
+  const customTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: unknown[];
+  }) => {
     if (!active || !payload || payload.length === 0) {
       return null;
     }
@@ -110,26 +93,15 @@ export const PieChart: React.FC<PieChartProps> = ({
     const percentage = ((data.value / total) * 100).toFixed(1);
 
     return (
-      <Box
-        sx={{
-          backgroundColor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 1,
-          p: 2,
-          boxShadow: 2,
-        }}
-      >
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-          {data.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+      <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+        <h4 className="font-semibold mb-2 text-foreground">{data.name}</h4>
+        <p className="text-sm text-muted-foreground">
           Value: {formatCurrency(data.value)}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+        </p>
+        <p className="text-sm text-muted-foreground">
           Percentage: {percentage}%
-        </Typography>
-      </Box>
+        </p>
+      </div>
     );
   };
 
@@ -164,9 +136,10 @@ export const PieChart: React.FC<PieChartProps> = ({
               paddingTop: '20px',
               fontSize: '14px',
             }}
-            formatter={(value: unknown, entry: Record<string, unknown>) => {
-              const percentageValue = formatPercentage((entry.payload as { value: number }).value);
-              return `${value} (${percentageValue})`;
+            formatter={(_label: unknown, entry: Record<string, unknown>) => {
+              const numericValue = (entry.payload as { value: number }).value;
+              const percentage = ((numericValue / total) * 100).toFixed(1);
+              return `${numericValue} (${percentage}%)`;
             }}
           />
         )}
@@ -183,48 +156,26 @@ export const PieChart: React.FC<PieChartProps> = ({
       error={error}
       onExport={onExport}
       onFullscreen={onFullscreen}
+      aria-label={title || 'Pie Chart'}
+      aria-describedby={subtitle ? undefined : undefined}
     >
-      <Box sx={{ position: 'relative', height: '100%' }}>
+      <div className="relative h-full">
         {chartContent}
 
         {/* Center Label for Donut Charts */}
         {isDonut && centerLabel && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center',
-              pointerEvents: 'none',
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                color: 'primary.main',
-                lineHeight: 1,
-              }}
-            >
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+            <div className="text-lg font-bold text-primary leading-tight">
               {typeof centerLabel.value === 'number'
                 ? formatCurrency(centerLabel.value)
-                : centerLabel.value
-              }
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                fontWeight: 500,
-                mt: 0.5,
-              }}
-            >
+                : centerLabel.value}
+            </div>
+            <div className="text-sm text-muted-foreground font-medium mt-1">
               {centerLabel.title}
-            </Typography>
-          </Box>
+            </div>
+          </div>
         )}
-      </Box>
+      </div>
     </BaseChart>
   );
 };
