@@ -1,10 +1,6 @@
-from typing import Any
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.orm import Session
-
 from app.core.config import settings
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 # Create the declarative base
 Base = declarative_base()
@@ -50,42 +46,43 @@ def get_db() -> Session:
         db.close()
 
 
-# Import all models to ensure they are registered with SQLAlchemy
-from .user import User  # noqa
-from .role import Role, UserRole, RoleType  # noqa
-from .file import UploadedFile, FileStatus, ProcessingLog  # noqa
-from .audit import AuditLog  # noqa
-from .system_log import SystemLog  # noqa
-from .maintenance import MaintenanceSchedule  # noqa
-from .mfa import MFAToken  # noqa
-from .notification import Notification, NotificationPreferences  # noqa
-from .parameter import (
+from .audit import AuditLog  # noqa: F401,E402
+from .file import FileStatus, ProcessingLog, UploadedFile  # noqa: F401,E402
+from .financial import (  # noqa: F401,E402
+    Calculation,
+    CalculationType,
+    ChangeType,
+    DataSource,
+    FileVersion,
+    FinancialStatement,
+    Frequency,
+    Metric,
+    MetricType,
+    PeriodType,
+    SourceType,
+    StatementType,
+    Template,
+    TemplateType,
+    TimeSeries,
+)
+from .maintenance import MaintenanceSchedule  # noqa: F401,E402
+from .mfa import MFAToken  # noqa: F401,E402
+from .notification import Notification, NotificationPreferences  # noqa: F401,E402
+from .parameter import (  # noqa: F401,E402
+    CalculationAudit,
+    FormulaNode,
     Parameter,
     ParameterType,
-    SensitivityLevel,
-    Scenario,
     ParameterValue,
-    FormulaNode,
+    Scenario,
     SensitivityAnalysis,
-    CalculationAudit,
-)  # noqa
-from .financial import (
-    FinancialStatement,
-    Metric,
-    TimeSeries,
-    Calculation,
-    Template,
-    FileVersion,
-    DataSource,
-    StatementType,
-    PeriodType,
-    MetricType,
-    Frequency,
-    CalculationType,
-    TemplateType,
-    ChangeType,
-    SourceType,
-)  # noqa
+    SensitivityLevel,
+)
+from .role import Role, RoleType, UserRole  # noqa
+from .system_log import SystemLog  # noqa
+
+# Import all models to ensure they are registered with SQLAlchemy
+from .user import User  # noqa
 
 # Notification models temporarily disabled
 # from .notification import (
