@@ -47,7 +47,9 @@ class VirusScannerInterface:
         """Scan a file for viruses."""
         raise NotImplementedError
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data for viruses."""
         raise NotImplementedError
 
@@ -73,7 +75,9 @@ class ClamAVScanner(VirusScannerInterface):
             # Test connection
             self.clamd_client.ping()
         except Exception as e:
-            raise ConnectionError(f"Failed to connect to ClamAV daemon: {str(e)}")
+            raise ConnectionError(
+                f"Failed to connect to ClamAV daemon: {str(e)}"
+            )
 
     async def scan_file(self, file_path: str) -> ScanResult:
         """Scan file using ClamAV."""
@@ -130,7 +134,9 @@ class ClamAVScanner(VirusScannerInterface):
                 details={"error": str(e)},
             )
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data using ClamAV."""
         # Write to temporary file and scan
         with tempfile.NamedTemporaryFile(
@@ -218,10 +224,15 @@ class VirusTotalScanner(VirusScannerInterface):
                         file_hash=file_hash,
                         scan_timestamp=start_time,
                         confidence=0.5,  # Lower confidence for pending scans
-                        details={"status": "scan_pending", "scan_id": scan_id},
+                        details={
+                            "status": "scan_pending",
+                            "scan_id": scan_id,
+                        },
                     )
             else:
-                raise Exception(f"Failed to upload file to VirusTotal: {upload_result}")
+                raise Exception(
+                    f"Failed to upload file to VirusTotal: {upload_result}"
+                )
 
         except Exception as e:
             return ScanResult(
@@ -235,7 +246,9 @@ class VirusTotalScanner(VirusScannerInterface):
                 details={"error": str(e)},
             )
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data using VirusTotal."""
         # Write to temporary file and scan
         with tempfile.NamedTemporaryFile(
@@ -252,7 +265,9 @@ class VirusTotalScanner(VirusScannerInterface):
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
 
-    async def _get_file_report(self, file_hash: str) -> Optional[Dict[str, Any]]:
+    async def _get_file_report(
+        self, file_hash: str
+    ) -> Optional[Dict[str, Any]]:
         """Get file report from VirusTotal."""
         params = {"apikey": self.api_key, "resource": file_hash}
 
@@ -390,7 +405,10 @@ class BasicFileScanner(VirusScannerInterface):
                 file_hash=file_hash,
                 scan_timestamp=start_time,
                 confidence=0.6,  # Lower confidence for basic scanning
-                details={"file_size": file_size, "file_extension": file_ext},
+                details={
+                    "file_size": file_size,
+                    "file_extension": file_ext,
+                },
             )
 
         except Exception as e:
@@ -405,7 +423,9 @@ class BasicFileScanner(VirusScannerInterface):
                 details={"error": str(e)},
             )
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data using basic heuristics."""
         # Write to temporary file and scan
         with tempfile.NamedTemporaryFile(
@@ -446,7 +466,10 @@ class VirusScanManager:
             try:
                 if scanner_type.lower() == "clamav" and CLAMD_AVAILABLE:
                     self.scanners.append(ClamAVScanner())
-                elif scanner_type.lower() == "virustotal" and VIRUSTOTAL_AVAILABLE:
+                elif (
+                    scanner_type.lower() == "virustotal"
+                    and VIRUSTOTAL_AVAILABLE
+                ):
                     self.scanners.append(VirusTotalScanner())
                 elif scanner_type.lower() == "basic":
                     self.scanners.append(BasicFileScanner())
@@ -489,9 +512,13 @@ class VirusScanManager:
 
         # Calculate overall confidence
         confidences = [
-            r.get("confidence", 0) for r in results if r.get("confidence", 0) > 0
+            r.get("confidence", 0)
+            for r in results
+            if r.get("confidence", 0) > 0
         ]
-        overall_confidence = sum(confidences) / len(confidences) if confidences else 0
+        overall_confidence = (
+            sum(confidences) / len(confidences) if confidences else 0
+        )
 
         return {
             "is_clean": overall_clean,
@@ -501,7 +528,9 @@ class VirusScanManager:
             "scanners_used": [r.get("scan_engine") for r in results],
             "scan_summary": {
                 "total_scanners": len(results),
-                "clean_results": sum(1 for r in results if r.get("is_clean", False)),
+                "clean_results": sum(
+                    1 for r in results if r.get("is_clean", False)
+                ),
                 "threat_results": sum(
                     1 for r in results if not r.get("is_clean", True)
                 ),
@@ -531,7 +560,9 @@ class VirusScanManager:
     def get_scanner_status(self) -> Dict[str, Any]:
         """Get status of all configured scanners."""
         return {
-            "available_scanners": [type(scanner).__name__ for scanner in self.scanners],
+            "available_scanners": [
+                type(scanner).__name__ for scanner in self.scanners
+            ],
             "total_scanners": len(self.scanners),
             "clamav_available": CLAMD_AVAILABLE,
             "virustotal_available": VIRUSTOTAL_AVAILABLE

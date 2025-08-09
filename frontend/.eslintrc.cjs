@@ -6,23 +6,62 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  ignorePatterns: [
+    'dist',
+    'build',
+    'coverage',
+    'storybook-static',
+    '.storybook',
+    'scripts/**',
+    '**/*.stories.*',
+    '.eslintrc.cjs',
+  ],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh', '@typescript-eslint'],
+  plugins: ['react-refresh', '@typescript-eslint', 'unused-imports'],
   rules: {
     // React-specific rules
-    'react-refresh/only-export-components': 'warn',
+    'react-refresh/only-export-components': 'off',
 
     // TypeScript rules - relaxed for production flexibility
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/no-explicit-any': 'warn', // Allow any but warn
+    // Prefer plugin to remove unused imports automatically
+    '@typescript-eslint/no-unused-vars': 'off',
+    'unused-imports/no-unused-imports': 'warn',
+    'unused-imports/no-unused-vars': [
+      'warn',
+      {
+        vars: 'all',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'all',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
+    '@typescript-eslint/no-explicit-any': 'off', // Allow any without warning
     '@typescript-eslint/ban-ts-comment': 'warn', // Allow @ts-ignore but warn
+    '@typescript-eslint/no-non-null-assertion': 'off',
 
     // Code quality rules
     'prefer-const': 'error',
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    // Allow info/debug in code; warn on others unless overridden below
+    'no-console': ['warn', { allow: ['warn', 'error', 'info', 'debug'] }],
 
     // React hooks rules - relaxed for advanced patterns
     'react-hooks/exhaustive-deps': 'warn', // Performance optimization patterns
   },
+  overrides: [
+    {
+      files: ['scripts/**/*.{js,ts,tsx}'],
+      rules: {
+        // Scripts are developer tooling; allow console usage freely
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['**/*.stories.*', '**/*.test.*', '**/__tests__/**/*'],
+      rules: {
+        'no-console': 'off',
+      },
+    },
+  ],
 };

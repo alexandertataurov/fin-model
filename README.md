@@ -11,13 +11,18 @@ FinVision is a comprehensive web-based financial modeling and analysis platform 
 - **Professional Reporting**: Generate publication-ready reports and presentations
 - **Role-Based Access Control**: Secure access with Admin/Analyst/Viewer roles
 
+## 📚 Documentation & Governance
+
+- [Contributing Guidelines](docs/contributing.md) – naming conventions, component guidelines, and review procedures (also on our [internal wiki](https://wiki.internal/FinVision/Contributing)).
+- [RFC Process](docs/rfc.md) – propose significant design system changes (also on our [internal wiki](https://wiki.internal/FinVision/RFC)).
+
 ## 🏗️ Architecture
 
 ### Frontend
 
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
-- **UI Library**: Material-UI (MUI)
+- **UI Library**: Radix UI + Tailwind CSS
 - **Charts**: Recharts
 - **State Management**: Zustand + React Query
 - **Testing**: Vitest + React Testing Library
@@ -40,6 +45,16 @@ FinVision is a comprehensive web-based financial modeling and analysis platform 
 - **CI/CD**: GitHub Actions
 - **Database**: PostgreSQL 15
 - **Cache/Queue**: Redis 7
+
+## ⏱️ Background Job Workflow
+
+Long-running calculations run asynchronously using Celery. For example, to
+calculate the comprehensive financial model:
+
+1. `POST /api/v1/lean-financial/calculate/comprehensive` – returns a `task_id`
+   instead of the immediate result.
+2. `GET /api/v1/tasks/{task_id}` – check task status and retrieve results when
+   completed.
 
 ## 🛠️ Development Setup
 
@@ -84,10 +99,10 @@ npm run dev
 #### Backend Setup
 
 ```bash
-cd backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+cd backend
 uvicorn main:app --reload
 ```
 
@@ -122,8 +137,8 @@ fin-model/
 │   │   ├── core/           # Core configuration
 │   │   ├── models/         # SQLAlchemy models
 │   │   └── services/       # Business logic
-│   ├── requirements.txt
 │   └── main.py
+├── requirements.txt        # Python dependencies
 ├── netlify.toml            # Netlify deployment configuration
 ├── tasks/                   # Project task documentation
 ├── docker-compose.yml       # Local development setup
@@ -164,7 +179,6 @@ The frontend is configured for easy deployment on Netlify with automatic builds 
 #### Quick Deploy
 
 1. **Connect Repository to Netlify**
-
    - Log in to [Netlify](https://netlify.com)
    - Click "New site from Git"
    - Connect your repository
@@ -293,6 +307,8 @@ See `/tasks/README.md` for detailed task breakdowns and progress tracking.
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+Refer to the [Contributing Guidelines](docs/contributing.md) (also on our [internal wiki](https://wiki.internal/FinVision/Contributing)) for naming rules, component expectations, and review workflow. For major changes, start with the [RFC process](docs/rfc.md) (also on our [internal wiki](https://wiki.internal/FinVision/RFC)).
 
 ### Code Quality
 

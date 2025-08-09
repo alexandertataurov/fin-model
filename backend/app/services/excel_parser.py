@@ -115,7 +115,9 @@ class ParsedData:
     file_path: str
     file_size: int
     sheets: List[SheetInfo] = field(default_factory=list)
-    validation_summary: ValidationSummary = field(default_factory=ValidationSummary)
+    validation_summary: ValidationSummary = field(
+        default_factory=ValidationSummary
+    )
     metadata: Dict[str, Any] = field(default_factory=dict)
     formulas: Dict[str, str] = field(default_factory=dict)
     dependencies: Dict[str, List[str]] = field(default_factory=dict)
@@ -175,16 +177,21 @@ class ExcelParser:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
         workbook = load_workbook(file_path, data_only=True)
-        sheets = []
-        for sheet_name in workbook.sheetnames:
-            sheet = workbook[sheet_name]
-            data = [list(row) for row in sheet.iter_rows(values_only=True)]
-            sheets.append({"name": sheet_name, "type": "financial", "data": data})
-        return {
-            "file_path": file_path,
-            "sheets": sheets,
-            "metadata": {"sheet_count": len(sheets)},
-        }
+        try:
+            sheets = []
+            for sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+                data = [list(row) for row in sheet.iter_rows(values_only=True)]
+                sheets.append(
+                    {"name": sheet_name, "type": "financial", "data": data}
+                )
+            return {
+                "file_path": file_path,
+                "sheets": sheets,
+                "metadata": {"sheet_count": len(sheets)},
+            }
+        finally:
+            workbook.close()
 
     # The remaining complex implementation is kept for completeness but unused in tests
     def parse_excel_file(self, file_path: str) -> ParsedData:
@@ -204,10 +211,13 @@ class ExcelParser:
                 sheet = workbook[sheet_name]
                 sheet_info = self._parse_worksheet(sheet)
                 parsed_data.sheets.append(sheet_info)
-            parsed_data.formulas, parsed_data.dependencies = self._extract_formulas(
-                workbook
+            (
+                parsed_data.formulas,
+                parsed_data.dependencies,
+            ) = self._extract_formulas(workbook)
+            parsed_data.time_series_data = self._extract_time_series(
+                parsed_data.sheets
             )
-            parsed_data.time_series_data = self._extract_time_series(parsed_data.sheets)
             parsed_data.financial_metrics = self._calculate_basic_metrics(
                 parsed_data.sheets
             )
@@ -239,7 +249,9 @@ class ExcelParser:
             "title": properties.title,
             "subject": properties.subject,
             "creator": properties.creator,
-            "created": properties.created.isoformat() if properties.created else None,
+            "created": properties.created.isoformat()
+            if properties.created
+            else None,
             "modified": properties.modified.isoformat()
             if properties.modified
             else None,
@@ -260,7 +272,10 @@ class ExcelParser:
         sheet_info.data_range = self._find_data_range(sheet)
 
         # Detect header row and data start
-        sheet_info.header_row, sheet_info.data_start_row = self._detect_headers(sheet)
+        (
+            sheet_info.header_row,
+            sheet_info.data_start_row,
+        ) = self._detect_headers(sheet)
 
         # Parse cells
         formula_count = 0
@@ -284,7 +299,10 @@ class ExcelParser:
     def _parse_cell(self, cell: Cell) -> CellInfo:
         """Parse individual cell."""
         cell_info = CellInfo(
-            address=cell.coordinate, row=cell.row, column=cell.column, value=cell.value
+            address=cell.coordinate,
+            row=cell.row,
+            column=cell.column,
+            value=cell.value,
         )
 
         # Handle formulas
@@ -400,7 +418,9 @@ class ExcelParser:
 
         return None
 
-    def _detect_headers(self, sheet: Worksheet) -> Tuple[Optional[int], Optional[int]]:
+    def _detect_headers(
+        self, sheet: Worksheet
+    ) -> Tuple[Optional[int], Optional[int]]:
         """Detect header row and data start row."""
         header_row = None
         data_start_row = None
@@ -475,11 +495,20 @@ class ExcelParser:
 
                     # Look for section headers
                     if "revenue" in text or "sales" in text:
-                        sections["revenue_section"] = {"row": row, "col": col}
+                        sections["revenue_section"] = {
+                            "row": row,
+                            "col": col,
+                        }
                     elif "expense" in text or "cost" in text:
-                        sections["expense_section"] = {"row": row, "col": col}
+                        sections["expense_section"] = {
+                            "row": row,
+                            "col": col,
+                        }
                     elif "total" in text:
-                        sections["total_section"] = {"row": row, "col": col}
+                        sections["total_section"] = {
+                            "row": row,
+                            "col": col,
+                        }
 
         return sections
 
@@ -491,7 +520,9 @@ class ExcelParser:
             # Look for date patterns in the first few rows
             date_columns = []
             for cell in sheet.cells[:50]:  # Check first 50 cells
-                if cell.data_type == DataType.DATE or self._looks_like_date(cell.value):
+                if cell.data_type == DataType.DATE or self._looks_like_date(
+                    cell.value
+                ):
                     date_columns.append(cell.column)
 
             if date_columns:
@@ -507,9 +538,13 @@ class ExcelParser:
         if not isinstance(value, str):
             return False
 
-        return any(re.search(pattern, value.lower()) for pattern in self.date_patterns)
+        return any(
+            re.search(pattern, value.lower()) for pattern in self.date_patterns
+        )
 
-    def _calculate_basic_metrics(self, sheets: List[SheetInfo]) -> Dict[str, Any]:
+    def _calculate_basic_metrics(
+        self, sheets: List[SheetInfo]
+    ) -> Dict[str, Any]:
         """Calculate basic financial metrics from the data."""
         metrics = {}
 
@@ -517,7 +552,8 @@ class ExcelParser:
             sheet_metrics = {
                 "total_cells": len(sheet.cells),
                 "formula_cells": sheet.formula_count,
-                "data_density": len(sheet.cells) / (sheet.max_row * sheet.max_column)
+                "data_density": len(sheet.cells)
+                / (sheet.max_row * sheet.max_column)
                 if sheet.max_row > 0 and sheet.max_column > 0
                 else 0,
                 "has_financial_data": len(sheet.financial_sections) > 0,
@@ -554,7 +590,11 @@ class ExcelParser:
             s
             for s in parsed_data.sheets
             if s.sheet_type
-            in [SheetType.PROFIT_LOSS, SheetType.BALANCE_SHEET, SheetType.CASH_FLOW]
+            in [
+                SheetType.PROFIT_LOSS,
+                SheetType.BALANCE_SHEET,
+                SheetType.CASH_FLOW,
+            ]
         ]
 
         if not financial_sheets:
@@ -567,7 +607,9 @@ class ExcelParser:
             )
 
         # Check for formulas
-        total_formulas = sum(sheet.formula_count for sheet in parsed_data.sheets)
+        total_formulas = sum(
+            sheet.formula_count for sheet in parsed_data.sheets
+        )
         if total_formulas == 0:
             warnings.append(
                 ValidationError(

@@ -5,7 +5,12 @@ from sqlalchemy import and_, or_, func
 from dataclasses import dataclass
 import asyncio
 
-from app.models.parameter import Scenario, Parameter, ParameterValue, CalculationAudit
+from app.models.parameter import (
+    Scenario,
+    Parameter,
+    ParameterValue,
+    CalculationAudit,
+)
 from app.models.file import UploadedFile
 from app.models.user import User
 from app.services.formula_engine import FormulaEngine, CalculationResult
@@ -67,7 +72,11 @@ class ScenarioManager:
         and returns a coroutine that can be awaited.
         """
 
-        if base_file_id is None and user_id is None and isinstance(description, dict):
+        if (
+            base_file_id is None
+            and user_id is None
+            and isinstance(description, dict)
+        ):
             # Simplified path for unit tests
             return {"name": name, "assumptions": description}
 
@@ -119,7 +128,9 @@ class ScenarioManager:
 
             # If this has a parent, copy parameter values
             if parent_scenario:
-                await self._copy_parameter_values(parent_scenario_id, scenario.id)
+                await self._copy_parameter_values(
+                    parent_scenario_id, scenario.id
+                )
             else:
                 # Initialize with default parameter values from file
                 await self._initialize_parameter_values(
@@ -148,7 +159,8 @@ class ScenarioManager:
             source_scenario = (
                 self.db.query(Scenario)
                 .filter(
-                    Scenario.id == source_scenario_id, Scenario.created_by_id == user_id
+                    Scenario.id == source_scenario_id,
+                    Scenario.created_by_id == user_id,
                 )
                 .first()
             )
@@ -202,7 +214,10 @@ class ScenarioManager:
         """
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -210,7 +225,13 @@ class ScenarioManager:
             raise ValueError("Scenario not found")
 
         # Update allowed fields
-        allowed_fields = ["name", "description", "status", "is_baseline", "is_template"]
+        allowed_fields = [
+            "name",
+            "description",
+            "status",
+            "is_baseline",
+            "is_template",
+        ]
 
         for field, value in updates.items():
             if field in allowed_fields and value is not None:
@@ -231,7 +252,10 @@ class ScenarioManager:
         """
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -286,11 +310,16 @@ class ScenarioManager:
     # Helper methods used in unit tests
     # ------------------------------------------------------------------
 
-    def get_scenario_by_id(self, scenario_id: int, user_id: int) -> Optional[Scenario]:
+    def get_scenario_by_id(
+        self, scenario_id: int, user_id: int
+    ) -> Optional[Scenario]:
         """Return a scenario by ID or None."""
         return (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -336,7 +365,10 @@ class ScenarioManager:
         """Calculate scenario results using the formula engine."""
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
         if not scenario:
@@ -360,14 +392,18 @@ class ScenarioManager:
         """Compare two scenarios and return differences."""
         base_scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == base_scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == base_scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
         compare_scenario = (
             self.db.query(Scenario)
             .filter(
-                Scenario.id == compare_scenario_id, Scenario.created_by_id == user_id
+                Scenario.id == compare_scenario_id,
+                Scenario.created_by_id == user_id,
             )
             .first()
         )
@@ -389,7 +425,12 @@ class ScenarioManager:
         differences = []
         for bp in base_params:
             cp = next(
-                (p for p in compare_params if p.parameter_id == bp.parameter_id), None
+                (
+                    p
+                    for p in compare_params
+                    if p.parameter_id == bp.parameter_id
+                ),
+                None,
             )
             if cp and cp.value != bp.value:
                 differences.append(
@@ -410,14 +451,20 @@ class ScenarioManager:
         )
 
     async def get_scenario_history(
-        self, scenario_id: int, user_id: int, include_calculations: bool = True
+        self,
+        scenario_id: int,
+        user_id: int,
+        include_calculations: bool = True,
     ) -> Dict[str, Any]:
         """
         Get complete history of a scenario including parameter changes and calculations.
         """
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -497,14 +544,20 @@ class ScenarioManager:
         }
 
     async def calculate_scenario(
-        self, scenario_id: int, user_id: int, force_recalculation: bool = False
+        self,
+        scenario_id: int,
+        user_id: int,
+        force_recalculation: bool = False,
     ) -> Dict[str, Any]:
         """
         Calculate all formulas for a scenario.
         """
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -512,7 +565,10 @@ class ScenarioManager:
             raise ValueError("Scenario not found")
 
         # Check if calculation is needed
-        if not force_recalculation and scenario.calculation_status == "completed":
+        if (
+            not force_recalculation
+            and scenario.calculation_status == "completed"
+        ):
             # Check if any parameters have changed since last calculation
             last_calc = scenario.last_calculated_at or datetime.min
             recent_changes = (
@@ -583,7 +639,9 @@ class ScenarioManager:
 
             # Complete audit
             audit.end_time = datetime.utcnow()
-            audit.execution_time = (audit.end_time - audit.start_time).total_seconds()
+            audit.execution_time = (
+                audit.end_time - audit.start_time
+            ).total_seconds()
             audit.status = "success"
             audit.cells_calculated = cells_calculated
             audit.formulas_evaluated = formulas_evaluated
@@ -603,7 +661,9 @@ class ScenarioManager:
         except Exception as e:
             # Update audit with error
             audit.end_time = datetime.utcnow()
-            audit.execution_time = (audit.end_time - audit.start_time).total_seconds()
+            audit.execution_time = (
+                audit.end_time - audit.start_time
+            ).total_seconds()
             audit.status = "error"
             audit.error_message = str(e)
 
@@ -628,7 +688,8 @@ class ScenarioManager:
         source_scenario = (
             self.db.query(Scenario)
             .filter(
-                Scenario.id == source_scenario_id, Scenario.created_by_id == user_id
+                Scenario.id == source_scenario_id,
+                Scenario.created_by_id == user_id,
             )
             .first()
         )
@@ -706,7 +767,8 @@ class ScenarioManager:
         target_scenario = (
             self.db.query(Scenario)
             .filter(
-                Scenario.id == target_scenario_id, Scenario.created_by_id == user_id
+                Scenario.id == target_scenario_id,
+                Scenario.created_by_id == user_id,
             )
             .first()
         )
@@ -732,7 +794,8 @@ class ScenarioManager:
                     self.db.query(ParameterValue)
                     .filter(
                         ParameterValue.scenario_id == target_scenario_id,
-                        ParameterValue.parameter_id == template_value.parameter_id,
+                        ParameterValue.parameter_id
+                        == template_value.parameter_id,
                     )
                     .first()
                 )
@@ -763,7 +826,10 @@ class ScenarioManager:
 
             except Exception as e:
                 errors.append(
-                    {"parameter_id": template_value.parameter_id, "error": str(e)}
+                    {
+                        "parameter_id": template_value.parameter_id,
+                        "error": str(e),
+                    }
                 )
 
         self.db.commit()
@@ -779,7 +845,9 @@ class ScenarioManager:
 
     # Helper methods
 
-    async def _generate_version_number(self, parent_scenario_id: Optional[int]) -> str:
+    async def _generate_version_number(
+        self, parent_scenario_id: Optional[int]
+    ) -> str:
         """
         Generate version number for new scenario.
         """
@@ -794,7 +862,9 @@ class ScenarioManager:
         )
 
         parent_scenario = (
-            self.db.query(Scenario).filter(Scenario.id == parent_scenario_id).first()
+            self.db.query(Scenario)
+            .filter(Scenario.id == parent_scenario_id)
+            .first()
         )
 
         if parent_scenario:
@@ -839,7 +909,9 @@ class ScenarioManager:
         """
         # Get all parameters for this file
         parameters = (
-            self.db.query(Parameter).filter(Parameter.source_file_id == file_id).all()
+            self.db.query(Parameter)
+            .filter(Parameter.source_file_id == file_id)
+            .all()
         )
 
         for parameter in parameters:
@@ -847,7 +919,9 @@ class ScenarioManager:
                 parameter_id=parameter.id,
                 scenario_id=scenario_id,
                 value=parameter.current_value or parameter.default_value or 0,
-                original_value=parameter.current_value or parameter.default_value or 0,
+                original_value=parameter.current_value
+                or parameter.default_value
+                or 0,
                 change_reason="Initial scenario creation",
                 changed_by_id=user_id,
             )
@@ -880,7 +954,9 @@ class ScenarioManager:
             )
 
         base_values = {pv.parameter_id: pv.value for pv in base_query.all()}
-        compare_values = {pv.parameter_id: pv.value for pv in compare_query.all()}
+        compare_values = {
+            pv.parameter_id: pv.value for pv in compare_query.all()
+        }
 
         # Find differences
         differences = []
@@ -896,7 +972,9 @@ class ScenarioManager:
             if base_val != compare_val:
                 variance = compare_val - base_val
                 percentage_change = (
-                    (variance / base_val * 100) if base_val != 0 else float("inf")
+                    (variance / base_val * 100)
+                    if base_val != 0
+                    else float("inf")
                 )
 
                 differences.append(
@@ -906,7 +984,8 @@ class ScenarioManager:
                         "compare_value": compare_val,
                         "variance": variance,
                         "percentage_change": percentage_change,
-                        "is_significant": abs(percentage_change) > 5,  # 5% threshold
+                        "is_significant": abs(percentage_change)
+                        > 5,  # 5% threshold
                     }
                 )
 
@@ -974,7 +1053,9 @@ class ScenarioManager:
             if parameter and parameter.source_cell:
                 # Create cell reference
                 cell_ref = f"{parameter.source_sheet}!{parameter.source_cell}"
-                self.formula_engine.update_cell_value(cell_ref, param_value.value)
+                self.formula_engine.update_cell_value(
+                    cell_ref, param_value.value
+                )
 
     async def get_scenario_statistics(self, user_id: int) -> Dict[str, Any]:
         """
@@ -991,13 +1072,19 @@ class ScenarioManager:
         # Count scenarios by type
         baseline_count = (
             self.db.query(Scenario)
-            .filter(Scenario.created_by_id == user_id, Scenario.is_baseline == True)
+            .filter(
+                Scenario.created_by_id == user_id,
+                Scenario.is_baseline == True,
+            )
             .count()
         )
 
         template_count = (
             self.db.query(Scenario)
-            .filter(Scenario.created_by_id == user_id, Scenario.is_template == True)
+            .filter(
+                Scenario.created_by_id == user_id,
+                Scenario.is_template == True,
+            )
             .count()
         )
 
@@ -1045,7 +1132,9 @@ class ScenarioManager:
             },
         }
 
-    def analyze_sensitivity(self, scenarios: List[Any], parameter_name: str) -> Any:
+    def analyze_sensitivity(
+        self, scenarios: List[Any], parameter_name: str
+    ) -> Any:
         """Analyze scenario sensitivity.
 
         When called with a list of simple scenario dictionaries (as used in unit
@@ -1081,7 +1170,10 @@ class ScenarioManager:
 
                     target_param = None
                     for param in parameters:
-                        if parameter_name.lower() in param.parameter.name.lower():
+                        if (
+                            parameter_name.lower()
+                            in param.parameter.name.lower()
+                        ):
                             target_param = param
                             break
 
@@ -1161,7 +1253,9 @@ class ScenarioManager:
 
         try:
             base_scenario = (
-                self.db.query(Scenario).filter(Scenario.id == base_scenario_id).first()
+                self.db.query(Scenario)
+                .filter(Scenario.id == base_scenario_id)
+                .first()
             )
 
             if not base_scenario:
@@ -1194,7 +1288,9 @@ class ScenarioManager:
                         std_dev = distribution.get("std_dev", 0.1)
 
                         variation = random.normalvariate(mean, std_dev)
-                        iteration_values[param_name] = base_value * (1 + variation)
+                        iteration_values[param_name] = base_value * (
+                            1 + variation
+                        )
 
                 # Calculate outcome metric (simplified)
                 outcome = self._calculate_simulation_outcome(iteration_values)
@@ -1255,7 +1351,11 @@ class ScenarioManager:
         This is a simplified calculation - in practice would use the formula engine.
         """
         # Simple example: weighted sum of parameters
-        weights = {"revenue_growth": 0.4, "cost_growth": -0.3, "margin": 0.3}
+        weights = {
+            "revenue_growth": 0.4,
+            "cost_growth": -0.3,
+            "margin": 0.3,
+        }
 
         outcome = 0.0
         for param_name, value in parameter_values.items():

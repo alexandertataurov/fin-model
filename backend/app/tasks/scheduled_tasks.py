@@ -62,7 +62,9 @@ def cleanup_expired_files(task=None, db_session: Session | None = None):
         return {"success": False, "error": str(e)}
 
 
-@celery_app.task(bind=True, name="app.tasks.scheduled_tasks.generate_cleanup_report")
+@celery_app.task(
+    bind=True, name="app.tasks.scheduled_tasks.generate_cleanup_report"
+)
 def generate_cleanup_report(self):
     """Generate a report on cleanup statistics."""
     try:
@@ -160,7 +162,9 @@ def health_check(self):
         raise
 
 
-@celery_app.task(bind=True, name="app.tasks.scheduled_tasks.update_analytics_cache")
+@celery_app.task(
+    bind=True, name="app.tasks.scheduled_tasks.update_analytics_cache"
+)
 def update_analytics_cache(self):
     """Update cached analytics data for faster dashboard loading."""
     try:
@@ -172,14 +176,25 @@ def update_analytics_cache(self):
             # Generate and cache key analytics
             cache_data = {
                 "updated_at": datetime.utcnow().isoformat(),
-                "dashboard_summary_7d": analytics_service.get_dashboard_summary(7),
-                "dashboard_summary_30d": analytics_service.get_dashboard_summary(30),
-                "processing_overview": analytics_service.get_processing_overview(30),
-                "performance_metrics": analytics_service.get_performance_metrics(30),
+                "dashboard_summary_7d": analytics_service.get_dashboard_summary(
+                    7
+                ),
+                "dashboard_summary_30d": analytics_service.get_dashboard_summary(
+                    30
+                ),
+                "processing_overview": analytics_service.get_processing_overview(
+                    30
+                ),
+                "performance_metrics": analytics_service.get_performance_metrics(
+                    30
+                ),
             }
 
-            # TODO: Store in Redis cache for faster retrieval
-            # redis_client.setex("analytics_cache", 3600, json.dumps(cache_data))
+            # Store in Redis cache for faster retrieval
+            import json
+            from app.core.celery_app import redis_client
+
+            redis_client.setex("analytics_cache", 3600, json.dumps(cache_data))
 
             return {
                 "success": True,

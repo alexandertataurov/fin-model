@@ -320,9 +320,13 @@ class BaseRepository(Generic[ModelType], ABC):
                         elif operator == "not_in":
                             query = query.filter(~field.in_(filter_value))
                         elif operator == "like":
-                            query = query.filter(field.ilike(f"%{filter_value}%"))
+                            query = query.filter(
+                                field.ilike(f"%{filter_value}%")
+                            )
                         elif operator == "not_like":
-                            query = query.filter(~field.ilike(f"%{filter_value}%"))
+                            query = query.filter(
+                                ~field.ilike(f"%{filter_value}%")
+                            )
                 elif isinstance(value, list):
                     # Handle list of values (IN operator)
                     query = query.filter(field.in_(value))
@@ -333,7 +337,9 @@ class BaseRepository(Generic[ModelType], ABC):
         return query
 
     @abstractmethod
-    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[ModelType]:
+    def get_by_unique_field(
+        self, field_name: str, value: Any
+    ) -> Optional[ModelType]:
         """
         Get a record by a unique field value.
         Must be implemented by concrete repositories.

@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 
 class Settings(BaseSettings):
@@ -12,7 +13,9 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    SECRET_KEY: str = os.getenv(
+        "SECRET_KEY", "your-secret-key-change-in-production"
+    )
     ALGORITHM: str = "HS256"
 
     # Database
@@ -21,10 +24,20 @@ class Settings(BaseSettings):
     )
 
     # Test database
-    TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
+    TEST_DATABASE_URL: str = os.getenv(
+        "TEST_DATABASE_URL", "sqlite:///./test.db"
+    )
 
     # CORS - Use string type to avoid JSON parsing issues
-    BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    BACKEND_CORS_ORIGINS: str = (
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "https://pre-production--advanced-financial-modeling.netlify.app,"
+        "https://advanced-financial-modeling.netlify.app,"
+        "https://fin-model-production.up.railway.app,"
+        "https://*.netlify.app,"
+        "https://*.railway.app,"
+        "*"
+    )
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
@@ -37,15 +50,56 @@ class Settings(BaseSettings):
         """Get CORS origins as a list."""
         if self.BACKEND_CORS_ORIGINS == "*":
             return ["*"]
-        return [
-            origin.strip()
-            for origin in self.BACKEND_CORS_ORIGINS.split(",")
-            if origin.strip()
-        ]
+
+        origins = []
+        for origin in self.BACKEND_CORS_ORIGINS.split(","):
+            origin = origin.strip()
+            if origin:
+                # Handle wildcard domains
+                if origin.startswith("https://*."):
+                    # Add common subdomains for wildcard domains
+                    domain = origin.replace("https://*.", "")
+                    origins.extend(
+                        [
+                            f"https://{domain}",
+                            f"https://www.{domain}",
+                            f"https://pre-production--{domain}",
+                            f"https://production--{domain}",
+                            f"https://staging--{domain}",
+                            f"https://dev--{domain}",
+                        ]
+                    )
+                else:
+                    origins.append(origin)
+
+        # Add the original wildcard entries for broader compatibility
+        if "https://*.netlify.app" in self.BACKEND_CORS_ORIGINS:
+            origins.append("https://*.netlify.app")
+        if "https://*.railway.app" in self.BACKEND_CORS_ORIGINS:
+            origins.append("https://*.railway.app")
+
+        # Add specific Netlify domain to ensure it's included
+        origins.append(
+            "https://pre-production--advanced-financial-modeling.netlify.app"
+        )
+        origins.append("https://advanced-financial-modeling.netlify.app")
+
+        return list(set(origins))  # Remove duplicates
 
     # JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+
+    # OAuth Settings
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    MICROSOFT_CLIENT_ID: str = os.getenv("MICROSOFT_CLIENT_ID", "")
+    MICROSOFT_CLIENT_SECRET: str = os.getenv("MICROSOFT_CLIENT_SECRET", "")
+
+    # WebAuthn Settings
+    WEBAUTHN_RP_ID: str = os.getenv("WEBAUTHN_RP_ID", "localhost")
+    WEBAUTHN_RP_NAME: str = os.getenv("WEBAUTHN_RP_NAME", "FinVision")
+    WEBAUTHN_ORIGIN: str = os.getenv("WEBAUTHN_ORIGIN", "http://localhost:3000")
 
     # Email settings
     SMTP_HOST: str = os.getenv("SMTP_HOST", "localhost")
@@ -58,24 +112,32 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
     # File Upload Settings
-    MAX_FILE_SIZE: int = int(os.getenv("MAX_FILE_SIZE", "10485760"))  # 10MB default
+    MAX_FILE_SIZE: int = int(
+        os.getenv("MAX_FILE_SIZE", "10485760")
+    )  # 10MB default
     UPLOAD_FOLDER: str = os.getenv("UPLOAD_FOLDER", "uploads")
     ALLOWED_EXTENSIONS: List[str] = [".xlsx", ".xls", ".csv"]
 
     # Celery/Redis Settings
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
-    CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
+    CELERY_BROKER_URL: str = os.getenv(
+        "CELERY_BROKER_URL", "redis://localhost:6379"
+    )
     CELERY_RESULT_BACKEND: str = os.getenv(
         "CELERY_RESULT_BACKEND", "redis://localhost:6379"
     )
 
     # Cloud Storage Settings
-    STORAGE_PROVIDER: str = os.getenv("STORAGE_PROVIDER", "local")  # local, s3, azure
+    STORAGE_PROVIDER: str = os.getenv(
+        "STORAGE_PROVIDER", "local"
+    )  # local, s3, azure
     AWS_S3_BUCKET: str = os.getenv("AWS_S3_BUCKET", "finvision-files")
     AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
-    AZURE_CONTAINER_NAME: str = os.getenv("AZURE_CONTAINER_NAME", "finvision-files")
+    AZURE_CONTAINER_NAME: str = os.getenv(
+        "AZURE_CONTAINER_NAME", "finvision-files"
+    )
     AZURE_STORAGE_CONNECTION_STRING: str = os.getenv(
         "AZURE_STORAGE_CONNECTION_STRING", ""
     )
@@ -96,15 +158,17 @@ class Settings(BaseSettings):
     CANCELLED_FILES_RETENTION_DAYS: int = int(
         os.getenv("CANCELLED_FILES_RETENTION_DAYS", "3")
     )
-    LARGE_FILES_RETENTION_DAYS: int = int(os.getenv("LARGE_FILES_RETENTION_DAYS", "30"))
+    LARGE_FILES_RETENTION_DAYS: int = int(
+        os.getenv("LARGE_FILES_RETENTION_DAYS", "30")
+    )
     PREMIUM_FILES_RETENTION_DAYS: int = int(
         os.getenv("PREMIUM_FILES_RETENTION_DAYS", "180")
     )
-    DEMO_FILES_RETENTION_DAYS: int = int(os.getenv("DEMO_FILES_RETENTION_DAYS", "1"))
+    DEMO_FILES_RETENTION_DAYS: int = int(
+        os.getenv("DEMO_FILES_RETENTION_DAYS", "1")
+    )
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+    model_config = ConfigDict(case_sensitive=True, env_file=".env")
 
 
 settings = Settings()

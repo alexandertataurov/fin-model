@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Paper, Typography, Divider } from '@mui/material';
+import { formatCurrency, formatPercentage } from '@/utils/formatters';
+import { Card, Separator } from '../ui';
 
 
 
@@ -15,7 +16,6 @@ interface CustomTooltipProps {
   label?: string;
   formatter?: (value: number | string, name: string) => [string, string];
   labelFormatter?: (label: string) => string;
-  currency?: string;
   showTotal?: boolean;
 }
 
@@ -25,169 +25,93 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
   label,
   formatter,
   labelFormatter,
-  currency = '$',
   showTotal = false,
 }) => {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
 
-  const formatCurrency = (value: number | string): string => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    if (isNaN(numValue)) return String(value);
-    
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === '$' ? 'USD' : currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(numValue);
-  };
 
-  const formatPercentage = (value: number | string): string => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    if (isNaN(numValue)) return String(value);
-    
-    return `${numValue.toFixed(1)}%`;
-  };
+
+
 
   const getFormattedValue = (value: number | string, name: string): string => {
     if (formatter) {
-      return formatter(value, name)[0];
+      const [val] = formatter(value, name);
+      return val;
     }
-    
+
     // Auto-detect formatting based on name or value
     if (name.toLowerCase().includes('percent') || name.toLowerCase().includes('rate') || name.toLowerCase().includes('margin')) {
-      return formatPercentage(value);
+      return formatPercentage(typeof value === 'number' ? value : Number(value) || 0);
     }
-    
-    if (typeof value === 'number' && Math.abs(value) > 100) {
-      return formatCurrency(value);
+
+    if (typeof value === 'number') {
+      return Math.abs(value) > 100 ? formatCurrency(value) : String(value);
     }
-    
+
     return String(value);
   };
 
   const formattedLabel = labelFormatter ? labelFormatter(label || '') : label;
-  
-  const total = showTotal && payload.length > 1 
+
+  const total = showTotal && payload.length > 1
     ? payload.reduce((sum, item) => {
-        const val = typeof item.value === 'number' ? item.value : parseFloat(String(item.value)) || 0;
-        return sum + val;
-      }, 0)
+      const val = typeof item.value === 'number' ? item.value : parseFloat(String(item.value)) || 0;
+      return sum + val;
+    }, 0)
     : null;
 
   return (
-    <Paper
+    <Card
       data-testid="tooltip"
-      elevation={8}
-      sx={{
-        p: 2,
-        minWidth: 200,
-        maxWidth: 300,
-        border: '1px solid',
-        borderColor: 'divider',
-        backgroundColor: 'background.paper',
-        '& .MuiTypography-root': {
-          fontSize: '0.875rem',
-        },
-      }}
+      className="min-w-[200px] max-w-[300px] border shadow-lg bg-background p-3 text-sm"
     >
       {/* Label */}
       {formattedLabel && (
-        <Typography
-          variant="subtitle2"
-          sx={{
-            fontWeight: 600,
-            mb: 1,
-            color: 'text.primary',
-          }}
-        >
+        <h4 className="font-semibold mb-2 text-foreground">
           {formattedLabel}
-        </Typography>
+        </h4>
       )}
 
       {/* Data Items */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+      <div className="flex flex-col gap-1">
         {payload.map((item, index) => (
-          <Box
+          <div
             key={index}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-            }}
+            className="flex items-center justify-between gap-2"
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box
-                sx={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: item.color,
-                  borderRadius: '50%',
-                  flexShrink: 0,
-                }}
+            <div className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{ backgroundColor: item.color }}
               />
-              <Typography
-                variant="body2"
-                sx={{
-                  color: 'text.secondary',
-                  fontWeight: 500,
-                }}
-              >
+              <span className="text-muted-foreground font-medium">
                 {formatter ? formatter(item.value, item.name)[1] : item.name}
-              </Typography>
-            </Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: 'text.primary',
-                textAlign: 'right',
-              }}
-            >
+              </span>
+            </div>
+            <span className="font-semibold text-foreground text-right">
               {getFormattedValue(item.value, item.name)}
-            </Typography>
-          </Box>
+            </span>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {/* Total */}
       {total !== null && (
         <>
-          <Divider sx={{ my: 1 }} />
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 2,
-            }}
-          >
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: 'text.primary',
-              }}
-            >
+          <Separator className="my-2" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-foreground">
               Total
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 700,
-                color: 'primary.main',
-                textAlign: 'right',
-              }}
-            >
+            </span>
+            <span className="font-bold text-primary text-right">
               {formatCurrency(total)}
-            </Typography>
-          </Box>
+            </span>
+          </div>
         </>
       )}
-    </Paper>
+    </Card>
   );
 };
 

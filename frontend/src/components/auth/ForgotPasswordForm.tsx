@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/design-system/components/Button';
+import { Card, CardContent } from '@/design-system/components/Card';
+import { Input } from '@/design-system/components/Input';
+import { Label } from '@/design-system/components/Label';
 import {
   Mail,
   TrendingUp,
@@ -48,7 +48,7 @@ const ForgotPasswordForm: React.FC = () => {
         setSuccess(
           'If an account with that email exists, you will receive password reset instructions shortly.'
         );
-        
+
         // Redirect to login after 5 seconds
         setTimeout(() => {
           navigate('/login');
@@ -57,7 +57,7 @@ const ForgotPasswordForm: React.FC = () => {
         const error = err as {
           response?: { status?: number; data?: { detail?: string } };
         };
-        
+
         if (error.response?.status === 429) {
           setError('Too many password reset requests. Please try again later.');
         } else {
@@ -126,6 +126,7 @@ const ForgotPasswordForm: React.FC = () => {
                     autoComplete="email"
                     autoFocus
                     className="pl-9"
+                    data-testid="forgot-password-email-input"
                     disabled={success !== null}
                   />
                 </div>
@@ -136,6 +137,7 @@ const ForgotPasswordForm: React.FC = () => {
                 disabled={isLoading || success !== null}
                 className="w-full"
                 size="lg"
+                data-testid="forgot-password-submit"
               >
                 {isLoading ? (
                   <>
