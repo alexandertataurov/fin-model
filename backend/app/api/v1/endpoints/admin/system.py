@@ -1,5 +1,10 @@
+"""Administrative system endpoints."""
+
+# pylint: disable=too-many-lines
+
+import logging
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
@@ -9,24 +14,24 @@ from app.models.file import FileStatus, UploadedFile
 from app.models.financial import FinancialStatement
 from app.models.parameter import Parameter
 from app.models.user import User
-from app.services.file_service import FileService
-from app.services.maintenance_service import MaintenanceService
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import PlainTextResponse
 from app.schemas.admin import (
-    SystemStatsResponse,
-    SystemMetricsResponse,
     DataIntegrityResponse,
-    SecurityAuditResponse,
     MaintenanceScheduleItem,
     MaintenanceSchedules,
+    SecurityAuditResponse,
+    SystemMetricsResponse,
+    SystemStatsResponse,
 )
+from app.services.file_service import FileService
+from app.services.maintenance_service import MaintenanceService
+from app.services import rate_limit_service
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import PlainTextResponse
 from sqlalchemy import and_, func, text
 from sqlalchemy.orm import Session
 
 router = APIRouter()
-
-
+logger = logging.getLogger(__name__)
 
 
 @router.get("/system/health")
@@ -380,7 +385,9 @@ async def cleanup_orphaned_files(
                 try:
                     file_service.delete_file(file_record.id, current_user)
                 except Exception:
-                    pass
+                    logger.exception(
+                        "Failed to delete orphaned file %s", file_record.id
+                    )
                 db.delete(file_record)
             db.commit()
 
@@ -539,37 +546,10 @@ def clear_rate_limits(
     db: Session = Depends(get_db),
 ) -> Any:
     """Clear all rate limiting records to restore access."""
-    try:
-        from app.core.rate_limiter import RateLimit
-
-        deleted_count = db.query(RateLimit).delete()
-        db.commit()
-
-        return {
-            "message": "Rate limits cleared successfully",
-            "cleared_records": deleted_count,
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to clear rate limits: {str(e)}",
-        )
+    return rate_limit_service.clear_rate_limits(db)
 
 
 @router.post("/dev-clear-rate-limits", response_model=Dict[str, Any])
 def dev_clear_rate_limits(db: Session = Depends(get_db)) -> Any:
     """Development utility to clear rate limits without auth."""
-    try:
-        from app.core.rate_limiter import RateLimit
-
-        deleted_count = db.query(RateLimit).delete()
-        db.commit()
-        return {
-            "message": "Rate limits cleared successfully",
-            "cleared_records": deleted_count,
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to clear rate limits: {str(e)}",
-        )
+    return rate_limit_service.clear_rate_limits(db)

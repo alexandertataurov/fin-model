@@ -30,11 +30,20 @@ import {
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Switch } from '@/design-system/components/Switch';
+import { Input } from '@/design-system/components/Input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/components/Select';
 import { useAdminStore } from '@/stores/admin';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
 import OverviewTab from '@/components/AdminDashboard/OverviewTab';
+import HealthTab from '@/components/AdminDashboard/HealthTab';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import * as AdminApi from '@/services/admin';
@@ -374,14 +383,12 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap items-center gap-2 mb-4">
-                  <select
-                    className="border rounded px-2 py-1 bg-background text-sm"
+                  <Select
                     value={logsLevel}
-                    onChange={async e => {
-                      const lvl = e.target.value as typeof logsLevel;
-                      setLogsLevel(lvl);
+                    onValueChange={async lvl => {
+                      setLogsLevel(lvl as typeof logsLevel);
                       const resp = await AdminApi.getSystemLogs(
-                        lvl,
+                        lvl as typeof logsLevel,
                         logsLimit,
                         {
                           from: logsFrom || undefined,
@@ -396,19 +403,23 @@ const AdminDashboard: React.FC = () => {
                       setLogsTotal(env.total || 0);
                     }}
                   >
-                    {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(
-                      l => (
-                        <option key={l} value={l}>
-                          {l}
-                        </option>
-                      )
-                    )}
-                  </select>
-                  <select
-                    className="border rounded px-2 py-1 bg-background text-sm"
-                    value={logsLimit}
-                    onChange={async e => {
-                      const lim = Number(e.target.value);
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(
+                        l => (
+                          <SelectItem key={l} value={l}>
+                            {l}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={String(logsLimit)}
+                    onValueChange={async val => {
+                      const lim = Number(val);
                       setLogsLimit(lim);
                       const resp = await AdminApi.getSystemLogs(
                         logsLevel,
@@ -426,30 +437,35 @@ const AdminDashboard: React.FC = () => {
                       setLogsTotal(env.total || 0);
                     }}
                   >
-                    {[50, 100, 200, 500].map(l => (
-                      <option key={l} value={l}>
-                        {l}
-                      </option>
-                    ))}
-                  </select>
-                  <input
+                    <SelectTrigger className="w-28">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[50, 100, 200, 500].map(l => (
+                        <SelectItem key={l} value={String(l)}>
+                          {l}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={logsFrom}
                     onChange={e => setLogsFrom(e.target.value)}
+                    className="w-40"
                   />
-                  <input
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={logsTo}
                     onChange={e => setLogsTo(e.target.value)}
+                    className="w-40"
                   />
-                  <input
+                  <Input
                     type="text"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     placeholder="Search"
                     value={logsSearch}
                     onChange={e => setLogsSearch(e.target.value)}
+                    className="w-40"
                   />
                   <Button
                     size="sm"
@@ -618,9 +634,9 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    className="w-24"
                     placeholder="Skip"
                     value={auditFilters.skip}
                     onChange={e =>
@@ -630,9 +646,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    className="w-24"
                     placeholder="Limit"
                     value={auditFilters.limit}
                     onChange={e =>
@@ -642,9 +658,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-32"
+                    className="w-32"
                     placeholder="User ID"
                     value={auditFilters.userId || ''}
                     onChange={e =>
@@ -656,9 +672,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="text"
-                    className="border rounded px-2 py-1 bg-background text-sm w-40"
+                    className="w-40"
                     placeholder="Action"
                     value={auditFilters.action || ''}
                     onChange={e =>
@@ -668,17 +684,17 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={auditFrom}
                     onChange={e => setAuditFrom(e.target.value)}
+                    className="w-40"
                   />
-                  <input
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={auditTo}
                     onChange={e => setAuditTo(e.target.value)}
+                    className="w-40"
                   />
                   <Button
                     size="sm"
@@ -810,17 +826,17 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <CardTitle>Security Overview</CardTitle>
                       <div className="space-x-2 flex items-center">
-                        <input
+                        <Input
                           type="date"
-                          className="border rounded px-2 py-1 bg-background text-sm"
                           value={securityFrom}
                           onChange={e => setSecurityFrom(e.target.value)}
+                          className="w-40"
                         />
-                        <input
+                        <Input
                           type="date"
-                          className="border rounded px-2 py-1 bg-background text-sm"
                           value={securityTo}
                           onChange={e => setSecurityTo(e.target.value)}
+                          className="w-40"
                         />
                         <Button
                           variant="outline"

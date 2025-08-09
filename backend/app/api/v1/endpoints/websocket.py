@@ -1,13 +1,12 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
-from sqlalchemy.orm import Session
 import json
 import logging
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
-from app.models.base import get_db
 from app.core.security import verify_token
+from app.models.base import get_db
 from app.services.auth_service import AuthService
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -69,7 +68,7 @@ async def health_websocket(websocket: WebSocket):
             try:
                 await websocket.close()
             except Exception:
-                pass
+                logger.exception("Error closing WebSocket connection")
 
 
 @router.websocket("/notifications")
@@ -111,14 +110,10 @@ async def notifications_websocket(
                 logger.warning(
                     f"WebSocket connection attempt for inactive user {user_id}"
                 )
-                await websocket.close(
-                    code=4001, reason="User not found or inactive"
-                )
+                await websocket.close(code=4001, reason="User not found or inactive")
                 return
 
-            logger.info(
-                f"WebSocket authentication successful for user {user.id}"
-            )
+            logger.info(f"WebSocket authentication successful for user {user.id}")
         except Exception as e:
             logger.error(f"Database error during WebSocket authentication: {e}")
             await websocket.close(code=4001, reason="Database error")
@@ -127,7 +122,7 @@ async def notifications_websocket(
             try:
                 db.close()
             except Exception:
-                pass
+                logger.exception("Error closing DB session in WebSocket auth")
 
         logger.info(f"WebSocket connection accepted for user {user.id}")
 
@@ -174,15 +169,15 @@ async def notifications_websocket(
                         json.dumps(
                             {
                                 "type": "error",
-                                "message": f"Unknown message type: {message.get('type')}",
+                                "message": (
+                                    f"Unknown message type: {message.get('type')}"
+                                ),
                             }
                         )
                     )
 
             except WebSocketDisconnect:
-                logger.info(
-                    f"User {user.id} disconnected from notifications WebSocket"
-                )
+                logger.info(f"User {user.id} disconnected from notifications WebSocket")
                 break
             except Exception as e:
                 logger.error(
@@ -204,7 +199,7 @@ async def notifications_websocket(
             try:
                 await websocket.close()
             except Exception:
-                pass
+                logger.exception("Error closing WebSocket after failure")
 
 
 @router.websocket("/collaboration/ws/template/{template_id}")
@@ -255,14 +250,17 @@ async def collaboration_websocket(websocket: WebSocket, template_id: str):
                         json.dumps(
                             {
                                 "type": "error",
-                                "message": f"Unknown message type: {message.get('type')}",
+                                "message": (
+                                    f"Unknown message type: {message.get('type')}"
+                                ),
                             }
                         )
                     )
 
             except WebSocketDisconnect:
                 logger.info(
-                    f"Client disconnected from collaboration WebSocket for template {template_id}"
+                    "Client disconnected from collaboration WebSocket for "
+                    f"template {template_id}"
                 )
                 break
             except Exception as e:
@@ -282,7 +280,7 @@ async def collaboration_websocket(websocket: WebSocket, template_id: str):
         try:
             await websocket.close()
         except Exception:
-            pass
+            logger.exception("Error closing collaboration WebSocket")
 
 
 @router.websocket("/dashboard/{file_id}")
@@ -324,14 +322,17 @@ async def dashboard_websocket(websocket: WebSocket, file_id: str):
                         json.dumps(
                             {
                                 "type": "error",
-                                "message": f"Unknown message type: {message.get('type')}",
+                                "message": (
+                                    f"Unknown message type: {message.get('type')}"
+                                ),
                             }
                         )
                     )
 
             except WebSocketDisconnect:
                 logger.info(
-                    f"Client disconnected from dashboard WebSocket for file {file_id}"
+                    "Client disconnected from dashboard WebSocket for file "
+                    f"{file_id}"
                 )
                 break
             except Exception as e:
@@ -351,7 +352,7 @@ async def dashboard_websocket(websocket: WebSocket, file_id: str):
         try:
             await websocket.close()
         except Exception:
-            pass
+            logger.exception("Error closing dashboard WebSocket")
 
 
 @router.websocket("/")
@@ -367,7 +368,10 @@ async def root_websocket(websocket: WebSocket):
                 {
                     "type": "connection_established",
                     "message": "Root WebSocket connected",
-                    "info": "Use specific endpoints like /ws/notifications for full functionality",
+                    "info": (
+                        "Use specific endpoints like /ws/notifications for full "
+                        "functionality"
+                    ),
                 }
             )
         )
@@ -394,7 +398,10 @@ async def root_websocket(websocket: WebSocket):
                         json.dumps(
                             {
                                 "type": "info",
-                                "message": "This is a basic WebSocket endpoint. For authenticated features, use /ws/notifications",
+                                "message": (
+                                    "This is a basic WebSocket endpoint. "
+                                    "For authenticated features, use /ws/notifications"
+                                ),
                             }
                         )
                     )
@@ -419,7 +426,7 @@ async def root_websocket(websocket: WebSocket):
         try:
             await websocket.close()
         except Exception:
-            pass
+            logger.exception("Error closing root WebSocket")
 
 
 @router.websocket("/test")
@@ -491,4 +498,4 @@ async def test_websocket(websocket: WebSocket):
             try:
                 await websocket.close()
             except Exception:
-                pass
+                logger.exception("Error closing test WebSocket")
