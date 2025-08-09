@@ -118,10 +118,18 @@ class BulkUserActionRequest(BaseModel):
     user_ids: List[int]
     action: str
 
+class UserPermissionsResponse(BaseModel):
+    user_id: int
+    roles: List[str]
+    permissions: List[str]
+    is_admin: bool
+    is_analyst: bool
+
 
 @router.get("/users/activity-list", response_model=List[UserActivityResponse])
 async def get_user_activity(
-    request: Request,
+    limit: int = Query(50, ge=1, le=1000),
+    active_only: bool = Query(False),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
     db: Session = Depends(get_db),
 ):
@@ -211,7 +219,10 @@ async def get_user_activity(
         )
 
 
-@router.get("/users", response_model=Any)
+@router.get(
+    "/users",
+    response_model=Union[List[UserWithRoles], Dict[str, Any]],
+)
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -274,12 +285,13 @@ def list_users(
         )
 
         # Add roles to each user
-        users_with_roles = []
+        users_with_roles: List[UserWithRoles] = []
         for user in users:
             user_roles = auth_service.get_user_roles(user.id)
             user_dict = UserSchema.model_validate(user).model_dump()
-            user_dict["roles"] = user_roles
-            users_with_roles.append(user_dict)
+            users_with_roles.append(UserWithRoles(**user_dict, roles=user_roles))
+
+        items = [u.model_dump() for u in users_with_roles]
 
         # Return paginated response
         return create_pagination_response(
@@ -294,7 +306,7 @@ def list_users(
         raise handle_admin_error(e, "list users", current_user.id)
 
 
-@router.get("/users/{user_id}", response_model=Any)
+@router.get("/users/{user_id}", response_model=UserWithRoles)
 def get_user(
     user_id: int,
     current_user: User = Depends(require_permissions(Permission.USER_READ)),
@@ -312,14 +324,12 @@ def get_user(
     # Get user roles
     user_roles = auth_service.get_user_roles(user.id)
     user_dict = UserSchema.model_validate(user).model_dump()
-    user_dict["roles"] = user_roles
-
-    return user_dict
+    return UserWithRoles(**user_dict, roles=user_roles)
 
 
 @router.post(
     "/users",
-    response_model=Any,
+    response_model=UserWithRoles,
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -337,22 +347,16 @@ def create_user(
 
     roles = auth_service.get_user_roles(created.id)
     user_dict = UserSchema.model_validate(created).model_dump()
-    user_dict["roles"] = roles
+    user_with_roles = UserWithRoles(**user_dict, roles=roles)
     # Write audit (best-effort)
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="PROFILE_UPDATED",
-                resource="user",
-                resource_id=str(created.id),
-                details=f"Created user {created.username}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="PROFILE_UPDATED",
+        resource="user",
+        resource_id=str(created.id),
+        details=f"Created user {created.username}",
+    )
     return user_dict
 
 
@@ -381,25 +385,19 @@ def update_user(
     db.refresh(user)
 
     # Audit user update
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="PROFILE_UPDATED",
-                resource="user",
-                resource_id=str(user.id),
-                details=f"Updated user {user.username}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="PROFILE_UPDATED",
+        resource="user",
+        resource_id=str(user.id),
+        details=f"Updated user {user.username}",
+    )
 
     return user
 
 
-@router.delete("/users/{user_id}")
+@router.delete("/users/{user_id}", response_model=Dict[str, str])
 def delete_user(
     user_id: int,
     current_user: User = Depends(require_permissions(Permission.USER_DELETE)),
@@ -426,25 +424,19 @@ def delete_user(
     db.commit()
 
     # Audit deactivate
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="PROFILE_UPDATED",
-                resource="user",
-                resource_id=str(user.id),
-                details=f"Deactivated user {user.username}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="PROFILE_UPDATED",
+        resource="user",
+        resource_id=str(user.id),
+        details=f"Deactivated user {user.username}",
+    )
 
     return {"message": "User deactivated successfully"}
 
 
-@router.post("/users/{user_id}/roles/{role}")
+@router.post("/users/{user_id}/roles/{role}", response_model=Dict[str, str])
 def assign_role(
     user_id: int,
     role: RoleType,
@@ -477,25 +469,19 @@ def assign_role(
         )
 
     # Audit role assignment
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="ROLE_ASSIGNED",
-                resource="user",
-                resource_id=str(user_id),
-                details=f"Assigned role {role.value} to user {user_id}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="ROLE_ASSIGNED",
+        resource="user",
+        resource_id=str(user_id),
+        details=f"Assigned role {role.value} to user {user_id}",
+    )
 
     return {"message": f"Role {role.value} assigned successfully"}
 
 
-@router.delete("/users/{user_id}/roles/{role}")
+@router.delete("/users/{user_id}/roles/{role}", response_model=Dict[str, str])
 def remove_role(
     user_id: int,
     role: RoleType,
@@ -543,27 +529,19 @@ def remove_role(
     if user_role:
         user_role.is_active = False
         db.commit()
-
-        # Audit role removal
-        try:
-            db.add(
-                AuditLog(
-                    user_id=current_user.id,
-                    action="ROLE_REMOVED",
-                    resource="user",
-                    resource_id=str(user_id),
-                    details=f"Removed role {role.value} from user {user_id}",
-                    success="true",
-                )
-            )
-            db.commit()
-        except Exception:
-            db.rollback()
+        log_audit(
+            db,
+            user_id=current_user.id,
+            action="ROLE_REMOVED",
+            resource="user",
+            resource_id=str(user_id),
+            details=f"Removed role {role.value} from user {user_id}",
+        )
 
     return {"message": f"Role {role.value} removed successfully"}
 
 
-@router.get("/audit-logs")
+@router.get("/audit-logs", response_model=Dict[str, Any])
 def get_audit_logs(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -656,7 +634,7 @@ def get_audit_logs(
         raise handle_admin_error(e, "get audit logs", current_user.id)
 
 
-@router.get("/system/health")
+@router.get("/system/health", response_model=Dict[str, Any])
 def system_health(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
     db: Session = Depends(get_db),
@@ -688,18 +666,18 @@ def system_health(
     }
 
 
-@router.get("/permissions")
+@router.get("/permissions", response_model=UserPermissionsResponse)
 def get_user_permissions(
     user_with_perms: UserWithPermissions = Depends(get_current_user_with_permissions),
-) -> Any:
+) -> UserPermissionsResponse:
     """Get current user's permissions."""
-    return {
-        "user_id": user_with_perms.user.id,
-        "roles": user_with_perms.roles,
-        "permissions": [p.value for p in user_with_perms.permissions],
-        "is_admin": user_with_perms.is_admin(),
-        "is_analyst": user_with_perms.is_analyst(),
-    }
+    return UserPermissionsResponse(
+        user_id=user_with_perms.user.id,
+        roles=user_with_perms.roles,
+        permissions=[p.value for p in user_with_perms.permissions],
+        is_admin=user_with_perms.is_admin(),
+        is_analyst=user_with_perms.is_analyst(),
+    )
 
 
 @router.get("/database/health", response_model=Dict[str, Any])
@@ -982,7 +960,7 @@ async def update_maintenance_schedules(
     return await get_maintenance_schedules(current_user=current_user, db=db)
 
 
-@router.get("/maintenance/tasks/{task_id}")
+@router.get("/maintenance/tasks/{task_id}", response_model=Dict[str, Any])
 async def get_maintenance_task_status(
     task_id: str,
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
@@ -1025,7 +1003,7 @@ def clear_rate_limits(
         )
 
 
-@router.get("/reports/overview")
+@router.get("/reports/overview", response_model=Dict[str, Any])
 async def get_admin_overview_report(
     format: str = Query("json", pattern="^(json|csv)$"),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
@@ -1669,7 +1647,10 @@ async def bulk_user_action(
         )
 
 
-@router.get("/system/logs")
+@router.get(
+    "/system/logs",
+    response_model=Union[List[Dict[str, Any]], Dict[str, Any]],
+)
 async def get_system_logs(
     level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
     limit: int = Query(100, ge=1, le=1000),

@@ -138,7 +138,7 @@ class TestEnhancedAuditLogs:
 class TestRealActivityMetrics:
     """Test that activity metrics use real data."""
 
-    @patch("app.api.v1.endpoints.admin.db.query")
+    @patch("app.api.v1.endpoints.admin.users.db.query")
     def test_activity_metrics_queries_audit_logs(
         self, mock_query, client, auth_headers
     ):
@@ -231,7 +231,7 @@ class TestMaintenanceTasks:
 class TestSecurityAuditEnhancements:
     """Test enhanced security audit functionality."""
 
-    @patch("app.api.v1.endpoints.admin.db.query")
+    @patch("app.api.v1.endpoints.admin.system.db.query")
     def test_security_audit_queries_real_data(self, mock_query, client, auth_headers):
         """Test that security audit uses real audit log data."""
         # Mock various query chains
@@ -269,7 +269,7 @@ class TestSecurityAuditEnhancements:
 class TestSystemMetricsEnhancements:
     """Test enhanced system metrics."""
 
-    @patch("app.api.v1.endpoints.admin.db.query")
+    @patch("app.api.v1.endpoints.admin.system.db.query")
     def test_system_metrics_uses_real_data(self, mock_query, client, auth_headers):
         """Test that system metrics calculate real values from audit logs."""
         # Mock audit log queries for metrics calculation
