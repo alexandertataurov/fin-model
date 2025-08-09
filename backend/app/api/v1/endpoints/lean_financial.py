@@ -3,24 +3,16 @@ Lean Financial Modeling API Endpoints
 Core endpoints for the lean financial modeling application
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from app.core.dependencies import get_db, get_current_user
+from app.core.dependencies import get_current_user, get_db
 from app.models.user import User
-from app.services.lean_financial_engine import (
-    LeanFinancialEngine,
-    CoreParameters,
-    StatementType,
-)
-from app.services.lean_parameter_manager import (
-    LeanParameterManager,
-    ParameterCategory,
-)
+from app.services.lean_financial_engine import LeanFinancialEngine
+from app.services.lean_parameter_manager import LeanParameterManager, ParameterCategory
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -46,9 +38,7 @@ class ScenarioCreateRequest(BaseModel):
 
 
 class SensitivityAnalysisRequest(BaseModel):
-    base_parameters: Dict[str, float] = Field(
-        ..., description="Base parameter values"
-    )
+    base_parameters: Dict[str, float] = Field(..., description="Base parameter values")
     sensitivity_parameters: Optional[List[str]] = Field(
         None, description="Parameters to analyze"
     )
@@ -61,9 +51,7 @@ class ParameterImpactRequest(BaseModel):
     parameter_key: str = Field(..., description="Parameter to analyze")
     old_value: float = Field(..., description="Current parameter value")
     new_value: float = Field(..., description="New parameter value")
-    base_parameters: Dict[str, float] = Field(
-        ..., description="Base parameter values"
-    )
+    base_parameters: Dict[str, float] = Field(..., description="Base parameter values")
 
 
 class FinancialModelResponse(BaseModel):
@@ -210,12 +198,11 @@ async def calculate_comprehensive_model(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Calculate comprehensive financial model with P&L, Balance Sheet, Cash Flow, and DCF"""
+    """Queue comprehensive financial model calculation and return task ID."""
     try:
         param_manager = LeanParameterManager(db)
-        engine = LeanFinancialEngine(db)
 
-        # Validate parameters
+        # Validate parameters before queuing task
         is_valid, errors = param_manager.validate_parameters(request.parameters)
         if not is_valid:
             raise HTTPException(
@@ -223,35 +210,20 @@ async def calculate_comprehensive_model(
                 detail=f"Parameter validation failed: {errors}",
             )
 
-        # Create CoreParameters from request
-        core_parameters = param_manager.create_core_parameters_from_dict(
-            request.parameters
+        from app.tasks.lean_financial import calculate_comprehensive_model_task
+
+        task = calculate_comprehensive_model_task.delay(
+            request.parameters, request.base_revenue
         )
 
-        # Calculate comprehensive model
-        model_result = engine.calculate_comprehensive_model(
-            core_parameters, request.base_revenue
-        )
-
-        # Convert dataclass objects to dictionaries for JSON serialization
-        response_data = {
-            "profit_loss": model_result["profit_loss"].__dict__,
-            "balance_sheet": model_result["balance_sheet"].__dict__,
-            "cash_flow": model_result["cash_flow"].__dict__,
-            "dcf_valuation": model_result["dcf_valuation"].__dict__,
-            "parameters": model_result["parameters"].__dict__,
-            "calculation_timestamp": model_result["calculation_timestamp"],
-            "model_version": model_result["model_version"],
-        }
-
-        return {"success": True, "data": response_data}
+        return {"task_id": task.id, "status": "processing"}
 
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to calculate comprehensive model: {str(e)}",
+            detail=f"Failed to queue comprehensive model calculation: {str(e)}",
         )
 
 
@@ -295,16 +267,12 @@ async def calculate_individual_statement(
 
         # Calculate specific statement
         if statement_type == "profit_loss":
-            result = engine.calculate_profit_loss(
-                core_parameters, request.base_revenue
-            )
+            result = engine.calculate_profit_loss(core_parameters, request.base_revenue)
         elif statement_type == "balance_sheet":
             pl_statement = engine.calculate_profit_loss(
                 core_parameters, request.base_revenue
             )
-            result = engine.calculate_balance_sheet(
-                core_parameters, pl_statement
-            )
+            result = engine.calculate_balance_sheet(core_parameters, pl_statement)
         elif statement_type == "cash_flow":
             pl_statement = engine.calculate_profit_loss(
                 core_parameters, request.base_revenue
@@ -420,32 +388,27 @@ async def create_sensitivity_analysis(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Create sensitivity analysis for key parameters"""
+    """Queue a sensitivity analysis and return task ID."""
     try:
         param_manager = LeanParameterManager(db)
 
-        # Create CoreParameters from request
-        base_parameters = param_manager.create_core_parameters_from_dict(
-            request.base_parameters
-        )
+        # Validate base parameters before queuing task
+        _ = param_manager.create_core_parameters_from_dict(request.base_parameters)
 
-        # Create sensitivity analysis
-        sensitivity_result = param_manager.create_sensitivity_analysis(
-            base_parameters,
+        from app.tasks.lean_financial import create_sensitivity_analysis_task
+
+        task = create_sensitivity_analysis_task.delay(
+            request.base_parameters,
             request.sensitivity_parameters,
             request.variation_percent,
         )
 
-        return {
-            "success": True,
-            "data": sensitivity_result,
-            "analysis_timestamp": datetime.utcnow(),
-        }
+        return {"task_id": task.id, "status": "processing"}
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create sensitivity analysis: {str(e)}",
+            detail=f"Failed to queue sensitivity analysis: {str(e)}",
         )
 
 
@@ -559,14 +522,14 @@ async def export_parameters(
 async def health_check():
     """Health check endpoint for lean financial engine"""
     try:
-        # Basic health check - ensure we can import core modules
+        # Basic health check - ensure core modules import correctly
         from app.services.lean_financial_engine import (
-            LeanFinancialEngine,
             CoreParameters,
+            LeanFinancialEngine,
         )
-        from app.services.lean_parameter_manager import (
-            LeanParameterManager,
-        )
+        from app.services.lean_parameter_manager import LeanParameterManager
+
+        _ = CoreParameters, LeanFinancialEngine, LeanParameterManager
 
         return {
             "success": True,

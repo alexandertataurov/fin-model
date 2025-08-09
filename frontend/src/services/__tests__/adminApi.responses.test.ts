@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import AdminApiService, { SystemStats, UserActivity, SystemMetrics, SecurityAudit, MaintenanceSchedules, LogEntry, AuditEntry, UserWithRoles, DatabaseHealth } from '../adminApi'
+import AdminApiService, { SystemStats, SystemMetrics, SecurityAudit, MaintenanceSchedules, LogEntry, AuditEntry, UserWithRoles, DatabaseHealth } from '../adminApi'
+import { UserActivity } from '../../types/admin'
 import apiClient from '../api'
 
 vi.mock('../api', () => {
@@ -130,5 +131,3 @@ describe('AdminApiService response shapes', () => {
         expect(schedRes.items[0].task).toBe('cleanup')
     })
 })
-
-

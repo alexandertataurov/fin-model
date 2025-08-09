@@ -41,6 +41,16 @@ FinVision is a comprehensive web-based financial modeling and analysis platform 
 - **Database**: PostgreSQL 15
 - **Cache/Queue**: Redis 7
 
+## ⏱️ Background Job Workflow
+
+Long-running calculations run asynchronously using Celery. For example, to
+calculate the comprehensive financial model:
+
+1. `POST /api/v1/lean-financial/calculate/comprehensive` – returns a `task_id`
+   instead of the immediate result.
+2. `GET /api/v1/tasks/{task_id}` – check task status and retrieve results when
+   completed.
+
 ## 🛠️ Development Setup
 
 ### Prerequisites

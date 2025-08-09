@@ -1,18 +1,19 @@
-from fastapi import APIRouter
 from app.api.v1.endpoints import (
+    admin,
     auth,
-    mfa,
-    oauth,
-    webauthn,
-    files,
     dashboard,
+    files,
+    lean_financial,
+    mfa,
+    notifications,
+    oauth,
     parameters,
     scenarios,
     statements,
-    lean_financial,
-    notifications,
+    tasks,
+    webauthn,
 )
-from app.api.v1.endpoints.admin import users, system, database, logs
+from fastapi import APIRouter
 
 api_router = APIRouter()
 
@@ -64,6 +65,9 @@ api_router.include_router(
 api_router.include_router(
     notifications.router, prefix="/notifications", tags=["notifications"]
 )
+
+# Include task status routes
+api_router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 
 
 @api_router.get("/")
