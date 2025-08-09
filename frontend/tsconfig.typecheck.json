@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "include": ["src"],
   "exclude": [
+<<<<<<< HEAD
     "node_modules",
     "**/*.stories.ts",
     "**/*.stories.tsx",
@@ -9,5 +10,12 @@
     "src/design-system/stories/**",
     ".storybook/**",
     "src/pages/__tests__/**"
+=======
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/test",
+    "src/**/*.{spec,e2e}.ts",
+    "src/**/*.{spec,e2e}.tsx"
+>>>>>>> 9437f9b (refactor: remove unused dashboard layout)
   ]
 }
