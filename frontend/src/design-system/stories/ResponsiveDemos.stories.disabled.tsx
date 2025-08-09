@@ -422,6 +422,121 @@ const ResponsiveCards = () => (
     </div>
 );
 
+const OverviewContent = () => (
+    <div className="space-y-4">
+        <h4 className="text-lg font-medium">Product Overview</h4>
+        <p className="text-muted-foreground">
+            Our comprehensive solution provides everything you need to manage your business effectively.
+            Built with modern technologies and designed for scalability.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 border rounded-lg">
+                <div className="text-2xl font-bold text-primary mb-2">99.9%</div>
+                <div className="text-sm text-muted-foreground">Uptime</div>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+                <div className="text-2xl font-bold text-primary mb-2">24/7</div>
+                <div className="text-sm text-muted-foreground">Support</div>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+                <div className="text-2xl font-bold text-primary mb-2">50+</div>
+                <div className="text-sm text-muted-foreground">Integrations</div>
+            </div>
+        </div>
+    </div>
+);
+
+const FeaturesContent = () => (
+    <div className="space-y-4">
+        <h4 className="text-lg font-medium">Key Features</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+                <h5 className="font-medium">Analytics Dashboard</h5>
+                <p className="text-sm text-muted-foreground">Real-time insights and reporting</p>
+            </div>
+            <div className="space-y-2">
+                <h5 className="font-medium">User Management</h5>
+                <p className="text-sm text-muted-foreground">Comprehensive user control</p>
+            </div>
+            <div className="space-y-2">
+                <h5 className="font-medium">API Access</h5>
+                <p className="text-sm text-muted-foreground">RESTful API with documentation</p>
+            </div>
+            <div className="space-y-2">
+                <h5 className="font-medium">Security</h5>
+                <p className="text-sm text-muted-foreground">Enterprise-grade security</p>
+            </div>
+        </div>
+    </div>
+);
+
+const PricingContent = () => (
+    <div className="space-y-4">
+        <h4 className="text-lg font-medium">Pricing Plans</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="text-center">
+                <CardHeader>
+                    <CardTitle className="text-lg">Starter</CardTitle>
+                    <CardDescription>Perfect for small teams</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-3xl font-bold mb-4">$29<span className="text-sm text-muted-foreground">/month</span></div>
+                    <Button className="w-full">Get Started</Button>
+                </CardContent>
+            </Card>
+
+            <Card className="text-center border-primary">
+                <CardHeader>
+                    <CardTitle className="text-lg">Professional</CardTitle>
+                    <CardDescription>Most popular choice</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-3xl font-bold mb-4">$99<span className="text-sm text-muted-foreground">/month</span></div>
+                    <Button className="w-full">Get Started</Button>
+                </CardContent>
+            </Card>
+
+            <Card className="text-center">
+                <CardHeader>
+                    <CardTitle className="text-lg">Enterprise</CardTitle>
+                    <CardDescription>For large organizations</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-3xl font-bold mb-4">$299<span className="text-sm text-muted-foreground">/month</span></div>
+                    <Button className="w-full">Contact Sales</Button>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+);
+
+const DocsContent = () => (
+    <div className="space-y-4">
+        <h4 className="text-lg font-medium">Documentation</h4>
+        <p className="text-muted-foreground">
+            Comprehensive documentation with examples, tutorials, and API references.
+        </p>
+    </div>
+);
+
+const SupportContent = () => (
+    <div className="space-y-4">
+        <h4 className="text-lg font-medium">Support</h4>
+        <p className="text-muted-foreground">
+            Get help from our support team via email, chat, or phone.
+        </p>
+    </div>
+);
+
+const ChangelogContent = () => (
+    <div className="space-y-4">
+        <h4 className="text-lg font-medium">Changelog</h4>
+        <p className="text-muted-foreground">
+            Track the latest updates and improvements to our platform.
+        </p>
+    </div>
+);
+
 // Responsive Tabs
 const ResponsiveTabs = () => (
     <div className="space-y-4">
@@ -444,108 +559,12 @@ const ResponsiveTabs = () => (
                     </TabsList>
 
                     <div className="mt-6">
-                        <TabsContent value="overview" className="space-y-4">
-                            <h4 className="text-lg font-medium">Product Overview</h4>
-                            <p className="text-muted-foreground">
-                                Our comprehensive solution provides everything you need to manage your business effectively.
-                                Built with modern technologies and designed for scalability.
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="text-center p-4 border rounded-lg">
-                                    <div className="text-2xl font-bold text-primary mb-2">99.9%</div>
-                                    <div className="text-sm text-muted-foreground">Uptime</div>
-                                </div>
-                                <div className="text-center p-4 border rounded-lg">
-                                    <div className="text-2xl font-bold text-primary mb-2">24/7</div>
-                                    <div className="text-sm text-muted-foreground">Support</div>
-                                </div>
-                                <div className="text-center p-4 border rounded-lg">
-                                    <div className="text-2xl font-bold text-primary mb-2">50+</div>
-                                    <div className="text-sm text-muted-foreground">Integrations</div>
-                                </div>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="features" className="space-y-4">
-                            <h4 className="text-lg font-medium">Key Features</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <h5 className="font-medium">Analytics Dashboard</h5>
-                                    <p className="text-sm text-muted-foreground">Real-time insights and reporting</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <h5 className="font-medium">User Management</h5>
-                                    <p className="text-sm text-muted-foreground">Comprehensive user control</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <h5 className="font-medium">API Access</h5>
-                                    <p className="text-sm text-muted-foreground">RESTful API with documentation</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <h5 className="font-medium">Security</h5>
-                                    <p className="text-sm text-muted-foreground">Enterprise-grade security</p>
-                                </div>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="pricing" className="space-y-4">
-                            <h4 className="text-lg font-medium">Pricing Plans</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <Card className="text-center">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">Starter</CardTitle>
-                                        <CardDescription>Perfect for small teams</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-3xl font-bold mb-4">$29<span className="text-sm text-muted-foreground">/month</span></div>
-                                        <Button className="w-full">Get Started</Button>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="text-center border-primary">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">Professional</CardTitle>
-                                        <CardDescription>Most popular choice</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-3xl font-bold mb-4">$99<span className="text-sm text-muted-foreground">/month</span></div>
-                                        <Button className="w-full">Get Started</Button>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="text-center">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">Enterprise</CardTitle>
-                                        <CardDescription>For large organizations</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-3xl font-bold mb-4">$299<span className="text-sm text-muted-foreground">/month</span></div>
-                                        <Button className="w-full">Contact Sales</Button>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="docs" className="space-y-4">
-                            <h4 className="text-lg font-medium">Documentation</h4>
-                            <p className="text-muted-foreground">
-                                Comprehensive documentation with examples, tutorials, and API references.
-                            </p>
-                        </TabsContent>
-
-                        <TabsContent value="support" className="space-y-4">
-                            <h4 className="text-lg font-medium">Support</h4>
-                            <p className="text-muted-foreground">
-                                Get help from our support team via email, chat, or phone.
-                            </p>
-                        </TabsContent>
-
-                        <TabsContent value="changelog" className="space-y-4">
-                            <h4 className="text-lg font-medium">Changelog</h4>
-                            <p className="text-muted-foreground">
-                                Track the latest updates and improvements to our platform.
-                            </p>
-                        </TabsContent>
+                        <TabsContent value="overview"><OverviewContent /></TabsContent>
+                        <TabsContent value="features"><FeaturesContent /></TabsContent>
+                        <TabsContent value="pricing"><PricingContent /></TabsContent>
+                        <TabsContent value="docs"><DocsContent /></TabsContent>
+                        <TabsContent value="support"><SupportContent /></TabsContent>
+                        <TabsContent value="changelog"><ChangelogContent /></TabsContent>
                     </div>
                 </Tabs>
             </CardContent>
