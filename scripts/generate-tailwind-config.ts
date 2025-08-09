@@ -11,8 +11,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 
-const TOKENS_PATH = path.resolve(ROOT, 'frontend', 'src', 'design-system', 'tokens.json');
-const OUTPUT_PATH = path.resolve(ROOT, 'frontend', 'tailwind.config.js');
+/**
+ * Resolve a path within the project root, preventing path traversal.
+ */
+function resolveRootPath(...segments: string[]): string {
+  const resolved = path.resolve(ROOT, ...segments);
+  if (!resolved.startsWith(ROOT + path.sep)) {
+    throw new Error('Resolved path escapes project root');
+  }
+  return resolved;
+}
+
+const TOKENS_PATH = resolveRootPath('frontend', 'src', 'design-system', 'tokens.json');
+const OUTPUT_PATH = resolveRootPath('frontend', 'tailwind.config.js');
 
 function serialize(obj: unknown, indent = 2): string {
   return JSON.stringify(obj, null, indent)
@@ -36,12 +47,16 @@ function buildConfig(tokens: any): string {
 }
 
 function main() {
+  // The path is resolved within the project root and thus safe
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   if (!fs.existsSync(TOKENS_PATH)) {
     throw new Error(`tokens.json not found at ${TOKENS_PATH}`);
   }
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   const tokensRaw = fs.readFileSync(TOKENS_PATH, 'utf8');
   const tokens = JSON.parse(tokensRaw);
   const out = buildConfig(tokens);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(OUTPUT_PATH, out, 'utf8');
   console.log(`Generated ${path.relative(ROOT, OUTPUT_PATH)}`);
 }
