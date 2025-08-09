@@ -5,7 +5,7 @@ from app.models.audit import AuditLog
 from app.models.base import SessionLocal, engine
 from app.models.file import FileStatus, UploadedFile
 from app.models.financial import FinancialStatement
-from app.models.mfa import MFAToken  # noqa: F401
+from app.models.mfa import MFAToken
 from app.models.notification import Notification  # noqa: F401
 from app.models.parameter import Scenario
 from app.models.user import User
@@ -16,6 +16,9 @@ from sqlalchemy import event
 app = FastAPI()
 app.include_router(admin_router, prefix="/api/v1/admin")
 client = TestClient(app)
+
+# Ensure MFAToken model is registered for SQLAlchemy mappings
+_ = MFAToken
 
 
 def _seed_data():

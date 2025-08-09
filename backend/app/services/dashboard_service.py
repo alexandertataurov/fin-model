@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Optional, Tuple, Union
 import logging
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, func
+from sqlalchemy import and_, desc, func
 from dataclasses import dataclass
 from enum import Enum
 
@@ -25,7 +25,6 @@ from app.services.dashboard_metrics import DashboardMetricsService
 from app.services.financial_extractor import FinancialExtractor
 from app.services.chart_data_service import (
     ChartDataService,
-    TimeGranularity,
 )
 from app.services.metrics_calculation_service import (
     MetricsCalculationService,
