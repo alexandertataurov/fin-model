@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from app.core.dependencies import (
     UserWithPermissions,
@@ -21,18 +21,15 @@ from app.models.system_log import SystemLog
 from app.models.user import User
 from app.schemas.user import AdminUserCreate, AdminUserUpdate
 from app.schemas.user import User as UserSchema
-from app.schemas.user import UserWithRoles
 from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
-from app.services.audit_service import log_audit
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
-from fastapi.responses import (
-    JSONResponse,
-    PlainTextResponse,
-    StreamingResponse,
-)
+from app.services.system_log_service import SystemLogService
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
+from pydantic import BaseModel
+from sqlalchemy import and_, desc, func, text
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -141,52 +138,79 @@ async def get_user_activity(
     Placed before dynamic '/users/{user_id}' route to avoid path conflicts.
     """
     try:
-        query = db.query(User)
-        if active_only:
+        # Parse params defensively
+        qp = request.query_params
+        limit_raw = qp.get("limit")
+        try:
+            limit_val = int(limit_raw) if limit_raw is not None else 50
+        except Exception:
+            limit_val = 50
+        active_raw = qp.get("active_only")
+        active_only_bool = (
+            str(active_raw).lower() in {"true", "1", "yes"}
+            if active_raw is not None
+            else False
+        )
+
+        # Aggregate counts using joins
+        file_counts = (
+            db.query(
+                UploadedFile.user_id.label("user_id"),
+                func.count(UploadedFile.id).label("files_uploaded"),
+            )
+            .group_by(UploadedFile.user_id)
+            .subquery()
+        )
+        model_counts = (
+            db.query(
+                FinancialStatement.created_by_id.label("user_id"),
+                func.count(FinancialStatement.id).label("models_created"),
+            )
+            .group_by(FinancialStatement.created_by_id)
+            .subquery()
+        )
+        login_counts = (
+            db.query(
+                AuditLog.user_id.label("user_id"),
+                func.count(AuditLog.id).label("login_count"),
+            )
+            .filter(AuditLog.action == "LOGIN", AuditLog.success == "true")
+            .group_by(AuditLog.user_id)
+            .subquery()
+        )
+
+        query = (
+            db.query(
+                User.id.label("user_id"),
+                User.username,
+                User.last_login,
+                User.is_active,
+                func.coalesce(file_counts.c.files_uploaded, 0).label("files_uploaded"),
+                func.coalesce(model_counts.c.models_created, 0).label("models_created"),
+                func.coalesce(login_counts.c.login_count, 0).label("login_count"),
+            )
+            .outerjoin(file_counts, User.id == file_counts.c.user_id)
+            .outerjoin(model_counts, User.id == model_counts.c.user_id)
+            .outerjoin(login_counts, User.id == login_counts.c.user_id)
+        )
+
+        if active_only_bool:
             query = query.filter(User.is_active.is_(True))
 
-        users = query.order_by(desc(User.created_at)).limit(limit).all()
+        results = query.order_by(desc(User.created_at)).limit(limit_val).all()
 
-        activity_data: List[UserActivityResponse] = []
-        for user in users:
-            # Count files uploaded by user
-            files_uploaded = (
-                db.query(UploadedFile)
-                .filter(UploadedFile.uploaded_by_id == user.id)
-                .count()
+        return [
+            UserActivityResponse(
+                user_id=row.user_id,
+                username=row.username,
+                last_login=row.last_login,
+                login_count=row.login_count,
+                files_uploaded=row.files_uploaded,
+                models_created=row.models_created,
+                is_active=bool(row.is_active),
             )
-
-            # Count financial statements/models created
-            models_created = (
-                db.query(FinancialStatement)
-                .filter(FinancialStatement.created_by_id == user.id)
-                .count()
-            )
-
-            # Get real login count from audit logs
-            login_count = (
-                db.query(AuditLog)
-                .filter(
-                    AuditLog.user_id == user.id,
-                    AuditLog.action == "LOGIN",
-                    AuditLog.success == "true",
-                )
-                .count()
-            )
-
-            activity_data.append(
-                UserActivityResponse(
-                    user_id=user.id,
-                    username=user.username,
-                    last_login=user.last_login,
-                    login_count=login_count,
-                    files_uploaded=files_uploaded,
-                    models_created=models_created,
-                    is_active=bool(user.is_active),
-                )
-            )
-
-        return activity_data
+            for row in results
+        ]
 
     except Exception as e:
         raise HTTPException(
@@ -271,7 +295,11 @@ def list_users(
 
         # Return paginated response
         return create_pagination_response(
-            items=items, total=total, skip=skip, limit=limit, envelope=envelope
+            items=users_with_roles,
+            total=total,
+            skip=skip,
+            limit=limit,
+            envelope=envelope,
         )
 
     except Exception as e:
@@ -763,15 +791,19 @@ async def backup_database(
         task = backup_task.delay()
 
         # Log the operation
-        log_audit(
-            db,
+        from app.models.audit import AuditLog
+
+        audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_BACKUP",
             resource="database",
             resource_id="backup",
             details=f"Backup task queued with ID: {task.id}",
+            success="true",
         )
-        
+        db.add(audit_log)
+        db.commit()
+
         return BackupResponse(
             job_id=task.id, message="Database backup job started successfully"
         )
@@ -796,15 +828,19 @@ async def export_database(
         task = export_task.delay(payload.table, payload.format)
 
         # Log the operation
-        log_audit(
-            db,
+        from app.models.audit import AuditLog
+
+        audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_EXPORT",
             resource="database",
             resource_id=payload.table or "full",
             details=f"Export task queued with ID: {task.id}, format: {payload.format}",
+            success="true",
         )
-        
+        db.add(audit_log)
+        db.commit()
+
         # Generate a temporary file URL (will be updated when task completes)
         filename = (
             f"export_{payload.table or 'full'}_{payload.format}_"
@@ -835,15 +871,19 @@ async def reindex_database(
         task = reindex_task.delay()
 
         # Log the operation
-        log_audit(
-            db,
+        from app.models.audit import AuditLog
+
+        audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_REINDEX",
             resource="database",
             resource_id="indexes",
             details=f"Reindex task queued with ID: {task.id}",
+            success="true",
         )
-        
+        db.add(audit_log)
+        db.commit()
+
         return ReindexResponse(
             job_id=task.id, message="Database reindex job started successfully"
         )
@@ -1207,7 +1247,8 @@ async def get_system_metrics(
             (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
         )
 
-        # Estimate average response time
+        # Estimate avg response time (simplified - could be)
+        # enhanced with actual middleware timing
         avg_response_time = 0.15 if total_requests > 0 else 0.0
 
         return SystemMetricsResponse(
