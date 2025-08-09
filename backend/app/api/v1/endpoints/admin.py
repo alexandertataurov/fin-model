@@ -19,12 +19,10 @@ from app.models.parameter import Parameter
 from app.models.role import RoleType
 from app.models.system_log import SystemLog
 from app.models.user import User
-from app.schemas.user import (
-    AdminUserCreate,
-    AdminUserUpdate,
-    User as UserSchema,
-    UserWithRoles,
-)
+from app.schemas.user import AdminUserCreate, AdminUserUpdate
+from app.schemas.user import User as UserSchema
+from app.schemas.user import UserWithRoles
+from app.services.audit_service import log_audit
 from app.services.auth_service import AuthService
 from app.services.audit_service import log_audit
 from app.services.database_monitor import get_db_monitor
@@ -122,6 +120,7 @@ class ReindexResponse(BaseModel):
 class BulkUserActionRequest(BaseModel):
     user_ids: List[int]
     action: str
+
 
 class UserPermissionsResponse(BaseModel):
     user_id: int
@@ -297,8 +296,6 @@ def list_users(
             user_dict = UserSchema.model_validate(user).model_dump()
             users_with_roles.append(UserWithRoles(**user_dict, roles=user_roles))
 
-        items = [u.model_dump() for u in users_with_roles]
-
         # Return paginated response
         return create_pagination_response(
             items=users_with_roles,
@@ -353,7 +350,6 @@ def create_user(
 
     roles = auth_service.get_user_roles(created.id)
     user_dict = UserSchema.model_validate(created).model_dump()
-    user_with_roles = UserWithRoles(**user_dict, roles=roles)
     # Write audit (best-effort)
     log_audit(
         db,
@@ -363,7 +359,7 @@ def create_user(
         resource_id=str(created.id),
         details=f"Created user {created.username}",
     )
-    return user_dict
+    return UserWithRoles(**user_dict, roles=roles)
 
 
 @router.put("/users/{user_id}", response_model=UserSchema)
@@ -1555,7 +1551,7 @@ async def cleanup_orphaned_files(
             for file_record in files_to_cleanup:
                 # Delete actual file from storage if it exists
                 try:
-                    file_service.delete_file(file_record.file_path)
+                    file_service.delete_file(file_record.id, current_user)
                 except Exception:
                     pass  # File might not exist
 
@@ -1735,9 +1731,9 @@ async def stream_system_logs(
                     for r in rows:
                         payload = {
                             "id": r.id,
-                            "timestamp": r.timestamp.isoformat()
-                            if r.timestamp
-                            else None,
+                            "timestamp": (
+                                r.timestamp.isoformat() if r.timestamp else None
+                            ),
                             "level": r.level,
                             "module": r.module,
                             "message": r.message,

@@ -34,10 +34,10 @@ import { useAdminStore } from '@/stores/admin';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
+import OverviewTab from '@/components/AdminDashboard/OverviewTab';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import * as AdminApi from '@/services/admin';
-
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -47,11 +47,15 @@ const AdminDashboard: React.FC = () => {
   const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
 
   // Local log state for tests
-  const [logs, setLogs] = useState<import('@/services/adminApi').LogEntry[]>([]);
+  const [logs, setLogs] = useState<import('@/services/adminApi').LogEntry[]>(
+    []
+  );
   const [logsTotal, setLogsTotal] = useState(0);
   const [logsSkip, setLogsSkip] = useState(0);
   const [logsLimit, setLogsLimit] = useState(100);
-  const [logsLevel, setLogsLevel] = useState<'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'>('ERROR');
+  const [logsLevel, setLogsLevel] = useState<
+    'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
+  >('ERROR');
   const [logsFrom, setLogsFrom] = useState('');
   const [logsTo, setLogsTo] = useState('');
   const [logsSearch, setLogsSearch] = useState('');
@@ -79,26 +83,28 @@ const AdminDashboard: React.FC = () => {
     clearErrors: _clearErrors,
   } = useAdminStore();
 
-
   // Context-aware data loading based on active tab
-  const loadDataForTab = useCallback(async (tab: string) => {
-    switch (tab) {
-      case 'overview':
-        await fetchOverviewData();
-        break;
-      case 'health':
-        await fetchHealthData();
-        break;
-      case 'logs':
-        await fetchLogsData();
-        break;
-      case 'audit':
-        await fetchAuditData();
-        break;
-      default:
-        await fetchOverviewData();
-    }
-  }, [fetchOverviewData, fetchHealthData, fetchLogsData, fetchAuditData]);
+  const loadDataForTab = useCallback(
+    async (tab: string) => {
+      switch (tab) {
+        case 'overview':
+          await fetchOverviewData();
+          break;
+        case 'health':
+          await fetchHealthData();
+          break;
+        case 'logs':
+          await fetchLogsData();
+          break;
+        case 'audit':
+          await fetchAuditData();
+          break;
+        default:
+          await fetchOverviewData();
+      }
+    },
+    [fetchOverviewData, fetchHealthData, fetchLogsData, fetchAuditData]
+  );
 
   // Legacy compatibility for child components
   const loadAdminData = useCallback(async () => {
@@ -201,7 +207,11 @@ const AdminDashboard: React.FC = () => {
   }
 
   // Show initial loading state only if no data is available
-  const isInitialLoading = !systemStats.data && !userActivity.data && !logs.data && systemStats.loading;
+  const isInitialLoading =
+    !systemStats.data &&
+    !userActivity.data &&
+    !logs.data &&
+    systemStats.loading;
 
   if (isInitialLoading) {
     return (
@@ -266,11 +276,17 @@ const AdminDashboard: React.FC = () => {
               <Activity className="h-4 w-4" />
               <span className="hidden lg:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center space-x-2 shrink-0">
+            <TabsTrigger
+              value="users"
+              className="flex items-center space-x-2 shrink-0"
+            >
               <Users className="h-4 w-4" />
               <span className="hidden lg:inline">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="system" className="flex items-center space-x-2 shrink-0">
+            <TabsTrigger
+              value="system"
+              className="flex items-center space-x-2 shrink-0"
+            >
               <Server className="h-4 w-4" />
               <span className="hidden lg:inline">System</span>
             </TabsTrigger>
@@ -295,11 +311,17 @@ const AdminDashboard: React.FC = () => {
               <Settings className="h-4 w-4" />
               <span className="hidden lg:inline">Maintenance</span>
             </TabsTrigger>
-            <TabsTrigger value="health" className="flex items-center space-x-2 shrink-0">
+            <TabsTrigger
+              value="health"
+              className="flex items-center space-x-2 shrink-0"
+            >
               <Activity className="h-4 w-4" />
               <span className="hidden lg:inline">Health</span>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="flex items-center space-x-2 shrink-0">
+            <TabsTrigger
+              value="logs"
+              className="flex items-center space-x-2 shrink-0"
+            >
               <FileText className="h-4 w-4" />
               <span className="hidden lg:inline">Logs</span>
             </TabsTrigger>
@@ -310,13 +332,16 @@ const AdminDashboard: React.FC = () => {
               <Shield className="h-4 w-4" />
               <span className="hidden lg:inline">Permissions</span>
             </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center space-x-2 shrink-0">
+            <TabsTrigger
+              value="audit"
+              className="flex items-center space-x-2 shrink-0"
+            >
               <FileText className="h-4 w-4" />
               <span className="hidden lg:inline">Audit</span>
             </TabsTrigger>
           </TabsList>
 
-                    {/* Overview Tab */}
+          {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <OverviewTab />
           </TabsContent>
@@ -336,12 +361,12 @@ const AdminDashboard: React.FC = () => {
             <DataManagement />
           </TabsContent>
 
-                    {/* Health Tab */}
+          {/* Health Tab */}
           <TabsContent value="health" className="space-y-4">
             <HealthTab />
           </TabsContent>
 
-                    {/* Logs Tab */}
+          {/* Logs Tab */}
           <TabsContent value="logs" className="space-y-4">
             <Card>
               <CardHeader>
@@ -453,9 +478,9 @@ const AdminDashboard: React.FC = () => {
                     <span>
                       {logsTotal > 0
                         ? `${Math.min(logsSkip + 1, logsTotal)}-${Math.min(
-                          logsSkip + logsLimit,
-                          logsTotal
-                        )} of ${logsTotal}`
+                            logsSkip + logsLimit,
+                            logsTotal
+                          )} of ${logsTotal}`
                         : '0-0 of 0'}
                     </span>
                     <Button
@@ -682,9 +707,9 @@ const AdminDashboard: React.FC = () => {
                     <span>
                       {auditTotal > 0
                         ? `${Math.min(auditSkip + 1, auditTotal)}-${Math.min(
-                          auditSkip + auditFilters.limit,
-                          auditTotal
-                        )} of ${auditTotal}`
+                            auditSkip + auditFilters.limit,
+                            auditTotal
+                          )} of ${auditTotal}`
                         : '0-0 of 0'}
                     </span>
                     <Button
@@ -803,11 +828,10 @@ const AdminDashboard: React.FC = () => {
                           onClick={async () => {
                             try {
                               setRefreshing(true);
-                              const data =
-                                await AdminApi.getSecurityAudit({
-                                  from: securityFrom || undefined,
-                                  to: securityTo || undefined,
-                                });
+                              const data = await AdminApi.getSecurityAudit({
+                                from: securityFrom || undefined,
+                                to: securityTo || undefined,
+                              });
                               setSecurityAudit(data);
                               toast.success('Security audit refreshed');
                             } catch {

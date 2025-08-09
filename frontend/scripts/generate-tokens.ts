@@ -12,11 +12,21 @@ type DeepRecord = Record<string, any>;
 const __filename = fileURLToPath(import.meta.url);
 const __dirnameESM = path.dirname(__filename);
 const ROOT = path.resolve(__dirnameESM, '..');
-const JSON_PATH = path.join(ROOT, 'src', 'design-system', 'tokens.json');
-const OUTPUT_PATH = path.join(ROOT, 'src', 'design-system', 'tokens.ts');
+
+function safeResolve(...segments: string[]): string {
+  const resolved = path.resolve(...segments);
+  if (!resolved.startsWith(ROOT)) {
+    throw new Error('Invalid path');
+  }
+  return resolved;
+}
+
+const JSON_PATH = safeResolve(ROOT, 'src', 'design-system', 'tokens.json');
+const OUTPUT_PATH = safeResolve(ROOT, 'src', 'design-system', 'tokens.ts');
 
 function readJson(filePath: string): DeepRecord {
-  const raw = fs.readFileSync(filePath, 'utf8');
+  const resolved = safeResolve(filePath);
+  const raw = fs.readFileSync(resolved, 'utf8');
   return JSON.parse(raw);
 }
 

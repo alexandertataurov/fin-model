@@ -30,20 +30,31 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
 
 
 
+  const liabilityIconMap = [
+    {
+      keywords: ['payable', 'account'],
+      icon: Receipt,
+      color: 'text-orange-500',
+    },
+    {
+      keywords: ['loan', 'debt', 'mortgage'],
+      icon: Banknote,
+      color: 'text-red-500',
+    },
+    {
+      keywords: ['credit', 'card'],
+      icon: CreditCard,
+      color: 'text-blue-500',
+    },
+  ];
+
   const getLiabilityIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();
-    if (category.includes('payable') || category.includes('account')) {
-      return <Receipt className="text-orange-500" size={20} />;
-    } else if (
-      category.includes('loan') ||
-      category.includes('debt') ||
-      category.includes('mortgage')
-    ) {
-      return <Banknote className="text-red-500" size={20} />;
-    } else if (category.includes('credit') || category.includes('card')) {
-      return <CreditCard className="text-blue-500" size={20} />;
-    }
-    return <AlertTriangle className="text-gray-500" size={20} />;
+    const match = liabilityIconMap.find(item =>
+      item.keywords.some(keyword => category.includes(keyword))
+    );
+    const IconComponent = match?.icon || AlertTriangle;
+    return <IconComponent className={match?.color || 'text-gray-500'} size={20} />;
   };
 
   const getTrendIcon = (trend?: string, changePercent?: number) => {
