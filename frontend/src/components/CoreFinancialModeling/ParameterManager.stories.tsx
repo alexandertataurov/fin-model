@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { ParameterManager } from './ParameterManager';
 
 const meta: Meta<typeof ParameterManager> = {
-  title: 'Components/ParameterManager',
+  title: 'Components/CoreFinancialModeling/ParameterManager',
   component: ParameterManager,
   tags: ['autodocs'],
   parameters: {

@@ -8,6 +8,10 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
+  typescript: {
+    // Enable auto-generated prop tables from TypeScript
+    reactDocgen: 'react-docgen-typescript',
+  },
   stories: [
     '../src/design-system/**/*.stories.@(ts|tsx|mdx)'
   ],
@@ -21,6 +25,7 @@ const config: StorybookConfig = {
     '@storybook/addon-backgrounds',
     '@storybook/addon-measure',
     '@storybook/addon-outline',
+    'msw-storybook-addon',
   ],
   docs: {
     autodocs: true,

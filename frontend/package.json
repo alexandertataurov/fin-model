@@ -18,6 +18,7 @@
     "type-check": "tsc --noEmit",
     "type-check:ci": "tsc --noEmit -p tsconfig.typecheck.json",
     "test:minimal:ci": "cross-env CI=true vitest run",
+    "test:contracts": "vitest run src/services/__tests__/ | cat",
     "verify-build": "node scripts/verify-build.js",
     "storybook": "storybook dev -p 6006 -c .storybook",
     "build-storybook": "storybook build -c .storybook",

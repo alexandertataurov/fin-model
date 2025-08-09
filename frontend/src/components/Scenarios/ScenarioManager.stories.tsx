@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { ScenarioManager } from './ScenarioManager';
 
 const meta: Meta<typeof ScenarioManager> = {
-  title: 'Components/ScenarioManager',
+  title: 'Components/Scenarios/ScenarioManager',
   component: ScenarioManager,
   tags: ['autodocs'],
   parameters: {

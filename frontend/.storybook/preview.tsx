@@ -2,10 +2,14 @@ import type { Preview } from '@storybook/react';
 import React from 'react';
 import { DesignSystemProvider } from '../src/design-system/provider';
 import { withThemeByClassName } from '@storybook/addon-themes';
+import { initialize, mswLoader } from 'msw-storybook-addon';
 
 // Import global styles (Tailwind + tokens)
 import '../src/styles/globals.css';
 import '../src/index.css';
+
+// Initialize MSW once
+initialize({ onUnhandledRequest: 'bypass' });
 
 const preview: Preview = {
   parameters: {
@@ -25,6 +29,12 @@ const preview: Preview = {
         { name: 'dark', value: '#0a0a0a' },
       ],
     },
+    options: {
+      storySort: {
+        method: 'alphabetical',
+        order: ['Docs', 'Design Tokens', ['Colors', 'Typography', 'Spacing', 'Shadows'], 'Components', ['Atoms', 'Molecules', 'Organisms'], 'Pages', 'Flows'],
+      },
+    },
   },
   decorators: [
     withThemeByClassName({
@@ -39,6 +49,37 @@ const preview: Preview = {
       </DesignSystemProvider>
     ),
   ],
+  loaders: [mswLoader],
+  globalTypes: {
+    density: {
+      name: 'Density',
+      description: 'Component density scale',
+      defaultValue: 'comfortable',
+      toolbar: {
+        icon: 'circlehollow',
+        items: [
+          { value: 'compact', title: 'Compact' },
+          { value: 'comfortable', title: 'Comfortable' },
+          { value: 'spacious', title: 'Spacious' },
+        ],
+      },
+    },
+    radius: {
+      name: 'Radius',
+      description: 'Border radius scale',
+      defaultValue: 'md',
+      toolbar: {
+        icon: 'shape',
+        items: [
+          { value: 'none', title: 'None' },
+          { value: 'sm', title: 'SM' },
+          { value: 'md', title: 'MD' },
+          { value: 'lg', title: 'LG' },
+          { value: 'xl', title: 'XL' },
+        ],
+      },
+    },
+  },
 };
 
 export default preview;

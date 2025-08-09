@@ -14,7 +14,7 @@ import {
 } from '@/design-system/components/Card';
 
 const meta: Meta<typeof AuthGuard> = {
-  title: 'Components/Auth/AuthGuard',
+  title: 'Components/Auth/AuthGuard (Examples)',
   component: AuthGuard,
   parameters: {
     layout: 'centered',

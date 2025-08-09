@@ -33,7 +33,7 @@ Transform the existing Storybook into a **world-class design system hub** — fu
    - Real data mocks for realistic previews.
    - Edge-case scenarios (empty/error/loading states).
 
-2. **Rich Documentation**
+2. **Rich Documentation** (in progress)
 
    - Purpose, anatomy, props table, usage examples, code snippets.
    - Accessibility notes + keyboard interaction guides.
@@ -55,13 +55,13 @@ Transform the existing Storybook into a **world-class design system hub** — fu
 
 6. **Performance & Quality**
 
-   - <2s Storybook startup.
-   - Zero WCAG AA violations.
+   - <2s Storybook startup. (in progress)
+   - Zero WCAG AA violations. (in progress)
 
-7. **Navigation UX**
+7. **Navigation UX** (in progress)
 
-   - Logical categorization & naming conventions.
-   - Searchable and consistent hierarchy.
+   - Logical categorization & naming conventions. (in progress)
+   - Searchable and consistent hierarchy. (in progress)
 
 ---
 
@@ -100,18 +100,18 @@ Transform the existing Storybook into a **world-class design system hub** — fu
 
    - Add missing stories and edge cases.
 
-4. **Enhance Documentation**
+4. **Enhance Documentation** (in progress)
 
-   - Pull Figma references, write usage notes.
+   - Pull Figma references, write usage notes. (in progress)
 
 5. **Integrate Theming & Responsive** (~~done~~)
 6. **Automate Quality Checks** (~~done~~)
 
    - ~~Visual regression, a11y tests in CI.~~
 
-7. **Polish Navigation**
+7. **Polish Navigation** (in progress)
 
-   - Logical category names, alphabetized lists.
+   - Logical category names, alphabetized lists. (in progress)
 
 8. **Stakeholder Review**
 
