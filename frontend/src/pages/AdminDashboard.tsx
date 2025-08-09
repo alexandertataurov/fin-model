@@ -30,11 +30,20 @@ import {
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Switch } from '@/design-system/components/Switch';
+import { Input } from '@/design-system/components/Input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/components/Select';
 import { useAdminStore } from '@/stores/admin';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
 import OverviewTab from '@/components/AdminDashboard/OverviewTab';
+import HealthTab from '@/components/AdminDashboard/HealthTab';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import * as AdminApi from '@/services/admin';
@@ -540,9 +549,9 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    className="w-24"
                     placeholder="Skip"
                     value={auditFilters.skip}
                     onChange={e =>
@@ -552,9 +561,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    className="w-24"
                     placeholder="Limit"
                     value={auditFilters.limit}
                     onChange={e =>
@@ -564,9 +573,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-32"
+                    className="w-32"
                     placeholder="User ID"
                     value={auditFilters.userId || ''}
                     onChange={e =>
@@ -578,9 +587,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="text"
-                    className="border rounded px-2 py-1 bg-background text-sm w-40"
+                    className="w-40"
                     placeholder="Action"
                     value={auditFilters.action || ''}
                     onChange={e =>
@@ -590,17 +599,17 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={auditFrom}
                     onChange={e => setAuditFrom(e.target.value)}
+                    className="w-40"
                   />
-                  <input
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={auditTo}
                     onChange={e => setAuditTo(e.target.value)}
+                    className="w-40"
                   />
                   <Button
                     size="sm"
@@ -732,17 +741,17 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <CardTitle>Security Overview</CardTitle>
                       <div className="space-x-2 flex items-center">
-                        <input
+                        <Input
                           type="date"
-                          className="border rounded px-2 py-1 bg-background text-sm"
                           value={securityFrom}
                           onChange={e => setSecurityFrom(e.target.value)}
+                          className="w-40"
                         />
-                        <input
+                        <Input
                           type="date"
-                          className="border rounded px-2 py-1 bg-background text-sm"
                           value={securityTo}
                           onChange={e => setSecurityTo(e.target.value)}
+                          className="w-40"
                         />
                         <Button
                           variant="outline"

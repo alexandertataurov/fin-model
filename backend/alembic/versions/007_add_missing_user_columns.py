@@ -24,15 +24,16 @@ def upgrade() -> None:
     # Helper function to safely add columns
     def safe_add_column(table_name, column_name, column_spec):
         try:
-            # Check if column already exists
+            # Check if column already exists using parameterized query
             result = conn.execute(
                 text(
-                    f"""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = '{table_name}' AND column_name = '{column_name}'
+                    """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = :table_name AND column_name = :column_name
             """
-                )
+                ),
+                {"table_name": table_name, "column_name": column_name},
             ).fetchone()
 
             if not result:
@@ -59,7 +60,7 @@ def upgrade() -> None:
     )
 
     # Add is_admin column
-    is_admin_added = safe_add_column(
+    safe_add_column(
         "users",
         "is_admin",
         sa.Column(
@@ -76,8 +77,9 @@ def upgrade() -> None:
         try:
             op.execute(
                 """
-                UPDATE users 
-                SET full_name = COALESCE(first_name, '') || ' ' || COALESCE(last_name, '')
+                UPDATE users
+                SET full_name = COALESCE(first_name, '') || ' ' ||
+                COALESCE(last_name, '')
                 WHERE full_name = ''
             """
             )
@@ -85,8 +87,10 @@ def upgrade() -> None:
             # Clean up any double spaces
             op.execute(
                 """
-                UPDATE users 
-                SET full_name = TRIM(REGEXP_REPLACE(full_name, '\\s+', ' ', 'g'))
+                UPDATE users
+                SET full_name = TRIM(
+                    REGEXP_REPLACE(full_name, '\\s+', ' ', 'g')
+                )
                 WHERE full_name LIKE '%  %'
             """
             )
@@ -94,7 +98,7 @@ def upgrade() -> None:
         except Exception as e:
             print(f"⚠️ Could not update full_name values: {e}")
 
-    # Make first_name and last_name nullable (they were incorrectly set as NOT NULL in migration 001)
+    # Make name fields nullable (they were incorrectly set as NOT NULL in migration 001)
     try:
         op.alter_column("users", "first_name", nullable=True)
         op.alter_column("users", "last_name", nullable=True)

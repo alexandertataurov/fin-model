@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,12 +11,12 @@ const __dirname = path.dirname(__filename);
 console.log('🚀 Testing Build Performance...\n');
 
 // Function to measure execution time
-function measureExecutionTime(command, description) {
+function measureExecutionTime(command, args, description) {
   console.log(`⏱️  Running: ${description}`);
   const startTime = Date.now();
 
   try {
-    execSync(command, {
+    execFileSync(command, args, {
       stdio: 'inherit',
       env: { ...process.env, CI: 'true' },
     });
@@ -38,25 +38,38 @@ async function testBuildPerformance() {
 
   // Test 1: Standard build
   console.log('📊 Test 1: Standard Build');
-  const standardTime = measureExecutionTime('npm run build', 'Standard build');
+  const standardTime = measureExecutionTime(
+    'npm',
+    ['run', 'build'],
+    'Standard build'
+  );
   if (standardTime) results.push({ name: 'Standard', time: standardTime });
 
   // Test 2: Fast build
   console.log('📊 Test 2: Fast Build');
-  const fastTime = measureExecutionTime('npm run build:fast', 'Fast build');
+  const fastTime = measureExecutionTime(
+    'npm',
+    ['run', 'build:fast'],
+    'Fast build'
+  );
   if (fastTime) results.push({ name: 'Fast', time: fastTime });
 
   // Test 3: Netlify build
   console.log('📊 Test 3: Netlify Build');
   const netlifyTime = measureExecutionTime(
-    'npm run build:netlify',
+    'npm',
+    ['run', 'build:netlify'],
     'Netlify build'
   );
   if (netlifyTime) results.push({ name: 'Netlify', time: netlifyTime });
 
   // Test 4: Ultra build
   console.log('📊 Test 4: Ultra Build');
-  const ultraTime = measureExecutionTime('npm run build:ultra', 'Ultra build');
+  const ultraTime = measureExecutionTime(
+    'npm',
+    ['run', 'build:ultra'],
+    'Ultra build'
+  );
   if (ultraTime) results.push({ name: 'Ultra', time: ultraTime });
 
   // Display results

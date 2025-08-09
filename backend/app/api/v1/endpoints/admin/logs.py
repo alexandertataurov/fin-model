@@ -1,22 +1,23 @@
-from typing import Any, Dict, List, Optional
-from datetime import datetime, timedelta, timezone
 import asyncio
 import json
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import StreamingResponse
-from sqlalchemy import desc, func
-from sqlalchemy.orm import Session
+import logging
+from datetime import datetime, timedelta, timezone
+from typing import Any, Optional
 
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
-from app.models.base import get_db
 from app.models.audit import AuditLog
+from app.models.base import get_db
 from app.models.system_log import SystemLog
 from app.models.user import User
 from app.services.system_log_service import SystemLogService
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
+from sqlalchemy import desc
+from sqlalchemy.orm import Session
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/audit-logs")
@@ -36,10 +37,10 @@ def get_audit_logs(
 ) -> Any:
     """Get audit logs with advanced filtering (Admin only)."""
     from app.core.admin_exceptions import (
-        handle_admin_error,
-        validate_pagination_params,
-        validate_date_range,
         create_pagination_response,
+        handle_admin_error,
+        validate_date_range,
+        validate_pagination_params,
     )
 
     try:
@@ -182,9 +183,9 @@ async def stream_system_logs(
                     for r in rows:
                         payload = {
                             "id": r.id,
-                            "timestamp": r.timestamp.isoformat()
-                            if r.timestamp
-                            else None,
+                            "timestamp": (
+                                r.timestamp.isoformat() if r.timestamp else None
+                            ),
                             "level": r.level,
                             "module": r.module,
                             "message": r.message,
@@ -192,7 +193,7 @@ async def stream_system_logs(
                         }
                         yield f"data: {json.dumps(payload)}\n\n"
             except Exception:
-                pass
+                logger.exception("Error streaming system logs")
             await asyncio.sleep(interval_ms / 1000)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")

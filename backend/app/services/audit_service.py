@@ -1,8 +1,10 @@
+import logging
 from typing import Optional
 
+from app.models.audit import AuditLog
 from sqlalchemy.orm import Session
 
-from app.models.audit import AuditLog
+logger = logging.getLogger(__name__)
 
 
 def log_audit(
@@ -33,8 +35,9 @@ def log_audit(
         db.commit()
         return entry
     except Exception:
+        logger.exception("Failed to log audit entry")
         try:
             db.rollback()
         except Exception:
-            pass
+            logger.exception("Rollback failed")
         return None

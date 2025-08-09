@@ -9,28 +9,9 @@ import { useAdminStore } from '@/stores/adminStore';
 import LogFilterForm from './LogFilterForm';
 
 const LogsTab: React.FC = () => {
-  const { logs, updateLogsFilters, fetchLogsData } = useAdminStore();
+  const { logs, handleFilterChange, handlePrev, handleNext, handleRefresh } =
+    useLogFilters();
   const { items, total, skip, limit, level, from, to, search } = logs;
-
-  const handleFilterChange = async (updates: any) => {
-    updateLogsFilters(updates);
-    await fetchLogsData();
-  };
-
-  const handlePrev = async () => {
-    const newSkip = Math.max(0, skip - limit);
-    await handleFilterChange({ skip: newSkip });
-  };
-
-  const handleNext = async () => {
-    const newSkip = skip + limit;
-    if (newSkip >= total) return;
-    await handleFilterChange({ skip: newSkip });
-  };
-
-  const handleRefresh = async () => {
-    await handleFilterChange({ skip: 0 });
-  };
 
   return (
     <Card>
@@ -57,7 +38,9 @@ const LogsTab: React.FC = () => {
               items.map((log, idx) => (
                 <div key={idx} className="px-3 py-2 border-b">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold">[{log.level}] {log.module}</span>
+                    <span className="font-semibold">
+                      [{log.level}] {log.module}
+                    </span>
                     <span className="text-muted-foreground">
                       {new Date(log.timestamp).toLocaleString()}
                     </span>
