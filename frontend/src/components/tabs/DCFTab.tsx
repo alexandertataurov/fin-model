@@ -90,7 +90,7 @@ const DCFTab: React.FC = () => {
               <DollarSign className="h-4 w-4" />
               Terminal Growth
             </CardTitle>
-          </CardHeader>
+          <TerminalGrowth />
           <CardContent>
             <div className="space-y-2">
               <Label>Growth Rate (%)</Label>
