@@ -1,6 +1,6 @@
 /**
  * Normalized Admin Data Types
- * 
+ *
  * Consistent data models for admin dashboard
  */
 
@@ -76,6 +76,16 @@ export interface PerformanceStats {
   avgResponseTime: number;
   throughput: number;
   errorRate: number;
+}
+
+export interface UserActivity {
+  user_id: number;
+  username: string;
+  last_login: string | null;
+  login_count: number;
+  files_uploaded: number;
+  models_created: number;
+  is_active: boolean;
 }
 
 // Normalized user activity
@@ -345,14 +355,14 @@ export class AdminDataTransformer {
     };
 
     const threshold = thresholds[type as keyof typeof thresholds] || { warning: 80, critical: 90 };
-    
+
     return {
       current: current || 0,
       average: current || 0, // Would be calculated from historical data
       peak: current || 0,    // Would be tracked over time
       threshold,
-      status: current >= threshold.critical ? 'critical' 
-             : current >= threshold.warning ? 'warning' 
+      status: current >= threshold.critical ? 'critical'
+             : current >= threshold.warning ? 'warning'
              : 'healthy',
     };
   }
@@ -363,7 +373,7 @@ export class AdminDataTransformer {
       files: 5,
       models: 10,
     };
-    
+
     return (
       (user.login_count || 0) * weights.login +
       (user.files_uploaded || 0) * weights.files +
