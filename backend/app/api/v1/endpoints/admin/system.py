@@ -1,3 +1,7 @@
+"""Administrative system endpoints."""
+
+# pylint: disable=too-many-lines
+
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List

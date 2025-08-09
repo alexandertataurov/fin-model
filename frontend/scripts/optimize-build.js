@@ -28,8 +28,11 @@ const cleanupPaths = [
 console.log('🧹 Cleaning up unnecessary files...');
 const projectRoot = process.cwd();
 function safeResolve(targetPath) {
+  if (path.isAbsolute(targetPath) || targetPath.includes('..')) {
+    throw new Error(`Refusing unsafe path: ${targetPath}`);
+  }
   const resolved = path.resolve(projectRoot, targetPath);
-  if (!resolved.startsWith(projectRoot)) {
+  if (!resolved.startsWith(projectRoot + path.sep)) {
     throw new Error(`Refusing to operate outside project root: ${targetPath}`);
   }
   return resolved;
