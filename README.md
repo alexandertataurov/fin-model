@@ -1,5 +1,7 @@
 # FinVision - Financial Modeling and Analysis Platform
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1fbfb7c6f6a24db0a9c290db4be8e049)](https://app.codacy.com/gh/alexandertataurov/fin-model?utm_source=github.com&utm_medium=referral&utm_content=alexandertataurov/fin-model&utm_campaign=Badge_Grade)
+
 FinVision is a comprehensive web-based financial modeling and analysis platform that transforms static Excel financial models into dynamic, interactive dashboards with real-time parameter adjustment capabilities.
 
 ## 🚀 Features
