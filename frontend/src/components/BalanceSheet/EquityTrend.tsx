@@ -29,20 +29,27 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
 
 
 
+  const equityIconMap = [
+    {
+      keywords: ['share', 'stock', 'capital'],
+      icon: <Building2 className="text-blue-500" size={20} />,
+    },
+    {
+      keywords: ['retained', 'earning'],
+      icon: <DollarSign className="text-green-500" size={20} />,
+    },
+    {
+      keywords: ['reserve', 'surplus'],
+      icon: <BarChart3 className="text-purple-500" size={20} />,
+    },
+  ];
+
   const getEquityIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();
-    if (
-      category.includes('share') ||
-      category.includes('stock') ||
-      category.includes('capital')
-    ) {
-      return <Building2 className="text-blue-500" size={20} />;
-    } else if (category.includes('retained') || category.includes('earning')) {
-      return <DollarSign className="text-green-500" size={20} />;
-    } else if (category.includes('reserve') || category.includes('surplus')) {
-      return <BarChart3 className="text-purple-500" size={20} />;
-    }
-    return <Banknote className="text-gray-500" size={20} />;
+    const match = equityIconMap.find(({ keywords }) =>
+      keywords.some(keyword => category.includes(keyword))
+    );
+    return match?.icon ?? <Banknote className="text-gray-500" size={20} />;
   };
 
   const getTrendIcon = (trend?: string, changePercent?: number) => {
