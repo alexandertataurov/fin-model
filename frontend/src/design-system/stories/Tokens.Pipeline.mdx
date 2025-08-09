@@ -1,15 +1,15 @@
-import { Meta } from '@storybook/blocks'
+import { Meta } from '@storybook/blocks';
 
 <Meta title="Design System/Foundations/Tokens Pipeline" />
 
 # Tokens Pipeline
 
-This design system uses a single JSON source of truth at `src/design-system/tokens.json`. The file is transformed into a typed runtime module `src/design-system/tokens.ts` used by components and stories.
+This design system uses Style Dictionary with tokens defined in the root `tokens/` directory. Running the build script generates outputs in `dist/tokens` that are consumed by components and stories.
 
 ## Workflow
 
-- Edit `src/design-system/tokens.json`
-- Generate code: `npm run gen:tokens`
+- Edit files under `tokens/`
+- Generate code: `npm run build:tokens`
 - Consume tokens from `@/design-system/tokens`
 
 ## Notes
@@ -19,6 +19,4 @@ This design system uses a single JSON source of truth at `src/design-system/toke
 - Transitions get an `ease-in-out` curve if not specified.
 - CSS variables are supported via either `{":root", ".dark"}` or `{ light, dark }` shapes.
 
-> Do not edit `tokens.ts` directly. It is auto-generated.
-
-
+> Do not edit `tokens.ts` directly. It re-exports the generated JSON.
