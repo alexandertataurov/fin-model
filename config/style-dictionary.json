@@ -1,36 +1,38 @@
 {
-  "source": ["tokens/**/*.json"],
+  "source": [
+    "tokens/*.json"
+  ],
   "platforms": {
     "css": {
       "transformGroup": "css",
-      "buildPath": "dist/tokens/css/",
+      "buildPath": "frontend/src/design-system/",
       "files": [
         {
-          "destination": "colors.css",
+          "destination": "tokens.css",
           "format": "css/variables",
-          "filter": {
-            "attributes": { "category": "colors" }
+          "options": {
+            "outputReferences": true
           }
-        }
-      ]
-    },
-    "ts": {
-      "transformGroup": "js",
-      "buildPath": "dist/tokens/ts/",
-      "files": [
-        {
-          "destination": "tokens.ts",
-          "format": "javascript/es6"
         }
       ]
     },
     "json": {
       "transformGroup": "js",
-      "buildPath": "dist/tokens/json/",
+      "buildPath": "frontend/src/design-system/",
       "files": [
         {
           "destination": "tokens.json",
-          "format": "json"
+          "format": "json/nested"
+        }
+      ]
+    },
+    "dts": {
+      "transformGroup": "js",
+      "buildPath": "frontend/src/design-system/",
+      "files": [
+        {
+          "destination": "tokens.d.ts",
+          "format": "typescript/es6-declarations"
         }
       ]
     }
