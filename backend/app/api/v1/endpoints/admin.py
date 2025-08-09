@@ -26,11 +26,13 @@ from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
-from app.services.system_log_service import SystemLogService
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
-from pydantic import BaseModel
-from sqlalchemy import and_, desc, func, text
+from app.services.audit_service import log_audit
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
+from fastapi.responses import (
+    JSONResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -319,21 +321,15 @@ def create_user(
     user_dict = UserSchema.model_validate(created).model_dump()
     user_with_roles = UserWithRoles(**user_dict, roles=roles)
     # Write audit (best-effort)
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="PROFILE_UPDATED",
-                resource="user",
-                resource_id=str(created.id),
-                details=f"Created user {created.username}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
-    return user_with_roles
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="PROFILE_UPDATED",
+        resource="user",
+        resource_id=str(created.id),
+        details=f"Created user {created.username}",
+    )
+    return user_dict
 
 
 @router.put("/users/{user_id}", response_model=UserSchema)
@@ -361,20 +357,14 @@ def update_user(
     db.refresh(user)
 
     # Audit user update
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="PROFILE_UPDATED",
-                resource="user",
-                resource_id=str(user.id),
-                details=f"Updated user {user.username}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="PROFILE_UPDATED",
+        resource="user",
+        resource_id=str(user.id),
+        details=f"Updated user {user.username}",
+    )
 
     return user
 
@@ -406,20 +396,14 @@ def delete_user(
     db.commit()
 
     # Audit deactivate
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="PROFILE_UPDATED",
-                resource="user",
-                resource_id=str(user.id),
-                details=f"Deactivated user {user.username}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="PROFILE_UPDATED",
+        resource="user",
+        resource_id=str(user.id),
+        details=f"Deactivated user {user.username}",
+    )
 
     return {"message": "User deactivated successfully"}
 
@@ -457,20 +441,14 @@ def assign_role(
         )
 
     # Audit role assignment
-    try:
-        db.add(
-            AuditLog(
-                user_id=current_user.id,
-                action="ROLE_ASSIGNED",
-                resource="user",
-                resource_id=str(user_id),
-                details=f"Assigned role {role.value} to user {user_id}",
-                success="true",
-            )
-        )
-        db.commit()
-    except Exception:
-        db.rollback()
+    log_audit(
+        db,
+        user_id=current_user.id,
+        action="ROLE_ASSIGNED",
+        resource="user",
+        resource_id=str(user_id),
+        details=f"Assigned role {role.value} to user {user_id}",
+    )
 
     return {"message": f"Role {role.value} assigned successfully"}
 
@@ -523,22 +501,14 @@ def remove_role(
     if user_role:
         user_role.is_active = False
         db.commit()
-
-        # Audit role removal
-        try:
-            db.add(
-                AuditLog(
-                    user_id=current_user.id,
-                    action="ROLE_REMOVED",
-                    resource="user",
-                    resource_id=str(user_id),
-                    details=f"Removed role {role.value} from user {user_id}",
-                    success="true",
-                )
-            )
-            db.commit()
-        except Exception:
-            db.rollback()
+        log_audit(
+            db,
+            user_id=current_user.id,
+            action="ROLE_REMOVED",
+            resource="user",
+            resource_id=str(user_id),
+            details=f"Removed role {role.value} from user {user_id}",
+        )
 
     return {"message": f"Role {role.value} removed successfully"}
 
@@ -793,19 +763,15 @@ async def backup_database(
         task = backup_task.delay()
 
         # Log the operation
-        from app.models.audit import AuditLog
-
-        audit_log = AuditLog(
+        log_audit(
+            db,
             user_id=current_user.id,
             action="DATABASE_BACKUP",
             resource="database",
             resource_id="backup",
             details=f"Backup task queued with ID: {task.id}",
-            success="true",
         )
-        db.add(audit_log)
-        db.commit()
-
+        
         return BackupResponse(
             job_id=task.id, message="Database backup job started successfully"
         )
@@ -830,19 +796,15 @@ async def export_database(
         task = export_task.delay(payload.table, payload.format)
 
         # Log the operation
-        from app.models.audit import AuditLog
-
-        audit_log = AuditLog(
+        log_audit(
+            db,
             user_id=current_user.id,
             action="DATABASE_EXPORT",
             resource="database",
             resource_id=payload.table or "full",
             details=f"Export task queued with ID: {task.id}, format: {payload.format}",
-            success="true",
         )
-        db.add(audit_log)
-        db.commit()
-
+        
         # Generate a temporary file URL (will be updated when task completes)
         filename = (
             f"export_{payload.table or 'full'}_{payload.format}_"
@@ -873,19 +835,15 @@ async def reindex_database(
         task = reindex_task.delay()
 
         # Log the operation
-        from app.models.audit import AuditLog
-
-        audit_log = AuditLog(
+        log_audit(
+            db,
             user_id=current_user.id,
             action="DATABASE_REINDEX",
             resource="database",
             resource_id="indexes",
             details=f"Reindex task queued with ID: {task.id}",
-            success="true",
         )
-        db.add(audit_log)
-        db.commit()
-
+        
         return ReindexResponse(
             job_id=task.id, message="Database reindex job started successfully"
         )
