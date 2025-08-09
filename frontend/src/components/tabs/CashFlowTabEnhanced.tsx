@@ -1,4 +1,4 @@
-/**
+const EnhancedCashFlowTab = () => { /* component logic */ }; // Extract main logic to a separate functional component
  * Enhanced Cash Flow Tab with Real Data Integration
  *
  * Displays real cash flow data with waterfall charts and trends
