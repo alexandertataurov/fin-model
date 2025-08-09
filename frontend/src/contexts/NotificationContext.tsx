@@ -125,7 +125,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       is_read: item.is_read,
       is_dismissed: item.is_dismissed,
       created_at: item.created_at,
-      read_at: (item.read_at as any) ?? undefined,
+      read_at: item.read_at ?? undefined,
       expires_at: (item.expires_at as any) ?? undefined,
       data: item.data || {},
     }),
