@@ -5,12 +5,17 @@ This directory contains the main project documentation organized by category.
 ## Project Requirements Documents (PRDs)
 
 - **[PRD_V1.md](./PRD_V1.md)** - Original Product Requirements Document
-- **[PRD_V2.md](./PRD_V2.md)** - Updated Product Requirements Document  
+- **[PRD_V2.md](./PRD_V2.md)** - Updated Product Requirements Document
 - **[PRD_Login_Reports_Components.md](./PRD_Login_Reports_Components.md)** - Login, Reports, and Components Requirements
 
 ## Development Documentation
 
 - **[AGENTS.md](./AGENTS.md)** - AI Agents and Development Guidelines
+
+## Contributor Guidelines
+
+- **[contributing.md](./contributing.md)** - Token naming, component standards, and review workflow
+- **[rfc.md](./rfc.md)** - Proposal submission and approval process
 
 ## Backend Documentation
 
@@ -52,4 +57,4 @@ Task documentation is located in `../tasks/`:
 - [Backend Docs](../backend/docs/)
 - [Frontend Docs](../frontend/docs/)
 - [Tasks](../tasks/)
-- [Main Project README](../README.md) 
+- [Main Project README](../README.md)
