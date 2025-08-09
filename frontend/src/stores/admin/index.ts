@@ -3,7 +3,6 @@ import { devtools } from 'zustand/middleware';
 import { createOverviewSlice, OverviewSlice } from './overviewStore';
 import { createLogsSlice, LogsSlice } from './logsStore';
 import { createAuditSlice, AuditSlice } from './auditStore';
-import { NormalizedApiResponse } from './types';
 
 interface CoreSlice {
   activeTab: string;

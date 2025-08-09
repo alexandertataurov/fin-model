@@ -9,9 +9,6 @@ import {
   AdminDataTransformer,
   NormalizedSystemStats,
   NormalizedUserActivity,
-  NormalizedSystemMetrics,
-  NormalizedLogEntry,
-  NormalizedAuditEntry,
   PaginatedResponse,
   UserActivity,
 } from '@/types/admin';

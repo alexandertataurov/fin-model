@@ -6,24 +6,15 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Settings,
   Play,
-  Pause,
-  Square,
   RefreshCw,
   Database,
-  Trash2,
   Download,
-  Upload,
-  Calendar,
-  Clock,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Eye,
   FileX,
-  HardDrive,
-  Zap,
   History,
   Users,
 } from 'lucide-react';
@@ -35,7 +26,6 @@ import {
 } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
-import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import {
   Dialog,
@@ -44,7 +34,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/design-system/components/Dialog';
 import {
   Table,
@@ -55,7 +44,6 @@ import {
   TableRow,
 } from '@/design-system/components/Table';
 import { Textarea } from '@/design-system/components/Textarea';
-import { Switch } from '@/design-system/components/Switch';
 import { toast } from 'sonner';
 import * as AdminApi from '@/services/admin';
 
@@ -218,7 +206,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
 
       // Execute the actual operation based on type
       switch (operation.type) {
-        case 'database-cleanup':
+        case 'database-cleanup': {
           const cleanupResult = await AdminApi.cleanupDatabase(dryRun);
           result = {
             success: true,
@@ -229,8 +217,9 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
             timestamp: new Date(),
           };
           break;
+        }
 
-        case 'file-cleanup':
+        case 'file-cleanup': {
           const fileResult = await AdminApi.cleanupFiles(dryRun);
           result = {
             success: true,
@@ -241,8 +230,9 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
             timestamp: new Date(),
           };
           break;
+        }
 
-        case 'database-backup':
+        case 'database-backup': {
           const backupResult = await AdminApi.backupDatabase();
           result = {
             success: true,
@@ -253,8 +243,9 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
             timestamp: new Date(),
           };
           break;
+        }
 
-        case 'database-reindex':
+        case 'database-reindex': {
           const reindexResult = await AdminApi.reindexDatabase();
           result = {
             success: true,
@@ -265,6 +256,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
             timestamp: new Date(),
           };
           break;
+        }
 
         default:
           throw new Error(`Operation ${operation.type} not implemented`);
