@@ -363,61 +363,61 @@ const AdminDashboard: React.FC = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-9">
+          <TabsList className="grid w-full gap-1.5 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-10">
             <TabsTrigger
               value="overview"
               className="flex items-center space-x-2"
             >
               <Activity className="h-4 w-4" />
-              <span>Overview</span>
+              <span className="hidden lg:inline">Overview</span>
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
-              <span>Users</span>
+              <span className="hidden lg:inline">Users</span>
             </TabsTrigger>
             <TabsTrigger value="system" className="flex items-center space-x-2">
               <Server className="h-4 w-4" />
-              <span>System</span>
+              <span className="hidden lg:inline">System</span>
             </TabsTrigger>
             <TabsTrigger
               value="database"
               className="flex items-center space-x-2"
             >
               <Database className="h-4 w-4" />
-              <span>Database</span>
+              <span className="hidden lg:inline">Database</span>
             </TabsTrigger>
             <TabsTrigger
               value="security"
               className="flex items-center space-x-2"
             >
               <Shield className="h-4 w-4" />
-              <span>Security</span>
+              <span className="hidden lg:inline">Security</span>
             </TabsTrigger>
             <TabsTrigger
               value="maintenance"
               className="flex items-center space-x-2"
             >
               <Settings className="h-4 w-4" />
-              <span>Maintenance</span>
+              <span className="hidden lg:inline">Maintenance</span>
             </TabsTrigger>
             <TabsTrigger value="health" className="flex items-center space-x-2">
               <Activity className="h-4 w-4" />
-              <span>Health</span>
+              <span className="hidden lg:inline">Health</span>
             </TabsTrigger>
             <TabsTrigger value="logs" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
-              <span>Logs</span>
+              <span className="hidden lg:inline">Logs</span>
             </TabsTrigger>
             <TabsTrigger
               value="permissions"
               className="flex items-center space-x-2"
             >
               <Shield className="h-4 w-4" />
-              <span>Permissions</span>
+              <span className="hidden lg:inline">Permissions</span>
             </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
-              <span>Audit</span>
+              <span className="hidden lg:inline">Audit</span>
             </TabsTrigger>
           </TabsList>
 
