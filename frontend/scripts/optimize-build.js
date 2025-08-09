@@ -26,15 +26,24 @@ const cleanupPaths = [
 ];
 
 console.log('🧹 Cleaning up unnecessary files...');
+const projectRoot = process.cwd();
+function safeResolve(targetPath) {
+  const resolved = path.resolve(projectRoot, targetPath);
+  if (!resolved.startsWith(projectRoot)) {
+    throw new Error(`Refusing to operate outside project root: ${targetPath}`);
+  }
+  return resolved;
+}
+
 cleanupPaths.forEach(cleanupPath => {
-  const fullPath = path.join(process.cwd(), cleanupPath);
-  if (fs.existsSync(fullPath)) {
-    try {
+  try {
+    const fullPath = safeResolve(cleanupPath);
+    if (fs.existsSync(fullPath)) {
       fs.rmSync(fullPath, { recursive: true, force: true });
       console.log(`✅ Cleaned: ${cleanupPath}`);
-    } catch (error) {
-      console.log(`⚠️  Could not clean: ${cleanupPath}`);
     }
+  } catch (error) {
+    console.log(`⚠️  Could not clean: ${cleanupPath}`);
   }
 });
 
