@@ -1,5 +1,6 @@
 import React from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/design-system/components/Toaster';
@@ -34,6 +35,8 @@ const AuthenticatedNotificationProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
 =======
+=======
+>>>>>>> main
 import {
   BrowserRouter as Router,
   Routes,
@@ -131,6 +134,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 <<<<<<< HEAD
+<<<<<<< HEAD
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
@@ -182,6 +186,8 @@ function App() {
                 </Route>
               </Routes>
 =======
+=======
+>>>>>>> main
                 <Route
                   path="/forgot-password"
                   element={<ForgotPasswordForm />}
@@ -288,7 +294,10 @@ function App() {
                 />
               </Routes>
 
+<<<<<<< HEAD
 >>>>>>> 9437f9b (refactor: remove unused dashboard layout)
+=======
+>>>>>>> main
               <Toaster />
             </div>
           </Router>
@@ -298,7 +307,10 @@ function App() {
   );
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 export default App;
 =======
 >>>>>>> 9437f9b (refactor: remove unused dashboard layout)
+=======
+>>>>>>> main
