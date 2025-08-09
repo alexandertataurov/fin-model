@@ -1,6 +1,7 @@
 # Core Framework and Dependencies
 fastapi==0.104.1
-starlette==0.47.2
+# FastAPI 0.104.1 requires Starlette 0.27.x
+starlette>=0.27.0,<0.28.0
 uvicorn==0.24.0
 gunicorn==21.2.0
 python-multipart==0.0.6
