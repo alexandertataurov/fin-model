@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { EquityTrend } from './EquityTrend';
+import EquityTrend from './EquityTrend';
 
 const meta: Meta<typeof EquityTrend> = {
   title: 'Components/EquityTrend',

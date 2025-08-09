@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import BulkParameterEdit from './BulkParameterEdit';
+import { BulkParameterEdit } from './BulkParameterEdit';
 
 const meta: Meta<typeof BulkParameterEdit> = {
   title: 'Components/BulkParameterEdit',

@@ -70,6 +70,12 @@ const config: StorybookConfig = {
     config.build.rollupOptions = config.build.rollupOptions || {};
     config.build.rollupOptions.output = config.build.rollupOptions.output || {};
     config.build.rollupOptions.output.format = 'es';
+    
+    // Ensure proper module resolution for Storybook
+    config.build.rollupOptions.external = ['@storybook/globalThis'];
+    config.build.rollupOptions.output.globals = {
+      '@storybook/globalThis': 'globalThis'
+    };
 
     if (Array.isArray(config.plugins)) {
       // Remove any duplicate React plugins to avoid duplicate RefreshRuntime

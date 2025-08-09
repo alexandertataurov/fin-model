@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users,
@@ -40,182 +40,73 @@ import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Switch } from '@/design-system/components/Switch';
-import AdminApiService, {
-  SystemStats,
-  UserActivity,
-  SystemMetrics,
-  DataIntegrityCheck,
-  SecurityAudit,
-  LogEntry,
-  UserPermissions,
-} from '@/services/adminApi';
+import { useAdminStore } from '@/stores/adminStore';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
+import { StatsSkeleton, CardSkeleton, TableSkeleton, HealthSkeleton } from '@/components/ui/LoadingSkeleton';
 import { toast } from 'sonner';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // State management
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  const [loading, setLoading] = useState(true);
-  const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
-  const [userActivity, setUserActivity] = useState<UserActivity[]>([]);
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(
-    null
-  );
-  const [dataIntegrity, setDataIntegrity] = useState<DataIntegrityCheck[]>([]);
-  const [securityAudit, setSecurityAudit] = useState<SecurityAudit | null>(
-    null
-  );
-  const [refreshing, setRefreshing] = useState(false);
-  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [logsLevel, setLogsLevel] = useState<
-    'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
-  >('ERROR');
-  const [logsLimit, setLogsLimit] = useState<number>(100);
-  const [logsSearch, setLogsSearch] = useState<string>('');
-  const [logsFrom, setLogsFrom] = useState<string>('');
-  const [logsTo, setLogsTo] = useState<string>('');
-  const [logsSkip, setLogsSkip] = useState<number>(0);
-  const [logsTotal, setLogsTotal] = useState<number>(0);
-  const [systemHealth, setSystemHealth] = useState<any | null>(null);
-  const [databaseHealth, setDatabaseHealth] = useState<any | null>(null);
-  const [userPermissions, setUserPermissions] =
-    useState<UserPermissions | null>(null);
-  const [auditLogs, setAuditLogs] = useState<any[] | null>(null);
-  const [auditFilters, setAuditFilters] = useState<{
-    skip: number;
-    limit: number;
-    userId?: number;
-    action?: string;
-  }>({ skip: 0, limit: 100 });
-  const [auditSkip, setAuditSkip] = useState<number>(0);
-  const [auditTotal, setAuditTotal] = useState<number>(0);
-  const [securityFrom, setSecurityFrom] = useState<string>('');
-  const [securityTo, setSecurityTo] = useState<string>('');
-  const [auditFrom, setAuditFrom] = useState<string>('');
-  const [auditTo, setAuditTo] = useState<string>('');
+  // Use centralized store
+  const {
+    activeTab,
+    setActiveTab,
+    autoRefreshEnabled,
+    setAutoRefresh,
+    refreshing,
+    systemStats,
+    userActivity,
+    systemMetrics,
+    systemHealth,
+    databaseHealth,
+    logs,
+    audit,
+    fetchOverviewData,
+    fetchHealthData,
+    fetchLogsData,
+    fetchAuditData,
+    refreshAll,
+    updateLogsFilters,
+    updateAuditFilters,
+    clearErrors,
+  } = useAdminStore();
 
-  // Load admin data
-  const loadAdminData = useCallback(async () => {
-    setLoading(true);
-    const results = await Promise.allSettled([
-      AdminApiService.getSystemStats(),
-      AdminApiService.getUserActivity(20),
-      AdminApiService.getSystemMetrics(),
-      AdminApiService.checkDataIntegrity(),
-      AdminApiService.getSecurityAudit({
-        from: securityFrom || undefined,
-        to: securityTo || undefined,
-      }),
-      AdminApiService.getSystemHealth(),
-      AdminApiService.getDatabaseHealth(),
-      AdminApiService.getSystemLogs('ERROR', 100),
-      AdminApiService.getUserPermissions(),
-      AdminApiService.getAuditLogs(0, 100, undefined, undefined, {
-        from: auditFrom || undefined,
-        to: auditTo || undefined,
-        envelope: true,
-      }),
-    ]);
-
-    const [
-      statsRes,
-      activityRes,
-      metricsRes,
-      integrityRes,
-      auditRes,
-      sysHealthRes,
-      dbHealthRes,
-      logsRes,
-      permsRes,
-      auditListRes,
-    ] = results;
-
-    if (statsRes.status === 'fulfilled') setSystemStats(statsRes.value);
-    else setSystemStats(null);
-
-    if (activityRes.status === 'fulfilled') setUserActivity(activityRes.value);
-    else setUserActivity([]);
-
-    if (metricsRes.status === 'fulfilled') setSystemMetrics(metricsRes.value);
-    else setSystemMetrics(null);
-
-    if (integrityRes.status === 'fulfilled')
-      setDataIntegrity(integrityRes.value);
-    else setDataIntegrity([]);
-
-    if (auditRes.status === 'fulfilled') setSecurityAudit(auditRes.value);
-    else setSecurityAudit(null);
-
-    if (sysHealthRes.status === 'fulfilled')
-      setSystemHealth(sysHealthRes.value);
-    else setSystemHealth(null);
-
-    if (dbHealthRes.status === 'fulfilled')
-      setDatabaseHealth(dbHealthRes.value);
-    else setDatabaseHealth(null);
-
-    if (logsRes.status === 'fulfilled') {
-      const v: any = logsRes.value;
-      setLogs((v?.items as LogEntry[]) || (v as LogEntry[]) || []);
-      if (v && typeof v.total === 'number') setLogsTotal(v.total);
-    } else setLogs([]);
-
-    if (permsRes.status === 'fulfilled') setUserPermissions(permsRes.value);
-    else setUserPermissions(null);
-
-    if (auditListRes.status === 'fulfilled') {
-      const env = (auditListRes as any).value as any;
-      setAuditLogs((env?.items as any[]) || env?.logs || []);
-      if (typeof env?.total === 'number') setAuditTotal(env.total);
-      setAuditSkip(0);
-    } else setAuditLogs(null);
-
-    const anyFulfilled = results.some(r => r.status === 'fulfilled');
-    if (!anyFulfilled) {
-      toast.error(
-        'Admin data is unavailable. Please check your connection or permissions.'
-      );
-    } else if (results.some(r => r.status === 'rejected')) {
-      toast.warning(
-        'Some admin sections failed to load. Showing partial data.'
-      );
+  // Context-aware data loading based on active tab
+  const loadDataForTab = useCallback(async (tab: string) => {
+    switch (tab) {
+      case 'overview':
+        await fetchOverviewData();
+        break;
+      case 'health':
+        await fetchHealthData();
+        break;
+      case 'logs':
+        await fetchLogsData();
+        break;
+      case 'audit':
+        await fetchAuditData();
+        break;
+      default:
+        await fetchOverviewData();
     }
+  }, [fetchOverviewData, fetchHealthData, fetchLogsData, fetchAuditData]);
 
-    setLoading(false);
-  }, [securityFrom, securityTo, auditFrom, auditTo]);
+  // Legacy compatibility for child components
+  const loadAdminData = useCallback(async () => {
+    await loadDataForTab(activeTab);
+  }, [loadDataForTab, activeTab]);
 
   const loadMetricsAndLogs = useCallback(async () => {
-    const results = await Promise.allSettled([
-      AdminApiService.getSystemMetrics(),
-      AdminApiService.getSystemLogs(logsLevel, logsLimit, {
-        from: logsFrom || undefined,
-        to: logsTo || undefined,
-        search: logsSearch || undefined,
-        skip: logsSkip,
-        envelope: true,
-      }),
-    ]);
-    const [metricsRes, logsRes] = results;
-    if (metricsRes.status === 'fulfilled') setSystemMetrics(metricsRes.value);
-    if (logsRes.status === 'fulfilled') {
-      const env = logsRes.value as any;
-      setLogs((env.items as LogEntry[]) || env || []);
-      if (env && typeof env.total === 'number') setLogsTotal(env.total);
-    }
-  }, [logsLevel, logsLimit, logsFrom, logsTo, logsSearch, logsSkip]);
+    await fetchLogsData();
+  }, [fetchLogsData]);
 
-  // Refresh data
+  // Refresh data using store
   const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadAdminData();
-    setRefreshing(false);
+    await refreshAll();
     toast.success('Admin dashboard refreshed');
   };
 
@@ -288,19 +179,19 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Load data on mount
+  // Load data on mount and tab change
   useEffect(() => {
-    loadAdminData();
-  }, [loadAdminData]);
+    loadDataForTab(activeTab);
+  }, [loadDataForTab, activeTab]);
 
-  // Auto refresh metrics and logs
+  // Auto refresh based on active tab
   useEffect(() => {
     if (!autoRefreshEnabled) return;
     const id = setInterval(() => {
-      loadMetricsAndLogs();
+      refreshAll();
     }, 30000);
     return () => clearInterval(id);
-  }, [autoRefreshEnabled, loadMetricsAndLogs]);
+  }, [autoRefreshEnabled, refreshAll]);
 
   // Check if user has admin permissions
   if (!user) {
@@ -308,7 +199,10 @@ const AdminDashboard: React.FC = () => {
     return null;
   }
 
-  if (loading) {
+  // Show initial loading state only if no data is available
+  const isInitialLoading = !systemStats.data && !userActivity.data && !logs.data && systemStats.loading;
+
+  if (isInitialLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -349,7 +243,7 @@ const AdminDashboard: React.FC = () => {
                 </span>
                 <Switch
                   checked={autoRefreshEnabled}
-                  onCheckedChange={setAutoRefreshEnabled}
+                  onCheckedChange={setAutoRefresh}
                 />
               </div>
               <Button variant="outline" size="sm" onClick={() => navigate('/')}>
@@ -425,11 +319,16 @@ const AdminDashboard: React.FC = () => {
           <TabsContent value="overview" className="space-y-6">
             {(() => {
               const hasAnyData =
-                !!systemStats ||
-                !!systemMetrics ||
-                userActivity.length > 0 ||
-                dataIntegrity.length > 0 ||
-                !!securityAudit;
+                !!systemStats.data ||
+                !!systemMetrics.data ||
+                (userActivity.data && userActivity.data.length > 0);
+
+              const isLoading = systemStats.loading || userActivity.loading || systemMetrics.loading;
+
+              if (isLoading && !hasAnyData) {
+                return <StatsSkeleton />;
+              }
+
               return hasAnyData ? (
                 <>
                   {/* System Health Overview */}
@@ -466,10 +365,10 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center mb-2">
                               <div
                                 className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.cpu_usage &&
-                                  systemMetrics.cpu_usage > 80
+                                  (systemMetrics.data?.cpu_usage || 0) > 80
                                   ? 'bg-red-500'
                                   : systemMetrics?.cpu_usage &&
-                                    systemMetrics.cpu_usage > 60
+                                    (systemMetrics.data?.cpu_usage || 0) > 60
                                     ? 'bg-yellow-500'
                                     : 'bg-green-500'
                                   }`}
@@ -486,10 +385,10 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center mb-2">
                               <div
                                 className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.memory_usage &&
-                                  systemMetrics.memory_usage > 80
+                                  (systemMetrics.data?.memory_usage || 0) > 80
                                   ? 'bg-red-500'
                                   : systemMetrics?.memory_usage &&
-                                    systemMetrics.memory_usage > 60
+                                    (systemMetrics.data?.memory_usage || 0) > 60
                                     ? 'bg-yellow-500'
                                     : 'bg-green-500'
                                   }`}
@@ -508,10 +407,10 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center mb-2">
                               <div
                                 className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.disk_usage &&
-                                  systemMetrics.disk_usage > 80
+                                  (systemMetrics.data?.disk_usage || 0) > 80
                                   ? 'bg-red-500'
                                   : systemMetrics?.disk_usage &&
-                                    systemMetrics.disk_usage > 60
+                                    (systemMetrics.data?.disk_usage || 0) > 60
                                     ? 'bg-yellow-500'
                                     : 'bg-green-500'
                                   }`}
@@ -592,25 +491,25 @@ const AdminDashboard: React.FC = () => {
                             </div>
                             <div className="flex items-center text-xs text-green-600">
                               <ArrowUpRight className="h-3 w-3 mr-1" />+
-                              {systemStats.users.new_24h}
+                              {systemStats.data?.users.new_24h || 0}
                             </div>
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="text-2xl font-bold text-blue-600">
-                            {formatNumber(systemStats.users.total)}
+                            {formatNumber(systemStats.data?.users.total)}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            {systemStats.users.active} active •{' '}
-                            {systemStats.users.verified} verified
+                            {systemStats.data?.users.active || 0} active •{' '}
+                            {systemStats.data?.users.verified || 0} verified
                           </div>
                           <div className="flex items-center mt-2">
                             <div className="flex-1 bg-gray-200 rounded-full h-1.5">
                               <div
                                 className="bg-blue-500 h-1.5 rounded-full"
                                 style={{
-                                  width: `${(systemStats.users.active /
-                                    systemStats.users.total) *
+                                  width: `${((systemStats.data?.users.active || 0) /
+                                    (systemStats.data?.users.total || 1)) *
                                     100
                                     }%`,
                                 }}
@@ -618,8 +517,8 @@ const AdminDashboard: React.FC = () => {
                             </div>
                             <span className="text-xs text-muted-foreground ml-2">
                               {Math.round(
-                                (systemStats.users.active /
-                                  systemStats.users.total) *
+                                ((systemStats.data?.users.active || 0) /
+                                  (systemStats.data?.users.total || 1)) *
                                 100
                               )}
                               % active
@@ -635,28 +534,28 @@ const AdminDashboard: React.FC = () => {
                               <FileText className="h-4 w-4 mr-2 text-green-500" />
                               Files Processed
                             </div>
-                            {systemStats.files.failed > 0 && (
+                            {(systemStats.data?.files.failed || 0) > 0 && (
                               <Badge variant="secondary" className="text-xs">
-                                {systemStats.files.failed} failed
+                                {systemStats.data?.files.failed || 0} failed
                               </Badge>
                             )}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="text-2xl font-bold text-green-600">
-                            {formatNumber(systemStats.files.total)}
+                            {formatNumber(systemStats.data?.files.total)}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            {systemStats.files.completed} completed •{' '}
-                            {systemStats.files.processing} processing
+                            {systemStats.data?.files.completed || 0} completed •{' '}
+                            {systemStats.data?.files.processing || 0} processing
                           </div>
                           <div className="flex items-center mt-2">
                             <div className="flex-1 bg-gray-200 rounded-full h-1.5">
                               <div
                                 className="bg-green-500 h-1.5 rounded-full"
                                 style={{
-                                  width: `${(systemStats.files.completed /
-                                    systemStats.files.total) *
+                                  width: `${((systemStats.data?.files.completed || 0) /
+                                    (systemStats.data?.files.total || 1)) *
                                     100
                                     }%`,
                                 }}
@@ -664,8 +563,8 @@ const AdminDashboard: React.FC = () => {
                             </div>
                             <span className="text-xs text-muted-foreground ml-2">
                               {Math.round(
-                                (systemStats.files.completed /
-                                  systemStats.files.total) *
+                                ((systemStats.data?.files.completed || 0) /
+                                  (systemStats.data?.files.total || 1)) *
                                 100
                               )}
                               % done
@@ -684,13 +583,13 @@ const AdminDashboard: React.FC = () => {
                         <CardContent>
                           <div className="text-2xl font-bold text-purple-600">
                             {formatNumber(
-                              systemStats.financial_data.statements
+                              systemStats.data?.financial_data.statements
                             )}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             statements •{' '}
                             {formatNumber(
-                              systemStats.financial_data.parameters
+                              systemStats.data?.financial_data.parameters
                             )}{' '}
                             parameters
                           </div>
@@ -716,10 +615,10 @@ const AdminDashboard: React.FC = () => {
                         </CardHeader>
                         <CardContent>
                           <div className="text-2xl font-bold text-orange-600">
-                            {systemStats.system.database_size}
+                            {systemStats.data?.system.database_size || 'N/A'}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            Avg file: {systemStats.performance.avg_file_size_mb}
+                            Avg file: {systemStats.data?.performance.avg_file_size_mb || 0}
                             MB
                           </div>
                           <div className="flex items-center mt-2">
@@ -763,19 +662,19 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                                 <span
                                   className={`text-sm font-medium ${systemMetrics.cpu_usage &&
-                                    systemMetrics.cpu_usage > 80
+                                    (systemMetrics.data?.cpu_usage || 0) > 80
                                     ? 'text-red-500'
                                     : systemMetrics.cpu_usage &&
-                                      systemMetrics.cpu_usage > 60
+                                      (systemMetrics.data?.cpu_usage || 0) > 60
                                       ? 'text-yellow-500'
                                       : 'text-green-500'
                                     }`}
                                 >
-                                  {formatPercentage(systemMetrics.cpu_usage)}
+                                  {formatPercentage(systemMetrics.data?.cpu_usage)}
                                 </span>
                               </div>
                               <Progress
-                                value={systemMetrics.cpu_usage || 0}
+                                value={systemMetrics.data?.cpu_usage || 0}
                                 className="h-2"
                               />
                             </div>
@@ -790,19 +689,19 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                                 <span
                                   className={`text-sm font-medium ${systemMetrics.memory_usage &&
-                                    systemMetrics.memory_usage > 80
+                                    (systemMetrics.data?.memory_usage || 0) > 80
                                     ? 'text-red-500'
                                     : systemMetrics.memory_usage &&
-                                      systemMetrics.memory_usage > 60
+                                      (systemMetrics.data?.memory_usage || 0) > 60
                                       ? 'text-yellow-500'
                                       : 'text-green-500'
                                     }`}
                                 >
-                                  {formatPercentage(systemMetrics.memory_usage)}
+                                  {formatPercentage(systemMetrics.data?.memory_usage)}
                                 </span>
                               </div>
                               <Progress
-                                value={systemMetrics.memory_usage || 0}
+                                value={systemMetrics.data?.memory_usage || 0}
                                 className="h-2"
                               />
                             </div>
@@ -817,19 +716,19 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                                 <span
                                   className={`text-sm font-medium ${systemMetrics.disk_usage &&
-                                    systemMetrics.disk_usage > 80
+                                    (systemMetrics.data?.disk_usage || 0) > 80
                                     ? 'text-red-500'
                                     : systemMetrics.disk_usage &&
-                                      systemMetrics.disk_usage > 60
+                                      (systemMetrics.data?.disk_usage || 0) > 60
                                       ? 'text-yellow-500'
                                       : 'text-green-500'
                                     }`}
                                 >
-                                  {formatPercentage(systemMetrics.disk_usage)}
+                                  {formatPercentage(systemMetrics.data?.disk_usage)}
                                 </span>
                               </div>
                               <Progress
-                                value={systemMetrics.disk_usage || 0}
+                                value={systemMetrics.data?.disk_usage || 0}
                                 className="h-2"
                               />
                             </div>
@@ -842,7 +741,7 @@ const AdminDashboard: React.FC = () => {
                                   DB Connections:
                                 </span>
                                 <span className="font-medium">
-                                  {systemMetrics.active_connections}
+                                  {systemMetrics.data?.active_connections || 0}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
@@ -851,7 +750,7 @@ const AdminDashboard: React.FC = () => {
                                 </span>
                                 <span className="font-medium">
                                   {formatNumber(
-                                    systemMetrics.request_count_24h || 0
+                                    systemMetrics.data?.request_count_24h || 0
                                   )}
                                 </span>
                               </div>
@@ -995,8 +894,8 @@ const AdminDashboard: React.FC = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {userActivity.length > 0 ? (
-                          userActivity.slice(0, 6).map(activity => (
+                        {(userActivity.data && userActivity.data.length > 0) ? (
+                          userActivity.data.slice(0, 6).map(activity => (
                             <div
                               key={activity.user_id}
                               className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors"
@@ -1054,7 +953,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="grid grid-cols-3 gap-4 text-center">
                           <div>
                             <div className="text-lg font-bold text-blue-600">
-                              {userActivity.filter(u => u.is_active).length}
+                              {userActivity.data?.filter(u => u.is_active).length || 0}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               Active Users
@@ -1062,10 +961,10 @@ const AdminDashboard: React.FC = () => {
                           </div>
                           <div>
                             <div className="text-lg font-bold text-green-600">
-                              {userActivity.reduce(
+                              {userActivity.data?.reduce(
                                 (sum, u) => sum + u.files_uploaded,
                                 0
-                              )}
+                              ) || 0}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               Files Uploaded
@@ -1073,10 +972,10 @@ const AdminDashboard: React.FC = () => {
                           </div>
                           <div>
                             <div className="text-lg font-bold text-purple-600">
-                              {userActivity.reduce(
+                              {userActivity.data?.reduce(
                                 (sum, u) => sum + u.models_created,
                                 0
-                              )}
+                              ) || 0}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               Models Created
