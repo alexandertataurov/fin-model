@@ -1,6 +1,6 @@
 import tokensJson from './tokens.json';
 
-export const tokens = tokensJson as const;
+export const tokens = tokensJson;
 
 
 export const cssVariables = {

@@ -103,7 +103,7 @@ const AdminDashboard: React.FC = () => {
         envelope: true,
       });
       const env = resp as any;
-      setLogs((env.items as LogEntry[]) || []);
+      setLogEntries((env.items as LogEntry[]) || []);
       setLogsTotal(env.total || 0);
     },
     [
