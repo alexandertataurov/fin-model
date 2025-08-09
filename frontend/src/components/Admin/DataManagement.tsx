@@ -338,10 +338,10 @@ const DataManagement: React.FC = () => {
                 <>
                   <div
                     className={`text-2xl font-bold ${score >= 80
-                        ? 'text-green-600'
-                        : score >= 50
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
+                      ? 'text-green-600'
+                      : score >= 50
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
                       }`}
                   >
                     {total === 0 && !dbHealthy ? 'N/A' : `${score}%`}

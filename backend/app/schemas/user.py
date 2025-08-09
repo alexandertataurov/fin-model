@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from app.models.role import RoleType
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 
 
 class UserBase(BaseModel):
@@ -95,8 +95,7 @@ class User(UserBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserWithRoles(User):

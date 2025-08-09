@@ -2,11 +2,8 @@ import React from 'react';
 import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Progress } from '@/design-system/components/Progress';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Separator } from '@/design-system/components/Separator';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import {
   AlertTriangle,
   CreditCard,
@@ -187,13 +184,12 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
                             liability.change_percentage
                           )}
                           <span
-                            className={`text-sm ${
-                              liability.change_percentage > 0
+                            className={`text-sm ${liability.change_percentage > 0
                                 ? 'text-red-600'
                                 : liability.change_percentage < 0
                                   ? 'text-green-600'
                                   : 'text-gray-600'
-                            }`}
+                              }`}
                           >
                             {formatPercentage(liability.change_percentage)}
                           </span>

@@ -132,13 +132,10 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
         );
 
         // Send subscription message for this specific chart
-        websocketService.send({
-          type: 'subscribe_chart',
-          data: {
-            file_id: fileId,
-            chart_type: chartType,
-            max_points: maxDataPoints,
-          },
+        websocketService.send('subscribe_chart', {
+          file_id: fileId,
+          chart_type: chartType,
+          max_points: maxDataPoints,
         });
 
         // Subscribed to real-time updates for chart
@@ -302,9 +299,9 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
             // Pass through any animation props for smooth updates
             animation: isLive
               ? {
-                  duration: 750,
-                  easing: 'ease-out',
-                }
+                duration: 750,
+                easing: 'ease-out',
+              }
               : false,
           } as any
         )}

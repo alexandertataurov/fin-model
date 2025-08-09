@@ -18,9 +18,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Badge } from '@/design-system/components/Badge';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { 
+import {
   Play,
-  Plus, 
+  Plus,
   Copy,
   Edit,
   Trash2,
@@ -167,10 +167,9 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
     const isSelected = selectedScenarioId === scenario.id;
 
     return (
-      <Card 
-        className={`cursor-pointer transition-all ${
-          isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'
-        }`}
+      <Card
+        className={`cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'
+          }`}
         onClick={() => onScenarioSelect?.(scenario)}
       >
         <CardContent className="p-4">
@@ -253,7 +252,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                   <p className="font-semibold">{formatCurrency(scenario.results.value_per_share)}</p>
                 </div>
               </div>
-              
+
               <div className="flex justify-between items-center pt-2 border-t">
                 <div>
                   <p className="text-xs text-gray-500">ROI</p>
@@ -327,7 +326,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateScenario}
               disabled={!newScenarioData.name}
             >

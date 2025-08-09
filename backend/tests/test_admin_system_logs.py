@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from fastapi.testclient import TestClient
@@ -20,7 +20,7 @@ def _auth_headers(db):
 
 def test_system_logs_list_and_envelope(client):
     with SessionLocal() as db:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         db.add_all(
             [
                 SystemLog(

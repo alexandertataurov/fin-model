@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 
 from app.core.dependencies import (
@@ -693,7 +693,7 @@ async def export_database(
     """Export data (full or table). Returns file URL (stubbed)."""
     filename = (
         f"export_{payload.table or 'full'}_{payload.format}_"
-        f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
     )
     file_url = f"/downloads/{filename}.{payload.format}"
     return ExportResponse(file_url=file_url, message="Export generated")
@@ -829,7 +829,7 @@ def clear_rate_limits(
 
 @router.get("/reports/overview")
 async def get_admin_overview_report(
-    format: str = Query("json", regex="^(json|csv)$"),
+    format: str = Query("json", pattern="^(json|csv)$"),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
     db: Session = Depends(get_db),
 ):
@@ -871,7 +871,7 @@ async def get_admin_overview_report(
                 "statements": total_statements,
                 "parameters": total_parameters,
             },
-            "generated_at": datetime.utcnow().isoformat() + "Z",
+            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
         if format == "json":
@@ -1476,7 +1476,7 @@ async def bulk_user_action(
 @router.get("/system/logs")
 async def get_system_logs(
     level: str = Query(
-        "ERROR", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
     ),
     limit: int = Query(100, ge=1, le=1000),
     skip: int = Query(0, ge=0),
@@ -1548,7 +1548,7 @@ async def get_system_logs(
 @router.get("/system/logs/stream")
 async def stream_system_logs(
     level: str = Query(
-        "ERROR", regex="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
     ),
     from_ts: Optional[datetime] = Query(None),
     search: Optional[str] = Query(None),
@@ -1562,13 +1562,13 @@ async def stream_system_logs(
     """Server-Sent Events stream of system logs (polling-based)."""
 
     async def event_generator():
-        end_time = datetime.utcnow() + timedelta(seconds=timeout_s)
+        end_time = datetime.now(timezone.utc) + timedelta(seconds=timeout_s)
         last_id: int | None = None
         level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
         min_level = (
             1 if level == "DEBUG" else level_order.get(level, 1)
         )
-        while datetime.utcnow() < end_time:
+        while datetime.now(timezone.utc) < end_time:
             try:
                 q = db.query(SystemLog)
                 if from_ts:

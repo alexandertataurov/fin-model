@@ -15,7 +15,7 @@ interface DCFData {
   projection_years: number;
   terminal_growth_rate: number;
   discount_rate_wacc: number;
-  
+
   // Free Cash Flow Projections
   fcf_projections: {
     year: number;
@@ -177,10 +177,9 @@ const DCFView: React.FC<DCFViewProps> = ({
         className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
       >
         <h3 className="font-semibold text-lg">{title}</h3>
-        <Calculator 
-          className={`w-5 h-5 transition-transform ${
-            expandedSections.has(sectionKey) ? 'rotate-90' : ''
-          }`} 
+        <Calculator
+          className={`w-5 h-5 transition-transform ${expandedSections.has(sectionKey) ? 'rotate-90' : ''
+            }`}
         />
       </button>
       {expandedSections.has(sectionKey) && (
@@ -236,9 +235,8 @@ const DCFView: React.FC<DCFViewProps> = ({
             <div className="text-center">
               <p className="text-sm text-gray-600">Upside/Downside</p>
               <div className="flex items-center justify-center space-x-2">
-                <p className={`text-2xl font-bold ${
-                  data.key_metrics.upside_downside >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <p className={`text-2xl font-bold ${data.key_metrics.upside_downside >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {formatPercentage(data.key_metrics.upside_downside_percentage)}
                 </p>
                 {data.key_metrics.upside_downside >= 0 ? (
@@ -346,7 +344,7 @@ const DCFView: React.FC<DCFViewProps> = ({
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <h4 className="font-semibold mb-3">Equity Value Calculation</h4>
                 <div className="space-y-2">
@@ -399,7 +397,7 @@ const DCFView: React.FC<DCFViewProps> = ({
                 </p>
               </div>
             </div>
-            
+
             <div className="overflow-x-auto">
               <p className="text-sm font-medium mb-2">Sensitivity Matrix (WACC vs Terminal Growth Rate)</p>
               <table className="w-full text-xs">
@@ -511,7 +509,7 @@ const DCFView: React.FC<DCFViewProps> = ({
           </div>
           <div className="mt-3 text-center">
             <p className="text-sm text-gray-600">
-              Value Creation: {data.key_metrics.roic > data.key_metrics.wacc ? 'Positive' : 'Negative'} 
+              Value Creation: {data.key_metrics.roic > data.key_metrics.wacc ? 'Positive' : 'Negative'}
               (ROIC {data.key_metrics.roic > data.key_metrics.wacc ? '>' : '<'} WACC)
             </p>
           </div>

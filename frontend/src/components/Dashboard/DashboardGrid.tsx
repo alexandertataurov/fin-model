@@ -154,7 +154,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
           className={cn(
             'h-full flex flex-col',
             isFullscreenWidget &&
-              'z-50 fixed inset-4 bg-background border-2 border-primary'
+            'z-50 fixed inset-4 bg-background border-2 border-primary'
           )}
         >
           <CardHeader>

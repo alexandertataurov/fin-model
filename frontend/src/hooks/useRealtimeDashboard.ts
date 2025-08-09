@@ -235,9 +235,9 @@ export const useRealtimeDashboard = ({
       unsubscribeRefs.current = subscriptions;
 
       // Send initial subscription message
-      dashboardWebSocketService.send({
-        type: 'subscribe_metrics',
-        data: { file_id: fileId, period },
+      dashboardWebSocketService.send('subscribe_metrics', {
+        file_id: fileId,
+        period,
       });
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error);

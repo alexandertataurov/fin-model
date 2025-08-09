@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+import { formatCurrency as formatCurrencyUtil, formatPercentage as formatPercentageUtil } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
 // duplicate import removed
 import { Download, TrendingUp, TrendingDown, Activity } from 'lucide-react';
@@ -14,7 +14,7 @@ interface CashFlowData {
   // Operating Activities
   operating_activities: {
     net_income: number;
-    
+
     // Non-cash adjustments
     depreciation_expense: number;
     amortization_expense: number;
@@ -22,7 +22,7 @@ interface CashFlowData {
     deferred_tax_benefit: number;
     asset_impairment: number;
     bad_debt_provision: number;
-    
+
     // Working capital changes
     accounts_receivable_change: number;
     inventory_change: number;
@@ -32,12 +32,12 @@ interface CashFlowData {
     deferred_revenue_change: number;
     other_working_capital_change: number;
     total_working_capital_change: number;
-    
+
     // Other operating activities
     interest_paid: number;
     taxes_paid: number;
     other_operating_cash_flow: number;
-    
+
     total_operating_cash_flow: number;
   };
 
@@ -48,21 +48,21 @@ interface CashFlowData {
     intangible_asset_purchases: number;
     software_development_costs: number;
     research_development_capex: number;
-    
+
     // Asset disposals
     asset_sales_proceeds: number;
     business_acquisition_cost: number;
     business_divestiture_proceeds: number;
-    
+
     // Investments
     short_term_investments_change: number;
     long_term_investments_change: number;
     marketable_securities_change: number;
-    
+
     // Other investing activities
     loans_to_subsidiaries: number;
     other_investing_cash_flow: number;
-    
+
     total_investing_cash_flow: number;
   };
 
@@ -72,18 +72,18 @@ interface CashFlowData {
     debt_proceeds: number;
     debt_repayments: number;
     net_debt_change: number;
-    
+
     // Equity activities
     stock_issuance_proceeds: number;
     stock_repurchase_cost: number;
     dividend_payments: number;
     preferred_dividend_payments: number;
-    
+
     // Other financing activities
     capital_lease_payments: number;
     debt_issuance_costs: number;
     other_financing_cash_flow: number;
-    
+
     total_financing_cash_flow: number;
   };
 
@@ -91,7 +91,7 @@ interface CashFlowData {
   net_change_in_cash: number;
   beginning_cash_balance: number;
   ending_cash_balance: number;
-  
+
   // Supplemental information
   supplemental_info: {
     free_cash_flow: number;
@@ -183,19 +183,17 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
     showTrend?: boolean;
   }> = ({ label, value, isTotal = false, isSubtotal = false, indent = 0, showTrend = true }) => (
     <div
-      className={`flex justify-between items-center py-2 px-4 ${
-        isTotal ? 'font-bold bg-gray-50 border-t-2 border-b-2' : 
-        isSubtotal ? 'font-semibold bg-gray-25 border-t' : ''
-      }`}
+      className={`flex justify-between items-center py-2 px-4 ${isTotal ? 'font-bold bg-gray-50 border-t-2 border-b-2' :
+          isSubtotal ? 'font-semibold bg-gray-25 border-t' : ''
+        }`}
       style={{ paddingLeft: `${16 + indent * 16}px` }}
     >
       <span className={isTotal ? 'text-lg' : isSubtotal ? 'text-md' : 'text-sm'}>
         {label}
       </span>
       <div className="flex items-center space-x-2">
-        <span className={`${isTotal ? 'text-lg font-bold' : 'font-medium'} ${
-          value < 0 ? 'text-red-600' : 'text-gray-900'
-        }`}>
+        <span className={`${isTotal ? 'text-lg font-bold' : 'font-medium'} ${value < 0 ? 'text-red-600' : 'text-gray-900'
+          }`}>
           {formatCurrency(value)}
         </span>
         {showTrend && value > 0 && (
@@ -219,10 +217,9 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
         className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
       >
         <h3 className="font-semibold text-lg">{title}</h3>
-        <Activity 
-          className={`w-5 h-5 transition-transform ${
-            expandedSections.has(sectionKey) ? 'rotate-90' : ''
-          }`} 
+        <Activity
+          className={`w-5 h-5 transition-transform ${expandedSections.has(sectionKey) ? 'rotate-90' : ''
+            }`}
         />
       </button>
       {expandedSections.has(sectionKey) && (
@@ -256,7 +253,7 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
         {/* Operating Activities Section */}
         <ExpandableSection title="Cash Flow from Operating Activities" sectionKey="operating">
           <LineItem label="Net Income" value={data.operating_activities.net_income} indent={1} />
-          
+
           <div className="bg-gray-50 p-2">
             <h4 className="font-medium text-gray-700 mb-2">Non-Cash Adjustments</h4>
             <LineItem label="Depreciation Expense" value={data.operating_activities.depreciation_expense} indent={2} />
@@ -286,8 +283,8 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
             <LineItem label="Other Operating Cash Flow" value={data.operating_activities.other_operating_cash_flow} indent={2} />
           </div>
 
-          <LineItem 
-            label="Total Operating Cash Flow" 
+          <LineItem
+            label="Total Operating Cash Flow"
             value={data.operating_activities.total_operating_cash_flow}
             isTotal={true}
           />
@@ -319,8 +316,8 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
             <LineItem label="Other Investing Cash Flow" value={data.investing_activities.other_investing_cash_flow} indent={2} />
           </div>
 
-          <LineItem 
-            label="Total Investing Cash Flow" 
+          <LineItem
+            label="Total Investing Cash Flow"
             value={data.investing_activities.total_investing_cash_flow}
             isTotal={true}
           />
@@ -350,8 +347,8 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
             <LineItem label="Other Financing Cash Flow" value={data.financing_activities.other_financing_cash_flow} indent={2} />
           </div>
 
-          <LineItem 
-            label="Total Financing Cash Flow" 
+          <LineItem
+            label="Total Financing Cash Flow"
             value={data.financing_activities.total_financing_cash_flow}
             isTotal={true}
           />

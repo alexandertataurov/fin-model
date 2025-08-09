@@ -14,7 +14,7 @@ import {
   Pause,
   RotateCcw,
 } from 'lucide-react';
-import { websocketService } from '../../services/websocket';
+import { dashboardWebSocketService as websocketService } from '../../services/websocket';
 
 export interface MetricData {
   id: string;
@@ -290,10 +290,7 @@ export const RealtimeMetrics: React.FC<RealtimeMetricsProps> = ({
         };
 
         // Send subscription message for metrics
-        websocketService.send({
-          type: 'subscribe_metrics',
-          data: { file_id: fileId },
-        });
+        websocketService.send('subscribe_metrics', { file_id: fileId });
 
         // Subscribed to real-time metrics
       }

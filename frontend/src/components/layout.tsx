@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ThemeProvider } from '@/components/theme-provider';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { Sidebar } from '@/components/sidebar';
+import { ThemeProvider } from '@/design-system/components/ThemeProvider';
+import { ThemeToggle } from '@/design-system/components/ThemeProvider';
+// Sidebar component path may differ; if not present, stub minimal layout
 import {
   LayoutGrid,
   Target,

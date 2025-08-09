@@ -1,6 +1,6 @@
 from typing import Dict, List, Any, Optional, Union, Tuple
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import Enum
 
 from app.models.parameter import (
@@ -34,17 +34,12 @@ class ParameterBase(BaseModel):
     is_required: bool = True
     is_editable: bool = True
 
-    @validator("min_value", "max_value")
+    @field_validator("min_value", "max_value")
+    @classmethod
     def validate_range(cls, v, values):
-        if (
-            v is not None
-            and "min_value" in values
-            and values["min_value"] is not None
-        ):
-            if v < values["min_value"]:
-                raise ValueError(
-                    "max_value must be greater than min_value"
-                )
+        min_val = values.get("min_value") if isinstance(values, dict) else None
+        if v is not None and min_val is not None and v < min_val:
+            raise ValueError("max_value must be greater than min_value")
         return v
 
 
@@ -72,8 +67,7 @@ class ParameterResponse(ParameterBase):
     updated_at: datetime
     created_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Parameter Value Schemas
@@ -140,8 +134,7 @@ class ScenarioResponse(ScenarioBase):
     updated_at: datetime
     created_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ScenarioVersionResponse(BaseModel):
@@ -153,8 +146,7 @@ class ScenarioVersionResponse(BaseModel):
     created_by_id: int
     is_current: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Parameter Detection Schemas
@@ -376,8 +368,7 @@ class ParameterTemplateResponse(BaseModel):
     created_at: datetime
     created_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Search and Filter Schemas
@@ -412,8 +403,7 @@ class ParameterAuditLog(BaseModel):
     change_reason: Optional[str] = None
     ip_address: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ParameterHistoryResponse(BaseModel):

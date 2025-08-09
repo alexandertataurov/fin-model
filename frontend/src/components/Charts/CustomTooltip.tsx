@@ -42,26 +42,26 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
       const [val] = formatter(value, name);
       return val;
     }
-    
+
     // Auto-detect formatting based on name or value
     if (name.toLowerCase().includes('percent') || name.toLowerCase().includes('rate') || name.toLowerCase().includes('margin')) {
-      return formatPercentage(value);
+      return formatPercentage(typeof value === 'number' ? value : Number(value) || 0);
     }
-    
+
     if (typeof value === 'number') {
       return Math.abs(value) > 100 ? formatCurrency(value) : String(value);
     }
-    
+
     return String(value);
   };
 
   const formattedLabel = labelFormatter ? labelFormatter(label || '') : label;
-  
-  const total = showTotal && payload.length > 1 
+
+  const total = showTotal && payload.length > 1
     ? payload.reduce((sum, item) => {
-        const val = typeof item.value === 'number' ? item.value : parseFloat(String(item.value)) || 0;
-        return sum + val;
-      }, 0)
+      const val = typeof item.value === 'number' ? item.value : parseFloat(String(item.value)) || 0;
+      return sum + val;
+    }, 0)
     : null;
 
   return (

@@ -1,5 +1,5 @@
 import { useTheme } from 'next-themes';
-import { designTokens, colorTokens, componentTokens } from '../components/ui/utils/tokens';
+import { designTokens, colorTokens, componentTokens } from '@/design-system/tokens';
 
 /**
  * Hook for accessing design tokens with theme-aware color resolution
@@ -8,14 +8,14 @@ import { designTokens, colorTokens, componentTokens } from '../components/ui/uti
  * @returns Design token utilities and values
  */
 export function useDesignTokens() {
-  const { theme, resolvedTheme } = useTheme();
-  
+  const { theme, resolvedTheme } = useTheme() as any;
+
   // Get the current theme (light/dark)
   const currentTheme = resolvedTheme === 'dark' ? 'dark' : 'light';
-  
+
   // Get theme-specific colors
   const colors = colorTokens[currentTheme];
-  
+
   /**
    * Get a CSS custom property value
    * @param property - The CSS custom property name (without --)
@@ -24,7 +24,7 @@ export function useDesignTokens() {
   const getCSSVar = (property: string): string => {
     return `var(--${property})`;
   };
-  
+
   /**
    * Get a color value from the current theme
    * @param colorName - The color name from the color tokens
@@ -33,7 +33,7 @@ export function useDesignTokens() {
   const getColor = (colorName: keyof typeof colors): string => {
     return colors[colorName];
   };
-  
+
   /**
    * Get spacing value
    * @param size - The spacing size key
@@ -42,7 +42,7 @@ export function useDesignTokens() {
   const getSpacing = (size: keyof typeof designTokens.spacing): string => {
     return designTokens.spacing[size];
   };
-  
+
   /**
    * Get border radius value
    * @param size - The border radius size key
@@ -51,7 +51,7 @@ export function useDesignTokens() {
   const getBorderRadius = (size: keyof typeof designTokens.borderRadius): string => {
     return designTokens.borderRadius[size];
   };
-  
+
   /**
    * Get font size configuration
    * @param size - The font size key
@@ -60,7 +60,7 @@ export function useDesignTokens() {
   const getFontSize = (size: keyof typeof designTokens.fontSize): [string, { lineHeight: string }] => {
     return designTokens.fontSize[size];
   };
-  
+
   /**
    * Get font weight value
    * @param weight - The font weight key
@@ -69,7 +69,7 @@ export function useDesignTokens() {
   const getFontWeight = (weight: keyof typeof designTokens.fontWeight): string => {
     return designTokens.fontWeight[weight];
   };
-  
+
   /**
    * Get box shadow value
    * @param size - The shadow size key
@@ -78,7 +78,7 @@ export function useDesignTokens() {
   const getBoxShadow = (size: keyof typeof designTokens.boxShadow): string => {
     return designTokens.boxShadow[size];
   };
-  
+
   /**
    * Get transition duration value
    * @param speed - The transition speed key
@@ -87,7 +87,7 @@ export function useDesignTokens() {
   const getTransitionDuration = (speed: keyof typeof designTokens.transitionDuration): string => {
     return designTokens.transitionDuration[speed];
   };
-  
+
   /**
    * Get z-index value
    * @param layer - The z-index layer key
@@ -96,7 +96,7 @@ export function useDesignTokens() {
   const getZIndex = (layer: keyof typeof designTokens.zIndex): string => {
     return designTokens.zIndex[layer];
   };
-  
+
   /**
    * Get component-specific token
    * @param component - The component name
@@ -111,25 +111,25 @@ export function useDesignTokens() {
   ): any => {
     const componentConfig = componentTokens[component];
     const propertyConfig = componentConfig[property];
-    
+
     if (variant && typeof propertyConfig === 'object' && propertyConfig !== null) {
       return (propertyConfig as any)[variant];
     }
-    
+
     return propertyConfig;
   };
-  
+
   return {
     // Theme info
     theme,
     resolvedTheme,
     currentTheme,
-    
+
     // Raw token objects
     tokens: designTokens,
     colors,
     componentTokens,
-    
+
     // Utility functions
     getCSSVar,
     getColor,
@@ -141,7 +141,7 @@ export function useDesignTokens() {
     getTransitionDuration,
     getZIndex,
     getComponentToken,
-    
+
     // Quick access to common values
     spacing: designTokens.spacing,
     borderRadius: designTokens.borderRadius,

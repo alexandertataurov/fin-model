@@ -433,22 +433,21 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                 <div
                   className="bg-blue-500 h-1.5 rounded-full"
                   style={{
-                    width: `${
-                      users.length > 0
+                    width: `${users.length > 0
                         ? (users.filter(u => u.is_active).length /
-                            users.length) *
-                          100
+                          users.length) *
+                        100
                         : 0
-                    }%`,
+                      }%`,
                   }}
                 ></div>
               </div>
               <span className="text-xs text-muted-foreground ml-2">
                 {users.length > 0
                   ? Math.round(
-                      (users.filter(u => u.is_active).length / users.length) *
-                        100
-                    )
+                    (users.filter(u => u.is_active).length / users.length) *
+                    100
+                  )
                   : 0}
                 % active
               </span>
@@ -593,20 +592,20 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
               {(searchTerm ||
                 statusFilter !== 'all' ||
                 roleFilter !== 'all') && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setStatusFilter('all');
-                    setRoleFilter('all');
-                  }}
-                  className="h-auto p-1 text-xs"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  Clear filters
-                </Button>
-              )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setStatusFilter('all');
+                      setRoleFilter('all');
+                    }}
+                    className="h-auto p-1 text-xs"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Clear filters
+                  </Button>
+                )}
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="text-xs">
@@ -779,11 +778,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            user.is_active
+                          className={`w-10 h-10 rounded-full flex items-center justify-center ${user.is_active
                               ? 'bg-primary/10 text-primary'
                               : 'bg-gray-100 text-gray-500'
-                          }`}
+                            }`}
                         >
                           <span className="text-sm font-medium">
                             {user.first_name?.[0]?.toUpperCase() ||
@@ -1012,11 +1010,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
             </div>
 
             <div className="flex items-center space-x-2">
-            <Checkbox
+              <Checkbox
                 id="isActive"
-              checked={editUserData.is_active}
-              onCheckedChange={checked =>
-                setEditUserData(prev => ({ ...prev, is_active: checked === true }))
+                checked={editUserData.is_active}
+                onCheckedChange={checked =>
+                  setEditUserData(prev => ({ ...prev, is_active: checked === true }))
                 }
               />
               <Label htmlFor="isActive">Active</Label>

@@ -492,7 +492,7 @@ const Settings: React.FC = () => {
                     className="flex justify-between items-center border rounded-md p-3"
                   >
                     <div>
-                      <p className="font-medium">{c.name || 'Security Key'}</p>
+                      <p className="font-medium">{(c as any).name || 'Security Key'}</p>
                       <p className="text-xs text-muted-foreground">
                         Added {new Date(c.created_at).toLocaleString()}
                       </p>

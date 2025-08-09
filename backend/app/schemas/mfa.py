@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
@@ -98,8 +98,7 @@ class OAuthAccountResponse(BaseModel):
     profile_picture: Optional[str]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WebAuthnCredentialResponse(BaseModel):
@@ -112,8 +111,7 @@ class WebAuthnCredentialResponse(BaseModel):
     created_at: datetime
     last_used: Optional[datetime]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WebAuthnRegistrationOptionsResponse(BaseModel):

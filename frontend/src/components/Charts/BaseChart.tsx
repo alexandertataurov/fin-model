@@ -44,7 +44,7 @@ export const BaseChart: React.FC<BaseChartProps> = ({
   const subtitleId = subtitle ? `${chartId}-subtitle` : undefined;
 
   return (
-    <Card 
+    <Card
       className={cn('relative group', className)}
       aria-label={ariaLabel || title}
       aria-describedby={ariaDescribedby || subtitleId}
@@ -92,7 +92,7 @@ export const BaseChart: React.FC<BaseChartProps> = ({
         >
           <div className="space-y-1">
             {title && (
-              <CardTitle 
+              <CardTitle
                 id={titleId}
                 className="text-base font-medium"
                 data-testid="chart-title"
@@ -101,7 +101,7 @@ export const BaseChart: React.FC<BaseChartProps> = ({
               </CardTitle>
             )}
             {subtitle && (
-              <p 
+              <p
                 id={subtitleId}
                 className="text-sm text-muted-foreground"
                 data-testid="chart-subtitle"

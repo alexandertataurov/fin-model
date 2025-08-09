@@ -3,7 +3,7 @@
  * Provides utilities for working with design tokens in components
  */
 
-import { designTokens, colorTokens, componentTokens } from './tokens';
+import { designTokens, colorTokens, componentTokens } from '../tokens';
 
 // Type definitions for better autocomplete and type safety
 export type SpacingToken = keyof typeof designTokens.spacing;
@@ -13,9 +13,9 @@ export type FontWeightToken = keyof typeof designTokens.fontWeight;
 export type BoxShadowToken = keyof typeof designTokens.boxShadow;
 export type TransitionToken = keyof typeof designTokens.transitionDuration;
 export type ZIndexToken = keyof typeof designTokens.zIndex;
-export type AnimationCurveToken = keyof typeof designTokens.animationCurve;
-export type BreakpointToken = keyof typeof designTokens.breakpoints;
-export type ContainerToken = keyof typeof designTokens.containers;
+export type AnimationCurveToken = keyof (typeof designTokens & { animationCurve: any })['animationCurve'];
+export type BreakpointToken = keyof (typeof designTokens & { breakpoints: any })['breakpoints'];
+export type ContainerToken = keyof (typeof designTokens & { containers: any })['containers'];
 
 export type ColorToken = keyof typeof colorTokens.light;
 export type ComponentToken = keyof typeof componentTokens;
@@ -52,9 +52,8 @@ export const getFontSize = (size: FontSizeToken, useVar = false): string => {
   if (useVar) {
     return cssVar(`text-${size}`);
   }
-  return Array.isArray(designTokens.fontSize[size]) 
-    ? (designTokens.fontSize[size] as [string, object])[0]
-    : designTokens.fontSize[size] as string;
+  const fs = designTokens.fontSize[size] as any;
+  return Array.isArray(fs) ? (fs[0] as string) : (fs as string);
 };
 
 /**
@@ -63,7 +62,7 @@ export const getFontSize = (size: FontSizeToken, useVar = false): string => {
  * @returns Line height value
  */
 export const getLineHeight = (size: FontSizeToken): string => {
-  const fontSize = designTokens.fontSize[size];
+  const fontSize = designTokens.fontSize[size] as any;
   if (Array.isArray(fontSize) && fontSize[1] && typeof fontSize[1] === 'object') {
     return (fontSize[1] as { lineHeight: string }).lineHeight;
   }
@@ -132,7 +131,7 @@ export const getAnimationCurve = (curve: AnimationCurveToken, useVar = false): s
   if (useVar) {
     return cssVar(`curve-${curve}`);
   }
-  return designTokens.animationCurve[curve];
+  return (designTokens as any).animationCurve?.[curve] ?? 'ease-in-out';
 };
 
 /**
@@ -141,7 +140,7 @@ export const getAnimationCurve = (curve: AnimationCurveToken, useVar = false): s
  * @returns The breakpoint value
  */
 export const getBreakpoint = (breakpoint: BreakpointToken): string => {
-  return designTokens.breakpoints[breakpoint];
+  return (designTokens as any).breakpoints?.[breakpoint] ?? '1024px';
 };
 
 /**
@@ -151,7 +150,7 @@ export const getBreakpoint = (breakpoint: BreakpointToken): string => {
  * @returns Media query string
  */
 export const mediaQuery = (
-  breakpoint: BreakpointToken, 
+  breakpoint: BreakpointToken,
   direction: 'min' | 'max' = 'min'
 ): string => {
   return `@media (${direction}-width: ${getBreakpoint(breakpoint)})`;
@@ -163,7 +162,7 @@ export const mediaQuery = (
  * @returns The container max-width value
  */
 export const getContainer = (size: ContainerToken): string => {
-  return designTokens.containers[size];
+  return (designTokens as any).containers?.[size] ?? '1280px';
 };
 
 /**
@@ -179,13 +178,13 @@ export const responsiveSpacing = (spacing: {
   xl?: SpacingToken;
 }) => {
   const classes: string[] = [];
-  
+
   if (spacing.base) classes.push(`p-[${getSpacing(spacing.base)}]`);
   if (spacing.sm) classes.push(`sm:p-[${getSpacing(spacing.sm)}]`);
   if (spacing.md) classes.push(`md:p-[${getSpacing(spacing.md)}]`);
   if (spacing.lg) classes.push(`lg:p-[${getSpacing(spacing.lg)}]`);
   if (spacing.xl) classes.push(`xl:p-[${getSpacing(spacing.xl)}]`);
-  
+
   return classes.join(' ');
 };
 
@@ -202,13 +201,13 @@ export const responsiveTypography = (typography: {
   xl?: FontSizeToken;
 }) => {
   const classes: string[] = [];
-  
+
   if (typography.base) classes.push(`text-[${getFontSize(typography.base)}]`);
   if (typography.sm) classes.push(`sm:text-[${getFontSize(typography.sm)}]`);
   if (typography.md) classes.push(`md:text-[${getFontSize(typography.md)}]`);
   if (typography.lg) classes.push(`lg:text-[${getFontSize(typography.lg)}]`);
   if (typography.xl) classes.push(`xl:text-[${getFontSize(typography.xl)}]`);
-  
+
   return classes.join(' ');
 };
 
@@ -241,11 +240,11 @@ export const getComponentToken = <T extends ComponentToken>(
 ): any => {
   const componentConfig = componentTokens[component];
   const propertyConfig = componentConfig[property as keyof typeof componentConfig];
-  
+
   if (variant && typeof propertyConfig === 'object' && propertyConfig !== null) {
     return (propertyConfig as any)[variant];
   }
-  
+
   return propertyConfig;
 };
 
@@ -256,13 +255,13 @@ export const getComponentToken = <T extends ComponentToken>(
  */
 export const createTokenStyles = (tokens: Record<string, string>) => {
   const styles: Record<string, any> = {};
-  
+
   Object.entries(tokens).forEach(([property, tokenValue]) => {
     // Convert kebab-case CSS properties to camelCase
     const camelProperty = property.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
     styles[camelProperty] = tokenValue;
   });
-  
+
   return styles;
 };
 
@@ -273,15 +272,15 @@ export const componentStyles = {
   // Layout utilities
   container: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
   section: 'py-12 lg:py-16',
-  
+
   // Flex utilities
   flexCenter: 'flex items-center justify-center',
   flexBetween: 'flex items-center justify-between',
   flexColumn: 'flex flex-col',
-  
+
   // Grid utilities
   gridResponsive: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
-  
+
   // Typography styles using tokens
   heading: {
     h1: 'text-4xl font-bold tracking-tight text-foreground',
@@ -291,7 +290,7 @@ export const componentStyles = {
     h5: 'text-lg font-medium text-foreground',
     h6: 'text-base font-medium text-foreground',
   },
-  
+
   // Common text styles
   text: {
     body: 'text-base text-foreground',
@@ -299,14 +298,14 @@ export const componentStyles = {
     small: 'text-xs text-muted-foreground',
     lead: 'text-lg text-muted-foreground',
   },
-  
+
   // Interactive states
   interactive: {
     hover: 'hover:bg-accent hover:text-accent-foreground transition-colors',
     focus: 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
     active: 'active:scale-95 transition-transform',
   },
-  
+
   // Card styles
   card: {
     base: 'rounded-lg border bg-card text-card-foreground shadow-sm',

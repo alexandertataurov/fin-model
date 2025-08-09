@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from app.models.financial import StatementType, PeriodType
 
@@ -56,8 +56,7 @@ class FinancialStatementResponse(FinancialStatementBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FinancialStatementListResponse(BaseModel):
