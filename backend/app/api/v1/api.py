@@ -4,7 +4,6 @@ from app.api.v1.endpoints import (
     mfa,
     oauth,
     webauthn,
-    admin,
     files,
     dashboard,
     parameters,
@@ -13,6 +12,7 @@ from app.api.v1.endpoints import (
     lean_financial,
     notifications,
 )
+from app.api.v1.endpoints.admin import users, system, database, logs
 
 api_router = APIRouter()
 
@@ -31,7 +31,10 @@ api_router.include_router(webauthn.router, prefix="/auth/webauthn", tags=["webau
 api_router.include_router(webauthn.router, prefix="/webauthn", tags=["webauthn"])
 
 # Include admin routes
-api_router.include_router(admin.router, prefix="/admin", tags=["administration"])
+api_router.include_router(users.router, prefix="/admin", tags=["administration"])
+api_router.include_router(system.router, prefix="/admin", tags=["administration"])
+api_router.include_router(database.router, prefix="/admin", tags=["administration"])
+api_router.include_router(logs.router, prefix="/admin", tags=["administration"])
 
 # Include file upload routes
 api_router.include_router(files.router, prefix="/files", tags=["file-upload"])
