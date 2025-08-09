@@ -8,5 +8,10 @@
   "--muted": "#f1f5f9",
   "--muted-foreground": "#475569",
   "--destructive": "#b91c1c",
-  "--destructive-foreground": "#ffffff"
+  "--destructive-foreground": "#ffffff",
+  "--accent": "#22c55e",
+  "--accent-foreground": "#052e16",
+  "--border": "#e2e8f0",
+  "--input": "#ffffff",
+  "--ring": "#3b82f6"
 }
