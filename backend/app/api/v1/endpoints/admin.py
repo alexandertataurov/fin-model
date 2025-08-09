@@ -1,6 +1,8 @@
-from typing import Any, Dict, List, Optional
+import asyncio
+import json
+import logging
 from datetime import datetime, timedelta, timezone
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional
 
 from app.core.dependencies import (
     UserWithPermissions,
@@ -8,36 +10,27 @@ from app.core.dependencies import (
     require_permissions,
 )
 from app.core.permissions import Permission
-from app.models.base import get_db
-from app.models.role import RoleType
-from app.models.user import User
-from app.models.file import UploadedFile, FileStatus
 from app.models.audit import AuditLog
-from app.models.parameter import Parameter
-from app.models.system_log import SystemLog
-from app.models.maintenance import MaintenanceSchedule
+from app.models.base import get_db
+from app.models.file import FileStatus, UploadedFile
 from app.models.financial import FinancialStatement
-from app.schemas.user import (
-    User as UserSchema,
-    AdminUserUpdate,
-    AdminUserCreate,
-)
+from app.models.maintenance import MaintenanceSchedule
+from app.models.parameter import Parameter
+from app.models.role import RoleType
+from app.models.system_log import SystemLog
+from app.models.user import User
+from app.schemas.user import AdminUserCreate, AdminUserUpdate
+from app.schemas.user import User as UserSchema
 from app.services.auth_service import AuthService
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
-from app.services.system_log_service import SystemLogService
 from app.services.maintenance_service import MaintenanceService
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
-from fastapi.responses import (
-    JSONResponse,
-    PlainTextResponse,
-    StreamingResponse,
-)
+from app.services.system_log_service import SystemLogService
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
+from pydantic import BaseModel
+from sqlalchemy import and_, desc, func, text
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, desc, text, func
-import asyncio
-import json
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +119,7 @@ class BulkUserActionRequest(BaseModel):
     action: str
 
 
-@router.get("/users/activity-list")
+@router.get("/users/activity-list", response_model=List[UserActivityResponse])
 async def get_user_activity(
     request: Request,
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
@@ -137,7 +130,6 @@ async def get_user_activity(
     Placed before dynamic '/users/{user_id}' route to avoid path conflicts.
     """
     try:
-        query = db.query(User)
         # Parse params defensively
         qp = request.query_params
         limit_raw = qp.get("limit")
@@ -151,53 +143,66 @@ async def get_user_activity(
             if active_raw is not None
             else False
         )
+
+        # Aggregate counts using joins
+        file_counts = (
+            db.query(
+                UploadedFile.user_id.label("user_id"),
+                func.count(UploadedFile.id).label("files_uploaded"),
+            )
+            .group_by(UploadedFile.user_id)
+            .subquery()
+        )
+        model_counts = (
+            db.query(
+                FinancialStatement.created_by_id.label("user_id"),
+                func.count(FinancialStatement.id).label("models_created"),
+            )
+            .group_by(FinancialStatement.created_by_id)
+            .subquery()
+        )
+        login_counts = (
+            db.query(
+                AuditLog.user_id.label("user_id"),
+                func.count(AuditLog.id).label("login_count"),
+            )
+            .filter(AuditLog.action == "LOGIN", AuditLog.success == "true")
+            .group_by(AuditLog.user_id)
+            .subquery()
+        )
+
+        query = (
+            db.query(
+                User.id.label("user_id"),
+                User.username,
+                User.last_login,
+                User.is_active,
+                func.coalesce(file_counts.c.files_uploaded, 0).label("files_uploaded"),
+                func.coalesce(model_counts.c.models_created, 0).label("models_created"),
+                func.coalesce(login_counts.c.login_count, 0).label("login_count"),
+            )
+            .outerjoin(file_counts, User.id == file_counts.c.user_id)
+            .outerjoin(model_counts, User.id == model_counts.c.user_id)
+            .outerjoin(login_counts, User.id == login_counts.c.user_id)
+        )
+
         if active_only_bool:
             query = query.filter(User.is_active.is_(True))
 
-        users = query.order_by(desc(User.created_at)).limit(limit_val).all()
+        results = query.order_by(desc(User.created_at)).limit(limit_val).all()
 
-        activity_data: List[Dict[str, Any]] = []
-        for user in users:
-            # Count files uploaded by user
-            files_uploaded = (
-                db.query(UploadedFile)
-                .filter(UploadedFile.uploaded_by_id == user.id)
-                .count()
+        return [
+            UserActivityResponse(
+                user_id=row.user_id,
+                username=row.username,
+                last_login=row.last_login,
+                login_count=row.login_count,
+                files_uploaded=row.files_uploaded,
+                models_created=row.models_created,
+                is_active=bool(row.is_active),
             )
-
-            # Count financial statements/models created
-            models_created = (
-                db.query(FinancialStatement)
-                .filter(FinancialStatement.created_by_id == user.id)
-                .count()
-            )
-
-            # Get real login count from audit logs
-            login_count = (
-                db.query(AuditLog)
-                .filter(
-                    AuditLog.user_id == user.id,
-                    AuditLog.action == "LOGIN",
-                    AuditLog.success == "true"
-                )
-                .count()
-            )
-
-            activity_data.append(
-                {
-                    "user_id": user.id,
-                    "username": user.username,
-                    "last_login": (
-                        user.last_login.isoformat() if user.last_login else None
-                    ),
-                    "login_count": login_count,
-                    "files_uploaded": files_uploaded,
-                    "models_created": models_created,
-                    "is_active": bool(user.is_active),
-                }
-            )
-
-        return activity_data
+            for row in results
+        ]
 
     except Exception as e:
         raise HTTPException(
@@ -222,9 +227,9 @@ def list_users(
 ) -> Any:
     """List all users with advanced filtering (Admin only)."""
     from app.core.admin_exceptions import (
+        create_pagination_response,
         handle_admin_error,
         validate_pagination_params,
-        create_pagination_response
     )
 
     try:
@@ -249,9 +254,9 @@ def list_users(
         if search:
             search_term = f"%{search}%"
             base_query = base_query.filter(
-                (User.username.ilike(search_term)) |
-                (User.email.ilike(search_term)) |
-                (User.full_name.ilike(search_term))
+                (User.username.ilike(search_term))
+                | (User.email.ilike(search_term))
+                | (User.full_name.ilike(search_term))
             )
 
         if created_after:
@@ -264,8 +269,9 @@ def list_users(
         total = base_query.count()
 
         # Apply pagination and ordering
-        users = (base_query.order_by(desc(User.created_at))
-                .offset(skip).limit(limit).all())
+        users = (
+            base_query.order_by(desc(User.created_at)).offset(skip).limit(limit).all()
+        )
 
         # Add roles to each user
         users_with_roles = []
@@ -281,7 +287,7 @@ def list_users(
             total=total,
             skip=skip,
             limit=limit,
-            envelope=envelope
+            envelope=envelope,
         )
 
     except Exception as e:
@@ -574,12 +580,12 @@ def get_audit_logs(
 ) -> Any:
     """Get audit logs with advanced filtering (Admin only)."""
     from app.core.admin_exceptions import (
-        handle_admin_error, 
-        validate_pagination_params,
+        create_pagination_response,
+        handle_admin_error,
         validate_date_range,
-        create_pagination_response
+        validate_pagination_params,
     )
-    
+
     try:
         # Validate parameters
         validate_pagination_params(skip, limit)
@@ -603,9 +609,9 @@ def get_audit_logs(
         if search:
             search_term = f"%{search}%"
             query = query.filter(
-                (AuditLog.details.ilike(search_term)) |
-                (AuditLog.user_agent.ilike(search_term)) |
-                (AuditLog.ip_address.ilike(search_term))
+                (AuditLog.details.ilike(search_term))
+                | (AuditLog.user_agent.ilike(search_term))
+                | (AuditLog.ip_address.ilike(search_term))
             )
         if from_ts:
             query = query.filter(AuditLog.created_at >= from_ts)
@@ -640,16 +646,12 @@ def get_audit_logs(
         # Return paginated response
         if envelope:
             return create_pagination_response(
-                items=items,
-                total=total,
-                skip=skip,
-                limit=limit,
-                envelope=True
+                items=items, total=total, skip=skip, limit=limit, envelope=True
             )
         else:
             # Maintain backward compatibility
             return {"logs": items, "skip": skip, "limit": limit, "total": total}
-            
+
     except Exception as e:
         raise handle_admin_error(e, "get audit logs", current_user.id)
 
@@ -805,27 +807,27 @@ async def backup_database(
 ):
     """Trigger a database backup job."""
     from app.tasks.maintenance import backup_database as backup_task
-    
+
     try:
         # Queue the backup task
         task = backup_task.delay()
-        
+
         # Log the operation
         from app.models.audit import AuditLog
+
         audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_BACKUP",
             resource="database",
             resource_id="backup",
             details=f"Backup task queued with ID: {task.id}",
-            success="true"
+            success="true",
         )
         db.add(audit_log)
         db.commit()
-        
+
         return BackupResponse(
-            job_id=task.id, 
-            message="Database backup job started successfully"
+            job_id=task.id, message="Database backup job started successfully"
         )
     except Exception as e:
         raise HTTPException(
@@ -842,34 +844,34 @@ async def export_database(
 ):
     """Export data (full or table). Returns file URL."""
     from app.tasks.maintenance import export_database as export_task
-    
+
     try:
         # Queue the export task
         task = export_task.delay(payload.table, payload.format)
-        
+
         # Log the operation
         from app.models.audit import AuditLog
+
         audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_EXPORT",
             resource="database",
             resource_id=payload.table or "full",
             details=f"Export task queued with ID: {task.id}, format: {payload.format}",
-            success="true"
+            success="true",
         )
         db.add(audit_log)
         db.commit()
-        
+
         # Generate a temporary file URL (will be updated when task completes)
         filename = (
             f"export_{payload.table or 'full'}_{payload.format}_"
             f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         )
         file_url = f"/downloads/{filename}.{payload.format}"
-        
+
         return ExportResponse(
-            file_url=file_url, 
-            message=f"Export job started. Task ID: {task.id}"
+            file_url=file_url, message=f"Export job started. Task ID: {task.id}"
         )
     except Exception as e:
         raise HTTPException(
@@ -885,27 +887,27 @@ async def reindex_database(
 ):
     """Rebuild indexes."""
     from app.tasks.maintenance import reindex_database as reindex_task
-    
+
     try:
         # Queue the reindex task
         task = reindex_task.delay()
-        
+
         # Log the operation
         from app.models.audit import AuditLog
+
         audit_log = AuditLog(
             user_id=current_user.id,
             action="DATABASE_REINDEX",
             resource="database",
             resource_id="indexes",
             details=f"Reindex task queued with ID: {task.id}",
-            success="true"
+            success="true",
         )
         db.add(audit_log)
         db.commit()
-        
+
         return ReindexResponse(
-            job_id=task.id, 
-            message="Database reindex job started successfully"
+            job_id=task.id, message="Database reindex job started successfully"
         )
     except Exception as e:
         raise HTTPException(
@@ -987,7 +989,7 @@ async def get_maintenance_task_status(
 ):
     """Get the status of a maintenance task."""
     from app.tasks.maintenance import get_task_status
-    
+
     try:
         status = get_task_status(task_id)
         return status
@@ -1207,9 +1209,6 @@ async def get_system_statistics(
         )
 
 
-
-
-
 @router.get("/system/metrics", response_model=SystemMetricsResponse)
 async def get_system_metrics(
     current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
@@ -1238,37 +1237,40 @@ async def get_system_metrics(
 
         # Calculate real metrics from audit logs (last 24 hours)
         from datetime import datetime, timedelta, timezone
+
         twenty_four_hours_ago = datetime.now(timezone.utc) - timedelta(hours=24)
-        
+
         # Count successful requests (logins, etc.) in last 24h
         request_count_24h = (
             db.query(AuditLog)
             .filter(
-                AuditLog.created_at >= twenty_four_hours_ago,
-                AuditLog.success == "true"
+                AuditLog.created_at >= twenty_four_hours_ago, AuditLog.success == "true"
             )
             .count()
         )
-        
+
         # Calculate error rate from failed operations
         total_requests = (
             db.query(AuditLog)
             .filter(AuditLog.created_at >= twenty_four_hours_ago)
             .count()
         )
-        
+
         failed_requests = (
             db.query(AuditLog)
             .filter(
                 AuditLog.created_at >= twenty_four_hours_ago,
-                AuditLog.success == "false"
+                AuditLog.success == "false",
             )
             .count()
         )
-        
-        error_rate_24h = (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
-        
-        # Estimate avg response time (simplified - could be enhanced with actual middleware timing)
+
+        error_rate_24h = (
+            (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
+        )
+
+        # Estimate avg response time (simplified - could be)
+        # enhanced with actual middleware timing
         avg_response_time = 0.15 if total_requests > 0 else 0.0
 
         return SystemMetricsResponse(
@@ -1443,57 +1445,68 @@ async def get_security_audit(
             .filter(
                 AuditLog.action == "FAILED_LOGIN",
                 AuditLog.created_at >= start_time,
-                AuditLog.created_at <= end_time
+                AuditLog.created_at <= end_time,
             )
             .count()
         )
 
         # Check for suspicious activities
         suspicious_activities = []
-        
+
         # Find users with multiple failed login attempts
         failed_login_users = (
-            db.query(AuditLog.user_id, func.count(AuditLog.id).label('fail_count'))
+            db.query(AuditLog.user_id, func.count(AuditLog.id).label("fail_count"))
             .filter(
                 AuditLog.action == "FAILED_LOGIN",
                 AuditLog.created_at >= start_time,
-                AuditLog.created_at <= end_time
+                AuditLog.created_at <= end_time,
             )
             .group_by(AuditLog.user_id)
             .having(func.count(AuditLog.id) >= 5)
             .all()
         )
-        
+
         for user_id, fail_count in failed_login_users:
             user = db.query(User).filter(User.id == user_id).first()
             username = user.username if user else f"user_id:{user_id}"
-            suspicious_activities.append({
-                "type": "multiple_failed_logins",
-                "description": f"User {username} has {fail_count} failed login attempts",
-                "severity": "high" if fail_count >= 10 else "medium",
-                "user_id": user_id
-            })
-            
+            suspicious_activities.append(
+                {
+                    "type": "multiple_failed_logins",
+                    "description": (
+                        f"User {username} has {fail_count} failed login attempts"
+                    ),
+                    "severity": "high" if fail_count >= 10 else "medium",
+                    "user_id": user_id,
+                }
+            )
+
         # Find suspicious IP patterns (multiple accounts from same IP)
         suspicious_ips = (
-            db.query(AuditLog.ip_address, func.count(func.distinct(AuditLog.user_id)).label('user_count'))
+            db.query(
+                AuditLog.ip_address,
+                func.count(func.distinct(AuditLog.user_id)).label("user_count"),
+            )
             .filter(
                 AuditLog.created_at >= start_time,
                 AuditLog.created_at <= end_time,
-                AuditLog.ip_address.isnot(None)
+                AuditLog.ip_address.isnot(None),
             )
             .group_by(AuditLog.ip_address)
             .having(func.count(func.distinct(AuditLog.user_id)) >= 5)
             .all()
         )
-        
+
         for ip_address, user_count in suspicious_ips:
-            suspicious_activities.append({
-                "type": "multiple_users_same_ip",
-                "description": f"IP {ip_address} used by {user_count} different users",
-                "severity": "medium",
-                "ip_address": ip_address
-            })
+            suspicious_activities.append(
+                {
+                    "type": "multiple_users_same_ip",
+                    "description": (
+                        f"IP {ip_address} used by {user_count} different users"
+                    ),
+                    "severity": "medium",
+                    "ip_address": ip_address,
+                }
+            )
 
         # Password policy violations (users without email verification)
         password_violations = db.query(User).filter(User.is_verified.is_(False)).count()
