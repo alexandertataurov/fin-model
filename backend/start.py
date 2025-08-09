@@ -141,6 +141,112 @@ def run_migrations():
         return False
 
 
+def ensure_system_logs_and_maintenance():
+    """
+    Create system_logs and maintenance_schedules if missing and stamp rev.
+    """
+    print("🔧 Ensuring system logs and maintenance tables...")
+
+    try:
+        from app.core.config import settings
+        from sqlalchemy import create_engine, text
+        from alembic import command
+        from alembic.config import Config
+
+        engine = create_engine(settings.DATABASE_URL)
+        current_dir = Path(__file__).parent
+        alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
+        alembic_cfg.set_main_option(
+            "script_location", os.path.join(current_dir, "alembic")
+        )
+
+        with engine.connect() as conn:
+            # Check and create system_logs
+            sys_exists = conn.execute(
+                text(
+                    """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables
+                    WHERE table_schema = 'public' AND table_name = 'system_logs'
+                )
+            """
+                )
+            ).scalar()
+            if not sys_exists:
+                print("🔄 Creating table system_logs...")
+                conn.execute(
+                    text(
+                        """
+                    CREATE TABLE system_logs (
+                        id INTEGER PRIMARY KEY,
+                        timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+                        level VARCHAR(16) NOT NULL,
+                        module VARCHAR(64),
+                        message TEXT NOT NULL,
+                        user_id INTEGER REFERENCES users(id)
+                    );
+                """
+                    )
+                )
+                conn.execute(
+                    text(
+                        "CREATE INDEX IF NOT EXISTS ix_system_logs_id "
+                        "ON system_logs(id)"
+                    )
+                )
+                print("✅ system_logs created")
+
+            # Check and create maintenance_schedules
+            maint_exists = conn.execute(
+                text(
+                    """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'maintenance_schedules'
+                )
+            """
+                )
+            ).scalar()
+            if not maint_exists:
+                print("🔄 Creating table maintenance_schedules...")
+                conn.execute(
+                    text(
+                        """
+                    CREATE TABLE maintenance_schedules (
+                        id VARCHAR(64) PRIMARY KEY,
+                        name VARCHAR(128) NOT NULL,
+                        task VARCHAR(32) NOT NULL,
+                        schedule VARCHAR(128) NOT NULL,
+                        enabled BOOLEAN NOT NULL DEFAULT TRUE,
+                        updated_at TIMESTAMP DEFAULT NOW(),
+                        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+                    );
+                """
+                    )
+                )
+                print("✅ maintenance_schedules created")
+
+            conn.commit()
+
+            # Stamp the historical migration if present in script
+            try:
+                command.stamp(
+                    alembic_cfg, "004_add_system_logs_and_maintenance"
+                )
+                print(
+                    "✅ Stamped revision 004_add_system_logs_and_maintenance"
+                )
+            except Exception as e:
+                print(
+                    f"⚠️ Could not stamp 004_add_system_logs_and_maintenance: {e}"
+                )
+
+        return True
+    except Exception as e:
+        print(f"❌ Error ensuring system tables: {e}")
+        return False
+
 def create_notifications_table():
     """Create notifications table manually if it doesn't exist."""
     print("🔧 Creating notifications table...")
@@ -377,6 +483,9 @@ def main():
 
     # Create notifications table if it doesn't exist
     create_notifications_table()
+
+    # Ensure system logs and maintenance tables exist
+    ensure_system_logs_and_maintenance()
 
     # Fix notification schema issues
     fix_notification_schema()

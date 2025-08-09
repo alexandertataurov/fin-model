@@ -567,7 +567,6 @@ def system_health(
     verified_users = db.query(User).filter(User.is_verified.is_(True)).count()
 
     # Note: Audit logging removed in lean version
-    recent_logins = 0
     recent_failed_logins = 0
 
     return {
@@ -578,8 +577,8 @@ def system_health(
             "active": active_users,
             "verified": verified_users,
         },
+        # Do not expose successful login counts
         "activity_24h": {
-            "successful_logins": recent_logins,
             "failed_logins": recent_failed_logins,
         },
         "database": {"status": "connected"},

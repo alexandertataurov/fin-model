@@ -33,13 +33,30 @@ class DatabaseMonitor:
                 "version": "1.0.0",
             }
         except SQLAlchemyError as e:
-            logger.error(f"Database health check failed: {e}")
-            return {
-                "status": "unhealthy",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "connection": "failed",
-                "error": str(e),
-            }
+            # Attempt recovery from aborted transaction state, then retry once
+            try:
+                self.db.rollback()
+                result = self.db.execute(text("SELECT 1"))
+                result.fetchone()
+                return {
+                    "status": "healthy",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "connection": "active",
+                    "recovered": True,
+                    "version": "1.0.0",
+                }
+            except Exception as e2:
+                logger.error(
+                    "DB health failed after rollback: %s (initial: %s)",
+                    e2,
+                    e,
+                )
+                return {
+                    "status": "unhealthy",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "connection": "failed",
+                    "error": str(e2),
+                }
 
     def get_query_performance(
         self,
@@ -57,9 +74,7 @@ class DatabaseMonitor:
         try:
             # Check pg_stat_statements availability
             try:
-                self.db.execute(
-                    text("SELECT 1 FROM pg_stat_statements LIMIT 1")
-                )
+                self.db.execute(text("SELECT 1 FROM pg_stat_statements LIMIT 1"))
                 has_pgss = True
             except Exception:
                 has_pgss = False
@@ -80,9 +95,7 @@ class DatabaseMonitor:
                 "FROM pg_stat_statements "
                 "ORDER BY mean_time DESC LIMIT :limit"
             )
-            result = self.db.execute(
-                text(sql), {"limit": int(limit)}
-            ).fetchall()
+            result = self.db.execute(text(sql), {"limit": int(limit)}).fetchall()
             items: List[Dict[str, Any]] = []
             for row in result:
                 mean_time = float(row[1]) if row[1] is not None else None

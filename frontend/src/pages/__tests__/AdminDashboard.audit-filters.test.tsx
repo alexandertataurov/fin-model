@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 
@@ -42,12 +42,10 @@ describe('AdminDashboard Audit filters', () => {
         const actionInput = await screen.findByPlaceholderText('Action')
         // Skip date inputs to avoid jsdom date control quirks
 
-        await userEvent.clear(skipInput)
-        await userEvent.type(skipInput, '10')
-        await userEvent.clear(limitInput)
-        await userEvent.type(limitInput, '10')
-        await userEvent.type(userIdInput, '42')
-        await userEvent.type(actionInput, 'LOGIN')
+        fireEvent.input(skipInput, { target: { value: '10' } })
+        fireEvent.input(limitInput, { target: { value: '10' } })
+        fireEvent.input(userIdInput, { target: { value: '42' } })
+        fireEvent.input(actionInput, { target: { value: 'LOGIN' } })
         // Dates omitted in this test
 
         // Click the Refresh button within the Audit section (scope by input's container)
