@@ -1,26 +1,29 @@
-from sqlalchemy import event
-from sqlalchemy.orm import Session
 import asyncio
 import logging
-from typing import Any, Dict, Optional
 from datetime import datetime
+from typing import Any, Dict, Optional
 
-from ..core.websocket_manager import websocket_manager, ChannelType
+from sqlalchemy import event
+
+from ..core.websocket_manager import ChannelType, websocket_manager
+from ..models.file import UploadedFile
 from ..models.financial import FinancialStatement
+from ..models.notification import NotificationPriority, NotificationType
 from ..models.parameter import Parameter
 from ..models.report import ReportExport
-from ..models.file import UploadedFile
-from ..models.notification import NotificationType, NotificationPriority
+from ..schemas.notification import NotificationCreate
 from .notification_service import notification_service
 
 logger = logging.getLogger(__name__)
 
 
 class RealtimeDataService:
-    """Service for handling real-time data updates and broadcasting to WebSocket clients"""
+    """Service for handling real-time data updates and
+    broadcasting to WebSocket clients"""
 
     def __init__(self, websocket_manager_instance=None):
-        self.websocket_manager = websocket_manager_instance or websocket_manager
+        wm = websocket_manager_instance or websocket_manager
+        self.websocket_manager = wm
         self.setup_database_triggers()
 
     def setup_database_triggers(self):
@@ -33,9 +36,7 @@ class RealtimeDataService:
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
-                    asyncio.create_task(
-                        self.handle_financial_data_update(target)
-                    )
+                    asyncio.create_task(self.handle_financial_data_update(target))
                 else:
                     # For testing environments without running event loop
                     pass
@@ -64,9 +65,7 @@ class RealtimeDataService:
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
-                    asyncio.create_task(
-                        self.handle_report_status_update(target)
-                    )
+                    asyncio.create_task(self.handle_report_status_update(target))
                 else:
                     # For testing environments without running event loop
                     pass
@@ -104,9 +103,11 @@ class RealtimeDataService:
                     "period_start": financial_statement.period_start.isoformat(),
                     "period_end": financial_statement.period_end.isoformat(),
                     "currency": financial_statement.currency,
-                    "updated_at": financial_statement.updated_at.isoformat()
-                    if financial_statement.updated_at
-                    else datetime.utcnow().isoformat(),
+                    "updated_at": (
+                        financial_statement.updated_at.isoformat()
+                        if financial_statement.updated_at
+                        else datetime.utcnow().isoformat()
+                    ),
                     "change_type": "update",
                 },
             }
@@ -129,7 +130,8 @@ class RealtimeDataService:
             )
 
             logger.info(
-                f"Financial statement update broadcasted for scenario {financial_statement.scenario_id}"
+                "Financial statement update broadcasted for scenario %s",
+                financial_statement.scenario_id,
             )
 
         except Exception as e:
@@ -147,9 +149,11 @@ class RealtimeDataService:
                     "file_id": str(parameter.file_id),
                     "category": parameter.category,
                     "description": parameter.description,
-                    "updated_at": parameter.updated_at.isoformat()
-                    if parameter.updated_at
-                    else datetime.utcnow().isoformat(),
+                    "updated_at": (
+                        parameter.updated_at.isoformat()
+                        if parameter.updated_at
+                        else datetime.utcnow().isoformat()
+                    ),
                     "change_type": "update",
                 },
             }
@@ -165,9 +169,7 @@ class RealtimeDataService:
                 ChannelType.FINANCIAL_DATA, parameters_channel_id, message
             )
 
-            logger.info(
-                f"Parameter update broadcasted for parameter {parameter.name}"
-            )
+            logger.info(f"Parameter update broadcasted for parameter {parameter.name}")
 
         except Exception as e:
             logger.error(f"Error handling parameter update: {e}")
@@ -184,15 +186,17 @@ class RealtimeDataService:
                     "progress": report.progress,
                     "download_url": report.download_url,
                     "error_message": report.error_message,
-                    "created_at": report.created_at.isoformat()
-                    if report.created_at
-                    else None,
-                    "completed_at": report.completed_at.isoformat()
-                    if report.completed_at
-                    else None,
-                    "updated_at": report.updated_at.isoformat()
-                    if report.updated_at
-                    else datetime.utcnow().isoformat(),
+                    "created_at": (
+                        report.created_at.isoformat() if report.created_at else None
+                    ),
+                    "completed_at": (
+                        report.completed_at.isoformat() if report.completed_at else None
+                    ),
+                    "updated_at": (
+                        report.updated_at.isoformat()
+                        if report.updated_at
+                        else datetime.utcnow().isoformat()
+                    ),
                 },
             }
 
@@ -206,9 +210,7 @@ class RealtimeDataService:
             if report.status in ["completed", "failed"]:
                 await self.send_report_notification(report)
 
-            logger.info(
-                f"Report status update broadcasted for report {report.id}"
-            )
+            logger.info(f"Report status update broadcasted for report {report.id}")
 
         except Exception as e:
             logger.error(f"Error handling report status update: {e}")
@@ -224,15 +226,21 @@ class RealtimeDataService:
                     "status": file_upload.status,
                     "processing_progress": file_upload.processing_progress,
                     "error_message": file_upload.error_message,
-                    "uploaded_at": file_upload.uploaded_at.isoformat()
-                    if file_upload.uploaded_at
-                    else None,
-                    "processed_at": file_upload.processed_at.isoformat()
-                    if file_upload.processed_at
-                    else None,
-                    "updated_at": file_upload.updated_at.isoformat()
-                    if file_upload.updated_at
-                    else datetime.utcnow().isoformat(),
+                    "uploaded_at": (
+                        file_upload.uploaded_at.isoformat()
+                        if file_upload.uploaded_at
+                        else None
+                    ),
+                    "processed_at": (
+                        file_upload.processed_at.isoformat()
+                        if file_upload.processed_at
+                        else None
+                    ),
+                    "updated_at": (
+                        file_upload.updated_at.isoformat()
+                        if file_upload.updated_at
+                        else datetime.utcnow().isoformat()
+                    ),
                 },
             }
 
@@ -285,43 +293,44 @@ class RealtimeDataService:
 
                 db = next(get_db())
 
+                notification_service.db = db
                 if report.status == "completed":
-                    await notification_service.create_notification(
-                        user_id=str(report.created_by),
-                        notification_type=NotificationType.REPORT_READY,
-                        title="Report Ready",
-                        message=f"Your report is ready for download",
-                        data={
-                            "report_id": str(report.id),
-                            "file_id": str(report.file_id),
-                            "download_url": report.download_url,
-                            "status": report.status,
-                        },
-                        priority=NotificationPriority.NORMAL,
-                        db=db,
+                    notification_service.create_notification(
+                        NotificationCreate(
+                            user_id=str(report.created_by),
+                            notification_type=NotificationType.REPORT_READY,
+                            title="Report Ready",
+                            message="Your report is ready for download",
+                            data={
+                                "report_id": str(report.id),
+                                "file_id": str(report.file_id),
+                                "download_url": report.download_url,
+                                "status": report.status,
+                            },
+                            priority=NotificationPriority.NORMAL,
+                        )
                     )
                 else:
-                    await notification_service.create_notification(
-                        user_id=str(report.created_by),
-                        notification_type=NotificationType.ERROR_ALERT,
-                        title="Report Generation Failed",
-                        message=f"Report generation failed: {report.error_message}",
-                        data={
-                            "report_id": str(report.id),
-                            "file_id": str(report.file_id),
-                            "status": report.status,
-                            "error": report.error_message,
-                        },
-                        priority=NotificationPriority.HIGH,
-                        db=db,
+                    notification_service.create_notification(
+                        NotificationCreate(
+                            user_id=str(report.created_by),
+                            notification_type=NotificationType.ERROR_ALERT,
+                            title="Report Generation Failed",
+                            message=f"Report generation failed: {report.error_message}",
+                            data={
+                                "report_id": str(report.id),
+                                "file_id": str(report.file_id),
+                                "status": report.status,
+                                "error": report.error_message,
+                            },
+                            priority=NotificationPriority.HIGH,
+                        )
                     )
 
         except Exception as e:
             logger.error(f"Error sending report notification: {e}")
 
-    async def send_file_processing_notification(
-        self, file_upload: UploadedFile
-    ):
+    async def send_file_processing_notification(self, file_upload: UploadedFile):
         """Send notification when file processing is complete"""
         try:
             # Use notification service to create persistent notification
@@ -329,34 +338,43 @@ class RealtimeDataService:
 
             db = next(get_db())
 
+            notification_service.db = db
             if file_upload.status == "processed":
-                await notification_service.create_notification(
-                    user_id=str(file_upload.uploaded_by),
-                    notification_type=NotificationType.FILE_PROCESSED,
-                    title="File Processed",
-                    message=f"File '{file_upload.filename}' has been processed successfully",
-                    data={
-                        "file_id": str(file_upload.id),
-                        "filename": file_upload.filename,
-                        "status": file_upload.status,
-                    },
-                    priority=NotificationPriority.NORMAL,
-                    db=db,
+                notification_service.create_notification(
+                    NotificationCreate(
+                        user_id=str(file_upload.uploaded_by),
+                        notification_type=NotificationType.FILE_PROCESSED,
+                        title="File Processed",
+                        message=(
+                            f"File '{file_upload.filename}' has been processed "
+                            "successfully"
+                        ),
+                        data={
+                            "file_id": str(file_upload.id),
+                            "filename": file_upload.filename,
+                            "status": file_upload.status,
+                        },
+                        priority=NotificationPriority.NORMAL,
+                    )
                 )
             else:
-                await notification_service.create_notification(
-                    user_id=str(file_upload.uploaded_by),
-                    notification_type=NotificationType.ERROR_ALERT,
-                    title="File Processing Failed",
-                    message=f"Processing failed for '{file_upload.filename}': {file_upload.error_message}",
-                    data={
-                        "file_id": str(file_upload.id),
-                        "filename": file_upload.filename,
-                        "status": file_upload.status,
-                        "error": file_upload.error_message,
-                    },
-                    priority=NotificationPriority.HIGH,
-                    db=db,
+                notification_service.create_notification(
+                    NotificationCreate(
+                        user_id=str(file_upload.uploaded_by),
+                        notification_type=NotificationType.ERROR_ALERT,
+                        title="File Processing Failed",
+                        message=(
+                            f"Processing failed for '{file_upload.filename}': "
+                            f"{file_upload.error_message}"
+                        ),
+                        data={
+                            "file_id": str(file_upload.id),
+                            "filename": file_upload.filename,
+                            "status": file_upload.status,
+                            "error": file_upload.error_message,
+                        },
+                        priority=NotificationPriority.HIGH,
+                    )
                 )
 
         except Exception as e:
@@ -387,11 +405,13 @@ class RealtimeDataService:
                 ChannelType.DASHBOARD,
                 dashboard_channel_id,
                 message,
-                exclude_user=user_id,  # Don't send back to the user who triggered the update
-            )
+                exclude_user=user_id,
+            )  # exclude triggering user
 
             logger.info(
-                f"Chart data update broadcasted for {chart_type} in file {file_id}"
+                "Chart data update broadcasted for %s in file %s",
+                chart_type,
+                file_id,
             )
 
         except Exception as e:

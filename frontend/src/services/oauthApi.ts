@@ -129,7 +129,11 @@ export const oauthUtils = {
    * Redirect to OAuth provider
    */
   redirectToProvider(loginUrl: string): void {
-    window.location.href = loginUrl;
+    const url = new URL(loginUrl, window.location.origin);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      throw new Error('Invalid login URL');
+    }
+    window.location.href = url.toString();
   },
 
   /**

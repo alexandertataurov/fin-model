@@ -4,11 +4,11 @@ Handles efficient recalculation of financial models when parameters change.
 """
 
 import time
-from typing import Dict, List, Set, Any, Optional, Tuple
-from dataclasses import dataclass
 from collections import defaultdict, deque
-import networkx as nx
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Set, Tuple
 
+import networkx as nx
 from app.services.formula_engine import FormulaEngine
 
 
@@ -51,9 +51,7 @@ class IncrementalCalculator:
             graph = self._get_dependency_graph(model_id, file_path)
 
             # Find all cells affected by parameter changes
-            affected_cells = self._find_affected_cells(
-                graph, changed_params.keys()
-            )
+            affected_cells = self._find_affected_cells(graph, changed_params.keys())
 
             # Sort by dependency order (topological sort)
             calc_order = self._get_calculation_order(graph, affected_cells)
@@ -129,9 +127,7 @@ class IncrementalCalculator:
                     ) in calc_result.updated_values.items():
                         base_val = base_result.get(cell, 0)
                         if base_val != 0:
-                            changes[cell] = (
-                                (new_val - base_val) / base_val
-                            ) * 100
+                            changes[cell] = ((new_val - base_val) / base_val) * 100
                         else:
                             changes[cell] = new_val
 
@@ -186,7 +182,7 @@ class IncrementalCalculator:
                 calculation_order=calculation_order,
             )
 
-        except Exception as e:
+        except Exception:
             # Fallback to simple ordering
             return DependencyGraph(
                 nodes=set(cell_refs), edges=[], calculation_order=cell_refs
@@ -227,9 +223,7 @@ class IncrementalCalculator:
                 "error": str(e),
             }
 
-    def _get_dependency_graph(
-        self, model_id: str, file_path: str
-    ) -> DependencyGraph:
+    def _get_dependency_graph(self, model_id: str, file_path: str) -> DependencyGraph:
         """Get or build dependency graph for model."""
         if model_id in self._dependency_cache:
             return self._dependency_cache[model_id]
@@ -244,9 +238,7 @@ class IncrementalCalculator:
             # Return empty graph if analysis fails
             return DependencyGraph(nodes=set(), edges=[], calculation_order=[])
 
-    def _build_dependency_graph(
-        self, formulas: Dict[str, Any]
-    ) -> DependencyGraph:
+    def _build_dependency_graph(self, formulas: Dict[str, Any]) -> DependencyGraph:
         """Build dependency graph from formula analysis."""
         nodes = set()
         edges = []
@@ -300,9 +292,7 @@ class IncrementalCalculator:
     ) -> List[str]:
         """Get calculation order for affected cells."""
         # Filter calculation order to only include affected cells
-        return [
-            cell for cell in graph.calculation_order if cell in affected_cells
-        ]
+        return [cell for cell in graph.calculation_order if cell in affected_cells]
 
     def _calculate_cell_value(
         self,
@@ -312,9 +302,7 @@ class IncrementalCalculator:
     ) -> float:
         """Calculate value for a specific cell."""
         # Use formula engine with updated parameter values
-        return self.formula_engine.calculate_cell(
-            file_path, cell_ref, updated_values
-        )
+        return self.formula_engine.calculate_cell(file_path, cell_ref, updated_values)
 
     def _calculate_sensitivity_summary(
         self, results: List[Dict[str, Any]]
@@ -333,12 +321,8 @@ class IncrementalCalculator:
                     max_sensitivity[cell] = change
                     min_sensitivity[cell] = change
                 else:
-                    max_sensitivity[cell] = max(
-                        max_sensitivity[cell], abs(change)
-                    )
-                    min_sensitivity[cell] = min(
-                        min_sensitivity[cell], abs(change)
-                    )
+                    max_sensitivity[cell] = max(max_sensitivity[cell], abs(change))
+                    min_sensitivity[cell] = min(min_sensitivity[cell], abs(change))
 
         # Sort by sensitivity
         sensitive_cells = sorted(
@@ -348,12 +332,8 @@ class IncrementalCalculator:
         return {
             "most_sensitive_cells": sensitive_cells[:10],  # Top 10
             "total_affected_cells": len(max_sensitivity),
-            "max_sensitivity": max(max_sensitivity.values())
-            if max_sensitivity
-            else 0,
-            "min_sensitivity": min(min_sensitivity.values())
-            if min_sensitivity
-            else 0,
+            "max_sensitivity": max(max_sensitivity.values()) if max_sensitivity else 0,
+            "min_sensitivity": min(min_sensitivity.values()) if min_sensitivity else 0,
         }
 
     def clear_cache(self, model_id: str = None):
@@ -402,9 +382,7 @@ class ParameterValidator:
         validation_rules = parameter.get("validation_rules", [])
         for rule in validation_rules:
             if not self._apply_validation_rule(rule, value):
-                errors.append(
-                    rule.get("error_message", "Validation rule failed")
-                )
+                errors.append(rule.get("error_message", "Validation rule failed"))
 
         # Business logic warnings
         if param_type in ["growth_rate", "interest_rate"] and abs(value) > 1:
@@ -416,9 +394,7 @@ class ParameterValidator:
             "warnings": warnings,
         }
 
-    def _apply_validation_rule(
-        self, rule: Dict[str, Any], value: float
-    ) -> bool:
+    def _apply_validation_rule(self, rule: Dict[str, Any], value: float) -> bool:
         """Apply custom validation rule."""
         rule_type = rule.get("type")
 
@@ -434,8 +410,42 @@ class ParameterValidator:
             try:
                 # Replace 'value' in expression with actual value
                 expression = expression.replace("value", str(value))
-                return eval(expression)  # In production, use a safer evaluator
-            except:
+                # Safely evaluate expression by restricting allowed operations
+                import ast
+
+                allowed_nodes = (
+                    ast.Expression,
+                    ast.BoolOp,
+                    ast.BinOp,
+                    ast.UnaryOp,
+                    ast.Compare,
+                    ast.Name,
+                    ast.Load,
+                    ast.Constant,
+                    ast.Num,
+                    ast.Add,
+                    ast.Sub,
+                    ast.Mult,
+                    ast.Div,
+                    ast.Mod,
+                    ast.Pow,
+                    ast.USub,
+                    ast.Eq,
+                    ast.NotEq,
+                    ast.Lt,
+                    ast.LtE,
+                    ast.Gt,
+                    ast.GtE,
+                    ast.And,
+                    ast.Or,
+                )
+                node = ast.parse(expression, mode="eval")
+                for n in ast.walk(node):
+                    if not isinstance(n, allowed_nodes):
+                        raise ValueError("Unsafe expression")
+                compiled = compile(node, "<string>", "eval")
+                return eval(compiled, {"__builtins__": {}}, {})
+            except Exception:
                 return True  # Default to valid if expression fails
 
         return True

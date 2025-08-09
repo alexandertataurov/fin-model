@@ -1,23 +1,21 @@
-from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta, timezone
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import JSONResponse, PlainTextResponse
-from sqlalchemy import and_, desc, text, func
-from sqlalchemy.orm import Session
+from typing import Any, Dict, List, Optional
 
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
-from app.models.base import get_db
-from app.models.user import User
-from app.models.file import UploadedFile, FileStatus
 from app.models.audit import AuditLog
-from app.models.parameter import Parameter
+from app.models.base import get_db
+from app.models.file import FileStatus, UploadedFile
 from app.models.financial import FinancialStatement
-from app.models.maintenance import MaintenanceSchedule
+from app.models.parameter import Parameter
+from app.models.user import User
 from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
+from sqlalchemy import and_, func, text
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -99,6 +97,7 @@ async def get_system_statistics(
 ):
     """Get comprehensive system statistics."""
     try:
+
         def safe_count(query_func, default: int = 0) -> int:
             try:
                 return int(query_func())
@@ -167,14 +166,19 @@ async def get_system_statistics(
                 "parameters": total_parameters,
             },
             system={"database_size": db_size, "timestamp": datetime.now(timezone.utc)},
-            performance={"avg_file_size_mb": round((avg_file_size or 0) / (1024 * 1024), 2)},
+            performance={
+                "avg_file_size_mb": round((avg_file_size or 0) / (1024 * 1024), 2)
+            },
         )
     except Exception:
         return SystemStatsResponse(
             users={"total": 0, "active": 0, "verified": 0, "new_24h": 0},
             files={"total": 0, "completed": 0, "processing": 0, "failed": 0},
             financial_data={"statements": 0, "parameters": 0},
-            system={"database_size": "Unknown", "timestamp": datetime.now(timezone.utc)},
+            system={
+                "database_size": "Unknown",
+                "timestamp": datetime.now(timezone.utc),
+            },
             performance={"avg_file_size_mb": 0.0},
         )
 
@@ -327,23 +331,30 @@ async def get_security_audit(
         )
 
         suspicious_ips = (
-            db.query(AuditLog.ip_address, func.count(func.distinct(AuditLog.user_id)).label('user_count'))
+            db.query(
+                AuditLog.ip_address,
+                func.count(func.distinct(AuditLog.user_id)).label("user_count"),
+            )
             .filter(
                 AuditLog.created_at >= start_time,
                 AuditLog.created_at <= now,
-                AuditLog.ip_address.isnot(None)
+                AuditLog.ip_address.isnot(None),
             )
             .group_by(AuditLog.ip_address)
             .having(func.count(func.distinct(AuditLog.user_id)) >= 5)
             .all()
         )
         for ip_address, user_count in suspicious_ips:
-            suspicious_activities.append({
-                "type": "multiple_users_same_ip",
-                "description": f"IP {ip_address} used by {user_count} different users",
-                "severity": "medium",
-                "ip_address": ip_address
-            })
+            suspicious_activities.append(
+                {
+                    "type": "multiple_users_same_ip",
+                    "description": (
+                        f"IP {ip_address} used by {user_count} different users"
+                    ),
+                    "severity": "medium",
+                    "ip_address": ip_address,
+                }
+            )
 
         password_violations = db.query(User).filter(User.is_verified.is_(False)).count()
 
@@ -404,7 +415,7 @@ async def cleanup_orphaned_files(
         if not dry_run:
             for file_record in files_to_cleanup:
                 try:
-                    file_service.delete_file(file_record.file_path)
+                    file_service.delete_file(file_record.id, current_user)
                 except Exception:
                     pass
                 db.delete(file_record)
@@ -509,9 +520,11 @@ async def get_admin_overview_report(
         active_users = db.query(User).filter(User.is_active.is_(True)).count()
         verified_users = db.query(User).filter(User.is_verified.is_(True)).count()
         total_files = db.query(UploadedFile).count()
-        failed_files = db.query(UploadedFile).filter(
-            UploadedFile.status == FileStatus.FAILED.value
-        ).count()
+        failed_files = (
+            db.query(UploadedFile)
+            .filter(UploadedFile.status == FileStatus.FAILED.value)
+            .count()
+        )
         total_statements = db.query(FinancialStatement).count()
         total_parameters = db.query(Parameter).count()
 
@@ -546,7 +559,9 @@ async def get_admin_overview_report(
             return PlainTextResponse(
                 content=csv_text,
                 media_type="text/csv",
-                headers={"Content-Disposition": ("attachment; filename=admin_overview.csv")},
+                headers={
+                    "Content-Disposition": ("attachment; filename=admin_overview.csv")
+                },
             )
     except Exception as e:
         raise HTTPException(
