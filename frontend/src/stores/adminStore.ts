@@ -1,6 +1,6 @@
 /**
  * Admin Dashboard Store
- * 
+ *
  * Centralized state management for admin dashboard data using Zustand
  */
 
@@ -8,7 +8,6 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import AdminApiService, {
   SystemStats,
-  UserActivity,
   SystemMetrics,
   DataIntegrityCheck,
   SecurityAudit,
@@ -16,6 +15,7 @@ import AdminApiService, {
   UserPermissions,
   AuditEntry,
 } from '@/services/adminApi';
+import { UserActivity } from '@/types/admin';
 import { toast } from 'sonner';
 import { createAsyncResource } from './utils';
 
@@ -75,28 +75,28 @@ export interface AdminStoreState {
   // Actions
   setActiveTab: (tab: string) => void;
   setAutoRefresh: (enabled: boolean) => void;
-  
+
   // Data fetching actions - context-aware
   fetchOverviewData: () => Promise<void>;
   fetchSystemData: () => Promise<void>;
   fetchLogsData: () => Promise<void>;
   fetchAuditData: () => Promise<void>;
   fetchHealthData: () => Promise<void>;
-  
+
   // Specific data fetchers
   fetchSystemStats: () => Promise<void>;
   fetchUserActivity: () => Promise<void>;
   fetchSystemMetrics: () => Promise<void>;
   fetchSecurityAudit: () => Promise<void>;
-  
+
   // Log management
   updateLogsFilters: (filters: Partial<Omit<LogsState, 'items' | 'total'>>) => void;
   fetchLogs: () => Promise<void>;
-  
+
   // Audit management
   updateAuditFilters: (filters: Partial<Omit<AuditState, 'items' | 'total'>>) => void;
   fetchAudit: () => Promise<void>;
-  
+
   // Utilities
   refreshAll: () => Promise<void>;
   clearErrors: () => void;
@@ -159,7 +159,7 @@ export const useAdminStore = create<AdminStoreState>()(
       // Context-aware data fetching
       fetchOverviewData: async () => {
         set({ refreshing: true });
-        
+
         const state = get();
         const promises = [
           get().fetchSystemStats(),
@@ -178,12 +178,12 @@ export const useAdminStore = create<AdminStoreState>()(
 
       fetchSystemData: async () => {
         set({ refreshing: true });
-        
+
         await Promise.allSettled([
           get().fetchSystemMetrics(),
           get().fetchSystemStats(),
         ]);
-        
+
         set({ refreshing: false });
       },
 
@@ -197,12 +197,12 @@ export const useAdminStore = create<AdminStoreState>()(
 
       fetchHealthData: async () => {
         set({ refreshing: true });
-        
+
         await Promise.allSettled([
           get().fetchSystemHealth(),
           get().fetchDatabaseHealth(),
         ]);
-        
+
         set({ refreshing: false });
       },
 
@@ -214,12 +214,30 @@ export const useAdminStore = create<AdminStoreState>()(
         async () => AdminApiService.getSystemStats()
       ),
 
+<<<<<<< HEAD
       fetchUserActivity: createAsyncResource(
         set,
         get,
         'userActivity',
         async () => AdminApiService.getUserActivity(20)
       ),
+=======
+        try {
+          const data = await AdminApiService.getSystemStats();
+          set(state => ({
+            systemStats: updateNormalizedResponse(state.systemStats, { data, loading: false })
+          }));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to fetch system stats';
+          set(state => ({
+            systemStats: updateNormalizedResponse(state.systemStats, {
+              loading: false,
+              error: message
+            })
+          }));
+        }
+      },
+>>>>>>> pre-production
 
       fetchSystemMetrics: createAsyncResource(
         set,
@@ -228,6 +246,7 @@ export const useAdminStore = create<AdminStoreState>()(
         async () => AdminApiService.getSystemMetrics()
       ),
 
+<<<<<<< HEAD
       fetchSecurityAudit: createAsyncResource(
         set,
         get,
@@ -238,6 +257,23 @@ export const useAdminStore = create<AdminStoreState>()(
             to: state.audit.to || undefined,
           })
       ),
+=======
+        try {
+          const data = await AdminApiService.getUserActivity(20);
+          set(state => ({
+            userActivity: updateNormalizedResponse(state.userActivity, { data, loading: false })
+          }));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to fetch user activity';
+          set(state => ({
+            userActivity: updateNormalizedResponse(state.userActivity, {
+              loading: false,
+              error: message
+            })
+          }));
+        }
+      },
+>>>>>>> pre-production
 
       fetchSystemHealth: createAsyncResource(
         set,
@@ -246,12 +282,97 @@ export const useAdminStore = create<AdminStoreState>()(
         async () => AdminApiService.getSystemHealth()
       ),
 
+<<<<<<< HEAD
       fetchDatabaseHealth: createAsyncResource(
         set,
         get,
         'databaseHealth',
         async () => AdminApiService.getDatabaseHealth()
       ),
+=======
+        try {
+          const data = await AdminApiService.getSystemMetrics();
+          set(state => ({
+            systemMetrics: updateNormalizedResponse(state.systemMetrics, { data, loading: false })
+          }));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to fetch system metrics';
+          set(state => ({
+            systemMetrics: updateNormalizedResponse(state.systemMetrics, {
+              loading: false,
+              error: message
+            })
+          }));
+        }
+      },
+
+      fetchSecurityAudit: async () => {
+        set(state => ({
+          securityAudit: updateNormalizedResponse(state.securityAudit, { loading: true, error: null })
+        }));
+
+        try {
+          const { audit } = get();
+          const data = await AdminApiService.getSecurityAudit({
+            from: audit.from || undefined,
+            to: audit.to || undefined,
+          });
+          set(state => ({
+            securityAudit: updateNormalizedResponse(state.securityAudit, { data, loading: false })
+          }));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to fetch security audit';
+          set(state => ({
+            securityAudit: updateNormalizedResponse(state.securityAudit, {
+              loading: false,
+              error: message
+            })
+          }));
+        }
+      },
+
+      fetchSystemHealth: async () => {
+        set(state => ({
+          systemHealth: updateNormalizedResponse(state.systemHealth, { loading: true, error: null })
+        }));
+
+        try {
+          const data = await AdminApiService.getSystemHealth();
+          set(state => ({
+            systemHealth: updateNormalizedResponse(state.systemHealth, { data, loading: false })
+          }));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to fetch system health';
+          set(state => ({
+            systemHealth: updateNormalizedResponse(state.systemHealth, {
+              loading: false,
+              error: message
+            })
+          }));
+        }
+      },
+
+      fetchDatabaseHealth: async () => {
+        set(state => ({
+          databaseHealth: updateNormalizedResponse(state.databaseHealth, { loading: true, error: null })
+        }));
+
+        try {
+          const data = await AdminApiService.getDatabaseHealth();
+          set(state => ({
+            databaseHealth: updateNormalizedResponse(state.databaseHealth, { data, loading: false })
+          }));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to fetch database health';
+          set(state => ({
+            databaseHealth: updateNormalizedResponse(state.databaseHealth, {
+              loading: false,
+              error: message
+            })
+          }));
+        }
+      },
+>>>>>>> pre-production
 
       // Log management
       updateLogsFilters: (filters) => {
@@ -334,7 +455,7 @@ export const useAdminStore = create<AdminStoreState>()(
       // Utilities
       refreshAll: async () => {
         const { activeTab } = get();
-        
+
         switch (activeTab) {
           case 'overview':
             await get().fetchOverviewData();
@@ -376,4 +497,3 @@ export const useAdminStore = create<AdminStoreState>()(
     }
   )
 );
-

@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { useAdminStore } from '@/stores/adminStore';
+import { useAdminStore } from '@/stores/admin';
 
 export interface WebSocketMessage {
     type: 'SYSTEM_STATS' | 'USER_ACTIVITY' | 'SYSTEM_METRICS' | 'LOGS' | 'AUDIT';
