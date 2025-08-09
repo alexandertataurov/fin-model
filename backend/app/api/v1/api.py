@@ -16,8 +16,17 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints.admin import database, logs, system, users
 from app.api.v1.endpoints import (
-    auth, mfa, webauthn, oauth, files, dashboard,
-    parameters, scenarios, statements, notifications, tasks
+    auth,
+    mfa,
+    webauthn,
+    oauth,
+    files,
+    dashboard,
+    parameters,
+    scenarios,
+    statements,
+    notifications,
+    tasks,
 )
 
 
@@ -26,48 +35,28 @@ api_router = APIRouter()
 
 # Include authentication routes
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
-api_router.include_router(
-    mfa.router, prefix="/auth/mfa", tags=["authentication"]
-)
+api_router.include_router(mfa.router, prefix="/auth/mfa", tags=["authentication"])
 api_router.include_router(
     webauthn.router, prefix="/auth/webauthn", tags=["authentication"]
 )
-api_router.include_router(
-    oauth.router, prefix="/auth/oauth", tags=["authentication"]
-)
+api_router.include_router(oauth.router, prefix="/auth/oauth", tags=["authentication"])
 
 # Include core application routes
-api_router.include_router(
-    dashboard.router, prefix="/dashboard", tags=["dashboard"]
-)
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(files.router, prefix="/files", tags=["files"])
-api_router.include_router(
-    parameters.router, prefix="/parameters", tags=["parameters"]
-)
-api_router.include_router(
-    scenarios.router, prefix="/scenarios", tags=["scenarios"]
-)
-api_router.include_router(
-    statements.router, prefix="/statements", tags=["statements"]
-)
+api_router.include_router(parameters.router, prefix="/parameters", tags=["parameters"])
+api_router.include_router(scenarios.router, prefix="/scenarios", tags=["scenarios"])
+api_router.include_router(statements.router, prefix="/statements", tags=["statements"])
 api_router.include_router(
     notifications.router, prefix="/notifications", tags=["notifications"]
 )
 api_router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 
 # Include admin routes
-api_router.include_router(
-    users.router, prefix="/admin", tags=["administration"]
-)
-api_router.include_router(
-    system.router, prefix="/admin", tags=["administration"]
-)
-api_router.include_router(
-    database.router, prefix="/admin", tags=["administration"]
-)
-api_router.include_router(
-    logs.router, prefix="/admin", tags=["administration"]
-)
+api_router.include_router(users.router, prefix="/admin", tags=["administration"])
+api_router.include_router(system.router, prefix="/admin", tags=["administration"])
+api_router.include_router(database.router, prefix="/admin", tags=["administration"])
+api_router.include_router(logs.router, prefix="/admin", tags=["administration"])
 
 
 @api_router.get("/")
@@ -82,4 +71,3 @@ async def api_status():
     """Basic status endpoint used in health checks."""
 
     return {"status": "operational", "version": "1.0.0"}
-
