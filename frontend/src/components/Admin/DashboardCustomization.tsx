@@ -187,6 +187,91 @@ interface DashboardCustomizationProps {
   currentConfig?: DashboardWidget[];
 }
 
+interface WidgetConfigCardProps {
+  widget: DashboardWidget;
+  draggedWidget: string | null;
+  onDragStart: (id: string) => void;
+  onDragEnd: () => void;
+  onDrop: (targetId: string) => void;
+  onSizeChange: (id: string, size: DashboardWidget['size']) => void;
+  onToggle: (id: string) => void;
+}
+
+const WidgetConfigCard: React.FC<WidgetConfigCardProps> = ({
+  widget,
+  draggedWidget,
+  onDragStart,
+  onDragEnd,
+  onDrop,
+  onSizeChange,
+  onToggle,
+}) => (
+  <Card
+    className={`transition-all ${
+      draggedWidget === widget.id ? 'opacity-50' : ''
+    }`}
+    draggable
+    onDragStart={() => onDragStart(widget.id)}
+    onDragEnd={onDragEnd}
+    onDragOver={e => e.preventDefault()}
+    onDrop={e => {
+      e.preventDefault();
+      onDrop(widget.id);
+    }}
+  >
+    <CardContent className="p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
+          <div className="flex items-center space-x-2">
+            {widget.icon}
+            <div>
+              <div className="font-medium">{widget.title}</div>
+              <div className="text-sm text-muted-foreground">
+                {widget.description}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">Size:</span>
+            <Select
+              value={widget.size}
+              onValueChange={value =>
+                onSizeChange(widget.id, value as DashboardWidget['size'])
+              }
+            >
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+                <SelectItem value="full-width">Full</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">Visible:</span>
+            <Switch
+              checked={widget.visible}
+              onCheckedChange={() => onToggle(widget.id)}
+            />
+          </div>
+
+          <Badge variant="outline" className="text-xs">
+            #{widget.position + 1}
+          </Badge>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
   userRole,
   onConfigChange,
@@ -322,79 +407,23 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
               {widgets
                 .filter(widget => widget.requiredRole.includes(userRole))
                 .sort((a, b) => a.position - b.position)
-                .map((widget, _index) => (
-                  <Card 
+                .map(widget => (
+                  <WidgetConfigCard
                     key={widget.id}
-                    className={`transition-all ${
-                      draggedWidget === widget.id ? 'opacity-50' : ''
-                    }`}
-                    draggable
-                    onDragStart={() => setDraggedWidget(widget.id)}
+                    widget={widget}
+                    draggedWidget={draggedWidget}
+                    onDragStart={setDraggedWidget}
                     onDragEnd={() => setDraggedWidget(null)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      if (draggedWidget && draggedWidget !== widget.id) {
+                    onDrop={targetId => {
+                      if (draggedWidget && draggedWidget !== targetId) {
                         const fromIndex = widgets.findIndex(w => w.id === draggedWidget);
-                        const toIndex = widgets.findIndex(w => w.id === widget.id);
+                        const toIndex = widgets.findIndex(w => w.id === targetId);
                         handleWidgetReorder(fromIndex, toIndex);
                       }
                     }}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-                          <div className="flex items-center space-x-2">
-                            {widget.icon}
-                            <div>
-                              <div className="font-medium">{widget.title}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {widget.description}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-4">
-                          {/* Size selector */}
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-muted-foreground">Size:</span>
-                            <Select
-                              value={widget.size}
-                              onValueChange={(value) => 
-                                handleSizeChange(widget.id, value as DashboardWidget['size'])
-                              }
-                            >
-                              <SelectTrigger className="w-24">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="small">Small</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="large">Large</SelectItem>
-                                <SelectItem value="full-width">Full</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Visibility toggle */}
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-muted-foreground">Visible:</span>
-                            <Switch
-                              checked={widget.visible}
-                              onCheckedChange={() => handleWidgetToggle(widget.id)}
-                            />
-                          </div>
-
-                          {/* Position indicator */}
-                          <Badge variant="outline" className="text-xs">
-                            #{widget.position + 1}
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    onSizeChange={handleSizeChange}
+                    onToggle={handleWidgetToggle}
+                  />
                 ))}
             </div>
           </div>
