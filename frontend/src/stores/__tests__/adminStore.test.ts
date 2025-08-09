@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useAdminStore } from '../adminStore';
+import { useAdminStore } from '../admin';
 import AdminApiService from '../../services/adminApi';
 
 // Mock the API service

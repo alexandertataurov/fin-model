@@ -40,7 +40,7 @@ import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Switch } from '@/design-system/components/Switch';
-import { useAdminStore } from '@/stores/adminStore';
+import { useAdminStore } from '@/stores/admin';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
