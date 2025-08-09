@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/* eslint-env node */
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -55,11 +58,14 @@ function checkTheme(name, tokens) {
   }
 }
 
-['light', 'dark'].forEach(name => {
-  const file = path.join(THEMES_DIR, `${name}.json`);
-  const raw = fs.readFileSync(file, 'utf8');
-  const tokens = JSON.parse(raw);
-  checkTheme(name, tokens);
-});
+const lightTokens = JSON.parse(
+  fs.readFileSync(path.join(THEMES_DIR, 'light.json'), 'utf8'),
+);
+const darkTokens = JSON.parse(
+  fs.readFileSync(path.join(THEMES_DIR, 'dark.json'), 'utf8'),
+);
+
+checkTheme('light', lightTokens);
+checkTheme('dark', darkTokens);
 
 console.log('All theme contrast ratios meet WCAG AA');
