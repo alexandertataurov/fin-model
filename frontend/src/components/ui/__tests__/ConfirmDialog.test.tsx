@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
-expect.extend(toHaveNoViolations);
+expect.extend(toHaveNoViolations as any);
 
 describe('ConfirmDialog', () => {
   it('is accessible and handles confirmation', async () => {

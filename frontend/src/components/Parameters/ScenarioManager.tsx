@@ -208,7 +208,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setEditingScenario(scenario);
+                  _setEditingScenario(scenario);
                 }}
               >
                 <Edit className="w-3 h-3" />

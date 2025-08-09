@@ -2,13 +2,14 @@ import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
+import { getToken } from '../tokens';
 
 const buttonVariants = cva(
   [
     // Base styles
     'inline-flex items-center justify-center gap-2',
     'whitespace-nowrap rounded-md font-medium',
-    'transition-all duration-200 ease-in-out',
+    'transition-all duration-200',
     'disabled:pointer-events-none disabled:opacity-50',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
     'active:scale-[0.98]',
@@ -127,7 +128,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const isIconOnly = size?.toString().startsWith('icon');
 
     // When asChild is true, we need to ensure only one child is passed to the Slot
-    const renderContent = () => {
+  const renderContent = () => {
       if (asChild) {
         // For asChild, we need to ensure there's exactly one child
         if (loading) {
@@ -205,6 +206,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, loading, className }))}
+        style={{
+          borderWidth: getToken('borderWidth.sm'),
+          letterSpacing: getToken('typography.letterSpacing.normal'),
+          transitionTimingFunction: getToken('motion.easing.inOut'),
+        }}
         ref={ref}
         disabled={disabled || loading}
         {...props}

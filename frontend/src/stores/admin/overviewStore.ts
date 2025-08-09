@@ -1,12 +1,13 @@
 import { StateCreator } from 'zustand';
-import AdminApiService, {
+import * as AdminApi from '@/services/admin';
+import type {
   SystemStats,
   UserActivity,
   SystemMetrics,
   DataIntegrityCheck,
   SecurityAudit,
   UserPermissions,
-} from '@/services/adminApi';
+} from '@/services/admin';
 import {
   NormalizedApiResponse,
   createNormalizedResponse,
@@ -50,7 +51,7 @@ export const createOverviewSlice: StateCreator<
   userPermissions: createNormalizedResponse<UserPermissions>(),
 
   fetchOverviewData: async () => {
-    set({ refreshing: true });
+    set({ refreshing: true } as any);
 
     const state: any = get();
     const promises = [
@@ -64,29 +65,29 @@ export const createOverviewSlice: StateCreator<
     }
 
     await Promise.allSettled(promises);
-    set({ refreshing: false });
+    set({ refreshing: false } as any);
   },
 
   fetchSystemData: async () => {
-    set({ refreshing: true });
+    set({ refreshing: true } as any);
 
     await Promise.allSettled([
       get().fetchSystemMetrics(),
       get().fetchSystemStats(),
     ]);
 
-    set({ refreshing: false });
+    set({ refreshing: false } as any);
   },
 
   fetchHealthData: async () => {
-    set({ refreshing: true });
+    set({ refreshing: true } as any);
 
     await Promise.allSettled([
       get().fetchSystemHealth(),
       get().fetchDatabaseHealth(),
     ]);
 
-    set({ refreshing: false });
+    set({ refreshing: false } as any);
   },
 
   fetchSystemStats: async () => {
@@ -95,7 +96,7 @@ export const createOverviewSlice: StateCreator<
     }));
 
     try {
-      const data = await AdminApiService.getSystemStats();
+      const data = await AdminApi.getSystemStats();
       set(state => ({
         systemStats: updateNormalizedResponse(state.systemStats, { data, loading: false })
       }));
@@ -116,7 +117,7 @@ export const createOverviewSlice: StateCreator<
     }));
 
     try {
-      const data = await AdminApiService.getUserActivity(20);
+      const data = await AdminApi.getUserActivity(20);
       set(state => ({
         userActivity: updateNormalizedResponse(state.userActivity, { data, loading: false })
       }));
@@ -137,7 +138,7 @@ export const createOverviewSlice: StateCreator<
     }));
 
     try {
-      const data = await AdminApiService.getSystemMetrics();
+      const data = await AdminApi.getSystemMetrics();
       set(state => ({
         systemMetrics: updateNormalizedResponse(state.systemMetrics, { data, loading: false })
       }));
@@ -158,8 +159,8 @@ export const createOverviewSlice: StateCreator<
     }));
 
     try {
-      const audit: any = get().audit;
-      const data = await AdminApiService.getSecurityAudit({
+      const audit: any = (get() as any).audit;
+      const data = await AdminApi.getSecurityAudit({
         from: audit?.from || undefined,
         to: audit?.to || undefined,
       });
@@ -183,7 +184,7 @@ export const createOverviewSlice: StateCreator<
     }));
 
     try {
-      const data = await AdminApiService.getSystemHealth();
+      const data = await AdminApi.getSystemHealth();
       set(state => ({
         systemHealth: updateNormalizedResponse(state.systemHealth, { data, loading: false })
       }));
@@ -204,7 +205,7 @@ export const createOverviewSlice: StateCreator<
     }));
 
     try {
-      const data = await AdminApiService.getDatabaseHealth();
+      const data = await AdminApi.getDatabaseHealth();
       set(state => ({
         databaseHealth: updateNormalizedResponse(state.databaseHealth, { data, loading: false })
       }));

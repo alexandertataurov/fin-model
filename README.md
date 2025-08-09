@@ -303,6 +303,8 @@ See `/tasks/README.md` for detailed task breakdowns and progress tracking.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+Refer to the [Contributing Guidelines](docs/contributing.md) for token naming rules, component expectations, and review workflow. For major changes, start with the [RFC process](docs/rfc.md).
+
 ### Code Quality
 
 - Frontend: ESLint + Prettier

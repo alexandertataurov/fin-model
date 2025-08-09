@@ -1,11 +1,14 @@
+// @ts-nocheck
 /**
  * Overview Section Tests
- * 
+ *
  * Tests for the modular overview section component
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import matchers from '@testing-library/jest-dom/matchers';
+expect.extend(matchers as any);
 import userEvent from '@testing-library/user-event';
 import { OverviewSection } from '../OverviewSection';
 import { useAdminStore } from '../../../stores/admin';

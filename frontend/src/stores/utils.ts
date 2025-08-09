@@ -23,7 +23,7 @@ export const createAsyncResource = <S, K extends keyof S, T>(
         loading: true,
         error: null,
       },
-    }));
+    }) as any);
 
     try {
       const result = await fetcher(get());
@@ -35,7 +35,7 @@ export const createAsyncResource = <S, K extends keyof S, T>(
           lastUpdated: Date.now(),
           ...(transform ? transform(result, state as S) : { data: result }),
         },
-      }));
+      }) as any);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       set(state => ({
@@ -44,7 +44,7 @@ export const createAsyncResource = <S, K extends keyof S, T>(
           loading: false,
           error: message,
         },
-      }));
+      }) as any);
     }
   };
 };

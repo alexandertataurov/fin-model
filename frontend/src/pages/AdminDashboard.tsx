@@ -47,6 +47,7 @@ import HealthTab from '@/components/AdminDashboard/HealthTab';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import * as AdminApi from '@/services/admin';
+import type { LogEntry, SecurityAudit } from '@/services/admin';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -56,9 +57,7 @@ const AdminDashboard: React.FC = () => {
   const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
 
   // Local log state for tests
-  const [logs, setLogs] = useState<import('@/services/adminApi').LogEntry[]>(
-    []
-  );
+  const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [logsTotal, setLogsTotal] = useState(0);
   const [logsSkip, setLogsSkip] = useState(0);
   const [logsLimit, setLogsLimit] = useState(100);
@@ -68,7 +67,93 @@ const AdminDashboard: React.FC = () => {
   const [logsFrom, setLogsFrom] = useState('');
   const [logsTo, setLogsTo] = useState('');
   const [logsSearch, setLogsSearch] = useState('');
+  const handleLogsFilterChange = useCallback(
+    async (updates: Partial<{
+      level: typeof logsLevel;
+      limit: number;
+      from: string;
+      to: string;
+      search: string;
+      skip: number;
+    }>) => {
+      const newFilters = {
+        level: logsLevel,
+        limit: logsLimit,
+        from: logsFrom,
+        to: logsTo,
+        search: logsSearch,
+        skip: logsSkip,
+        ...updates,
+      };
+
+      const setters: Record<string, (value: any) => void> = {
+        level: setLogsLevel,
+        limit: setLogsLimit,
+        from: setLogsFrom,
+        to: setLogsTo,
+        search: setLogsSearch,
+        skip: setLogsSkip,
+      };
+
+      Object.entries(updates).forEach(([key, value]) => {
+        const setter = setters[key];
+        if (setter !== undefined && value !== undefined) {
+          setter(value);
+        }
+      });
+
+      const resp = await AdminApi.getSystemLogs(newFilters.level, newFilters.limit, {
+        from: newFilters.from || undefined,
+        to: newFilters.to || undefined,
+        search: newFilters.search || undefined,
+        skip: newFilters.skip,
+        envelope: true,
+      });
+      const env = resp as any;
+      setLogs((env.items as LogEntry[]) || []);
+      setLogsTotal(env.total || 0);
+    },
+    [
+      logsLevel,
+      logsLimit,
+      logsFrom,
+      logsTo,
+      logsSearch,
+      logsSkip,
+    ]
+  );
+
+  const handleLogsRefresh = useCallback(async () => {
+    await handleLogsFilterChange({ skip: 0 });
+  }, [handleLogsFilterChange]);
+
+  const handleLogsPrev = useCallback(async () => {
+    const newSkip = Math.max(0, logsSkip - logsLimit);
+    await handleLogsFilterChange({ skip: newSkip });
+  }, [logsSkip, logsLimit, handleLogsFilterChange]);
+
+  const handleLogsNext = useCallback(async () => {
+    const newSkip = logsSkip + logsLimit;
+    if (newSkip >= logsTotal) return;
+    await handleLogsFilterChange({ skip: newSkip });
+  }, [logsSkip, logsLimit, logsTotal, handleLogsFilterChange]);
   const [userPermissions, _setUserPermissions] = useState<any>(null);
+  const [securityAudit, setSecurityAudit] = useState<SecurityAudit | null>(
+    null
+  );
+  const [securityFrom, setSecurityFrom] = useState('');
+  const [securityTo, setSecurityTo] = useState('');
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [auditTotal, setAuditTotal] = useState(0);
+  const [auditSkip, setAuditSkip] = useState(0);
+  const [auditFilters, setAuditFilters] = useState({
+    skip: 0,
+    limit: 50,
+    userId: undefined as number | undefined,
+    action: undefined as string | undefined,
+  });
+  const [auditFrom, setAuditFrom] = useState('');
+  const [auditTo, setAuditTo] = useState('');
 
   // Use centralized store
   const {
@@ -83,6 +168,7 @@ const AdminDashboard: React.FC = () => {
     systemHealth: _systemHealth,
     databaseHealth: _databaseHealth,
     audit: _audit,
+    logs: _logs,
     fetchOverviewData,
     fetchHealthData,
     fetchLogsData,
@@ -171,7 +257,7 @@ const AdminDashboard: React.FC = () => {
   const handleFileCleanup = async () => {
     try {
       setMaintenanceLoading(true);
-      const result = await AdminApiService.cleanupFiles(false);
+      const result = await AdminApi.cleanupFiles(false);
       toast.success(result.message);
       await loadAdminData(); // Refresh data
     } catch (_error) {
@@ -219,7 +305,7 @@ const AdminDashboard: React.FC = () => {
   const isInitialLoading =
     !systemStats.data &&
     !userActivity.data &&
-    !logs.data &&
+    !_logs.data &&
     systemStats.loading;
 
   if (isInitialLoading) {
@@ -383,12 +469,14 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap items-center gap-2 mb-4">
-                  <Select
+                  <select
+                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={logsLevel}
-                    onValueChange={async lvl => {
-                      setLogsLevel(lvl as typeof logsLevel);
+                    onChange={async e => {
+                      const lvl = e.target.value as typeof logsLevel;
+                      setLogsLevel(lvl);
                       const resp = await AdminApi.getSystemLogs(
-                        lvl as typeof logsLevel,
+                        lvl,
                         logsLimit,
                         {
                           from: logsFrom || undefined,
@@ -399,27 +487,23 @@ const AdminDashboard: React.FC = () => {
                         }
                       );
                       const env = resp as any;
-                      setLogs((env.items as LogEntry[]) || []);
+                      setLogEntries((env.items as LogEntry[]) || []);
                       setLogsTotal(env.total || 0);
                     }}
                   >
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(
-                        l => (
-                          <SelectItem key={l} value={l}>
-                            {l}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={String(logsLimit)}
-                    onValueChange={async val => {
-                      const lim = Number(val);
+                    {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(
+                      l => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
+                      )
+                    )}
+                  </select>
+                  <select
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={logsLimit}
+                    onChange={async e => {
+                      const lim = Number(e.target.value);
                       setLogsLimit(lim);
                       const resp = await AdminApi.getSystemLogs(
                         logsLevel,
@@ -433,39 +517,34 @@ const AdminDashboard: React.FC = () => {
                         }
                       );
                       const env = resp as any;
-                      setLogs((env.items as LogEntry[]) || []);
+                      setLogEntries((env.items as LogEntry[]) || []);
                       setLogsTotal(env.total || 0);
                     }}
                   >
-                    <SelectTrigger className="w-28">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[50, 100, 200, 500].map(l => (
-                        <SelectItem key={l} value={String(l)}>
-                          {l}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
+                    {[50, 100, 200, 500].map(l => (
+                      <option key={l} value={l}>
+                        {l}
+                      </option>
+                    ))}
+                  </select>
+                  <input
                     type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={logsFrom}
                     onChange={e => setLogsFrom(e.target.value)}
-                    className="w-40"
                   />
-                  <Input
+                  <input
                     type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={logsTo}
                     onChange={e => setLogsTo(e.target.value)}
-                    className="w-40"
                   />
-                  <Input
+                  <input
                     type="text"
+                    className="border rounded px-2 py-1 bg-background text-sm"
                     placeholder="Search"
                     value={logsSearch}
                     onChange={e => setLogsSearch(e.target.value)}
-                    className="w-40"
                   />
                   <Button
                     size="sm"
@@ -483,7 +562,7 @@ const AdminDashboard: React.FC = () => {
                         }
                       );
                       const env = resp as any;
-                      setLogs((env.items as LogEntry[]) || []);
+                      setLogEntries((env.items as LogEntry[]) || []);
                       setLogsTotal(env.total || 0);
                       setLogsSkip(0);
                     }}
@@ -517,7 +596,7 @@ const AdminDashboard: React.FC = () => {
                           }
                         );
                         const env = resp as any;
-                        setLogs((env.items as LogEntry[]) || []);
+                        setLogEntries((env.items as LogEntry[]) || []);
                         setLogsTotal(env.total || 0);
                       }}
                       disabled={logsSkip <= 0}
@@ -543,7 +622,7 @@ const AdminDashboard: React.FC = () => {
                           }
                         );
                         const env = resp as any;
-                        setLogs((env.items as LogEntry[]) || []);
+                        setLogEntries((env.items as LogEntry[]) || []);
                         setLogsTotal(env.total || 0);
                       }}
                       disabled={logsSkip + logsLimit >= logsTotal}
@@ -554,8 +633,8 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="border rounded">
                   <div className="max-h-96 overflow-auto text-xs font-mono">
-                    {logs.length > 0 ? (
-                      logs.map((log, idx) => (
+                    {logEntries.length > 0 ? (
+                      logEntries.map((log, idx) => (
                         <div key={idx} className="px-3 py-2 border-b">
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">
@@ -843,7 +922,6 @@ const AdminDashboard: React.FC = () => {
                           size="sm"
                           onClick={async () => {
                             try {
-                              setRefreshing(true);
                               const data = await AdminApi.getSecurityAudit({
                                 from: securityFrom || undefined,
                                 to: securityTo || undefined,
@@ -853,7 +931,6 @@ const AdminDashboard: React.FC = () => {
                             } catch {
                               toast.error('Failed to refresh security audit');
                             } finally {
-                              setRefreshing(false);
                             }
                           }}
                         >
@@ -910,9 +987,11 @@ const AdminDashboard: React.FC = () => {
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
                           <div className="space-y-1">
-                            {securityAudit.recommendations.map((rec, idx) => (
-                              <div key={idx}>{rec}</div>
-                            ))}
+                            {securityAudit.recommendations.map(
+                              (rec: string, idx: number) => (
+                                <div key={idx}>{rec}</div>
+                              )
+                            )}
                           </div>
                         </AlertDescription>
                       </Alert>

@@ -18,7 +18,9 @@ const api = apiClient as unknown as { get: any; post: any; put: any; delete: any
 const ok = (data: any) => Promise.resolve({ data })
 
 describe('AdminApi response shapes', () => {
-    beforeEach(() => vi.clearAllMocks())
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
 
     it('returns SystemStats shape', async () => {
         const data: SystemStats = {
@@ -98,7 +100,7 @@ describe('AdminApi response shapes', () => {
                 pagination: { skip: 0, limit: 1, total: 1, has_more: false, page: 1, total_pages: 1 },
             }),
         )
-        const env = (await AdminApiService.listUsers(0, 1, true)) as any
+        const env = (await AdminApi.listUsers(0, 1, true)) as any
         expect(env.items[0].username).toBe('alice')
 
         api.get.mockResolvedValueOnce(ok([user]))
@@ -114,7 +116,7 @@ describe('AdminApi response shapes', () => {
                 pagination: { skip: 0, limit: 100, total: 1, has_more: false, page: 1, total_pages: 1 },
             }),
         )
-        const env = (await AdminApiService.getSystemLogs('ERROR', 100, { envelope: true })) as any
+        const env = (await AdminApi.getSystemLogs('ERROR', 100, { envelope: true })) as any
         expect(env.items.length).toBe(1)
 
         api.get.mockResolvedValueOnce(ok([log]))
@@ -130,7 +132,7 @@ describe('AdminApi response shapes', () => {
                 pagination: { skip: 0, limit: 100, total: 1, has_more: false, page: 1, total_pages: 1 },
             }),
         )
-        const env = (await AdminApiService.getAuditLogs(0, 100, undefined, undefined, { envelope: true })) as any
+        const env = (await AdminApi.getAuditLogs(0, 100, undefined, undefined, { envelope: true })) as any
         expect(env.items[0].action).toBe('LOGIN')
     })
 

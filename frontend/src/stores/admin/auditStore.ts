@@ -1,5 +1,6 @@
 import { StateCreator } from 'zustand';
-import AdminApiService, { AuditEntry } from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
+import type { AuditEntry } from '@/services/admin';
 import {
   AuditState,
   NormalizedApiResponse,
@@ -44,7 +45,7 @@ export const createAuditSlice: StateCreator<AuditSlice, [], [], AuditSlice> = (
 
     try {
       const { audit } = get() as any;
-      const response = await AdminApiService.getAuditLogs(
+      const response: any = await AdminApi.getAuditLogs(
         audit.skip,
         audit.limit,
         audit.userId,
@@ -62,8 +63,8 @@ export const createAuditSlice: StateCreator<AuditSlice, [], [], AuditSlice> = (
             ...state.audit,
             data: response.items,
             items: response.items,
-            total: response.total,
-            skip: response.skip,
+            total: response.total ?? response.pagination?.total ?? response.items.length,
+            skip: response.skip ?? response.pagination?.page ?? 0,
             loading: false,
             lastUpdated: Date.now(),
           },
