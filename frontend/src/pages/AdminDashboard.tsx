@@ -79,12 +79,22 @@ const AdminDashboard: React.FC = () => {
         skip: logsSkip,
         ...updates,
       };
-      if (updates.level !== undefined) setLogsLevel(updates.level);
-      if (updates.limit !== undefined) setLogsLimit(updates.limit);
-      if (updates.from !== undefined) setLogsFrom(updates.from);
-      if (updates.to !== undefined) setLogsTo(updates.to);
-      if (updates.search !== undefined) setLogsSearch(updates.search);
-      if (updates.skip !== undefined) setLogsSkip(updates.skip);
+
+      const setters: Record<string, (value: any) => void> = {
+        level: setLogsLevel,
+        limit: setLogsLimit,
+        from: setLogsFrom,
+        to: setLogsTo,
+        search: setLogsSearch,
+        skip: setLogsSkip,
+      };
+
+      Object.entries(updates).forEach(([key, value]) => {
+        const setter = setters[key];
+        if (setter !== undefined && value !== undefined) {
+          setter(value);
+        }
+      });
 
       const resp = await AdminApi.getSystemLogs(newFilters.level, newFilters.limit, {
         from: newFilters.from || undefined,
