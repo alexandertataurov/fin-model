@@ -2,10 +2,8 @@
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const fs = require('fs');
-const path = require('path');
-
-const THEMES_DIR = path.join(__dirname, '..', 'frontend', 'src', 'design-system', 'tokens', 'themes');
+const lightTokens = require('../frontend/src/design-system/tokens/themes/light.json');
+const darkTokens = require('../frontend/src/design-system/tokens/themes/dark.json');
 
 function hexToRgb(hex) {
   const normalized = hex.replace('#', '');
@@ -57,13 +55,6 @@ function checkTheme(name, tokens) {
     throw new Error(`${name} theme contrast failures:\n${failures.join('\n')}`);
   }
 }
-
-const lightTokens = JSON.parse(
-  fs.readFileSync(path.join(THEMES_DIR, 'light.json'), 'utf8'),
-);
-const darkTokens = JSON.parse(
-  fs.readFileSync(path.join(THEMES_DIR, 'dark.json'), 'utf8'),
-);
 
 checkTheme('light', lightTokens);
 checkTheme('dark', darkTokens);
