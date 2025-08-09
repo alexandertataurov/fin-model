@@ -6,8 +6,13 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+<<<<<<< HEAD
 import { useAdminStore } from '../adminStore';
 import * as AdminApi from '../../services/admin';
+=======
+import { useAdminStore } from '../admin';
+import AdminApiService from '../../services/adminApi';
+>>>>>>> pre-production
 
 // Mock the API service
 vi.mock('../../services/admin');

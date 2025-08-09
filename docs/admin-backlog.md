@@ -36,6 +36,7 @@
       - [x] `/admin/system/logs` (envelope=true)
       - [x] `/admin/audit-logs` (envelope=true)
       - [x] `/admin/users` (envelope=true)
+    - [x] Add Pydantic response models for admin endpoints
 
 - Frontend
 

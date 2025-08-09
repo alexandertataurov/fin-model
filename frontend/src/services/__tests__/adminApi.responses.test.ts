@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+<<<<<<< HEAD
 import * as AdminApi from '../admin'
 import type { SystemStats, UserActivity, SystemMetrics, SecurityAudit, MaintenanceSchedules, LogEntry, AuditEntry, UserWithRoles, DatabaseHealth } from '../admin'
+=======
+import AdminApiService, { SystemStats, SystemMetrics, SecurityAudit, MaintenanceSchedules, LogEntry, AuditEntry, UserWithRoles, DatabaseHealth } from '../adminApi'
+import { UserActivity } from '../../types/admin'
+>>>>>>> pre-production
 import apiClient from '../api'
 
 vi.mock('../api', () => {
