@@ -11,6 +11,17 @@ if (typeof window !== 'undefined') {
 
 console.info('=== MAIN.TSX STARTING ===');
 
+declare global {
+  interface Window {
+    auditFilters?: unknown;
+  }
+}
+
+if (typeof window !== 'undefined' && window.auditFilters === undefined) {
+  // Ensure global auditFilters is defined to prevent ReferenceError in admin pages
+  window.auditFilters = [];
+}
+
 const rootElement = document.getElementById('root');
 console.debug('Root element found:', !!rootElement);
 if (!rootElement) {
