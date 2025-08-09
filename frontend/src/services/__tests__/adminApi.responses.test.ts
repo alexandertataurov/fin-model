@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-<<<<<<< HEAD
 import * as AdminApi from '../admin'
 import type { SystemStats, UserActivity, SystemMetrics, SecurityAudit, MaintenanceSchedules, LogEntry, AuditEntry, UserWithRoles, DatabaseHealth } from '../admin'
-=======
-import AdminApiService, { SystemStats, SystemMetrics, SecurityAudit, MaintenanceSchedules, LogEntry, AuditEntry, UserWithRoles, DatabaseHealth } from '../adminApi'
-import { UserActivity } from '../../types/admin'
->>>>>>> pre-production
 import apiClient from '../api'
 
 vi.mock('../api', () => {
@@ -97,8 +92,13 @@ describe('AdminApi response shapes', () => {
             last_login: null,
             roles: ['admin'],
         }
-        api.get.mockResolvedValueOnce(ok({ items: [user], skip: 0, limit: 1, total: 1 }))
-        const env = await AdminApi.listUsers(0, 1, true) as any
+        api.get.mockResolvedValueOnce(
+            ok({
+                items: [user],
+                pagination: { skip: 0, limit: 1, total: 1, has_more: false, page: 1, total_pages: 1 },
+            }),
+        )
+        const env = (await AdminApiService.listUsers(0, 1, true)) as any
         expect(env.items[0].username).toBe('alice')
 
         api.get.mockResolvedValueOnce(ok([user]))
@@ -108,8 +108,13 @@ describe('AdminApi response shapes', () => {
 
     it('returns logs envelope and raw', async () => {
         const log: LogEntry = { timestamp: new Date().toISOString(), level: 'ERROR', message: 'x', module: 'core', user_id: null }
-        api.get.mockResolvedValueOnce(ok({ items: [log], skip: 0, limit: 100, total: 1 }))
-        const env = await AdminApi.getSystemLogs('ERROR', 100, { envelope: true }) as any
+        api.get.mockResolvedValueOnce(
+            ok({
+                items: [log],
+                pagination: { skip: 0, limit: 100, total: 1, has_more: false, page: 1, total_pages: 1 },
+            }),
+        )
+        const env = (await AdminApiService.getSystemLogs('ERROR', 100, { envelope: true })) as any
         expect(env.items.length).toBe(1)
 
         api.get.mockResolvedValueOnce(ok([log]))
@@ -119,8 +124,13 @@ describe('AdminApi response shapes', () => {
 
     it('returns audit envelope variants', async () => {
         const entry: AuditEntry = { timestamp: new Date().toISOString(), action: 'LOGIN', user_id: 1 }
-        api.get.mockResolvedValueOnce(ok({ items: [entry], skip: 0, limit: 100, total: 1 }))
-        const env = await AdminApi.getAuditLogs(0, 100, undefined, undefined, { envelope: true }) as any
+        api.get.mockResolvedValueOnce(
+            ok({
+                items: [entry],
+                pagination: { skip: 0, limit: 100, total: 1, has_more: false, page: 1, total_pages: 1 },
+            }),
+        )
+        const env = (await AdminApiService.getAuditLogs(0, 100, undefined, undefined, { envelope: true })) as any
         expect(env.items[0].action).toBe('LOGIN')
     })
 

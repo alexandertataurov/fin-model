@@ -121,58 +121,46 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   const [roleUser, setRoleUser] = useState<UserWithRoles | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 20;
+  const [total, setTotal] = useState(0);
+
   // Load users
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const resp = await AdminApi.listUsers(0, 200, true);
+      const params: any = {};
+      if (searchTerm) params.search = searchTerm;
+      if (statusFilter === 'active') params.is_active = true;
+      else if (statusFilter === 'inactive') params.is_active = false;
+      else if (statusFilter === 'verified') params.is_verified = true;
+      else if (statusFilter === 'unverified') params.is_verified = false;
+      if (roleFilter === 'admin') params.is_admin = true;
+
+      const resp = await AdminApiService.listUsers(
+        page * rowsPerPage,
+        rowsPerPage,
+        true,
+        params
+      );
+
       const env = resp as any;
-      const list = (env?.items as UserWithRoles[]) || (resp as UserWithRoles[]);
+      let list = (env?.items as UserWithRoles[]) || (resp as UserWithRoles[]);
+      if (roleFilter !== 'all' && roleFilter !== 'admin') {
+        list = list.filter(user => user.roles.includes(roleFilter));
+      }
       setUsers(list);
       setFilteredUsers(list);
+      setTotal(env?.pagination?.total ?? list.length);
     } catch (error) {
       toast.error('Failed to load users');
     } finally {
       setLoading(false);
     }
   };
-
-  // Filter users based on search and filters
   useEffect(() => {
-    let filtered = users;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        user =>
-          user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          `${user.first_name} ${user.last_name}`
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'active') {
-        filtered = filtered.filter(user => user.is_active);
-      } else if (statusFilter === 'inactive') {
-        filtered = filtered.filter(user => !user.is_active);
-      } else if (statusFilter === 'verified') {
-        filtered = filtered.filter(user => user.is_verified);
-      } else if (statusFilter === 'unverified') {
-        filtered = filtered.filter(user => !user.is_verified);
-      }
-    }
-
-    // Role filter
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter(user => user.roles.includes(roleFilter));
-    }
-
-    setFilteredUsers(filtered);
-  }, [users, searchTerm, statusFilter, roleFilter]);
+    loadUsers();
+  }, [page, searchTerm, statusFilter, roleFilter]);
 
   // Handle user selection
   const handleUserSelection = (userId: number, checked: boolean) => {
@@ -427,16 +415,16 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {users.length}
+              {total}
             </div>
             <div className="flex items-center mt-2">
               <div className="flex-1 bg-gray-200 rounded-full h-1.5">
                 <div
                   className="bg-blue-500 h-1.5 rounded-full"
                   style={{
-                    width: `${users.length > 0
+                    width: `${total > 0
                       ? (users.filter(u => u.is_active).length /
-                        users.length) *
+                        total) *
                       100
                       : 0
                       }%`,
@@ -444,10 +432,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                 ></div>
               </div>
               <span className="text-xs text-muted-foreground ml-2">
-                {users.length > 0
+                {total > 0
                   ? Math.round(
-                    (users.filter(u => u.is_active).length / users.length) *
-                    100
+                    (users.filter(u => u.is_active).length / total) * 100
                   )
                   : 0}
                 % active
@@ -525,14 +512,23 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                 <Input
                   placeholder="Search by name, email, or username..."
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                  onChange={e => {
+                    setSearchTerm(e.target.value);
+                    setPage(0);
+                  }}
                   className="pl-9"
                 />
               </div>
             </div>
 
             {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              onValueChange={v => {
+                setStatusFilter(v);
+                setPage(0);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -566,7 +562,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
             </Select>
 
             {/* Role Filter */}
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <Select
+              value={roleFilter}
+              onValueChange={v => {
+                setRoleFilter(v);
+                setPage(0);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
@@ -588,7 +590,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
           <div className="flex items-center justify-between pt-2 border-t">
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
               <span>
-                Showing {filteredUsers.length} of {users.length} users
+                Showing {page * rowsPerPage + 1}-{Math.min(
+                  (page + 1) * rowsPerPage,
+                  total
+                )} of {total} users
               </span>
               {(searchTerm ||
                 statusFilter !== 'all' ||
@@ -600,6 +605,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                       setSearchTerm('');
                       setStatusFilter('all');
                       setRoleFilter('all');
+                      setPage(0);
                     }}
                     className="h-auto p-1 text-xs"
                   >
@@ -713,11 +719,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
               <Users className="h-5 w-5 mr-2" />
               User Directory
               <Badge variant="secondary" className="ml-2">
-                {filteredUsers.length} users
+                {total} users
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">
-              Total: {users.length} users
+              Page {page + 1} of {Math.max(1, Math.ceil(total / rowsPerPage))}
             </div>
           </CardTitle>
         </CardHeader>
@@ -939,6 +945,37 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
           )}
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {page * rowsPerPage + 1} to {Math.min(
+            (page + 1) * rowsPerPage,
+            total
+          )} of {total} users
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 0 || loading}
+          >
+            Previous
+          </Button>
+          <span className="text-sm">
+            Page {page + 1} of {Math.max(1, Math.ceil(total / rowsPerPage))}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page + 1)}
+            disabled={(page + 1) * rowsPerPage >= total || loading}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
 
       {/* Edit User Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
