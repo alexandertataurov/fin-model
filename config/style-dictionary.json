@@ -1,5 +1,10 @@
 {
+<<<<<<< HEAD
   "source": ["tokens/*.json"],
+=======
+  "include": ["tokens/*/**/*.json"],
+  "source": ["tokens/semantic.json"],
+>>>>>>> pre-production
   "platforms": {
     "css": {
       "transformGroup": "css",
@@ -10,6 +15,27 @@
           "format": "css/variables",
           "options": {
             "outputReferences": true
+          }
+        },
+        {
+          "destination": "borderWidth.css",
+          "format": "css/variables",
+          "filter": {
+            "attributes": { "category": "borderWidth" }
+          }
+        },
+        {
+          "destination": "typography.css",
+          "format": "css/variables",
+          "filter": {
+            "attributes": { "category": "typography" }
+          }
+        },
+        {
+          "destination": "motion.css",
+          "format": "css/variables",
+          "filter": {
+            "attributes": { "category": "motion" }
           }
         }
       ]

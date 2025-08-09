@@ -9,7 +9,6 @@ const designTokens = {
   fontSize: tokens.typography.fontSize as any,
   borderRadius: tokens.borderRadius,
   boxShadow: tokens.shadows,
-  transitionDuration: tokens.transitions,
   zIndex: tokens.zIndex,
 } as const;
 const colorTokens = { light: tokens.colors as any, dark: tokens.colors as any } as const;
@@ -21,7 +20,6 @@ export type FontSizeToken = keyof typeof designTokens.fontSize;
 export type BorderRadiusToken = keyof typeof designTokens.borderRadius;
 export type FontWeightToken = string;
 export type BoxShadowToken = keyof typeof designTokens.boxShadow;
-export type TransitionToken = keyof typeof designTokens.transitionDuration;
 export type ZIndexToken = keyof typeof designTokens.zIndex;
 export type AnimationCurveToken = keyof (typeof designTokens & { animationCurve: any })['animationCurve'];
 export type BreakpointToken = keyof (typeof designTokens & { breakpoints: any })['breakpoints'];
@@ -47,7 +45,7 @@ export const cssVar = (token: string): string => {
  */
 export const getSpacing = (size: SpacingToken, useVar = false): string => {
   if (useVar) {
-    return cssVar(`spacing-${size}`);
+    return cssVar(`spacing-${String(size)}`);
   }
   return designTokens.spacing[size];
 };
@@ -105,18 +103,6 @@ export const getBoxShadow = (size: BoxShadowToken, useVar = false): string => {
   return designTokens.boxShadow[size];
 };
 
-/**
- * Get transition duration
- * @param speed - The transition speed key
- * @param useVar - Whether to return CSS custom property
- * @returns The transition duration value
- */
-export const getTransition = (speed: TransitionToken, useVar = false): string => {
-  if (useVar) {
-    return cssVar(`duration-${speed}`);
-  }
-  return designTokens.transitionDuration[speed];
-};
 
 /**
  * Get z-index value

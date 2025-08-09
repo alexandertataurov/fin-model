@@ -1,0 +1,7 @@
+{
+  "colors": {
+    "surface": { "value": "{colors.background.value}" },
+    "onSurface": { "value": "{colors.foreground.value}" },
+    "danger": { "value": "{colors.destructive.500.value}" }
+  }
+}
