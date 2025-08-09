@@ -77,6 +77,7 @@ function buildTypography(jsonTypography: DeepRecord): DeepRecord {
   const result: DeepRecord = { fontSize };
   if (jsonTypography.fontFamily) result.fontFamily = jsonTypography.fontFamily;
   if (jsonTypography.fontWeight) result.fontWeight = jsonTypography.fontWeight;
+  if (jsonTypography.letterSpacing) result.letterSpacing = jsonTypography.letterSpacing;
   return result;
 }
 
@@ -92,6 +93,15 @@ function normalizeRadius(jsonRadius: DeepRecord): DeepRecord {
   const out: DeepRecord = {};
   Object.keys(jsonRadius).forEach((k) => {
     out[k] = toRem(jsonRadius[k]);
+  });
+  return out;
+}
+
+function normalizeBorderWidth(jsonBorderWidth: DeepRecord): DeepRecord {
+  const out: DeepRecord = {};
+  Object.keys(jsonBorderWidth).forEach((k) => {
+    const v = jsonBorderWidth[k];
+    out[k] = v === '0' || v === 0 ? '0' : toRem(v);
   });
   return out;
 }
@@ -118,8 +128,10 @@ function buildTokensTs(tokensJson: DeepRecord): string {
   const typography = buildTypography(tokensJson.typography || {});
   const spacing = normalizeSpacing(tokensJson.spacing || {});
   const borderRadius = normalizeRadius(tokensJson.borderRadius || {});
+  const borderWidth = normalizeBorderWidth(tokensJson.borderWidth || {});
   const shadows = tokensJson.shadows || {};
   const transitions = normalizeTransitions(tokensJson.transitions || {});
+  const motion = tokensJson.motion || {};
   const zIndex = tokensJson.zIndex || {};
   const cssVariables = normalizeCssVariables(tokensJson.cssVariables || {});
 
@@ -128,8 +140,10 @@ function buildTokensTs(tokensJson: DeepRecord): string {
     typography,
     spacing,
     borderRadius,
+    borderWidth,
     shadows,
     transitions,
+    motion,
     zIndex,
   })} as const;`;
 
