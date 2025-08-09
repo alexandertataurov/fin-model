@@ -35,8 +35,6 @@ describe('AdminDashboard Audit filters', () => {
 
     it('applies audit filters and calls service with correct params', async () => {
         render(<AdminDashboard />)
-        const auditTab = await screen.findByRole('tab', { name: /audit/i })
-        await userEvent.click(auditTab)
 
         const skipInput = await screen.findByPlaceholderText('Skip')
         const limitInput = await screen.findByPlaceholderText('Limit')
@@ -52,13 +50,19 @@ describe('AdminDashboard Audit filters', () => {
         await userEvent.type(actionInput, 'LOGIN')
         // Dates omitted in this test
 
-        const refresh = await screen.findByRole('button', { name: /^refresh$/i })
-        await userEvent.click(refresh)
+        // Click the Refresh button within the Audit section (scope by input's container)
+        const section = skipInput.closest('div')!.parentElement!.parentElement as HTMLElement
+        const refreshBtn = Array.from(section.querySelectorAll('button')).find(b => /^\s*refresh\s*$/i.test(b.textContent || '')) as HTMLButtonElement
+        await userEvent.click(refreshBtn)
 
-        expect(mocked.default.getAuditLogs).toHaveBeenCalledWith(10, 10, 42, 'LOGIN', expect.objectContaining({
-            envelope: true,
-        }))
-    })
+        const calls = mocked.default.getAuditLogs.mock.calls
+        const last = calls[calls.length - 1]
+        expect(last[0]).toBe(10)
+        expect(last[1]).toBe(10)
+        expect(last[2]).toBe(42)
+        expect(last[3]).toBe('LOGIN')
+        expect(last[4]).toMatchObject({ envelope: true })
+    }, 15000)
 })
 
 

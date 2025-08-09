@@ -21,17 +21,17 @@
 - [x] UI: Robustness
   - [x] partial failures → warning toast
   - [x] all failures → error toast
+- [x] UI: Health tab
+  - [x] system/db health present vs absent render states
+- [x] UI: Metrics alerts
+  - [x] memory > 90 alert
+  - [x] disk > 90 alert
 
 ## Pending (to implement)
 
 - [ ] UI: Audit filters pass correct params (stabilize timing)
   - [ ] skip/limit, userId, action, date-from/to
   - [ ] prev/next disabled/enabled logic with totals
-- [ ] UI: Health tab
-  - [ ] system/db health present vs absent render states
-- [ ] UI: Metrics alerts
-  - [ ] memory > 90 alert
-  - [ ] disk > 90 alert
 
 ## How to run
 
