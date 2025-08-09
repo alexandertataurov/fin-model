@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from app.core.dependencies import (
     UserWithPermissions,
@@ -19,9 +19,14 @@ from app.models.parameter import Parameter
 from app.models.role import RoleType
 from app.models.system_log import SystemLog
 from app.models.user import User
-from app.schemas.user import AdminUserCreate, AdminUserUpdate
-from app.schemas.user import User as UserSchema
+from app.schemas.user import (
+    AdminUserCreate,
+    AdminUserUpdate,
+    User as UserSchema,
+    UserWithRoles,
+)
 from app.services.auth_service import AuthService
+from app.services.audit_service import log_audit
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
@@ -128,6 +133,7 @@ class UserPermissionsResponse(BaseModel):
 
 @router.get("/users/activity-list", response_model=List[UserActivityResponse])
 async def get_user_activity(
+    request: Request,
     limit: int = Query(50, ge=1, le=1000),
     active_only: bool = Query(False),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),

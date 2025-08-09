@@ -1,5 +1,4 @@
 from app.api.v1.endpoints import (
-    admin,
     auth,
     dashboard,
     files,
@@ -13,6 +12,7 @@ from app.api.v1.endpoints import (
     tasks,
     webauthn,
 )
+from app.api.v1.endpoints.admin import database, logs, system, users
 from fastapi import APIRouter
 
 api_router = APIRouter()
