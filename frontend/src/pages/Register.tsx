@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/design-system/components/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Input, Checkbox, Alert, AlertDescription } from '@/design-system';
+import { Input, Checkbox } from '@/design-system';
 import {
   Form,
   FormField,
@@ -21,11 +21,10 @@ import {
   User,
   UserCheck,
   Loader2,
-  AlertCircle,
   Activity,
-  CheckCircle,
 } from 'lucide-react';
 import { componentStyles } from '@/design-system/utils/designSystem';
+import FormStatusAlert from '@/components/auth/FormStatusAlert';
 
 const registerSchema = z
   .object({
@@ -131,22 +130,7 @@ const Register: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {success && (
-              <Alert
-                variant="default"
-                className="border-green-200 bg-green-50 text-green-800"
-              >
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
+            <FormStatusAlert error={error} success={success} />
 
             <Form {...form}>
               <form

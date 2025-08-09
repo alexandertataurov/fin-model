@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { Skeleton } from '@/design-system/components/Skeleton';
 import {
   Line,
-  BarChart,
   Bar,
   ResponsiveContainer,
   XAxis,
@@ -24,6 +23,7 @@ import {
   Area,
   AreaChart,
 } from 'recharts';
+import CurrencyBarChart from '../Charts/CurrencyBarChart';
 import {
   TrendingUp,
   TrendingDown,
@@ -325,39 +325,12 @@ export function CashFlowTabEnhanced({
             onRemove={removeWidget}
             className="md:col-span-2"
           >
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={cashFlowData.waterfall_data}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="name"
-                  className="text-xs"
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis
-                  className="text-xs"
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={value => formatCurrency(value)}
-                />
-                <Tooltip
-                  formatter={(value: number) => [
-                    formatCurrency(value),
-                    'Cash Flow',
-                  ]}
-                  labelClassName="text-foreground"
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px',
-                  }}
-                />
-                <Legend />
-                <Bar
-                  dataKey="value"
-                  fill="var(--chart-2)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <CurrencyBarChart
+              data={cashFlowData.waterfall_data}
+              tooltipLabel="Cash Flow"
+              barColor="var(--chart-2)"
+              showLegend
+            />
           </DraggableWidget>
         )}
 

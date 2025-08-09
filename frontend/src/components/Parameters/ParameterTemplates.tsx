@@ -21,6 +21,7 @@ import {
   TableRow 
 } from '@/design-system/components/Table'
 import { LayoutTemplate, Download, CheckCircle, AlertTriangle } from 'lucide-react'
+import LoadingState from './LoadingState'
 
 interface ParameterTemplatesProps {
   modelId: string
@@ -175,12 +176,7 @@ export function ParameterTemplates({
           </CardHeader>
 
           <CardContent>
-            {loading && (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="mt-2 text-muted-foreground">Loading templates...</p>
-              </div>
-            )}
+              {loading && <LoadingState message="Loading templates..." />}
 
             {error && (
               <Alert variant="destructive" className="mb-4">

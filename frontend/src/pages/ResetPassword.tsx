@@ -10,7 +10,7 @@ import * as z from 'zod';
 import { Button } from '@/design-system/components/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Input } from '@/design-system';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import FormStatusAlert from '@/components/auth/FormStatusAlert';
 import {
   Form,
   FormField,
@@ -22,9 +22,7 @@ import {
 import {
   Lock,
   Loader2,
-  AlertCircle,
   Activity,
-  CheckCircle,
   ArrowLeft,
 } from 'lucide-react';
 import { authApi } from '@/services/authApi';
@@ -140,22 +138,7 @@ const ResetPassword: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {success && (
-              <Alert
-                variant="default"
-                className="border-green-200 bg-green-50 text-green-800"
-              >
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
+            <FormStatusAlert error={error} success={success} />
 
             <Form {...form}>
               <form
