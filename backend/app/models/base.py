@@ -46,9 +46,10 @@ def get_db() -> Session:
         db.close()
 
 
-from .audit import AuditLog  # noqa: F401,E402
-from .file import FileStatus, ProcessingLog, UploadedFile  # noqa: F401,E402
-from .financial import (  # noqa: F401,E402
+# Import all models so SQLAlchemy registers them
+from .audit import AuditLog  # noqa: E402
+from .file import FileStatus, ProcessingLog, UploadedFile  # noqa: E402
+from .financial import (  # noqa: E402
     Calculation,
     CalculationType,
     ChangeType,
@@ -65,10 +66,10 @@ from .financial import (  # noqa: F401,E402
     TemplateType,
     TimeSeries,
 )
-from .maintenance import MaintenanceSchedule  # noqa: F401,E402
-from .mfa import MFAToken  # noqa: F401,E402
-from .notification import Notification, NotificationPreferences  # noqa: F401,E402
-from .parameter import (  # noqa: F401,E402
+from .maintenance import MaintenanceSchedule  # noqa: E402
+from .mfa import MFAToken  # noqa: E402
+from .notification import Notification, NotificationPreferences  # noqa: E402
+from .parameter import (  # noqa: E402
     CalculationAudit,
     FormulaNode,
     Parameter,
@@ -78,18 +79,45 @@ from .parameter import (  # noqa: F401,E402
     SensitivityAnalysis,
     SensitivityLevel,
 )
-from .role import Role, RoleType, UserRole  # noqa
-from .system_log import SystemLog  # noqa
+from .role import Role, RoleType, UserRole  # noqa: E402
+from .system_log import SystemLog  # noqa: E402
+from .user import User  # noqa: E402
 
-# Import all models to ensure they are registered with SQLAlchemy
-from .user import User  # noqa
-
-# Notification models temporarily disabled
-# from .notification import (
-#     Notification,
-#     NotificationPreferences,
-#     NotificationTemplate,
-#     NotificationType,
-#     NotificationPriority,
-#     NotificationStatus,
-# )  # noqa
+__all__ = [
+    "AuditLog",
+    "FileStatus",
+    "ProcessingLog",
+    "UploadedFile",
+    "Calculation",
+    "CalculationType",
+    "ChangeType",
+    "DataSource",
+    "FileVersion",
+    "FinancialStatement",
+    "Frequency",
+    "Metric",
+    "MetricType",
+    "PeriodType",
+    "SourceType",
+    "StatementType",
+    "Template",
+    "TemplateType",
+    "TimeSeries",
+    "MaintenanceSchedule",
+    "MFAToken",
+    "Notification",
+    "NotificationPreferences",
+    "CalculationAudit",
+    "FormulaNode",
+    "Parameter",
+    "ParameterType",
+    "ParameterValue",
+    "Scenario",
+    "SensitivityAnalysis",
+    "SensitivityLevel",
+    "Role",
+    "RoleType",
+    "UserRole",
+    "SystemLog",
+    "User",
+]
