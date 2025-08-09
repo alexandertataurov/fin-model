@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users,
@@ -36,17 +36,27 @@ import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
 import { toast } from 'sonner';
-<<<<<<< HEAD
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import * as AdminApi from '@/services/admin';
-=======
-import OverviewTab from '@/components/AdminDashboard/OverviewTab';
-import LogsTab from '@/components/AdminDashboard/LogsTab';
-import HealthTab from '@/components/AdminDashboard/HealthTab';
->>>>>>> pre-production
+
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+  const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
+
+  // Local log state for tests
+  const [logs, setLogs] = useState<import('@/services/adminApi').LogEntry[]>([]);
+  const [logsTotal, setLogsTotal] = useState(0);
+  const [logsSkip, setLogsSkip] = useState(0);
+  const [logsLimit, setLogsLimit] = useState(100);
+  const [logsLevel, setLogsLevel] = useState<'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'>('ERROR');
+  const [logsFrom, setLogsFrom] = useState('');
+  const [logsTo, setLogsTo] = useState('');
+  const [logsSearch, setLogsSearch] = useState('');
+  const [userPermissions, setUserPermissions] = useState<any>(null);
 
   // Use centralized store
   const {
@@ -60,17 +70,16 @@ const AdminDashboard: React.FC = () => {
     systemMetrics,
     systemHealth,
     databaseHealth,
-    logs,
     audit,
     fetchOverviewData,
     fetchHealthData,
     fetchLogsData,
     fetchAuditData,
     refreshAll,
-    updateLogsFilters,
     updateAuditFilters,
     clearErrors,
   } = useAdminStore();
+
 
   // Context-aware data loading based on active tab
   const loadDataForTab = useCallback(async (tab: string) => {
@@ -148,11 +157,7 @@ const AdminDashboard: React.FC = () => {
   const handleFileCleanup = async () => {
     try {
       setMaintenanceLoading(true);
-      if (!confirm('Run cleanup and permanently delete files?')) {
-        setMaintenanceLoading(false);
-        return;
-      }
-      const result = await AdminApi.cleanupFiles(false);
+      const result = await AdminApiService.cleanupFiles(false);
       toast.success(result.message);
       await loadAdminData(); // Refresh data
     } catch (error) {
@@ -339,7 +344,6 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Logs Tab */}
           <TabsContent value="logs" className="space-y-4">
-<<<<<<< HEAD
             <Card>
               <CardHeader>
                 <CardTitle>System Logs</CardTitle>
@@ -531,9 +535,6 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-=======
-            <LogsTab />
->>>>>>> pre-production
           </TabsContent>
 
           {/* Permissions Tab */}
@@ -945,7 +946,7 @@ const AdminDashboard: React.FC = () => {
                     </Button>
                     <Button
                       size="sm"
-                      onClick={handleFileCleanup}
+                      onClick={() => setCleanupDialogOpen(true)}
                       disabled={maintenanceLoading}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
@@ -978,6 +979,14 @@ const AdminDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <ConfirmDialog
+        open={cleanupDialogOpen}
+        onOpenChange={setCleanupDialogOpen}
+        title="Confirm Cleanup"
+        description="Run cleanup and permanently delete files?"
+        confirmText="Confirm"
+        onConfirm={handleFileCleanup}
+      />
     </div>
   );
 };

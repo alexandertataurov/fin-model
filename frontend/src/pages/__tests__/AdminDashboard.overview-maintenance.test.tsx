@@ -104,6 +104,8 @@ describe('AdminDashboard Overview and Maintenance', () => {
         // Run Cleanup
         const runBtn = await screen.findByRole('button', { name: /run cleanup/i });
         await userEvent.click(runBtn);
-        expect(mocked.cleanupFiles).toHaveBeenCalledWith(false);
+        const confirmBtn = await screen.findByRole('button', { name: /confirm/i });
+        await userEvent.click(confirmBtn);
+        expect(mocked.default.cleanupFiles).toHaveBeenCalledWith(false);
     });
 });

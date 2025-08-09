@@ -197,6 +197,9 @@ export {
 // export { default as DataTable } from './DataTable';
 // export { default as HelpCenter, HelpButton } from './HelpCenter';
 
+// Confirmation Dialog
+export { ConfirmDialog } from './ConfirmDialog';
+
 // Loading States
 
 // Error Handling
