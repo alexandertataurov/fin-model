@@ -363,7 +363,7 @@ const AdminDashboard: React.FC = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full gap-1.5 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-10">
+          <TabsList className="w-full overflow-x-auto flex gap-1.5">
             <TabsTrigger
               value="overview"
               className="flex items-center space-x-2"
