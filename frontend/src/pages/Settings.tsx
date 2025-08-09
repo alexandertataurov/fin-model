@@ -55,7 +55,7 @@ const Settings: React.FC = () => {
       });
       updateUser(updated);
       toast.success('Profile updated');
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error(e?.response?.data?.detail || 'Failed to update profile');
     } finally {
       setProfileSaving(false);
@@ -93,7 +93,7 @@ const Settings: React.FC = () => {
       setNewPassword('');
       setConfirmPassword('');
       toast.success('Password changed');
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error(e?.response?.data?.detail || 'Failed to change password');
     } finally {
       setChangingPassword(false);
@@ -139,7 +139,7 @@ const Settings: React.FC = () => {
       setSetupQR(res.qr_code);
       setSetupSecret(res.secret);
       toast.info('Scan the QR code with your authenticator app');
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error(e?.response?.data?.detail || 'Failed to begin MFA setup');
     } finally {
       setMfaLoading(false);
@@ -157,7 +157,7 @@ const Settings: React.FC = () => {
       setTotpCode('');
       await loadMfa();
       toast.success('MFA enabled');
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error(e?.response?.data?.detail || 'Verification failed');
     } finally {
       setMfaLoading(false);
@@ -170,7 +170,7 @@ const Settings: React.FC = () => {
       await mfaApi.disableMFA({ password });
       await loadMfa();
       toast.success('MFA disabled');
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error(e?.response?.data?.detail || 'Failed to disable MFA');
     } finally {
       setMfaLoading(false);
@@ -182,7 +182,7 @@ const Settings: React.FC = () => {
       const res = await mfaApi.regenerateBackupCodes();
       setBackupCodes(res.backup_codes);
       toast.success('New backup codes generated');
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error(e?.response?.data?.detail || 'Failed to regenerate codes');
     }
   };
@@ -233,7 +233,7 @@ const Settings: React.FC = () => {
       } else {
         toast.error('Failed to register security key');
       }
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error(e?.message || 'WebAuthn registration failed');
     } finally {
       setWebauthnLoading(false);
@@ -245,7 +245,7 @@ const Settings: React.FC = () => {
       await webauthnApi.deleteCredential(id);
       await loadCredentials();
       toast.success('Credential removed');
-    } catch (e: any) {
+    } catch (_e: any) {
       toast.error('Failed to remove credential');
     }
   };

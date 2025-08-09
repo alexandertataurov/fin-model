@@ -9,7 +9,7 @@ import {
   Upload,
 } from 'lucide-react';
 
-const sidebarItems = [
+const _sidebarItems = [
   {
     title: 'Dashboard',
     href: '/',

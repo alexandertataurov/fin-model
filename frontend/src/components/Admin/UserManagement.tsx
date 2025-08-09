@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users,
   UserPlus,
@@ -126,7 +126,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   const [total, setTotal] = useState(0);
 
   // Load users
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const params: any = {};
@@ -152,15 +152,16 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
       setUsers(list);
       setFilteredUsers(list);
       setTotal(env?.pagination?.total ?? list.length);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load users');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchTerm, statusFilter, roleFilter]);
+
   useEffect(() => {
     loadUsers();
-  }, [page, searchTerm, statusFilter, roleFilter]);
+  }, [loadUsers]);
 
   // Handle user selection
   const handleUserSelection = (userId: number, checked: boolean) => {
@@ -198,7 +199,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
       setSelectedUsers([]);
       await loadUsers();
       onUserUpdated?.();
-    } catch (error) {
+    } catch (_error) {
       toast.error(`Failed to ${action} users`);
     }
   };
@@ -227,7 +228,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
       setEditingUser(null);
       await loadUsers();
       onUserUpdated?.();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update user');
     }
   };
@@ -243,7 +244,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
       setUserToDelete(null);
       await loadUsers();
       onUserUpdated?.();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to deactivate user');
     }
   };
@@ -273,25 +274,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   };
 
   // Role management
-  const handleAssignRole = async (userId: number, role: string) => {
-    try {
-      await AdminApi.assignRole(userId, role);
-      toast.success(`Role ${role} assigned successfully`);
-      await loadUsers();
-    } catch (error) {
-      toast.error(`Failed to assign role ${role}`);
-    }
-  };
-
-  const handleRemoveRole = async (userId: number, role: string) => {
-    try {
-      await AdminApi.removeRole(userId, role);
-      toast.success(`Role ${role} removed successfully`);
-      await loadUsers();
-    } catch (error) {
-      toast.error(`Failed to remove role ${role}`);
-    }
-  };
 
   // Manage roles dialog
   const openRolesDialog = (user: UserWithRoles) => {
@@ -325,7 +307,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
       setShowRolesDialog(false);
       setRoleUser(null);
       await loadUsers();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update roles');
     }
   };
@@ -375,11 +357,6 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
 
   // Get unique roles for filter
   const uniqueRoles = Array.from(new Set(users.flatMap(user => user.roles)));
-
-  // Load users on mount
-  useEffect(() => {
-    loadUsers();
-  }, []);
 
   return (
     <div className="space-y-6">

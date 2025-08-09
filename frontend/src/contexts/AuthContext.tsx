@@ -171,7 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }));
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       // Token refresh failed - clear auth data
       clearAuthData();
       return false;
@@ -206,7 +206,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         permissions,
         roles,
       }));
-    } catch (error) {
+    } catch (_error) {
       console.error('Error loading permissions:', error);
       // Error loading permissions - continue with empty permissions
       setState(prev => ({
@@ -267,7 +267,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       dashboardWebSocketService.resetServiceAvailability();
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       console.error('Login failed:', error);
       // Login failed
       setState(prev => ({ ...prev, isLoading: false }));
@@ -280,7 +280,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (state.token) {
         await authApi.logout();
       }
-    } catch (error) {
+    } catch (_error) {
       // Logout error - proceed with local cleanup
     } finally {
       clearAuthData();
@@ -295,7 +295,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setState(prev => ({ ...prev, isLoading: false }));
       return true;
-    } catch (error) {
+    } catch (_error) {
       // Registration failed - re-throw for component to handle
       setState(prev => ({ ...prev, isLoading: false }));
       throw error;

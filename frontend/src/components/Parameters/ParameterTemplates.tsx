@@ -70,7 +70,7 @@ export function ParameterTemplates({
       } else {
         setError('Failed to load parameter templates')
       }
-    } catch (err) {
+  } catch (_err) {
       setError('Failed to connect to server')
     } finally {
       setLoading(false)
@@ -104,7 +104,7 @@ export function ParameterTemplates({
       } else {
         setError('Failed to apply template')
       }
-    } catch (err) {
+  } catch (_err) {
       setError('Failed to connect to server')
     } finally {
       setApplying(false)

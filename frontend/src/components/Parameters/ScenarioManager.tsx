@@ -72,7 +72,7 @@ interface ScenarioManagerProps {
 const ScenarioManager: React.FC<ScenarioManagerProps> = ({
   scenarios = [],
   onScenarioCreate,
-  onScenarioUpdate,
+  onScenarioUpdate: _onScenarioUpdate,
   onScenarioDelete,
   onScenarioCalculate,
   onScenarioSelect,
@@ -80,7 +80,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
   isLoading = false,
 }) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingScenario, setEditingScenario] = useState<Scenario | null>(null);
+  const [_editingScenario, _setEditingScenario] = useState<Scenario | null>(null);
   const [newScenarioData, setNewScenarioData] = useState({
     name: '',
     description: '',

@@ -39,7 +39,7 @@ const PnLDashboard: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
       toast.success('P&L exported');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Export failed');
     }
   };

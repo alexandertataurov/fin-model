@@ -99,7 +99,7 @@ export function ParameterExport({
       }
 
       setSuccess('Parameters exported successfully!');
-    } catch (err) {
+  } catch (_err) {
       setError('Failed to export parameters');
     } finally {
       setExporting(false);
@@ -208,7 +208,7 @@ export function ParameterExport({
         }
 
         setImportPreview(parsed);
-      } catch (err) {
+  } catch (_err) {
         setError('Failed to parse file. Please check the format.');
       }
     };
@@ -239,7 +239,7 @@ export function ParameterExport({
       } else {
         setError('Failed to import parameters');
       }
-    } catch (err) {
+  } catch (_err) {
       setError('Failed to import parameters');
     } finally {
       setImporting(false);

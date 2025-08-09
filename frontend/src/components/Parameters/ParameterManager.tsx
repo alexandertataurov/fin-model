@@ -71,7 +71,7 @@ const ParameterManager: React.FC<ParameterManagerProps> = ({
   const [parameters, setParameters] = useState<ParameterGroup[]>(initialParameters);
   const [activeTab, setActiveTab] = useState<string>('revenue');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [_validationErrors, _setValidationErrors] = useState<Record<string, string>>({});
 
   // Default parameter structure based on lean financial modeling plan
   const defaultParameters: ParameterGroup[] = useMemo(() => ([

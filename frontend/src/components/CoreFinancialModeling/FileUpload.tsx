@@ -32,12 +32,12 @@ interface UploadedFile {
 
 export function FileUpload({
   onFileUpload,
-  onFileProcess,
+  onFileProcess: _onFileProcess,
   onFileDelete
 }: FileUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  const [_isUploading, setIsUploading] = useState(false);
 
   const handleFileSelect = useCallback((files: FileList | null) => {
     if (!files) return;

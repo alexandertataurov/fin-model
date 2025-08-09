@@ -50,9 +50,9 @@ interface CoreFinancialModelingProps {
 }
 
 export function CoreFinancialModeling({
-  onFileUpload,
-  onParameterChange,
-  onScenarioCreate,
+  onFileUpload: _onFileUpload,
+  onParameterChange: _onParameterChange,
+  onScenarioCreate: _onScenarioCreate,
   onValuationChange,
   onExportResults,
 }: CoreFinancialModelingProps) {
@@ -67,12 +67,6 @@ export function CoreFinancialModeling({
   const [calcResult, setCalcResult] = useState<any | null>(null);
 
   // Consolidated handlers
-  const handleFileUpload = (file: File) => {
-    setModelStatus('processing');
-    onFileUpload?.(file);
-    setTimeout(() => setModelStatus('complete'), 2000);
-  };
-
   const handleTabChange = (tab: string) => setActiveTab(tab as ActiveTab);
 
   // Consolidated metrics data
@@ -118,7 +112,7 @@ export function CoreFinancialModeling({
         setTemplates(res.data || {});
         const firstKey = Object.keys(res.data || {})[0];
         if (firstKey) setSelectedTemplateKey(firstKey);
-      } catch (e) {
+      } catch {
         // silent
       }
     };
@@ -141,7 +135,7 @@ export function CoreFinancialModeling({
       setModelStatus('complete');
       toast.success('Comprehensive model calculated');
       onValuationChange?.(res.data?.dcf_valuation);
-    } catch (err) {
+    } catch (_err) {
       setModelStatus('idle');
       toast.error('Calculation failed');
     } finally {

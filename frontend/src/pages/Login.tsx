@@ -125,7 +125,7 @@ const Login: React.FC = () => {
       setIsLoading(true);
       setError(null);
       // Biometric login logic would go here
-    } catch (error) {
+    } catch (_error) {
       setError('Biometric authentication failed. Please try again.');
     } finally {
       setIsLoading(false);

@@ -57,13 +57,13 @@ interface CostOfCapital {
 }
 
 export function DCFValuation({
-  onValuationChange,
+  onValuationChange: _onValuationChange,
   onExportResults,
 }: DCFValuationProps) {
   const [activeTab, setActiveTab] = useState('fcf-projections');
-  const [projectionPeriod, setProjectionPeriod] = useState(5);
+  const [projectionPeriod, _setProjectionPeriod] = useState(5);
 
-  const [fcfProjections, setFcfProjections] = useState<FCFProjection[]>([
+  const [fcfProjections, _setFcfProjections] = useState<FCFProjection[]>([
     {
       year: 1,
       revenue: 2400000,
@@ -139,13 +139,13 @@ export function DCFValuation({
     wacc: 0.0894,
   });
 
-  const [sensitivityAnalysis, setSensitivityAnalysis] = useState({
+  const [sensitivityAnalysis, _setSensitivityAnalysis] = useState({
     revenueGrowthRange: [0.05, 0.1, 0.15, 0.2, 0.25],
     marginRange: [0.15, 0.17, 0.19, 0.21, 0.23],
     waccRange: [0.07, 0.08, 0.09, 0.1, 0.11],
   });
 
-  const calculateFCF = (projection: FCFProjection) => {
+  const _calculateFCF = (projection: FCFProjection) => {
     const ebit = projection.revenue * projection.operatingMargin;
     const taxes = ebit * costOfCapital.taxRate;
     const depreciation = projection.revenue * 0.1; // 10% of revenue
@@ -177,7 +177,7 @@ export function DCFValuation({
     return terminalValue.value;
   };
 
-  const calculateWACC = () => {
+  const _calculateWACC = () => {
     const costOfEquity =
       costOfCapital.riskFreeRate +
       costOfCapital.beta * costOfCapital.marketRiskPremium;
