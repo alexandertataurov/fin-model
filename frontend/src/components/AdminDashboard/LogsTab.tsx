@@ -6,6 +6,14 @@ import {
   CardTitle,
 } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
+import { Input } from '@/design-system/components/Input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/components/Select';
 import { useAdminStore } from '@/stores/adminStore';
 
 const LogsTab: React.FC = () => {
@@ -39,46 +47,56 @@ const LogsTab: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <select
-            className="border rounded px-2 py-1 bg-background text-sm"
+          <Select
             value={level}
-            onChange={e => handleFilterChange({ level: e.target.value, skip: 0 })}
+            onValueChange={val => handleFilterChange({ level: val, skip: 0 })}
           >
-            {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(l => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-          <select
-            className="border rounded px-2 py-1 bg-background text-sm"
-            value={limit}
-            onChange={e => handleFilterChange({ limit: Number(e.target.value), skip: 0 })}
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(l => (
+                <SelectItem key={l} value={l}>
+                  {l}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={String(limit)}
+            onValueChange={val =>
+              handleFilterChange({ limit: Number(val), skip: 0 })
+            }
           >
-            {[50, 100, 200, 500].map(l => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-          <input
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[50, 100, 200, 500].map(l => (
+                <SelectItem key={l} value={String(l)}>
+                  {l}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Input
             type="date"
-            className="border rounded px-2 py-1 bg-background text-sm"
             value={from}
             onChange={e => handleFilterChange({ from: e.target.value, skip: 0 })}
+            className="w-40"
           />
-          <input
+          <Input
             type="date"
-            className="border rounded px-2 py-1 bg-background text-sm"
             value={to}
             onChange={e => handleFilterChange({ to: e.target.value, skip: 0 })}
+            className="w-40"
           />
-          <input
+          <Input
             type="text"
-            className="border rounded px-2 py-1 bg-background text-sm"
             placeholder="Search"
             value={search}
             onChange={e => handleFilterChange({ search: e.target.value, skip: 0 })}
+            className="w-40"
           />
           <Button size="sm" variant="outline" onClick={handleRefresh}>
             Refresh Logs
