@@ -24,15 +24,11 @@ def upgrade() -> None:
     # Helper function to safely add columns
     def safe_add_column(table_name, column_name, column_spec):
         try:
-            # Check if column already exists
             result = conn.execute(
-                text(
-                    f"""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = '{table_name}' AND column_name = '{column_name}'
-            """
-                )
+                sa.text(
+                    "SELECT column_name FROM information_schema.columns WHERE table_name = :table AND column_name = :column"
+                ),
+                {"table": table_name, "column": column_name},
             ).fetchone()
 
             if not result:
@@ -86,15 +82,11 @@ def upgrade() -> None:
     # Helper function to safely create tables
     def safe_create_table(table_name, table_definition_func):
         try:
-            # Check if table already exists
             result = conn.execute(
-                text(
-                    f"""
-                SELECT table_name 
-                FROM information_schema.tables 
-                WHERE table_name = '{table_name}'
-            """
-                )
+                sa.text(
+                    "SELECT table_name FROM information_schema.tables WHERE table_name = :table"
+                ),
+                {"table": table_name},
             ).fetchone()
 
             if not result:
@@ -170,7 +162,7 @@ def upgrade() -> None:
     def safe_create_index(index_name, table_name, columns, unique=False):
         try:
             result = conn.execute(
-                text(f"SELECT to_regclass('{index_name}')")
+                sa.text("SELECT to_regclass(:idx)").bindparams(sa.bindparam("idx", index_name))
             ).scalar()
             if result is None:
                 op.create_index(index_name, table_name, columns, unique=unique)

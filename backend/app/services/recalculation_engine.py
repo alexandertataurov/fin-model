@@ -412,6 +412,7 @@ class ParameterValidator:
                 expression = expression.replace("value", str(value))
                 # Safely evaluate expression by restricting allowed operations
                 import ast
+                import operator as op
 
                 allowed_nodes = (
                     ast.Expression,
@@ -419,8 +420,6 @@ class ParameterValidator:
                     ast.BinOp,
                     ast.UnaryOp,
                     ast.Compare,
-                    ast.Name,
-                    ast.Load,
                     ast.Constant,
                     ast.Num,
                     ast.Add,
@@ -439,12 +438,52 @@ class ParameterValidator:
                     ast.And,
                     ast.Or,
                 )
+
+                ops = {
+                    ast.Add: op.add,
+                    ast.Sub: op.sub,
+                    ast.Mult: op.mul,
+                    ast.Div: op.truediv,
+                    ast.Mod: op.mod,
+                    ast.Pow: op.pow,
+                    ast.USub: op.neg,
+                }
+                bool_ops = {ast.And: all, ast.Or: any}
+                comp_ops = {
+                    ast.Eq: op.eq,
+                    ast.NotEq: op.ne,
+                    ast.Lt: op.lt,
+                    ast.LtE: op.le,
+                    ast.Gt: op.gt,
+                    ast.GtE: op.ge,
+                }
+
+                def _eval(node):
+                    if isinstance(node, ast.BinOp):
+                        return ops[type(node.op)](_eval(node.left), _eval(node.right))
+                    if isinstance(node, ast.UnaryOp):
+                        return ops[type(node.op)](_eval(node.operand))
+                    if isinstance(node, ast.BoolOp):
+                        return bool_ops[type(node.op)]([_eval(v) for v in node.values])
+                    if isinstance(node, ast.Compare):
+                        left = _eval(node.left)
+                        for op_node, comp in zip(node.ops, node.comparators):
+                            right = _eval(comp)
+                            if not comp_ops[type(op_node)](left, right):
+                                return False
+                            left = right
+                        return True
+                    if isinstance(node, ast.Num):
+                        return node.n
+                    if isinstance(node, ast.Constant):
+                        return node.value
+                    raise ValueError("Unsupported expression")
+
                 node = ast.parse(expression, mode="eval")
                 for n in ast.walk(node):
                     if not isinstance(n, allowed_nodes):
                         raise ValueError("Unsafe expression")
-                compiled = compile(node, "<string>", "eval")
-                return eval(compiled, {"__builtins__": {}}, {})
+                return _eval(node.body)
             except Exception:
                 return True  # Default to valid if expression fails
 
