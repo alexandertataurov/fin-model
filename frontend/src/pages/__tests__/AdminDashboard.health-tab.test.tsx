@@ -2,17 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 
-import * as AdminApi from '@/services/adminApi'
+import * as AdminApi from '@/services/admin'
 import AdminDashboard from '@/pages/AdminDashboard'
 
-vi.mock('@/services/adminApi')
+vi.mock('@/services/admin')
 
-const mocked = AdminApi as unknown as { default: any }
+const mocked = AdminApi as unknown as Record<string, any>
 
 describe('AdminDashboard Health tab states', () => {
     beforeEach(() => {
         vi.resetAllMocks()
-        mocked.default = {
+        Object.assign(mocked, {
             getSystemStats: vi.fn().mockResolvedValue({ users: {}, files: {}, financial_data: {}, system: {}, performance: {} }),
             getUserActivity: vi.fn().mockResolvedValue([]),
             getSystemMetrics: vi.fn().mockResolvedValue({}),
@@ -23,7 +23,7 @@ describe('AdminDashboard Health tab states', () => {
             getSystemLogs: vi.fn().mockResolvedValue([]),
             getUserPermissions: vi.fn().mockResolvedValue({ permissions: [], roles: [], is_admin: true }),
             getAuditLogs: vi.fn().mockResolvedValue({ items: [], skip: 0, limit: 100, total: 0 }),
-        }
+        })
     })
 
     it('shows system and database health when present', async () => {
@@ -35,8 +35,8 @@ describe('AdminDashboard Health tab states', () => {
     })
 
     it('shows absent messages when health not available', async () => {
-        mocked.default.getSystemHealth = vi.fn().mockResolvedValue(null)
-        mocked.default.getDatabaseHealth = vi.fn().mockResolvedValue(null)
+        mocked.getSystemHealth = vi.fn().mockResolvedValue(null)
+        mocked.getDatabaseHealth = vi.fn().mockResolvedValue(null)
         render(<AdminDashboard />)
         const healthTab = await screen.findByRole('tab', { name: /health/i })
         healthTab.click()
@@ -44,5 +44,3 @@ describe('AdminDashboard Health tab states', () => {
         expect(await screen.findByText(/No database health data/i)).toBeInTheDocument()
     })
 })
-
-

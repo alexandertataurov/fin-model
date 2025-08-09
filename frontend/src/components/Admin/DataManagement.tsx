@@ -47,7 +47,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/design-system/components/Tabs';
-import AdminApiService from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
@@ -81,10 +81,10 @@ const DataManagement: React.FC = () => {
     '1h' | '24h' | '7d'
   >('24h');
   const [schedules, setSchedules] = useState<
-    import('@/services/adminApi').MaintenanceSchedules | null
+    import('@/services/admin').MaintenanceSchedules | null
   >(null);
   const [schedulesDraft, setSchedulesDraft] = useState<
-    import('@/services/adminApi').MaintenanceSchedules | null
+    import('@/services/admin').MaintenanceSchedules | null
   >(null);
   const [savingSchedules, setSavingSchedules] = useState(false);
   const [confirmState, setConfirmState] = useState({
@@ -107,13 +107,13 @@ const DataManagement: React.FC = () => {
 
       const [tables, health, performance, integrity, sched] = await Promise.all(
         [
-          AdminApiService.getTableInformation(),
-          AdminApiService.getDatabaseHealth(),
-          AdminApiService.getDatabasePerformance(10, {
+          AdminApi.getTableInformation(),
+          AdminApi.getDatabaseHealth(),
+          AdminApi.getDatabasePerformance(10, {
             window: performanceWindow,
           }),
-          AdminApiService.checkDataIntegrity(),
-          AdminApiService.getMaintenanceSchedules(),
+          AdminApi.checkDataIntegrity(),
+          AdminApi.getMaintenanceSchedules(),
         ]
       );
 
@@ -145,7 +145,7 @@ const DataManagement: React.FC = () => {
   // Preview cleanup
   const previewCleanup = async () => {
     try {
-      const result = await AdminApiService.cleanupFiles(true);
+      const result = await AdminApi.cleanupFiles(true);
       setCleanupPreview({
         orphaned_files: result.orphaned_files,
         failed_files: result.failed_files,
@@ -162,7 +162,7 @@ const DataManagement: React.FC = () => {
   const executeCleanup = async () => {
     try {
       setCleanupInProgress(true);
-      const result = await AdminApiService.cleanupFiles(false);
+      const result = await AdminApi.cleanupFiles(false);
       toast.success(result.message);
       setShowCleanupDialog(false);
       await loadDataInfo(); // Refresh data
@@ -176,7 +176,7 @@ const DataManagement: React.FC = () => {
   // Database cleanup
   const handleDatabaseCleanup = async (dryRun = true) => {
     try {
-      const result = await AdminApiService.cleanupDatabase(dryRun);
+      const result = await AdminApi.cleanupDatabase(dryRun);
       if (dryRun) {
         toast.success(`Cleanup preview: ${JSON.stringify(result)}`);
       } else {
@@ -226,7 +226,7 @@ const DataManagement: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const perf = await AdminApiService.getDatabasePerformance(10, {
+        const perf = await AdminApi.getDatabasePerformance(10, {
           window: performanceWindow,
         });
         setPerformanceData(perf);
@@ -448,7 +448,7 @@ const DataManagement: React.FC = () => {
                                     return;
                                   }
                                   const res =
-                                    await AdminApiService.exportDatabase({
+                                    await AdminApi.exportDatabase({
                                       table: table.name,
                                       format: fmt as 'json' | 'csv',
                                     });
@@ -801,7 +801,7 @@ const DataManagement: React.FC = () => {
                           try {
                             setSavingSchedules(true);
                             const saved =
-                              await AdminApiService.updateMaintenanceSchedules(
+                              await AdminApi.updateMaintenanceSchedules(
                                 schedulesDraft!
                               );
                             setSchedules(saved);
@@ -866,7 +866,7 @@ const DataManagement: React.FC = () => {
                         toast.error('Invalid format');
                         return;
                       }
-                      const res = await AdminApiService.exportDatabase({
+                      const res = await AdminApi.exportDatabase({
                         table,
                         format: format as 'json' | 'csv',
                       });

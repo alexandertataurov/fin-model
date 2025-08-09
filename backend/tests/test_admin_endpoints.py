@@ -53,7 +53,8 @@ def test_user_crud_and_roles(client: TestClient):
     )
     assert r.status_code == 200
     data = r.json()
-    assert {"items", "skip", "limit", "total"} <= data.keys()
+    assert {"items", "pagination"} <= data.keys()
+    assert {"skip", "limit", "total"} <= data["pagination"].keys()
 
     # Get user by id
     r = client.get(f"/api/v1/admin/users/{user_id}")
@@ -274,11 +275,9 @@ def test_security_audit_and_data_integrity(client: TestClient):
 def test_user_activity_list_endpoint(client: TestClient):
     r = client.get(
         "/api/v1/admin/users/activity-list",
-        params={"limit": "2", "active_only": "true"},
+        params={"limit": 2, "active_only": True},
     )
-    assert r.status_code in (200, 422)
-    if r.status_code != 200:
-        pytest.skip("Activity list query param parsing differs in this build")
+    assert r.status_code == 200
     data = r.json()
     assert isinstance(data, list)
     assert len(data) <= 2

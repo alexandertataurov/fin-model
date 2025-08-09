@@ -58,11 +58,12 @@ import {
 } from '@/design-system/components/Tabs';
 
 
-import AdminApiService, {
+import * as AdminApi from '@/services/admin';
+import type {
   SystemMetrics,
   DataIntegrityCheck,
   LogEntry,
-} from '@/services/adminApi';
+} from '@/services/admin';
 import { toast } from 'sonner';
 import { formatNumber } from '@/utils/formatters';
 
@@ -108,10 +109,10 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
       }
 
       const [metrics, integrity, systemLogs, health] = await Promise.all([
-        AdminApiService.getSystemMetrics(),
-        AdminApiService.checkDataIntegrity(),
-        AdminApiService.getSystemLogs(logFilter, 50),
-        AdminApiService.getSystemHealth(),
+        AdminApi.getSystemMetrics(),
+        AdminApi.checkDataIntegrity(),
+        AdminApi.getSystemLogs(logFilter, 50),
+        AdminApi.getSystemHealth(),
       ]);
 
       setSystemMetrics(metrics);

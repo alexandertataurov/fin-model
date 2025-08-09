@@ -3,20 +3,18 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import * as AdminApi from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
 import AdminDashboard from '@/pages/AdminDashboard';
 
-vi.mock('@/services/adminApi');
+vi.mock('@/services/admin');
 
-const mocked = AdminApi as unknown as {
-  default: any;
-};
+const mocked = AdminApi as unknown as Record<string, any>;
 
 describe('AdminDashboard Maintenance schedules', () => {
   beforeEach(() => {
     vi.resetAllMocks();
 
-    mocked.default = {
+    Object.assign(mocked, {
       getSystemStats: vi.fn().mockResolvedValue({
         users: {},
         files: {},
@@ -43,11 +41,11 @@ describe('AdminDashboard Maintenance schedules', () => {
       getAuditLogs: vi
         .fn()
         .mockResolvedValue({ items: [], skip: 0, limit: 100, total: 0 }),
-    };
+    });
   });
 
   it('clears rate limits via Maintenance > Security action', async () => {
-    mocked.default.clearRateLimits = vi.fn().mockResolvedValue({
+    mocked.clearRateLimits = vi.fn().mockResolvedValue({
       message: 'Cleared',
       cleared_records: 3,
     });
@@ -55,7 +53,7 @@ describe('AdminDashboard Maintenance schedules', () => {
     render(<AdminDashboard />);
 
     // Navigate to Security tab (ensure audit data loads to reveal buttons)
-    mocked.default.getSecurityAudit = vi.fn().mockResolvedValue({
+    mocked.getSecurityAudit = vi.fn().mockResolvedValue({
       failed_logins_24h: 0,
       suspicious_activities: [],
       rate_limit_violations: 0,
@@ -73,6 +71,6 @@ describe('AdminDashboard Maintenance schedules', () => {
     const clearBtn = Array.from(securitySection.querySelectorAll('button')).find(b => /clear rate limits/i.test(b.textContent || '')) as HTMLButtonElement;
     await userEvent.click(clearBtn);
 
-    expect(mocked.default.clearRateLimits).toHaveBeenCalled();
+    expect(mocked.clearRateLimits).toHaveBeenCalled();
   });
 });

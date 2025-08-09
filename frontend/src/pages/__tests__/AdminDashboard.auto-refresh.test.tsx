@@ -3,17 +3,17 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 
-import * as AdminApi from '@/services/adminApi'
+import * as AdminApi from '@/services/admin'
 import AdminDashboard from '@/pages/AdminDashboard'
 
-vi.mock('@/services/adminApi')
+vi.mock('@/services/admin')
 
-const mocked = AdminApi as unknown as { default: any }
+const mocked = AdminApi as unknown as Record<string, any>
 
 describe('AdminDashboard Auto-refresh toggle', () => {
     beforeEach(() => {
         vi.resetAllMocks()
-        mocked.default = {
+        Object.assign(mocked, {
             getSystemStats: vi.fn().mockResolvedValue({
                 users: { total: 0, active: 0, verified: 0, new_24h: 0 },
                 files: { total: 0, completed: 0, processing: 0, failed: 0 },
@@ -30,7 +30,7 @@ describe('AdminDashboard Auto-refresh toggle', () => {
             getSystemLogs: vi.fn().mockResolvedValue({ items: [], skip: 0, limit: 100, total: 0 }),
             getUserPermissions: vi.fn().mockResolvedValue({ permissions: [], roles: [], is_admin: true }),
             getAuditLogs: vi.fn().mockResolvedValue({ items: [], skip: 0, limit: 100, total: 0 }),
-        }
+        })
     })
 
     it('clears interval when toggled off', async () => {
@@ -48,5 +48,3 @@ describe('AdminDashboard Auto-refresh toggle', () => {
         expect(clearSpy).toHaveBeenCalledWith(intervalId)
     })
 })
-
-
