@@ -6,12 +6,24 @@
 
 import api from './api';
 import {
+  MaintenanceScheduleItem,
+  MaintenanceSchedules,
+  getMaintenanceSchedules as fetchMaintenanceSchedules,
+  updateMaintenanceSchedules as saveMaintenanceSchedules,
+} from './admin/maintenance';
+import {
+  clearRateLimits as clearSystemRateLimits,
+  devClearRateLimits as devClearSystemRateLimits,
+} from './admin/system';
+import {
   AdminDataTransformer,
   NormalizedSystemStats,
   NormalizedUserActivity,
   PaginatedResponse,
   UserActivity,
 } from '@/types/admin';
+
+export type { MaintenanceScheduleItem, MaintenanceSchedules };
 
 // Types for admin API responses
 export interface SystemStats {
@@ -120,18 +132,6 @@ export interface AuditEntry {
   user_id?: number | null;
   message?: string;
   details?: any;
-}
-
-export interface MaintenanceScheduleItem {
-  id: string;
-  name: string;
-  task: 'cleanup' | 'vacuum' | 'archive' | 'reindex' | 'backup';
-  schedule: string;
-  enabled: boolean;
-}
-
-export interface MaintenanceSchedules {
-  items: MaintenanceScheduleItem[];
 }
 
 export class AdminApiService {
@@ -364,8 +364,7 @@ export class AdminApiService {
     message: string;
     cleared_records: number;
   }> {
-    const response = await api.post('/admin/rate-limits/clear');
-    return response.data;
+    return clearSystemRateLimits();
   }
 
   /**
@@ -375,8 +374,7 @@ export class AdminApiService {
     message: string;
     cleared_records: number;
   }> {
-    const response = await api.post('/admin/dev-clear-rate-limits');
-    return response.data;
+    return devClearSystemRateLimits();
   }
 
   /**
@@ -470,15 +468,13 @@ export class AdminApiService {
 
   // Maintenance schedules
   static async getMaintenanceSchedules(): Promise<MaintenanceSchedules> {
-    const response = await api.get('/admin/maintenance/schedules');
-    return response.data;
+    return fetchMaintenanceSchedules();
   }
 
   static async updateMaintenanceSchedules(
     schedules: MaintenanceSchedules
   ): Promise<MaintenanceSchedules> {
-    const response = await api.put('/admin/maintenance/schedules', schedules);
-    return response.data;
+    return saveMaintenanceSchedules(schedules);
   }
 
   // Manual operations
