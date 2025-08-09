@@ -19,7 +19,7 @@ const componentTokens = {} as const;
 export type SpacingToken = keyof typeof designTokens.spacing;
 export type FontSizeToken = keyof typeof designTokens.fontSize;
 export type BorderRadiusToken = keyof typeof designTokens.borderRadius;
-export type FontWeightToken = keyof typeof designTokens.fontWeight;
+export type FontWeightToken = string;
 export type BoxShadowToken = keyof typeof designTokens.boxShadow;
 export type TransitionToken = keyof typeof designTokens.transitionDuration;
 export type ZIndexToken = keyof typeof designTokens.zIndex;
@@ -76,7 +76,7 @@ export const getLineHeight = (size: FontSizeToken): string => {
   if (Array.isArray(fontSize) && fontSize[1] && typeof fontSize[1] === 'object') {
     return (fontSize[1] as { lineHeight: string }).lineHeight;
   }
-  return '1.5'; // Default line height
+  return '1.5';
 };
 
 /**
@@ -189,11 +189,11 @@ export const responsiveSpacing = (spacing: {
 }) => {
   const classes: string[] = [];
 
-  if (spacing.base) classes.push(`p-[${getSpacing(spacing.base)}]`);
-  if (spacing.sm) classes.push(`sm:p-[${getSpacing(spacing.sm)}]`);
-  if (spacing.md) classes.push(`md:p-[${getSpacing(spacing.md)}]`);
-  if (spacing.lg) classes.push(`lg:p-[${getSpacing(spacing.lg)}]`);
-  if (spacing.xl) classes.push(`xl:p-[${getSpacing(spacing.xl)}]`);
+  if (spacing.base) classes.push(`p-[${String(getSpacing(spacing.base))}]`);
+  if (spacing.sm) classes.push(`sm:p-[${String(getSpacing(spacing.sm))}]`);
+  if (spacing.md) classes.push(`md:p-[${String(getSpacing(spacing.md))}]`);
+  if (spacing.lg) classes.push(`lg:p-[${String(getSpacing(spacing.lg))}]`);
+  if (spacing.xl) classes.push(`xl:p-[${String(getSpacing(spacing.xl))}]`);
 
   return classes.join(' ');
 };
@@ -212,11 +212,11 @@ export const responsiveTypography = (typography: {
 }) => {
   const classes: string[] = [];
 
-  if (typography.base) classes.push(`text-[${getFontSize(typography.base)}]`);
-  if (typography.sm) classes.push(`sm:text-[${getFontSize(typography.sm)}]`);
-  if (typography.md) classes.push(`md:text-[${getFontSize(typography.md)}]`);
-  if (typography.lg) classes.push(`lg:text-[${getFontSize(typography.lg)}]`);
-  if (typography.xl) classes.push(`xl:text-[${getFontSize(typography.xl)}]`);
+  if (typography.base) classes.push(`text-[${String(getFontSize(typography.base))}]`);
+  if (typography.sm) classes.push(`sm:text-[${String(getFontSize(typography.sm))}]`);
+  if (typography.md) classes.push(`md:text-[${String(getFontSize(typography.md))}]`);
+  if (typography.lg) classes.push(`lg:text-[${String(getFontSize(typography.lg))}]`);
+  if (typography.xl) classes.push(`xl:text-[${String(getFontSize(typography.xl))}]`);
 
   return classes.join(' ');
 };

@@ -434,10 +434,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                   className="bg-blue-500 h-1.5 rounded-full"
                   style={{
                     width: `${users.length > 0
-                        ? (users.filter(u => u.is_active).length /
-                          users.length) *
-                        100
-                        : 0
+                      ? (users.filter(u => u.is_active).length /
+                        users.length) *
+                      100
+                      : 0
                       }%`,
                   }}
                 ></div>
@@ -769,7 +769,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                       <Checkbox
                         checked={selectedUsers.includes(user.id)}
                         onCheckedChange={checked =>
-                          handleUserSelection(user.id, checked)
+                          handleUserSelection(user.id, checked === true)
                         }
                       />
                     </TableCell>
@@ -779,8 +779,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
                       <div className="flex items-center space-x-3">
                         <div
                           className={`w-10 h-10 rounded-full flex items-center justify-center ${user.is_active
-                              ? 'bg-primary/10 text-primary'
-                              : 'bg-gray-100 text-gray-500'
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-gray-100 text-gray-500'
                             }`}
                         >
                           <span className="text-sm font-medium">

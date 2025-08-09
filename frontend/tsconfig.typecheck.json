@@ -7,6 +7,7 @@
     "**/*.stories.tsx",
     "**/*.stories.mdx",
     "src/design-system/stories/**",
-    ".storybook/**"
+    ".storybook/**",
+    "src/pages/__tests__/**"
   ]
 }
