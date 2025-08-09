@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/design-system/components/Card';
-import { useAdminStore } from '@/stores/adminStore';
+import { useLogFilters } from '@/hooks/useLogFilters';
 import LogFilterForm from './LogFilterForm';
 
 const LogsTab: React.FC = () => {

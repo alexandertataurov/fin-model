@@ -31,13 +31,6 @@ import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Switch } from '@/design-system/components/Switch';
 import { Input } from '@/design-system/components/Input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/design-system/components/Select';
 import { useAdminStore } from '@/stores/admin';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
@@ -67,7 +60,7 @@ const AdminDashboard: React.FC = () => {
   const [logsFrom, setLogsFrom] = useState('');
   const [logsTo, setLogsTo] = useState('');
   const [logsSearch, setLogsSearch] = useState('');
-  const handleLogsFilterChange = useCallback(
+  const _handleLogsFilterChange = useCallback(
     async (updates: Partial<{
       level: typeof logsLevel;
       limit: number;
@@ -123,20 +116,6 @@ const AdminDashboard: React.FC = () => {
     ]
   );
 
-  const handleLogsRefresh = useCallback(async () => {
-    await handleLogsFilterChange({ skip: 0 });
-  }, [handleLogsFilterChange]);
-
-  const handleLogsPrev = useCallback(async () => {
-    const newSkip = Math.max(0, logsSkip - logsLimit);
-    await handleLogsFilterChange({ skip: newSkip });
-  }, [logsSkip, logsLimit, handleLogsFilterChange]);
-
-  const handleLogsNext = useCallback(async () => {
-    const newSkip = logsSkip + logsLimit;
-    if (newSkip >= logsTotal) return;
-    await handleLogsFilterChange({ skip: newSkip });
-  }, [logsSkip, logsLimit, logsTotal, handleLogsFilterChange]);
   const [userPermissions, _setUserPermissions] = useState<any>(null);
   const [securityAudit, setSecurityAudit] = useState<SecurityAudit | null>(
     null
@@ -930,7 +909,6 @@ const AdminDashboard: React.FC = () => {
                               toast.success('Security audit refreshed');
                             } catch {
                               toast.error('Failed to refresh security audit');
-                            } finally {
                             }
                           }}
                         >
