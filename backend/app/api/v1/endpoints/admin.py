@@ -119,7 +119,6 @@ class BulkUserActionRequest(BaseModel):
     user_ids: List[int]
     action: str
 
-
 class UserPermissionsResponse(BaseModel):
     user_id: int
     roles: List[str]
@@ -130,7 +129,8 @@ class UserPermissionsResponse(BaseModel):
 
 @router.get("/users/activity-list", response_model=List[UserActivityResponse])
 async def get_user_activity(
-    request: Request,
+    limit: int = Query(50, ge=1, le=1000),
+    active_only: bool = Query(False),
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
     db: Session = Depends(get_db),
 ):
@@ -140,23 +140,10 @@ async def get_user_activity(
     """
     try:
         query = db.query(User)
-        # Parse params defensively
-        qp = request.query_params
-        limit_raw = qp.get("limit")
-        try:
-            limit_val = int(limit_raw) if limit_raw is not None else 50
-        except Exception:
-            limit_val = 50
-        active_raw = qp.get("active_only")
-        active_only_bool = (
-            str(active_raw).lower() in {"true", "1", "yes"}
-            if active_raw is not None
-            else False
-        )
-        if active_only_bool:
+        if active_only:
             query = query.filter(User.is_active.is_(True))
 
-        users = query.order_by(desc(User.created_at)).limit(limit_val).all()
+        users = query.order_by(desc(User.created_at)).limit(limit).all()
 
         activity_data: List[UserActivityResponse] = []
         for user in users:
