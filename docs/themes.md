@@ -9,12 +9,12 @@ includes a `-foreground` variant for readable text.
 
 1. Copy one of the existing theme files (`light.json` or `dark.json`) and rename
    it to your theme name.
-2. Adjust the color values as needed. Keep keys the same so components can read
-   them as CSS variables.
+2. Fill in color values for all tokens (e.g., `--accent` / `--accent-foreground`,
+   `--border`, `--input`, `--ring`).
 3. Verify accessibility by running:
 
    ```bash
-   node frontend/scripts/contrast-check.js
+   node scripts/contrast-check.js
    ```
 
    The script checks that every color pair meets WCAG AA contrast ratios.
@@ -22,13 +22,14 @@ includes a `-foreground` variant for readable text.
 ## Switching themes at runtime
 
 Use the `setTheme` helper to apply a theme and update the CSS variables on the
-`document.documentElement`:
+`document.documentElement`. A `toggleTheme` helper is also provided:
 
 ```ts
-import { setTheme } from '@/design-system/theme-switcher';
+import { setTheme, toggleTheme } from '@/design-system/theme-switcher';
 
-setTheme('dark'); // switch to dark mode
+setTheme('dark');   // switch to dark mode
+toggleTheme();      // toggle based on current theme
 ```
 
-The helper also sets `data-theme` on the root element, allowing additional
+The helpers set `data-theme` on the root element, allowing additional
 styling if needed.

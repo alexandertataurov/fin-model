@@ -175,6 +175,34 @@
         "value": "#020617"
       }
     },
+    "hover": {
+      "primary": {
+        "value": "#2563eb"
+      },
+      "secondary": {
+        "value": "#475569"
+      },
+      "accent": {
+        "value": "#16a34a"
+      },
+      "destructive": {
+        "value": "#dc2626"
+      }
+    },
+    "active": {
+      "primary": {
+        "value": "#1d4ed8"
+      },
+      "secondary": {
+        "value": "#334155"
+      },
+      "accent": {
+        "value": "#15803d"
+      },
+      "destructive": {
+        "value": "#b91c1c"
+      }
+    },
     "border": {
       "value": "#e2e8f0"
     },

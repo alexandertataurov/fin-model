@@ -81,15 +81,6 @@ export function useDesignTokens() {
   };
 
   /**
-   * Get transition duration value
-   * @param speed - The transition speed key
-   * @returns The transition duration value
-   */
-  const getTransitionDuration = (speed: keyof typeof tokens.transitions): string => {
-    return tokens.transitions[speed];
-  };
-
-  /**
    * Get z-index value
    * @param layer - The z-index layer key
    * @returns The z-index value
@@ -136,22 +127,20 @@ export function useDesignTokens() {
     getSpacing,
     getBorderRadius,
     getFontSize,
-    getFontWeight,
-    getBoxShadow,
-    getTransitionDuration,
-    getZIndex,
+      getFontWeight,
+      getBoxShadow,
+      getZIndex,
     getComponentToken,
 
     // Quick access to common values
-    spacing: tokens.spacing,
-    borderRadius: tokens.borderRadius,
-    fontSize: tokens.typography.fontSize as any,
-    fontWeight: {} as any,
-    boxShadow: tokens.shadows,
-    transitionDuration: tokens.transitions,
-    zIndex: tokens.zIndex as any,
-  };
-}
+      spacing: tokens.spacing,
+      borderRadius: tokens.borderRadius,
+      fontSize: tokens.typography.fontSize as any,
+      fontWeight: {} as any,
+      boxShadow: tokens.shadows,
+      zIndex: tokens.zIndex as any,
+    };
+  }
 
 /**
  * Type-safe design token selectors
@@ -162,7 +151,6 @@ export type BorderRadiusKey = keyof typeof tokens.borderRadius;
 export type FontSizeKey = keyof typeof tokens.typography.fontSize;
 export type FontWeightKey = string;
 export type BoxShadowKey = keyof typeof tokens.shadows;
-export type TransitionDurationKey = keyof typeof tokens.transitions;
 export type ZIndexKey = keyof typeof tokens.zIndex;
 export type ColorKey = keyof typeof tokens.colors;
 export type ComponentKey = string;
