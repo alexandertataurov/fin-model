@@ -61,7 +61,7 @@ jobs:
         working-directory: ./frontend
         run: |
           # Use pnpm to run type checking
-          pnpm run type-check
+          pnpm run type-check:ci
 
       - name: Run tests
         working-directory: ./frontend

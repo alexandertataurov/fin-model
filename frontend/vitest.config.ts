@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { baseConfig } from './vite.config.base';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
@@ -36,12 +36,7 @@ export default defineConfig({
     testTimeout: process.env.CI ? 10000 : 5000,
     hookTimeout: process.env.CI ? 10000 : 5000,
     bail: process.env.CI ? 3 : 2,
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true, // Single fork to reduce memory usage and avoid hanging
-      },
-    },
+    // Use default pool to avoid TS type mismatch on older Vitest versions
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -50,12 +45,20 @@ export default defineConfig({
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
       '**/Charts.test.tsx', // Exclude problematic Chart tests
     ],
-    reporter: process.env.CI ? ['junit'] : ['verbose'],
+    reporters: process.env.CI ? ['junit'] : ['verbose'],
     outputFile: process.env.CI ? 'test-results.xml' : undefined,
+  },
+  optimizeDeps: {
+    include: (baseConfig.optimizeDeps?.include || []).filter(
+      (dep: string) => dep !== 'react-router-dom'
+    ),
+    exclude: ['react-router-dom'],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // In tests, stub router hooks to avoid wrapping with a Router
+      'react-router-dom': path.resolve(__dirname, './src/test/rrd-mock.ts'),
     },
   },
 });

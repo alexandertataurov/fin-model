@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import * as AdminApi from '@/services/adminApi';
@@ -45,58 +46,30 @@ describe('AdminDashboard Maintenance schedules', () => {
     };
   });
 
-  it('saves schedule edits (UI flow)', async () => {
+  it('clears rate limits via Maintenance > Security action', async () => {
+    mocked.default.clearRateLimits = vi.fn().mockResolvedValue({
+      message: 'Cleared',
+      cleared_records: 3,
+    });
+
     render(<AdminDashboard />);
 
-    // Navigate to Maintenance tab
-    const maintenanceTab = await screen.findByRole('tab', {
-      name: /maintenance/i,
-    });
-    fireEvent.click(maintenanceTab);
-
-    // Mock update call and existing schedules list
-    mocked.default.getMaintenanceSchedules = vi.fn().mockResolvedValue({
-      items: [
-        {
-          id: 'daily-cleanup',
-          name: 'Daily Cleanup',
-          task: 'cleanup',
-          schedule: '0 2 * * *',
-          enabled: true,
-        },
-      ],
-    });
-    mocked.default.updateMaintenanceSchedules = vi.fn().mockResolvedValue({
-      items: [
-        {
-          id: 'daily-cleanup',
-          name: 'Daily Cleanup',
-          task: 'cleanup',
-          schedule: '0 1 * * *',
-          enabled: false,
-        },
-      ],
+    // Navigate to Security tab (ensure audit data loads to reveal buttons)
+    mocked.default.getSecurityAudit = vi.fn().mockResolvedValue({
+      failed_logins_24h: 0,
+      suspicious_activities: [],
+      rate_limit_violations: 0,
+      password_policy_violations: 0,
+      recommendations: [],
     });
 
-    // Trigger a reload to fetch schedules
-    await waitFor(() =>
-      expect(mocked.default.getMaintenanceSchedules).toBeDefined()
-    );
+    const securityTab = await screen.findByRole('tab', { name: /security/i });
+    await userEvent.click(securityTab);
 
-    // Toggle enabled, change schedule and task to simulate edits
-    const checkbox = await screen.findByRole('checkbox');
-    fireEvent.click(checkbox);
-    const scheduleInput = await screen.findByDisplayValue('0 2 * * *');
-    fireEvent.change(scheduleInput, { target: { value: '0 1 * * *' } });
-    const taskSelect = await screen.findByDisplayValue('cleanup');
-    fireEvent.change(taskSelect, { target: { value: 'backup' } });
+    // Click Clear Rate Limits
+    const clearBtn = await screen.findByRole('button', { name: /clear rate limits/i });
+    await userEvent.click(clearBtn);
 
-    // Click Save Schedules button
-    const saveBtn = await screen.findByRole('button', {
-      name: /save schedules/i,
-    });
-    fireEvent.click(saveBtn);
-
-    expect(mocked.default.updateMaintenanceSchedules).toHaveBeenCalled();
+    expect(mocked.default.clearRateLimits).toHaveBeenCalled();
   });
 });

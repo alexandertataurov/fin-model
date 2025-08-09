@@ -1,0 +1,69 @@
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
+import React from 'react';
+
+// Polyfills for JSDOM gaps used by UI libs
+if (typeof window !== 'undefined' && !('matchMedia' in window)) {
+    // @ts-ignore
+    window.matchMedia = () => ({
+        matches: false,
+        media: '',
+        onchange: null,
+        addListener: () => { },
+        removeListener: () => { },
+        addEventListener: () => { },
+        removeEventListener: () => { },
+        dispatchEvent: () => false,
+    });
+}
+
+// @ts-ignore
+if (typeof globalThis.ResizeObserver === 'undefined') {
+    // @ts-ignore
+    globalThis.ResizeObserver = class {
+        observe() { }
+        unobserve() { }
+        disconnect() { }
+    } as unknown as typeof ResizeObserver;
+}
+
+// Ensure TextEncoder/TextDecoder exist in Node envs
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { TextEncoder, TextDecoder } = require('util');
+// @ts-ignore
+if (!globalThis.TextEncoder) globalThis.TextEncoder = TextEncoder;
+// @ts-ignore
+if (!globalThis.TextDecoder) globalThis.TextDecoder = TextDecoder;
+
+// Silence toasts during tests
+vi.mock('sonner', () => ({
+    toast: {
+        success: vi.fn(),
+        error: vi.fn(),
+        warning: vi.fn(),
+    },
+}));
+
+// Provide authenticated user so admin pages render without routing/provider
+vi.mock('@/contexts/AuthContext', () => ({
+    useAuth: () => ({ user: { id: 1, username: 'Test User', email: 'test@example.com' } }),
+}));
+
+// Stub navigation to avoid needing a Router wrapper in unit tests
+vi.mock('react-router-dom', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('react-router-dom')>();
+    const navigateMock = vi.fn() as unknown as import('react-router-dom').NavigateFunction;
+    return {
+        ...actual,
+        default: (actual as any).default ?? {},
+        useNavigate: () => navigateMock,
+    } as unknown as typeof import('react-router-dom');
+});
+
+// Basic confirm stub
+if (typeof window !== 'undefined' && typeof window.confirm !== 'function') {
+    // @ts-ignore
+    window.confirm = () => true;
+}
+
+

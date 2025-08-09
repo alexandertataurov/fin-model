@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="2" failures="2" errors="0" time="15.424">
+    <testsuite name="src/pages/__tests__/AdminDashboard.logs.test.tsx" timestamp="2025-08-09T07:14:34.981Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="src/pages/__tests__/AdminDashboard.logs.test.tsx" name="src/pages/__tests__/AdminDashboard.logs.test.tsx" time="0">
+            <failure message="Failed to load url C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts (resolved id: C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts). Does the file exist?" type="Error">
+Error: Failed to load url C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts (resolved id: C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts). Does the file exist?
+ ❯ loadAndTransform ../../../../../%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%A2%D0%B0%D1%82%D0%B0%D1%83%D1%80%D0%BE%D0%B2/IT%20Projects/fin-model/fin-model/frontend/node_modules/.pnpm/vite@4.5.14_@types+node@24.2.0/node_modules/vite/dist/node/chunks/dep-827b23df.js:55077:21
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/pages/__tests__/AdminDashboard.maintenance.test.tsx" timestamp="2025-08-09T07:14:35.018Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="src/pages/__tests__/AdminDashboard.maintenance.test.tsx" name="src/pages/__tests__/AdminDashboard.maintenance.test.tsx" time="0">
+            <failure message="Failed to load url C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts (resolved id: C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts). Does the file exist?" type="Error">
+Error: Failed to load url C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts (resolved id: C:/Users/АлександрТатауров/IT Projects/fin-model/fin-model/frontend/src/test/setup.ts). Does the file exist?
+ ❯ loadAndTransform ../../../../../%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%A2%D0%B0%D1%82%D0%B0%D1%83%D1%80%D0%BE%D0%B2/IT%20Projects/fin-model/fin-model/frontend/node_modules/.pnpm/vite@4.5.14_@types+node@24.2.0/node_modules/vite/dist/node/chunks/dep-827b23df.js:55077:21
+            </failure>
+        </testcase>
+    </testsuite>
+</testsuites>

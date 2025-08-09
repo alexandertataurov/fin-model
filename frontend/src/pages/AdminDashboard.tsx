@@ -220,13 +220,19 @@ const AdminDashboard: React.FC = () => {
   };
 
   // Format percentage for display
-  const formatPercentage = (value: number | null): string => {
-    return value !== null ? `${value.toFixed(1)}%` : 'N/A';
+  const formatPercentage = (value: number | null | undefined): string => {
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      return 'N/A';
+    }
+    return `${value.toFixed(1)}%`;
   };
 
   // Format number with commas
-  const formatNumber = (num: number): string => {
-    return num.toLocaleString();
+  const formatNumber = (num: number | null | undefined): string => {
+    if (num === null || num === undefined || Number.isNaN(num as number)) {
+      return '0';
+    }
+    return (num as number).toLocaleString();
   };
 
   // Get status badge variant
@@ -442,8 +448,8 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center mb-2">
                               <div
                                 className={`w-3 h-3 rounded-full mr-2 ${systemHealth?.status === 'healthy'
-                                    ? 'bg-green-500'
-                                    : 'bg-yellow-500'
+                                  ? 'bg-green-500'
+                                  : 'bg-yellow-500'
                                   }`}
                               ></div>
                               <span className="text-sm font-medium">
@@ -460,12 +466,12 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center mb-2">
                               <div
                                 className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.cpu_usage &&
-                                    systemMetrics.cpu_usage > 80
-                                    ? 'bg-red-500'
-                                    : systemMetrics?.cpu_usage &&
-                                      systemMetrics.cpu_usage > 60
-                                      ? 'bg-yellow-500'
-                                      : 'bg-green-500'
+                                  systemMetrics.cpu_usage > 80
+                                  ? 'bg-red-500'
+                                  : systemMetrics?.cpu_usage &&
+                                    systemMetrics.cpu_usage > 60
+                                    ? 'bg-yellow-500'
+                                    : 'bg-green-500'
                                   }`}
                               ></div>
                               <span className="text-sm font-medium">CPU</span>
@@ -480,12 +486,12 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center mb-2">
                               <div
                                 className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.memory_usage &&
-                                    systemMetrics.memory_usage > 80
-                                    ? 'bg-red-500'
-                                    : systemMetrics?.memory_usage &&
-                                      systemMetrics.memory_usage > 60
-                                      ? 'bg-yellow-500'
-                                      : 'bg-green-500'
+                                  systemMetrics.memory_usage > 80
+                                  ? 'bg-red-500'
+                                  : systemMetrics?.memory_usage &&
+                                    systemMetrics.memory_usage > 60
+                                    ? 'bg-yellow-500'
+                                    : 'bg-green-500'
                                   }`}
                               ></div>
                               <span className="text-sm font-medium">
@@ -502,12 +508,12 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center justify-center mb-2">
                               <div
                                 className={`w-3 h-3 rounded-full mr-2 ${systemMetrics?.disk_usage &&
-                                    systemMetrics.disk_usage > 80
-                                    ? 'bg-red-500'
-                                    : systemMetrics?.disk_usage &&
-                                      systemMetrics.disk_usage > 60
-                                      ? 'bg-yellow-500'
-                                      : 'bg-green-500'
+                                  systemMetrics.disk_usage > 80
+                                  ? 'bg-red-500'
+                                  : systemMetrics?.disk_usage &&
+                                    systemMetrics.disk_usage > 60
+                                    ? 'bg-yellow-500'
+                                    : 'bg-green-500'
                                   }`}
                               ></div>
                               <span className="text-sm font-medium">
@@ -604,7 +610,7 @@ const AdminDashboard: React.FC = () => {
                                 className="bg-blue-500 h-1.5 rounded-full"
                                 style={{
                                   width: `${(systemStats.users.active /
-                                      systemStats.users.total) *
+                                    systemStats.users.total) *
                                     100
                                     }%`,
                                 }}
@@ -650,7 +656,7 @@ const AdminDashboard: React.FC = () => {
                                 className="bg-green-500 h-1.5 rounded-full"
                                 style={{
                                   width: `${(systemStats.files.completed /
-                                      systemStats.files.total) *
+                                    systemStats.files.total) *
                                     100
                                     }%`,
                                 }}
@@ -757,12 +763,12 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                                 <span
                                   className={`text-sm font-medium ${systemMetrics.cpu_usage &&
-                                      systemMetrics.cpu_usage > 80
-                                      ? 'text-red-500'
-                                      : systemMetrics.cpu_usage &&
-                                        systemMetrics.cpu_usage > 60
-                                        ? 'text-yellow-500'
-                                        : 'text-green-500'
+                                    systemMetrics.cpu_usage > 80
+                                    ? 'text-red-500'
+                                    : systemMetrics.cpu_usage &&
+                                      systemMetrics.cpu_usage > 60
+                                      ? 'text-yellow-500'
+                                      : 'text-green-500'
                                     }`}
                                 >
                                   {formatPercentage(systemMetrics.cpu_usage)}
@@ -784,12 +790,12 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                                 <span
                                   className={`text-sm font-medium ${systemMetrics.memory_usage &&
-                                      systemMetrics.memory_usage > 80
-                                      ? 'text-red-500'
-                                      : systemMetrics.memory_usage &&
-                                        systemMetrics.memory_usage > 60
-                                        ? 'text-yellow-500'
-                                        : 'text-green-500'
+                                    systemMetrics.memory_usage > 80
+                                    ? 'text-red-500'
+                                    : systemMetrics.memory_usage &&
+                                      systemMetrics.memory_usage > 60
+                                      ? 'text-yellow-500'
+                                      : 'text-green-500'
                                     }`}
                                 >
                                   {formatPercentage(systemMetrics.memory_usage)}
@@ -811,12 +817,12 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                                 <span
                                   className={`text-sm font-medium ${systemMetrics.disk_usage &&
-                                      systemMetrics.disk_usage > 80
-                                      ? 'text-red-500'
-                                      : systemMetrics.disk_usage &&
-                                        systemMetrics.disk_usage > 60
-                                        ? 'text-yellow-500'
-                                        : 'text-green-500'
+                                    systemMetrics.disk_usage > 80
+                                    ? 'text-red-500'
+                                    : systemMetrics.disk_usage &&
+                                      systemMetrics.disk_usage > 60
+                                      ? 'text-yellow-500'
+                                      : 'text-green-500'
                                     }`}
                                 >
                                   {formatPercentage(systemMetrics.disk_usage)}
