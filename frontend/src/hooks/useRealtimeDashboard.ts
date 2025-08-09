@@ -307,19 +307,15 @@ export const useRealtimeDashboard = ({
     };
   }, [enabled, fileId, period, isLiveEnabled, connectWebSocket, isConnected]);
 
-  // Update connection state based on WebSocket service state
+  // Update connection state based on WebSocket service status changes
   useEffect(() => {
-    const checkConnectionState = () => {
-      const wsState = dashboardWebSocketService.getConnectionState();
-      setConnectionState(wsState as 'connecting' | 'connected' | 'disconnected');
-      setIsConnected(wsState === 'connected');
+    const unsubscribe = dashboardWebSocketService.subscribeStatus(state => {
+      setConnectionState(state);
+      setIsConnected(state === 'connected');
       setReconnectAttempts(dashboardWebSocketService.getReconnectAttempts());
-    };
+    });
 
-    // Check connection state every 2 seconds
-    const interval = setInterval(checkConnectionState, 2000);
-
-    return () => clearInterval(interval);
+    return unsubscribe;
   }, []);
 
   return {

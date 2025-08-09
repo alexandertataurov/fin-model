@@ -144,21 +144,23 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
 
     setupWebSocketSubscription();
 
-    // Setup periodic connection check
-    const connectionCheck = setInterval(() => {
-      const wsConnected = websocketService.isConnectionReady();
+    const unsubscribeStatus = websocketService.subscribeStatus(state => {
+      const wsConnected = state === 'connected';
       if (wsConnected !== isConnected) {
         setIsConnected(wsConnected);
         onConnectionChange?.(wsConnected);
-
-        if (wsConnected && !unsubscribeRef.current) {
-          setupWebSocketSubscription();
-        }
       }
-    }, 2000);
+
+      if (wsConnected && !unsubscribeRef.current) {
+        setupWebSocketSubscription();
+      } else if (!wsConnected && unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    });
 
     return () => {
-      clearInterval(connectionCheck);
+      unsubscribeStatus();
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
         unsubscribeRef.current = null;

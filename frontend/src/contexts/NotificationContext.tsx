@@ -585,15 +585,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   // Monitor connection state
   useEffect(() => {
-    const checkConnection = () => {
-      const wsConnected = notificationsWebSocketService.isConnectionReady();
+    const unsubscribe = notificationsWebSocketService.subscribeStatus(state => {
+      const wsConnected = state === 'connected';
       if (wsConnected !== isConnected) {
         setIsConnected(wsConnected);
       }
-    };
+    });
 
-    const interval = setInterval(checkConnection, 2000);
-    return () => clearInterval(interval);
+    return unsubscribe;
   }, [isConnected]);
 
   // Handle authentication state changes

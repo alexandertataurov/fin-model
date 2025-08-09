@@ -7,6 +7,8 @@ interface WebSocketEventHandler {
   (data: any): void;
 }
 
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
+
 class WebSocketService {
   private ws: WebSocket | null = null;
   private url = '';
@@ -18,6 +20,68 @@ class WebSocketService {
   private isServiceAvailable = true;
   private connectionTimeout: NodeJS.Timeout | null = null;
   private isConnecting = false;
+  private reconnectTimer: NodeJS.Timeout | null = null;
+
+  // Heartbeat management
+  private heartbeatInterval: NodeJS.Timeout | null = null;
+  private lastHeartbeat = 0;
+  private heartbeatIntervalMs = 30000; // send ping every 30s
+  private heartbeatTimeoutMs = 60000; // consider dead after 60s
+
+  // Connection status listeners
+  private status: ConnectionStatus = 'disconnected';
+  private statusHandlers = new Set<(status: ConnectionStatus) => void>();
+
+  private notifyStatus(status: ConnectionStatus) {
+    this.status = status;
+    this.statusHandlers.forEach(handler => {
+      try {
+        handler(status);
+      } catch (err) {
+        console.error('Error in status handler:', err);
+      }
+    });
+  }
+
+  subscribeStatus(handler: (status: ConnectionStatus) => void): () => void {
+    this.statusHandlers.add(handler);
+    handler(this.status);
+    return () => {
+      this.statusHandlers.delete(handler);
+    };
+  }
+
+  private startHeartbeat(): void {
+    this.stopHeartbeat();
+    this.lastHeartbeat = Date.now();
+    this.heartbeatInterval = setInterval(() => {
+      if (!this.isConnectionReady()) return;
+
+      // Send ping
+      try {
+        this.send('ping', {});
+      } catch {
+        /* ignore send errors */
+      }
+
+      // If no heartbeat received in time, close connection
+      if (Date.now() - this.lastHeartbeat > this.heartbeatTimeoutMs) {
+        console.warn('WebSocket heartbeat timeout');
+        this.ws?.close();
+      }
+    }, this.heartbeatIntervalMs);
+  }
+
+  private stopHeartbeat(): void {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+  }
+
+  getLastHeartbeat(): number {
+    return this.lastHeartbeat;
+  }
 
   async connect(endpoint: string): Promise<void> {
     try {
@@ -40,6 +104,7 @@ class WebSocketService {
       }
 
       this.isConnecting = true;
+      this.notifyStatus('connecting');
 
       // Store the original endpoint for reconnection
       this.originalEndpoint = endpoint;
@@ -53,6 +118,7 @@ class WebSocketService {
       if (requiresAuth && !token) {
         console.warn('WebSocket connection requires authentication but no token found');
         this.isConnecting = false;
+        this.notifyStatus('disconnected');
         throw new Error('Authentication required');
       }
 
@@ -71,7 +137,7 @@ class WebSocketService {
           : baseUrl;
 
       console.info(`Connecting to WebSocket: ${this.url}`);
-      
+
       // Close existing connection if any
       if (this.ws) {
         this.ws.close();
@@ -87,6 +153,7 @@ class WebSocketService {
           console.warn('WebSocket connection timeout');
           this.ws.close();
           this.isConnecting = false;
+          this.notifyStatus('disconnected');
         }
       }, 20000); // 20 second timeout
 
@@ -105,12 +172,23 @@ class WebSocketService {
           this.reconnectAttempts = 0;
           this.isServiceAvailable = true;
           this.isConnecting = false;
+          this.notifyStatus('connected');
+          this.startHeartbeat();
+          if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = null;
+          }
           resolve();
         };
 
         this.ws.onmessage = event => {
+          this.lastHeartbeat = Date.now();
           try {
             const data = JSON.parse(event.data);
+            // Ignore pong events
+            if (data.event === 'pong') {
+              return;
+            }
             this.handleMessage(data);
           } catch (error) {
             console.error('Error parsing WebSocket message:', error);
@@ -122,10 +200,12 @@ class WebSocketService {
             clearTimeout(this.connectionTimeout);
             this.connectionTimeout = null;
           }
-          
+
+          this.stopHeartbeat();
           console.warn(`WebSocket closed: ${event.code} - ${event.reason}`);
           this.isConnecting = false;
-          
+          this.notifyStatus('disconnected');
+
           // Handle specific error codes
           if (event.code === 4001) {
             console.warn('WebSocket authentication failed');
@@ -133,19 +213,21 @@ class WebSocketService {
             reject(new Error('Authentication failed'));
             return;
           }
-          
+
           if (event.code === 1006) {
             console.warn('WebSocket connection aborted');
             this.isServiceAvailable = false;
             reject(new Error('Connection aborted'));
             return;
           }
-          
+
           // Only attempt reconnect for certain error codes
-          if (event.code !== 1000 && 
-              event.code !== 4001 && 
-              event.code !== 1006 && 
-              this.reconnectAttempts < this.maxReconnectAttempts) {
+          if (
+            event.code !== 1000 &&
+            event.code !== 4001 &&
+            event.code !== 1006 &&
+            this.reconnectAttempts < this.maxReconnectAttempts
+          ) {
             this.attemptReconnect();
           }
         };
@@ -154,12 +236,16 @@ class WebSocketService {
           console.error('WebSocket error:', error);
           this.isConnecting = false;
           this.isServiceAvailable = false;
+          this.stopHeartbeat();
+          this.notifyStatus('disconnected');
           reject(error);
         };
       });
 
     } catch (error) {
       this.isConnecting = false;
+      this.stopHeartbeat();
+      this.notifyStatus('disconnected');
       console.error('Failed to connect to WebSocket:', error);
       throw error;
     }
@@ -170,14 +256,22 @@ class WebSocketService {
       clearTimeout(this.connectionTimeout);
       this.connectionTimeout = null;
     }
-    
+
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    this.stopHeartbeat();
+
     if (this.ws) {
       this.ws.close(1000, 'Manual disconnect');
       this.ws = null;
     }
-    
+
     this.isConnecting = false;
     this.reconnectAttempts = 0;
+    this.notifyStatus('disconnected');
     console.info('WebSocket disconnected');
   }
 
@@ -224,10 +318,11 @@ class WebSocketService {
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
-    setTimeout(() => {
+    this.reconnectTimer = setTimeout(() => {
       console.info(
         `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`
       );
+      this.notifyStatus('connecting');
       this.connect(this.originalEndpoint);
     }, delay);
   }
@@ -248,20 +343,8 @@ class WebSocketService {
     return this.reconnectAttempts;
   }
 
-  getConnectionState(): string {
-    if (!this.ws) return 'disconnected';
-    switch (this.ws.readyState) {
-      case WebSocket.CONNECTING:
-        return 'connecting';
-      case WebSocket.OPEN:
-        return 'connected';
-      case WebSocket.CLOSING:
-        return 'closing';
-      case WebSocket.CLOSED:
-        return 'disconnected';
-      default:
-        return 'unknown';
-    }
+  getConnectionState(): ConnectionStatus {
+    return this.status;
   }
 
   checkServiceAvailability(): boolean {
