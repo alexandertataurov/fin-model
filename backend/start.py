@@ -30,7 +30,9 @@ def check_database_connection():
 
 
 def fix_migration_state():
-    """Fix migration state by marking migrations as complete if tables exist."""
+    """
+    Fix migration state by marking migrations as complete if tables exist.
+    """
     print("🔧 Checking migration state...")
 
     try:
@@ -52,8 +54,8 @@ def fix_migration_state():
                 text(
                     """
                 SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
+                    SELECT FROM information_schema.tables
+                    WHERE table_schema = 'public'
                     AND table_name = 'monte_carlo_simulations'
                 )
             """
@@ -68,13 +70,9 @@ def fix_migration_state():
             # Check if notifications table exists
             result = conn.execute(
                 text(
-                    """
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name = 'notifications'
-                )
-            """
+                    "SELECT EXISTS (SELECT FROM information_schema.tables "
+                    "WHERE table_schema='public' AND "
+                    "table_name='notifications')"
                 )
             )
             if result.scalar():
@@ -88,8 +86,8 @@ def fix_migration_state():
                 text(
                     """
                 SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
+                    SELECT FROM information_schema.tables
+                    WHERE table_schema = 'public'
                     AND table_name = 'report_templates'
                 )
             """
@@ -164,12 +162,8 @@ def ensure_system_logs_and_maintenance():
             # Check and create system_logs
             sys_exists = conn.execute(
                 text(
-                    """
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables
-                    WHERE table_schema = 'public' AND table_name = 'system_logs'
-                )
-            """
+                    "SELECT EXISTS (SELECT FROM information_schema.tables "
+                    "WHERE table_schema='public' AND table_name='system_logs')"
                 )
             ).scalar()
             if not sys_exists:
@@ -202,7 +196,7 @@ def ensure_system_logs_and_maintenance():
                     """
                 SELECT EXISTS (
                     SELECT FROM information_schema.tables
-                    WHERE table_schema = 'public' 
+                    WHERE table_schema = 'public'
                     AND table_name = 'maintenance_schedules'
                 )
             """
@@ -231,12 +225,8 @@ def ensure_system_logs_and_maintenance():
 
             # Stamp the historical migration if present in script
             try:
-                command.stamp(
-                    alembic_cfg, "004_add_system_logs_and_maintenance"
-                )
-                print(
-                    "✅ Stamped revision 004_add_system_logs_and_maintenance"
-                )
+                command.stamp(alembic_cfg, "004_add_system_logs_and_maintenance")
+                print("✅ Stamped revision 004_add_system_logs_and_maintenance")
             except Exception as e:
                 print(
                     f"⚠️ Could not stamp 004_add_system_logs_and_maintenance: {e}"
@@ -246,6 +236,7 @@ def ensure_system_logs_and_maintenance():
     except Exception as e:
         print(f"❌ Error ensuring system tables: {e}")
         return False
+
 
 def create_notifications_table():
     """Create notifications table manually if it doesn't exist."""
@@ -263,8 +254,8 @@ def create_notifications_table():
                 text(
                     """
                 SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
+                    SELECT FROM information_schema.tables
+                    WHERE table_schema = 'public'
                     AND table_name = 'notifications'
                 )
             """
@@ -370,37 +361,44 @@ def create_notifications_table():
             # Create indexes
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_user_id ON notifications(user_id)"
+                    "CREATE INDEX ix_notifications_user_id "
+                    "ON notifications(user_id)"
                 )
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_notification_type ON notifications(notification_type)"
+                    "CREATE INDEX ix_notifications_notification_type "
+                    "ON notifications(notification_type)"
                 )
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_priority ON notifications(priority)"
+                    "CREATE INDEX ix_notifications_priority "
+                    "ON notifications(priority)"
                 )
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_status ON notifications(status)"
+                    "CREATE INDEX ix_notifications_status "
+                    "ON notifications(status)"
                 )
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_is_read ON notifications(is_read)"
+                    "CREATE INDEX ix_notifications_is_read "
+                    "ON notifications(is_read)"
                 )
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_created_at ON notifications(created_at)"
+                    "CREATE INDEX ix_notifications_created_at "
+                    "ON notifications(created_at)"
                 )
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_expires_at ON notifications(expires_at)"
+                    "CREATE INDEX ix_notifications_expires_at "
+                    "ON notifications(expires_at)"
                 )
             )
 
@@ -431,9 +429,7 @@ def fix_notification_schema():
             # Split the script into DO blocks (each ends with 'END $$;')
             import re
 
-            do_blocks = re.findall(
-                r"DO \$\$.*?END \$\$;", sql_script, re.DOTALL
-            )
+            do_blocks = re.findall(r"DO \$\$.*?END \$\$;", sql_script, re.DOTALL)
 
             for block in do_blocks:
                 if block.strip():
