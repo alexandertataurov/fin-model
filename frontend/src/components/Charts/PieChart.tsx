@@ -24,7 +24,6 @@ interface PieChartProps {
   height?: number;
   loading?: boolean;
   error?: string;
-  currency?: string;
   showLegend?: boolean;
   showLabels?: boolean;
   showPercentages?: boolean;
@@ -51,7 +50,6 @@ export const PieChart: React.FC<PieChartProps> = ({
   height = 400,
   loading = false,
   error,
-  currency = '$',
   showLegend = true,
   showLabels = true,
   showPercentages = true,

@@ -89,7 +89,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   editable = false,
   onAddWidget,
   onRemoveWidget,
-  availableWidgets = [],
+  availableWidgets: _availableWidgets = [],
   className,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);

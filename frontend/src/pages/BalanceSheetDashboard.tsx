@@ -41,7 +41,7 @@ const BalanceSheetDashboard: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
       toast.success('Balance Sheet exported');
-    } catch (e) {
+    } catch (_e) {
       toast.error('Export failed');
     }
   };

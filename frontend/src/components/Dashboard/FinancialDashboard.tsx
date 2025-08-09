@@ -66,7 +66,7 @@ interface FinancialDashboardProps {
 }
 
 const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
-  isLoading = false,
+  isLoading: _isLoading = false,
   onRefresh,
 }) => {
   const [activeTab, setActiveTab] = useState('overview');

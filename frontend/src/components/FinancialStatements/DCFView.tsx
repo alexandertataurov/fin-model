@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { formatCurrency as formatCurrencyUtil, formatPercentage as formatPercentageUtil } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
 // duplicate import removed
 import { Download, TrendingUp, TrendingDown, Target, Calculator } from 'lucide-react';

@@ -369,33 +369,21 @@ fetchSystemHealth: createAsyncResource(
         }));
       },
 
-      fetchLogs: async () => {
-        set(state => ({
-          logs: { ...state.logs, loading: true, error: null }
-        }));
-
-        try {
-          const { logs } = get();
-          const response = await AdminApi.getSystemLogs(logs.level, logs.limit, {
-            from: logs.from || undefined,
-            to: logs.to || undefined,
-            search: logs.search || undefined,
-            skip: logs.skip,
       fetchLogs: createAsyncResource(
         set,
         get,
         'logs',
-        async (state) =>
-          AdminApiService.getSystemLogs(state.logs.level, state.logs.limit, {
+        async state =>
+          AdminApi.getSystemLogs(state.logs.level, state.logs.limit, {
             from: state.logs.from || undefined,
             to: state.logs.to || undefined,
             search: state.logs.search || undefined,
             skip: state.logs.skip,
             envelope: true,
           }),
-        (response) => {
-          if ('items' in (response as any)) {
-            const r: any = response;
+        response => {
+          const r: any = response;
+          if ('items' in r) {
             return {
               data: r.items,
               items: r.items,
@@ -403,7 +391,7 @@ fetchSystemHealth: createAsyncResource(
               skip: r.skip,
             } as any;
           }
-          return { data: response as any, items: response as any } as any;
+          return { data: r as any, items: r as any } as any;
         }
       ),
 
@@ -413,25 +401,13 @@ fetchSystemHealth: createAsyncResource(
               audit: { ...state.audit, ...filters }
             }));
           },
-
-      fetchAudit: async () => {
-        set(state => ({
-          audit: { ...state.audit, loading: true, error: null }
-        }));
-
-        try {
-          const { audit } = get();
-          const response = await AdminApi.getAuditLogs(
-            audit.skip,
-            audit.limit,
-            audit.userId,
-            audit.action,
+            
       fetchAudit: createAsyncResource(
         set,
         get,
         'audit',
-        async (state) =>
-          AdminApiService.getAuditLogs(
+        async state =>
+          AdminApi.getAuditLogs(
             state.audit.skip,
             state.audit.limit,
             state.audit.userId,
@@ -442,7 +418,7 @@ fetchSystemHealth: createAsyncResource(
               envelope: true,
             }
           ),
-        (response) => {
+        response => {
           const r: any = response;
           if ('items' in r) {
             return {

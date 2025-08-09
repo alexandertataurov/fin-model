@@ -27,7 +27,6 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/design-system/components/Tabs';
-import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Switch } from '@/design-system/components/Switch';
@@ -60,7 +59,7 @@ const AdminDashboard: React.FC = () => {
   const [logsFrom, setLogsFrom] = useState('');
   const [logsTo, setLogsTo] = useState('');
   const [logsSearch, setLogsSearch] = useState('');
-  const [userPermissions, setUserPermissions] = useState<any>(null);
+  const [userPermissions, _setUserPermissions] = useState<any>(null);
 
   // Use centralized store
   const {
@@ -71,17 +70,17 @@ const AdminDashboard: React.FC = () => {
     refreshing,
     systemStats,
     userActivity,
-    systemMetrics,
-    systemHealth,
-    databaseHealth,
-    audit,
+    systemMetrics: _systemMetrics,
+    systemHealth: _systemHealth,
+    databaseHealth: _databaseHealth,
+    audit: _audit,
     fetchOverviewData,
     fetchHealthData,
     fetchLogsData,
     fetchAuditData,
     refreshAll,
-    updateAuditFilters,
-    clearErrors,
+    updateAuditFilters: _updateAuditFilters,
+    clearErrors: _clearErrors,
   } = useAdminStore();
 
   // Context-aware data loading based on active tab
@@ -112,7 +111,7 @@ const AdminDashboard: React.FC = () => {
     await loadDataForTab(activeTab);
   }, [loadDataForTab, activeTab]);
 
-  const loadMetricsAndLogs = useCallback(async () => {
+  const _loadMetricsAndLogs = useCallback(async () => {
     await fetchLogsData();
   }, [fetchLogsData]);
 
@@ -123,7 +122,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   // Format percentage for display
-  const formatPercentage = (value: number | null | undefined): string => {
+  const _formatPercentage = (value: number | null | undefined): string => {
     if (value === null || value === undefined || Number.isNaN(value)) {
       return 'N/A';
     }
@@ -131,7 +130,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   // Format number with commas
-  const formatNumber = (num: number | null | undefined): string => {
+  const _formatNumber = (num: number | null | undefined): string => {
     if (num === null || num === undefined || Number.isNaN(num as number)) {
       return '0';
     }
@@ -139,7 +138,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   // Get status badge variant
-  const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
+  const _getStatusBadge = (isActive: boolean, isVerified: boolean) => {
     if (!isActive) return <Badge variant="destructive">Inactive</Badge>;
     if (!isVerified) return <Badge variant="secondary">Unverified</Badge>;
     return <Badge variant="default">Active</Badge>;
@@ -153,7 +152,7 @@ const AdminDashboard: React.FC = () => {
       toast.success(
         `Cleanup preview: ${result.orphaned_files} orphaned files, ${result.failed_files} failed files found`
       );
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to preview file cleanup');
     } finally {
       setMaintenanceLoading(false);
@@ -166,7 +165,7 @@ const AdminDashboard: React.FC = () => {
       const result = await AdminApiService.cleanupFiles(false);
       toast.success(result.message);
       await loadAdminData(); // Refresh data
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to run file cleanup');
     } finally {
       setMaintenanceLoading(false);
@@ -180,7 +179,7 @@ const AdminDashboard: React.FC = () => {
       toast.success(
         `${result.message} (${result.cleared_records} records cleared)`
       );
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to clear rate limits');
     } finally {
       setMaintenanceLoading(false);

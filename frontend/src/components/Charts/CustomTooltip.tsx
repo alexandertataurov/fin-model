@@ -16,7 +16,6 @@ interface CustomTooltipProps {
   label?: string;
   formatter?: (value: number | string, name: string) => [string, string];
   labelFormatter?: (label: string) => string;
-  currency?: string;
   showTotal?: boolean;
 }
 
@@ -26,7 +25,6 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
   label,
   formatter,
   labelFormatter,
-  currency = '$',
   showTotal = false,
 }) => {
   if (!active || !payload || payload.length === 0) {

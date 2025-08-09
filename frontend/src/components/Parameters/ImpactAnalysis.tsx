@@ -80,7 +80,7 @@ export function ImpactAnalysis({ parameter, onClose }: ImpactAnalysisProps) {
       } else {
         setError('Failed to run impact analysis');
       }
-    } catch (err) {
+  } catch (_err) {
       setError('Failed to connect to server');
     } finally {
       setLoading(false);

@@ -54,7 +54,7 @@ export function ParameterHistory({
       } else {
         setError('Failed to load parameter history')
       }
-    } catch (err) {
+  } catch (_err) {
       setError('Failed to connect to server')
     } finally {
       setLoading(false)

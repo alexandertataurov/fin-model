@@ -46,11 +46,11 @@ export const useWebSocket = (
         systemMetrics,
         logs,
         audit,
-        fetchSystemStats,
-        fetchUserActivity,
-        fetchSystemMetrics,
-        fetchLogs,
-        fetchAudit,
+        fetchSystemStats: _fetchSystemStats,
+        fetchUserActivity: _fetchUserActivity,
+        fetchSystemMetrics: _fetchSystemMetrics,
+        fetchLogs: _fetchLogs,
+        fetchAudit: _fetchAudit,
     } = useAdminStore();
 
     const connect = useCallback(() => {
@@ -62,7 +62,7 @@ export const useWebSocket = (
             wsRef.current = new WebSocket(url);
 
             wsRef.current.onopen = () => {
-                console.log('WebSocket connected');
+
                 setIsConnected(true);
                 setConnectionError(null);
                 reconnectAttemptsRef.current = 0;
@@ -145,13 +145,13 @@ export const useWebSocket = (
                             }
                             break;
                     }
-                } catch (error) {
-                    console.error('Failed to parse WebSocket message:', error);
+                } catch (_error) {
+                    /* noop */
                 }
             };
 
             wsRef.current.onclose = (event) => {
-                console.log('WebSocket disconnected:', event.code, event.reason);
+
                 setIsConnected(false);
 
                 // Attempt to reconnect if not a clean close and under max attempts
@@ -167,18 +167,30 @@ export const useWebSocket = (
                 }
             };
 
-            wsRef.current.onerror = (error) => {
-                console.error('WebSocket error:', error);
+            wsRef.current.onerror = (_error) => {
+
                 setConnectionError('WebSocket connection error');
                 if (onError) {
-                    onError(error);
+                    onError(_error);
                 }
             };
-        } catch (error) {
-            console.error('Failed to create WebSocket connection:', error);
+        } catch (_error) {
+
             setConnectionError('Failed to establish connection');
         }
-    }, [enabled, url, reconnectInterval, maxReconnectAttempts, onError, onMessage]);
+    }, [
+        enabled,
+        url,
+        reconnectInterval,
+        maxReconnectAttempts,
+        onError,
+        onMessage,
+        systemStats.lastUpdated,
+        userActivity.lastUpdated,
+        systemMetrics.lastUpdated,
+        logs.lastUpdated,
+        audit.lastUpdated,
+    ]);
 
     const disconnect = useCallback(() => {
         if (reconnectTimeoutRef.current) {
@@ -235,11 +247,10 @@ export const useAdminWebSocket = (enabled: boolean = true) => {
         `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/admin`,
         {
             enabled: shouldConnect,
-            onError: (error) => {
-                console.warn('Admin WebSocket error, falling back to polling:', error);
+            onError: (_error) => {
+
             },
-            onMessage: (message) => {
-                console.log('Real-time update received:', message.type);
+            onMessage: () => {
             },
         }
     );

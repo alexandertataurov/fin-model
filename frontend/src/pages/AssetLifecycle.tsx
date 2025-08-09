@@ -115,7 +115,7 @@ const AssetLifecycle: React.FC = () => {
                 a.click();
                 URL.revokeObjectURL(url);
                 toast.success('Report (JSON) downloaded');
-              } catch (e) {
+              } catch (_e) {
                 toast.error('Export failed');
               } finally {
                 setIsExporting(false);
@@ -174,7 +174,7 @@ const AssetLifecycle: React.FC = () => {
                 a.click();
                 URL.revokeObjectURL(url);
                 toast.success('Report (CSV) downloaded');
-              } catch (e) {
+              } catch (_e) {
                 toast.error('CSV export failed');
               } finally {
                 setIsExporting(false);
