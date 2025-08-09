@@ -14,7 +14,8 @@ const config: StorybookConfig = {
   },
   stories: [
     '../src/design-system/**/*.stories.@(ts|tsx|mdx)',
-    '../src/**/*.stories.@(ts|tsx|mdx)'
+    // Keep app pages if any, but exclude component-level duplicates
+    '../src/pages/**/*.stories.@(ts|tsx|mdx)'
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -31,7 +32,9 @@ const config: StorybookConfig = {
   docs: {
     autodocs: true,
   },
-  staticDirs: ['../public'],
+  staticDirs: [
+    { from: '../public', to: '/public' },
+  ],
   viteFinal: async (config) => {
     // Ensure PostCSS with Tailwind runs inside Storybook
     (config as any).css = {

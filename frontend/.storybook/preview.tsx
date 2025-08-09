@@ -9,7 +9,7 @@ import '../src/styles/globals.css';
 import '../src/index.css';
 
 // Initialize MSW once
-initialize({ onUnhandledRequest: 'bypass' });
+initialize({ onUnhandledRequest: 'bypass', serviceWorker: { url: '/public/mockServiceWorker.js' } });
 
 const preview: Preview = {
   parameters: {

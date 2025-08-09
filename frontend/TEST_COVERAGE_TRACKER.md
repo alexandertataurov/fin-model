@@ -18,15 +18,15 @@
   - [x] when off, prevents periodic getSystemMetrics/getSystemLogs
 - [x] UI: Access control
   - [x] redirects to /login when unauthenticated
+- [x] UI: Robustness
+  - [x] partial failures → warning toast
+  - [x] all failures → error toast
 
 ## Pending (to implement)
 
 - [ ] UI: Audit filters pass correct params (stabilize timing)
   - [ ] skip/limit, userId, action, date-from/to
   - [ ] prev/next disabled/enabled logic with totals
-- [ ] UI: Robustness
-  - [ ] partial failures → warning toast
-  - [ ] all failures → error toast
 - [ ] UI: Health tab
   - [ ] system/db health present vs absent render states
 - [ ] UI: Metrics alerts

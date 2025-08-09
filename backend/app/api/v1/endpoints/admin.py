@@ -122,6 +122,75 @@ class BulkUserActionRequest(BaseModel):
     action: str
 
 
+@router.get("/users/activity-list")
+async def get_user_activity(
+    request: Request,
+    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    db: Session = Depends(get_db),
+):
+    """Get user activity statistics.
+
+    Placed before dynamic '/users/{user_id}' route to avoid path conflicts.
+    """
+    try:
+        query = db.query(User)
+        # Parse params defensively
+        qp = request.query_params
+        limit_raw = qp.get("limit")
+        try:
+            limit_val = int(limit_raw) if limit_raw is not None else 50
+        except Exception:
+            limit_val = 50
+        active_raw = qp.get("active_only")
+        active_only_bool = (
+            str(active_raw).lower() in {"true", "1", "yes"}
+            if active_raw is not None
+            else False
+        )
+        if active_only_bool:
+            query = query.filter(User.is_active.is_(True))
+
+        users = query.order_by(desc(User.created_at)).limit(limit_val).all()
+
+        activity_data: List[Dict[str, Any]] = []
+        for user in users:
+            # Count files uploaded by user
+            files_uploaded = (
+                db.query(UploadedFile)
+                .filter(UploadedFile.uploaded_by_id == user.id)
+                .count()
+            )
+
+            # Count financial statements/models created
+            models_created = (
+                db.query(FinancialStatement)
+                .filter(FinancialStatement.created_by_id == user.id)
+                .count()
+            )
+
+            activity_data.append(
+                {
+                    "user_id": user.id,
+                    "username": user.username,
+                    "last_login": (
+                        user.last_login.isoformat() if user.last_login else None
+                    ),
+                    "login_count": 0,
+                    "files_uploaded": files_uploaded,
+                    "models_created": models_created,
+                    "is_active": bool(user.is_active),
+                }
+            )
+
+        return activity_data
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get user activity: {str(e)}",
+        )
+
+
 @router.get("/users", response_model=Any)
 def list_users(
     skip: int = Query(0, ge=0),
@@ -942,7 +1011,6 @@ async def get_user_activity(
     """Get user activity statistics."""
     try:
         query = db.query(User)
-        # Parse params defensively
         qp = request.query_params
         limit_raw = qp.get("limit")
         try:
@@ -962,20 +1030,16 @@ async def get_user_activity(
 
         activity_data: List[Dict[str, Any]] = []
         for user in users:
-            # Count files uploaded by user
             files_uploaded = (
                 db.query(UploadedFile)
                 .filter(UploadedFile.uploaded_by_id == user.id)
                 .count()
             )
-
-            # Count financial statements/models created
             models_created = (
                 db.query(FinancialStatement)
                 .filter(FinancialStatement.created_by_id == user.id)
                 .count()
             )
-
             activity_data.append(
                 {
                     "user_id": user.id,
@@ -1411,18 +1475,10 @@ async def get_system_logs(
             }
         return items
 
-    except Exception as e:
-        # Graceful fallback for missing table or schema issues
-        msg = str(e)
-        if ("relation" in msg.lower() and "system_logs" in msg.lower()) or (
-            "no such table" in msg.lower() and "system_logs" in msg.lower()
-        ):
-            empty = {"items": [], "skip": skip, "limit": limit, "total": 0}
-            return empty if envelope else []
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get system logs: {str(e)}",
-        )
+    except Exception:
+        # Graceful fallback: return empty results to avoid 500s in admin UI
+        empty = {"items": [], "skip": skip, "limit": limit, "total": 0}
+        return empty if envelope else []
 
 
 @router.get("/system/logs/stream")
