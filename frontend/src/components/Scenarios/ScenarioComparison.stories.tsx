@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ScenarioComparison from './ScenarioComparison';
+import { ScenarioComparison } from './ScenarioComparison';
 
 const meta: Meta<typeof ScenarioComparison> = {
   title: 'Components/ScenarioComparison',

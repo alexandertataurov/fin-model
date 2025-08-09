@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ParameterTemplates from './ParameterTemplates';
+import { ParameterTemplates } from './ParameterTemplates';
 
 const meta: Meta<typeof ParameterTemplates> = {
   title: 'Components/ParameterTemplates',

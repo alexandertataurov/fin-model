@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ParameterControl from './ParameterControl';
+import { ParameterControl } from './ParameterControl';
 
 const meta: Meta<typeof ParameterControl> = {
   title: 'Components/ParameterControl',

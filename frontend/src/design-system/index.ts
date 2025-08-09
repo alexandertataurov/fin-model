@@ -16,6 +16,11 @@ export * from './components/Form';
 export * from './components/Alert';
 export * from './components/Checkbox';
 export * from './components/Textarea';
+export * from './components/Tabs';
+export * from './components/Avatar';
+export * from './components/Table';
+export * from './components/Tooltip';
+export * from './components/Progress';
 
 // Theme and Utilities
 export * from './components/ThemeProvider';
