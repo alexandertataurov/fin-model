@@ -123,7 +123,7 @@ class BulkUserActionRequest(BaseModel):
     action: str
 
 
-@router.get("/users", response_model=List[UserWithRoles])
+@router.get("/users", response_model=Any)
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -147,9 +147,9 @@ def list_users(
     users_with_roles = []
     for user in users:
         user_roles = auth_service.get_user_roles(user.id)
-        user_dict = UserSchema.from_orm(user).dict()
+        user_dict = UserSchema.model_validate(user).model_dump()
         user_dict["roles"] = user_roles
-        users_with_roles.append(UserWithRoles(**user_dict))
+        users_with_roles.append(user_dict)
 
     if envelope:
         return {
@@ -161,7 +161,7 @@ def list_users(
     return users_with_roles
 
 
-@router.get("/users/{user_id}", response_model=UserWithRoles)
+@router.get("/users/{user_id}", response_model=Any)
 def get_user(
     user_id: int,
     current_user: User = Depends(
@@ -180,15 +180,15 @@ def get_user(
 
     # Get user roles
     user_roles = auth_service.get_user_roles(user.id)
-    user_dict = UserSchema.from_orm(user).dict()
+    user_dict = UserSchema.model_validate(user).model_dump()
     user_dict["roles"] = user_roles
 
-    return UserWithRoles(**user_dict)
+    return user_dict
 
 
 @router.post(
     "/users",
-    response_model=UserWithRoles,
+    response_model=Any,
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -207,7 +207,7 @@ def create_user(
     )
 
     roles = auth_service.get_user_roles(created.id)
-    user_dict = UserSchema.from_orm(created).dict()
+    user_dict = UserSchema.model_validate(created).model_dump()
     user_dict["roles"] = roles
     # Write audit (best-effort)
     try:
@@ -224,7 +224,7 @@ def create_user(
         db.commit()
     except Exception:
         db.rollback()
-    return UserWithRoles(**user_dict)
+    return user_dict
 
 
 @router.put("/users/{user_id}", response_model=UserSchema)
@@ -1343,7 +1343,7 @@ async def cleanup_orphaned_files(
 ):
     """Clean up orphaned or invalid files."""
     try:
-        file_service = FileService()
+        file_service = FileService(db)
 
         # Find files to clean up
         orphaned_files = (

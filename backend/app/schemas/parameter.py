@@ -96,8 +96,7 @@ class ParameterValueResponse(ParameterValueBase):
     is_valid: bool = True
     validation_errors: Optional[List[str]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Scenario Schemas

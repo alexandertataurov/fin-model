@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 
 class Settings(BaseSettings):
@@ -173,9 +174,7 @@ class Settings(BaseSettings):
         os.getenv("DEMO_FILES_RETENTION_DAYS", "1")
     )
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+    model_config = ConfigDict(case_sensitive=True, env_file=".env")
 
 
 settings = Settings()

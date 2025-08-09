@@ -30,10 +30,7 @@ export type { ButtonProps } from './components/Button';
 export type { CardProps } from './components/Card';
 export type { InputProps } from './components/Input';
 export type { BadgeProps } from './components/Badge';
-export type { DialogProps } from './components/Dialog';
-export type { SelectProps } from './components/Select';
-export type { SwitchProps } from './components/Switch';
-export type { FormProps } from './components/Form';
+// Omit props re-exports not present in components
 export type { AlertProps } from './components/Alert';
-export type { CheckboxProps } from './components/Checkbox';
+// Omit checkbox prop type re-export
 export type { TextareaProps } from './components/Textarea';

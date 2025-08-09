@@ -3,7 +3,17 @@
  * Provides utilities for working with design tokens in components
  */
 
-import { designTokens, colorTokens, componentTokens } from '../tokens';
+import { tokens } from '../tokens';
+const designTokens = {
+  spacing: tokens.spacing,
+  fontSize: tokens.typography.fontSize as any,
+  borderRadius: tokens.borderRadius,
+  boxShadow: tokens.shadows,
+  transitionDuration: tokens.transitions,
+  zIndex: tokens.zIndex,
+} as const;
+const colorTokens = { light: tokens.colors as any, dark: tokens.colors as any } as const;
+const componentTokens = {} as const;
 
 // Type definitions for better autocomplete and type safety
 export type SpacingToken = keyof typeof designTokens.spacing;

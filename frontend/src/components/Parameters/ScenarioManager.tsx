@@ -15,9 +15,9 @@ import { Label } from '@/design-system/components/Label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/design-system/components/Dialog';
 // duplicate import removed
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+// duplicate imports removed
 import { Badge } from '@/design-system/components/Badge';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+// duplicate imports removed
 import {
   Play,
   Plus,

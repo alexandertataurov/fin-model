@@ -309,11 +309,11 @@ const Dashboard = () => {
               Welcome back, {user?.first_name || user?.username || 'User'}!
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-              {dashboardData
+              {dashboardData && (dashboardData as any).data_quality_score !== undefined
                 ? `Last updated: ${new Date(
-                  dashboardData.last_updated
+                  (dashboardData as any).last_updated
                 ).toLocaleDateString()} - Data quality: ${(
-                  dashboardData.data_quality_score * 100
+                  (dashboardData as any).data_quality_score * 100
                 ).toFixed(0)}%`
                 : 'Loading your financial dashboard...'}
             </p>

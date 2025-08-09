@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { formatCurrency, formatPercentage } from '@/utils/formatters';
+import { formatCurrency as formatCurrencyUtil, formatPercentage as formatPercentageUtil } from '@/utils/formatters';
 import { Button } from '@/design-system/components/Button';
 // duplicate import removed
 import { Download, TrendingUp, TrendingDown, Target, Calculator } from 'lucide-react';
@@ -449,7 +449,7 @@ const DCFView: React.FC<DCFViewProps> = ({
           <Card className="p-4">
             <h4 className="text-sm font-medium text-gray-600">FCF Yield</h4>
             <p className="text-2xl font-bold text-indigo-600">
-              {formatPercentage(data.key_metrics.fcf_yield)}
+              {formatPercentageUtil(data.key_metrics.fcf_yield)}
             </p>
           </Card>
         </div>
@@ -491,13 +491,13 @@ const DCFView: React.FC<DCFViewProps> = ({
             <div className="text-center">
               <p className="text-sm text-gray-600">ROIC</p>
               <p className="text-2xl font-bold text-orange-600">
-                {formatPercentage(data.key_metrics.roic)}
+                {formatPercentageUtil(data.key_metrics.roic)}
               </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-600">WACC</p>
               <p className="text-2xl font-bold text-orange-600">
-                {formatPercentage(data.key_metrics.wacc)}
+                {formatPercentageUtil(data.key_metrics.wacc)}
               </p>
             </div>
             <div className="text-center">
