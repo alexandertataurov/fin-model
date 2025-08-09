@@ -35,6 +35,7 @@ import {
 } from '@/design-system/components/Tooltip';
 import { Edit, Trash2, RefreshCw, History } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 // Types
 interface Parameter {
@@ -94,6 +95,8 @@ const ParameterList: React.FC<ParameterListProps> = ({
     null
   );
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [parameterToDelete, setParameterToDelete] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -192,8 +195,13 @@ const ParameterList: React.FC<ParameterListProps> = ({
   };
 
   const handleDeleteParameter = (parameterId: number) => {
-    if (confirm('Are you sure you want to delete this parameter?')) {
-      deleteMutation.mutate(parameterId);
+    setParameterToDelete(parameterId);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (parameterToDelete !== null) {
+      deleteMutation.mutate(parameterToDelete);
     }
   };
 
@@ -472,6 +480,18 @@ const ParameterList: React.FC<ParameterListProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={open => {
+          setConfirmOpen(open);
+          if (!open) setParameterToDelete(null);
+        }}
+        title="Delete Parameter"
+        description="Are you sure you want to delete this parameter?"
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

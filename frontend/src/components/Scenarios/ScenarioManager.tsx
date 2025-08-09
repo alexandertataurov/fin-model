@@ -29,6 +29,7 @@ import {
   DialogTrigger,
 } from '@/design-system/components/Dialog';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 import { ScrollArea } from '@/design-system/components/ScrollArea';
 import {
@@ -74,6 +75,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
   const [scenarioToClone, setScenarioToClone] = useState<Scenario | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [scenarioToDelete, setScenarioToDelete] = useState<Scenario | null>(null);
 
   // Form states
   const [newScenario, setNewScenario] = useState({
@@ -185,13 +188,17 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
     }
   };
 
-  const deleteScenario = async (scenarioId: number) => {
-    if (!confirm('Are you sure you want to delete this scenario?')) {
-      return;
-    }
+  const deleteScenario = (scenarioId: number) => {
+    const scenario = scenarios.find(s => s.id === scenarioId) || null;
+    setScenarioToDelete(scenario);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!scenarioToDelete) return;
 
     try {
-      const response = await fetch(`/api/v1/scenarios/${scenarioId}`, {
+      const response = await fetch(`/api/v1/scenarios/${scenarioToDelete.id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -202,8 +209,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         throw new Error('Failed to delete scenario');
       }
 
-      setScenarios(prev => prev.filter(s => s.id !== scenarioId));
-      if (selectedScenario?.id === scenarioId) {
+      setScenarios(prev => prev.filter(s => s.id !== scenarioToDelete.id));
+      if (selectedScenario?.id === scenarioToDelete.id) {
         setSelectedScenario(null);
       }
     } catch (err) {
@@ -629,6 +636,18 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={open => {
+          setConfirmOpen(open);
+          if (!open) setScenarioToDelete(null);
+        }}
+        title="Delete Scenario"
+        description="Are you sure you want to delete this scenario?"
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

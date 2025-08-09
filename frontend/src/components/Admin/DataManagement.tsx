@@ -49,6 +49,7 @@ import {
 } from '@/design-system/components/Tabs';
 import AdminApiService from '@/services/adminApi';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface TableInfo {
   name: string;
@@ -86,6 +87,18 @@ const DataManagement: React.FC = () => {
     import('@/services/adminApi').MaintenanceSchedules | null
   >(null);
   const [savingSchedules, setSavingSchedules] = useState(false);
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    message: '',
+    onConfirm: async () => {},
+  });
+
+  const showConfirm = (
+    message: string,
+    onConfirm: () => void | Promise<void>
+  ) => {
+    setConfirmState({ open: true, message, onConfirm });
+  };
 
   // Load data management information
   const loadDataInfo = useCallback(async () => {
@@ -540,23 +553,25 @@ const DataManagement: React.FC = () => {
                   <Button
                     className="w-full"
                     variant="outline"
-                    onClick={async () => {
-                      try {
-                        if (!confirm('Generate admin overview report (CSV)?'))
-                          return;
-                        const data =
-                          await AdminApiService.getAdminOverviewReport('csv');
-                        const blob = new Blob([data], { type: 'text/csv' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'admin_overview.csv';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                      } catch (_e) {
-                        toast.error('Failed to generate report');
-                      }
-                    }}
+                    onClick={() =>
+                      showConfirm('Generate admin overview report (CSV)?', async () => {
+                        try {
+                          const data =
+                            await AdminApiService.getAdminOverviewReport('csv');
+                          const blob = new Blob([data], {
+                            type: 'text/csv',
+                          });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = 'admin_overview.csv';
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        } catch (_e) {
+                          toast.error('Failed to generate report');
+                        }
+                      })
+                    }
                   >
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Generate Admin Report (CSV)
@@ -820,15 +835,16 @@ const DataManagement: React.FC = () => {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={async () => {
-                    try {
-                      if (!confirm('Run database backup now?')) return;
-                      const res = await AdminApiService.backupDatabase();
-                      toast.success(`${res.message} (job ${res.job_id})`);
-                    } catch {
-                      toast.error('Backup failed');
-                    }
-                  }}
+                  onClick={() =>
+                    showConfirm('Run database backup now?', async () => {
+                      try {
+                        const res = await AdminApiService.backupDatabase();
+                        toast.success(`${res.message} (job ${res.job_id})`);
+                      } catch {
+                        toast.error('Backup failed');
+                      }
+                    })
+                  }
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Backup Database
@@ -868,15 +884,16 @@ const DataManagement: React.FC = () => {
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={async () => {
-                    try {
-                      if (!confirm('Rebuild all database indexes now?')) return;
-                      const res = await AdminApiService.reindexDatabase();
-                      toast.success(`${res.message} (job ${res.job_id})`);
-                    } catch {
-                      toast.error('Reindex failed');
-                    }
-                  }}
+                  onClick={() =>
+                    showConfirm('Rebuild all database indexes now?', async () => {
+                      try {
+                        const res = await AdminApiService.reindexDatabase();
+                        toast.success(`${res.message} (job ${res.job_id})`);
+                      } catch {
+                        toast.error('Reindex failed');
+                      }
+                    })
+                  }
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Rebuild Indexes
@@ -963,6 +980,15 @@ const DataManagement: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmState.open}
+        onOpenChange={open => setConfirmState(prev => ({ ...prev, open }))}
+        title="Please confirm"
+        description={confirmState.message}
+        confirmText="Confirm"
+        onConfirm={confirmState.onConfirm}
+      />
     </div>
   );
 };
