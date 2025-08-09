@@ -2,17 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 
-import * as AdminApi from '@/services/adminApi'
+import * as AdminApi from '@/services/admin'
 import AdminDashboard from '@/pages/AdminDashboard'
 
-vi.mock('@/services/adminApi')
+vi.mock('@/services/admin')
 
-const mocked = AdminApi as unknown as { default: any }
+const mocked = AdminApi as unknown as Record<string, any>
 
 describe('AdminDashboard metrics alerts', () => {
     beforeEach(() => {
         vi.resetAllMocks()
-        mocked.default = {
+        Object.assign(mocked, {
             getSystemStats: vi.fn().mockResolvedValue({
                 users: { total: 1, active: 1, verified: 1, new_24h: 0 },
                 files: { total: 1, completed: 1, processing: 0, failed: 0 },
@@ -37,7 +37,7 @@ describe('AdminDashboard metrics alerts', () => {
             getSystemLogs: vi.fn().mockResolvedValue([]),
             getUserPermissions: vi.fn().mockResolvedValue({ permissions: [], roles: [], is_admin: true }),
             getAuditLogs: vi.fn().mockResolvedValue({ items: [], skip: 0, limit: 100, total: 0 }),
-        }
+        })
     })
 
     it('shows High Memory Usage and Disk Usage alerts in Overview', async () => {
@@ -46,5 +46,3 @@ describe('AdminDashboard metrics alerts', () => {
         expect(await screen.findByText(/Disk Usage/i)).toBeInTheDocument()
     })
 })
-
-

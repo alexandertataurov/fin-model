@@ -3,14 +3,12 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import * as AdminApi from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
 import AdminDashboard from '@/pages/AdminDashboard';
 
-vi.mock('@/services/adminApi');
+vi.mock('@/services/admin');
 
-const mocked = AdminApi as unknown as {
-  default: any;
-};
+const mocked = AdminApi as unknown as Record<string, any>;
 
 describe('AdminDashboard Logs pagination', () => {
   beforeEach(() => {
@@ -18,7 +16,7 @@ describe('AdminDashboard Logs pagination', () => {
 
     // Minimal stubs for initial loadAdminData()
     const now = new Date().toISOString()
-    mocked.default = {
+    Object.assign(mocked, {
       getSystemStats: vi.fn().mockResolvedValue({
         users: {},
         files: {},
@@ -64,13 +62,13 @@ describe('AdminDashboard Logs pagination', () => {
       getAuditLogs: vi
         .fn()
         .mockResolvedValue({ items: [], skip: 0, limit: 100, total: 0 }),
-    };
+    });
   });
 
   it('renders logs list and paging controls', async () => {
     // Ensure predictable logs response for all calls
     const now = new Date().toISOString();
-    mocked.default.getSystemLogs = vi.fn().mockResolvedValue({
+    mocked.getSystemLogs = vi.fn().mockResolvedValue({
       items: [
         { timestamp: now, level: 'ERROR', message: 'A', module: 'db', user_id: null },
         { timestamp: now, level: 'ERROR', message: 'B', module: 'db', user_id: null },

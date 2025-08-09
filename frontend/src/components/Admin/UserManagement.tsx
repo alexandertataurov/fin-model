@@ -71,7 +71,8 @@ import {
 } from '@/design-system/components/DropdownMenu';
 import { Label } from '@/design-system/components/Label';
 // import { Textarea } from '@/design-system/components/Textarea';
-import AdminApiService, { UserWithRoles } from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
+import type { UserWithRoles } from '@/services/admin';
 import { toast } from 'sonner';
 
 interface UserManagementProps {
@@ -142,6 +143,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
         true,
         params
       );
+
       const env = resp as any;
       let list = (env?.items as UserWithRoles[]) || (resp as UserWithRoles[]);
       if (roleFilter !== 'all' && roleFilter !== 'admin') {
@@ -188,7 +190,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
     }
 
     try {
-      const result = await AdminApiService.bulkUserAction(
+      const result = await AdminApi.bulkUserAction(
         selectedUsers,
         action
       );
@@ -219,7 +221,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
     if (!editingUser) return;
 
     try {
-      await AdminApiService.updateUser(editingUser.id, editUserData);
+      await AdminApi.updateUser(editingUser.id, editUserData);
       toast.success('User updated successfully');
       setShowEditDialog(false);
       setEditingUser(null);
@@ -235,7 +237,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
     if (!userToDelete) return;
 
     try {
-      await AdminApiService.deleteUser(userToDelete.id);
+      await AdminApi.deleteUser(userToDelete.id);
       toast.success('User deactivated successfully');
       setShowDeleteDialog(false);
       setUserToDelete(null);
@@ -250,7 +252,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   const handleCreateUser = async () => {
     try {
       setCreating(true);
-      await AdminApiService.createUser(newUserData);
+      await AdminApi.createUser(newUserData);
       toast.success('User created successfully');
       setShowAddDialog(false);
       setNewUserData({
@@ -273,7 +275,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   // Role management
   const handleAssignRole = async (userId: number, role: string) => {
     try {
-      await AdminApiService.assignRole(userId, role);
+      await AdminApi.assignRole(userId, role);
       toast.success(`Role ${role} assigned successfully`);
       await loadUsers();
     } catch (error) {
@@ -283,7 +285,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
 
   const handleRemoveRole = async (userId: number, role: string) => {
     try {
-      await AdminApiService.removeRole(userId, role);
+      await AdminApi.removeRole(userId, role);
       toast.success(`Role ${role} removed successfully`);
       await loadUsers();
     } catch (error) {
@@ -316,8 +318,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
 
     try {
       await Promise.all([
-        ...toAssign.map(r => AdminApiService.assignRole(roleUser.id, r)),
-        ...toRemove.map(r => AdminApiService.removeRole(roleUser.id, r)),
+        ...toAssign.map(r => AdminApi.assignRole(roleUser.id, r)),
+        ...toRemove.map(r => AdminApi.removeRole(roleUser.id, r)),
       ]);
       toast.success('Roles updated');
       setShowRolesDialog(false);

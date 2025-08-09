@@ -1,6 +1,6 @@
 /**
  * Enhanced Maintenance Tools
- * 
+ *
  * Advanced maintenance operations with dry-run previews, audit tracking, and safety checks
  */
 
@@ -57,7 +57,7 @@ import {
 import { Textarea } from '@/design-system/components/Textarea';
 import { Switch } from '@/design-system/components/Switch';
 import { toast } from 'sonner';
-import AdminApiService from '@/services/adminApi';
+import * as AdminApi from '@/services/admin';
 
 // Maintenance operation types
 export interface MaintenanceOperation {
@@ -73,7 +73,7 @@ export interface MaintenanceOperation {
   category: 'database' | 'files' | 'system' | 'security';
 }
 
-export type MaintenanceType = 
+export type MaintenanceType =
   | 'database-cleanup'
   | 'file-cleanup'
   | 'cache-clear'
@@ -212,14 +212,14 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
     setRunningOperations(prev => new Set(prev).add(operationId));
 
     const startTime = Date.now();
-    
+
     try {
       let result: MaintenanceResult;
 
       // Execute the actual operation based on type
       switch (operation.type) {
         case 'database-cleanup':
-          const cleanupResult = await AdminApiService.cleanupDatabase(dryRun);
+          const cleanupResult = await AdminApi.cleanupDatabase(dryRun);
           result = {
             success: true,
             message: cleanupResult.message || 'Database cleanup completed',
@@ -231,7 +231,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
           break;
 
         case 'file-cleanup':
-          const fileResult = await AdminApiService.cleanupFiles(dryRun);
+          const fileResult = await AdminApi.cleanupFiles(dryRun);
           result = {
             success: true,
             message: fileResult.message || 'File cleanup completed',
@@ -243,7 +243,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
           break;
 
         case 'database-backup':
-          const backupResult = await AdminApiService.backupDatabase();
+          const backupResult = await AdminApi.backupDatabase();
           result = {
             success: true,
             message: backupResult.message || 'Database backup completed',
@@ -255,7 +255,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
           break;
 
         case 'database-reindex':
-          const reindexResult = await AdminApiService.reindexDatabase();
+          const reindexResult = await AdminApi.reindexDatabase();
           result = {
             success: true,
             message: reindexResult.message || 'Database reindex completed',
@@ -344,7 +344,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {MAINTENANCE_OPERATIONS.map((operation) => {
           const isRunning = runningOperations.has(operation.id);
-          
+
           return (
             <Card key={operation.id} className="relative">
               <CardHeader className="pb-3">
@@ -363,7 +363,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
                 <p className="text-sm text-muted-foreground">
                   {operation.description}
                 </p>
-                
+
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>Duration: {operation.estimatedDuration}</span>
                   <span>Category: {operation.category}</span>
@@ -386,7 +386,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
                       Preview
                     </Button>
                   )}
-                  
+
                   <Button
                     variant={operation.risk === 'high' ? 'destructive' : 'default'}
                     size="sm"
@@ -573,7 +573,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
                 </Button>
               )}
             </div>
-            
+
             <div className="flex space-x-2">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel

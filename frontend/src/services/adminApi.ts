@@ -5,7 +5,7 @@
  */
 
 import api from './api';
-import { 
+import {
   AdminDataTransformer,
   NormalizedSystemStats,
   NormalizedUserActivity,
@@ -13,6 +13,7 @@ import {
   NormalizedLogEntry,
   NormalizedAuditEntry,
   PaginatedResponse,
+  UserActivity,
 } from '@/types/admin';
 
 // Types for admin API responses
@@ -41,17 +42,6 @@ export interface SystemStats {
     avg_file_size_mb: number;
   };
 }
-
-export interface UserActivity {
-  user_id: number;
-  username: string;
-  last_login: string | null;
-  login_count: number;
-  files_uploaded: number;
-  models_created: number;
-  is_active: boolean;
-}
-
 export interface SystemMetrics {
   cpu_usage: number | null;
   memory_usage: number | null;

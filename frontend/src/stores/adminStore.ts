@@ -1,22 +1,28 @@
 /**
  * Admin Dashboard Store
- * 
+ *
  * Centralized state management for admin dashboard data using Zustand
  */
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import AdminApiService, {
+import * as AdminApi from '@/services/admin';
+import type {
   SystemStats,
-  UserActivity,
   SystemMetrics,
   DataIntegrityCheck,
   SecurityAudit,
   LogEntry,
   UserPermissions,
   AuditEntry,
+<<<<<<< HEAD
+} from '@/services/admin';
+=======
 } from '@/services/adminApi';
+import { UserActivity } from '@/types/admin';
+>>>>>>> pre-production
 import { toast } from 'sonner';
+import { createAsyncResource } from './utils';
 
 // Normalized data types
 export interface NormalizedApiResponse<T> {
@@ -74,28 +80,28 @@ export interface AdminStoreState {
   // Actions
   setActiveTab: (tab: string) => void;
   setAutoRefresh: (enabled: boolean) => void;
-  
+
   // Data fetching actions - context-aware
   fetchOverviewData: () => Promise<void>;
   fetchSystemData: () => Promise<void>;
   fetchLogsData: () => Promise<void>;
   fetchAuditData: () => Promise<void>;
   fetchHealthData: () => Promise<void>;
-  
+
   // Specific data fetchers
   fetchSystemStats: () => Promise<void>;
   fetchUserActivity: () => Promise<void>;
   fetchSystemMetrics: () => Promise<void>;
   fetchSecurityAudit: () => Promise<void>;
-  
+
   // Log management
   updateLogsFilters: (filters: Partial<Omit<LogsState, 'items' | 'total'>>) => void;
   fetchLogs: () => Promise<void>;
-  
+
   // Audit management
   updateAuditFilters: (filters: Partial<Omit<AuditState, 'items' | 'total'>>) => void;
   fetchAudit: () => Promise<void>;
-  
+
   // Utilities
   refreshAll: () => Promise<void>;
   clearErrors: () => void;
@@ -107,16 +113,6 @@ const createNormalizedResponse = <T>(): NormalizedApiResponse<T> => ({
   loading: false,
   error: null,
   lastUpdated: null,
-});
-
-// Helper to update normalized response
-const updateNormalizedResponse = <T>(
-  current: NormalizedApiResponse<T>,
-  updates: Partial<NormalizedApiResponse<T>>
-): NormalizedApiResponse<T> => ({
-  ...current,
-  ...updates,
-  lastUpdated: updates.data !== undefined ? Date.now() : current.lastUpdated,
 });
 
 export const useAdminStore = create<AdminStoreState>()(
@@ -168,7 +164,7 @@ export const useAdminStore = create<AdminStoreState>()(
       // Context-aware data fetching
       fetchOverviewData: async () => {
         set({ refreshing: true });
-        
+
         const state = get();
         const promises = [
           get().fetchSystemStats(),
@@ -187,12 +183,12 @@ export const useAdminStore = create<AdminStoreState>()(
 
       fetchSystemData: async () => {
         set({ refreshing: true });
-        
+
         await Promise.allSettled([
           get().fetchSystemMetrics(),
           get().fetchSystemStats(),
         ]);
-        
+
         set({ refreshing: false });
       },
 
@@ -206,74 +202,110 @@ export const useAdminStore = create<AdminStoreState>()(
 
       fetchHealthData: async () => {
         set({ refreshing: true });
-        
+
         await Promise.allSettled([
           get().fetchSystemHealth(),
           get().fetchDatabaseHealth(),
         ]);
-        
+
         set({ refreshing: false });
       },
 
       // Specific fetchers
-      fetchSystemStats: async () => {
-        set(state => ({
-          systemStats: updateNormalizedResponse(state.systemStats, { loading: true, error: null })
-        }));
+      fetchSystemStats: createAsyncResource(
+        set,
+        get,
+        'systemStats',
+        async () => AdminApiService.getSystemStats()
+      ),
 
+<<<<<<< HEAD
+      fetchUserActivity: createAsyncResource(
+        set,
+        get,
+        'userActivity',
+        async () => AdminApiService.getUserActivity(20)
+      ),
+=======
         try {
-          const data = await AdminApiService.getSystemStats();
+          const data = await AdminApi.getSystemStats();
           set(state => ({
             systemStats: updateNormalizedResponse(state.systemStats, { data, loading: false })
           }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to fetch system stats';
           set(state => ({
-            systemStats: updateNormalizedResponse(state.systemStats, { 
-              loading: false, 
-              error: message 
+            systemStats: updateNormalizedResponse(state.systemStats, {
+              loading: false,
+              error: message
             })
           }));
         }
       },
+>>>>>>> pre-production
 
-      fetchUserActivity: async () => {
-        set(state => ({
-          userActivity: updateNormalizedResponse(state.userActivity, { loading: true, error: null })
-        }));
+      fetchSystemMetrics: createAsyncResource(
+        set,
+        get,
+        'systemMetrics',
+        async () => AdminApiService.getSystemMetrics()
+      ),
 
+<<<<<<< HEAD
+      fetchSecurityAudit: createAsyncResource(
+        set,
+        get,
+        'securityAudit',
+        async (state) =>
+          AdminApiService.getSecurityAudit({
+            from: state.audit.from || undefined,
+            to: state.audit.to || undefined,
+          })
+      ),
+=======
         try {
-          const data = await AdminApiService.getUserActivity(20);
+          const data = await AdminApi.getUserActivity(20);
           set(state => ({
             userActivity: updateNormalizedResponse(state.userActivity, { data, loading: false })
           }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to fetch user activity';
           set(state => ({
-            userActivity: updateNormalizedResponse(state.userActivity, { 
-              loading: false, 
-              error: message 
+            userActivity: updateNormalizedResponse(state.userActivity, {
+              loading: false,
+              error: message
             })
           }));
         }
       },
+>>>>>>> pre-production
 
-      fetchSystemMetrics: async () => {
-        set(state => ({
-          systemMetrics: updateNormalizedResponse(state.systemMetrics, { loading: true, error: null })
-        }));
+      fetchSystemHealth: createAsyncResource(
+        set,
+        get,
+        'systemHealth',
+        async () => AdminApiService.getSystemHealth()
+      ),
 
+<<<<<<< HEAD
+      fetchDatabaseHealth: createAsyncResource(
+        set,
+        get,
+        'databaseHealth',
+        async () => AdminApiService.getDatabaseHealth()
+      ),
+=======
         try {
-          const data = await AdminApiService.getSystemMetrics();
+          const data = await AdminApi.getSystemMetrics();
           set(state => ({
             systemMetrics: updateNormalizedResponse(state.systemMetrics, { data, loading: false })
           }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to fetch system metrics';
           set(state => ({
-            systemMetrics: updateNormalizedResponse(state.systemMetrics, { 
-              loading: false, 
-              error: message 
+            systemMetrics: updateNormalizedResponse(state.systemMetrics, {
+              loading: false,
+              error: message
             })
           }));
         }
@@ -286,7 +318,7 @@ export const useAdminStore = create<AdminStoreState>()(
 
         try {
           const { audit } = get();
-          const data = await AdminApiService.getSecurityAudit({
+          const data = await AdminApi.getSecurityAudit({
             from: audit.from || undefined,
             to: audit.to || undefined,
           });
@@ -296,9 +328,9 @@ export const useAdminStore = create<AdminStoreState>()(
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to fetch security audit';
           set(state => ({
-            securityAudit: updateNormalizedResponse(state.securityAudit, { 
-              loading: false, 
-              error: message 
+            securityAudit: updateNormalizedResponse(state.securityAudit, {
+              loading: false,
+              error: message
             })
           }));
         }
@@ -310,16 +342,16 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
 
         try {
-          const data = await AdminApiService.getSystemHealth();
+          const data = await AdminApi.getSystemHealth();
           set(state => ({
             systemHealth: updateNormalizedResponse(state.systemHealth, { data, loading: false })
           }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to fetch system health';
           set(state => ({
-            systemHealth: updateNormalizedResponse(state.systemHealth, { 
-              loading: false, 
-              error: message 
+            systemHealth: updateNormalizedResponse(state.systemHealth, {
+              loading: false,
+              error: message
             })
           }));
         }
@@ -331,20 +363,21 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
 
         try {
-          const data = await AdminApiService.getDatabaseHealth();
+          const data = await AdminApi.getDatabaseHealth();
           set(state => ({
             databaseHealth: updateNormalizedResponse(state.databaseHealth, { data, loading: false })
           }));
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Failed to fetch database health';
           set(state => ({
-            databaseHealth: updateNormalizedResponse(state.databaseHealth, { 
-              loading: false, 
-              error: message 
+            databaseHealth: updateNormalizedResponse(state.databaseHealth, {
+              loading: false,
+              error: message
             })
           }));
         }
       },
+>>>>>>> pre-production
 
       // Log management
       updateLogsFilters: (filters) => {
@@ -353,6 +386,7 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
       },
 
+<<<<<<< HEAD
       fetchLogs: async () => {
         set(state => ({
           logs: { ...state.logs, loading: true, error: null }
@@ -360,44 +394,38 @@ export const useAdminStore = create<AdminStoreState>()(
 
         try {
           const { logs } = get();
-          const response = await AdminApiService.getSystemLogs(logs.level, logs.limit, {
+          const response = await AdminApi.getSystemLogs(logs.level, logs.limit, {
             from: logs.from || undefined,
             to: logs.to || undefined,
             search: logs.search || undefined,
             skip: logs.skip,
+=======
+      fetchLogs: createAsyncResource(
+        set,
+        get,
+        'logs',
+        async (state) =>
+          AdminApiService.getSystemLogs(state.logs.level, state.logs.limit, {
+            from: state.logs.from || undefined,
+            to: state.logs.to || undefined,
+            search: state.logs.search || undefined,
+            skip: state.logs.skip,
+>>>>>>> pre-production
             envelope: true,
-          });
-
-          if ('items' in response) {
-            set(state => ({
-              logs: {
-                ...state.logs,
-                data: response.items,
-                items: response.items,
-                total: response.total,
-                skip: response.skip,
-                loading: false,
-                lastUpdated: Date.now(),
-              }
-            }));
-          } else {
-            set(state => ({
-              logs: {
-                ...state.logs,
-                data: response,
-                items: response,
-                loading: false,
-                lastUpdated: Date.now(),
-              }
-            }));
+          }),
+        (response) => {
+          if ('items' in (response as any)) {
+            const r: any = response;
+            return {
+              data: r.items,
+              items: r.items,
+              total: r.total,
+              skip: r.skip,
+            } as any;
           }
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Failed to fetch logs';
-          set(state => ({
-            logs: { ...state.logs, loading: false, error: message }
-          }));
+          return { data: response as any, items: response as any } as any;
         }
-      },
+      ),
 
       // Audit management
       updateAuditFilters: (filters) => {
@@ -406,6 +434,7 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
       },
 
+<<<<<<< HEAD
       fetchAudit: async () => {
         set(state => ({
           audit: { ...state.audit, loading: true, error: null }
@@ -413,55 +442,55 @@ export const useAdminStore = create<AdminStoreState>()(
 
         try {
           const { audit } = get();
-          const response = await AdminApiService.getAuditLogs(
+          const response = await AdminApi.getAuditLogs(
             audit.skip,
             audit.limit,
             audit.userId,
             audit.action,
+=======
+      fetchAudit: createAsyncResource(
+        set,
+        get,
+        'audit',
+        async (state) =>
+          AdminApiService.getAuditLogs(
+            state.audit.skip,
+            state.audit.limit,
+            state.audit.userId,
+            state.audit.action,
+>>>>>>> pre-production
             {
-              from: audit.from || undefined,
-              to: audit.to || undefined,
+              from: state.audit.from || undefined,
+              to: state.audit.to || undefined,
               envelope: true,
             }
-          );
-
-          if ('items' in response) {
-            set(state => ({
-              audit: {
-                ...state.audit,
-                data: response.items,
-                items: response.items,
-                total: response.total,
-                skip: response.skip,
-                loading: false,
-                lastUpdated: Date.now(),
-              }
-            }));
-          } else if ('logs' in response) {
-            set(state => ({
-              audit: {
-                ...state.audit,
-                data: response.logs,
-                items: response.logs,
-                total: response.total,
-                skip: response.skip,
-                loading: false,
-                lastUpdated: Date.now(),
-              }
-            }));
+          ),
+        (response) => {
+          const r: any = response;
+          if ('items' in r) {
+            return {
+              data: r.items,
+              items: r.items,
+              total: r.total,
+              skip: r.skip,
+            } as any;
           }
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Failed to fetch audit logs';
-          set(state => ({
-            audit: { ...state.audit, loading: false, error: message }
-          }));
+          if ('logs' in r) {
+            return {
+              data: r.logs,
+              items: r.logs,
+              total: r.total,
+              skip: r.skip,
+            } as any;
+          }
+          return { data: r } as any;
         }
-      },
+      ),
 
       // Utilities
       refreshAll: async () => {
         const { activeTab } = get();
-        
+
         switch (activeTab) {
           case 'overview':
             await get().fetchOverviewData();
@@ -503,4 +532,3 @@ export const useAdminStore = create<AdminStoreState>()(
     }
   )
 );
-
