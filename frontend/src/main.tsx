@@ -29,11 +29,13 @@ try {
     </React.StrictMode>
   );
 } catch (error) {
-  rootElement.innerHTML = `
-    <div style="padding: 20px; font-family: Arial, sans-serif;">
+  const msg = error instanceof Error ? error.message : String(error);
+  const fallback = ReactDOM.createRoot(rootElement);
+  fallback.render(
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Error Loading Application</h1>
       <p>There was an error loading the application. Please check the console for details.</p>
-      <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px;">${error}</pre>
+      <pre style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>{msg}</pre>
     </div>
-  `;
+  );
 }

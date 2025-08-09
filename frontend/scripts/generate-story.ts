@@ -2,13 +2,22 @@
 import fs from 'fs';
 import path from 'path';
 
+const ROOT = path.resolve(process.cwd());
+function safeResolve(...segments: string[]): string {
+  const resolved = path.resolve(...segments);
+  if (!resolved.startsWith(ROOT)) {
+    throw new Error('Invalid path');
+  }
+  return resolved;
+}
+
 const target = process.argv[2];
 if (!target) {
   console.error('Usage: pnpm gen:story src/path/Component.tsx');
   process.exit(1);
 }
 
-const full = path.resolve(process.cwd(), target);
+const full = safeResolve(ROOT, target);
 if (!fs.existsSync(full)) {
   console.error('Component not found:', full);
   process.exit(1);
@@ -16,7 +25,7 @@ if (!fs.existsSync(full)) {
 
 const dir = path.dirname(full);
 const extless = path.basename(full).replace(/\.(tsx|ts)$/, '');
-const storyPath = path.join(dir, `${extless}.stories.tsx`);
+const storyPath = safeResolve(dir, `${extless}.stories.tsx`);
 if (fs.existsSync(storyPath)) {
   console.log('Story already exists:', storyPath);
   process.exit(0);

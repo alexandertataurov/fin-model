@@ -6,7 +6,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirnameESM = path.dirname(__filename);
 const ROOT = path.resolve(__dirnameESM, '..');
-const STORIES_DIR = path.join(ROOT, 'src', 'design-system', 'stories');
+
+function safeResolve(...segments: string[]): string {
+    const resolved = path.resolve(...segments);
+    if (!resolved.startsWith(ROOT)) {
+        throw new Error('Invalid path');
+    }
+    return resolved;
+}
+
+const STORIES_DIR = safeResolve(ROOT, 'src', 'design-system', 'stories');
 
 function ensureAutodocsTag(metaBlock: string): string {
     if (/\btags\s*:\s*\[\s*'autodocs'\s*\]/.test(metaBlock)) return metaBlock;
@@ -49,7 +58,8 @@ async function run() {
     const files = await globby(['**/*.stories.tsx'], { cwd: STORIES_DIR, absolute: true });
     let modified = 0;
     for (const file of files) {
-        const text = fs.readFileSync(file, 'utf8');
+        const resolved = safeResolve(file);
+        const text = fs.readFileSync(resolved, 'utf8');
         if (!/const\s+meta\s*:\s*Meta/.test(text)) continue; // skip MDX or unconventional
         const metaMatch = text.match(/const\s+meta\s*:[\s\S]*?=\s*\{[\s\S]*?\n\};/);
         if (!metaMatch) continue;
@@ -59,7 +69,7 @@ async function run() {
         let newText = text.replace(metaBlock, newMeta);
         newText = ensureStatesExports(newText);
         if (newText !== text) {
-            fs.writeFileSync(file, newText, 'utf8');
+            fs.writeFileSync(resolved, newText, 'utf8');
             modified++;
         }
     }
@@ -70,5 +80,3 @@ run().catch((err) => {
     console.error(err);
     process.exit(1);
 });
-
-

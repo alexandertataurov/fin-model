@@ -1,6 +1,6 @@
 # Core Framework and Dependencies
 fastapi==0.104.1
-starlette==0.27.0
+starlette==0.47.2
 uvicorn==0.24.0
 gunicorn==21.2.0
 python-multipart==0.0.6
@@ -15,10 +15,9 @@ greenlet==3.2.3
 # Authentication and Security
 bcrypt==4.0.1
 cryptography==45.0.5
-ecdsa==0.19.1
 passlib==1.7.4
 PyJWT==2.10.1
-python-jose==3.3.0
+python-jose[cryptography]==3.5.0
 pyasn1==0.6.1
 rsa==4.9.1
 
@@ -160,4 +159,4 @@ pyotp>=2.9.0
 qrcode[pil]==8.2
 Authlib==1.6.1
 webauthn==2.6.0
-prometheus_client==0.21.1 
+prometheus_client==0.21.1
