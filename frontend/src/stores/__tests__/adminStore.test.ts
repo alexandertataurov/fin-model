@@ -1,17 +1,22 @@
 /**
  * Admin Store Tests
- * 
+ *
  * Comprehensive tests for the admin dashboard state management
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+<<<<<<< HEAD
+import { useAdminStore } from '../adminStore';
+import * as AdminApi from '../../services/admin';
+=======
 import { useAdminStore } from '../admin';
 import AdminApiService from '../../services/adminApi';
+>>>>>>> pre-production
 
 // Mock the API service
-vi.mock('../../services/adminApi');
-const mockAdminApiService = vi.mocked(AdminApiService);
+vi.mock('../../services/admin');
+const mockAdminApi = vi.mocked(AdminApi);
 
 // Mock toast
 vi.mock('sonner', () => ({
@@ -36,7 +41,7 @@ describe('AdminStore', () => {
   describe('Initial State', () => {
     it('should have correct initial state', () => {
       const { result } = renderHook(() => useAdminStore());
-      
+
       expect(result.current.activeTab).toBe('overview');
       expect(result.current.autoRefreshEnabled).toBe(true);
       expect(result.current.refreshing).toBe(false);
@@ -50,21 +55,21 @@ describe('AdminStore', () => {
   describe('Tab Management', () => {
     it('should update active tab', () => {
       const { result } = renderHook(() => useAdminStore());
-      
+
       act(() => {
         result.current.setActiveTab('users');
       });
-      
+
       expect(result.current.activeTab).toBe('users');
     });
 
     it('should update auto refresh setting', () => {
       const { result } = renderHook(() => useAdminStore());
-      
+
       act(() => {
         result.current.setAutoRefresh(false);
       });
-      
+
       expect(result.current.autoRefreshEnabled).toBe(false);
     });
   });
@@ -79,7 +84,7 @@ describe('AdminStore', () => {
         performance: { avg_file_size_mb: 1.2 },
       };
 
-      mockAdminApiService.getSystemStats.mockResolvedValueOnce(mockStats);
+      mockAdminApi.getSystemStats.mockResolvedValueOnce(mockStats);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -95,7 +100,7 @@ describe('AdminStore', () => {
 
     it('should handle system stats fetch error', async () => {
       const error = new Error('Network error');
-      mockAdminApiService.getSystemStats.mockRejectedValueOnce(error);
+      mockAdminApi.getSystemStats.mockRejectedValueOnce(error);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -121,7 +126,7 @@ describe('AdminStore', () => {
         },
       ];
 
-      mockAdminApiService.getUserActivity.mockResolvedValueOnce(mockActivity);
+      mockAdminApi.getUserActivity.mockResolvedValueOnce(mockActivity);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -145,7 +150,7 @@ describe('AdminStore', () => {
         avg_response_time: 250,
       };
 
-      mockAdminApiService.getSystemMetrics.mockResolvedValueOnce(mockMetrics);
+      mockAdminApi.getSystemMetrics.mockResolvedValueOnce(mockMetrics);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -163,9 +168,9 @@ describe('AdminStore', () => {
       const mockActivity = [{ user_id: 1, username: 'test' }];
       const mockMetrics = { cpu_usage: 50 };
 
-      mockAdminApiService.getSystemStats.mockResolvedValueOnce(mockStats);
-      mockAdminApiService.getUserActivity.mockResolvedValueOnce(mockActivity);
-      mockAdminApiService.getSystemMetrics.mockResolvedValueOnce(mockMetrics);
+      mockAdminApi.getSystemStats.mockResolvedValueOnce(mockStats);
+      mockAdminApi.getUserActivity.mockResolvedValueOnce(mockActivity);
+      mockAdminApi.getSystemMetrics.mockResolvedValueOnce(mockMetrics);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -173,9 +178,9 @@ describe('AdminStore', () => {
         await result.current.fetchOverviewData();
       });
 
-      expect(mockAdminApiService.getSystemStats).toHaveBeenCalled();
-      expect(mockAdminApiService.getUserActivity).toHaveBeenCalled();
-      expect(mockAdminApiService.getSystemMetrics).toHaveBeenCalled();
+      expect(mockAdminApi.getSystemStats).toHaveBeenCalled();
+      expect(mockAdminApi.getUserActivity).toHaveBeenCalled();
+      expect(mockAdminApi.getSystemMetrics).toHaveBeenCalled();
       expect(result.current.refreshing).toBe(false);
     });
 
@@ -183,8 +188,8 @@ describe('AdminStore', () => {
       const mockMetrics = { cpu_usage: 50 };
       const mockStats = { users: { total: 100 } };
 
-      mockAdminApiService.getSystemMetrics.mockResolvedValueOnce(mockMetrics);
-      mockAdminApiService.getSystemStats.mockResolvedValueOnce(mockStats);
+      mockAdminApi.getSystemMetrics.mockResolvedValueOnce(mockMetrics);
+      mockAdminApi.getSystemStats.mockResolvedValueOnce(mockStats);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -192,8 +197,8 @@ describe('AdminStore', () => {
         await result.current.fetchSystemData();
       });
 
-      expect(mockAdminApiService.getSystemMetrics).toHaveBeenCalled();
-      expect(mockAdminApiService.getSystemStats).toHaveBeenCalled();
+      expect(mockAdminApi.getSystemMetrics).toHaveBeenCalled();
+      expect(mockAdminApi.getSystemStats).toHaveBeenCalled();
     });
   });
 
@@ -228,7 +233,7 @@ describe('AdminStore', () => {
         skip: 0,
       };
 
-      mockAdminApiService.getSystemLogs.mockResolvedValueOnce(mockLogsResponse);
+      mockAdminApi.getSystemLogs.mockResolvedValueOnce(mockLogsResponse);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -249,17 +254,17 @@ describe('AdminStore', () => {
       // Set some errors first
       act(() => {
         useAdminStore.setState({
-          systemStats: { 
-            data: null, 
-            loading: false, 
-            error: 'Test error', 
-            lastUpdated: null 
+          systemStats: {
+            data: null,
+            loading: false,
+            error: 'Test error',
+            lastUpdated: null
           },
-          userActivity: { 
-            data: null, 
-            loading: false, 
-            error: 'Another error', 
-            lastUpdated: null 
+          userActivity: {
+            data: null,
+            loading: false,
+            error: 'Another error',
+            lastUpdated: null
           },
         });
       });
@@ -278,9 +283,9 @@ describe('AdminStore', () => {
       const { result } = renderHook(() => useAdminStore());
 
       // Mock all API calls
-      mockAdminApiService.getSystemStats.mockResolvedValue({});
-      mockAdminApiService.getUserActivity.mockResolvedValue([]);
-      mockAdminApiService.getSystemMetrics.mockResolvedValue({});
+      mockAdminApi.getSystemStats.mockResolvedValue({});
+      mockAdminApi.getUserActivity.mockResolvedValue([]);
+      mockAdminApi.getSystemMetrics.mockResolvedValue({});
 
       // Test overview tab
       act(() => {
@@ -291,14 +296,14 @@ describe('AdminStore', () => {
         await result.current.refreshAll();
       });
 
-      expect(mockAdminApiService.getSystemStats).toHaveBeenCalled();
-      expect(mockAdminApiService.getUserActivity).toHaveBeenCalled();
-      expect(mockAdminApiService.getSystemMetrics).toHaveBeenCalled();
+      expect(mockAdminApi.getSystemStats).toHaveBeenCalled();
+      expect(mockAdminApi.getUserActivity).toHaveBeenCalled();
+      expect(mockAdminApi.getSystemMetrics).toHaveBeenCalled();
 
       vi.clearAllMocks();
 
       // Test logs tab
-      mockAdminApiService.getSystemLogs.mockResolvedValue({ items: [], total: 0 });
+      mockAdminApi.getSystemLogs.mockResolvedValue({ items: [], total: 0 });
 
       act(() => {
         result.current.setActiveTab('logs');
@@ -308,7 +313,7 @@ describe('AdminStore', () => {
         await result.current.refreshAll();
       });
 
-      expect(mockAdminApiService.getSystemLogs).toHaveBeenCalled();
+      expect(mockAdminApi.getSystemLogs).toHaveBeenCalled();
     });
   });
 
@@ -319,7 +324,7 @@ describe('AdminStore', () => {
         resolvePromise = resolve;
       });
 
-      mockAdminApiService.getSystemStats.mockReturnValueOnce(promise);
+      mockAdminApi.getSystemStats.mockReturnValueOnce(promise);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -349,7 +354,7 @@ describe('AdminStore', () => {
         files: { total: 1000, completed: 950 },
       };
 
-      mockAdminApiService.getSystemStats.mockResolvedValueOnce(mockStats);
+      mockAdminApi.getSystemStats.mockResolvedValueOnce(mockStats);
 
       const { result } = renderHook(() => useAdminStore());
 
@@ -375,7 +380,7 @@ describe('AdminStore', () => {
       const mockStats1 = { users: { total: 100 } };
       const mockStats2 = { users: { total: 200 } };
 
-      mockAdminApiService.getSystemStats
+      mockAdminApi.getSystemStats
         .mockResolvedValueOnce(mockStats1)
         .mockResolvedValueOnce(mockStats2);
 

@@ -6,7 +6,8 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import AdminApiService, {
+import * as AdminApi from '@/services/admin';
+import type {
   SystemStats,
   SystemMetrics,
   DataIntegrityCheck,
@@ -14,8 +15,12 @@ import AdminApiService, {
   LogEntry,
   UserPermissions,
   AuditEntry,
+<<<<<<< HEAD
+} from '@/services/admin';
+=======
 } from '@/services/adminApi';
 import { UserActivity } from '@/types/admin';
+>>>>>>> pre-production
 import { toast } from 'sonner';
 import { createAsyncResource } from './utils';
 
@@ -223,7 +228,7 @@ export const useAdminStore = create<AdminStoreState>()(
       ),
 =======
         try {
-          const data = await AdminApiService.getSystemStats();
+          const data = await AdminApi.getSystemStats();
           set(state => ({
             systemStats: updateNormalizedResponse(state.systemStats, { data, loading: false })
           }));
@@ -259,7 +264,7 @@ export const useAdminStore = create<AdminStoreState>()(
       ),
 =======
         try {
-          const data = await AdminApiService.getUserActivity(20);
+          const data = await AdminApi.getUserActivity(20);
           set(state => ({
             userActivity: updateNormalizedResponse(state.userActivity, { data, loading: false })
           }));
@@ -291,7 +296,7 @@ export const useAdminStore = create<AdminStoreState>()(
       ),
 =======
         try {
-          const data = await AdminApiService.getSystemMetrics();
+          const data = await AdminApi.getSystemMetrics();
           set(state => ({
             systemMetrics: updateNormalizedResponse(state.systemMetrics, { data, loading: false })
           }));
@@ -313,7 +318,7 @@ export const useAdminStore = create<AdminStoreState>()(
 
         try {
           const { audit } = get();
-          const data = await AdminApiService.getSecurityAudit({
+          const data = await AdminApi.getSecurityAudit({
             from: audit.from || undefined,
             to: audit.to || undefined,
           });
@@ -337,7 +342,7 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
 
         try {
-          const data = await AdminApiService.getSystemHealth();
+          const data = await AdminApi.getSystemHealth();
           set(state => ({
             systemHealth: updateNormalizedResponse(state.systemHealth, { data, loading: false })
           }));
@@ -358,7 +363,7 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
 
         try {
-          const data = await AdminApiService.getDatabaseHealth();
+          const data = await AdminApi.getDatabaseHealth();
           set(state => ({
             databaseHealth: updateNormalizedResponse(state.databaseHealth, { data, loading: false })
           }));
@@ -381,6 +386,20 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
       },
 
+<<<<<<< HEAD
+      fetchLogs: async () => {
+        set(state => ({
+          logs: { ...state.logs, loading: true, error: null }
+        }));
+
+        try {
+          const { logs } = get();
+          const response = await AdminApi.getSystemLogs(logs.level, logs.limit, {
+            from: logs.from || undefined,
+            to: logs.to || undefined,
+            search: logs.search || undefined,
+            skip: logs.skip,
+=======
       fetchLogs: createAsyncResource(
         set,
         get,
@@ -391,6 +410,7 @@ export const useAdminStore = create<AdminStoreState>()(
             to: state.logs.to || undefined,
             search: state.logs.search || undefined,
             skip: state.logs.skip,
+>>>>>>> pre-production
             envelope: true,
           }),
         (response) => {
@@ -414,6 +434,20 @@ export const useAdminStore = create<AdminStoreState>()(
         }));
       },
 
+<<<<<<< HEAD
+      fetchAudit: async () => {
+        set(state => ({
+          audit: { ...state.audit, loading: true, error: null }
+        }));
+
+        try {
+          const { audit } = get();
+          const response = await AdminApi.getAuditLogs(
+            audit.skip,
+            audit.limit,
+            audit.userId,
+            audit.action,
+=======
       fetchAudit: createAsyncResource(
         set,
         get,
@@ -424,6 +458,7 @@ export const useAdminStore = create<AdminStoreState>()(
             state.audit.limit,
             state.audit.userId,
             state.audit.action,
+>>>>>>> pre-production
             {
               from: state.audit.from || undefined,
               to: state.audit.to || undefined,

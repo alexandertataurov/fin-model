@@ -36,9 +36,13 @@ import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
 import DataManagement from '@/components/Admin/DataManagement';
 import { toast } from 'sonner';
+<<<<<<< HEAD
+import * as AdminApi from '@/services/admin';
+=======
 import OverviewTab from '@/components/AdminDashboard/OverviewTab';
 import LogsTab from '@/components/AdminDashboard/LogsTab';
 import HealthTab from '@/components/AdminDashboard/HealthTab';
+>>>>>>> pre-production
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -130,7 +134,7 @@ const AdminDashboard: React.FC = () => {
   const handleFileCleanupPreview = async () => {
     try {
       setMaintenanceLoading(true);
-      const result = await AdminApiService.cleanupFiles(true);
+      const result = await AdminApi.cleanupFiles(true);
       toast.success(
         `Cleanup preview: ${result.orphaned_files} orphaned files, ${result.failed_files} failed files found`
       );
@@ -148,7 +152,7 @@ const AdminDashboard: React.FC = () => {
         setMaintenanceLoading(false);
         return;
       }
-      const result = await AdminApiService.cleanupFiles(false);
+      const result = await AdminApi.cleanupFiles(false);
       toast.success(result.message);
       await loadAdminData(); // Refresh data
     } catch (error) {
@@ -161,7 +165,7 @@ const AdminDashboard: React.FC = () => {
   const handleClearRateLimits = async () => {
     try {
       setMaintenanceLoading(true);
-      const result = await AdminApiService.clearRateLimits();
+      const result = await AdminApi.clearRateLimits();
       toast.success(
         `${result.message} (${result.cleared_records} records cleared)`
       );
@@ -335,7 +339,201 @@ const AdminDashboard: React.FC = () => {
 
                     {/* Logs Tab */}
           <TabsContent value="logs" className="space-y-4">
+<<<<<<< HEAD
+            <Card>
+              <CardHeader>
+                <CardTitle>System Logs</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <select
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={logsLevel}
+                    onChange={async e => {
+                      const lvl = e.target.value as typeof logsLevel;
+                      setLogsLevel(lvl);
+                      const resp = await AdminApi.getSystemLogs(
+                        lvl,
+                        logsLimit,
+                        {
+                          from: logsFrom || undefined,
+                          to: logsTo || undefined,
+                          search: logsSearch || undefined,
+                          skip: logsSkip,
+                          envelope: true,
+                        }
+                      );
+                      const env = resp as any;
+                      setLogs((env.items as LogEntry[]) || []);
+                      setLogsTotal(env.total || 0);
+                    }}
+                  >
+                    {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(
+                      l => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
+                      )
+                    )}
+                  </select>
+                  <select
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={logsLimit}
+                    onChange={async e => {
+                      const lim = Number(e.target.value);
+                      setLogsLimit(lim);
+                      const resp = await AdminApi.getSystemLogs(
+                        logsLevel,
+                        lim,
+                        {
+                          from: logsFrom || undefined,
+                          to: logsTo || undefined,
+                          search: logsSearch || undefined,
+                          skip: logsSkip,
+                          envelope: true,
+                        }
+                      );
+                      const env = resp as any;
+                      setLogs((env.items as LogEntry[]) || []);
+                      setLogsTotal(env.total || 0);
+                    }}
+                  >
+                    {[50, 100, 200, 500].map(l => (
+                      <option key={l} value={l}>
+                        {l}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={logsFrom}
+                    onChange={e => setLogsFrom(e.target.value)}
+                  />
+                  <input
+                    type="date"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    value={logsTo}
+                    onChange={e => setLogsTo(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    className="border rounded px-2 py-1 bg-background text-sm"
+                    placeholder="Search"
+                    value={logsSearch}
+                    onChange={e => setLogsSearch(e.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={async () => {
+                      const resp = await AdminApi.getSystemLogs(
+                        logsLevel,
+                        logsLimit,
+                        {
+                          from: logsFrom || undefined,
+                          to: logsTo || undefined,
+                          search: logsSearch || undefined,
+                          skip: 0,
+                          envelope: true,
+                        }
+                      );
+                      const env = resp as any;
+                      setLogs((env.items as LogEntry[]) || []);
+                      setLogsTotal(env.total || 0);
+                      setLogsSkip(0);
+                    }}
+                  >
+                    Refresh Logs
+                  </Button>
+                  <div className="ml-auto flex items-center gap-2 text-xs">
+                    <span>
+                      {logsTotal > 0
+                        ? `${Math.min(logsSkip + 1, logsTotal)}-${Math.min(
+                          logsSkip + logsLimit,
+                          logsTotal
+                        )} of ${logsTotal}`
+                        : '0-0 of 0'}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        const newSkip = Math.max(0, logsSkip - logsLimit);
+                        setLogsSkip(newSkip);
+                        const resp = await AdminApi.getSystemLogs(
+                          logsLevel,
+                          logsLimit,
+                          {
+                            from: logsFrom || undefined,
+                            to: logsTo || undefined,
+                            search: logsSearch || undefined,
+                            skip: newSkip,
+                            envelope: true,
+                          }
+                        );
+                        const env = resp as any;
+                        setLogs((env.items as LogEntry[]) || []);
+                        setLogsTotal(env.total || 0);
+                      }}
+                      disabled={logsSkip <= 0}
+                    >
+                      Prev
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        const newSkip = logsSkip + logsLimit;
+                        if (newSkip >= logsTotal) return;
+                        setLogsSkip(newSkip);
+                        const resp = await AdminApi.getSystemLogs(
+                          logsLevel,
+                          logsLimit,
+                          {
+                            from: logsFrom || undefined,
+                            to: logsTo || undefined,
+                            search: logsSearch || undefined,
+                            skip: newSkip,
+                            envelope: true,
+                          }
+                        );
+                        const env = resp as any;
+                        setLogs((env.items as LogEntry[]) || []);
+                        setLogsTotal(env.total || 0);
+                      }}
+                      disabled={logsSkip + logsLimit >= logsTotal}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+                <div className="border rounded">
+                  <div className="max-h-96 overflow-auto text-xs font-mono">
+                    {logs.length > 0 ? (
+                      logs.map((log, idx) => (
+                        <div key={idx} className="px-3 py-2 border-b">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold">
+                              [{log.level}] {log.module}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {new Date(log.timestamp).toLocaleString()}
+                            </span>
+                          </div>
+                          <div>{log.message}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-muted-foreground">No logs.</div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+=======
             <LogsTab />
+>>>>>>> pre-production
           </TabsContent>
 
           {/* Permissions Tab */}
@@ -461,7 +659,7 @@ const AdminDashboard: React.FC = () => {
                     size="sm"
                     variant="outline"
                     onClick={async () => {
-                      const data = await AdminApiService.getAuditLogs(
+                      const data = await AdminApi.getAuditLogs(
                         auditFilters.skip,
                         auditFilters.limit,
                         auditFilters.userId,
@@ -498,7 +696,7 @@ const AdminDashboard: React.FC = () => {
                           auditSkip - auditFilters.limit
                         );
                         setAuditSkip(newSkip);
-                        const resp = await AdminApiService.getAuditLogs(
+                        const resp = await AdminApi.getAuditLogs(
                           newSkip,
                           auditFilters.limit,
                           auditFilters.userId,
@@ -524,7 +722,7 @@ const AdminDashboard: React.FC = () => {
                         const newSkip = auditSkip + auditFilters.limit;
                         if (newSkip >= auditTotal) return;
                         setAuditSkip(newSkip);
-                        const resp = await AdminApiService.getAuditLogs(
+                        const resp = await AdminApi.getAuditLogs(
                           newSkip,
                           auditFilters.limit,
                           auditFilters.userId,
@@ -606,7 +804,7 @@ const AdminDashboard: React.FC = () => {
                             try {
                               setRefreshing(true);
                               const data =
-                                await AdminApiService.getSecurityAudit({
+                                await AdminApi.getSecurityAudit({
                                   from: securityFrom || undefined,
                                   to: securityTo || undefined,
                                 });
