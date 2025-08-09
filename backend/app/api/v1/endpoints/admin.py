@@ -24,7 +24,6 @@ from app.schemas.user import User as UserSchema
 from app.schemas.user import UserWithRoles
 from app.services.audit_service import log_audit
 from app.services.auth_service import AuthService
-from app.services.audit_service import log_audit
 from app.services.database_monitor import get_db_monitor
 from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
