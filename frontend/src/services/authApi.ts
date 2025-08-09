@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Temporarily use direct Railway URL to isolate proxy issues
+const API_BASE_URL = 'https://fin-model-production.up.railway.app';
 
 // Create axios instance
 const api = axios.create({
@@ -13,7 +14,7 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,24 +35,24 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           const response = await authApi.refreshToken(refreshToken);
-          localStorage.setItem('auth_token', response.access_token);
+          localStorage.setItem('access_token', response.access_token);
 
           // Retry the original request
           const originalRequest = error.config;
           originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
           return api.request(originalRequest);
-        } catch (refreshError) {
-          // Refresh failed, redirect to login
-          localStorage.removeItem('auth_token');
+        } catch (_refreshError) {
+          // Refresh failed, clear tokens and let app routing handle redirect
+          localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_data');
-          window.location.href = '/login';
+          return Promise.reject(error);
         }
       } else {
-        // No refresh token, redirect to login
-        localStorage.removeItem('auth_token');
+        // No refresh token, clear tokens and let app routing handle redirect
+        localStorage.removeItem('access_token');
         localStorage.removeItem('user_data');
-        window.location.href = '/login';
+        return Promise.reject(error);
       }
     }
     return Promise.reject(error);
@@ -116,10 +117,57 @@ export interface UserPermissions {
 }
 
 export const authApi = {
+  // Health check
+  async healthCheck(): Promise<boolean> {
+    try {
+      console.info('🏥 Checking backend health...');
+      const response = await fetch(`${API_BASE_URL}/health`);
+      console.debug(
+        '✅ Backend health check successful:',
+        response.status,
+        response.ok
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.debug('🏥 Health data:', data);
+      }
+      return response.ok;
+    } catch (error) {
+      console.error('❌ Backend health check failed:', error);
+      return false;
+    }
+  },
+
   // Authentication
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await api.post('/auth/login', credentials);
-    return response.data;
+    console.info('🔐 Attempting login with credentials:', {
+      email: credentials.email,
+      remember_me: credentials.remember_me,
+    });
+    console.debug('🌐 API Base URL:', API_BASE_URL);
+    console.debug('📡 Making request to:', `${API_BASE_URL}/api/v1/auth/login`);
+
+    // Test backend connection first
+    await this.testBackendConnection();
+
+    // First check if backend is reachable
+    const isHealthy = await this.healthCheck();
+    if (!isHealthy) {
+      throw new Error(
+        'Backend is not reachable. Please check your connection.'
+      );
+    }
+
+    try {
+      const response = await api.post('/auth/login', credentials);
+      console.info('✅ Login successful:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Login failed:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      throw error;
+    }
   },
 
   async register(userData: RegisterRequest): Promise<User> {
@@ -141,6 +189,11 @@ export const authApi = {
   // User management
   async getCurrentUser(): Promise<User> {
     const response = await api.get('/auth/me');
+    return response.data;
+  },
+
+  async updateCurrentUser(userData: Partial<User>): Promise<User> {
+    const response = await api.put('/auth/me', userData);
     return response.data;
   },
 
@@ -207,6 +260,32 @@ export const authApi = {
   async getSystemHealth() {
     const response = await api.get('/admin/system/health');
     return response.data;
+  },
+
+  // Test backend connection
+  async testBackendConnection(): Promise<void> {
+    try {
+      console.info('🧪 Testing backend connection...');
+
+      // Test 1: Direct fetch to health endpoint
+      const healthResponse = await fetch(`${API_BASE_URL}/health`);
+      console.debug(
+        '🏥 Health endpoint response:',
+        healthResponse.status,
+        healthResponse.ok
+      );
+
+      if (healthResponse.ok) {
+        const healthData = await healthResponse.json();
+        console.debug('🏥 Health data:', healthData);
+      } else {
+        console.warn('🏥 Health endpoint error:', await healthResponse.text());
+      }
+
+      // Skipping the heavy test user registration/login flow in interceptor setup
+    } catch (error) {
+      console.error('❌ Test backend connection error:', error);
+    }
   },
 };
 

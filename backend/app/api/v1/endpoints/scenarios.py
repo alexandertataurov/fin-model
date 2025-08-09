@@ -20,6 +20,7 @@ from app.api.v1.endpoints.auth import get_current_active_user
 from app.core.dependencies import require_permissions
 from app.core.permissions import Permission
 from app.services.scenario_manager import ScenarioManager
+from app.services.monte_carlo_service import MonteCarloService
 
 router = APIRouter()
 
@@ -36,7 +37,11 @@ async def analyze_scenarios(
     return {"file_id": file_id, "scenarios": scenarios}
 
 
-@router.post("/", response_model=ScenarioResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=ScenarioResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_scenario(
     scenario: ScenarioCreate,
     current_user: User = Depends(require_permissions(Permission.MODEL_CREATE)),
@@ -63,7 +68,9 @@ async def create_scenario(
         return ScenarioResponse.from_orm(db_scenario)
 
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -73,9 +80,15 @@ async def create_scenario(
 
 @router.get("/", response_model=List[ScenarioResponse])
 async def list_scenarios(
-    base_file_id: Optional[int] = Query(None, description="Filter by base file ID"),
-    is_baseline: Optional[bool] = Query(None, description="Filter baseline scenarios"),
-    is_template: Optional[bool] = Query(None, description="Filter template scenarios"),
+    base_file_id: Optional[int] = Query(
+        None, description="Filter by base file ID"
+    ),
+    is_baseline: Optional[bool] = Query(
+        None, description="Filter baseline scenarios"
+    ),
+    is_template: Optional[bool] = Query(
+        None, description="Filter template scenarios"
+    ),
     status_filter: Optional[str] = Query(None, description="Filter by status"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -89,7 +102,9 @@ async def list_scenarios(
     """
     try:
         # Build query
-        query = db.query(Scenario).filter(Scenario.created_by_id == current_user.id)
+        query = db.query(Scenario).filter(
+            Scenario.created_by_id == current_user.id
+        )
 
         # Apply filters
         if base_file_id:
@@ -103,7 +118,10 @@ async def list_scenarios(
 
         # Apply pagination and ordering
         scenarios = (
-            query.order_by(desc(Scenario.created_at)).offset(skip).limit(limit).all()
+            query.order_by(desc(Scenario.created_at))
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
 
         return [ScenarioResponse.from_orm(scenario) for scenario in scenarios]
@@ -128,7 +146,10 @@ async def get_scenario(
     """
     scenario = (
         db.query(Scenario)
-        .filter(Scenario.id == scenario_id, Scenario.created_by_id == current_user.id)
+        .filter(
+            Scenario.id == scenario_id,
+            Scenario.created_by_id == current_user.id,
+        )
         .first()
     )
 
@@ -158,7 +179,8 @@ async def update_scenario(
         db_scenario = (
             db.query(Scenario)
             .filter(
-                Scenario.id == scenario_id, Scenario.created_by_id == current_user.id
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == current_user.id,
             )
             .first()
         )
@@ -204,7 +226,8 @@ async def delete_scenario(
         db_scenario = (
             db.query(Scenario)
             .filter(
-                Scenario.id == scenario_id, Scenario.created_by_id == current_user.id
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == current_user.id,
             )
             .first()
         )
@@ -255,7 +278,8 @@ async def clone_scenario(
         source_scenario = (
             db.query(Scenario)
             .filter(
-                Scenario.id == scenario_id, Scenario.created_by_id == current_user.id
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == current_user.id,
             )
             .first()
         )
@@ -299,7 +323,8 @@ async def get_scenario_parameters(
         scenario = (
             db.query(Scenario)
             .filter(
-                Scenario.id == scenario_id, Scenario.created_by_id == current_user.id
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == current_user.id,
             )
             .first()
         )
@@ -384,7 +409,9 @@ async def update_scenario_parameter(
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -394,7 +421,9 @@ async def update_scenario_parameter(
 
 @router.post("/compare", response_model=ScenarioComparisonResponse)
 async def compare_scenarios(
-    scenario_ids: List[int] = Body(..., description="List of scenario IDs to compare"),
+    scenario_ids: List[int] = Body(
+        ..., description="List of scenario IDs to compare"
+    ),
     metrics: Optional[List[str]] = Body(
         None, description="Specific metrics to compare"
     ),
@@ -423,7 +452,9 @@ async def compare_scenarios(
 
         # Perform comparison
         comparison_result = await scenario_manager.compare_scenarios(
-            scenario_ids=scenario_ids, metrics=metrics, user_id=current_user.id
+            scenario_ids=scenario_ids,
+            metrics=metrics,
+            user_id=current_user.id,
         )
 
         return comparison_result
@@ -438,7 +469,9 @@ async def compare_scenarios(
 @router.post("/{scenario_id}/calculate")
 async def calculate_scenario(
     scenario_id: int,
-    force_recalculate: bool = Query(False, description="Force full recalculation"),
+    force_recalculate: bool = Query(
+        False, description="Force full recalculation"
+    ),
     current_user: User = Depends(require_permissions(Permission.MODEL_EXECUTE)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -473,7 +506,9 @@ async def calculate_scenario(
         )
 
 
-@router.get("/{scenario_id}/versions", response_model=List[ScenarioVersionResponse])
+@router.get(
+    "/{scenario_id}/versions", response_model=List[ScenarioVersionResponse]
+)
 async def get_scenario_versions(
     scenario_id: int,
     current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
@@ -489,7 +524,8 @@ async def get_scenario_versions(
         scenario = (
             db.query(Scenario)
             .filter(
-                Scenario.id == scenario_id, Scenario.created_by_id == current_user.id
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == current_user.id,
             )
             .first()
         )
@@ -522,7 +558,9 @@ async def get_scenario_versions(
 
 @router.get("/templates/", response_model=List[ScenarioResponse])
 async def get_scenario_templates(
-    category: Optional[str] = Query(None, description="Filter by template category"),
+    category: Optional[str] = Query(
+        None, description="Filter by template category"
+    ),
     current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -571,7 +609,8 @@ async def save_scenario_as_template(
         source_scenario = (
             db.query(Scenario)
             .filter(
-                Scenario.id == scenario_id, Scenario.created_by_id == current_user.id
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == current_user.id,
             )
             .first()
         )
@@ -653,4 +692,217 @@ async def run_sensitivity_analysis(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to run sensitivity analysis: {str(e)}",
+        )
+
+
+# Monte Carlo Simulation Endpoints
+
+
+@router.post("/{scenario_id}/monte-carlo/setup")
+async def setup_monte_carlo_simulation(
+    scenario_id: int,
+    distributions: Dict[int, Dict[str, Any]] = Body(
+        ..., description="Parameter distributions"
+    ),
+    output_metrics: List[str] = Body(
+        ..., description="Output metrics to track"
+    ),
+    iterations: int = Body(
+        10000, description="Number of simulation iterations"
+    ),
+    correlations: Optional[Dict[str, float]] = Body(
+        None, description="Parameter correlations"
+    ),
+    name: Optional[str] = Body(None, description="Simulation name"),
+    random_seed: Optional[int] = Body(
+        None, description="Random seed for reproducibility"
+    ),
+    current_user: User = Depends(require_permissions(Permission.MODEL_EXECUTE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Set up a Monte Carlo simulation configuration.
+
+    Creates a simulation configuration that can be executed later.
+    """
+    try:
+        monte_carlo_service = MonteCarloService(db)
+
+        simulation_id = await monte_carlo_service.setup_simulation(
+            scenario_id=scenario_id,
+            distributions=distributions,
+            output_metrics=output_metrics,
+            iterations=iterations,
+            correlations=correlations,
+            user_id=current_user.id,
+            name=name,
+            random_seed=random_seed,
+        )
+
+        return {
+            "simulation_id": simulation_id,
+            "scenario_id": scenario_id,
+            "status": "configured",
+            "message": "Monte Carlo simulation configured successfully",
+        }
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to setup Monte Carlo simulation: {str(e)}",
+        )
+
+
+@router.post("/{scenario_id}/monte-carlo/run")
+async def run_monte_carlo_simulation(
+    scenario_id: int,
+    simulation_id: str = Body(..., description="Simulation configuration ID"),
+    current_user: User = Depends(require_permissions(Permission.MODEL_EXECUTE)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Execute a Monte Carlo simulation.
+
+    Runs the Monte Carlo simulation with the specified configuration.
+    """
+    try:
+        monte_carlo_service = MonteCarloService(db)
+
+        result = await monte_carlo_service.run_monte_carlo(
+            simulation_id=simulation_id,
+            user_id=current_user.id,
+        )
+
+        return {
+            "simulation_id": result.simulation_id,
+            "scenario_id": scenario_id,
+            "status": "completed",
+            "iterations": result.iterations,
+            "execution_time": result.execution_time,
+            "results_summary": {
+                metric: {
+                    "mean": result.statistics[metric]["mean"],
+                    "std_dev": result.statistics[metric]["std_dev"],
+                    "percentile_5": result.statistics[metric]["percentile_5"],
+                    "percentile_95": result.statistics[metric]["percentile_95"],
+                }
+                for metric in result.statistics.keys()
+            },
+            "risk_metrics": result.risk_metrics,
+            "parameter_correlations": result.parameter_correlations,
+        }
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to run Monte Carlo simulation: {str(e)}",
+        )
+
+
+@router.get("/monte-carlo/{simulation_id}/results")
+async def get_monte_carlo_results(
+    simulation_id: str,
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Get Monte Carlo simulation results.
+
+    Returns detailed simulation results and statistics.
+    """
+    try:
+        monte_carlo_service = MonteCarloService(db)
+
+        results = await monte_carlo_service.get_simulation_results(
+            simulation_id=simulation_id,
+            user_id=current_user.id,
+        )
+
+        return results
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get Monte Carlo results: {str(e)}",
+        )
+
+
+@router.get("/monte-carlo/{simulation_id}/statistics")
+async def get_monte_carlo_statistics(
+    simulation_id: str,
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Get detailed Monte Carlo simulation statistics.
+
+    Returns comprehensive statistical analysis of simulation results.
+    """
+    try:
+        monte_carlo_service = MonteCarloService(db)
+
+        statistics = await monte_carlo_service.get_simulation_statistics(
+            simulation_id=simulation_id,
+            user_id=current_user.id,
+        )
+
+        return statistics
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get Monte Carlo statistics: {str(e)}",
+        )
+
+
+@router.post("/monte-carlo/{simulation_id}/risk-metrics")
+async def calculate_risk_metrics(
+    simulation_id: str,
+    confidence_levels: List[float] = Body(
+        [0.90, 0.95, 0.99],
+        description="Confidence levels for risk metrics",
+    ),
+    current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Calculate comprehensive risk metrics for a Monte Carlo simulation.
+
+    Returns VaR, CVaR, and other risk measures at specified confidence levels.
+    """
+    try:
+        monte_carlo_service = MonteCarloService(db)
+
+        risk_metrics = await monte_carlo_service.calculate_risk_metrics(
+            simulation_id=simulation_id,
+            confidence_levels=confidence_levels,
+            user_id=current_user.id,
+        )
+
+        return risk_metrics
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate risk metrics: {str(e)}",
         )

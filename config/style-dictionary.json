@@ -1,0 +1,66 @@
+{
+<<<<<<< HEAD
+  "source": [
+    "tokens/*.json"
+  ],
+=======
+  "include": ["tokens/*/**/*.json"],
+  "source": ["tokens/semantic.json"],
+>>>>>>> pre-production
+  "platforms": {
+    "css": {
+      "transformGroup": "css",
+      "buildPath": "frontend/src/design-system/",
+      "files": [
+        {
+          "destination": "tokens.css",
+          "format": "css/variables",
+          "options": {
+            "outputReferences": true
+          }
+        },
+        {
+          "destination": "borderWidth.css",
+          "format": "css/variables",
+          "filter": {
+            "attributes": { "category": "borderWidth" }
+          }
+        },
+        {
+          "destination": "typography.css",
+          "format": "css/variables",
+          "filter": {
+            "attributes": { "category": "typography" }
+          }
+        },
+        {
+          "destination": "motion.css",
+          "format": "css/variables",
+          "filter": {
+            "attributes": { "category": "motion" }
+          }
+        }
+      ]
+    },
+    "json": {
+      "transformGroup": "js",
+      "buildPath": "frontend/src/design-system/",
+      "files": [
+        {
+          "destination": "tokens.json",
+          "format": "json/nested"
+        }
+      ]
+    },
+    "dts": {
+      "transformGroup": "js",
+      "buildPath": "frontend/src/design-system/",
+      "files": [
+        {
+          "destination": "tokens.d.ts",
+          "format": "typescript/es6-declarations"
+        }
+      ]
+    }
+  }
+}

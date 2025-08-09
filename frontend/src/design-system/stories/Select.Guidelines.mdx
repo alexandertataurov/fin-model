@@ -1,0 +1,56 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Select/Guidelines" />
+
+# Select Guidelines
+
+## Purpose
+
+Use Select for choosing one option from a list. Prefer radio groups for short, always-visible choices.
+
+## Usage
+
+```tsx
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Label,
+} from '@/design-system';
+
+export function Example() {
+  return (
+    <div className="grid gap-2 w-64">
+      <Label htmlFor="country">Country</Label>
+      <Select>
+        <SelectTrigger id="country">
+          <SelectValue placeholder="Select country" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="ge">Georgia</SelectItem>
+          <SelectItem value="us">United States</SelectItem>
+          <SelectItem value="de">Germany</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+```
+
+## Dos
+
+- Provide a clear placeholder when no value is selected
+- Keep option labels concise and unambiguous
+- Group long lists by category if needed
+
+## Don’ts
+
+- Don’t use for free text; use `Input` instead
+- Don’t overload with very long lists—consider a searchable combobox
+
+## Accessibility
+
+- Ensure trigger has an accessible label
+- Keyboard: Enter/Space opens, Arrow keys navigate, Enter selects, Esc closes

@@ -1,414 +1,268 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system';
+import { Button } from '@/design-system/components/Button';
+import { componentStyles } from '@/design-system/utils/designSystem';
 import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  Grid,
-  Alert,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  Card,
-  CardContent,
-} from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select';
-import { 
-  TrendingUp,
-  TrendingDown,
-  AccountBalance,
-  Refresh,
-} from '@mui/icons-material';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-
-import { DashboardGrid, DashboardWidget } from '../components/Dashboard';
-import { LineChart, BarChart, WaterfallChart, LineChartDataPoint, BarChartDataPoint, WaterfallDataPoint } from '../components/Charts';
-
-interface CFMetric {
-  name: string;
-  value: number;
-  category: string;
-  period: string;
-  unit: string;
-  format_type: string;
-  change?: number;
-  change_percentage?: number;
-  trend?: string;
-  description?: string;
-  display_order: number;
-}
-
-interface ChartDataPoint {
-  period: string;
-  value: number;
-  date: string;
-  label?: string;
-  category?: string;
-}
-
-interface CFDashboardData {
-  metrics: CFMetric[];
-  charts: {
-    cash_waterfall: ChartDataPoint[];
-    cash_position: ChartDataPoint[];
-  };
-  period_info: {
-    period: string;
-    start_date: string;
-    end_date: string;
-  };
-  last_updated: string;
-  data_quality_score: number;
-}
-
-type DashboardPeriod = 'mtd' | 'qtd' | 'ytd' | 'last_30_days' | 'last_90_days' | 'last_12_months';
+  useActiveStatement,
+  useCashFlowDashboard,
+  useUserStatements,
+} from '@/hooks/useDashboard';
+import DashboardApiService, { PeriodFilter } from '@/services/dashboardApi';
+import { toast } from 'sonner';
+import { CloudUpload, Download } from 'lucide-react';
 
 const CashFlowDashboard: React.FC = () => {
-  const [period, setPeriod] = useState<DashboardPeriod>('ytd');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const queryClient = useQueryClient();
-
+  const { activeStatementId, setActiveStatementId, statements } =
+    useActiveStatement();
+  const { data: statementsData } = useUserStatements(undefined, 10);
   const {
-    data: dashboardData,
+    data: cfData,
     isLoading,
-    error,
-    refetch,
-  } = useQuery<CFDashboardData>({
-    queryKey: ['cash-flow-dashboard', period],
-    queryFn: async () => {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/v1/dashboard/metrics/cash-flow?period=${period}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch cash flow dashboard data');
-      }
-      
-      return response.json();
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
-  });
+    isError,
+  } = useCashFlowDashboard(activeStatementId);
 
-  const handlePeriodChange = (event: SelectChangeEvent<DashboardPeriod>) => {
-    setPeriod(event.target.value as DashboardPeriod);
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
+  const handleExport = async () => {
+    if (!activeStatementId) return;
     try {
-      await refetch();
-      await queryClient.invalidateQueries(['cash-flow-dashboard']);
-    } finally {
-      setIsRefreshing(false);
+      const result = await DashboardApiService.exportDashboardData({
+        format: 'json',
+        period: PeriodFilter.YTD,
+        statement_ids: [activeStatementId],
+      });
+      const blob = new Blob([JSON.stringify(result, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cash_flow_export_${new Date()
+        .toISOString()
+        .slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Cash Flow exported');
+    } catch (_e) {
+      toast.error('Export failed');
     }
   };
 
-  const formatCurrency = (value: number): string => {
+  const formatCurrency = (n?: number) => {
+    if (n === undefined || n === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
+    }).format(n);
   };
 
-  const getValueDisplay = (metric: CFMetric): string => {
-    switch (metric.format_type) {
-      case 'currency':
-        return formatCurrency(metric.value);
-      default:
-        return metric.value.toLocaleString();
-    }
-  };
+  const availableStatements = statementsData?.statements || statements || [];
+  const hasStatements = (availableStatements?.length || 0) > 0;
 
-  const getTrendIcon = (trend?: string) => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp color="success" />;
-      case 'down':
-        return <TrendingDown color="error" />;
-      default:
-        return <AccountBalance color="action" />;
-    }
-  };
+  return (
+    <div className="min-h-screen bg-background">
+      <div className={componentStyles.container}>
+        <header className="py-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className={componentStyles.heading.h1}>Cash Flow Dashboard</h1>
+            <p className="text-muted-foreground mt-2">
+              Cash flow analysis and forecasting
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              className="border rounded px-2 py-1 bg-background"
+              value={activeStatementId || ''}
+              onChange={e => setActiveStatementId(e.target.value || null)}
+              disabled={!hasStatements}
+              title="Select statement"
+            >
+              <option value="" disabled>
+                {hasStatements ? 'Select statement' : 'No statements available'}
+              </option>
+              {availableStatements.map((s: any) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.type.toUpperCase()})
+                </option>
+              ))}
+            </select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              disabled={!activeStatementId}
+            >
+              <Download className="h-4 w-4 mr-2" /> Export JSON
+            </Button>
+          </div>
+        </header>
 
-  // Create sample data for demonstration
-  const sampleWaterfallData: WaterfallDataPoint[] = [
-    { name: 'Starting Cash', value: 100000, type: 'start' },
-    { name: 'Operating CF', value: 25000, type: 'positive' },
-    { name: 'Investing CF', value: -15000, type: 'negative' },
-    { name: 'Financing CF', value: -5000, type: 'negative' },
-    { name: 'Ending Cash', value: 105000, type: 'total' },
-  ];
-
-  // Create dashboard widgets
-  const widgets: DashboardWidget[] = [
-    {
-      id: 'key-metrics',
-      title: 'Key Cash Flow Metrics',
-      component: ({ height }: { height?: number }) => (
-        <Box sx={{ p: 2, height: height || 'auto' }}>
-          <Grid container spacing={2}>
-            {dashboardData?.metrics.slice(0, 3).map((metric) => (
-              <Grid item xs={12} sm={4} key={metric.name}>
+        <main className="space-y-6">
+          {!hasStatements ? (
+            <Card>
+              <CardContent className="py-10 text-center">
+                <CloudUpload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">
+                  No financial statements found. Upload your financial data to
+                  view Cash Flow.
+                </p>
+                <div className="mt-4">
+                  <a href="/upload">
+                    <Button>Upload Data</Button>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          ) : isError ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Error loading Cash Flow</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Please try selecting another statement.
+                </p>
+              </CardContent>
+            </Card>
+          ) : isLoading || !cfData ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-4 bg-gray-200 rounded w-24" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-8 bg-gray-200 rounded w-32 mb-2" />
+                    <div className="h-3 bg-gray-200 rounded w-24" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card>
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                      {getTrendIcon(metric.trend)}
-                      <Typography variant="h6" sx={{ ml: 1 }}>
-                        {getValueDisplay(metric)}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary">
-                      {metric.name}
-                    </Typography>
-                    {metric.change_percentage && (
-                      <Typography 
-                        variant="caption" 
-                        color={metric.change_percentage > 0 ? 'success.main' : 'error.main'}
-                      >
-                        {metric.change_percentage > 0 ? '+' : ''}{metric.change_percentage.toFixed(1)}% vs. last period
-                      </Typography>
+                  <CardHeader>
+                    <CardTitle>Operating Cash Flow</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {((cfData as any).operating_cash_flow || [])
+                      .slice(0, 10)
+                      .map((item: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between py-1 text-sm"
+                        >
+                          <span className="text-muted-foreground">
+                            {item.name}
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(item.value)}
+                          </span>
+                        </div>
+                      ))}
+                    {((cfData as any).operating_cash_flow || []).length ===
+                      0 && (
+                      <p className="text-muted-foreground">
+                        No operating cash flow data.
+                      </p>
                     )}
                   </CardContent>
                 </Card>
-              </Grid>
-            )) || [1, 2, 3].map((i) => (
-              <Grid item xs={12} sm={4} key={i}>
+
                 <Card>
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-                      <AccountBalance color="action" />
-                      <Typography variant="h6" sx={{ ml: 1 }}>
-                        ${(Math.random() * 100000).toFixed(0)}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Sample Metric {i}
-                    </Typography>
+                  <CardHeader>
+                    <CardTitle>Investing Cash Flow</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {((cfData as any).investing_cash_flow || [])
+                      .slice(0, 10)
+                      .map((item: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between py-1 text-sm"
+                        >
+                          <span className="text-muted-foreground">
+                            {item.name}
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(item.value)}
+                          </span>
+                        </div>
+                      ))}
+                    {((cfData as any).investing_cash_flow || []).length ===
+                      0 && (
+                      <p className="text-muted-foreground">
+                        No investing cash flow data.
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      ),
-      defaultWidth: 12,
-      defaultHeight: 2,
-      minWidth: 6,
-      minHeight: 2,
-    },
-    {
-      id: 'cash-waterfall',
-      title: 'Cash Flow Waterfall',
-      component: ({ height }: { height?: number }) => (
-        <WaterfallChart
-          data={sampleWaterfallData}
-          height={height || 400}
-          currency="$"
-          title="Cash Flow Analysis"
-          subtitle="Breaking down cash flow components"
-        />
-      ),
-      defaultWidth: 8,
-      defaultHeight: 5,
-      minWidth: 6,
-      minHeight: 4,
-    },
-    {
-      id: 'cash-position',
-      title: 'Cash Position Trend',
-      component: ({ height }: { height?: number }) => {
-        const rawData = dashboardData?.charts.cash_position || [];
-        const chartData: LineChartDataPoint[] = rawData.length > 0 
-          ? rawData.map(item => ({
-              period: item.period,
-              value: item.value,
-              [item.period]: item.value,
-            }))
-          : [
-              { period: 'Q1', value: 100000, 'Q1': 100000 },
-              { period: 'Q2', value: 125000, 'Q2': 125000 },
-              { period: 'Q3', value: 110000, 'Q3': 110000 },
-              { period: 'Q4', value: 105000, 'Q4': 105000 },
-            ];
-        
-        const series = [{
-          dataKey: 'value',
-          name: 'Cash Position',
-          color: 'var(--chart-3)', // DESIGN_FIX: use token
-        }];
+              </div>
 
-        return (
-          <LineChart
-            data={chartData}
-            series={series}
-            height={height || 300}
-            xAxisKey="period"
-            currency="$"
-            showDots={true}
-            smooth={true}
-            title="Cash Balance Over Time"
-          />
-        );
-      },
-      defaultWidth: 4,
-      defaultHeight: 5,
-      minWidth: 3,
-      minHeight: 4,
-    },
-    {
-      id: 'operating-cash-flow',
-      title: 'Operating Cash Flow',
-      component: ({ height }: { height?: number }) => {
-        const chartData: BarChartDataPoint[] = [
-          { month: 'Jan', value: 8000, 'Jan': 8000 },
-          { month: 'Feb', value: 12000, 'Feb': 12000 },
-          { month: 'Mar', value: 5000, 'Mar': 5000 },
-          { month: 'Apr', value: 15000, 'Apr': 15000 },
-        ];
-        
-        const series = [{
-          dataKey: 'value',
-          name: 'Operating CF',
-          color: 'var(--chart-2)', // DESIGN_FIX
-        }];
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Financing Cash Flow</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {((cfData as any).financing_cash_flow || [])
+                      .slice(0, 10)
+                      .map((item: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between py-1 text-sm"
+                        >
+                          <span className="text-muted-foreground">
+                            {item.name}
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(item.value)}
+                          </span>
+                        </div>
+                      ))}
+                    {((cfData as any).financing_cash_flow || []).length ===
+                      0 && (
+                      <p className="text-muted-foreground">
+                        No financing cash flow data.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
 
-        return (
-          <BarChart
-            data={chartData}
-            series={series}
-            height={height || 300}
-            xAxisKey="month"
-            currency="$"
-            title="Monthly Operating Cash Flow"
-          />
-        );
-      },
-      defaultWidth: 6,
-      defaultHeight: 4,
-      minWidth: 4,
-      minHeight: 3,
-    },
-    {
-      id: 'free-cash-flow',
-      title: 'Free Cash Flow',
-      component: ({ height }: { height?: number }) => {
-        const chartData: BarChartDataPoint[] = [
-          { month: 'Jan', value: 5000, 'Jan': 5000 },
-          { month: 'Feb', value: 8000, 'Feb': 8000 },
-          { month: 'Mar', value: 2000, 'Mar': 2000 },
-          { month: 'Apr', value: 10000, 'Apr': 10000 },
-        ];
-        
-        const series = [{
-          dataKey: 'value',
-          name: 'Free CF',
-          color: 'var(--chart-1)', // DESIGN_FIX
-        }];
-
-        return (
-          <BarChart
-            data={chartData}
-            series={series}
-            height={height || 300}
-            xAxisKey="month"
-            currency="$"
-            title="Monthly Free Cash Flow"
-          />
-        );
-      },
-      defaultWidth: 6,
-      defaultHeight: 4,
-      minWidth: 4,
-      minHeight: 3,
-    },
-  ];
-
-  if (isLoading) {
-    return (
-      <Container maxWidth="xl" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container maxWidth="xl" sx={{ mt: 4 }}>
-        <Alert severity="info">
-          Cash Flow dashboard is in demo mode. Connect your financial data to see real metrics.
-        </Alert>
-      </Container>
-    );
-  }
-
-  return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Cash Flow Dashboard
-        </Typography>
-        
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Period</InputLabel>
-            <Select
-              value={period}
-              label="Period"
-              onChange={handlePeriodChange}
-            >
-              <MenuItem value="mtd">Month to Date</MenuItem>
-              <MenuItem value="qtd">Quarter to Date</MenuItem>
-              <MenuItem value="ytd">Year to Date</MenuItem>
-              <MenuItem value="last_30_days">Last 30 Days</MenuItem>
-              <MenuItem value="last_90_days">Last 90 Days</MenuItem>
-              <MenuItem value="last_12_months">Last 12 Months</MenuItem>
-            </Select>
-          </FormControl>
-          
-          <Button
-            variant="outlined"
-            startIcon={isRefreshing ? <CircularProgress size={16} /> : <Refresh />}
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            Refresh
-          </Button>
-        </Box>
-      </Box>
-
-      {/* Demo Notice */}
-      <Alert severity="info" sx={{ mb: 3 }}>
-        📊 This is a live demo of the Cash Flow Dashboard. Charts show sample data to demonstrate functionality.
-      </Alert>
-
-      {/* Period Info */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="body2" color="text.secondary">
-          Period: {dashboardData?.period_info.start_date || 'Demo Period'} to {dashboardData?.period_info.end_date || 'Current'}
-          {dashboardData?.last_updated && (
-            <> • Last updated: {new Date(dashboardData.last_updated).toLocaleString()}</>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Cash Position Trend</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {((cfData as any).cash_position_trend || [])
+                      .slice(0, 12)
+                      .map((item: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between py-1 text-sm"
+                        >
+                          <span className="text-muted-foreground">
+                            {item.date || item.name}
+                          </span>
+                          <span className="font-medium">
+                            {formatCurrency(item.value)}
+                          </span>
+                        </div>
+                      ))}
+                    {((cfData as any).cash_position_trend || []).length ===
+                      0 && (
+                      <p className="text-muted-foreground">
+                        No cash position data.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </>
           )}
-        </Typography>
-      </Paper>
-
-      {/* Dashboard Grid */}
-      <DashboardGrid
-        widgets={widgets}
-        editable={false}
-      />
-    </Container>
+        </main>
+      </div>
+    </div>
   );
 };
 
-export default CashFlowDashboard; 
+export default CashFlowDashboard;

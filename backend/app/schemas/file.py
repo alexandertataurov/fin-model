@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List, Any, Dict
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from app.models.file import FileStatus, FileType
 
 
@@ -16,8 +16,7 @@ class FileUploadResponse(BaseModel):
     user_id: int
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FileInfo(BaseModel):
@@ -37,8 +36,7 @@ class FileInfo(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProcessingLogEntry(BaseModel):
@@ -51,8 +49,7 @@ class ProcessingLogEntry(BaseModel):
     details: Optional[str] = None
     timestamp: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FileWithLogs(FileInfo):
@@ -123,13 +120,17 @@ class FileProcessingRequest(BaseModel):
 
     file_id: int
     processing_options: Optional[Dict[str, Any]] = None
-    priority: Optional[str] = Field("normal", pattern="^(low|normal|high|urgent)$")
+    priority: Optional[str] = Field(
+        "normal", pattern="^(low|normal|high|urgent)$"
+    )
 
 
 class TemplateValidationConfig(BaseModel):
     """Schema for template validation configuration."""
 
-    template_type: str = Field(..., pattern="^(pnl|balance_sheet|cash_flow|custom)$")
+    template_type: str = Field(
+        ..., pattern="^(pnl|balance_sheet|cash_flow|custom)$"
+    )
     required_columns: List[str] = []
     optional_columns: List[str] = []
     validation_rules: Dict[str, Any] = {}

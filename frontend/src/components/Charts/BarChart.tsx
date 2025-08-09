@@ -164,7 +164,6 @@ export const BarChart: React.FC<BarChartProps> = ({
           data-testid="tooltip"
           content={
             <CustomTooltip
-              currency={currency}
               formatter={formatTooltip}
               labelFormatter={(label) => `Category: ${label}`}
               showTotal={true}
@@ -220,6 +219,8 @@ export const BarChart: React.FC<BarChartProps> = ({
       error={error}
       onExport={onExport}
       onFullscreen={onFullscreen}
+      aria-label={title || 'Bar Chart'}
+      aria-describedby={subtitle ? undefined : undefined}
     >
       {chartContent}
     </BaseChart>

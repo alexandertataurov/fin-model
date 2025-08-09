@@ -2,21 +2,39 @@
 
 [build]
   base = "frontend"
-  command = "npm ci && npm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:prod"
   publish = "dist"
 
   [build.environment]
-    NODE_VERSION = "18"
-    # Enable build performance optimizations
-    NODE_OPTIONS = "--max-old-space-size=4096"
-    # Skip npm audit for faster builds
-    NPM_CONFIG_AUDIT = "false"
-    # Use faster package manager if available
-    NPM_CONFIG_FUND = "false"
+    NODE_VERSION = "20.11.0"
+    # Ultra aggressive build performance optimizations
+    NODE_OPTIONS = "--max-old-space-size=8192 --max-semi-space-size=512"
+    NODE_ENV = "production"
+    VITE_API_URL = "https://fin-model-production.up.railway.app"
+    # Disable unnecessary operations
+    DISABLE_ESLINT_PLUGIN = "true"
+    GENERATE_SOURCEMAP = "false"
+    SKIP_PREFLIGHT_CHECK = "true"
+    # PNPM optimizations
+    PNPM_STORE_DIR = ".pnpm-store"
+    # Build cache optimizations
+    CI = "true"
+    NETLIFY_CACHE_VERSION = "v3"
 
-# Skip Netlify's post-processing since Vite already optimizes everything
+# Build optimizations
 [build.processing]
   skip_processing = true
+
+[build.processing.css]
+  bundle = false
+  minify = false
+
+[build.processing.js]
+  bundle = false
+  minify = false
+
+[build.processing.html]
+  pretty_urls = false
 
 # SPA routing
 [[redirects]]
@@ -82,19 +100,19 @@
 
 # Environment-specific configs
 [context.production]
-  command = "npm ci && npm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:prod"
   [context.production.environment]
     NODE_ENV = "production"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.deploy-preview]
-  command = "npm ci && npm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify"
   [context.deploy-preview.environment]
-    NODE_ENV = "development"
+    NODE_ENV = "production"
     VITE_API_URL = "https://fin-model-production.up.railway.app"
 
 [context.branch-deploy]
-  command = "npm ci && npm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
     VITE_API_URL = "https://fin-model-production.up.railway.app"

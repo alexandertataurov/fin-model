@@ -30,18 +30,23 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   }
 
   // Redirect to login if not authenticated
-  if (!isAuthenticated || !user) {
-    return (
-      <Navigate
-        to="/login"
-        state={{ from: location }}
-        replace
-      />
-    );
+  // Only redirect if we're sure the user is not authenticated (not loading and no user/token)
+  if (!isLoading && (!isAuthenticated || !user)) {
+    console.info('AuthGuard: User not authenticated, redirecting to login', {
+      isAuthenticated,
+      hasUser: !!user,
+      isLoading,
+      currentPath: location.pathname,
+    });
+
+    // Only redirect if we're not already on the login page
+    if (location.pathname !== '/login') {
+      return <Navigate to="/login" state={{ from: location }} replace />;
+    }
   }
 
   // Check email verification requirement
-  if (requireVerification && !user.is_verified) {
+  if (requireVerification && user && !user.is_verified) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="max-w-md w-full mx-4">
@@ -54,8 +59,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
                 Email Verification Required
               </h2>
               <p className="text-muted-foreground">
-                Please verify your email address to access this page.
-                Check your email for verification instructions.
+                Please verify your email address to access this page. Check your
+                email for verification instructions.
               </p>
             </div>
             <div className="space-y-2">
@@ -69,7 +74,9 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
                 onClick={() => {
                   // This would trigger resend verification email
                   // For now, just show message
-                  alert('Please check your email for verification instructions.');
+                  alert(
+                    'Please check your email for verification instructions.'
+                  );
                 }}
                 className="w-full text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
@@ -99,7 +106,9 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
                 You don't have permission to access this page.
                 {requiredRole && (
                   <span className="block mt-1 text-sm">
-                    Required role: {requiredRole.charAt(0).toUpperCase() + requiredRole.slice(1)}
+                    Required role:{' '}
+                    {requiredRole.charAt(0).toUpperCase() +
+                      requiredRole.slice(1)}
                   </span>
                 )}
               </p>
@@ -127,35 +136,42 @@ export const withAuthGuard = (
   requireVerification?: boolean
 ) => {
   return (props: any) => (
-    <AuthGuard requiredRole={requiredRole} requireVerification={requireVerification}>
+    <AuthGuard
+      requiredRole={requiredRole}
+      requireVerification={requireVerification}
+    >
       <Component {...props} />
     </AuthGuard>
   );
 };
 
 // Specific guards for different access levels
-export const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const AdminGuard: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <AuthGuard requiredRole="admin" requireVerification>
     {children}
   </AuthGuard>
 );
 
-export const AnalystGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const AnalystGuard: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <AuthGuard requiredRole="analyst" requireVerification>
     {children}
   </AuthGuard>
 );
 
-export const ViewerGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const ViewerGuard: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <AuthGuard requiredRole="viewer" requireVerification>
     {children}
   </AuthGuard>
 );
 
-export const VerifiedUserGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AuthGuard requireVerification>
-    {children}
-  </AuthGuard>
-);
+export const VerifiedUserGuard: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => <AuthGuard requireVerification>{children}</AuthGuard>;
 
 export default AuthGuard;

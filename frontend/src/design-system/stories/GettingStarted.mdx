@@ -1,0 +1,70 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Getting Started/Introduction" />
+
+# Getting Started
+
+Use Storybook to explore the FinVision Design System with live theming, density, and radius controls.
+
+## Run locally
+
+```bash
+cd frontend
+pnpm install
+pnpm storybook
+```
+
+## Global setup
+
+- Design system provider wraps all stories
+- Tailwind globals loaded
+- Theme toolbar: light/dark
+- Density & Radius toolbar controls
+- MSW enabled for API mocks (`src/mocks/handlers.ts`)
+
+## Writing stories
+
+```tsx
+// Button.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react';
+import { Button } from '../components/Button';
+
+const meta: Meta<typeof Button> = {
+  title: 'Design System/Button',
+  component: Button,
+  tags: ['autodocs'],
+  parameters: { layout: 'padded' },
+};
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = { args: { children: 'Click me' } };
+```
+
+## Mocking APIs (MSW)
+
+Add handlers in `src/mocks/handlers.ts` and override per-story:
+
+```ts
+// in story
+export const WithMock: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        /* custom handlers here */
+      ],
+    },
+  },
+};
+```
+
+## Theming & responsiveness
+
+- Toggle light/dark via toolbar
+- Adjust density/radius via toolbar
+- Use the Viewport addon for mobile/tablet/desktop previews
+
+## CI
+
+- Build/test Storybook on PRs
+- Optional Chromatic publish (add `CHROMATIC_PROJECT_TOKEN` secret)

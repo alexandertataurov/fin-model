@@ -3,19 +3,54 @@ from typing import AsyncIterator
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 import uvicorn
+import logging
+import os
+from datetime import datetime
 
 from app.core.config import settings
 from app.api.v1.api import api_router
+from app.api.v1.endpoints.websocket import router as websocket_router
 
-# from fastapi_cache import FastAPICache  # TODO: Fix fastapi-cache2 import
-# from fastapi_cache.backends.inmemory import InMemoryBackend  # TODO: Fix fastapi-cache2 import
+# Temporarily disable monitoring middleware
+# from app.middleware.monitoring_middleware import MonitoringMiddleware
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Try to import fastapi_cache, fallback gracefully if not available
+try:
+    from fastapi_cache2 import FastAPICache
+    from fastapi_cache2.backends.inmemory import InMemoryBackend
+
+    CACHE_AVAILABLE = True
+    logger.info("fastapi_cache2 is available and will be used for caching")
+except ImportError as e:
+    CACHE_AVAILABLE = False
+    logger.info(f"fastapi_cache2 not available: {e}. Using Redis caching instead.")
+    # Create dummy classes for fallback
+
+    class FastAPICache:
+        @staticmethod
+        def init(*args, **kwargs):
+            logger.warning("Cache initialization skipped - fastapi_cache not available")
+
+    class InMemoryBackend:
+        pass
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Initialize FastAPI cache on startup."""
-    # FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")  # TODO: Fix fastapi-cache2 setup
+    if CACHE_AVAILABLE:
+        try:
+            FastAPICache.init(InMemoryBackend(), prefix="finvision-cache")
+            logger.info("FastAPI cache initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize cache: {e}")
+    else:
+        logger.info("Cache initialization skipped")
     yield
 
 
@@ -27,28 +62,73 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Set up CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.get_cors_origins(),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# Set up CORS with explicit origins
+cors_origins = settings.get_cors_origins()
+# With credentials enabled, '*' is invalid; strip it when combined
+if "*" in cors_origins and len(cors_origins) > 1:
+    cors_origins = [o for o in cors_origins if o != "*"]
+logger.info("CORS origins configured: %s", cors_origins)
+
+# Regex to allow any Netlify/Railway subdomain and Netlify deploy-preview style
+cors_origin_regex = (
+    r"^https://[A-Za-z0-9-]+\.[A-Za-z0-9-]+\.(netlify|railway)\.app$|"
+    r"^https://[A-Za-z0-9-]+--[A-Za-z0-9-]+\.netlify\.app$"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    # Allow any Netlify/Railway subdomain via regex
+    allow_origin_regex=cors_origin_regex,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=[
+        "Accept",
+        "Accept-Language",
+        "Content-Language",
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "X-CSRF-Token",
+        "X-API-Key",
+        "Origin",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers",
+    ],
+    expose_headers=["Content-Length", "Content-Range"],
+    max_age=86400,  # 24 hours
+)
+
+# Add monitoring middleware - temporarily disabled
+# app.add_middleware(MonitoringMiddleware)
+
 # Ensure validation errors return JSON responses instead of raising
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+
+
+def make_json_serializable(obj):
+    """Recursively convert non-JSON-serializable objects to strings."""
+    if isinstance(obj, bytes):
+        return obj.decode("utf-8", errors="ignore")
+    elif isinstance(obj, dict):
+        return {k: make_json_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [make_json_serializable(item) for item in obj]
+    elif isinstance(obj, Exception):
+        return str(obj)
+    elif hasattr(obj, "__dict__"):
+        # For objects with attributes, convert to string
+        return str(obj)
+    else:
+        return obj
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
     errors = []
     for err in exc.errors():
-        if "ctx" in err and isinstance(err["ctx"].get("error"), Exception):
-            err = err.copy()
-            err["ctx"] = {"error": str(err["ctx"]["error"])}
-        errors.append(err)
+        # Make a deep copy and ensure all data is JSON serializable
+        clean_err = make_json_serializable(err)
+        errors.append(clean_err)
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={"detail": errors},
@@ -58,18 +138,56 @@ async def validation_exception_handler(request, exc):
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+# Include WebSocket routes directly (bypass authentication)
+app.include_router(websocket_router, prefix="/ws", tags=["websocket"])
+
 
 @app.get("/")
 async def root():
     return JSONResponse(
-        content={"message": "FinVision API", "version": "1.0.0", "docs": "/docs"}
+        content={
+            "message": "FinVision API",
+            "version": "1.0.0",
+            "status": "running",
+            "cache_status": ("enabled" if CACHE_AVAILABLE else "disabled"),
+        }
     )
 
 
 @app.get("/health")
 async def health_check():
-    return JSONResponse(content={"status": "healthy"})
+    """Health check endpoint for monitoring."""
+    return JSONResponse(
+        content={
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),
+            "version": "1.0.0",
+            "cache_status": "enabled" if CACHE_AVAILABLE else "disabled",
+        }
+    )
+
+
+@app.get("/cors-debug")
+async def cors_debug():
+    """Debug endpoint to check CORS configuration."""
+    return JSONResponse(
+        content={
+            "cors_origins": settings.get_cors_origins(),
+            "raw_cors_origins": settings.BACKEND_CORS_ORIGINS,
+            "frontend_url": settings.FRONTEND_URL,
+            "environment": os.getenv("ENV", "development"),
+        }
+    )
+
+
+# Note: Let CORSMiddleware handle OPTIONS automatically.
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info",
+    )

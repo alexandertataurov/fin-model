@@ -1,0 +1,22 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Foundations/Tokens Pipeline" />
+
+# Tokens Pipeline
+
+This design system uses Style Dictionary with tokens defined in the root `tokens/` directory. Running the build script generates outputs in `dist/tokens` that are consumed by components and stories.
+
+## Workflow
+
+- Edit files under `tokens/`
+- Generate code: `npm run build:tokens`
+- Consume tokens from `@/design-system/tokens`
+
+## Notes
+
+- Typography is normalized to arrays: `[fontSize, { lineHeight }]` in rem.
+- Spacing and radius are converted to rem.
+- Transitions get an `ease-in-out` curve if not specified.
+- CSS variables are supported via either `{":root", ".dark"}` or `{ light, dark }` shapes.
+
+> Do not edit `tokens.ts` directly. It re-exports the generated JSON.

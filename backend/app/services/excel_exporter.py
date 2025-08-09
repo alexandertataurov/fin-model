@@ -20,7 +20,9 @@ class ExcelExporter:
 
     def __init__(self, output_dir: Optional[str] = None):
         self.output_dir = (
-            Path(output_dir) if output_dir else Path(settings.UPLOAD_DIR) / "exports"
+            Path(output_dir)
+            if output_dir
+            else Path(settings.UPLOAD_DIR) / "exports"
         )
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -74,12 +76,22 @@ class ExcelExporter:
             wb.remove(wb["Sheet"])
 
         # Create sheets based on data structure
-        sheet_order = ["Summary", "P&L", "Balance Sheet", "Cash Flow", "Raw Data"]
+        sheet_order = [
+            "Summary",
+            "P&L",
+            "Balance Sheet",
+            "Cash Flow",
+            "Raw Data",
+        ]
 
         for sheet_name in sheet_order:
             if sheet_name.lower().replace(" ", "_").replace("&", "") in data:
-                sheet_data = data[sheet_name.lower().replace(" ", "_").replace("&", "")]
-                self._create_sheet(wb, sheet_name, sheet_data, preserve_formulas)
+                sheet_data = data[
+                    sheet_name.lower().replace(" ", "_").replace("&", "")
+                ]
+                self._create_sheet(
+                    wb, sheet_name, sheet_data, preserve_formulas
+                )
 
         # Add charts sheet if chart data exists
         if "charts" in data:
@@ -113,7 +125,9 @@ class ExcelExporter:
 
         # Add summary metrics if available
         if "metrics" in data:
-            current_row = self._add_metrics_section(ws, data["metrics"], current_row)
+            current_row = self._add_metrics_section(
+                ws, data["metrics"], current_row
+            )
 
         # Add time series data if available
         if "time_series" in data:
@@ -125,7 +139,11 @@ class ExcelExporter:
         if "tables" in data:
             for table_name, table_data in data["tables"].items():
                 current_row = self._add_table_section(
-                    ws, table_name, table_data, current_row, preserve_formulas
+                    ws,
+                    table_name,
+                    table_data,
+                    current_row,
+                    preserve_formulas,
                 )
 
         # Auto-adjust column widths
@@ -171,7 +189,9 @@ class ExcelExporter:
                 if isinstance(metric_value, dict):
                     # Handle structured metric data
                     worksheet.cell(
-                        row=current_row, column=2, value=metric_value.get("current", "")
+                        row=current_row,
+                        column=2,
+                        value=metric_value.get("current", ""),
                     )
                     worksheet.cell(
                         row=current_row,
@@ -180,7 +200,9 @@ class ExcelExporter:
                     )
 
                     # Calculate percentage change
-                    if metric_value.get("current") and metric_value.get("previous"):
+                    if metric_value.get("current") and metric_value.get(
+                        "previous"
+                    ):
                         try:
                             current_val = float(metric_value["current"])
                             previous_val = float(metric_value["previous"])
@@ -188,7 +210,9 @@ class ExcelExporter:
                                 (current_val - previous_val) / previous_val
                             ) * 100
                             worksheet.cell(
-                                row=current_row, column=4, value=change_pct / 100
+                                row=current_row,
+                                column=4,
+                                value=change_pct / 100,
                             )
                             worksheet.cell(
                                 row=current_row, column=4
@@ -197,12 +221,20 @@ class ExcelExporter:
                             pass
                 else:
                     # Simple metric value
-                    worksheet.cell(row=current_row, column=2, value=metric_value)
+                    worksheet.cell(
+                        row=current_row, column=2, value=metric_value
+                    )
 
                 # Apply formatting based on metric type
                 if any(
                     keyword in metric_name.lower()
-                    for keyword in ["revenue", "profit", "cost", "expense", "cash"]
+                    for keyword in [
+                        "revenue",
+                        "profit",
+                        "cost",
+                        "expense",
+                        "cash",
+                    ]
                 ):
                     worksheet.cell(
                         row=current_row, column=2
@@ -222,7 +254,10 @@ class ExcelExporter:
         return current_row + 2
 
     def _add_time_series_section(
-        self, worksheet, time_series_data: List[Dict[str, Any]], start_row: int
+        self,
+        worksheet,
+        time_series_data: List[Dict[str, Any]],
+        start_row: int,
     ) -> int:
         """Add time series data section to worksheet."""
         if not time_series_data:
@@ -256,11 +291,15 @@ class ExcelExporter:
         # Add data
         for _, row_data in df.iterrows():
             for col_idx, value in enumerate(row_data, 1):
-                cell = worksheet.cell(row=current_row, column=col_idx, value=value)
+                cell = worksheet.cell(
+                    row=current_row, column=col_idx, value=value
+                )
                 cell.border = self.thin_border
 
                 # Apply number formatting
-                if col_idx > 1 and isinstance(value, (int, float)):  # Skip date column
+                if col_idx > 1 and isinstance(
+                    value, (int, float)
+                ):  # Skip date column
                     cell.number_format = self.currency_format
 
             current_row += 1
@@ -299,7 +338,9 @@ class ExcelExporter:
 
         # Section header
         worksheet.cell(
-            row=current_row, column=1, value=table_name.replace("_", " ").title()
+            row=current_row,
+            column=1,
+            value=table_name.replace("_", " ").title(),
         )
         header_cell = worksheet.cell(row=current_row, column=1)
         header_cell.font = Font(size=14, bold=True)
@@ -311,7 +352,9 @@ class ExcelExporter:
         # Add to worksheet using openpyxl
         for r in dataframe_to_rows(df, index=False, header=True):
             for col_idx, value in enumerate(r, 1):
-                cell = worksheet.cell(row=current_row, column=col_idx, value=value)
+                cell = worksheet.cell(
+                    row=current_row, column=col_idx, value=value
+                )
 
                 # Style header row
                 if current_row == start_row + 1:
@@ -321,7 +364,9 @@ class ExcelExporter:
                 cell.border = self.thin_border
 
                 # Apply number formatting for data rows
-                if current_row > start_row + 1 and isinstance(value, (int, float)):
+                if current_row > start_row + 1 and isinstance(
+                    value, (int, float)
+                ):
                     if any(
                         keyword in str(df.columns[col_idx - 1]).lower()
                         for keyword in [
@@ -346,7 +391,9 @@ class ExcelExporter:
 
         return current_row + 2
 
-    def _create_charts_sheet(self, workbook: Workbook, charts_data: Dict[str, Any]):
+    def _create_charts_sheet(
+        self, workbook: Workbook, charts_data: Dict[str, Any]
+    ):
         """Create a sheet with Excel charts."""
         ws = workbook.create_sheet(title="Charts")
 
@@ -373,11 +420,17 @@ class ExcelExporter:
 
             # Create chart based on type
             if "trend" in chart_name or "time" in chart_name:
-                chart = self._create_line_chart(ws, chart_data, chart_row, chart_col)
+                chart = self._create_line_chart(
+                    ws, chart_data, chart_row, chart_col
+                )
             elif "breakdown" in chart_name or "distribution" in chart_name:
-                chart = self._create_pie_chart(ws, chart_data, chart_row, chart_col)
+                chart = self._create_pie_chart(
+                    ws, chart_data, chart_row, chart_col
+                )
             else:
-                chart = self._create_bar_chart(ws, chart_data, chart_row, chart_col)
+                chart = self._create_bar_chart(
+                    ws, chart_data, chart_row, chart_col
+                )
 
             if chart:
                 ws.add_chart(chart, f"{chr(65 + chart_col)}{chart_row}")
@@ -394,17 +447,25 @@ class ExcelExporter:
         try:
             # Add data to worksheet
             df = pd.DataFrame(data)
-            if df.empty or "period" not in df.columns or "value" not in df.columns:
+            if (
+                df.empty
+                or "period" not in df.columns
+                or "value" not in df.columns
+            ):
                 return None
 
             # Write data starting from start_row + 1
             data_start_row = start_row + 1
             for idx, row in df.iterrows():
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col, value=row["period"]
+                    row=data_start_row + idx,
+                    column=start_col,
+                    value=row["period"],
                 )
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col + 1, value=row["value"]
+                    row=data_start_row + idx,
+                    column=start_col + 1,
+                    value=row["value"],
                 )
 
             # Create chart
@@ -442,17 +503,25 @@ class ExcelExporter:
         """Create a bar chart in Excel."""
         try:
             df = pd.DataFrame(data)
-            if df.empty or "period" not in df.columns or "value" not in df.columns:
+            if (
+                df.empty
+                or "period" not in df.columns
+                or "value" not in df.columns
+            ):
                 return None
 
             # Write data
             data_start_row = start_row + 1
             for idx, row in df.iterrows():
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col, value=row["period"]
+                    row=data_start_row + idx,
+                    column=start_col,
+                    value=row["period"],
                 )
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col + 1, value=row["value"]
+                    row=data_start_row + idx,
+                    column=start_col + 1,
+                    value=row["value"],
                 )
 
             # Create chart
@@ -490,17 +559,25 @@ class ExcelExporter:
         """Create a pie chart in Excel."""
         try:
             df = pd.DataFrame(data)
-            if df.empty or "period" not in df.columns or "value" not in df.columns:
+            if (
+                df.empty
+                or "period" not in df.columns
+                or "value" not in df.columns
+            ):
                 return None
 
             # Write data
             data_start_row = start_row + 1
             for idx, row in df.iterrows():
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col, value=row["period"]
+                    row=data_start_row + idx,
+                    column=start_col,
+                    value=row["period"],
                 )
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col + 1, value=row["value"]
+                    row=data_start_row + idx,
+                    column=start_col + 1,
+                    value=row["value"],
                 )
 
             # Create chart
@@ -529,7 +606,9 @@ class ExcelExporter:
             print(f"Error creating pie chart: {e}")
             return None
 
-    def _create_metadata_sheet(self, workbook: Workbook, metadata: Dict[str, Any]):
+    def _create_metadata_sheet(
+        self, workbook: Workbook, metadata: Dict[str, Any]
+    ):
         """Create a metadata sheet with export information."""
         ws = workbook.create_sheet(title="Metadata")
 

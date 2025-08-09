@@ -36,7 +36,9 @@ def list_statements(
     )
 
     if statement_type:
-        query = query.filter(FinancialStatement.statement_type == statement_type.value)
+        query = query.filter(
+            FinancialStatement.statement_type == statement_type.value
+        )
 
     statements = query.offset(skip).limit(limit).all()
 
@@ -140,7 +142,8 @@ def update_statement(
 
     # Increment version for data changes
     if any(
-        field in update_data for field in ["line_items", "raw_data", "calculated_data"]
+        field in update_data
+        for field in ["line_items", "raw_data", "calculated_data"]
     ):
         statement.version += 1
 

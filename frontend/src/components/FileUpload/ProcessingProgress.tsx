@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Progress } from '../ui/progress';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Alert, AlertDescription } from '../ui/alert';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Progress } from '@/design-system/components/Progress';
+import { Badge } from '@/design-system/components/Badge';
+import { Button } from '@/design-system/components/Button';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { 
   CheckCircle, 
   XCircle, 
@@ -76,7 +76,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
     return processingSteps[0];
   };
 
-  const pollTaskStatus = async () => {
+  const pollTaskStatus = useCallback(async () => {
     if (!taskId || !isPolling) return;
 
     try {
@@ -102,7 +102,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       console.error('Failed to poll task status:', error);
       // Continue polling on error, might be temporary
     }
-  };
+  }, [taskId, isPolling, onComplete, onError]);
 
   useEffect(() => {
     if (autoRefresh && taskId && job.status === 'processing') {
@@ -110,7 +110,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       const interval = setInterval(pollTaskStatus, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [taskId, autoRefresh, refreshInterval, job.status, isPolling]);
+  }, [taskId, autoRefresh, refreshInterval, job.status, isPolling, pollTaskStatus]);
 
   const startProcessing = async () => {
     try {

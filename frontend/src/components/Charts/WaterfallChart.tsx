@@ -10,10 +10,8 @@ import {
   Cell,
   Tooltip,
 } from 'recharts';
-import { Box } from '@mui/material';
-import { tokens } from '@/theme';
-import BaseChart from './BaseChart';
 
+import BaseChart from './BaseChart';
 
 export interface WaterfallDataPoint {
   name: string;
@@ -52,10 +50,10 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
   currency = '$',
   showGrid = true,
   // DESIGN_FIX: use design tokens for default colors
-  positiveColor = tokens.colors.financial.positive,
-  negativeColor = tokens.colors.financial.negative,
-  totalColor = tokens.colors.financial.currency,
-  startColor = tokens.colors.financial.neutral,
+  positiveColor = 'var(--success)',
+  negativeColor = 'var(--destructive)',
+  totalColor = 'var(--chart-1)',
+  startColor = 'var(--muted-foreground)',
   onExport,
   onFullscreen,
   formatXAxisTick,
@@ -103,12 +101,8 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
         ...item,
         stackBottom,
         stackTop,
-        displayValue: stackTop - stackBottom,
-        cumulative,
         color,
-        // For invisible bar to create stacking effect
-        invisibleBottom: Math.min(stackBottom, stackTop),
-        visibleHeight: Math.abs(stackTop - stackBottom),
+        cumulative,
       };
     });
   }, [data, positiveColor, negativeColor, totalColor, startColor]);
@@ -118,156 +112,110 @@ export const WaterfallChart: React.FC<WaterfallChartProps> = ({
       return formatYAxisTick(value);
     }
 
-    // Auto-format based on value size
     if (Math.abs(value) >= 1000000) {
       return `${currency}${(value / 1000000).toFixed(1)}M`;
     } else if (Math.abs(value) >= 1000) {
       return `${currency}${(value / 1000).toFixed(1)}K`;
     }
-    return `${currency}${value}`;
+    return `${currency}${value.toFixed(0)}`;
   };
 
   const formatXAxis = (value: string): string => {
     if (formatXAxisTick) {
       return formatXAxisTick(value);
     }
-    return value;
+    return value.length > 12 ? `${value.substring(0, 12)}...` : value;
   };
 
-  const customTooltip = ({ active, payload, label }: { active?: boolean; payload?: unknown[]; label?: string }) => {
-    if (!active || !payload || payload.length === 0) {
-      return null;
+  const customTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: unknown[];
+    label?: string;
+  }) => {
+    if (active && payload && payload.length > 0) {
+      const data = payload[0] as {
+        payload: WaterfallDataPoint & { stackBottom: number; stackTop: number };
+      };
+      const item = data.payload;
+
+      return (
+        <div className="bg-white p-3 border rounded-lg shadow-lg">
+          <p className="font-medium">{label}</p>
+          <p className="text-sm text-muted-foreground">
+            Value: {formatYAxis(item.value)}
+          </p>
+          {item.type !== 'start' && item.type !== 'total' && (
+            <p className="text-sm text-muted-foreground">
+              Cumulative: {formatYAxis(item.cumulative ?? 0)}
+            </p>
+          )}
+        </div>
+      );
     }
-
-    const data = (payload[0] as { payload: WaterfallDataPoint })?.payload;
-    if (!data) return null;
-
-    const value = data.value;
-    const cumulative = data.cumulative;
-    const isPositive = value >= 0;
-    const isStart = data.type === 'start';
-    const isTotal = data.type === 'total';
-
-    return (
-      <Box
-        sx={{
-          backgroundColor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 1,
-          p: 2,
-          boxShadow: 2,
-          minWidth: 200,
-        }}
-      >
-        <Box sx={{ fontSize: '0.875rem', fontWeight: 600, mb: 1 }}>
-          {label}
-        </Box>
-
-        {!isStart && !isTotal && (
-          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>
-            Change: {formatYAxis(value)}
-          </Box>
-        )}
-
-        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-          {isTotal ? 'Total' : 'Cumulative'}: {formatYAxis(cumulative || 0)}
-        </Box>
-
-        {!isStart && !isTotal && (
-          <Box
-            sx={{
-              fontSize: '0.75rem',
-              color: isPositive ? positiveColor : negativeColor,
-              fontWeight: 500,
-              mt: 0.5,
-            }}
-          >
-            {isPositive ? '↑ Increase' : '↓ Decrease'}
-          </Box>
-        )}
-      </Box>
-    );
+    return null;
   };
 
-  const yAxisDomain = useMemo(() => {
-    const allValues = processedData.flatMap(d => [d.stackBottom, d.stackTop]);
-    const min = Math.min(...allValues);
-    const max = Math.max(...allValues);
-    const padding = (max - min) * 0.1;
-    return [min - padding, max + padding];
-  }, [processedData]);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
-  const chartContent = (
-    <ResponsiveContainer width="100%" height="100%">
-      <RechartsBarChart
-        data={processedData}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 20,
-        }}
-      >
-        {showGrid && (
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke={tokens.colors.grey[300]} // DESIGN_FIX: tokenized grid color
-            opacity={0.5}
-          />
-        )}
-
-        <XAxis
-          dataKey="name"
-          tick={{ fontSize: 12 }}
-          tickFormatter={formatXAxis}
-        />
-
-        <YAxis
-          domain={yAxisDomain}
-          tick={{ fontSize: 12 }}
-          tickFormatter={formatYAxis}
-        />
-
-        <ReferenceLine
-          y={0}
-          stroke={tokens.colors.grey[700]} // DESIGN_FIX: tokenized line color
-          strokeWidth={1}
-        />
-
-        {/* Invisible bars for stacking */}
-        <Bar
-          dataKey="invisibleBottom"
-          fill="transparent"
-          strokeWidth={0}
-        />
-
-        {/* Visible bars */}
-        <Bar
-          dataKey="visibleHeight"
-          stackId="waterfall"
-        >
-          {processedData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Bar>
-
-        <Tooltip data-testid="tooltip" content={customTooltip} />
-      </RechartsBarChart>
-    </ResponsiveContainer>
-  );
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64 text-red-500">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <BaseChart
       title={title}
       subtitle={subtitle}
       height={height}
-      loading={loading}
-      error={error}
       onExport={onExport}
       onFullscreen={onFullscreen}
     >
-      {chartContent}
+      <ResponsiveContainer width="100%" height="100%">
+        <RechartsBarChart
+          data={processedData}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        >
+          {showGrid && <CartesianGrid strokeDasharray="3 3" />}
+          <XAxis
+            dataKey="name"
+            tickFormatter={formatXAxis}
+            angle={-45}
+            textAnchor="end"
+            height={80}
+          />
+          <YAxis tickFormatter={formatYAxis} />
+          <Tooltip content={customTooltip} />
+          <ReferenceLine y={0} stroke="#666" />
+          <Bar dataKey="stackTop" stackId="a" fill="transparent" />
+          <Bar dataKey="stackBottom" stackId="b" fill="transparent" />
+          {processedData.map((entry, index) => (
+            <Bar
+              key={`bar-${index}`}
+              dataKey="value"
+              fill={entry.color}
+              stackId="c"
+              name={entry.name}
+            >
+              {processedData.map((cellEntry, cellIndex) => (
+                <Cell key={`cell-${cellIndex}`} fill={cellEntry.color} />
+              ))}
+            </Bar>
+          ))}
+        </RechartsBarChart>
+      </ResponsiveContainer>
     </BaseChart>
   );
 };

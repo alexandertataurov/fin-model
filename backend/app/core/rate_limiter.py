@@ -24,7 +24,10 @@ class RateLimit(Base):
     blocked_until = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(
-        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
 
@@ -66,7 +69,9 @@ class RateLimiter:
         window_start = now - timedelta(minutes=window_minutes)
 
         # Get or create rate limit record
-        rate_limit = self.db.query(RateLimit).filter(RateLimit.key == rate_key).first()
+        rate_limit = (
+            self.db.query(RateLimit).filter(RateLimit.key == rate_key).first()
+        )
 
         if not rate_limit:
             # Create new rate limit record
@@ -77,7 +82,11 @@ class RateLimiter:
 
         # Check if currently blocked
         if rate_limit.blocked_until:
-            blocked_until_utc = rate_limit.blocked_until.replace(tzinfo=timezone.utc) if rate_limit.blocked_until.tzinfo is None else rate_limit.blocked_until
+            blocked_until_utc = (
+                rate_limit.blocked_until.replace(tzinfo=timezone.utc)
+                if rate_limit.blocked_until.tzinfo is None
+                else rate_limit.blocked_until
+            )
             if now < blocked_until_utc:
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -85,7 +94,11 @@ class RateLimiter:
                 )
 
         # Check if we need to reset the window
-        window_start_utc = rate_limit.window_start.replace(tzinfo=timezone.utc) if rate_limit.window_start.tzinfo is None else rate_limit.window_start
+        window_start_utc = (
+            rate_limit.window_start.replace(tzinfo=timezone.utc)
+            if rate_limit.window_start.tzinfo is None
+            else rate_limit.window_start
+        )
         if window_start_utc < window_start:
             # Reset window
             rate_limit.window_start = now
@@ -116,7 +129,9 @@ class RateLimiter:
         client_ip = self._get_client_ip(request)
         rate_key = f"{endpoint}:{client_ip}"
 
-        rate_limit = self.db.query(RateLimit).filter(RateLimit.key == rate_key).first()
+        rate_limit = (
+            self.db.query(RateLimit).filter(RateLimit.key == rate_key).first()
+        )
         if rate_limit:
             # Reset attempts on successful auth
             rate_limit.attempts = 0
@@ -146,7 +161,9 @@ class RateLimiter:
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_old)
 
         deleted_count = (
-            self.db.query(RateLimit).filter(RateLimit.created_at < cutoff_date).delete()
+            self.db.query(RateLimit)
+            .filter(RateLimit.created_at < cutoff_date)
+            .delete()
         )
 
         self.db.commit()
@@ -188,7 +205,9 @@ def rate_limit(
                 db = kwargs.get("db")
 
             if not request or not db:
-                raise ValueError("Rate limiter requires Request and Session objects")
+                raise ValueError(
+                    "Rate limiter requires Request and Session objects"
+                )
 
             # Use function name as endpoint if not specified
             endpoint_name = endpoint or func.__name__

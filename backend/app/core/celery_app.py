@@ -1,5 +1,6 @@
-from celery import Celery
+import redis
 from app.core.config import settings
+from celery import Celery
 
 # Create Celery app
 celery_app = Celery(
@@ -10,6 +11,8 @@ celery_app = Celery(
         "app.tasks.file_processing",
         "app.tasks.notifications",
         "app.tasks.scheduled_tasks",
+        "app.tasks.maintenance",
+        "app.tasks.lean_financial",
     ],
 )
 
@@ -45,6 +48,8 @@ celery_app.conf.update(
         "app.tasks.file_processing.*": {"queue": "file_processing"},
         "app.tasks.notifications.*": {"queue": "notifications"},
         "app.tasks.scheduled_tasks.*": {"queue": "scheduled"},
+        "app.tasks.maintenance.*": {"queue": "maintenance"},
+        "app.tasks.lean_financial.*": {"queue": "lean_financial"},
     },
     # Define queues
     task_queues={
@@ -68,6 +73,14 @@ celery_app.conf.update(
             "exchange": "high_priority",
             "routing_key": "high_priority",
         },
+        "maintenance": {
+            "exchange": "maintenance",
+            "routing_key": "maintenance",
+        },
+        "lean_financial": {
+            "exchange": "lean_financial",
+            "routing_key": "lean_financial",
+        },
     },
     # Monitoring
     worker_send_task_events=True,
@@ -87,6 +100,12 @@ celery_app.conf.update(
         },
     },
 )
+
+# Redis client for caching
+redis_url = (
+    settings.REDIS_URL if hasattr(settings, "REDIS_URL") else "redis://localhost:6379/0"
+)
+redis_client = redis.Redis.from_url(redis_url)
 
 # Task discovery
 celery_app.autodiscover_tasks()

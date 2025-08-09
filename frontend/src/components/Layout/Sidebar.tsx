@@ -1,44 +1,37 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@/design-system/components/Button';
+import { Badge } from '@/design-system/components/Badge';
+import { ScrollArea } from '@/design-system/components/ScrollArea';
 import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  IconButton,
-  Box,
-  Typography,
-  Collapse,
-  Tooltip,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/design-system/components/Collapsible';
 import {
-  Dashboard as DashboardIcon,
-  CloudUpload as UploadIcon,
-  Analytics as AnalyticsIcon,
-  Assessment as ReportsIcon,
-  AccountBalance as PLIcon,
-  TrendingUp as CashFlowIcon,
-  BarChart as BalanceSheetIcon,
-
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  ExpandLess,
-  ExpandMore,
-  AdminPanelSettings as AdminIcon,
-  ModelTraining as ModelsIcon,
-} from '@mui/icons-material';
+  LayoutDashboard,
+  Upload,
+  BarChart3,
+  TrendingUp,
+  PieChart,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  Brain,
+  Calculator,
+  Target,
+  Building,
+  RefreshCw,
+  Settings,
+  Activity,
+  Users,
+} from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface SidebarProps {
   open: boolean;
   onToggle: () => void;
-  width?: number;
-  collapsedWidth?: number;
 }
 
 interface NavItem {
@@ -47,306 +40,288 @@ interface NavItem {
   icon: React.ReactNode;
   path?: string;
   children?: NavItem[];
-  roles?: string[];
-  badge?: string | number;
 }
 
-const navigationItems: NavItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: <DashboardIcon />,
-    path: '/dashboard',
-  },
-  {
-    id: 'financial-dashboards',
-    label: 'Financial Dashboards',
-    icon: <AnalyticsIcon />,
-    children: [
-      {
-        id: 'pl-dashboard',
-        label: 'P&L Dashboard',
-        icon: <PLIcon />,
-        path: '/dashboards/pl',
-      },
-      {
-        id: 'cashflow-dashboard',
-        label: 'Cash Flow',
-        icon: <CashFlowIcon />,
-        path: '/dashboards/cashflow',
-      },
-      {
-        id: 'balance-sheet',
-        label: 'Balance Sheet',
-        icon: <BalanceSheetIcon />,
-        path: '/dashboards/balance-sheet',
-      },
-    ],
-  },
-  {
-    id: 'files',
-    label: 'File Upload',
-    icon: <UploadIcon />,
-    path: '/files',
-  },
-  {
-    id: 'reports',
-    label: 'Reports',
-    icon: <ReportsIcon />,
-    path: '/reports',
-  },
-  {
-    id: 'scenario-modeling',
-    label: 'Scenario Modeling',
-    icon: <ModelsIcon />,
-    path: '/scenarios',
-    roles: ['analyst', 'admin'],
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: <AnalyticsIcon />,
-    path: '/analytics',
-  },
-  {
-    id: 'admin',
-    label: 'Admin Panel',
-    icon: <AdminIcon />,
-    path: '/admin',
-    roles: ['admin'],
-    badge: 'Admin',
-  },
-];
-
-export const Sidebar: React.FC<SidebarProps> = ({
-  open,
-  onToggle,
-  width = 280,
-  collapsedWidth = 64,
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const { user } = useAuth();
-  
-  const [expandedItems, setExpandedItems] = useState<string[]>(['financial-dashboards']);
+  const { user, isAdmin } = useAuth();
+  const [expandedItems, setExpandedItems] = useState<string[]>(['dashboard']);
 
-  const drawerWidth = open ? width : collapsedWidth;
+  const baseNavigationItems: NavItem[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: <LayoutDashboard className="h-4 w-4" />,
+      path: '/',
+    },
+    {
+      id: 'financial-modeling',
+      label: 'Financial Modeling',
+      icon: <Activity className="h-4 w-4" />,
+      path: '/financial-modeling',
+    },
+    {
+      id: 'financial-dashboards',
+      label: 'Financial Statements',
+      icon: <BarChart3 className="h-4 w-4" />,
+      children: [
+        {
+          id: 'pl-dashboard',
+          label: 'P&L Statement',
+          icon: <TrendingUp className="h-4 w-4" />,
+          path: '/dashboards/pl',
+        },
+        {
+          id: 'cashflow-dashboard',
+          label: 'Cash Flow Statement',
+          icon: <TrendingUp className="h-4 w-4" />,
+          path: '/dashboards/cashflow',
+        },
+        {
+          id: 'balance-sheet',
+          label: 'Balance Sheet',
+          icon: <PieChart className="h-4 w-4" />,
+          path: '/dashboards/balance',
+        },
+      ],
+    },
+    {
+      id: 'modeling-tools',
+      label: 'Modeling Tools',
+      icon: <Calculator className="h-4 w-4" />,
+      children: [
+        {
+          id: 'dcf-valuation',
+          label: 'DCF Valuation',
+          icon: <Target className="h-4 w-4" />,
+          path: '/dcf-valuation',
+        },
+        {
+          id: 'scenario-modeling',
+          label: 'Scenario Modeling',
+          icon: <Brain className="h-4 w-4" />,
+          path: '/scenarios',
+        },
+        {
+          id: 'asset-lifecycle',
+          label: 'Asset Lifecycle',
+          icon: <Building className="h-4 w-4" />,
+          path: '/asset-lifecycle',
+        },
+        {
+          id: 'cash-flow-lifecycle',
+          label: 'Cash Flow Lifecycle',
+          icon: <RefreshCw className="h-4 w-4" />,
+          path: '/cash-flow-lifecycle',
+        },
+      ],
+    },
+    {
+      id: 'parameters',
+      label: 'Parameters',
+      icon: <Settings className="h-4 w-4" />,
+      path: '/parameters',
+    },
+    {
+      id: 'files',
+      label: 'File Upload',
+      icon: <Upload className="h-4 w-4" />,
+      path: '/upload',
+    },
+  ];
 
-  const handleItemClick = (item: NavItem) => {
-    if (item.children) {
-      // Toggle expansion for parent items
-      setExpandedItems(prev =>
-        prev.includes(item.id)
-          ? prev.filter(id => id !== item.id)
-          : [...prev, item.id]
-      );
-    } else if (item.path) {
-      // Navigate to the path
-      navigate(item.path);
-      
-      // Close sidebar on mobile after navigation
-      if (isMobile && open) {
-        onToggle();
-      }
+  // Add admin navigation item only for admin users
+  const navigationItems: NavItem[] = isAdmin() ? [
+    ...baseNavigationItems,
+    {
+      id: 'admin',
+      label: 'Administration',
+      icon: <Users className="h-4 w-4" />,
+      path: '/admin',
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: <Settings className="h-4 w-4" />,
+      path: '/settings',
+    },
+  ] : [
+    ...baseNavigationItems,
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: <Settings className="h-4 w-4" />,
+      path: '/settings',
+    },
+  ];
+
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItems(prev =>
+      prev.includes(itemId)
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (!open) {
+      onToggle();
     }
   };
 
-  const isItemActive = (item: NavItem): boolean => {
-    if (item.path) {
-      return location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
-    }
-    
-    if (item.children) {
-      return item.children.some(child => isItemActive(child));
-    }
-    
-    return false;
+  const isActive = (path?: string) => {
+    if (!path) return false;
+    return location.pathname === path;
   };
 
-  const hasPermission = (item: NavItem): boolean => {
-    if (!item.roles || !user?.roles) return true;
-    return item.roles.some(role => user.roles?.includes(role) ?? false);
-  };
-
-  const renderNavItem = (item: NavItem, level = 0) => {
-    if (!hasPermission(item)) return null;
-
-    const isActive = isItemActive(item);
-    const isExpanded = expandedItems.includes(item.id);
+  const renderNavItem = (item: NavItem) => {
     const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedItems.includes(item.id);
+    const active = isActive(item.path);
 
     return (
-      <React.Fragment key={item.id}>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <Tooltip title={!open ? item.label : ''} placement="right">
-            <ListItemButton
-              onClick={() => handleItemClick(item)}
-              selected={isActive && !hasChildren}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-                pl: level > 0 ? 4 : 2.5,
-                color: isActive ? 'primary.main' : 'inherit',
-                backgroundColor: isActive && !hasChildren ? 'action.selected' : 'transparent',
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                },
-                '&.Mui-selected': {
-                  backgroundColor: 'action.selected',
-                  '&:hover': {
-                    backgroundColor: 'action.selected',
-                  },
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center',
-                  color: isActive ? 'primary.main' : 'inherit',
-                }}
+      <div key={item.id}>
+        {hasChildren ? (
+          <Collapsible
+            open={isExpanded}
+            onOpenChange={() => toggleExpanded(item.id)}
+          >
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className={`w-full justify-between h-10 px-3 ${
+                  active ? 'bg-accent text-accent-foreground' : ''
+                }`}
               >
-                {item.icon}
-              </ListItemIcon>
-              
-              <ListItemText
-                primary={item.label}
-                sx={{
-                  opacity: open ? 1 : 0,
-                  '& .MuiListItemText-primary': {
-                    fontSize: '0.875rem',
-                    fontWeight: isActive ? 600 : 400,
-                  },
-                }}
-              />
-              
-              {item.badge && open && (
-                <Box
-                  sx={{
-                    fontSize: '0.75rem',
-                    px: 1,
-                    py: 0.25,
-                    borderRadius: 1,
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
-                  }}
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-3">
+                    {item.icon}
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-1">
+              {item.children?.map(child => (
+                <Button
+                  key={child.id}
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-start h-8 px-6 ml-2 ${
+                    isActive(child.path)
+                      ? 'bg-accent text-accent-foreground'
+                      : ''
+                  }`}
+                  onClick={() => handleNavigation(child.path!)}
                 >
-                  {item.badge}
-                </Box>
-              )}
-              
-              {hasChildren && open && (
-                isExpanded ? <ExpandLess /> : <ExpandMore />
-              )}
-            </ListItemButton>
-          </Tooltip>
-        </ListItem>
-
-        {hasChildren && (
-          <Collapse in={isExpanded && open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {item.children?.map(child => renderNavItem(child, level + 1))}
-            </List>
-          </Collapse>
+                  <div className="flex items-center space-x-3">
+                    {child.icon}
+                    <span className="text-sm">{child.label}</span>
+                  </div>
+                </Button>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <Button
+            variant="ghost"
+            className={`w-full justify-start h-10 px-3 ${
+              active ? 'bg-accent text-accent-foreground' : ''
+            }`}
+            onClick={() => item.path && handleNavigation(item.path)}
+          >
+            <div className="flex items-center space-x-3">
+              {item.icon}
+              <span className="text-sm font-medium">{item.label}</span>
+            </div>
+          </Button>
         )}
-      </React.Fragment>
+      </div>
     );
   };
-
-  const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: open ? 'space-between' : 'center',
-          px: 2,
-          py: 1.5,
-          minHeight: 64,
-        }}
-      >
-        {open && (
-          <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-            FinVision
-          </Typography>
-        )}
-        
-        {!isMobile && (
-          <IconButton onClick={onToggle} size="small">
-            {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        )}
-      </Box>
-
-      <Divider />
-
-      {/* Navigation */}
-      <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-        <List sx={{ pt: 1 }}>
-          {navigationItems.map(item => renderNavItem(item))}
-        </List>
-      </Box>
-
-      {/* Footer */}
-      {open && (
-        <>
-          <Divider />
-          <Box sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">
-              Version 1.0.0
-            </Typography>
-          </Box>
-        </>
-      )}
-    </Box>
-  );
-
-  if (isMobile) {
-    return (
-      <Drawer
-        variant="temporary"
-        open={open}
-        onClose={onToggle}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: width,
-            boxSizing: 'border-box',
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    );
-  }
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        whiteSpace: 'nowrap',
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          overflowX: 'hidden',
-        },
-      }}
-    >
-      {drawerContent}
-    </Drawer>
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 lg:inset-y-0 lg:left-0 ${
+          open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Activity className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold">FinModel</h1>
+                <p className="text-xs text-muted-foreground">v2.0.0</p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggle}
+              className="lg:hidden"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* User Info */}
+          <div className="p-4 border-b">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                <Shield className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {user?.first_name || user?.username || 'User'}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user?.email || 'user@example.com'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <ScrollArea className="flex-1 p-4">
+            <nav className="space-y-2">
+              {navigationItems.map(renderNavItem)}
+            </nav>
+          </ScrollArea>
+
+          {/* Footer */}
+          <div className="p-4 border-t">
+            <div className="flex items-center justify-between">
+              <Badge variant="secondary" className="text-xs">
+                Lean App
+              </Badge>
+              <Button variant="ghost" size="sm">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
