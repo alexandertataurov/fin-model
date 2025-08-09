@@ -25,21 +25,19 @@ def upgrade():
         index_name, table_name, columns, unique=False, expression=None
     ):
         try:
-            # Check if index already exists
             result = conn.execute(
-                text(f"SELECT to_regclass('{index_name}')")
+                sa.text("SELECT to_regclass(:idx)").bindparams(sa.bindparam("idx", index_name))
             ).scalar()
             if result is None:
                 if expression:
-                    conn.execute(
-                        text(
-                            f"CREATE INDEX {index_name} ON {table_name} {expression}"
-                        )
+                    op.create_index(
+                        index_name,
+                        table_name,
+                        [sa.text(expression)],
+                        unique=unique,
                     )
                 else:
-                    op.create_index(
-                        index_name, table_name, columns, unique=unique
-                    )
+                    op.create_index(index_name, table_name, columns, unique=unique)
                 print(f"✅ Created index {index_name}")
             else:
                 print(f"⚠️ Skipping index {index_name}: already exists")
@@ -289,12 +287,11 @@ def upgrade():
         # Helper function for concurrent index creation
         def safe_create_concurrent_index(index_name, sql):
             try:
-                # Check if index already exists
                 result = conn_autocommit.execute(
-                    text(f"SELECT to_regclass('{index_name}')")
+                    sa.text("SELECT to_regclass(:idx)").bindparams(sa.bindparam("idx", index_name))
                 ).scalar()
                 if result is None:
-                    conn_autocommit.execute(text(sql))
+                    conn_autocommit.execute(sa.text(sql))
                     print(f"✅ Created concurrent index {index_name}")
                 else:
                     print(

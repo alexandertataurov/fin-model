@@ -87,7 +87,10 @@ def upgrade() -> None:
 
     for index_name in regular_indexes:
         try:
-            conn.execute(text(f"DROP INDEX IF EXISTS {index_name}"))
+            stmt = sa.text("DROP INDEX IF EXISTS :idx").bindparams(
+                sa.bindparam("idx", index_name, literal_execute=True)
+            )
+            conn.execute(stmt)
             print(f"✅ Dropped index {index_name}")
         except Exception as e:
             print(f"⚠️ Could not drop index {index_name}: {e}")
@@ -114,14 +117,17 @@ def upgrade() -> None:
         conn = op.get_bind()
         for index_name in concurrent_indexes:
             try:
-                conn.execute(
-                    text(f"DROP INDEX CONCURRENTLY IF EXISTS {index_name}")
-                )
+                stmt = sa.text(
+                    "DROP INDEX CONCURRENTLY IF EXISTS :idx"
+                ).bindparams(sa.bindparam("idx", index_name, literal_execute=True))
+                conn.execute(stmt)
                 print(f"✅ Dropped index {index_name} (concurrent)")
             except Exception as e:
                 try:
-                    # Fallback to non-concurrent if needed
-                    conn.execute(text(f"DROP INDEX IF EXISTS {index_name}"))
+                    stmt = sa.text("DROP INDEX IF EXISTS :idx").bindparams(
+                        sa.bindparam("idx", index_name, literal_execute=True)
+                    )
+                    conn.execute(stmt)
                     print(f"✅ Dropped index {index_name} (fallback)")
                 except Exception as e2:
                     print(f"⚠️ Could not drop index {index_name}: {e2}")

@@ -6,7 +6,7 @@ from celery import Task
 from app.core.celery_app import celery_app
 from app.db.session import SessionLocal
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, bindparam
 from datetime import datetime, timezone
 import subprocess
 import os
@@ -95,7 +95,7 @@ def backup_database(self, db: Session) -> Dict[str, Any]:
         )
 
         # Run backup command
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, shell=False)
 
         if result.returncode != 0:
             raise Exception(f"Backup failed: {result.stderr}")
@@ -178,7 +178,11 @@ def export_database(
                 # Export specific table to CSV
                 query = f"COPY {table} TO STDOUT WITH CSV HEADER"
                 with open(export_file, "w") as f:
-                    db.execute(text(f"COPY {table} TO '{export_file}' WITH CSV HEADER"))
+                    stmt = text("COPY :tbl TO :path WITH CSV HEADER").bindparams(
+                        bindparam("tbl", table, literal_execute=True),
+                        bindparam("path", export_file),
+                    )
+                    db.execute(stmt)
             else:
                 # Export all tables (simplified)
                 tables = [
@@ -198,12 +202,20 @@ def export_database(
                         },
                     )
                     tbl_file = f"{export_dir}/{tbl}_export_{timestamp}.csv"
-                    db.execute(text(f"COPY {tbl} TO '{tbl_file}' WITH CSV HEADER"))
+                    stmt = text("COPY :tbl TO :path WITH CSV HEADER").bindparams(
+                        bindparam("tbl", tbl, literal_execute=True),
+                        bindparam("path", tbl_file),
+                    )
+                    db.execute(stmt)
 
         elif format == "json":
             # Export to JSON format
             if table:
-                rows = db.execute(text(f"SELECT * FROM {table}")).fetchall()
+                rows = db.execute(
+                    text("SELECT * FROM :tbl").bindparams(
+                        bindparam("tbl", table, literal_execute=True)
+                    )
+                ).fetchall()
                 data = [dict(row._mapping) for row in rows]
             else:
                 # Export key tables to JSON
@@ -211,7 +223,9 @@ def export_database(
                 tables = ["users", "audit_logs", "uploaded_files"]
                 for tbl in tables:
                     rows = db.execute(
-                        text(f"SELECT * FROM {tbl} LIMIT 1000")
+                        text("SELECT * FROM :tbl LIMIT 1000").bindparams(
+                            bindparam("tbl", tbl, literal_execute=True)
+                        )
                     ).fetchall()
                     data[tbl] = [dict(row._mapping) for row in rows]
 
@@ -295,7 +309,10 @@ def reindex_database(self, db: Session) -> Dict[str, Any]:
 
             try:
                 # Reindex specific table
-                db.execute(text(f"REINDEX TABLE {table_name}"))
+                stmt = text("REINDEX TABLE :tbl").bindparams(
+                    bindparam("tbl", table_name, literal_execute=True)
+                )
+                db.execute(stmt)
                 reindexed_tables.append(table_name)
                 logger.info(f"Reindexed table: {table_name}")
             except Exception as table_error:
