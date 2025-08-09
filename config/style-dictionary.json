@@ -1,5 +1,6 @@
 {
-  "source": ["tokens/**/*.json"],
+  "include": ["tokens/*/**/*.json"],
+  "source": ["tokens/semantic.json"],
   "platforms": {
     "css": {
       "transformGroup": "css",

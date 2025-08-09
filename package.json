@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:tokens": "style-dictionary build --config config/style-dictionary.json"
+    "build:tokens": "style-dictionary build --config config/style-dictionary.json && cp dist/tokens/json/tokens.json frontend/src/design-system/tokens.json && npm --prefix frontend run gen:tokens && npx --prefix frontend tsx scripts/generate-tailwind-config.ts"
   },
   "keywords": [],
   "author": "",
