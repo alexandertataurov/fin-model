@@ -32,7 +32,16 @@ const preview: Preview = {
     options: {
       storySort: {
         method: 'alphabetical',
-        order: ['Docs', 'Design Tokens', ['Colors', 'Typography', 'Spacing', 'Shadows'], 'Components', ['Atoms', 'Molecules', 'Organisms'], 'Pages', 'Flows'],
+        order: [
+          'Docs',
+          'Getting Started',
+          'Design System',
+          ['Overview', 'Foundations', 'Tokens', 'Templates', '*'],
+          'Components',
+          ['Auth', 'Dashboard', 'Parameters', 'Scenarios', 'Charts', 'FileUpload', '*'],
+          'Pages',
+          '*',
+        ],
       },
     },
   },
