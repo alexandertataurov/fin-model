@@ -15,7 +15,6 @@ from app.models.parameter import (
     ParameterValue,
     Scenario,
     MonteCarloSimulation,
-    ScenarioParameter,
 )
 from app.models.user import User
 from app.services.formula_engine import FormulaEngine
