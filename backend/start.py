@@ -7,6 +7,7 @@ Runs migrations and starts the application
 import os
 import sys
 from pathlib import Path
+
 from alembic import command
 from alembic.config import Config
 
@@ -36,16 +37,16 @@ def fix_migration_state():
     print("🔧 Checking migration state...")
 
     try:
-        from app.core.config import settings
-        from sqlalchemy import create_engine, text
         from alembic import command
         from alembic.config import Config
+        from app.core.config import settings
+        from sqlalchemy import create_engine, text
 
         engine = create_engine(settings.DATABASE_URL)
         current_dir = Path(__file__).parent
         alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
         alembic_cfg.set_main_option(
-            "script_location", os.path.join(current_dir, "alembic")
+            "script_location", os.path.join(current_dir, "alembic_migrations")
         )
 
         with engine.connect() as conn:
@@ -113,7 +114,7 @@ def run_migrations():
         current_dir = Path(__file__).parent
         alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
         alembic_cfg.set_main_option(
-            "script_location", os.path.join(current_dir, "alembic")
+            "script_location", os.path.join(current_dir, "alembic_migrations")
         )
 
         # Check current revision
@@ -146,16 +147,16 @@ def ensure_system_logs_and_maintenance():
     print("🔧 Ensuring system logs and maintenance tables...")
 
     try:
-        from app.core.config import settings
-        from sqlalchemy import create_engine, text
         from alembic import command
         from alembic.config import Config
+        from app.core.config import settings
+        from sqlalchemy import create_engine, text
 
         engine = create_engine(settings.DATABASE_URL)
         current_dir = Path(__file__).parent
         alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
         alembic_cfg.set_main_option(
-            "script_location", os.path.join(current_dir, "alembic")
+            "script_location", os.path.join(current_dir, "alembic_migrations")
         )
 
         with engine.connect() as conn:
@@ -228,9 +229,7 @@ def ensure_system_logs_and_maintenance():
                 command.stamp(alembic_cfg, "004_add_system_logs_and_maintenance")
                 print("✅ Stamped revision 004_add_system_logs_and_maintenance")
             except Exception as e:
-                print(
-                    f"⚠️ Could not stamp 004_add_system_logs_and_maintenance: {e}"
-                )
+                print(f"⚠️ Could not stamp 004_add_system_logs_and_maintenance: {e}")
 
         return True
     except Exception as e:
@@ -361,8 +360,7 @@ def create_notifications_table():
             # Create indexes
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_user_id "
-                    "ON notifications(user_id)"
+                    "CREATE INDEX ix_notifications_user_id " "ON notifications(user_id)"
                 )
             )
             conn.execute(
@@ -378,15 +376,11 @@ def create_notifications_table():
                 )
             )
             conn.execute(
-                text(
-                    "CREATE INDEX ix_notifications_status "
-                    "ON notifications(status)"
-                )
+                text("CREATE INDEX ix_notifications_status " "ON notifications(status)")
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_is_read "
-                    "ON notifications(is_read)"
+                    "CREATE INDEX ix_notifications_is_read " "ON notifications(is_read)"
                 )
             )
             conn.execute(
@@ -416,8 +410,8 @@ def fix_notification_schema():
     print("🔧 Fixing notification schema...")
 
     try:
-        from sqlalchemy import create_engine, text
         from app.core.config import settings
+        from sqlalchemy import create_engine, text
 
         engine = create_engine(settings.DATABASE_URL)
 
@@ -454,8 +448,9 @@ def start_app():
     print("🚀 Starting FastAPI application...")
 
     try:
-        from main import app
         import uvicorn
+
+        from main import app
 
         uvicorn.run(
             app,
