@@ -32,7 +32,10 @@ api_router.include_router(webauthn.router, prefix="/auth/webauthn", tags=["webau
 api_router.include_router(webauthn.router, prefix="/webauthn", tags=["webauthn"])
 
 # Include admin routes
-api_router.include_router(admin.router, prefix="/admin", tags=["administration"])
+api_router.include_router(users.router, prefix="/admin", tags=["administration"])
+api_router.include_router(system.router, prefix="/admin", tags=["administration"])
+api_router.include_router(database.router, prefix="/admin", tags=["administration"])
+api_router.include_router(logs.router, prefix="/admin", tags=["administration"])
 
 # Include file upload routes
 api_router.include_router(files.router, prefix="/files", tags=["file-upload"])
