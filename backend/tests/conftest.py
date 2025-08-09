@@ -11,10 +11,9 @@ if BACKEND_DIR not in sys.path:
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
 os.environ.setdefault("TESTING", "1")
 
-import pytest
-from sqlalchemy.orm import Session
-
-from app.models.base import Base, engine, SessionLocal
+import pytest  # noqa: E402
+from app.models.base import Base, SessionLocal, engine  # noqa: E402
+from sqlalchemy.orm import Session  # noqa: E402
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -24,6 +23,15 @@ def setup_test_db():
     yield
     # Drop all tables after tests
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture(autouse=True)
+def clean_db():
+    yield
+    with SessionLocal() as session:
+        for table in reversed(Base.metadata.sorted_tables):
+            session.execute(table.delete())
+        session.commit()
 
 
 @pytest.fixture()
