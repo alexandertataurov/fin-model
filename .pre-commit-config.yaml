@@ -14,17 +14,24 @@ repos:
     hooks:
       - id: frontend-lint
         name: Frontend ESLint
-        entry: bash -c 'cd frontend && npm run lint'
+        entry: bash -c 'npx eslint --config frontend/.eslintrc.cjs "$@"' --
         language: system
         files: ^frontend/.*\.(ts|tsx|js|jsx)$
-        pass_filenames: false
+        pass_filenames: true
 
       - id: frontend-format
         name: Frontend Prettier
-        entry: bash -c 'cd frontend && npm run format'
+        entry: bash -c 'if [ "$#" -gt 0 ]; then npx prettier --write "$@"; fi' --
         language: system
         files: ^frontend/.*\.(ts|tsx|js|jsx|json|css|md)$
-        pass_filenames: false
+        pass_filenames: true
+
+      - id: no-legacy-ui-imports
+        name: Disallow legacy ui imports
+        entry: bash -c 'if grep -n "@/components/ui" "$@"; then echo "Use design-system components instead of @/components/ui"; exit 1; fi'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: true
 
   # Backend hooks
   - repo: https://github.com/psf/black

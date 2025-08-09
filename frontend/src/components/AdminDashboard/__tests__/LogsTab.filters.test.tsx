@@ -40,8 +40,10 @@ describe('LogsTab filters', () => {
     render(<LogsTab />);
 
     const selects = screen.getAllByRole('combobox');
-    await userEvent.selectOptions(selects[0], 'INFO');
-    await userEvent.selectOptions(selects[1], '50');
+    await userEvent.click(selects[0]);
+    await userEvent.click(await screen.findByRole('option', { name: 'INFO' }));
+    await userEvent.click(selects[1]);
+    await userEvent.click(await screen.findByRole('option', { name: '50' }));
 
     const dateInputs = screen.getAllByDisplayValue('');
     await userEvent.type(dateInputs[0], '2025-01-01');

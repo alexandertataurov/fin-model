@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 
@@ -44,13 +44,13 @@ describe('AdminDashboard Logs filters', () => {
         const logsSection = logsCardTitle.closest('div')!.parentElement!.parentElement as HTMLElement
 
         // Change level to INFO (first select)
-        const selects = Array.from(logsSection.querySelectorAll('select'))
-        const levelSel = selects[0] as HTMLSelectElement
-        await userEvent.selectOptions(levelSel, 'INFO')
+        const combos = within(logsSection).getAllByRole('combobox')
+        await userEvent.click(combos[0])
+        await userEvent.click(await screen.findByRole('option', { name: 'INFO' }))
 
         // Change limit to 50 (second select)
-        const limitSel = selects[1] as HTMLSelectElement
-        await userEvent.selectOptions(limitSel, '50')
+        await userEvent.click(combos[1])
+        await userEvent.click(await screen.findByRole('option', { name: '50' }))
 
         // Set date range and search (date inputs within logs section)
         const dateInputs = Array.from(logsSection.querySelectorAll('input[type="date"]')) as HTMLInputElement[]

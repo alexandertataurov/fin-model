@@ -30,6 +30,14 @@ import {
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { Switch } from '@/design-system/components/Switch';
+import { Input } from '@/design-system/components/Input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/components/Select';
 import { useAdminStore } from '@/stores/admin';
 import UserManagement from '@/components/Admin/UserManagement';
 import SystemMonitoring from '@/components/Admin/SystemMonitoring';
@@ -59,6 +67,76 @@ const AdminDashboard: React.FC = () => {
   const [logsFrom, setLogsFrom] = useState('');
   const [logsTo, setLogsTo] = useState('');
   const [logsSearch, setLogsSearch] = useState('');
+  const handleLogsFilterChange = useCallback(
+    async (updates: Partial<{
+      level: typeof logsLevel;
+      limit: number;
+      from: string;
+      to: string;
+      search: string;
+      skip: number;
+    }>) => {
+      const newFilters = {
+        level: logsLevel,
+        limit: logsLimit,
+        from: logsFrom,
+        to: logsTo,
+        search: logsSearch,
+        skip: logsSkip,
+        ...updates,
+      };
+
+      const setters: Record<string, (value: any) => void> = {
+        level: setLogsLevel,
+        limit: setLogsLimit,
+        from: setLogsFrom,
+        to: setLogsTo,
+        search: setLogsSearch,
+        skip: setLogsSkip,
+      };
+
+      Object.entries(updates).forEach(([key, value]) => {
+        const setter = setters[key];
+        if (setter !== undefined && value !== undefined) {
+          setter(value);
+        }
+      });
+
+      const resp = await AdminApi.getSystemLogs(newFilters.level, newFilters.limit, {
+        from: newFilters.from || undefined,
+        to: newFilters.to || undefined,
+        search: newFilters.search || undefined,
+        skip: newFilters.skip,
+        envelope: true,
+      });
+      const env = resp as any;
+      setLogs((env.items as LogEntry[]) || []);
+      setLogsTotal(env.total || 0);
+    },
+    [
+      logsLevel,
+      logsLimit,
+      logsFrom,
+      logsTo,
+      logsSearch,
+      logsSkip,
+    ]
+  );
+
+  const handleLogsRefresh = useCallback(async () => {
+    await handleLogsFilterChange({ skip: 0 });
+  }, [handleLogsFilterChange]);
+
+  const handleLogsPrev = useCallback(async () => {
+    const newSkip = Math.max(0, logsSkip - logsLimit);
+    await handleLogsFilterChange({ skip: newSkip });
+  }, [logsSkip, logsLimit, handleLogsFilterChange]);
+
+  const handleLogsNext = useCallback(async () => {
+    const newSkip = logsSkip + logsLimit;
+    if (newSkip >= logsTotal) return;
+    await handleLogsFilterChange({ skip: newSkip });
+  }, [logsSkip, logsLimit, logsTotal, handleLogsFilterChange]);
   const [userPermissions, _setUserPermissions] = useState<any>(null);
   const [securityAudit, setSecurityAudit] = useState<SecurityAudit | null>(
     null
@@ -635,9 +713,9 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    className="w-24"
                     placeholder="Skip"
                     value={auditFilters.skip}
                     onChange={e =>
@@ -647,9 +725,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-24"
+                    className="w-24"
                     placeholder="Limit"
                     value={auditFilters.limit}
                     onChange={e =>
@@ -659,9 +737,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="number"
-                    className="border rounded px-2 py-1 bg-background text-sm w-32"
+                    className="w-32"
                     placeholder="User ID"
                     value={auditFilters.userId || ''}
                     onChange={e =>
@@ -673,9 +751,9 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="text"
-                    className="border rounded px-2 py-1 bg-background text-sm w-40"
+                    className="w-40"
                     placeholder="Action"
                     value={auditFilters.action || ''}
                     onChange={e =>
@@ -685,17 +763,17 @@ const AdminDashboard: React.FC = () => {
                       })
                     }
                   />
-                  <input
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={auditFrom}
                     onChange={e => setAuditFrom(e.target.value)}
+                    className="w-40"
                   />
-                  <input
+                  <Input
                     type="date"
-                    className="border rounded px-2 py-1 bg-background text-sm"
                     value={auditTo}
                     onChange={e => setAuditTo(e.target.value)}
+                    className="w-40"
                   />
                   <Button
                     size="sm"
@@ -827,17 +905,17 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <CardTitle>Security Overview</CardTitle>
                       <div className="space-x-2 flex items-center">
-                        <input
+                        <Input
                           type="date"
-                          className="border rounded px-2 py-1 bg-background text-sm"
                           value={securityFrom}
                           onChange={e => setSecurityFrom(e.target.value)}
+                          className="w-40"
                         />
-                        <input
+                        <Input
                           type="date"
-                          className="border rounded px-2 py-1 bg-background text-sm"
                           value={securityTo}
                           onChange={e => setSecurityTo(e.target.value)}
+                          className="w-40"
                         />
                         <Button
                           variant="outline"
