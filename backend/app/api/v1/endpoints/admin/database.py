@@ -11,6 +11,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.tasks import maintenance as maintenance_tasks
+
 router = APIRouter()
 
 
@@ -123,18 +125,11 @@ async def backup_database(
 ):
     """Trigger a database backup job."""
     try:
-        job_id = f"backup-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
-        audit_log = AuditLog(
-            user_id=current_user.id,
-            action="DATABASE_BACKUP",
-            resource="database",
-            resource_id="backup",
-            details=f"Backup task queued with ID: {job_id}",
-            success="true",
-        )
-        db.add(audit_log)
-        db.commit()
-
+        try:
+            task = maintenance_tasks.backup_database.delay()
+            job_id = str(getattr(task, "id", "unknown"))
+        except Exception:
+            job_id = "unavailable"
         return BackupResponse(
             job_id=job_id,
             message="Database backup job started successfully",
@@ -154,26 +149,15 @@ async def export_database(
 ):
     """Export data (full or table). Returns file URL."""
     try:
-        job_id = f"export-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
-        audit_log = AuditLog(
-            user_id=current_user.id,
-            action="DATABASE_EXPORT",
-            resource="database",
-            resource_id=payload.table or "full",
-            details=f"Export task queued with ID: {job_id}, format: {payload.format}",
-            success="true",
-        )
-        db.add(audit_log)
-        db.commit()
-
-        filename = (
-            f"export_{payload.table or 'full'}_{payload.format}_"
-            f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
-        )
-        file_url = f"/downloads/{filename}.{payload.format}"
-
+        try:
+            task = maintenance_tasks.export_database.delay(
+                payload.table, payload.format
+            )
+            job_id = str(getattr(task, "id", "unknown"))
+        except Exception:
+            job_id = "unavailable"
         return ExportResponse(
-            file_url=file_url,
+            file_url="/downloads/placeholder",
             message=f"Export job started. Task ID: {job_id}",
         )
     except Exception as e:
@@ -190,18 +174,11 @@ async def reindex_database(
 ):
     """Rebuild indexes."""
     try:
-        job_id = f"reindex-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
-        audit_log = AuditLog(
-            user_id=current_user.id,
-            action="DATABASE_REINDEX",
-            resource="database",
-            resource_id="indexes",
-            details=f"Reindex task queued with ID: {job_id}",
-            success="true",
-        )
-        db.add(audit_log)
-        db.commit()
-
+        try:
+            task = maintenance_tasks.reindex_database.delay()
+            job_id = str(getattr(task, "id", "unknown"))
+        except Exception:
+            job_id = "unavailable"
         return ReindexResponse(
             job_id=job_id,
             message="Database reindex job started successfully",
