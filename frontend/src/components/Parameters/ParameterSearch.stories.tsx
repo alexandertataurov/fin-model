@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ParameterSearch from './ParameterSearch';
+import { ParameterSearch } from './ParameterSearch';
 
 const meta: Meta<typeof ParameterSearch> = {
   title: 'Components/ParameterSearch',

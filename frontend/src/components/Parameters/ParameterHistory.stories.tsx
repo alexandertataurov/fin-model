@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ParameterHistory from './ParameterHistory';
+import { ParameterHistory } from './ParameterHistory';
 
 const meta: Meta<typeof ParameterHistory> = {
   title: 'Components/ParameterHistory',

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import MonteCarloRunner from './MonteCarloRunner';
+import { MonteCarloRunner } from './MonteCarloRunner';
 
 const meta: Meta<typeof MonteCarloRunner> = {
   title: 'Components/MonteCarloRunner',

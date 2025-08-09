@@ -30,16 +30,20 @@ const config: StorybookConfig = {
     breakingChangesV7: true,
   },
   stories: [
-    '../src/design-system/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    {
+      directory: '../src/design-system',
+      files: '**/*.stories.@(js|jsx|ts|tsx|mdx)',
+      exclude: ['**/EnhancedStories.stories.@(js|jsx|ts|tsx|mdx)', '**/ResponsiveDemos.stories.@(js|jsx|ts|tsx|mdx)'],
+    },
     '../src/components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     '../docs/**/*.stories.@(js|jsx|ts|tsx|mdx)',
   ],
   addons: [
     '@storybook/addon-essentials',
-    // Temporarily disabled due to build issues
-    // '@storybook/addon-a11y',
-    // '@storybook/addon-interactions',
-    // '@storybook/addon-links',
+    '@storybook/addon-a11y',
+    '@storybook/addon-interactions',
+    '@storybook/addon-links',
+    '@storybook/addon-themes',
   ],
   docs: {
     autodocs: 'tag',
@@ -70,6 +74,12 @@ const config: StorybookConfig = {
     config.build.rollupOptions = config.build.rollupOptions || {};
     config.build.rollupOptions.output = config.build.rollupOptions.output || {};
     config.build.rollupOptions.output.format = 'es';
+    config.build.rollupOptions.external = [
+      ...(Array.isArray(config.build.rollupOptions.external)
+        ? config.build.rollupOptions.external
+        : []),
+      '@storybook/globalThis',
+    ];
 
     if (Array.isArray(config.plugins)) {
       // Remove any duplicate React plugins to avoid duplicate RefreshRuntime

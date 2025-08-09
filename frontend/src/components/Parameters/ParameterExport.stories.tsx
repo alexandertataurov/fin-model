@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ParameterExport from './ParameterExport';
+import { ParameterExport } from './ParameterExport';
 
 const meta: Meta<typeof ParameterExport> = {
   title: 'Components/ParameterExport',
