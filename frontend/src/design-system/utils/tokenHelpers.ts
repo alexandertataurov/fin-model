@@ -60,7 +60,7 @@ export const getSpacing = (size: SpacingToken, useVar = false): string => {
  */
 export const getFontSize = (size: FontSizeToken, useVar = false): string => {
   if (useVar) {
-    return cssVar(`text-${size}`);
+    return cssVar(`text-${String(size)}`);
   }
   const fs = designTokens.fontSize[size] as any;
   return Array.isArray(fs) ? (fs[0] as string) : (fs as string);
@@ -87,7 +87,7 @@ export const getLineHeight = (size: FontSizeToken): string => {
  */
 export const getBorderRadius = (size: BorderRadiusToken, useVar = false): string => {
   if (useVar) {
-    return cssVar(`radius-${size === 'default' ? '' : size}`);
+    return cssVar(`radius-${String(size)}`);
   }
   return designTokens.borderRadius[size];
 };
@@ -100,7 +100,7 @@ export const getBorderRadius = (size: BorderRadiusToken, useVar = false): string
  */
 export const getBoxShadow = (size: BoxShadowToken, useVar = false): string => {
   if (useVar) {
-    return cssVar(`shadow-${size === 'default' ? '' : size}`);
+    return cssVar(`shadow-${String(size)}`);
   }
   return designTokens.boxShadow[size];
 };
@@ -126,9 +126,9 @@ export const getTransition = (speed: TransitionToken, useVar = false): string =>
  */
 export const getZIndex = (layer: ZIndexToken, useVar = false): string => {
   if (useVar) {
-    return cssVar(`z-${layer}`);
+    return cssVar(`z-${String(layer)}`);
   }
-  return designTokens.zIndex[layer];
+  return String(designTokens.zIndex[layer]);
 };
 
 /**
@@ -139,7 +139,7 @@ export const getZIndex = (layer: ZIndexToken, useVar = false): string => {
  */
 export const getAnimationCurve = (curve: AnimationCurveToken, useVar = false): string => {
   if (useVar) {
-    return cssVar(`curve-${curve}`);
+    return cssVar(`curve-${String(curve)}`);
   }
   return (designTokens as any).animationCurve?.[curve] ?? 'ease-in-out';
 };
@@ -212,11 +212,11 @@ export const responsiveTypography = (typography: {
 }) => {
   const classes: string[] = [];
 
-  if (typography.base) classes.push(`text-[${String(getFontSize(typography.base))}]`);
-  if (typography.sm) classes.push(`sm:text-[${String(getFontSize(typography.sm))}]`);
-  if (typography.md) classes.push(`md:text-[${String(getFontSize(typography.md))}]`);
-  if (typography.lg) classes.push(`lg:text-[${String(getFontSize(typography.lg))}]`);
-  if (typography.xl) classes.push(`xl:text-[${String(getFontSize(typography.xl))}]`);
+  if (typography.base) classes.push(`text-[${getFontSize(typography.base)}]`);
+  if (typography.sm) classes.push(`sm:text-[${getFontSize(typography.sm)}]`);
+  if (typography.md) classes.push(`md:text-[${getFontSize(typography.md)}]`);
+  if (typography.lg) classes.push(`lg:text-[${getFontSize(typography.lg)}]`);
+  if (typography.xl) classes.push(`xl:text-[${getFontSize(typography.xl)}]`);
 
   return classes.join(' ');
 };

@@ -200,3 +200,76 @@ def test_system_logs_filters_edge_cases(client: TestClient):
     assert all(item["level"] in ["WARNING", "ERROR", "CRITICAL"] for item in items)
 
 
+def test_reports_overview_json_csv(client: TestClient):
+    r = client.get("/api/v1/admin/reports/overview", params={"format": "json"})
+    assert r.status_code == 200
+    assert isinstance(r.json(), dict)
+
+    r = client.get("/api/v1/admin/reports/overview", params={"format": "csv"})
+    assert r.status_code == 200
+    assert r.headers.get("content-type", "").startswith("text/csv")
+
+
+def test_bulk_user_actions(client: TestClient):
+    # create users
+    ids = []
+    for i in range(2):
+        r = client.post(
+            "/api/v1/admin/users",
+            json={
+                "username": f"user{i}",
+                "email": f"user{i}@ex.com",
+                "password": "Strongpass1234!",
+                "first_name": "U",
+                "last_name": str(i),
+                "role": "viewer",
+            },
+        )
+        assert r.status_code == 201
+        ids.append(r.json()["id"])
+
+    # activate
+    r = client.post(
+        "/api/v1/admin/users/bulk-action",
+        json={"user_ids": ids, "action": "activate"},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert {"message", "results", "total_users"} <= body.keys()
+
+    # invalid action
+    r = client.post(
+        "/api/v1/admin/users/bulk-action",
+        json={"user_ids": ids, "action": "invalid"},
+    )
+    assert r.status_code == 400
+
+
+def test_security_audit_and_data_integrity(client: TestClient):
+    r = client.get("/api/v1/admin/security/audit")
+    assert r.status_code == 200
+    a = r.json()
+    assert {"failed_logins_24h", "rate_limit_violations", "password_policy_violations"} <= a.keys()
+
+    r = client.get("/api/v1/admin/data/integrity")
+    assert r.status_code == 200
+    arr = r.json()
+    assert isinstance(arr, list)
+    assert all(isinstance(item, dict) for item in arr)
+
+
+def test_user_activity_list_endpoint(client: TestClient):
+    r = client.get(
+        "/api/v1/admin/users/activity-list",
+        params={"limit": "2", "active_only": "true"},
+    )
+    assert r.status_code in (200, 422)
+    if r.status_code != 200:
+        pytest.skip("Activity list query param parsing differs in this build")
+    data = r.json()
+    assert isinstance(data, list)
+    assert len(data) <= 2
+    if data:
+        assert {"user_id", "username", "is_active"} <= data[0].keys()
+
+

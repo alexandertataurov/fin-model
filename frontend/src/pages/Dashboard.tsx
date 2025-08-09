@@ -21,7 +21,7 @@ import DashboardApiService, {
   DashboardOverview,
   PeriodFilter,
 } from '@/services/dashboardApi';
-import type { DashboardLoadingState } from '@/types/dashboard';
+import type { DashboardLoadingState, DashboardPeriod } from '@/types/dashboard';
 import { toast } from 'sonner';
 import {
   useUserStatements,
@@ -59,7 +59,7 @@ const Dashboard = () => {
   );
   // No demo mode: always empty fallback handled by API service
   const { data: statementsData } = useUserStatements(undefined, 6);
-  const { data: ratiosData } = useFinancialRatios(selectedPeriod);
+  const { data: ratiosData } = useFinancialRatios(selectedPeriod as unknown as DashboardPeriod);
 
   // Load dashboard data
   const loadDashboardData = useCallback(async (
@@ -313,7 +313,7 @@ const Dashboard = () => {
                 ? `Last updated: ${new Date(
                   (dashboardData as any).last_updated
                 ).toLocaleDateString()} - Data quality: ${(
-                  (dashboardData as any).data_quality_score * 100
+                  Number((dashboardData as any).data_quality_score) * 100
                 ).toFixed(0)}%`
                 : 'Loading your financial dashboard...'}
             </p>
@@ -324,7 +324,7 @@ const Dashboard = () => {
               <select
                 value={selectedPeriod}
                 onChange={e =>
-                  handlePeriodChange(e.target.value as unknown as PeriodFilter)
+                  handlePeriodChange(e.target.value as PeriodFilter)
                 }
                 className="text-xs sm:text-sm border rounded px-2 py-1 bg-background"
                 disabled={loadingState.isRefreshing}
@@ -402,7 +402,7 @@ const Dashboard = () => {
                           {metric.name ||
                             key
                               .replace('_', ' ')
-                              .replace(/\b\w/g, l => l.toUpperCase())}
+                              .replace(/\b\w/g, (l: string) => l.toUpperCase())}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -438,7 +438,7 @@ const Dashboard = () => {
                           {metric.name ||
                             key
                               .replace('_', ' ')
-                              .replace(/\b\w/g, l => l.toUpperCase())}
+                              .replace(/\b\w/g, (l: string) => l.toUpperCase())}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>

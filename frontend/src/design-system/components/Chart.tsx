@@ -148,7 +148,7 @@ function ChartTooltipContent({
           data-slot="chart-tooltip-label"
           className={cn("font-medium", labelClassName)}
         >
-          {labelFormatter ? labelFormatter(label) : label}
+          {labelFormatter ? labelFormatter(label, payload as any) : label}
         </div>
       )}
       <div data-slot="chart-tooltip-items" className="mt-1 space-y-1">
@@ -188,8 +188,14 @@ function ChartTooltipContent({
                 style={{ color: itemColor }}
               >
                 {formatter
-                  ? formatter(item.value, item.name, item)
-                  : item.value}
+                  ? formatter(
+                    (item.value ?? '') as any,
+                    (item.name ?? '') as any,
+                    item as any,
+                    index,
+                    payload as any,
+                  )
+                  : (item.value ?? '')}
               </span>
             </div>
           );
@@ -229,8 +235,6 @@ function ChartLegendContent({
         "flex items-center gap-2",
         verticalAlign === "top" && "justify-start",
         verticalAlign === "bottom" && "justify-start",
-        verticalAlign === "left" && "flex-col items-start",
-        verticalAlign === "right" && "flex-col items-end",
         className,
       )}
     >

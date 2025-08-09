@@ -311,7 +311,7 @@ export const useRealtimeDashboard = ({
   useEffect(() => {
     const checkConnectionState = () => {
       const wsState = dashboardWebSocketService.getConnectionState();
-      setConnectionState(wsState);
+      setConnectionState(wsState as 'connecting' | 'connected' | 'disconnected');
       setIsConnected(wsState === 'connected');
       setReconnectAttempts(dashboardWebSocketService.getReconnectAttempts());
     };

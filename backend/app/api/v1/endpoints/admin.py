@@ -1466,6 +1466,9 @@ async def bulk_user_action(
             "total_users": len(request.user_ids),
         }
 
+    except HTTPException as e:
+        # Re-raise HTTP errors like invalid action (400) without converting
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

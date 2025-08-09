@@ -1,5 +1,6 @@
 import { useTheme } from 'next-themes';
 import { tokens } from '@/design-system/tokens';
+const componentTokens: Record<string, any> = {};
 
 /**
  * Hook for accessing design tokens with theme-aware color resolution
@@ -128,7 +129,6 @@ export function useDesignTokens() {
     // Raw token objects
     tokens,
     colors,
-    componentTokens: {} as any,
 
     // Utility functions
     getCSSVar,
