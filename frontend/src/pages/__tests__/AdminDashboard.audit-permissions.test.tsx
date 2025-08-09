@@ -65,10 +65,15 @@ describe('AdminDashboard Audit and Permissions', () => {
         const permissionsTab = await screen.findByRole('tab', { name: /permissions/i });
         await userEvent.click(permissionsTab);
 
+        const panelHeading = await screen.findByText(/User Permissions/i);
+        // Card structure: heading's grandparent is Card; use that as container
+        const container = (panelHeading.parentElement?.parentElement) as HTMLElement;
+        expect(container).toBeTruthy();
         expect(await screen.findByText('99')).toBeInTheDocument();
-        expect(await screen.findByText(/admin, analyst/i)).toBeInTheDocument();
-        expect(await screen.findByText(/read, write/i)).toBeInTheDocument();
-        expect(await screen.findByText(/Yes/i)).toBeInTheDocument();
+        expect(container.textContent).toMatch(/admin, analyst/i);
+        expect(container.textContent).toMatch(/read, write/i);
+        expect(container.textContent).toMatch(/Admin\s*Yes/i);
+        expect(container.textContent).toMatch(/Analyst\s*Yes/i);
     });
 
     it('paginates audit logs via Next/Prev controls', async () => {
@@ -76,6 +81,8 @@ describe('AdminDashboard Audit and Permissions', () => {
 
         const auditTab = await screen.findByRole('tab', { name: /audit/i });
         await userEvent.click(auditTab);
+        // Trigger a refresh to populate mocked paginated data deterministically
+        // Ensure initial paginated data is present without extra refresh
 
         // Initial range text should reflect 1-3 of 6
         expect(await screen.findByText(/1-3 of 6/i)).toBeInTheDocument();

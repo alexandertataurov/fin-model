@@ -19,7 +19,6 @@ from app.models.maintenance import MaintenanceSchedule
 from app.models.financial import FinancialStatement
 from app.schemas.user import (
     User as UserSchema,
-    UserWithRoles,
     AdminUserUpdate,
     AdminUserCreate,
 )
@@ -452,12 +451,7 @@ def get_audit_logs(
             query = query.filter(AuditLog.created_at <= to_ts)
 
         total = query.count()
-        rows = (
-            query.order_by(desc(AuditLog.created_at))
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
+        rows = query.order_by(desc(AuditLog.created_at)).offset(skip).limit(limit).all()
 
         items = []
         for r in rows:
@@ -525,9 +519,7 @@ def system_health(
 
 @router.get("/permissions")
 def get_user_permissions(
-    user_with_perms: UserWithPermissions = Depends(
-        get_current_user_with_permissions
-    ),
+    user_with_perms: UserWithPermissions = Depends(get_current_user_with_permissions),
 ) -> Any:
     """Get current user's permissions."""
     return {
@@ -672,31 +664,6 @@ async def reindex_database(
     return ReindexResponse(job_id=job_id, message="Reindex job started")
 
 
-_IN_MEMORY_SCHEDULES: List[MaintenanceScheduleItem] = [
-    MaintenanceScheduleItem(
-        id="daily-cleanup",
-        name="Daily Cleanup",
-        task="cleanup",
-        schedule="daily 02:00",
-        enabled=True,
-    ),
-    MaintenanceScheduleItem(
-        id="weekly-vacuum",
-        name="Weekly Optimization",
-        task="vacuum",
-        schedule="weekly sun 03:00",
-        enabled=True,
-    ),
-    MaintenanceScheduleItem(
-        id="monthly-archive",
-        name="Monthly Archive",
-        task="archive",
-        schedule="monthly 01:00",
-        enabled=False,
-    ),
-]
-
-
 @router.get("/maintenance/schedules", response_model=MaintenanceSchedules)
 async def get_maintenance_schedules(
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
@@ -727,9 +694,7 @@ async def update_maintenance_schedules(
     for item in schedules.items:
         allowed = {"cleanup", "vacuum", "archive", "reindex", "backup"}
         if item.task not in allowed:
-            raise HTTPException(
-                status_code=400, detail=f"Invalid task: {item.task}"
-            )
+            raise HTTPException(status_code=400, detail=f"Invalid task: {item.task}")
         if not item.schedule:
             raise HTTPException(status_code=400, detail="Schedule required")
     # Upsert schedules
@@ -798,9 +763,7 @@ async def get_admin_overview_report(
         # Users
         total_users = db.query(User).count()
         active_users = db.query(User).filter(User.is_active.is_(True)).count()
-        verified_users = (
-            db.query(User).filter(User.is_verified.is_(True)).count()
-        )
+        verified_users = db.query(User).filter(User.is_verified.is_(True)).count()
 
         # Files
         total_files = db.query(UploadedFile).count()
@@ -851,9 +814,7 @@ async def get_admin_overview_report(
             content=csv_text,
             media_type="text/csv",
             headers={
-                "Content-Disposition": (
-                    "attachment; filename=admin_overview.csv"
-                )
+                "Content-Disposition": ("attachment; filename=admin_overview.csv")
             },
         )
 
@@ -887,10 +848,7 @@ async def get_system_statistics(
         )
         new_users_24h = safe_count(
             lambda: db.query(User)
-            .filter(
-                User.created_at
-                >= datetime.now(timezone.utc) - timedelta(hours=24)
-            )
+            .filter(User.created_at >= datetime.now(timezone.utc) - timedelta(hours=24))
             .count()
         )
 
@@ -913,9 +871,7 @@ async def get_system_statistics(
         )
 
         # Financial data statistics
-        total_statements = safe_count(
-            lambda: db.query(FinancialStatement).count()
-        )
+        total_statements = safe_count(lambda: db.query(FinancialStatement).count())
         total_parameters = safe_count(lambda: db.query(Parameter).count())
 
         # Database size info
@@ -954,9 +910,7 @@ async def get_system_statistics(
                 "timestamp": datetime.now(timezone.utc),
             },
             performance={
-                "avg_file_size_mb": round(
-                    (avg_file_size or 0) / (1024 * 1024), 2
-                )
+                "avg_file_size_mb": round((avg_file_size or 0) / (1024 * 1024), 2)
             },
         )
 
@@ -1064,8 +1018,7 @@ async def get_system_metrics(
         # Database connections (simplified)
         try:
             active_sql = (
-                "SELECT count(*) FROM pg_stat_activity "
-                "WHERE state = 'active'"
+                "SELECT count(*) FROM pg_stat_activity " "WHERE state = 'active'"
             )
             active_connections_result = db.execute(text(active_sql)).scalar()
             active_connections = int(active_connections_result or 0)
@@ -1122,12 +1075,8 @@ async def check_data_integrity(
         user_issues = []
         user_recommendations = []
         if orphaned_files > 0:
-            user_issues.append(
-                f"{orphaned_files} files with invalid user references"
-            )
-            user_recommendations.append(
-                "Run cleanup to remove orphaned file records"
-            )
+            user_issues.append(f"{orphaned_files} files with invalid user references")
+            user_recommendations.append("Run cleanup to remove orphaned file records")
 
         integrity_checks.append(
             DataIntegrityResponse(
@@ -1232,9 +1181,7 @@ async def get_security_audit(
 
         # Check for rate limit violations (last 24h)
         start_time = (
-            from_ts
-            if from_ts
-            else datetime.now(timezone.utc) - timedelta(hours=24)
+            from_ts if from_ts else datetime.now(timezone.utc) - timedelta(hours=24)
         )
         end_time = to_ts if to_ts else datetime.now(timezone.utc)
         rate_limit_violations = (
@@ -1251,16 +1198,11 @@ async def get_security_audit(
         # For now, return empty list
 
         # Password policy violations (users without email verification)
-        password_violations = (
-            db.query(User).filter(User.is_verified.is_(False)).count()
-        )
+        password_violations = db.query(User).filter(User.is_verified.is_(False)).count()
 
         recommendations = []
         if rate_limit_violations > 10:
-            msg = (
-                "High number of rate limit violations - consider "
-                "tightening limits"
-            )
+            msg = "High number of rate limit violations - consider " "tightening limits"
             recommendations.append(msg)
         if password_violations > 0:
             recommendations.append(
@@ -1363,9 +1305,7 @@ async def bulk_user_action(
                 detail="Invalid action",
             )
 
-        affected_users = (
-            db.query(User).filter(User.id.in_(request.user_ids)).all()
-        )
+        affected_users = db.query(User).filter(User.id.in_(request.user_ids)).all()
 
         if not affected_users:
             raise HTTPException(
@@ -1382,10 +1322,7 @@ async def bulk_user_action(
                 elif request.action == "deactivate":
                     if user.id == current_user.id:
                         results["failed"] += 1
-                        msg = (
-                            "Cannot deactivate your own account "
-                            f"(user {user.id})"
-                        )
+                        msg = "Cannot deactivate your own account " f"(user {user.id})"
                         results["errors"].append(msg)
                         continue
                     user.is_active = False
@@ -1423,9 +1360,7 @@ async def bulk_user_action(
 
 @router.get("/system/logs")
 async def get_system_logs(
-    level: str = Query(
-        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
-    ),
+    level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
     limit: int = Query(100, ge=1, le=1000),
     skip: int = Query(0, ge=0),
     from_ts: Optional[datetime] = Query(None, description="From timestamp"),
@@ -1443,9 +1378,7 @@ async def get_system_logs(
             order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
             min_level = order.get(level, 1)
             query = query.filter(
-                SystemLog.level.in_(
-                    [lvl for lvl, v in order.items() if v >= min_level]
-                )
+                SystemLog.level.in_([lvl for lvl, v in order.items() if v >= min_level])
             )
         if from_ts:
             query = query.filter(SystemLog.timestamp >= from_ts)
@@ -1458,12 +1391,7 @@ async def get_system_logs(
             )
 
         total = query.count()
-        rows = (
-            query.order_by(desc(SystemLog.timestamp))
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
+        rows = query.order_by(desc(SystemLog.timestamp)).offset(skip).limit(limit).all()
         items = [
             {
                 "timestamp": r.timestamp,
@@ -1492,9 +1420,7 @@ async def get_system_logs(
 
 @router.get("/system/logs/stream")
 async def stream_system_logs(
-    level: str = Query(
-        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
-    ),
+    level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
     from_ts: Optional[datetime] = Query(None),
     search: Optional[str] = Query(None),
     interval_ms: int = Query(1000, ge=250, le=5000),
@@ -1517,16 +1443,11 @@ async def stream_system_logs(
                 if search:
                     like = f"%{search}%"
                     q = q.filter(
-                        (SystemLog.message.ilike(like))
-                        | (SystemLog.module.ilike(like))
+                        (SystemLog.message.ilike(like)) | (SystemLog.module.ilike(like))
                     )
                 q = q.filter(
                     SystemLog.level.in_(
-                        [
-                            lvl
-                            for lvl, v in level_order.items()
-                            if v >= min_level
-                        ]
+                        [lvl for lvl, v in level_order.items() if v >= min_level]
                     )
                 )
                 if last_id is not None:
@@ -1552,27 +1473,3 @@ async def stream_system_logs(
             await asyncio.sleep(interval_ms / 1000)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
-
-
-@router.post("/dev-clear-rate-limits", response_model=Dict[str, Any])
-def dev_clear_rate_limits(
-    db: Session = Depends(get_db),
-) -> Any:
-    """Development only: Clear rate limiting records without authentication."""
-    try:
-        from app.core.rate_limiter import RateLimit
-
-        # Delete all rate limit records
-        deleted_count = db.query(RateLimit).delete()
-        db.commit()
-
-        return {
-            "message": "Rate limits cleared successfully (dev endpoint)",
-            "cleared_records": deleted_count,
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to clear rate limits: {str(e)}",
-        )
