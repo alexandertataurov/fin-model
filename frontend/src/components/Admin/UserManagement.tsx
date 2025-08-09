@@ -126,7 +126,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   const [total, setTotal] = useState(0);
 
   // Load users
-  const loadUsers = useCallback(async () => {
+  const buildParams = () => ({ search: searchTerm, is_active: statusFilter === 'active' ? true : statusFilter === 'inactive' ? false : undefined, is_verified: statusFilter === 'verified' ? true : statusFilter === 'unverified' ? false : undefined, is_admin: roleFilter === 'admin' ? true : undefined });
     try {
       setLoading(true);
       const params: any = {};
