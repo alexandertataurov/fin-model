@@ -4,7 +4,6 @@ import {
   LogsState,
   NormalizedApiResponse,
   createNormalizedResponse,
-  updateNormalizedResponse,
 } from './types';
 
 export interface LogsSlice {

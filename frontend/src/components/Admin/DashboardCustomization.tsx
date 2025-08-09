@@ -4,14 +4,12 @@
  * Role-based dashboard layout and widget customization
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Settings, 
   Eye, 
   EyeOff, 
-  GripVertical, 
-  Plus, 
-  X, 
+  GripVertical,
   Save,
   RotateCcw,
   Users,
@@ -21,12 +19,7 @@ import {
   FileText,
   AlertCircle,
 } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/design-system/components/Card';
+import { Card, CardContent } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
 import { Switch } from '@/design-system/components/Switch';
 import { Badge } from '@/design-system/components/Badge';
@@ -46,7 +39,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/design-system/components/Select';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 // Dashboard widget types
@@ -330,7 +322,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
               {widgets
                 .filter(widget => widget.requiredRole.includes(userRole))
                 .sort((a, b) => a.position - b.position)
-                .map((widget, index) => (
+                .map((widget, _index) => (
                   <Card 
                     key={widget.id}
                     className={`transition-all ${
@@ -455,6 +447,19 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
 export const useDashboardConfig = (userRole: UserRole) => {
   const [config, setConfig] = useState<DashboardWidget[]>([]);
 
+  const initializeDefaults = useCallback(() => {
+    const roleDefaults = ROLE_WIDGET_DEFAULTS[userRole] || {};
+    const defaultConfig = AVAILABLE_WIDGETS
+      .filter(widget => widget.requiredRole.includes(userRole))
+      .map(widget => ({
+        ...widget,
+        visible: roleDefaults[widget.type] ?? widget.visible,
+      }))
+      .sort((a, b) => a.position - b.position);
+
+    setConfig(defaultConfig);
+  }, [userRole]);
+
   useEffect(() => {
     // Load saved config from localStorage
     const savedConfig = localStorage.getItem(`dashboard-config-${userRole}`);
@@ -469,20 +474,7 @@ export const useDashboardConfig = (userRole: UserRole) => {
     } else {
       initializeDefaults();
     }
-  }, [userRole]);
-
-  const initializeDefaults = () => {
-    const roleDefaults = ROLE_WIDGET_DEFAULTS[userRole] || {};
-    const defaultConfig = AVAILABLE_WIDGETS
-      .filter(widget => widget.requiredRole.includes(userRole))
-      .map(widget => ({
-        ...widget,
-        visible: roleDefaults[widget.type] ?? widget.visible,
-      }))
-      .sort((a, b) => a.position - b.position);
-    
-    setConfig(defaultConfig);
-  };
+  }, [userRole, initializeDefaults]);
 
   const saveConfig = (newConfig: DashboardWidget[]) => {
     setConfig(newConfig);

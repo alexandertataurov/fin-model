@@ -103,8 +103,8 @@ export class WebSocketErrorHandler {
     this.connectionListeners.forEach(listener => {
       try {
         listener(state);
-      } catch (error) {
-        // console.error('Error in connection state listener:', error);
+      } catch (_error) {
+        // console.error('Error in connection state listener:', _error);
       }
     });
 
@@ -266,8 +266,8 @@ export class WebSocketErrorHandler {
     this.listeners.forEach(listener => {
       try {
         listener(error);
-      } catch (listenerError) {
-        // console.error('Error in WebSocket error listener:', listenerError);
+      } catch (_listenerError) {
+        // console.error('Error in WebSocket error listener:', _listenerError);
       }
     });
   }
