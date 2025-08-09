@@ -31,15 +31,11 @@
     "chromatic": "chromatic --exit-zero-on-changes",
     "verify:stories": "node scripts/verify-stories.cjs",
     "gen:story": "tsx scripts/generate-story.ts",
-<<<<<<< HEAD
+    "gen:tokens": "tsx scripts/generate-tokens.ts",
+    "build:tailwind": "tsx ../scripts/generate-tailwind-config.ts && tailwindcss -c tailwind.config.js -i ./src/index.css -o ./src/tailwind.css",
     "storybook:enforce-meta": "tsx scripts/enforce-story-meta.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
     "format": "prettier -w src/design-system/tokens.ts src/design-system/stories/AdvancedTheming.stories.tsx src/design-system/stories/DesignTokens.stories.tsx src/design-system/stories/Tokens.Pipeline.mdx package.json"
-=======
-    "gen:tokens": "tsx scripts/generate-tokens.ts",
-    "build:tailwind": "tsx ../scripts/generate-tailwind-config.ts && tailwindcss -c tailwind.config.js -i ./src/index.css -o ./src/tailwind.css",
-    "storybook:enforce-meta": "tsx scripts/enforce-story-meta.ts"
->>>>>>> pre-production
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.22.5",
