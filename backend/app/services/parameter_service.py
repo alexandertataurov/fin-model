@@ -520,6 +520,33 @@ class ParameterService:
 
     # Scenario Parameter Management Methods
 
+    def _get_scenario(self, scenario_id: int, user_id: int) -> Scenario:
+        """Retrieve scenario ensuring it belongs to the user."""
+        scenario = (
+            self.db.query(Scenario)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
+            .first()
+        )
+        if not scenario:
+            raise ValueError(
+                f"Scenario {scenario_id} not found or access denied"
+            )
+        return scenario
+
+    def _get_parameter(self, parameter_id: int) -> Parameter:
+        """Retrieve parameter by id."""
+        parameter = (
+            self.db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
+        )
+        if not parameter:
+            raise ValueError(f"Parameter {parameter_id} not found")
+        return parameter
+
     def create_scenario_parameter_override(
         self,
         scenario_id: int,
@@ -530,31 +557,9 @@ class ParameterService:
     ) -> ScenarioParameter:
         """Create or update scenario-specific parameter override."""
 
-        # Validate scenario exists and user has access
-        scenario = (
-            self.db.query(Scenario)
-            .filter(
-                Scenario.id == scenario_id,
-                Scenario.created_by_id == user_id,
-            )
-            .first()
-        )
+        scenario = self._get_scenario(scenario_id, user_id)
+        parameter = self._get_parameter(parameter_id)
 
-        if not scenario:
-            raise ValueError(
-                f"Scenario {scenario_id} not found or access denied"
-            )
-
-        # Validate parameter exists
-        parameter = (
-            self.db.query(Parameter)
-            .filter(Parameter.id == parameter_id)
-            .first()
-        )
-        if not parameter:
-            raise ValueError(f"Parameter {parameter_id} not found")
-
-        # Validate parameter value
         validation = self.validate_parameter_value(parameter, value)
         if not validation.valid:
             raise ValueError(
@@ -587,7 +592,6 @@ class ParameterService:
             )
             self.db.add(scenario_param)
 
-        # Record change in parameter value history for the scenario
         param_value = (
             self.db.query(ParameterValue)
             .filter(
@@ -598,14 +602,11 @@ class ParameterService:
         )
 
         if param_value:
-            # Update existing parameter value
-            old_value = param_value.value
             param_value.value = value
             param_value.change_reason = reason or "Scenario parameter override"
             param_value.changed_at = datetime.utcnow()
             param_value.changed_by_id = user_id
         else:
-            # Create new parameter value for scenario
             param_value = ParameterValue(
                 parameter_id=parameter_id,
                 scenario_id=scenario_id,
@@ -618,7 +619,6 @@ class ParameterService:
 
         self.db.commit()
         self.db.refresh(scenario_param)
-
         return scenario_param
 
     def get_scenario_parameters(
@@ -629,20 +629,7 @@ class ParameterService:
     ) -> Dict[str, Any]:
         """Get all parameters for a scenario, including overrides."""
 
-        # Validate scenario access
-        scenario = (
-            self.db.query(Scenario)
-            .filter(
-                Scenario.id == scenario_id,
-                Scenario.created_by_id == user_id,
-            )
-            .first()
-        )
-
-        if not scenario:
-            raise ValueError(
-                f"Scenario {scenario_id} not found or access denied"
-            )
+        scenario = self._get_scenario(scenario_id, user_id)
 
         # Get scenario parameter overrides
         scenario_overrides = (
@@ -654,15 +641,12 @@ class ParameterService:
         override_map = {sp.parameter_id: sp for sp in scenario_overrides}
 
         if include_overrides_only:
-            # Only return parameters with overrides
-            parameter_ids = list(override_map.keys())
             parameters = (
                 self.db.query(Parameter)
-                .filter(Parameter.id.in_(parameter_ids))
+                .filter(Parameter.id.in_(list(override_map)))
                 .all()
             )
         else:
-            # Get all parameters for the base file
             parameters = (
                 self.db.query(Parameter)
                 .filter(Parameter.source_file_id == scenario.base_file_id)

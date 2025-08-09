@@ -2,7 +2,7 @@ from typing import Dict, List, Set, Optional, Any
 import json
 import asyncio
 from datetime import datetime
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 from enum import Enum
 import logging
 

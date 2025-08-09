@@ -208,8 +208,8 @@ class MetricsCalculationService:
                 )
                 or 0
             )
-            estimated_ebitda = operating_income + depreciation
-            ebitda_margin = (estimated_ebitda / revenue) * 100
+            ebitda = operating_income + depreciation
+        ebitda_margin = (ebitda / revenue) * 100 if ebitda is not None else None
 
         return Margins(
             gross_margin=gross_margin,
