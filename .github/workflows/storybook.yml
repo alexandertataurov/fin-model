@@ -14,6 +14,8 @@ on:
 jobs:
   storybook:
     runs-on: ubuntu-latest
+    env:
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
     defaults:
       run:
         working-directory: frontend
@@ -22,16 +24,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
+        with:
+          version: 8
+
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@36de12bed180fa130ed56a35e7344f2fa7a820ab # v4
-        with:
-          version: 8
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -52,51 +55,5 @@ jobs:
         run: pnpm storybook:test:ci
 
       - name: Publish to Chromatic
-        if: ${{ secrets.CHROMATIC_PROJECT_TOKEN != '' }}
-        env:
-          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
         run: pnpm chromatic --project-token="$CHROMATIC_PROJECT_TOKEN" --exit-zero-on-changes
-
-name: Storybook CI
-
-on:
-  pull_request:
-  push:
-    branches: [main, master]
-
-jobs:
-  storybook:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: 20
-          cache: "pnpm"
-
-      - name: Setup pnpm
-        run: corepack enable
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile=false
-
-      - name: Build Storybook
-        run: pnpm run build-storybook
-
-      - name: Verify story coverage
-        run: pnpm run verify:stories
-
-      - name: Run Storybook tests (a11y/interactions)
-        run: pnpm run storybook:test:ci
-
-      - name: Publish to Chromatic
-        if: github.event_name == 'push'
-        env:
-          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-        run: pnpm run chromatic --yes
