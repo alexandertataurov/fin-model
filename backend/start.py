@@ -422,24 +422,35 @@ def fix_notification_schema():
         engine = create_engine(settings.DATABASE_URL)
 
         with engine.connect() as conn:
-            # Read and execute the SQL fix script
-            with open("fix_notification_schema.sql", "r") as f:
-                sql_script = f.read()
-
-            # Split the script into DO blocks (each ends with 'END $$;')
-            import re
-
-            do_blocks = re.findall(r"DO \$\$.*?END \$\$;", sql_script, re.DOTALL)
-
-            for block in do_blocks:
-                if block.strip():
-                    try:
-                        conn.execute(text(block))
-                        conn.commit()
-                    except Exception as e:
-                        print(f"⚠️ Warning executing DO block: {e}")
-                        # Continue with other blocks
-                        continue
+            # Check if notifications table exists and has 'type' column instead of external file
+            try:
+                result = conn.execute(
+                    text("""
+                        SELECT column_name 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'notifications' 
+                        AND column_name = 'type'
+                    """)
+                )
+                
+                if result.fetchone():
+                    # Rename 'type' to 'notification_type' 
+                    conn.execute(text("""
+                        DO $$
+                        BEGIN
+                            IF EXISTS (
+                                SELECT 1 FROM information_schema.columns 
+                                WHERE table_name = 'notifications' AND column_name = 'type'
+                            ) THEN
+                                ALTER TABLE notifications RENAME COLUMN type TO notification_type;
+                            END IF;
+                        END $$;
+                    """))
+                    conn.commit()
+                    print("✅ Renamed 'type' column to 'notification_type'")
+                
+            except Exception as e:
+                print(f"⚠️ Schema fix warning: {e}")
 
             print("✅ Notification schema fix completed")
             return True
