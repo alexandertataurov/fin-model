@@ -40,7 +40,6 @@ vi.mock('sonner', () => ({
 
 // Simple, accessible mocks for Select to avoid Radix complexity in JSDOM
 vi.mock('@/design-system/components/Select', () => {
-    const React = require('react');
     const Select = ({ value, onValueChange, children }: any) =>
         React.createElement(
             'select',
