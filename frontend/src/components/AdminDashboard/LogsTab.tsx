@@ -7,6 +7,7 @@ import {
 } from '@/design-system/components/Card';
 import { useLogFilters } from '@/hooks/useLogFilters';
 import LogFilterForm from './LogFilterForm';
+import type { LogEntry } from '@/services/adminApi';
 
 const LogsTab: React.FC = () => {
   const { logs, handleFilterChange, handlePrev, handleNext, handleRefresh } =
@@ -35,7 +36,7 @@ const LogsTab: React.FC = () => {
         <div className="border rounded">
           <div className="max-h-96 overflow-auto text-xs font-mono">
             {items.length > 0 ? (
-              items.map((log, idx) => (
+              items.map((log: LogEntry, idx: number) => (
                 <div key={idx} className="px-3 py-2 border-b">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">

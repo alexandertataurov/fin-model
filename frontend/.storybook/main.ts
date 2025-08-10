@@ -30,13 +30,36 @@ const config: StorybookConfig = {
     breakingChangesV7: true,
   },
   stories: [
+    // Design System Documentation (MDX files first)
     {
-      directory: '../src/design-system',
-      files: '**/*.stories.@(js|jsx|ts|tsx|mdx)',
-      exclude: ['**/EnhancedStories.stories.@(js|jsx|ts|tsx|mdx)', '**/ResponsiveDemos.stories.@(js|jsx|ts|tsx|mdx)'],
+      directory: '../src/design-system/stories',
+      files: '**/*.mdx',
+      titlePrefix: 'Design System',
     },
-    '../src/components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
-    '../docs/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    // Design System Component Stories
+    {
+      directory: '../src/design-system/stories',
+      files: '**/*.stories.@(js|jsx|ts|tsx)',
+      titlePrefix: 'Design System',
+    },
+    // UI Component Stories
+    {
+      directory: '../src/components/ui',
+      files: '**/*.stories.@(js|jsx|ts|tsx)',
+      titlePrefix: 'UI',
+    },
+    // Feature Component Stories
+    {
+      directory: '../src/components',
+      files: '**/*.stories.@(js|jsx|ts|tsx)',
+      titlePrefix: 'Components',
+    },
+    // Page Stories
+    {
+      directory: '../src/pages',
+      files: '**/*.stories.@(js|jsx|ts|tsx)',
+      titlePrefix: 'Pages',
+    },
   ],
   addons: [
     '@storybook/addon-essentials',
@@ -44,6 +67,7 @@ const config: StorybookConfig = {
     '@storybook/addon-interactions',
     '@storybook/addon-links',
     '@storybook/addon-themes',
+    '@storybook/addon-docs',
   ],
   docs: {
     autodocs: 'tag',
@@ -107,8 +131,17 @@ const config: StorybookConfig = {
         font-weight: 600;
         color: #3b82f6;
       }
+      .sidebar-item[data-item-id*="ui"] {
+        font-weight: 500;
+        color: #059669;
+      }
       .sidebar-item[data-item-id*="components"] {
         font-weight: 500;
+        color: #7c3aed;
+      }
+      .sidebar-item[data-item-id*="pages"] {
+        font-weight: 500;
+        color: #dc2626;
       }
       .sidebar-item[data-item-id*="getting-started"] {
         font-weight: 600;

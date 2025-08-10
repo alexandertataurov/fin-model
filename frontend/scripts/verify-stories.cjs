@@ -7,10 +7,10 @@ const { globby } = require('globby');
     'src/design-system/components/**/*.{tsx,ts}',
     'src/pages/**/*.{tsx,ts}',
   ];
-  const storyGlobs = ['src/**/*.{stories.tsx,stories.ts}'];
+  const storyGlobs = ['src/**/*.{stories.tsx,stories.ts,stories.mdx}'];
 
   const allComponents = (await globby(componentGlobs)).filter(
-    p => !p.endsWith('.stories.tsx')
+    p => !p.endsWith('.stories.tsx') && !p.endsWith('.stories.ts') && !p.endsWith('.stories.mdx')
   );
   const ignore = [
     /\/index\.(tsx|ts)$/,
@@ -23,13 +23,18 @@ const { globby } = require('globby');
     /\/components\/Layout\/(Layout|Sidebar)\.tsx$/,
     /\/components\/draggable-widget\.tsx$/,
     /\/components\/CoreFinancialModeling\/shared\.tsx$/,
+    /\/__tests__\//,
+    /\.test\.(ts|tsx)$/,
+    /\.spec\.(ts|tsx)$/,
+    /\.stories\.(ts|tsx|mdx)$/,
+    /\.mdx$/,
   ];
   const components = allComponents.filter(
     p => !ignore.some(re => re.test(p.replace(/\\/g, '/')))
   );
   const stories = await globby(storyGlobs);
 
-  const toBase = p => p.replace(/\.(tsx|ts)$/, '').replace(/\\/g, '/');
+  const toBase = p => p.replace(/\.(tsx|ts|mdx)$/, '').replace(/\\/g, '/');
   const hasStory = new Set(
     stories.map(s => toBase(s).replace(/\.stories$/, ''))
   );
