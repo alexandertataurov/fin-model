@@ -17,7 +17,7 @@ on:
         description: "Test command to run"
         required: false
         type: string
-        default: "test:minimal:ci"
+        default: "test:ci"
 
 jobs:
   quality:
