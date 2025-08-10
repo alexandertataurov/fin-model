@@ -1,5 +1,0 @@
-[variables]
-PYTHON_VERSION = "3.11"
-
-[start]
-cmd = "cd backend && python3 start.py"
