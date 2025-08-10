@@ -2,6 +2,19 @@ import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { tokens } from '../tokens';
 
+type AnyRecord = Record<string, any>;
+
+function isScale(obj: AnyRecord): boolean {
+  // Consider it a scale if it has numeric-like keys (e.g., '50', '100', ...)
+  return Object.keys(obj).some((k) => /^(?:[0-9]{2,3}|950)$/.test(k));
+}
+
+function getValue(v: any): string {
+  // Style Dictionary token format stores value in .value
+  if (v && typeof v === 'object' && 'value' in v) return String(v.value);
+  return String(v);
+}
+
 const meta: Meta = {
   title: 'Design System/Foundations/Tokens',
   parameters: {
@@ -16,28 +29,49 @@ export const Overview: Story = {
     <div className="space-y-8">
       <section>
         <h3 className="text-sm font-medium mb-2">Colors</h3>
-        {Object.entries(tokens.colors).map(([group, scale]) => (
-          <div key={group} className="mb-4">
-            <div className="text-xs text-muted-foreground mb-1 capitalize">
-              {group}
-            </div>
-            <div className="grid grid-cols-10 gap-2">
-              {Object.entries(scale as Record<string, string>).map(([k, v]) => (
-                <div key={k} className="text-[10px] text-center">
-                  <div className="h-8 rounded" style={{ background: v }} />
-                  <div className="mt-1">{k}</div>
+        {Object.entries(tokens.colors as AnyRecord).map(([group, value]) => {
+          const content = isScale(value)
+            ? (
+                <div className="grid grid-cols-10 gap-2">
+                  {Object.entries(value as AnyRecord)
+                    .filter(([k]) => /^(?:[0-9]{2,3}|950)$/.test(k))
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([k, v]) => (
+                      <div key={k} className="text-[10px] text-center">
+                        <div className="h-8 rounded" style={{ background: getValue(v) }} />
+                        <div className="mt-1">{k}</div>
+                      </div>
+                    ))}
                 </div>
-              ))}
+              )
+            : (
+                <div className="grid grid-cols-6 gap-2">
+                  {Object.entries(value as AnyRecord)
+                    .filter(([k]) => k === 'value')
+                    .map(([k, v]) => (
+                      <div key={k} className="text-[10px] text-center">
+                        <div className="h-8 rounded" style={{ background: getValue(v) }} />
+                        <div className="mt-1">{group}</div>
+                      </div>
+                    ))}
+                </div>
+              );
+          return (
+            <div key={group} className="mb-4">
+              <div className="text-xs text-muted-foreground mb-1 capitalize">
+                {group}
+              </div>
+              {content}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
       <section>
         <h3 className="text-sm font-medium mb-2">Typography</h3>
-        {Object.entries(tokens.typography.fontSize).map(([k, [size]]) => (
+        {Object.entries(tokens.typography.fontSize as AnyRecord).map(([k, v]) => (
           <div key={k} className="flex items-baseline gap-4">
             <div className="w-24 text-xs text-muted-foreground">{k}</div>
-            <div style={{ fontSize: size as string }}>The quick brown fox</div>
+            <div style={{ fontSize: getValue(v) }}>The quick brown fox</div>
           </div>
         ))}
       </section>
