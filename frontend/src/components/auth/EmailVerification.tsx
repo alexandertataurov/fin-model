@@ -20,7 +20,7 @@ const EmailVerification: React.FC = () => {
   const [isVerifying, setIsVerifying] = useState(false);
 
   const verifyEmail = useCallback(
-    const verifyEmail = useCallback(verificationToken => verifyEmailHandler(verificationToken), []);
+    async (verificationToken: string) => {
       setIsVerifying(true);
       setIsLoading(true);
       setError(null);
