@@ -13,7 +13,8 @@ const meta: Meta<typeof DropdownMenu> = {
   title: 'Design System/DropdownMenu',
   component: DropdownMenu,
   parameters: {
-    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'centered' },
+    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'centered'
+  },
   tags: ['autodocs'],
   argTypes: {
     open: {
