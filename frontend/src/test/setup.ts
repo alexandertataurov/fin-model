@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 import React from 'react';
+import { TextEncoder as NodeTextEncoder, TextDecoder as NodeTextDecoder } from 'util';
 
 // Polyfills for JSDOM gaps used by UI libs
 if (typeof window !== 'undefined' && !('matchMedia' in window)) {
@@ -25,10 +26,8 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
 }
 
 // Ensure TextEncoder/TextDecoder exist in Node envs
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { TextEncoder, TextDecoder } = require('util');
-if (!(globalThis as any).TextEncoder) (globalThis as any).TextEncoder = TextEncoder;
-if (!(globalThis as any).TextDecoder) (globalThis as any).TextDecoder = TextDecoder;
+if (!(globalThis as any).TextEncoder) (globalThis as any).TextEncoder = NodeTextEncoder as unknown as typeof TextEncoder;
+if (!(globalThis as any).TextDecoder) (globalThis as any).TextDecoder = NodeTextDecoder as unknown as typeof TextDecoder;
 
 // Silence toasts during tests
 vi.mock('sonner', () => ({
