@@ -27,6 +27,7 @@ from app.api.v1.endpoints import (
     statements,
     notifications,
     tasks,
+    lean_financial,
 )
 
 
@@ -51,6 +52,11 @@ api_router.include_router(
     notifications.router, prefix="/notifications", tags=["notifications"]
 )
 api_router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
+
+# Include lean financial modeling routes
+api_router.include_router(
+    lean_financial.router, prefix="/lean-financial", tags=["lean-financial"]
+)
 
 # Include admin routes
 api_router.include_router(users.router, prefix="/admin", tags=["administration"])
