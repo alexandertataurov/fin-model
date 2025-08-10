@@ -20,6 +20,17 @@ import {
 import Dashboard from './pages/Dashboard';
 import FileUpload from './pages/FileUpload';
 import Scenarios from './pages/Scenarios';
+import AdminDashboard from './pages/AdminDashboard';
+import FinancialModeling from './pages/FinancialModeling';
+import PnLDashboard from './pages/PnLDashboard';
+import CashFlowDashboard from './pages/CashFlowDashboard';
+import BalanceSheetDashboard from './pages/BalanceSheetDashboard';
+import DCFValuation from './pages/DCFValuation';
+import AssetLifecycle from './pages/AssetLifecycle';
+import CashFlowLifecycle from './pages/CashFlowLifecycle';
+import Parameters from './pages/Parameters';
+import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
 import Layout from './components/Layout/Layout';
 
 // Protected Layout Component
@@ -54,7 +65,11 @@ export default function App() {
                 }
               >
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="upload" element={<FileUpload />} />
+                <Route path="financial-modeling" element={<FinancialModeling />} />
+                <Route path="dashboards/pl" element={<PnLDashboard />} />
+                <Route path="dashboards/cashflow" element={<CashFlowDashboard />} />
+                <Route path="dashboards/balance" element={<BalanceSheetDashboard />} />
+                <Route path="dcf-valuation" element={<DCFValuation />} />
                 <Route
                   path="scenarios"
                   element={
@@ -63,18 +78,16 @@ export default function App() {
                     </AnalystGuard>
                   }
                 />
+                <Route path="asset-lifecycle" element={<AssetLifecycle />} />
+                <Route path="cash-flow-lifecycle" element={<CashFlowLifecycle />} />
+                <Route path="parameters" element={<Parameters />} />
+                <Route path="upload" element={<FileUpload />} />
+                <Route path="settings" element={<Settings />} />
                 <Route
-                  path="admin/*"
+                  path="admin"
                   element={
                     <AdminGuard>
-                      <div className="p-6">
-                        <h1 className="text-2xl font-bold mb-4">
-                          Admin Panel
-                        </h1>
-                        <p className="text-muted-foreground">
-                          Admin features coming soon...
-                        </p>
-                      </div>
+                      <AdminDashboard />
                     </AdminGuard>
                   }
                 />
@@ -82,27 +95,7 @@ export default function App() {
               </Route>
 
               {/* 404 Fallback */}
-              <Route
-                path="*"
-                element={
-                  <div className="min-h-screen flex items-center justify-center bg-background">
-                    <div className="text-center space-y-4">
-                      <h1 className="text-4xl font-bold text-muted-foreground">
-                        404
-                      </h1>
-                      <p className="text-xl text-muted-foreground">
-                        Page not found
-                      </p>
-                      <button
-                        onClick={() => window.history.back()}
-                        className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
-                      >
-                        Go Back
-                      </button>
-                    </div>
-                  </div>
-                }
-              />
+              <Route path="*" element={<NotFound />} />
             </Routes>
 
             <Toaster />
