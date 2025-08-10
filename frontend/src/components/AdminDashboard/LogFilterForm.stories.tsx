@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 import LogFilterForm from './LogFilterForm';
+
+const noop = () => {};
 
 const meta: Meta<typeof LogFilterForm> = {
   title: 'Admin/LogFilterForm',
@@ -20,9 +21,9 @@ export const Default: Story = {
     search: '',
     total: 0,
     skip: 0,
-    onFilterChange: action('filter change'),
-    onPrev: action('prev'),
-    onNext: action('next'),
-    onRefresh: action('refresh'),
+    onChange: noop,
+    onPrev: noop,
+    onNext: noop,
+    onRefresh: noop,
   },
 };

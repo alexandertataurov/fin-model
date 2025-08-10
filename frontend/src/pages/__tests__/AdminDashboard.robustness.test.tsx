@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import { render, waitFor } from '@testing-library/react'
 import React from 'react'
 
@@ -13,9 +13,9 @@ const mocked = AdminApi as unknown as Record<string, any>
 describe('AdminDashboard robustness to API failures', () => {
     beforeEach(() => {
         vi.resetAllMocks()
-            ; (toast.success as unknown as vi.Mock).mockClear?.()
-            ; (toast.warning as unknown as vi.Mock).mockClear?.()
-            ; (toast.error as unknown as vi.Mock).mockClear?.()
+            ; (toast.success as unknown as Mock).mockClear?.()
+            ; (toast.warning as unknown as Mock).mockClear?.()
+            ; (toast.error as unknown as Mock).mockClear?.()
     })
 
     it('shows warning toast when some sections fail', async () => {

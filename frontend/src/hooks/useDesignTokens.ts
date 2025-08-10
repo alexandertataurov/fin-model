@@ -41,7 +41,7 @@ export function useDesignTokens() {
    * @returns The spacing value
    */
   const getSpacing = (size: keyof typeof tokens.spacing): string => {
-    return tokens.spacing[size];
+    return tokens.spacing[size].value;
   };
 
   /**
@@ -50,7 +50,7 @@ export function useDesignTokens() {
    * @returns The border radius value
    */
   const getBorderRadius = (size: keyof typeof tokens.borderRadius): string => {
-    return tokens.borderRadius[size];
+    return tokens.borderRadius[size].value;
   };
 
   /**
@@ -58,8 +58,11 @@ export function useDesignTokens() {
    * @param size - The font size key
    * @returns The font size configuration [size, { lineHeight }]
    */
-  const getFontSize = (size: keyof typeof tokens.typography.fontSize): [string, { lineHeight: string }] => {
-    return tokens.typography.fontSize[size] as any;
+  const getFontSize = (
+    size: keyof typeof tokens.typography.fontSize
+  ): [string, { lineHeight: string }] => {
+    const token = tokens.typography.fontSize[size] as any;
+    return [token.value, { lineHeight: token.lineHeight ?? '1.5' }];
   };
 
   /**
@@ -77,7 +80,7 @@ export function useDesignTokens() {
    * @returns The box shadow value
    */
   const getBoxShadow = (size: keyof typeof tokens.shadows): string => {
-    return tokens.shadows[size];
+    return tokens.shadows[size].value;
   };
 
   /**

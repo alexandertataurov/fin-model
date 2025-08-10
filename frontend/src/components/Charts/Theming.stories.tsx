@@ -31,12 +31,12 @@ export const TokenColorsLight: Story = {
       {
         dataKey: 'profit',
         name: 'Profit',
-        color: tokens.colors.success[500],
+        color: tokens.colors.secondary[500],
       },
       {
         dataKey: 'cost',
         name: 'Cost',
-        color: tokens.colors.error[500],
+        color: tokens.colors.destructive[500],
       },
     ],
     title: 'Token-driven Colors (Light)',
@@ -61,12 +61,12 @@ export const TokenColorsDark: Story = {
       {
         dataKey: 'profit',
         name: 'Profit',
-        color: tokens.colors.success[400],
+        color: tokens.colors.secondary[400],
       },
       {
         dataKey: 'cost',
         name: 'Cost',
-        color: tokens.colors.error[400],
+        color: tokens.colors.destructive[400],
       },
     ],
     title: 'Token-driven Colors (Dark)',
