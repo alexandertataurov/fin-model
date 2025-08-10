@@ -125,27 +125,35 @@ function createStory(componentPath, options = {}) {
     features = ['Feature 1', 'Feature 2', 'Feature 3'],
     props = [
       { name: 'prop1', type: 'text', description: 'Description of prop1' },
-      { name: 'prop2', type: 'boolean', description: 'Description of prop2' }
-    ]
+      { name: 'prop2', type: 'boolean', description: 'Description of prop2' },
+    ],
   } = options;
 
   // Extract component name from path
-  const componentName = path.basename(componentPath, path.extname(componentPath));
+  const componentName = path.basename(
+    componentPath,
+    path.extname(componentPath)
+  );
   const storyPath = componentPath.replace(/\.(tsx|ts)$/, '.stories.tsx');
-  
+
   // Generate argTypes from props
-  const argTypes = props.map(prop => {
-    const control = prop.type === 'boolean' 
-      ? '{ type: \'boolean\' }'
-      : prop.type === 'select' && prop.options
-      ? `{ type: 'select', options: [${prop.options.map(o => `'${o}'`).join(', ')}] }`
-      : `{ type: '${prop.type}' }`;
-    
-    return `    ${prop.name}: {
+  const argTypes = props
+    .map(prop => {
+      const control =
+        prop.type === 'boolean'
+          ? "{ type: 'boolean' }"
+          : prop.type === 'select' && prop.options
+          ? `{ type: 'select', options: [${prop.options
+              .map(o => `'${o}'`)
+              .join(', ')}] }`
+          : `{ type: '${prop.type}' }`;
+
+      return `    ${prop.name}: {
       control: ${control},
       description: '${prop.description}',
     },`;
-  }).join('\n');
+    })
+    .join('\n');
 
   // Generate features list
   const featuresList = features.map(f => ` * - ${f}`).join('\n');
@@ -155,14 +163,20 @@ function createStory(componentPath, options = {}) {
     .replace(/ComponentName/g, componentName)
     .replace(/Category\/ComponentName/g, title)
     .replace(/Category/g, category)
-    .replace(/Detailed description of the component, its purpose, and key features\./g, description)
+    .replace(
+      /Detailed description of the component, its purpose, and key features\./g,
+      description
+    )
     .replace(/\* - Feature 1\n \* - Feature 2\n \* - Feature 3/g, featuresList)
-    .replace(/\/\/ Define all props with proper controls and descriptions\n    \/\/ Define all props with proper controls and descriptions\n    prop1: {\n      control: { type: 'text' },\n      description: 'Description of prop1',\n    },\n    prop2: {\n      control: { type: 'boolean' },\n      description: 'Description of prop2',\n    },/g, argTypes);
+    .replace(
+      /\/\/ Define all props with proper controls and descriptions\n    \/\/ Define all props with proper controls and descriptions\n    prop1: {\n      control: { type: 'text' },\n      description: 'Description of prop1',\n    },\n    prop2: {\n      control: { type: 'boolean' },\n      description: 'Description of prop2',\n    },/g,
+      argTypes
+    );
 
   // Write the story file
   fs.writeFileSync(storyPath, storyContent);
   console.log(`✅ Created story file: ${storyPath}`);
-  
+
   return storyPath;
 }
 
@@ -173,14 +187,18 @@ if (args.length === 0) {
   console.log('Usage: node create-story.js <component-path> [options]');
   console.log('');
   console.log('Options:');
-  console.log('  --title <title>        Story title (default: Category/ComponentName)');
+  console.log(
+    '  --title <title>        Story title (default: Category/ComponentName)'
+  );
   console.log('  --category <category>  Story category (default: Components)');
   console.log('  --description <desc>   Component description');
   console.log('  --features <features>  Comma-separated list of features');
   console.log('  --props <props>        JSON string of props configuration');
   console.log('');
   console.log('Example:');
-  console.log('  node create-story.js src/components/ui/Button.tsx --title "UI/Button" --category "UI"');
+  console.log(
+    '  node create-story.js src/components/ui/Button.tsx --title "UI/Button" --category "UI"'
+  );
   process.exit(1);
 }
 
@@ -190,7 +208,7 @@ const options = {};
 for (let i = 1; i < args.length; i += 2) {
   const flag = args[i];
   const value = args[i + 1];
-  
+
   switch (flag) {
     case '--title':
       options.title = value;

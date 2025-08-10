@@ -40,16 +40,19 @@ src/
 ### Story Categories
 
 1. **Design System** (`Design System/*`)
+
    - Core design system components
    - Documentation and guidelines
    - Design tokens and theming
 
 2. **UI Components** (`UI/*`)
+
    - Reusable UI components
    - Form elements, buttons, inputs
    - Layout components
 
 3. **Feature Components** (`Components/*`)
+
    - Business logic components
    - Feature-specific components
    - Complex composite components
@@ -62,11 +65,13 @@ src/
 ## File Naming Conventions
 
 ### Stories
+
 - **Component Stories**: `ComponentName.stories.tsx`
 - **Documentation**: `ComponentName.Guidelines.mdx` or `ComponentName.Examples.mdx`
 - **Test Stories**: `ComponentName.test.stories.tsx` (for testing specific scenarios)
 
 ### Examples
+
 ```
 Button.stories.tsx              # Button component stories
 Button.Guidelines.mdx           # Button usage guidelines
@@ -78,25 +83,25 @@ LoadingSkeleton.stories.tsx     # Loading skeleton stories
 
 Every story file must follow this standardized structure:
 
-```tsx
+````tsx
 import type { Meta, StoryObj } from '@storybook/react';
 import { ComponentName } from './ComponentName';
 
 /**
  * ComponentName - Brief description of what this component does
- * 
+ *
  * ## Usage
  * ```tsx
  * import { ComponentName } from '@/components/path/ComponentName';
- * 
+ *
  * <ComponentName prop1="value" prop2={true} />
  * ```
- * 
+ *
  * ## Features
  * - Feature 1
  * - Feature 2
  * - Feature 3
- * 
+ *
  * ## Accessibility
  * - Screen reader friendly
  * - Keyboard navigation support
@@ -123,16 +128,27 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Required story types in this order:
-export const Default: Story = { /* Primary use case */ };
-export const Secondary: Story = { /* Alternative state */ };
-export const Interactive: Story = { /* With play function */ };
-export const States: Story = { /* Multiple states */ };
-export const UsageExamples: Story = { /* Real-world examples */ };
-```
+export const Default: Story = {
+  /* Primary use case */
+};
+export const Secondary: Story = {
+  /* Alternative state */
+};
+export const Interactive: Story = {
+  /* With play function */
+};
+export const States: Story = {
+  /* Multiple states */
+};
+export const UsageExamples: Story = {
+  /* Real-world examples */
+};
+````
 
 ## Required Story Types
 
 ### 1. Default Story
+
 - Shows the most common use case
 - Uses sensible default props
 - Serves as the primary example
@@ -147,6 +163,7 @@ export const Default: Story = {
 ```
 
 ### 2. Variant Stories
+
 - One story per variant (if applicable)
 - Clear naming: `Primary`, `Secondary`, `Destructive`, etc.
 
@@ -167,6 +184,7 @@ export const Secondary: Story = {
 ```
 
 ### 3. Interactive Story
+
 - Demonstrates user interactions
 - Includes play function for testing
 - Shows click handlers, form submissions, etc.
@@ -186,6 +204,7 @@ export const Interactive: Story = {
 ```
 
 ### 4. States Story
+
 - Shows different states in one view
 - Includes: normal, hover, active, disabled, loading
 - Uses render function with multiple instances
@@ -203,6 +222,7 @@ export const States: Story = {
 ```
 
 ### 5. Usage Examples
+
 - Real-world usage patterns
 - Multiple examples in one story
 - Shows different configurations
@@ -217,8 +237,8 @@ export const UsageExamples: Story = {
       </div>
       <div>
         <h3 className="text-lg font-semibold mb-2">With Custom Styling</h3>
-        <ComponentName 
-          prop1="Custom Styled" 
+        <ComponentName
+          prop1="Custom Styled"
           prop2={true}
           className="border-2 border-blue-500 rounded-lg"
         />
@@ -231,12 +251,15 @@ export const UsageExamples: Story = {
 ## Documentation Standards
 
 ### Component Description
+
 - Clear, concise description of purpose
 - Key features and capabilities
 - When to use this component
 
 ### Prop Documentation
+
 Every prop must have:
+
 - Description of what it does
 - Type information
 - Default values
@@ -266,12 +289,14 @@ argTypes: {
 ```
 
 ### Accessibility Notes
+
 - Screen reader compatibility
 - Keyboard navigation support
 - ARIA attributes used
 - Color contrast considerations
 
 ### Design Tokens
+
 - List design tokens used
 - Explain responsive behavior
 - Note theme compatibility
@@ -279,7 +304,9 @@ argTypes: {
 ## Testing Integration
 
 ### Play Functions
+
 Use play functions to test:
+
 - User interactions
 - State changes
 - Accessibility
@@ -287,7 +314,9 @@ Use play functions to test:
 
 ```tsx
 export const Interactive: Story = {
-  args: { /* props */ },
+  args: {
+    /* props */
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
@@ -298,6 +327,7 @@ export const Interactive: Story = {
 ```
 
 ### Interaction Testing
+
 - Test user interactions
 - Verify state changes
 - Check accessibility
@@ -363,21 +393,25 @@ pnpm test-storybook
 ## Common Patterns
 
 ### Form Components
+
 - Show validation states
 - Include error handling
 - Demonstrate form submission
 
 ### Layout Components
+
 - Show different content lengths
 - Demonstrate responsive behavior
 - Include spacing examples
 
 ### Interactive Components
+
 - Show loading states
 - Include success/error states
 - Demonstrate user feedback
 
 ### Data Components
+
 - Show empty states
 - Include loading states
 - Demonstrate data variations
@@ -414,6 +448,7 @@ If you have existing stories that don't follow the new format:
 ### Example Migration
 
 **Before:**
+
 ```tsx
 export default {
   title: 'Button',
@@ -424,6 +459,7 @@ export const Primary = () => <Button>Click me</Button>;
 ```
 
 **After:**
+
 ```tsx
 const meta: Meta<typeof Button> = {
   title: 'UI/Button',
@@ -432,7 +468,8 @@ const meta: Meta<typeof Button> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'A versatile button component with multiple variants and states.',
+        component:
+          'A versatile button component with multiple variants and states.',
       },
     },
   },

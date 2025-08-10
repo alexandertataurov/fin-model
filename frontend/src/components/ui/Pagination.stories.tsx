@@ -95,7 +95,7 @@ type Story = StoryObj<typeof Pagination>;
 const PaginationWrapper = (props: any) => {
   const [currentPage, setCurrentPage] = useState(props.currentPage || 1);
   const [itemsPerPage, setItemsPerPage] = useState(props.itemsPerPage || 10);
-  
+
   return (
     <Pagination
       {...props}

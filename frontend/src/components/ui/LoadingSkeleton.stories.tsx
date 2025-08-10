@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { 
-  Skeleton, 
-  CardSkeleton, 
-  TableSkeleton, 
-  StatsSkeleton, 
-  ChartSkeleton, 
+import {
+  Skeleton,
+  CardSkeleton,
+  TableSkeleton,
+  StatsSkeleton,
+  ChartSkeleton,
   LogEntrySkeleton,
-  HealthSkeleton 
+  HealthSkeleton
 } from './LoadingSkeleton';
 
 /**

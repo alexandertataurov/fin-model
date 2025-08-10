@@ -41,35 +41,50 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Stories follow this order:
-export const Default: Story = { /* Primary use case */ };
-export const Secondary: Story = { /* Alternative state */ };
-export const Interactive: Story = { /* With play function */ };
-export const States: Story = { /* Multiple states */ };
-export const UsageExamples: Story = { /* Real-world examples */ };
+export const Default: Story = {
+  /* Primary use case */
+};
+export const Secondary: Story = {
+  /* Alternative state */
+};
+export const Interactive: Story = {
+  /* With play function */
+};
+export const States: Story = {
+  /* Multiple states */
+};
+export const UsageExamples: Story = {
+  /* Real-world examples */
+};
 ```
 
 ## Required Story Types
 
 ### 1. Default Story
+
 - Shows the most common use case
 - Uses sensible default props
 - Serves as the primary example
 
 ### 2. Variant Stories
+
 - One story per variant (if applicable)
 - Clear naming: `Primary`, `Secondary`, `Destructive`, etc.
 
 ### 3. States Story
+
 - Shows different states in one view
 - Includes: normal, hover, active, disabled, loading
 - Uses render function with multiple instances
 
 ### 4. Interactive Story
+
 - Demonstrates user interactions
 - Includes play function for testing
 - Shows click handlers, form submissions, etc.
 
 ### 5. Usage Examples
+
 - Real-world usage patterns
 - Multiple examples in one story
 - Shows different configurations
@@ -77,23 +92,27 @@ export const UsageExamples: Story = { /* Real-world examples */ };
 ## Documentation Standards
 
 ### Component Description
+
 - Clear, concise description of purpose
 - Key features and capabilities
 - When to use this component
 
 ### Prop Documentation
+
 - Every prop must have a description
 - Include type information
 - Specify default values
 - Add usage examples for complex props
 
 ### Accessibility Notes
+
 - Screen reader compatibility
 - Keyboard navigation support
 - ARIA attributes used
 - Color contrast considerations
 
 ### Design Tokens
+
 - List design tokens used
 - Explain responsive behavior
 - Note theme compatibility
@@ -126,15 +145,19 @@ argTypes: {
 ## Testing Integration
 
 ### Play Functions
+
 - Test user interactions
 - Verify state changes
 - Check accessibility
 - Validate form submissions
 
 ### Interaction Testing
+
 ```tsx
 export const Interactive: Story = {
-  args: { /* props */ },
+  args: {
+    /* props */
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');
@@ -147,12 +170,14 @@ export const Interactive: Story = {
 ## MDX Documentation
 
 Use MDX files for:
+
 - Component guidelines and best practices
 - Design system documentation
 - Usage examples and patterns
 - Accessibility guidelines
 
 ### MDX Structure
+
 ```mdx
 import { Meta, Story, Canvas, ArgsTable } from '@storybook/blocks';
 import * as ComponentStories from './ComponentName.stories';
@@ -192,21 +217,25 @@ Component description and usage guidelines.
 ## Common Patterns
 
 ### Form Components
+
 - Show validation states
 - Include error handling
 - Demonstrate form submission
 
 ### Layout Components
+
 - Show different content lengths
 - Demonstrate responsive behavior
 - Include spacing examples
 
 ### Interactive Components
+
 - Show loading states
 - Include success/error states
 - Demonstrate user feedback
 
 ### Data Components
+
 - Show empty states
 - Include loading states
 - Demonstrate data variations
