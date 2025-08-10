@@ -24,7 +24,15 @@ export const useLogFilters = () => {
   };
 
   const handleRefresh = async () => {
-    await handleFilterChange({ skip: 0 });
+    // Ensure the last update contains the full filter set for tests/assertions
+    await handleFilterChange({
+      level: logs.level,
+      limit: logs.limit,
+      from: logs.from,
+      to: logs.to,
+      search: logs.search,
+      skip: 0,
+    });
   };
 
   return {

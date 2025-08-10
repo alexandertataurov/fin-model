@@ -448,6 +448,29 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={async () => {
+                      const resp = await AdminApi.getSystemLogs(
+                        logsLevel,
+                        logsLimit,
+                        {
+                          from: logsFrom || undefined,
+                          to: logsTo || undefined,
+                          search: logsSearch || undefined,
+                          skip: 0,
+                          envelope: true,
+                        }
+                      );
+                      const env = resp as any;
+                      setLogEntries((env.items as LogEntry[]) || []);
+                      setLogsTotal(env.total || 0);
+                      setLogsSkip(env.skip || 0);
+                    }}
+                  >
+                    Refresh Logs
+                  </Button>
                   <select
                     className="border rounded px-2 py-1 bg-background text-sm"
                     value={logsLevel}

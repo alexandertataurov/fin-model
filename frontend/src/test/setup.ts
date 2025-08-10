@@ -39,10 +39,32 @@ vi.mock('sonner', () => ({
     },
 }));
 
+// Simple, accessible mocks for Select to avoid Radix complexity in JSDOM
+vi.mock('@/design-system/components/Select', () => {
+    const React = require('react');
+    const Select = ({ value, onValueChange, children }: any) =>
+        React.createElement(
+            'select',
+            { role: 'combobox', value, onChange: (e: any) => onValueChange?.(e.target.value) },
+            children,
+        );
+    const SelectTrigger = () => null;
+    const SelectValue = () => null;
+    const SelectContent = ({ children }: any) => React.createElement(React.Fragment, null, children);
+    const SelectItem = ({ value, children }: any) => React.createElement('option', { value }, children);
+    return { Select, SelectTrigger, SelectValue, SelectContent, SelectItem };
+});
+
 // Provide authenticated user so admin pages render without routing/provider
 // Allow tests to override via globalThis.__TEST_USER__
 vi.mock('@/contexts/AuthContext', () => ({
-    useAuth: () => ({ user: (globalThis as any).__TEST_USER__ ?? { id: 1, username: 'Test User', email: 'test@example.com' } }),
+    useAuth: () => {
+        const g: any = globalThis as any;
+        // Respect explicit null in tests; fallback only when undefined
+        const hasTestUser = Object.prototype.hasOwnProperty.call(g, '__TEST_USER__');
+        const user = hasTestUser ? g.__TEST_USER__ : { id: 1, username: 'Test User', email: 'test@example.com' };
+        return { user } as any;
+    },
 }));
 
 // Stub navigation to avoid needing a Router wrapper in unit tests
@@ -102,5 +124,3 @@ vi.mock('@/components/Admin/SystemMonitoring', () => ({
 vi.mock('@/components/Admin/DataManagement', () => ({
     default: () => React.createElement('div', { 'data-testid': 'DataManagement' }),
 }));
-
-

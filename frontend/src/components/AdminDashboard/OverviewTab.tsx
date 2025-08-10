@@ -272,6 +272,17 @@ const OverviewTab: React.FC = () => {
                   High Error Rate detected.
                 </div>
               )}
+              {/* If no alerts, show a clear healthy state message for tests */}
+              {!(
+                (systemMetrics.data?.cpu_usage && systemMetrics.data.cpu_usage > 90) ||
+                (systemMetrics.data?.memory_usage && systemMetrics.data.memory_usage > 90) ||
+                (systemMetrics.data?.disk_usage && systemMetrics.data.disk_usage > 90) ||
+                (systemMetrics.data?.error_rate_24h && systemMetrics.data.error_rate_24h > 5)
+              ) && (
+                <div className="p-4 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm">
+                  All Systems Healthy
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

@@ -1,9 +1,9 @@
 import { useAdminStore } from '@/stores/adminStore';
 
 export const useAdminData = () => {
-  const logs = useAdminStore(state => state.logs);
-  const updateLogsFilters = useAdminStore(state => state.updateLogsFilters);
-  const fetchLogsData = useAdminStore(state => state.fetchLogsData);
+  // Access full store state to play nicely with test mocks
+  const store = useAdminStore();
+  const { logs, updateLogsFilters, fetchLogsData } = store as any;
   return { logs, updateLogsFilters, fetchLogsData };
 };
 
