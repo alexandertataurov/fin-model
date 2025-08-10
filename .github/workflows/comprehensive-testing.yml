@@ -189,7 +189,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
         with:
-          version: 8
+          version: 10
 
       - name: Install dependencies
         working-directory: ./frontend
@@ -245,7 +245,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
         with:
-          version: 8
+          version: 10
 
       - name: Setup Python
         uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
@@ -320,7 +320,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
         with:
-          version: 8
+          version: 10
 
       - name: Setup Python
         uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
@@ -506,7 +506,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
         with:
-          version: 8
+          version: 10
 
       - name: Start application
         run: |
@@ -566,7 +566,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
         with:
-          version: 8
+          version: 10
 
       - name: Start application
         run: |
