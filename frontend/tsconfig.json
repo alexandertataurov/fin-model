@@ -31,6 +31,13 @@
     }
   },
   "include": ["src", "src/test/custom-matchers.d.ts"],
-  "exclude": ["node_modules", "src/components/__tests__/Charts.test.tsx"],
+  "exclude": [
+    "node_modules",
+    "src/components/__tests__/Charts.test.tsx",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "**/*.stories.mdx",
+    "src/design-system/stories/**"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

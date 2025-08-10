@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -75,9 +75,16 @@ interface SimulationResult {
   status: 'configured' | 'running' | 'completed' | 'error';
   iterations: number;
   execution_time?: number;
-  results_summary?: Record<string, any>;
+  results_summary?: Record<string, StatResult>;
   risk_metrics?: Record<string, number>;
   parameter_correlations?: Record<number, number>;
+}
+
+interface StatResult {
+  mean: number;
+  std_dev: number;
+  percentile_5: number;
+  percentile_95: number;
 }
 
 interface MonteCarloRunnerProps {
@@ -255,7 +262,7 @@ export const MonteCarloRunner: React.FC<MonteCarloRunnerProps> = ({
   const getDistributionFields = (
     distribution: Distribution,
     onChange: (updates: Partial<Distribution>) => void
-  const renderNormalDistribution = (distribution: Distribution, onChange: (updates: Partial<Distribution>) => void) => ( <div className="grid grid-cols-2 gap-2"> <div> <Label>Mean</Label> <Input type="number" value={distribution.mean || 0} onChange={e => onChange({ mean: Number(e.target.value) })} /> </div> </div> );
+  ) => {
     switch (distribution.type) {
       case 'normal':
         return (
