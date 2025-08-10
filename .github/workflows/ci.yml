@@ -10,7 +10,7 @@ jobs:
   frontend-test:
     uses: ./.github/workflows/reusable-frontend-quality.yml
     with:
-      test-command: "test:minimal:ci"
+      test-command: "test:ci"
 
   frontend-build:
     runs-on: ubuntu-latest
