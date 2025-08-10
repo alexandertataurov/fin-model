@@ -29,14 +29,16 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
 if (!(globalThis as any).TextEncoder) (globalThis as any).TextEncoder = NodeTextEncoder as unknown as typeof TextEncoder;
 if (!(globalThis as any).TextDecoder) (globalThis as any).TextDecoder = NodeTextDecoder as unknown as typeof TextDecoder;
 
-// Silence toasts during tests
+// Comprehensive toast mocking with proper mock functions
+const mockToast = {
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+};
+
 vi.mock('sonner', () => ({
-    toast: {
-        success: vi.fn(),
-        error: vi.fn(),
-        warning: vi.fn(),
-        info: vi.fn(),
-    },
+    toast: mockToast,
 }));
 
 // Comprehensive Radix UI mocks to prevent act() warnings
@@ -99,18 +101,25 @@ vi.mock('@radix-ui/react-primitive', () => ({
     },
 }));
 
-// Simple, accessible mocks for Select to avoid Radix complexity in JSDOM
+// Enhanced Select mock with better form handling
 vi.mock('@/design-system/components/Select', () => {
     const Select = ({ value, onValueChange, children }: any) =>
         React.createElement(
             'select',
-            { role: 'combobox', value, onChange: (e: any) => onValueChange?.(e.target.value) },
+            { 
+                role: 'combobox', 
+                value, 
+                onChange: (e: any) => onValueChange?.(e.target.value),
+                'data-testid': 'select'
+            },
             children,
         );
-    const SelectTrigger = () => null;
-    const SelectValue = () => null;
-    const SelectContent = ({ children }: any) => React.createElement(React.Fragment, null, children);
-    const SelectItem = ({ value, children }: any) => React.createElement('option', { value }, children);
+    const SelectTrigger = ({ children, ...props }: any) => 
+        React.createElement('button', { role: 'combobox', ...props }, children);
+    const SelectValue = ({ children }: any) => React.createElement('span', null, children);
+    const SelectContent = ({ children }: any) => React.createElement('div', { role: 'listbox' }, children);
+    const SelectItem = ({ value, children }: any) => 
+        React.createElement('option', { value, role: 'option' }, children);
     return { Select, SelectTrigger, SelectValue, SelectContent, SelectItem };
 });
 
@@ -184,7 +193,7 @@ vi.mock('@/components/Admin/DataManagement', () => ({
     default: () => React.createElement('div', { 'data-testid': 'DataManagement' }),
 }));
 
-// Mock ConfirmDialog to prevent act() warnings
+// Enhanced ConfirmDialog mock with proper button rendering
 vi.mock('@/components/ui/ConfirmDialog', () => {
     const ConfirmDialog = ({ children, open, onOpenChange, title, description, confirmText, cancelText, onConfirm, ...props }: any) => {
         if (!open) return null;
@@ -227,3 +236,6 @@ console.error = (...args: any[]) => {
     }
     originalError.call(console, ...args);
 };
+
+// Export mock toast for tests to access
+export { mockToast };
