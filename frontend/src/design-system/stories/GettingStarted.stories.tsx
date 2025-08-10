@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 const meta: Meta<typeof Card> = {
   title: 'Getting Started/Introduction',
   component: Card,
-  tags: ['autodocs'],
   parameters: {
     docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } },
     layout: 'padded',

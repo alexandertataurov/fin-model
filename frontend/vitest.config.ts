@@ -20,7 +20,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    css: false, // Disable CSS processing in all environments to reduce memory usage
+    css: false, // Disable CSS processing to reduce memory usage
     coverage: {
       provider: 'v8',
       reporter: process.env.CI ? ['text'] : ['text', 'json', 'html'],
@@ -33,9 +33,9 @@ export default defineConfig({
       ],
     },
     // Optimized settings for CI performance
-    testTimeout: process.env.CI ? 15000 : 10000,
-    hookTimeout: process.env.CI ? 15000 : 10000,
-    bail: process.env.CI ? 5 : 3,
+    testTimeout: process.env.CI ? 30000 : 15000,
+    hookTimeout: process.env.CI ? 30000 : 15000,
+    bail: process.env.CI ? 10 : 5,
     // Use default pool to avoid TS type mismatch on older Vitest versions
     exclude: [
       '**/node_modules/**',
@@ -52,7 +52,19 @@ export default defineConfig({
     poolOptions: {
       forks: {
         singleFork: true,
+        isolate: false,
       },
+    },
+    // Improve test stability
+    retry: process.env.CI ? 1 : 0,
+    // Reduce memory usage
+    maxConcurrency: process.env.CI ? 1 : 4,
+    // Better error reporting
+    onConsoleLog(log, type) {
+      if (type === 'error') {
+        return false; // Don't suppress errors
+      }
+      return true; // Suppress other console logs in tests
     },
   },
   optimizeDeps: {

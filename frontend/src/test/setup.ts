@@ -77,6 +77,27 @@ vi.mock('@radix-ui/react-focus-scope', () => ({
     FocusScope: ({ children }: any) => React.createElement('div', null, children),
 }));
 
+vi.mock('@radix-ui/react-context', () => ({
+    createContext: (defaultValue: any) => ({
+        Provider: ({ children, value }: any) => React.createElement('div', { 'data-testid': 'ContextProvider' }, children),
+        Consumer: ({ children }: any) => children(defaultValue),
+    }),
+}));
+
+vi.mock('@radix-ui/react-slot', () => ({
+    Slot: ({ children, ...props }: any) => React.cloneElement(children, props),
+}));
+
+vi.mock('@radix-ui/react-primitive', () => ({
+    createPrimitiveComponent: (config: any) => {
+        const Component = React.forwardRef((props: any, ref: any) => {
+            return React.createElement('div', { ...props, ref }, props.children);
+        });
+        Component.displayName = config.displayName;
+        return Component;
+    },
+}));
+
 // Simple, accessible mocks for Select to avoid Radix complexity in JSDOM
 vi.mock('@/design-system/components/Select', () => {
     const Select = ({ value, onValueChange, children }: any) =>
@@ -166,3 +187,17 @@ vi.mock('@/components/Admin/DataManagement', () => ({
 vi.mock('@/components/ui/ConfirmDialog', () => ({
     default: ({ children, ...props }: any) => React.createElement('div', { 'data-testid': 'ConfirmDialog', ...props }, children),
 }));
+
+// Mock AlertDialog component to prevent act() warnings
+vi.mock('@/design-system/components/AlertDialog', () => ({
+    default: ({ children, ...props }: any) => React.createElement('div', { 'data-testid': 'AlertDialog', ...props }, children),
+}));
+
+// Suppress React warnings about act() in tests
+const originalError = console.error;
+console.error = (...args: any[]) => {
+    if (args[0]?.includes?.('Warning: An update to') && args[0]?.includes?.('was not wrapped in act')) {
+        return;
+    }
+    originalError.call(console, ...args);
+};

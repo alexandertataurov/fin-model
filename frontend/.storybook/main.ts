@@ -67,7 +67,6 @@ const config: StorybookConfig = {
     '@storybook/addon-interactions',
     '@storybook/addon-links',
     '@storybook/addon-themes',
-    '@storybook/addon-docs',
   ],
   docs: {
     autodocs: 'tag',
@@ -103,6 +102,7 @@ const config: StorybookConfig = {
         ? config.build.rollupOptions.external
         : []),
       '@storybook/globalThis',
+      '@storybook/addon-docs/preview',
     ];
 
     if (Array.isArray(config.plugins)) {
