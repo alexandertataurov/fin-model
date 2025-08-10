@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { tokens } from '../tokens';
+import { tokenVal } from './_utils';
 
 const meta: Meta = {
   title: 'Design System/Foundations/Colors',
@@ -37,7 +38,7 @@ export const Palette: Story = {
               <Swatch
                 key={key}
                 name={`${group}-${key}`}
-                value={String(value)}
+                value={tokenVal(value)}
               />
             ))}
           </div>

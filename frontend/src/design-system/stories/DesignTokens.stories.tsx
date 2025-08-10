@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { tokens } from '../tokens';
+import { tokenVal } from './_utils';
 
 const meta: Meta = {
   title: 'Design System/Foundations/Design Tokens',
@@ -54,11 +55,11 @@ export const ColorPalette: Story = {
               <div key={key} className="text-center">
                 <div
                   className="h-16 rounded border"
-                  style={{ backgroundColor: value }}
+                  style={{ backgroundColor: tokenVal(value) }}
                 />
                 <p className="text-xs mt-1 font-mono">{key}</p>
                 <p className="text-xs text-muted-foreground font-mono">
-                  {value}
+                  {tokenVal(value)}
                 </p>
               </div>
             ))}
@@ -77,11 +78,11 @@ export const ColorPalette: Story = {
               <div key={key} className="text-center">
                 <div
                   className="h-16 rounded border"
-                  style={{ backgroundColor: value }}
+                  style={{ backgroundColor: tokenVal(value) }}
                 />
                 <p className="text-xs mt-1 font-mono">{key}</p>
                 <p className="text-xs text-muted-foreground font-mono">
-                  {value}
+                  {tokenVal(value)}
                 </p>
               </div>
             ))}
@@ -103,7 +104,7 @@ export const ColorPalette: Story = {
                   <div key={key} className="text-center">
                     <div
                       className="h-12 rounded border"
-                      style={{ backgroundColor: value }}
+                      style={{ backgroundColor: tokenVal(value) }}
                     />
                     <p className="text-xs mt-1 font-mono">{key}</p>
                   </div>
@@ -118,7 +119,7 @@ export const ColorPalette: Story = {
                     <div key={key} className="text-center">
                       <div
                         className="h-12 rounded border"
-                        style={{ backgroundColor: value }}
+                        style={{ backgroundColor: tokenVal(value) }}
                       />
                       <p className="text-xs mt-1 font-mono">{key}</p>
                     </div>
@@ -191,9 +192,9 @@ export const TypographySystem: Story = {
               <div key={key} className="flex items-center justify-between">
                 <span className="font-mono text-sm">{key}</span>
                 <span className="font-mono text-sm text-muted-foreground">
-                  {value}
+                  {tokenVal(value)}
                 </span>
-                <span style={{ fontSize: value }}>Sample text</span>
+                <span style={{ fontSize: tokenVal(value) }}>Sample text</span>
               </div>
             ))}
           </div>
@@ -207,14 +208,14 @@ export const TypographySystem: Story = {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {Object.entries(tokens.typography.fontWeight).map(
+          {Object.entries(tokens.typography.fontWeight).map(
               ([key, value]) => (
                 <div key={key} className="flex items-center justify-between">
                   <span className="font-mono text-sm">{key}</span>
                   <span className="font-mono text-sm text-muted-foreground">
-                    {value}
+                    {tokenVal(value)}
                   </span>
-                  <span style={{ fontWeight: value }}>Sample text</span>
+                  <span style={{ fontWeight: Number(tokenVal(value)) }}>Sample text</span>
                 </div>
               )
             )}
@@ -242,11 +243,11 @@ export const SpacingScale: Story = {
             <div key={key} className="flex items-center space-x-4">
               <div className="w-16 text-sm font-mono">{key}</div>
               <div className="w-16 text-sm font-mono text-muted-foreground">
-                {value}
+                {tokenVal(value)}
               </div>
               <div
                 className="bg-primary-500 rounded"
-                style={{ width: value, height: '1rem' }}
+                style={{ width: tokenVal(value), height: '1rem' }}
               />
             </div>
           ))}
@@ -273,11 +274,11 @@ export const ShadowSystem: Story = {
             <div key={key} className="text-center">
               <div
                 className="h-24 bg-white border rounded-lg mb-2 flex items-center justify-center"
-                style={{ boxShadow: value }}
+                style={{ boxShadow: tokenVal(value) }}
               >
                 <span className="text-sm font-medium">{key}</span>
               </div>
-              <p className="text-xs font-mono text-muted-foreground">{value}</p>
+              <p className="text-xs font-mono text-muted-foreground">{tokenVal(value)}</p>
             </div>
           ))}
         </div>
@@ -303,11 +304,11 @@ export const BorderRadius: Story = {
             <div key={key} className="text-center">
               <div
                 className="h-20 bg-primary-100 border-2 border-primary-300 mb-2 flex items-center justify-center"
-                style={{ borderRadius: value }}
+                style={{ borderRadius: tokenVal(value) }}
               >
                 <span className="text-sm font-medium">{key}</span>
               </div>
-              <p className="text-xs font-mono text-muted-foreground">{value}</p>
+              <p className="text-xs font-mono text-muted-foreground">{tokenVal(value)}</p>
             </div>
           ))}
         </div>
@@ -336,7 +337,7 @@ export const Breakpoints: Story = {
             >
               <span className="font-medium">{key}</span>
               <span className="font-mono text-sm text-muted-foreground">
-                {value}
+                {tokenVal(value)}
               </span>
               <div className="text-xs px-2 py-1 bg-primary-100 text-primary-700 rounded">
                 {key === 'sm' && 'Mobile'}
@@ -373,7 +374,7 @@ export const ZIndexSystem: Story = {
             >
               <span className="font-medium">{key}</span>
               <span className="font-mono text-sm text-muted-foreground">
-                {value}
+                {tokenVal(value)}
               </span>
               <div className="text-xs px-2 py-1 bg-accent-100 text-accent-700 rounded">
                 {key === 'dropdown' && 'Dropdowns'}

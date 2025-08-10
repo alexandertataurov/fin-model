@@ -1,4 +1,5 @@
 import { tokens } from '../tokens';
+import { tokenVal } from './_utils';
 
 const meta = {
   title: 'Design System/Foundations/Typography',
@@ -18,7 +19,7 @@ export const Scales = {
               <div key={name} className="p-4 rounded-lg border bg-card">
                 <div className="text-sm text-muted-foreground">{name}</div>
                 <div
-                  style={{ fontFamily: (families as string[]).join(', ') }}
+                  style={{ fontFamily: tokenVal(families) }}
                   className="text-xl"
                 >
                   The quick brown fox
@@ -32,10 +33,10 @@ export const Scales = {
       <div>
         <h3 className="text-lg font-semibold">Font Sizes</h3>
         <div className="space-y-3">
-          {Object.entries(tokens.typography.fontSize).map(([name, [size]]) => (
+          {Object.entries(tokens.typography.fontSize).map(([name, size]) => (
             <div key={name} className="flex items-baseline gap-4">
               <div className="w-24 text-sm text-muted-foreground">{name}</div>
-              <div style={{ fontSize: String(size) }} className="font-medium">
+              <div style={{ fontSize: tokenVal(size) }} className="font-medium">
                 The quick brown fox jumps over the lazy dog
               </div>
             </div>
@@ -52,8 +53,8 @@ export const Weights = {
       {Object.entries(tokens.typography.fontWeight).map(([name, weight]) => (
         <div key={name} className="flex items-baseline gap-4">
           <div className="w-24 text-sm text-muted-foreground">{name}</div>
-          <div style={{ fontWeight: Number(weight as string) }}>
-            The quick brown fox jumps over the lazy dog ({String(weight)})
+          <div style={{ fontWeight: Number(tokenVal(weight)) }}>
+            The quick brown fox jumps over the lazy dog ({tokenVal(weight)})
           </div>
         </div>
       ))}
