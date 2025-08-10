@@ -18,8 +18,8 @@ import { glob } from 'glob';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configuration
-const STORIES_PATTERN = 'src/**/*.stories.tsx';
+// Configuration - use absolute path from script location
+const STORIES_PATTERN = path.join(__dirname, '../src/**/*.stories.tsx');
 const IGNORE_PATTERNS = ['node_modules', 'dist', 'build', '.storybook'];
 
 // Issue detection patterns

@@ -30,7 +30,7 @@
     "test": "vitest --config vitest.config.ts",
     "test:a11y": "vitest run src/test/a11y.test.tsx",
     "test:all": "npm run test:unit && npm run test:integration && npm run e2e",
-    "test:ci": "vitest run --coverage --reporter=junit --outputFile=test-results.xml --config vitest.config.ts",
+    "test:ci": "vitest run --coverage --config vitest.config.ts",
     "test:coverage": "vitest run --coverage --config vitest.config.ts",
     "test:debug": "vitest --inspect-brk --no-coverage",
     "test:integration": "vitest run src/test/integration --reporter=verbose --config vitest.config.ts",
@@ -120,6 +120,7 @@
   "devDependencies": {
     "@storybook/addon-a11y": "8.6.14",
     "@storybook/addon-backgrounds": "8.6.14",
+    "@storybook/addon-docs": "8.6.14",
     "@storybook/addon-essentials": "8.6.14",
     "@storybook/addon-interactions": "8.6.14",
     "@storybook/addon-links": "8.6.14",

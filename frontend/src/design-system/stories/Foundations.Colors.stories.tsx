@@ -75,6 +75,48 @@ export const CoreRoles: Story = {
   ),
 };
 
+export const ChartColors: Story = {
+  render: () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold">Chart Colors</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+          {Array.from({ length: 8 }, (_, i) => i + 1).map((num) => (
+            <div key={num} className="text-center">
+              <div
+                className="h-16 w-full rounded-md border mb-2"
+                style={{ background: `var(--chart-${num})` }}
+              />
+              <div className="text-sm font-medium">Chart {num}</div>
+              <div className="text-xs text-muted-foreground">
+                --chart-{num}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-semibold">Chart Color Aliases</h3>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
+            <div key={num} className="text-center">
+              <div
+                className="h-16 w-full rounded-md border mb-2"
+                style={{ background: `var(--color-chart-${num})` }}
+              />
+              <div className="text-sm font-medium">Color Chart {num}</div>
+              <div className="text-xs text-muted-foreground">
+                --color-chart-{num}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  ),
+};
+
 export const Loading = { parameters: { docs: { description: { story: 'No data — loading…' } } } } as const;
 export const Empty = { parameters: { docs: { description: { story: 'No data available.' } } } } as const;
 export const Error = { parameters: { docs: { description: { story: 'Error state.' } } } } as const;

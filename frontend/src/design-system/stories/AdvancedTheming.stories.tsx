@@ -330,15 +330,15 @@ const TypographySystem = () => {
                       <Badge variant="outline" className="text-xs">
                         {getComputedStyle(
                           document.documentElement
-                        ).getPropertyValue(`--font-size-${token}`) || 'Default'}
+                        ).getPropertyValue(`--typography-font-size-${token}`) || 'Default'}
                       </Badge>
                     </div>
                     <div
                       className="text-foreground"
                       style={{
-                        fontSize: `var(--font-size-${token})`,
-                        fontWeight: `var(--font-weight-${token})`,
-                        lineHeight: `var(--line-height-${token})`,
+                        fontSize: `var(--typography-font-size-${token})`,
+                        fontWeight: `var(--typography-font-weight-${token})`,
+                        lineHeight: `var(--typography-line-height-${token})`,
                       }}
                     >
                       The quick brown fox jumps over the lazy dog
@@ -410,14 +410,14 @@ const SpacingAndLayout = () => {
                     style={{
                       width: '60px',
                       height: '60px',
-                      borderRadius: `var(--radius-${token})`,
+                      borderRadius: `var(--border-radius-${token})`,
                     }}
                   />
                   <div className="font-mono text-xs">{token}</div>
                   <div className="text-xs text-muted-foreground">
                     {getComputedStyle(
                       document.documentElement
-                    ).getPropertyValue(`--radius-${token}`) || 'Default'}
+                    ).getPropertyValue(`--border-radius-${token}`) || 'Default'}
                   </div>
                 </div>
               ))}
@@ -435,14 +435,14 @@ const SpacingAndLayout = () => {
                     style={{
                       width: '80px',
                       height: '60px',
-                      boxShadow: `var(--shadow-${token})`,
+                      boxShadow: `var(--shadows-${token})`,
                     }}
                   />
                   <div className="font-mono text-xs">{token}</div>
                   <div className="text-xs text-muted-foreground">
                     {getComputedStyle(
                       document.documentElement
-                    ).getPropertyValue(`--shadow-${token}`) || 'Default'}
+                    ).getPropertyValue(`--shadows-${token}`) || 'Default'}
                   </div>
                 </div>
               ))}
