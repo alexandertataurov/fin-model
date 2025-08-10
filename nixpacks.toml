@@ -1,14 +1,14 @@
+[providers]
+python = "3.11"
+
 [phases.setup]
-nixPkgs = ["python311", "gcc", "pkg-config"]
+nixPkgs = ["python311", "python311Packages.pip", "gcc", "pkg-config", "libffi", "openssl"]
 
 [phases.install]
-cmds = ["pip install --upgrade pip", "pip install -r requirements.txt"]
-
-[phases.build]
-cmds = ["echo 'Build phase complete'"]
+cmds = [
+    "python -m pip install --upgrade pip",
+    "python -m pip install -r requirements.txt"
+]
 
 [start]
 cmd = "cd backend && python start.py"
-
-[variables]
-NIXPACKS_PYTHON_VERSION = "3.11"
