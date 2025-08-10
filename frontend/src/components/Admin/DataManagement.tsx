@@ -62,10 +62,15 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface TableInfo {
   name: string;
-  record_count: number;
+  rows: number;
   size_mb: number;
+  size_pretty: string;
   last_updated: string;
   integrity_status: 'healthy' | 'warning' | 'error';
+  dead_rows?: number;
+  inserts?: number;
+  updates?: number;
+  deletes?: number;
 }
 
 interface CleanupPreview {
@@ -138,17 +143,21 @@ const DataManagement: React.FC = () => {
       setSchedules(sched);
       setSchedulesDraft(sched);
 
-      // Convert integrity data to TableInfo format
-      const tableDataFromIntegrity: TableInfo[] = integrity.map(item => ({
-        name: item.table_name,
-        record_count: item.record_count,
-        size_mb: tables[item.table_name]?.size_mb || 0,
-        last_updated: item.last_updated,
-        integrity_status:
-          item.integrity_issues.length > 0 ? 'warning' : 'healthy',
+      // Convert table data to TableInfo format
+      const tableDataFromTables: TableInfo[] = Object.entries(tables).map(([name, data]) => ({
+        name,
+        rows: data.rows || 0,
+        size_mb: data.size_mb || 0,
+        size_pretty: data.size_pretty || '0 MB',
+        last_updated: data.last_updated || new Date().toISOString(),
+        integrity_status: data.integrity_status || 'healthy',
+        dead_rows: data.dead_rows || 0,
+        inserts: data.inserts || 0,
+        updates: data.updates || 0,
+        deletes: data.deletes || 0,
       }));
 
-      setTableData(tableDataFromIntegrity);
+      setTableData(tableDataFromTables);
     } catch (_error) {
       console.error('Failed to load data info:', _error);
       toast.error('Failed to load data management information');
@@ -431,9 +440,9 @@ const DataManagement: React.FC = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {formatNumber(table.record_count)}
+                          {formatNumber(table.rows)}
                         </TableCell>
-                        <TableCell>{formatFileSize(table.size_mb)}</TableCell>
+                        <TableCell>{table.size_pretty || formatFileSize(table.size_mb)}</TableCell>
                         <TableCell className="text-sm">
                           {table.last_updated
                             ? new Date(table.last_updated).toLocaleDateString()
@@ -444,7 +453,20 @@ const DataManagement: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-1">
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                const details = [
+                                  `Rows: ${formatNumber(table.rows)}`,
+                                  `Dead Rows: ${formatNumber(table.dead_rows || 0)}`,
+                                  `Inserts: ${formatNumber(table.inserts || 0)}`,
+                                  `Updates: ${formatNumber(table.updates || 0)}`,
+                                  `Deletes: ${formatNumber(table.deletes || 0)}`,
+                                ].join('\n');
+                                alert(`Table Details for ${table.name}:\n\n${details}`);
+                              }}
+                            >
                               <BarChart3 className="h-4 w-4" />
                             </Button>
                             <Button
@@ -607,6 +629,49 @@ const DataManagement: React.FC = () => {
         {/* Performance Tab */}
         <TabsContent value="performance">
           <div className="space-y-4">
+            {/* Database Overview Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Database Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {tableData.length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Tables
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {tableData.filter(t => t.integrity_status === 'healthy').length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Healthy Tables
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {tableData.filter(t => t.integrity_status === 'warning').length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Warning Tables
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">
+                      {tableData.filter(t => t.integrity_status === 'error').length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Error Tables
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Database Performance Metrics</CardTitle>
@@ -628,7 +693,7 @@ const DataManagement: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold">
                       {databaseHealth?.performance_metrics?.avg_query_time_ms !=
@@ -675,13 +740,33 @@ const DataManagement: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {databaseHealth?.status === 'healthy' ? '100%' : 'N/A'}
+                      {databaseHealth?.database_stats?.table_count ?? 'N/A'}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Database Health
+                      Total Tables
                     </div>
                     <Progress
-                      value={databaseHealth?.status === 'healthy' ? 100 : 0}
+                      value={(() => {
+                        const count = databaseHealth?.database_stats?.table_count;
+                        if (typeof count !== 'number') return 0;
+                        return Math.min((count / 50) * 100, 100); // 50 tables threshold
+                      })()}
+                      className="mt-2"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">
+                      {databaseHealth?.database_stats?.size_pretty ?? 'N/A'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Database Size
+                    </div>
+                    <Progress
+                      value={(() => {
+                        const size = databaseHealth?.database_stats?.size_mb;
+                        if (typeof size !== 'number') return 0;
+                        return Math.min((size / 1000) * 100, 100); // 1GB threshold
+                      })()}
                       className="mt-2"
                     />
                   </div>
@@ -698,16 +783,34 @@ const DataManagement: React.FC = () => {
                   <div className="space-y-2 text-sm">
                     {performanceData.map((item, idx) => (
                       <div key={idx} className="p-3 border rounded">
-                        <div className="font-mono text-xs break-all mb-1">
+                        <div className="font-mono text-xs break-all mb-2">
                           {item.query || item.sql || 'Query'}
                         </div>
-                        <div className="flex gap-4">
-                          <span className="text-muted-foreground">
-                            avg: {item.avg_time_ms ?? item.avg_time ?? 'N/A'}
-                          </span>
-                          <span className="text-muted-foreground">
-                            calls: {item.calls ?? item.count ?? 'N/A'}
-                          </span>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Avg Time:</span>
+                            <span className="ml-1 font-medium">
+                              {item.avg_ms ?? item.avg_time_ms ?? item.avg_time ?? 'N/A'} ms
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Max Time:</span>
+                            <span className="ml-1 font-medium">
+                              {item.p95_ms ?? item.max_time_ms ?? 'N/A'} ms
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Calls:</span>
+                            <span className="ml-1 font-medium">
+                              {item.calls ?? item.count ?? 'N/A'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Total Time:</span>
+                            <span className="ml-1 font-medium">
+                              {item.total_time_seconds ?? 'N/A'}s
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}

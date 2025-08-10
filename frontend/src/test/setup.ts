@@ -35,6 +35,7 @@ vi.mock('sonner', () => ({
         success: vi.fn(),
         error: vi.fn(),
         warning: vi.fn(),
+        info: vi.fn(),
     },
 }));
 
@@ -184,9 +185,34 @@ vi.mock('@/components/Admin/DataManagement', () => ({
 }));
 
 // Mock ConfirmDialog to prevent act() warnings
-vi.mock('@/components/ui/ConfirmDialog', () => ({
-    default: ({ children, ...props }: any) => React.createElement('div', { 'data-testid': 'ConfirmDialog', ...props }, children),
-}));
+vi.mock('@/components/ui/ConfirmDialog', () => {
+    const ConfirmDialog = ({ children, open, onOpenChange, title, description, confirmText, cancelText, onConfirm, ...props }: any) => {
+        if (!open) return null;
+        return React.createElement('div', { 'data-testid': 'ConfirmDialog', ...props }, [
+            React.createElement('h2', { key: 'title' }, title),
+            description && React.createElement('p', { key: 'description' }, description),
+            React.createElement('div', { key: 'buttons' }, [
+                React.createElement('button', { 
+                    key: 'cancel', 
+                    onClick: () => onOpenChange(false),
+                    'data-testid': 'cancel-button'
+                }, cancelText),
+                React.createElement('button', { 
+                    key: 'confirm', 
+                    onClick: () => {
+                        onConfirm();
+                        onOpenChange(false);
+                    },
+                    'data-testid': 'confirm-button'
+                }, confirmText),
+            ])
+        ]);
+    };
+    return {
+        ConfirmDialog,
+        default: ConfirmDialog,
+    };
+});
 
 // Mock AlertDialog component to prevent act() warnings
 vi.mock('@/design-system/components/AlertDialog', () => ({

@@ -1,3 +1,4 @@
+import type { Meta, StoryObj } from '@storybook/react';
 import {
   Select,
   SelectTrigger,
@@ -10,15 +11,48 @@ import {
 } from '../components/Select';
 import React from 'react';
 
-const meta = {
+const meta: Meta<typeof Select> = {
   title: 'Design System/Select',
   component: Select,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
+  argTypes: {
+    value: {
+      control: { type: 'text' },
+      description: 'Selected value',
+    },
+    onValueChange: {
+      action: 'value changed',
+      description: 'Callback when selection changes',
+    },
+    disabled: {
+      control: { type: 'boolean' },
+      description: 'Whether the select is disabled',
+    },
+  },
 };
 export default meta;
+type Story = StoryObj<typeof meta>;
 
-export const Basic = {
+export const Default: Story = {
+  args: {
+    disabled: false,
+  },
+  render: (args) => (
+    <Select {...args}>
+      <SelectTrigger className="w-[200px]">
+        <SelectValue placeholder="Select an option" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="option1">Option 1</SelectItem>
+        <SelectItem value="option2">Option 2</SelectItem>
+        <SelectItem value="option3">Option 3</SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+};
+
+export const Basic: Story = {
   render: () => (
     <Select>
       <SelectTrigger className="w-[200px]">
@@ -33,7 +67,7 @@ export const Basic = {
   ),
 };
 
-export const WithLabel = {
+export const WithLabel: Story = {
   render: () => (
     <Select>
       <SelectTrigger className="w-[240px]">
@@ -52,7 +86,7 @@ export const WithLabel = {
   ),
 };
 
-export const WithGroups = {
+export const WithGroups: Story = {
   render: () => (
     <Select>
       <SelectTrigger className="w-[260px]">
@@ -75,7 +109,7 @@ export const WithGroups = {
   ),
 };
 
-export const Sizes = {
+export const Sizes: Story = {
   render: () => (
     <div className="flex items-center gap-3">
       <Select>
@@ -109,7 +143,7 @@ export const Sizes = {
   ),
 };
 
-export const Disabled = {
+export const Disabled: Story = {
   render: () => (
     <Select disabled>
       <SelectTrigger className="w-[200px]" aria-disabled>
@@ -122,7 +156,7 @@ export const Disabled = {
   ),
 };
 
-export const Controlled = {
+export const Controlled: Story = {
   render: () => {
     const [value, setValue] = React.useState(undefined);
     return (
@@ -143,4 +177,29 @@ export const Controlled = {
       </div>
     );
   },
+};
+
+export const FinancialCategories: Story = {
+  render: () => (
+    <Select>
+      <SelectTrigger className="w-[280px]">
+        <SelectValue placeholder="Select category" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Financial Metrics</SelectLabel>
+          <SelectItem value="revenue">Revenue</SelectItem>
+          <SelectItem value="ebitda">EBITDA</SelectItem>
+          <SelectItem value="net-income">Net Income</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Assumptions</SelectLabel>
+          <SelectItem value="growth-rate">Growth Rate</SelectItem>
+          <SelectItem value="discount-rate">Discount Rate</SelectItem>
+          <SelectItem value="margin">Operating Margin</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  ),
 };

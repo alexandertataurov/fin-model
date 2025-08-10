@@ -45,7 +45,7 @@ describe('AdminDashboard Overview and Maintenance', () => {
     beforeEach(() => {
         vi.resetAllMocks();
 
-        Object.assign(mocked, {
+        const mockFunctions = {
             getSystemStats: vi.fn().mockResolvedValue(baseStats),
             getUserActivity: vi.fn().mockResolvedValue([
                 {
@@ -68,7 +68,11 @@ describe('AdminDashboard Overview and Maintenance', () => {
             getAuditLogs: vi.fn().mockResolvedValue({ items: [], total: 0, skip: 0, limit: 100 }),
             cleanupFiles: vi.fn().mockResolvedValue({ message: 'Cleanup done', orphaned_files: 0, failed_files: 0 }),
             clearRateLimits: vi.fn().mockResolvedValue({ message: 'Cleared', cleared_records: 1 }),
-        });
+        };
+
+        // Set up both named exports and default export
+        Object.assign(mocked, mockFunctions);
+        mocked.default = mockFunctions;
     });
 
     it('renders healthy overview with no critical alerts', async () => {
