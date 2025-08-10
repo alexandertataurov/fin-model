@@ -2,9 +2,9 @@ name: Deploy to Netlify
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, pre-production]
   pull_request:
-    branches: [main]
+    branches: [main, pre-production]
 
 jobs:
   build-and-deploy:
