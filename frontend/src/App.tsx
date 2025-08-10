@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './design-system/components/ThemeProvider';
 import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import { Toaster } from './design-system/components/Sonner';
 
 // Authentication Components
@@ -42,65 +43,67 @@ export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-background">
-            <Routes>
-              {/* Public Authentication Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route
-                path="/forgot-password"
-                element={<ForgotPasswordForm />}
-              />
-              <Route path="/reset-password" element={<ResetPasswordForm />} />
-              <Route path="/verify-email" element={<EmailVerification />} />
-
-              {/* Protected Application Routes with Sidebar Layout */}
-              <Route
-                path="/"
-                element={
-                  <ProtectedLayout>
-                    <Layout />
-                  </ProtectedLayout>
-                }
-              >
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="financial-modeling" element={<FinancialModeling />} />
-                <Route path="dashboards/pl" element={<PnLDashboard />} />
-                <Route path="dashboards/cashflow" element={<CashFlowDashboard />} />
-                <Route path="dashboards/balance" element={<BalanceSheetDashboard />} />
-                <Route path="dcf-valuation" element={<DCFValuation />} />
+        <NotificationProvider autoConnect={true}>
+          <Router>
+            <div className="min-h-screen bg-background">
+              <Routes>
+                {/* Public Authentication Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route
-                  path="scenarios"
-                  element={
-                    <AnalystGuard>
-                      <Scenarios />
-                    </AnalystGuard>
-                  }
+                  path="/forgot-password"
+                  element={<ForgotPasswordForm />}
                 />
-                <Route path="asset-lifecycle" element={<AssetLifecycle />} />
-                <Route path="cash-flow-lifecycle" element={<CashFlowLifecycle />} />
-                <Route path="parameters" element={<Parameters />} />
-                <Route path="upload" element={<FileUpload />} />
-                <Route path="settings" element={<Settings />} />
+                <Route path="/reset-password" element={<ResetPasswordForm />} />
+                <Route path="/verify-email" element={<EmailVerification />} />
+
+                {/* Protected Application Routes with Sidebar Layout */}
                 <Route
-                  path="admin"
+                  path="/"
                   element={
-                    <AdminGuard>
-                      <AdminDashboard />
-                    </AdminGuard>
+                    <ProtectedLayout>
+                      <Layout />
+                    </ProtectedLayout>
                   }
-                />
-                <Route index element={<Navigate to="/dashboard" replace />} />
-              </Route>
+                >
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="financial-modeling" element={<FinancialModeling />} />
+                  <Route path="dashboards/pl" element={<PnLDashboard />} />
+                  <Route path="dashboards/cashflow" element={<CashFlowDashboard />} />
+                  <Route path="dashboards/balance" element={<BalanceSheetDashboard />} />
+                  <Route path="dcf-valuation" element={<DCFValuation />} />
+                  <Route
+                    path="scenarios"
+                    element={
+                      <AnalystGuard>
+                        <Scenarios />
+                      </AnalystGuard>
+                    }
+                  />
+                  <Route path="asset-lifecycle" element={<AssetLifecycle />} />
+                  <Route path="cash-flow-lifecycle" element={<CashFlowLifecycle />} />
+                  <Route path="parameters" element={<Parameters />} />
+                  <Route path="upload" element={<FileUpload />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route
+                    path="admin"
+                    element={
+                      <AdminGuard>
+                        <AdminDashboard />
+                      </AdminGuard>
+                    }
+                  />
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+                </Route>
 
-              {/* 404 Fallback */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                {/* 404 Fallback */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
 
-            <Toaster />
-          </div>
-        </Router>
+              <Toaster />
+            </div>
+          </Router>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -237,30 +237,98 @@ async def check_data_integrity(
     try:
         integrity_checks = []
 
-        user_count = db.query(User).count()
-        orphaned_files = (
-            db.query(UploadedFile)
-            .outerjoin(User, UploadedFile.user_id == User.id)
-            .filter(User.id.is_(None))
-            .count()
-        )
-        user_issues: List[str] = []
-        user_recommendations: List[str] = []
-        if orphaned_files > 0:
-            user_issues.append(f"{orphaned_files} files with invalid user references")
-            user_recommendations.append("Run cleanup to remove orphaned file records")
-        integrity_checks.append(
-            DataIntegrityResponse(
-                table_name="users",
-                record_count=user_count,
-                last_updated=None,
-                integrity_issues=user_issues,
-                recommendations=user_recommendations,
+        # Check users table
+        try:
+            user_count = db.query(User).count()
+            orphaned_files = (
+                db.query(UploadedFile)
+                .outerjoin(User, UploadedFile.user_id == User.id)
+                .filter(User.id.is_(None))
+                .count()
             )
-        )
+            user_issues: List[str] = []
+            user_recommendations: List[str] = []
+            if orphaned_files > 0:
+                user_issues.append(
+                    f"{orphaned_files} files with invalid user references"
+                )
+                user_recommendations.append(
+                    "Run cleanup to remove orphaned file records"
+                )
+            
+            integrity_checks.append(
+                DataIntegrityResponse(
+                    table_name="users",
+                    record_count=user_count,
+                    last_updated=datetime.now(timezone.utc),
+                    integrity_issues=user_issues,
+                    recommendations=user_recommendations,
+                )
+            )
+        except Exception as e:
+            logger.error(f"Error checking users table integrity: {str(e)}")
+            integrity_checks.append(
+                DataIntegrityResponse(
+                    table_name="users",
+                    record_count=0,
+                    last_updated=datetime.now(timezone.utc),
+                    integrity_issues=[f"Error accessing users table: {str(e)}"],
+                    recommendations=["Check database connection and permissions"],
+                )
+            )
+
+        # Check files table
+        try:
+            file_count = db.query(UploadedFile).count()
+            file_issues: List[str] = []
+            file_recommendations: List[str] = []
+            
+            # Check for files with inconsistent status
+            inconsistent_files = (
+                db.query(UploadedFile)
+                .filter(
+                    and_(
+                        UploadedFile.status == FileStatus.COMPLETED.value,
+                        UploadedFile.is_valid.is_(False),
+                    )
+                )
+                .count()
+            )
+
+            if inconsistent_files > 0:
+                file_issues.append(
+                    f"{inconsistent_files} files marked as completed but invalid"
+                )
+                file_recommendations.append(
+                    "Review and reprocess files with inconsistent status"
+                )
+
+            integrity_checks.append(
+                DataIntegrityResponse(
+                    table_name="uploaded_files",
+                    record_count=file_count,
+                    last_updated=datetime.now(timezone.utc),
+                    integrity_issues=file_issues,
+                    recommendations=file_recommendations,
+                )
+            )
+        except Exception as e:
+            logger.error(f"Error checking files table integrity: {str(e)}")
+            integrity_checks.append(
+                DataIntegrityResponse(
+                    table_name="uploaded_files",
+                    record_count=0,
+                    last_updated=datetime.now(timezone.utc),
+                    integrity_issues=[
+                        f"Error accessing files table: {str(e)}"
+                    ],
+                    recommendations=["Check database connection and permissions"],
+                )
+            )
 
         return integrity_checks
     except Exception as e:
+        logger.error(f"Failed to check data integrity: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to check data integrity: {str(e)}",
@@ -358,38 +426,69 @@ async def cleanup_orphaned_files(
 ):
     """Clean up orphaned or invalid files."""
     try:
-        file_service = FileService(db)
-
-        orphaned_files = (
-            db.query(UploadedFile)
-            .filter(~UploadedFile.uploaded_by_id.in_(db.query(User.id)))
-            .all()
-        )
-        failed_files = (
-            db.query(UploadedFile)
-            .filter(
-                and_(
-                    UploadedFile.status == FileStatus.FAILED.value,
-                    UploadedFile.created_at
-                    < datetime.now(timezone.utc) - timedelta(days=7),
-                )
+        # Check if FileService is available
+        try:
+            file_service = FileService(db)
+        except Exception as e:
+            logger.error(f"Failed to initialize FileService: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="File service unavailable",
             )
-            .all()
-        )
+
+        # Find orphaned files
+        try:
+            orphaned_files = (
+                db.query(UploadedFile)
+                .filter(~UploadedFile.uploaded_by_id.in_(db.query(User.id)))
+                .all()
+            )
+        except Exception as e:
+            logger.error(f"Failed to query orphaned files: {str(e)}")
+            orphaned_files = []
+
+        # Find failed files older than 7 days
+        try:
+            failed_files = (
+                db.query(UploadedFile)
+                .filter(
+                    and_(
+                        UploadedFile.status == FileStatus.FAILED.value,
+                        UploadedFile.created_at
+                        < datetime.now(timezone.utc) - timedelta(days=7),
+                    )
+                )
+                .all()
+            )
+        except Exception as e:
+            logger.error(f"Failed to query failed files: {str(e)}")
+            failed_files = []
 
         files_to_cleanup = orphaned_files + failed_files
         cleanup_count = len(files_to_cleanup)
 
         if not dry_run:
+            deleted_count = 0
             for file_record in files_to_cleanup:
                 try:
                     file_service.delete_file(file_record.id, current_user)
-                except Exception:
+                    db.delete(file_record)
+                    deleted_count += 1
+                except Exception as e:
                     logger.exception(
-                        "Failed to delete orphaned file %s", file_record.id
+                        "Failed to delete orphaned file %s: %s", 
+                        file_record.id, str(e)
                     )
-                db.delete(file_record)
-            db.commit()
+            
+            try:
+                db.commit()
+            except Exception as e:
+                logger.error(f"Failed to commit cleanup transaction: {str(e)}")
+                db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to commit cleanup changes",
+                )
 
         return {
             "message": (
@@ -400,7 +499,10 @@ async def cleanup_orphaned_files(
             "failed_files": len(failed_files),
             "dry_run": dry_run,
         }
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.error(f"Failed to cleanup files: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to cleanup files: {str(e)}",
