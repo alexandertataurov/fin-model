@@ -1,15 +1,18 @@
 import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Progress } from '../components/Progress';
 import { Button } from '../components/Button';
 
-const meta = {
+const meta: Meta<typeof Progress> = {
   title: 'Design System/Progress',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
+  component: Progress,
 };
 export default meta;
+type Story = StoryObj<typeof meta>;
 
-export const Controlled = {
+export const Controlled: Story = {
   render: () => {
     const [value, setValue] = React.useState(25);
     return (

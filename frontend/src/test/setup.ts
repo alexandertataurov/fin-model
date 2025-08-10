@@ -38,6 +38,45 @@ vi.mock('sonner', () => ({
     },
 }));
 
+// Comprehensive Radix UI mocks to prevent act() warnings
+vi.mock('@radix-ui/react-dialog', () => ({
+    Dialog: ({ children }: any) => React.createElement('div', { 'data-testid': 'Dialog' }, children),
+    DialogTrigger: ({ children }: any) => React.createElement('div', null, children),
+    DialogContent: ({ children }: any) => React.createElement('div', null, children),
+    DialogHeader: ({ children }: any) => React.createElement('div', null, children),
+    DialogTitle: ({ children }: any) => React.createElement('h2', null, children),
+    DialogDescription: ({ children }: any) => React.createElement('p', null, children),
+    DialogFooter: ({ children }: any) => React.createElement('div', null, children),
+}));
+
+vi.mock('@radix-ui/react-alert-dialog', () => ({
+    AlertDialog: ({ children }: any) => React.createElement('div', { 'data-testid': 'AlertDialog' }, children),
+    AlertDialogTrigger: ({ children }: any) => React.createElement('div', null, children),
+    AlertDialogContent: ({ children }: any) => React.createElement('div', null, children),
+    AlertDialogHeader: ({ children }: any) => React.createElement('div', null, children),
+    AlertDialogTitle: ({ children }: any) => React.createElement('h2', null, children),
+    AlertDialogDescription: ({ children }: any) => React.createElement('p', null, children),
+    AlertDialogFooter: ({ children }: any) => React.createElement('div', null, children),
+    AlertDialogAction: ({ children, ...props }: any) => React.createElement('button', props, children),
+    AlertDialogCancel: ({ children, ...props }: any) => React.createElement('button', props, children),
+}));
+
+vi.mock('@radix-ui/react-presence', () => ({
+    Presence: ({ children }: any) => React.createElement(React.Fragment, null, children),
+}));
+
+vi.mock('@radix-ui/react-portal', () => ({
+    Portal: ({ children }: any) => React.createElement(React.Fragment, null, children),
+}));
+
+vi.mock('@radix-ui/react-dismissable-layer', () => ({
+    DismissableLayer: ({ children }: any) => React.createElement('div', null, children),
+}));
+
+vi.mock('@radix-ui/react-focus-scope', () => ({
+    FocusScope: ({ children }: any) => React.createElement('div', null, children),
+}));
+
 // Simple, accessible mocks for Select to avoid Radix complexity in JSDOM
 vi.mock('@/design-system/components/Select', () => {
     const Select = ({ value, onValueChange, children }: any) =>
@@ -121,4 +160,9 @@ vi.mock('@/components/Admin/SystemMonitoring', () => ({
 }));
 vi.mock('@/components/Admin/DataManagement', () => ({
     default: () => React.createElement('div', { 'data-testid': 'DataManagement' }),
+}));
+
+// Mock ConfirmDialog to prevent act() warnings
+vi.mock('@/components/ui/ConfirmDialog', () => ({
+    default: ({ children, ...props }: any) => React.createElement('div', { 'data-testid': 'ConfirmDialog', ...props }, children),
 }));

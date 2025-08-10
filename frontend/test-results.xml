@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="68" failures="10" errors="0" time="62.365">
-    <testsuite name="src/pages/__tests__/AdminDashboard.access-control.test.tsx" timestamp="2025-08-10T09:53:05.160Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="1.259">
-        <testcase classname="src/pages/__tests__/AdminDashboard.access-control.test.tsx" name="AdminDashboard access control &gt; redirects to /login when unauthenticated (renders null)" time="1.242">
+<testsuites name="vitest tests" tests="68" failures="10" errors="0" time="45.212">
+    <testsuite name="src/pages/__tests__/AdminDashboard.access-control.test.tsx" timestamp="2025-08-10T11:22:00.575Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="0.411">
+        <testcase classname="src/pages/__tests__/AdminDashboard.access-control.test.tsx" name="AdminDashboard access control &gt; redirects to /login when unauthenticated (renders null)" time="0.401">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
             </system-err>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.audit-filters.test.tsx" timestamp="2025-08-10T09:53:05.166Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="3.511">
-        <testcase classname="src/pages/__tests__/AdminDashboard.audit-filters.test.tsx" name="AdminDashboard Audit filters &gt; applies audit filters and calls service with correct params" time="3.494">
+    <testsuite name="src/pages/__tests__/AdminDashboard.audit-filters.test.tsx" timestamp="2025-08-10T11:22:00.588Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="2.6">
+        <testcase classname="src/pages/__tests__/AdminDashboard.audit-filters.test.tsx" name="AdminDashboard Audit filters &gt; applies audit filters and calls service with correct params" time="2.547">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -50,8 +50,8 @@ This ensures that you&apos;re testing the behavior the user would see in the bro
             </system-err>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.audit-permissions.test.tsx" timestamp="2025-08-10T09:53:05.168Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="2" errors="0" skipped="0" time="6.308">
-        <testcase classname="src/pages/__tests__/AdminDashboard.audit-permissions.test.tsx" name="AdminDashboard Audit and Permissions &gt; displays permissions information" time="3.953">
+    <testsuite name="src/pages/__tests__/AdminDashboard.audit-permissions.test.tsx" timestamp="2025-08-10T11:22:00.596Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="2" errors="0" skipped="0" time="5.324">
+        <testcase classname="src/pages/__tests__/AdminDashboard.audit-permissions.test.tsx" name="AdminDashboard Audit and Permissions &gt; displays permissions information" time="3.474">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -635,7 +635,7 @@ Ignored nodes: comments, script, style
  ❯ src/pages/__tests__/AdminDashboard.audit-permissions.test.tsx:70:29
             </failure>
         </testcase>
-        <testcase classname="src/pages/__tests__/AdminDashboard.audit-permissions.test.tsx" name="AdminDashboard Audit and Permissions &gt; paginates audit logs via Next/Prev controls" time="2.196">
+        <testcase classname="src/pages/__tests__/AdminDashboard.audit-permissions.test.tsx" name="AdminDashboard Audit and Permissions &gt; paginates audit logs via Next/Prev controls" time="1.839">
             <system-err>
 Warning: An update to OverviewTab inside a test was not wrapped in act(...).
 
@@ -649,9 +649,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -667,9 +667,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -696,9 +696,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -714,9 +714,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -743,9 +743,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -761,9 +761,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -790,9 +790,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -808,9 +808,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -1443,8 +1443,8 @@ Ignored nodes: comments, script, style
             </failure>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.auto-refresh.test.tsx" timestamp="2025-08-10T09:53:05.182Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="3.306">
-        <testcase classname="src/pages/__tests__/AdminDashboard.auto-refresh.test.tsx" name="AdminDashboard Auto-refresh toggle &gt; clears interval when toggled off" time="2.833">
+    <testsuite name="src/pages/__tests__/AdminDashboard.auto-refresh.test.tsx" timestamp="2025-08-10T11:22:00.638Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="2.036">
+        <testcase classname="src/pages/__tests__/AdminDashboard.auto-refresh.test.tsx" name="AdminDashboard Auto-refresh toggle &gt; clears interval when toggled off" time="2.028">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -1471,9 +1471,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -1489,9 +1489,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -1499,8 +1499,8 @@ This ensures that you&apos;re testing the behavior the user would see in the bro
             </system-err>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.health-tab.test.tsx" timestamp="2025-08-10T09:53:05.186Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="1" errors="0" skipped="0" time="4.696">
-        <testcase classname="src/pages/__tests__/AdminDashboard.health-tab.test.tsx" name="AdminDashboard Health tab states &gt; shows system and database health when present" time="3.605">
+    <testsuite name="src/pages/__tests__/AdminDashboard.health-tab.test.tsx" timestamp="2025-08-10T11:22:00.646Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="1" errors="0" skipped="0" time="3.844">
+        <testcase classname="src/pages/__tests__/AdminDashboard.health-tab.test.tsx" name="AdminDashboard Health tab states &gt; shows system and database health when present" time="2.995">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -2120,11 +2120,11 @@ Ignored nodes: comments, script, style
  ❯ src/pages/__tests__/AdminDashboard.health-tab.test.tsx:33:29
             </failure>
         </testcase>
-        <testcase classname="src/pages/__tests__/AdminDashboard.health-tab.test.tsx" name="AdminDashboard Health tab states &gt; shows absent messages when health not available" time="1.062">
+        <testcase classname="src/pages/__tests__/AdminDashboard.health-tab.test.tsx" name="AdminDashboard Health tab states &gt; shows absent messages when health not available" time="0.839">
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.logs-filters.test.tsx" timestamp="2025-08-10T09:53:05.203Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="4.678">
-        <testcase classname="src/pages/__tests__/AdminDashboard.logs-filters.test.tsx" name="AdminDashboard Logs filters &gt; applies level/limit/date/search and calls service with correct params" time="4.655">
+    <testsuite name="src/pages/__tests__/AdminDashboard.logs-filters.test.tsx" timestamp="2025-08-10T11:22:00.664Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="3.68">
+        <testcase classname="src/pages/__tests__/AdminDashboard.logs-filters.test.tsx" name="AdminDashboard Logs filters &gt; applies level/limit/date/search and calls service with correct params" time="3.667">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -2323,8 +2323,8 @@ Number of calls: [1m1[22m
             </failure>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.logs.test.tsx" timestamp="2025-08-10T09:53:05.218Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="3.635">
-        <testcase classname="src/pages/__tests__/AdminDashboard.logs.test.tsx" name="AdminDashboard Logs pagination &gt; renders logs list and paging controls" time="3.592">
+    <testsuite name="src/pages/__tests__/AdminDashboard.logs.test.tsx" timestamp="2025-08-10T11:22:00.685Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="3.422">
+        <testcase classname="src/pages/__tests__/AdminDashboard.logs.test.tsx" name="AdminDashboard Logs pagination &gt; renders logs list and paging controls" time="3.405">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -2945,8 +2945,8 @@ Ignored nodes: comments, script, style
             </failure>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.maintenance.test.tsx" timestamp="2025-08-10T09:53:05.238Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="3.953">
-        <testcase classname="src/pages/__tests__/AdminDashboard.maintenance.test.tsx" name="AdminDashboard Maintenance schedules &gt; clears rate limits via Maintenance &gt; Security action" time="3.93">
+    <testsuite name="src/pages/__tests__/AdminDashboard.maintenance.test.tsx" timestamp="2025-08-10T11:22:00.722Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="3.055">
+        <testcase classname="src/pages/__tests__/AdminDashboard.maintenance.test.tsx" name="AdminDashboard Maintenance schedules &gt; clears rate limits via Maintenance &gt; Security action" time="3.041">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -3531,24 +3531,24 @@ Ignored nodes: comments, script, style
             </failure>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.metrics-alerts.test.tsx" timestamp="2025-08-10T09:53:05.248Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="3.397">
-        <testcase classname="src/pages/__tests__/AdminDashboard.metrics-alerts.test.tsx" name="AdminDashboard metrics alerts &gt; shows High Memory Usage and Disk Usage alerts in Overview" time="3.366">
+    <testsuite name="src/pages/__tests__/AdminDashboard.metrics-alerts.test.tsx" timestamp="2025-08-10T11:22:00.738Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="1.87">
+        <testcase classname="src/pages/__tests__/AdminDashboard.metrics-alerts.test.tsx" name="AdminDashboard metrics alerts &gt; shows High Memory Usage and Disk Usage alerts in Overview" time="1.775">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
             </system-err>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" timestamp="2025-08-10T09:53:05.253Z" hostname="DESKTOP-CSMHNRS" tests="3" failures="1" errors="0" skipped="0" time="5.773">
-        <testcase classname="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" name="AdminDashboard Overview and Maintenance &gt; renders healthy overview with no critical alerts" time="2.292">
+    <testsuite name="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" timestamp="2025-08-10T11:22:00.742Z" hostname="DESKTOP-CSMHNRS" tests="3" failures="1" errors="0" skipped="0" time="4.45">
+        <testcase classname="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" name="AdminDashboard Overview and Maintenance &gt; renders healthy overview with no critical alerts" time="1.551">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
             </system-err>
         </testcase>
-        <testcase classname="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" name="AdminDashboard Overview and Maintenance &gt; shows High CPU Usage alert when cpu_usage &gt; 90" time="0.728">
+        <testcase classname="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" name="AdminDashboard Overview and Maintenance &gt; shows High CPU Usage alert when cpu_usage &gt; 90" time="0.938">
         </testcase>
-        <testcase classname="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" name="AdminDashboard Overview and Maintenance &gt; runs maintenance: preview cleanup and run cleanup" time="2.736">
+        <testcase classname="src/pages/__tests__/AdminDashboard.overview-maintenance.test.tsx" name="AdminDashboard Overview and Maintenance &gt; runs maintenance: preview cleanup and run cleanup" time="1.945">
             <system-err>
 Warning: An update to OverviewTab inside a test was not wrapped in act(...).
 
@@ -3562,9 +3562,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -3580,9 +3580,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -3609,9 +3609,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -3627,9 +3627,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -3656,9 +3656,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -3674,9 +3674,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -3703,9 +3703,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -3721,9 +3721,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5532,9 +5532,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5550,9 +5550,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5579,9 +5579,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5597,9 +5597,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5626,9 +5626,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5644,9 +5644,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5673,9 +5673,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5691,9 +5691,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5720,9 +5720,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5738,9 +5738,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5767,9 +5767,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5785,9 +5785,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5814,9 +5814,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5832,9 +5832,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5861,9 +5861,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at OverviewTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/OverviewTab.tsx:22:94)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5879,9 +5879,9 @@ act(() =&gt; {
 This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
     at HealthTab (/home/alex/projects/fin-model/frontend/src/components/AdminDashboard/HealthTab.tsx:10:68)
     at div
-    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:64:25)
+    at TabsContent (/home/alex/projects/fin-model/frontend/src/test/setup.ts:63:25)
     at div
-    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:55:18)
+    at Tabs (/home/alex/projects/fin-model/frontend/src/test/setup.ts:54:18)
     at div
     at div
     at AdminDashboard (/home/alex/projects/fin-model/frontend/src/pages/AdminDashboard.tsx:46:79)
@@ -5929,8 +5929,8 @@ Number of calls: [1m0[22m
             </failure>
         </testcase>
     </testsuite>
-    <testsuite name="src/pages/__tests__/AdminDashboard.robustness.test.tsx" timestamp="2025-08-10T09:53:05.280Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="2" errors="0" skipped="0" time="4.032">
-        <testcase classname="src/pages/__tests__/AdminDashboard.robustness.test.tsx" name="AdminDashboard robustness to API failures &gt; shows warning toast when some sections fail" time="2.356">
+    <testsuite name="src/pages/__tests__/AdminDashboard.robustness.test.tsx" timestamp="2025-08-10T11:22:00.790Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="2" errors="0" skipped="0" time="3.736">
+        <testcase classname="src/pages/__tests__/AdminDashboard.robustness.test.tsx" name="AdminDashboard robustness to API failures &gt; shows warning toast when some sections fail" time="1.771">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -6224,7 +6224,7 @@ Ignored nodes: comments, script, style
  ❯ node_modules/.pnpm/jsdom@22.1.0/node_modules/jsdom/lib/jsdom/living/helpers/mutation-observers.js:133:5
             </failure>
         </testcase>
-        <testcase classname="src/pages/__tests__/AdminDashboard.robustness.test.tsx" name="AdminDashboard robustness to API failures &gt; shows error toast when all sections fail" time="1.661">
+        <testcase classname="src/pages/__tests__/AdminDashboard.robustness.test.tsx" name="AdminDashboard robustness to API failures &gt; shows error toast when all sections fail" time="1.955">
             <failure message="expected 0 to be greater than or equal to 1
 
 Ignored nodes: comments, script, style
@@ -6515,112 +6515,112 @@ Ignored nodes: comments, script, style
             </failure>
         </testcase>
     </testsuite>
-    <testsuite name="src/services/__tests__/adminApi.contract.test.ts" timestamp="2025-08-10T09:53:05.305Z" hostname="DESKTOP-CSMHNRS" tests="10" failures="0" errors="0" skipped="0" time="0.355">
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getSystemStats GET /admin/stats" time="0.068">
+    <testsuite name="src/services/__tests__/adminApi.contract.test.ts" timestamp="2025-08-10T11:22:00.839Z" hostname="DESKTOP-CSMHNRS" tests="10" failures="0" errors="0" skipped="0" time="0.047">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getSystemStats GET /admin/stats" time="0.013">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getUserActivity GET /admin/users/activity-list with params" time="0.03">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getUserActivity GET /admin/users/activity-list with params" time="0.007">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getSecurityAudit maps from/to to from_ts/to_ts" time="0.02">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getSecurityAudit maps from/to to from_ts/to_ts" time="0.004">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getSystemLogs maps options and envelope default" time="0.016">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getSystemLogs maps options and envelope default" time="0.003">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getAuditLogs maps filters and envelope" time="0.021">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; getAuditLogs maps filters and envelope" time="0.003">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; cleanupFiles POST with dry_run param" time="0.059">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; cleanupFiles POST with dry_run param" time="0.001">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; clearRateLimits POST no body" time="0.021">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; clearRateLimits POST no body" time="0.001">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; listUsers GET with pagination and envelope" time="0.02">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; listUsers GET with pagination and envelope" time="0.002">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; updateUser PUT with body" time="0.015">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; updateUser PUT with body" time="0.002">
         </testcase>
-        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; bulkUserAction POST with payload" time="0.014">
-        </testcase>
-    </testsuite>
-    <testsuite name="src/services/__tests__/adminApi.responses.test.ts" timestamp="2025-08-10T09:53:05.343Z" hostname="DESKTOP-CSMHNRS" tests="8" failures="0" errors="0" skipped="0" time="0.284">
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns SystemStats shape" time="0.08">
-        </testcase>
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns UserActivity array" time="0.015">
-        </testcase>
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns SystemMetrics" time="0.003">
-        </testcase>
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns SecurityAudit" time="0.037">
-        </testcase>
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns listUsers envelope and raw" time="0.038">
-        </testcase>
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns logs envelope and raw" time="0.025">
-        </testcase>
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns audit envelope variants" time="0.005">
-        </testcase>
-        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns health and maintenance schedules" time="0.003">
+        <testcase classname="src/services/__tests__/adminApi.contract.test.ts" name="AdminApi contracts &gt; bulkUserAction POST with payload" time="0.003">
         </testcase>
     </testsuite>
-    <testsuite name="src/services/__tests__/api.client.test.ts" timestamp="2025-08-10T09:53:05.356Z" hostname="DESKTOP-CSMHNRS" tests="3" failures="0" errors="0" skipped="0" time="0.021">
-        <testcase classname="src/services/__tests__/api.client.test.ts" name="apiClient interceptors &gt; adds Authorization header when access_token is present" time="0.005">
+    <testsuite name="src/services/__tests__/adminApi.responses.test.ts" timestamp="2025-08-10T11:22:00.865Z" hostname="DESKTOP-CSMHNRS" tests="8" failures="0" errors="0" skipped="0" time="0.036">
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns SystemStats shape" time="0.008">
         </testcase>
-        <testcase classname="src/services/__tests__/api.client.test.ts" name="apiClient interceptors &gt; does not add Authorization when token missing" time="0.002">
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns UserActivity array" time="0.002">
         </testcase>
-        <testcase classname="src/services/__tests__/api.client.test.ts" name="apiClient interceptors &gt; on 401 clears tokens" time="0.004">
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns SystemMetrics" time="0.002">
+        </testcase>
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns SecurityAudit" time="0.003">
+        </testcase>
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns listUsers envelope and raw" time="0.006">
+        </testcase>
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns logs envelope and raw" time="0.003">
+        </testcase>
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns audit envelope variants" time="0.001">
+        </testcase>
+        <testcase classname="src/services/__tests__/adminApi.responses.test.ts" name="AdminApi response shapes &gt; returns health and maintenance schedules" time="0.002">
         </testcase>
     </testsuite>
-    <testsuite name="src/stores/__tests__/utils.test.ts" timestamp="2025-08-10T09:53:05.361Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="0" errors="0" skipped="0" time="0.02">
-        <testcase classname="src/stores/__tests__/utils.test.ts" name="createAsyncResource &gt; updates state on success" time="0.007">
+    <testsuite name="src/services/__tests__/api.client.test.ts" timestamp="2025-08-10T11:22:00.887Z" hostname="DESKTOP-CSMHNRS" tests="3" failures="0" errors="0" skipped="0" time="0.015">
+        <testcase classname="src/services/__tests__/api.client.test.ts" name="apiClient interceptors &gt; adds Authorization header when access_token is present" time="0.004">
         </testcase>
-        <testcase classname="src/stores/__tests__/utils.test.ts" name="createAsyncResource &gt; handles errors" time="0.004">
+        <testcase classname="src/services/__tests__/api.client.test.ts" name="apiClient interceptors &gt; does not add Authorization when token missing" time="0.004">
+        </testcase>
+        <testcase classname="src/services/__tests__/api.client.test.ts" name="apiClient interceptors &gt; on 401 clears tokens" time="0.002">
         </testcase>
     </testsuite>
-    <testsuite name="src/components/Admin/__tests__/OverviewSection.test.tsx" timestamp="2025-08-10T09:53:05.365Z" hostname="DESKTOP-CSMHNRS" tests="22" failures="0" errors="0" skipped="0" time="11.32">
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Loading States &gt; should show loading skeleton when data is loading" time="0.149">
+    <testsuite name="src/stores/__tests__/utils.test.ts" timestamp="2025-08-10T11:22:00.896Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="0" errors="0" skipped="0" time="0.02">
+        <testcase classname="src/stores/__tests__/utils.test.ts" name="createAsyncResource &gt; updates state on success" time="0.009">
+        </testcase>
+        <testcase classname="src/stores/__tests__/utils.test.ts" name="createAsyncResource &gt; handles errors" time="0.001">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/Admin/__tests__/OverviewSection.test.tsx" timestamp="2025-08-10T11:22:00.904Z" hostname="DESKTOP-CSMHNRS" tests="22" failures="0" errors="0" skipped="0" time="6.638">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Loading States &gt; should show loading skeleton when data is loading" time="0.137">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
             </system-err>
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Loading States &gt; should not show loading skeleton when data exists" time="0.614">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Loading States &gt; should not show loading skeleton when data exists" time="0.466">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Statistics Display &gt; should display system statistics correctly" time="0.84">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Statistics Display &gt; should display system statistics correctly" time="0.503">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Statistics Display &gt; should handle missing data gracefully" time="0.382">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Statistics Display &gt; should handle missing data gracefully" time="0.317">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Statistics Display &gt; should display progress bars with correct percentages" time="0.525">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Statistics Display &gt; should display progress bars with correct percentages" time="0.408">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Health Indicators &gt; should show green indicators for healthy metrics" time="0.19">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Health Indicators &gt; should show green indicators for healthy metrics" time="0.4">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Health Indicators &gt; should show warning indicators for medium usage" time="0.225">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Health Indicators &gt; should show warning indicators for medium usage" time="0.299">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Health Indicators &gt; should show critical indicators for high usage" time="0.465">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; System Health Indicators &gt; should show critical indicators for high usage" time="0.312">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Performance Metrics &gt; should display performance metrics correctly" time="0.28">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Performance Metrics &gt; should display performance metrics correctly" time="0.294">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Performance Metrics &gt; should handle null values in metrics" time="0.281">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Performance Metrics &gt; should handle null values in metrics" time="0.22">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should display user activity when data is available" time="0.579">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should display user activity when data is available" time="0.252">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should not show user activity section when no data" time="0.308">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should not show user activity section when no data" time="0.156">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should display activity summary correctly" time="0.481">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should display activity summary correctly" time="0.354">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should limit displayed users to 6" time="0.284">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; User Activity Section &gt; should limit displayed users to 6" time="0.246">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Error States &gt; should show unavailable message when no data is present" time="0.034">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Error States &gt; should show unavailable message when no data is present" time="0.046">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Error Boundary Integration &gt; should wrap content in error boundary" time="0.49">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Error Boundary Integration &gt; should wrap content in error boundary" time="0.355">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Error Boundary Integration &gt; should call fetchOverviewData when retry is clicked" time="1.389">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Error Boundary Integration &gt; should call fetchOverviewData when retry is clicked" time="0.587">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Accessibility &gt; should have proper ARIA labels and roles" time="1.366">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Accessibility &gt; should have proper ARIA labels and roles" time="0.5">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Accessibility &gt; should have keyboard accessible buttons" time="0.961">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Accessibility &gt; should have keyboard accessible buttons" time="0.197">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Data Formatting &gt; should format numbers with commas" time="0.612">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Data Formatting &gt; should format numbers with commas" time="0.193">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Data Formatting &gt; should handle zero values correctly" time="0.364">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Data Formatting &gt; should handle zero values correctly" time="0.226">
         </testcase>
-        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Data Formatting &gt; should handle null/undefined values gracefully" time="0.466">
+        <testcase classname="src/components/Admin/__tests__/OverviewSection.test.tsx" name="OverviewSection &gt; Data Formatting &gt; should handle null/undefined values gracefully" time="0.148">
         </testcase>
     </testsuite>
-    <testsuite name="src/components/AdminDashboard/__tests__/HealthTab.test.tsx" timestamp="2025-08-10T09:53:05.407Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="0" errors="0" skipped="0" time="0.515">
-        <testcase classname="src/components/AdminDashboard/__tests__/HealthTab.test.tsx" name="HealthTab &gt; shows system and database health when present" time="0.458">
+    <testsuite name="src/components/AdminDashboard/__tests__/HealthTab.test.tsx" timestamp="2025-08-10T11:22:00.955Z" hostname="DESKTOP-CSMHNRS" tests="2" failures="0" errors="0" skipped="0" time="0.325">
+        <testcase classname="src/components/AdminDashboard/__tests__/HealthTab.test.tsx" name="HealthTab &gt; shows system and database health when present" time="0.275">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -6629,16 +6629,16 @@ Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `
         <testcase classname="src/components/AdminDashboard/__tests__/HealthTab.test.tsx" name="HealthTab &gt; shows absent messages when health not available" time="0.033">
         </testcase>
     </testsuite>
-    <testsuite name="src/components/AdminDashboard/__tests__/LogFilterForm.test.tsx" timestamp="2025-08-10T09:53:05.413Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="1.458">
-        <testcase classname="src/components/AdminDashboard/__tests__/LogFilterForm.test.tsx" name="LogFilterForm &gt; triggers callbacks on user interactions" time="1.433">
+    <testsuite name="src/components/AdminDashboard/__tests__/LogFilterForm.test.tsx" timestamp="2025-08-10T11:22:00.962Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="1.038">
+        <testcase classname="src/components/AdminDashboard/__tests__/LogFilterForm.test.tsx" name="LogFilterForm &gt; triggers callbacks on user interactions" time="1.008">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
             </system-err>
         </testcase>
     </testsuite>
-    <testsuite name="src/components/AdminDashboard/__tests__/LogsTab.filters.test.tsx" timestamp="2025-08-10T09:53:05.417Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="2.264">
-        <testcase classname="src/components/AdminDashboard/__tests__/LogsTab.filters.test.tsx" name="LogsTab filters &gt; applies filters and refreshes logs" time="2.254">
+    <testsuite name="src/components/AdminDashboard/__tests__/LogsTab.filters.test.tsx" timestamp="2025-08-10T11:22:00.968Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="1" errors="0" skipped="0" time="2.427">
+        <testcase classname="src/components/AdminDashboard/__tests__/LogsTab.filters.test.tsx" name="LogsTab filters &gt; applies filters and refreshes logs" time="2.372">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
@@ -6649,24 +6649,24 @@ AssertionError: expected last &quot;spy&quot; call to have been called with [ { 
             </failure>
         </testcase>
     </testsuite>
-    <testsuite name="src/components/AdminDashboard/__tests__/LogsTab.test.tsx" timestamp="2025-08-10T09:53:05.428Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="1.425">
-        <testcase classname="src/components/AdminDashboard/__tests__/LogsTab.test.tsx" name="LogsTab &gt; renders logs and paging controls" time="1.388">
+    <testsuite name="src/components/AdminDashboard/__tests__/LogsTab.test.tsx" timestamp="2025-08-10T11:22:00.979Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="1.104">
+        <testcase classname="src/components/AdminDashboard/__tests__/LogsTab.test.tsx" name="LogsTab &gt; renders logs and paging controls" time="1.098">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
             </system-err>
         </testcase>
     </testsuite>
-    <testsuite name="src/components/AdminDashboard/__tests__/OverviewTab.metrics-alerts.test.tsx" timestamp="2025-08-10T09:53:05.434Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="0.675">
-        <testcase classname="src/components/AdminDashboard/__tests__/OverviewTab.metrics-alerts.test.tsx" name="OverviewTab metrics alerts &gt; shows High Memory Usage and Disk Usage alerts" time="0.664">
+    <testsuite name="src/components/AdminDashboard/__tests__/OverviewTab.metrics-alerts.test.tsx" timestamp="2025-08-10T11:22:00.988Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="0.385">
+        <testcase classname="src/components/AdminDashboard/__tests__/OverviewTab.metrics-alerts.test.tsx" name="OverviewTab metrics alerts &gt; shows High Memory Usage and Disk Usage alerts" time="0.366">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
             </system-err>
         </testcase>
     </testsuite>
-    <testsuite name="src/components/ui/__tests__/ConfirmDialog.test.tsx" timestamp="2025-08-10T09:53:05.466Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="1.386">
-        <testcase classname="src/components/ui/__tests__/ConfirmDialog.test.tsx" name="ConfirmDialog &gt; is accessible and handles confirmation" time="1.361">
+    <testsuite name="src/components/ui/__tests__/ConfirmDialog.test.tsx" timestamp="2025-08-10T11:22:00.993Z" hostname="DESKTOP-CSMHNRS" tests="1" failures="0" errors="0" skipped="0" time="0.991">
+        <testcase classname="src/components/ui/__tests__/ConfirmDialog.test.tsx" name="ConfirmDialog &gt; is accessible and handles confirmation" time="0.972">
             <system-err>
 Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
 
