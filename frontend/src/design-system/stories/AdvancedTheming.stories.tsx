@@ -632,7 +632,11 @@ export default meta;
 type StoryObj = StoryObj<typeof meta>;
 
 export const ThemeSwitcherDemo: StoryObj = {
-  render: () => <ThemeSwitcher />,
+  render: () => (
+    <ThemeProvider>
+      <ThemeSwitcher />
+    </ThemeProvider>
+  ),
   parameters: {
     docs: {
       description: {
@@ -644,7 +648,11 @@ export const ThemeSwitcherDemo: StoryObj = {
 };
 
 export const ColorPaletteDemo: StoryObj = {
-  render: () => <ColorPalette />,
+  render: () => (
+    <ThemeProvider>
+      <ColorPalette />
+    </ThemeProvider>
+  ),
   parameters: {
     docs: {
       description: {
@@ -656,7 +664,11 @@ export const ColorPaletteDemo: StoryObj = {
 };
 
 export const TypographySystemDemo: StoryObj = {
-  render: () => <TypographySystem />,
+  render: () => (
+    <ThemeProvider>
+      <TypographySystem />
+    </ThemeProvider>
+  ),
   parameters: {
     docs: {
       description: {
@@ -668,7 +680,11 @@ export const TypographySystemDemo: StoryObj = {
 };
 
 export const SpacingAndLayoutDemo: StoryObj = {
-  render: () => <SpacingAndLayout />,
+  render: () => (
+    <ThemeProvider>
+      <SpacingAndLayout />
+    </ThemeProvider>
+  ),
   parameters: {
     docs: {
       description: {
@@ -680,7 +696,11 @@ export const SpacingAndLayoutDemo: StoryObj = {
 };
 
 export const CustomColorEditorDemo: StoryObj = {
-  render: () => <CustomColorEditor />,
+  render: () => (
+    <ThemeProvider>
+      <CustomColorEditor />
+    </ThemeProvider>
+  ),
   parameters: {
     docs: {
       description: {
@@ -692,7 +712,11 @@ export const CustomColorEditorDemo: StoryObj = {
 };
 
 export const ThemePreviewDemo: StoryObj = {
-  render: () => <ThemePreview />,
+  render: () => (
+    <ThemeProvider>
+      <ThemePreview />
+    </ThemeProvider>
+  ),
   parameters: {
     docs: {
       description: {

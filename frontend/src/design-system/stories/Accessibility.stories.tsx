@@ -9,8 +9,7 @@ const meta: Meta = {
     parameters: {
         layout: 'padded',
         docs: {
-            description: {
-                component: `
+            description: `
 ## Accessibility Testing
 
 This story provides comprehensive accessibility testing and validation for all components.
@@ -27,8 +26,7 @@ This story provides comprehensive accessibility testing and validation for all c
 - **Color Contrast**: WCAG AA compliant contrast ratios (4.5:1 for normal text)
 - **Motion & Animation**: Respects reduced motion preferences
 - **Form Accessibility**: Labels, error messages, validation feedback
-        `,
-            },
+            `,
         },
     },
 };
