@@ -2,10 +2,10 @@
   "summary": {
     "totalFiles": 153,
     "emptyArgs": 26,
-    "missingStoryObj": 39,
+    "missingStoryObj": 40,
     "missingMetaType": 11,
-    "missingComponentProp": 79,
-    "missingArgTypes": 103,
+    "missingComponentProp": 78,
+    "missingArgTypes": 100,
     "fixedFiles": 0
   },
   "files": [
@@ -25,19 +25,13 @@
     {
       "file": "/home/alex/projects/fin-model/frontend/src/design-system/stories/Tooltip.stories.tsx",
       "issues": [
-        "missing-component-prop",
-        "missing-arg-types"
+        "missing-component-prop"
       ],
       "suggestions": [
         {
           "type": "missing-component-prop",
           "description": "Add component prop to meta",
           "example": "const meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component, // Add this line\n  // other props\n};"
-        },
-        {
-          "type": "missing-arg-types",
-          "description": "Add comprehensive argTypes for better controls",
-          "example": "const meta: Meta<typeof Component> = {\n  // other props\n  argTypes: {\n    prop1: {\n      control: { type: 'text' },\n      description: 'Description of prop1',\n    },\n    prop2: {\n      control: { type: 'boolean' },\n      description: 'Description of prop2',\n    },\n  },\n};"
         }
       ]
     },
@@ -76,15 +70,28 @@
     {
       "file": "/home/alex/projects/fin-model/frontend/src/design-system/stories/Tokens.Index.stories.tsx",
       "issues": [
-        "missing-component-prop",
-        "missing-arg-types"
+        "empty-args",
+        "missing-component-prop"
       ],
       "suggestions": [
+        {
+          "type": "empty-args",
+          "description": "Add meaningful args with realistic values",
+          "example": "export const Default: Story = {\n  args: {\n    // Add meaningful props here\n    prop1: 'value1',\n    prop2: true,\n  },\n};"
+        },
         {
           "type": "missing-component-prop",
           "description": "Add component prop to meta",
           "example": "const meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component, // Add this line\n  // other props\n};"
-        },
+        }
+      ]
+    },
+    {
+      "file": "/home/alex/projects/fin-model/frontend/src/design-system/stories/Tokens.Badge.stories.tsx",
+      "issues": [
+        "missing-arg-types"
+      ],
+      "suggestions": [
         {
           "type": "missing-arg-types",
           "description": "Add comprehensive argTypes for better controls",
@@ -137,7 +144,7 @@
       ]
     },
     {
-      "file": "/home/alex/projects/fin-model/frontend/src/design-system/stories/Tabs.stories.tsx",
+      "file": "/home/alex/projects/fin-model/frontend/src/design-system/stories/Table.stories.tsx",
       "issues": [
         "missing-arg-types"
       ],
@@ -1030,12 +1037,24 @@
       ]
     },
     {
-      "file": "/home/alex/projects/fin-model/frontend/src/design-system/stories/Accessibility.stories.tsx",
+      "file": "/home/alex/projects/fin-model/frontend/src/design-system/components/DatePicker.stories.tsx",
       "issues": [
+        "empty-args",
+        "missing-story-obj",
         "missing-component-prop",
         "missing-arg-types"
       ],
       "suggestions": [
+        {
+          "type": "empty-args",
+          "description": "Add meaningful args with realistic values",
+          "example": "export const Default: Story = {\n  args: {\n    // Add meaningful props here\n    prop1: 'value1',\n    prop2: true,\n  },\n};"
+        },
+        {
+          "type": "missing-story-obj",
+          "description": "Convert to modern StoryObj pattern",
+          "example": "import type { Meta, StoryObj } from '@storybook/react';\n\nconst meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component,\n  tags: ['autodocs'],\n};\nexport default meta;\ntype Story = StoryObj<typeof meta>;\n\nexport const Default: Story = {\n  // story content\n};"
+        },
         {
           "type": "missing-component-prop",
           "description": "Add component prop to meta",
@@ -1049,36 +1068,11 @@
       ]
     },
     {
-      "file": "/home/alex/projects/fin-model/frontend/src/design-system/components/DatePicker.stories.tsx",
-      "issues": [
-        "empty-args",
-        "missing-story-obj"
-      ],
-      "suggestions": [
-        {
-          "type": "empty-args",
-          "description": "Add meaningful args with realistic values",
-          "example": "export const Default: Story = {\n  args: {\n    // Add meaningful props here\n    prop1: 'value1',\n    prop2: true,\n  },\n};"
-        },
-        {
-          "type": "missing-story-obj",
-          "description": "Convert to modern StoryObj pattern",
-          "example": "import type { Meta, StoryObj } from '@storybook/react';\n\nconst meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component,\n  tags: ['autodocs'],\n};\nexport default meta;\ntype Story = StoryObj<typeof meta>;\n\nexport const Default: Story = {\n  // story content\n};"
-        }
-      ]
-    },
-    {
       "file": "/home/alex/projects/fin-model/frontend/src/components/theme-toggle.stories.tsx",
       "issues": [
-        "missing-component-prop",
         "missing-arg-types"
       ],
       "suggestions": [
-        {
-          "type": "missing-component-prop",
-          "description": "Add component prop to meta",
-          "example": "const meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component, // Add this line\n  // other props\n};"
-        },
         {
           "type": "missing-arg-types",
           "description": "Add comprehensive argTypes for better controls",
@@ -1317,8 +1311,21 @@
     {
       "file": "/home/alex/projects/fin-model/frontend/src/components/auth/EmailVerification.stories.tsx",
       "issues": [
+        "missing-component-prop"
+      ],
+      "suggestions": [
+        {
+          "type": "missing-component-prop",
+          "description": "Add component prop to meta",
+          "example": "const meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component, // Add this line\n  // other props\n};"
+        }
+      ]
+    },
+    {
+      "file": "/home/alex/projects/fin-model/frontend/src/components/auth/BiometricLogin.stories.tsx",
+      "issues": [
         "empty-args",
-        "missing-component-prop",
+        "missing-story-obj",
         "missing-arg-types"
       ],
       "suggestions": [
@@ -1328,23 +1335,10 @@
           "example": "export const Default: Story = {\n  args: {\n    // Add meaningful props here\n    prop1: 'value1',\n    prop2: true,\n  },\n};"
         },
         {
-          "type": "missing-component-prop",
-          "description": "Add component prop to meta",
-          "example": "const meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component, // Add this line\n  // other props\n};"
+          "type": "missing-story-obj",
+          "description": "Convert to modern StoryObj pattern",
+          "example": "import type { Meta, StoryObj } from '@storybook/react';\n\nconst meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component,\n  tags: ['autodocs'],\n};\nexport default meta;\ntype Story = StoryObj<typeof meta>;\n\nexport const Default: Story = {\n  // story content\n};"
         },
-        {
-          "type": "missing-arg-types",
-          "description": "Add comprehensive argTypes for better controls",
-          "example": "const meta: Meta<typeof Component> = {\n  // other props\n  argTypes: {\n    prop1: {\n      control: { type: 'text' },\n      description: 'Description of prop1',\n    },\n    prop2: {\n      control: { type: 'boolean' },\n      description: 'Description of prop2',\n    },\n  },\n};"
-        }
-      ]
-    },
-    {
-      "file": "/home/alex/projects/fin-model/frontend/src/components/auth/BiometricLogin.stories.tsx",
-      "issues": [
-        "missing-arg-types"
-      ],
-      "suggestions": [
         {
           "type": "missing-arg-types",
           "description": "Add comprehensive argTypes for better controls",
@@ -1355,25 +1349,13 @@
     {
       "file": "/home/alex/projects/fin-model/frontend/src/components/auth/AdminGuard.stories.tsx",
       "issues": [
-        "empty-args",
-        "missing-component-prop",
-        "missing-arg-types"
+        "missing-component-prop"
       ],
       "suggestions": [
-        {
-          "type": "empty-args",
-          "description": "Add meaningful args with realistic values",
-          "example": "export const Default: Story = {\n  args: {\n    // Add meaningful props here\n    prop1: 'value1',\n    prop2: true,\n  },\n};"
-        },
         {
           "type": "missing-component-prop",
           "description": "Add component prop to meta",
           "example": "const meta: Meta<typeof Component> = {\n  title: 'Category/Component',\n  component: Component, // Add this line\n  // other props\n};"
-        },
-        {
-          "type": "missing-arg-types",
-          "description": "Add comprehensive argTypes for better controls",
-          "example": "const meta: Meta<typeof Component> = {\n  // other props\n  argTypes: {\n    prop1: {\n      control: { type: 'text' },\n      description: 'Description of prop1',\n    },\n    prop2: {\n      control: { type: 'boolean' },\n      description: 'Description of prop2',\n    },\n  },\n};"
         }
       ]
     },

@@ -183,6 +183,7 @@ async def cors_debug():
             "environment": os.getenv("ENV", "development"),
             "allow_credentials": allow_credentials,
             "cors_origin_regex": cors_origin_regex,
+            "message": "CORS test successful",
         }
     )
 

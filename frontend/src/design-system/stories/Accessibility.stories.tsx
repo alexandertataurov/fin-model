@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 
-const meta: Meta = {
+const meta: Meta<typeof Card> = {
     title: 'Design System/Accessibility/Accessibility Testing',
+    component: Card,
     parameters: {
         layout: 'padded',
         docs: {
@@ -29,10 +30,44 @@ This story provides comprehensive accessibility testing and validation for all c
             `,
         },
     },
+    tags: ['autodocs'],
+    argTypes: {
+        className: {
+            control: { type: 'text' },
+            description: 'Additional CSS classes',
+        },
+        children: {
+            control: false,
+            description: 'Card content',
+        },
+    },
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj<typeof meta>;
+
+/**
+ * ## Keyboard Navigation Test
+ *
+ * Test keyboard navigation and focus management.
+ */
+export const Default: Story = {
+    args: {
+        className: '',
+    },
+    render: (args) => (
+        <Card {...args}>
+            <CardHeader>
+                <CardTitle>Accessibility Testing Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground">
+                    Comprehensive accessibility testing and validation for all components.
+                </p>
+            </CardContent>
+        </Card>
+    ),
+};
 
 /**
  * ## Keyboard Navigation Test
