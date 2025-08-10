@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users,
   UserPlus,
@@ -126,16 +126,25 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   const [total, setTotal] = useState(0);
 
   // Load users
-  const buildParams = () => ({ search: searchTerm, is_active: statusFilter === 'active' ? true : statusFilter === 'inactive' ? false : undefined, is_verified: statusFilter === 'verified' ? true : statusFilter === 'unverified' ? false : undefined, is_admin: roleFilter === 'admin' ? true : undefined });
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const params: any = {};
-      if (searchTerm) params.search = searchTerm;
-      if (statusFilter === 'active') params.is_active = true;
-      else if (statusFilter === 'inactive') params.is_active = false;
-      else if (statusFilter === 'verified') params.is_verified = true;
-      else if (statusFilter === 'unverified') params.is_verified = false;
-      if (roleFilter === 'admin') params.is_admin = true;
+      const params: any = {
+        search: searchTerm || undefined,
+        is_active:
+          statusFilter === 'active'
+            ? true
+            : statusFilter === 'inactive'
+              ? false
+              : undefined,
+        is_verified:
+          statusFilter === 'verified'
+            ? true
+            : statusFilter === 'unverified'
+              ? false
+              : undefined,
+        is_admin: roleFilter === 'admin' ? true : undefined,
+      };
 
       const resp = await AdminApi.listUsers(
         page * rowsPerPage,
@@ -157,7 +166,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, statusFilter, roleFilter]);
+  }, [page, rowsPerPage, searchTerm, statusFilter, roleFilter]);
 
   useEffect(() => {
     loadUsers();
