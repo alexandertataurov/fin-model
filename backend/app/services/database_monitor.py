@@ -28,10 +28,10 @@ class DatabaseMonitor:
 
             # Get database performance metrics
             performance_metrics = self._get_performance_metrics()
-            
+
             # Get connection pool information
             connection_pool = self._get_connection_pool_info()
-            
+
             # Get database statistics
             db_stats = self._get_database_stats()
 
@@ -85,9 +85,7 @@ class DatabaseMonitor:
     ) -> List[Dict[str, Any]]:
         """Get query performance metrics using pg_stat_statements.
 
-        Falls back to a minimal synthetic row if the extension is missing.
-        Note: pg_stat_statements lacks per-row timestamps; window parameters
-        are best-effort no-ops here unless a custom store exists.
+        Falls back to basic query analysis if the extension is missing.
         """
         try:
             # Check pg_stat_statements availability
@@ -97,47 +95,100 @@ class DatabaseMonitor:
             except Exception:
                 has_pgss = False
 
-            if not has_pgss:
-                return [
-                    {
-                        "query": "pg_stat_statements not available",
-                        "avg_ms": None,
-                        "p95_ms": None,
-                        "calls": None,
-                        "last_seen": datetime.now(timezone.utc).isoformat(),
-                    }
-                ]
-
-            sql = (
-                "SELECT query, mean_time, calls, total_time "
-                "FROM pg_stat_statements "
-                "ORDER BY mean_time DESC LIMIT :limit"
-            )
-            result = self.db.execute(text(sql), {"limit": int(limit)}).fetchall()
-            items: List[Dict[str, Any]] = []
-            for row in result:
-                mean_time = float(row[1]) if row[1] is not None else None
-                calls = int(row[2]) if row[2] is not None else None
-                # p95 approximation when distribution data missing
-                p95 = float(mean_time * 2) if mean_time is not None else None
-                items.append(
-                    {
-                        "query": row[0],
-                        "avg_ms": mean_time,
-                        "p95_ms": p95,
-                        "calls": calls,
-                        "last_seen": datetime.now(timezone.utc).isoformat(),
-                    }
+            if has_pgss:
+                sql = (
+                    "SELECT query, mean_time, calls, total_time "
+                    "FROM pg_stat_statements "
+                    "ORDER BY mean_time DESC LIMIT :limit"
                 )
-            return items
+                result = self.db.execute(text(sql), {"limit": int(limit)}).fetchall()
+                items: List[Dict[str, Any]] = []
+                for row in result:
+                    mean_time = float(row[1]) if row[1] is not None else None
+                    calls = int(row[2]) if row[2] is not None else None
+                    # p95 approximation when distribution data missing
+                    p95 = float(mean_time * 2) if mean_time is not None else None
+                    items.append(
+                        {
+                            "query": row[0],
+                            "avg_ms": mean_time,
+                            "p95_ms": p95,
+                            "calls": calls,
+                            "last_seen": datetime.now(timezone.utc).isoformat(),
+                        }
+                    )
+                return items
+
+            # Fallback: get basic query info from pg_stat_activity
+            try:
+                activity_sql = """
+                    SELECT 
+                        query,
+                        EXTRACT(EPOCH FROM (now() - query_start)) * 1000 as runtime_ms,
+                        state,
+                        application_name
+                    FROM pg_stat_activity 
+                    WHERE state = 'active' 
+                    AND query NOT LIKE '%pg_stat_activity%'
+                    AND query_start IS NOT NULL
+                    ORDER BY query_start ASC
+                    LIMIT :limit
+                """
+
+                result = self.db.execute(
+                    text(activity_sql), {"limit": int(limit)}
+                ).fetchall()
+                items: List[Dict[str, Any]] = []
+
+                for row in result:
+                    items.append(
+                        {
+                            "query": row[0][:100] + "..."
+                            if len(row[0]) > 100
+                            else row[0],
+                            "avg_ms": float(row[1]) if row[1] is not None else 0,
+                            "p95_ms": float(row[1]) if row[1] is not None else 0,
+                            "calls": 1,
+                            "state": row[2],
+                            "application": row[3],
+                            "last_seen": datetime.now(timezone.utc).isoformat(),
+                            "note": "Active query from pg_stat_activity",
+                        }
+                    )
+
+                if items:
+                    return items
+            except Exception as e:
+                logger.warning(f"Failed to get activity data: {e}")
+
+            # Final fallback: return informative message
+            return [
+                {
+                    "query": "pg_stat_statements not available",
+                    "avg_ms": 0,
+                    "p95_ms": 0,
+                    "calls": 0,
+                    "last_seen": datetime.now(timezone.utc).isoformat(),
+                    "note": "No performance data available. Consider enabling pg_stat_statements extension.",
+                }
+            ]
         except Exception as e:
             logger.error(f"Failed to get query performance: {e}")
-            return []
+            return [
+                {
+                    "query": "Error getting performance data",
+                    "avg_ms": 0,
+                    "p95_ms": 0,
+                    "calls": 0,
+                    "last_seen": datetime.now(timezone.utc).isoformat(),
+                    "note": f"Error: {str(e)}",
+                }
+            ]
 
     def get_table_sizes(self) -> Dict[str, Dict[str, Any]]:
         """Get comprehensive table size and usage information."""
         try:
-            # Simple approach: get all tables from information_schema
+            # Get all tables from information_schema
             tables_sql = """
                 SELECT table_name 
                 FROM information_schema.tables 
@@ -145,71 +196,73 @@ class DatabaseMonitor:
                 AND table_type = 'BASE TABLE'
                 ORDER BY table_name
             """
-            
+
             tables_result = self.db.execute(text(tables_sql)).fetchall()
             table_names = [row[0] for row in tables_result]
-            
+
             table_data = {}
-            
+            total_records = 0
+
             # Get basic info for each table
             for table_name in table_names:
                 try:
-                    # Get row count
-                    count_sql = f"SELECT COUNT(*) FROM {table_name}"
+                    # Get row count with proper error handling
+                    count_sql = f'SELECT COUNT(*) FROM "{table_name}"'
                     count_result = self.db.execute(text(count_sql)).fetchone()
                     row_count = count_result[0] if count_result else 0
-                    
-                    # Get table size (simplified)
+                    total_records += row_count
+
+                    # Get table size with proper quoting
                     size_sql = f"""
                         SELECT 
-                            pg_total_relation_size('{table_name}') as total_size,
-                            pg_relation_size('{table_name}') as table_size
+                            COALESCE(pg_total_relation_size('"{table_name}"'), 0) as total_size,
+                            COALESCE(pg_relation_size('"{table_name}"'), 0) as table_size
                     """
-                    
+
                     try:
                         size_result = self.db.execute(text(size_sql)).fetchone()
                         total_size_bytes = size_result[0] if size_result else 0
                         size_mb = total_size_bytes / (1024 * 1024)
-                        size_pretty = f"{size_mb:.1f} MB" if size_mb > 0 else "0 MB"
-                    except Exception:
-                        # Fallback if size query fails
+                        size_pretty = f"{size_mb:.2f} MB" if size_mb > 0 else "0 MB"
+                    except Exception as e:
+                        logger.warning(f"Size query failed for {table_name}: {e}")
                         size_mb = 0.1
                         size_pretty = "0.1 MB"
-                    
+
                     # Try to get statistics if available
                     stats_sql = f"""
                         SELECT 
-                            n_live_tup,
-                            n_dead_tup,
-                            n_tup_ins,
-                            n_tup_upd,
-                            n_tup_del
+                            COALESCE(n_live_tup, 0) as live_rows,
+                            COALESCE(n_dead_tup, 0) as dead_rows,
+                            COALESCE(n_tup_ins, 0) as inserts,
+                            COALESCE(n_tup_upd, 0) as updates,
+                            COALESCE(n_tup_del, 0) as deletes
                         FROM pg_stat_user_tables 
                         WHERE tablename = '{table_name}'
                     """
-                    
+
                     try:
                         stats_result = self.db.execute(text(stats_sql)).fetchone()
                         if stats_result:
-                            live_rows = stats_result[0] or 0
-                            dead_rows = stats_result[1] or 0
-                            inserts = stats_result[2] or 0
-                            updates = stats_result[3] or 0
-                            deletes = stats_result[4] or 0
+                            live_rows = stats_result[0]
+                            dead_rows = stats_result[1]
+                            inserts = stats_result[2]
+                            updates = stats_result[3]
+                            deletes = stats_result[4]
                         else:
                             live_rows = row_count
                             dead_rows = 0
                             inserts = 0
                             updates = 0
                             deletes = 0
-                    except Exception:
-                        # Fallback if stats query fails
+                    except Exception as e:
+                        logger.warning(f"Stats query failed for {table_name}: {e}")
                         live_rows = row_count
                         dead_rows = 0
                         inserts = 0
                         updates = 0
                         deletes = 0
-                    
+
                     # Determine integrity status
                     total_rows = live_rows + dead_rows
                     if total_rows > 0:
@@ -222,7 +275,7 @@ class DatabaseMonitor:
                             integrity_status = "healthy"
                     else:
                         integrity_status = "healthy"
-                    
+
                     table_data[table_name] = {
                         "rows": live_rows,
                         "dead_rows": dead_rows,
@@ -234,7 +287,7 @@ class DatabaseMonitor:
                         "last_updated": datetime.now(timezone.utc).isoformat(),
                         "integrity_status": integrity_status,
                     }
-                    
+
                 except Exception as e:
                     logger.warning(f"Failed to get info for table {table_name}: {e}")
                     # Add basic entry for failed table
@@ -249,7 +302,10 @@ class DatabaseMonitor:
                         "last_updated": datetime.now(timezone.utc).isoformat(),
                         "integrity_status": "warning",
                     }
-            
+
+            # Add total records to the response
+            table_data["_total_records"] = total_records
+
             return table_data
 
         except Exception as e:
@@ -270,6 +326,7 @@ class DatabaseMonitor:
                     "last_updated": datetime.now(timezone.utc).isoformat(),
                     "integrity_status": "warning",
                 },
+                "_total_records": 0,
             }
 
     def _get_performance_metrics(self) -> Dict[str, Any]:
@@ -281,7 +338,7 @@ class DatabaseMonitor:
                 has_pgss = True
             except Exception:
                 has_pgss = False
-            
+
             if has_pgss:
                 # Get average query time from pg_stat_statements
                 avg_query_sql = """
@@ -292,9 +349,9 @@ class DatabaseMonitor:
                         ROUND(SUM(total_time) / 1000, 2) as total_time_seconds
                     FROM pg_stat_statements
                 """
-                
+
                 result = self.db.execute(text(avg_query_sql)).fetchone()
-                
+
                 if result and result[0] is not None:
                     return {
                         "avg_query_time_ms": result[0],
@@ -302,13 +359,37 @@ class DatabaseMonitor:
                         "total_queries": result[2],
                         "total_time_seconds": result[3],
                     }
-            
-            # Fallback: return basic metrics
+
+            # Fallback: get basic performance info from pg_stat_activity
+            try:
+                activity_sql = """
+                    SELECT 
+                        COUNT(*) as active_queries,
+                        ROUND(AVG(EXTRACT(EPOCH FROM (now() - query_start)) * 1000), 2) as avg_runtime_ms
+                    FROM pg_stat_activity 
+                    WHERE state = 'active' 
+                    AND query NOT LIKE '%pg_stat_activity%'
+                """
+
+                result = self.db.execute(text(activity_sql)).fetchone()
+                if result:
+                    return {
+                        "avg_query_time_ms": result[1] or 0,
+                        "max_query_time_ms": 0,
+                        "total_queries": result[0] or 0,
+                        "total_time_seconds": 0,
+                        "note": "pg_stat_statements not available, using basic metrics",
+                    }
+            except Exception:
+                pass
+
+            # Final fallback: return basic metrics
             return {
                 "avg_query_time_ms": 0,
                 "max_query_time_ms": 0,
                 "total_queries": 0,
                 "total_time_seconds": 0,
+                "note": "pg_stat_statements not available",
             }
         except Exception as e:
             logger.error(f"Failed to get performance metrics: {e}")
@@ -317,6 +398,7 @@ class DatabaseMonitor:
                 "max_query_time_ms": 0,
                 "total_queries": 0,
                 "total_time_seconds": 0,
+                "note": "Error getting performance metrics",
             }
 
     def _get_connection_pool_info(self) -> Dict[str, Any]:
@@ -328,10 +410,10 @@ class DatabaseMonitor:
                 FROM pg_stat_activity 
                 WHERE datname = current_database()
             """
-            
+
             result = self.db.execute(text(conns_sql)).fetchone()
             total_connections = result[0] if result else 0
-            
+
             return {
                 "active_connections": total_connections,
                 "active_queries": 0,  # Simplified
@@ -357,10 +439,10 @@ class DatabaseMonitor:
                 WHERE table_schema = 'public' 
                 AND table_type = 'BASE TABLE'
             """
-            
+
             table_result = self.db.execute(text(table_count_sql)).fetchone()
             table_count = table_result[0] if table_result else 0
-            
+
             # Get database size (simplified)
             try:
                 size_sql = "SELECT pg_database_size(current_database()) as size_bytes"
@@ -371,7 +453,7 @@ class DatabaseMonitor:
             except Exception:
                 size_mb = 0
                 size_pretty = "0 MB"
-            
+
             return {
                 "size_pretty": size_pretty,
                 "size_mb": round(size_mb, 2),

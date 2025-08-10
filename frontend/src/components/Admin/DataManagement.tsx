@@ -104,7 +104,7 @@ const DataManagement: React.FC = () => {
   const [confirmState, setConfirmState] = useState({
     open: false,
     message: '',
-    onConfirm: async () => {},
+    onConfirm: async () => { },
   });
 
   const showConfirm = (
@@ -144,18 +144,20 @@ const DataManagement: React.FC = () => {
       setSchedulesDraft(sched);
 
       // Convert table data to TableInfo format
-      const tableDataFromTables: TableInfo[] = Object.entries(tables).map(([name, data]) => ({
-        name,
-        rows: data.rows || 0,
-        size_mb: data.size_mb || 0,
-        size_pretty: data.size_pretty || '0 MB',
-        last_updated: data.last_updated || new Date().toISOString(),
-        integrity_status: data.integrity_status || 'healthy',
-        dead_rows: data.dead_rows || 0,
-        inserts: data.inserts || 0,
-        updates: data.updates || 0,
-        deletes: data.deletes || 0,
-      }));
+      const tableDataFromTables: TableInfo[] = Object.entries(tables)
+        .filter(([name]) => name !== '_total_records') // Exclude total records from table list
+        .map(([name, data]) => ({
+          name,
+          rows: data.rows || 0,
+          size_mb: data.size_mb || 0,
+          size_pretty: data.size_pretty || '0 MB',
+          last_updated: data.last_updated || new Date().toISOString(),
+          integrity_status: data.integrity_status || 'healthy',
+          dead_rows: data.dead_rows || 0,
+          inserts: data.inserts || 0,
+          updates: data.updates || 0,
+          deletes: data.deletes || 0,
+        }));
 
       setTableData(tableDataFromTables);
     } catch (_error) {
@@ -453,8 +455,8 @@ const DataManagement: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-1">
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={() => {
                                 const details = [
@@ -556,6 +558,14 @@ const DataManagement: React.FC = () => {
                       recovered. Always preview before executing.
                     </AlertDescription>
                   </Alert>
+
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      File cleanup checks for orphaned files in the uploads directory.
+                      Zero values indicate no orphaned files were found.
+                    </AlertDescription>
+                  </Alert>
                 </div>
               </CardContent>
             </Card>
@@ -635,13 +645,21 @@ const DataManagement: React.FC = () => {
                 <CardTitle>Database Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">
                       {tableData.length}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Total Tables
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {formatNumber(tables._total_records || 0)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Records
                     </div>
                   </div>
                   <div className="text-center">
@@ -705,6 +723,11 @@ const DataManagement: React.FC = () => {
                     <div className="text-sm text-muted-foreground">
                       Avg Query Time
                     </div>
+                    {databaseHealth?.performance_metrics?.note && (
+                      <div className="text-xs text-yellow-600 mt-1">
+                        {databaseHealth.performance_metrics.note}
+                      </div>
+                    )}
                     <Progress
                       value={(() => {
                         const ms =
@@ -820,8 +843,13 @@ const DataManagement: React.FC = () => {
                     <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>No slow queries detected in the selected window</p>
                     <p className="text-xs">
-                      Queries slower than 1000ms are flagged
+                      {performanceData[0]?.note || 'Queries slower than 1000ms are flagged'}
                     </p>
+                    {performanceData[0]?.note && (
+                      <p className="text-xs text-yellow-600 mt-2">
+                        Consider enabling pg_stat_statements extension for detailed query analysis
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>

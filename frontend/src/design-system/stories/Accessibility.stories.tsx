@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 
-const meta: Meta = {
+const meta: Meta<typeof Card> = {
     title: 'Design System/Accessibility/Accessibility Testing',
-    tags: ['autodocs'],
+    component: Card,
     parameters: {
         layout: 'padded',
         docs: {
@@ -32,6 +32,12 @@ This story provides comprehensive accessibility testing and validation for all c
             },
         },
     },
+    argTypes: {
+        className: {
+            control: { type: 'text' },
+            description: 'Additional CSS classes',
+        },
+    },
 };
 
 export default meta;
@@ -43,6 +49,7 @@ type Story = StoryObj<typeof meta>;
  * Test keyboard navigation and focus management.
  */
 export const KeyboardNavigation: Story = {
+    tags: ['autodocs'],
     render: () => (
         <div className="space-y-6">
             <Card>
@@ -125,6 +132,7 @@ export const KeyboardNavigation: Story = {
  * Test ARIA labels and semantic HTML structure.
  */
 export const ScreenReaderSupport: Story = {
+    tags: ['autodocs'],
     render: () => (
         <div className="space-y-6">
             <Card>
@@ -217,6 +225,7 @@ export const ScreenReaderSupport: Story = {
  * Test color contrast ratios for WCAG AA compliance.
  */
 export const ColorContrast: Story = {
+    tags: ['autodocs'],
     render: () => (
         <div className="space-y-6">
             <Card>
@@ -296,6 +305,7 @@ export const ColorContrast: Story = {
  * Test motion preferences and animation accessibility.
  */
 export const MotionAndAnimation: Story = {
+    tags: ['autodocs'],
     render: () => (
         <div className="space-y-6">
             <Card>
@@ -368,6 +378,7 @@ export const MotionAndAnimation: Story = {
  * Comprehensive checklist for maintaining accessibility compliance.
  */
 export const AccessibilityChecklist: Story = {
+    tags: ['autodocs'],
     render: () => (
         <Card>
             <CardHeader>
