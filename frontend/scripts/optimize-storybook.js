@@ -286,7 +286,10 @@ function createStorybookConfig() {
   const configDocPath = path.join(
     __dirname,
     '..',
+    '..',
     'docs',
+    'frontend',
+    'MD',
     'STORYBOOK_CONFIG.md'
   );
 

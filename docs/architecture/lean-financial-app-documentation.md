@@ -2,17 +2,19 @@
 
 ## Overview
 
-This documentation covers the complete implementation of the Lean Financial Modeling Application, built according to the comprehensive plan outlined in `@lean_financial_modeling_plan.md`. The application provides a streamlined, high-performance financial modeling platform focused on core financial analysis capabilities.
+This documentation covers the complete implementation of the Lean Financial Modeling Application, built according to the comprehensive plan outlined in `@lean-financial-modeling-plan.md`. The application provides a streamlined, high-performance financial modeling platform focused on core financial analysis capabilities.
 
 ## Architecture Overview
 
 ### Backend Architecture
+
 - **Framework**: FastAPI with Python 3.11+
 - **Database**: SQLAlchemy ORM with Alembic migrations
 - **Core Engine**: Custom lean financial calculation engine
 - **API Structure**: RESTful APIs with comprehensive financial endpoints
 
 ### Frontend Architecture
+
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite with pnpm package management
 - **UI Library**: shadcn/ui components with Tailwind CSS
@@ -35,6 +37,7 @@ The heart of the application, providing comprehensive financial calculations:
 ```
 
 **Key Classes:**
+
 - `CoreParameters`: 12-category parameter structure
 - `LeanFinancialEngine`: Main calculation engine
 - Financial statement dataclasses (P&L, Balance Sheet, Cash Flow, DCF)
@@ -44,6 +47,7 @@ The heart of the application, providing comprehensive financial calculations:
 Comprehensive parameter management with 47+ parameters across 12 categories:
 
 **Parameter Categories:**
+
 1. Revenue & Growth Parameters
 2. Cost Structure Parameters
 3. Personnel & HR Parameters
@@ -60,6 +64,7 @@ Comprehensive parameter management with 47+ parameters across 12 categories:
 ### 3. API Endpoints (`backend/app/api/v1/endpoints/lean_financial.py`)
 
 RESTful API endpoints for:
+
 - Parameter management (GET, PUT)
 - Financial calculations (POST)
 - Scenario analysis (GET, POST, PUT, DELETE)
@@ -70,22 +75,26 @@ RESTful API endpoints for:
 ### 4. Frontend Components
 
 #### Core Financial Views
+
 - **ProfitLossView.tsx**: Comprehensive P&L statement with expandable sections
 - **BalanceSheetView.tsx**: Detailed balance sheet with asset/liability breakdowns
 - **CashFlowView.tsx**: Complete cash flow analysis with working capital metrics
 - **DCFView.tsx**: DCF valuation with sensitivity analysis
 
 #### Parameter Management
+
 - **ParameterManager.tsx**: 12-category parameter interface with validation
 - **ScenarioManager.tsx**: Multiple scenario management and comparison
 
 #### Dashboard & Visualization
+
 - **FinancialDashboard.tsx**: Unified financial modeling interface
 - **FinancialCharts.tsx**: Interactive charts with multiple visualization types
 
 ## Database Schema
 
 ### Core Tables (Streamlined for Lean App)
+
 ```sql
 -- Essential tables only (removed analytics, notifications, etc.)
 users
@@ -96,6 +105,7 @@ financial_statements
 ```
 
 ### Migrations Applied
+
 - `006_add_advanced_indexes.py`: Performance optimization
 - `007_add_missing_user_columns.py`: User system completion
 - `9dd5d1ac7ef0_fix_duplicate_indexes.py`: Index cleanup
@@ -104,17 +114,20 @@ financial_statements
 ## Key Features Implemented
 
 ### ✅ Phase 1: Core Architecture Streamlining
+
 - [x] Removed non-essential backend services (AI, collaboration, notifications, analytics)
 - [x] Streamlined database schema
 - [x] Simplified API endpoints
 - [x] Removed non-essential frontend components
 
 ### ✅ Phase 2: Frontend Component Streamlining
+
 - [x] Removed Analytics, Reports, Notifications, System components
 - [x] Simplified frontend services
 - [x] Streamlined component structure
 
 ### ✅ Phase 3: Core Financial Modeling Features
+
 - [x] 12-category parameter system with 47+ parameters
 - [x] Comprehensive P&L statement generation
 - [x] Detailed balance sheet calculations
@@ -124,7 +137,9 @@ financial_statements
 - [x] Sensitivity analysis
 
 ### ✅ Phase 4: Implementation
+
 - [x] **4.1 Backend Implementation**
+
   - [x] Lean financial calculation engine
   - [x] Parameter management system
   - [x] API endpoints for financial operations
@@ -136,6 +151,7 @@ financial_statements
   - [x] Dashboard and visualization components
 
 ### ✅ Phase 5: Quality Assurance
+
 - [x] Integration testing (frontend builds successfully)
 - [x] Backend engine validation (calculations working)
 - [x] Component integration verification
@@ -146,6 +162,7 @@ financial_statements
 ### Starting the Application
 
 #### Backend
+
 ```bash
 cd backend
 source ../venv/Scripts/activate  # Windows
@@ -153,6 +170,7 @@ python -m uvicorn app.main:app --reload
 ```
 
 #### Frontend
+
 ```bash
 cd frontend
 pnpm install
@@ -162,12 +180,14 @@ pnpm dev
 ### API Usage Examples
 
 #### Get Financial Parameters
+
 ```http
 GET /api/v1/lean-financial/parameters
 Authorization: Bearer {token}
 ```
 
 #### Update Parameters
+
 ```http
 PUT /api/v1/lean-financial/parameters
 Content-Type: application/json
@@ -184,6 +204,7 @@ Content-Type: application/json
 ```
 
 #### Calculate Financial Model
+
 ```http
 POST /api/v1/lean-financial/calculate
 Content-Type: application/json
@@ -195,6 +216,7 @@ Content-Type: application/json
 ```
 
 #### Create Scenario
+
 ```http
 POST /api/v1/lean-financial/scenarios
 Content-Type: application/json
@@ -209,8 +231,9 @@ Content-Type: application/json
 ### Frontend Component Usage
 
 #### Financial Dashboard
+
 ```tsx
-import { FinancialDashboard } from '@/components/Dashboard';
+import { FinancialDashboard } from "@/components/Dashboard";
 
 function App() {
   return <FinancialDashboard />;
@@ -218,8 +241,9 @@ function App() {
 ```
 
 #### Parameter Management
+
 ```tsx
-import { ParameterManager } from '@/components/Parameters';
+import { ParameterManager } from "@/components/Parameters";
 
 function ParametersPage() {
   return (
@@ -234,12 +258,14 @@ function ParametersPage() {
 ## Performance Optimizations
 
 ### Backend Optimizations
+
 - Streamlined database schema (removed 80% of non-essential tables)
 - Optimized calculation algorithms
 - Efficient parameter validation
 - Minimal database queries
 
 ### Frontend Optimizations
+
 - Component lazy loading
 - Efficient state management
 - Optimized build configuration
@@ -267,13 +293,14 @@ fin-model/
 │   │   │   └── Dashboard/                   # Main dashboard
 │   │   └── pages/                           # Route components
 │   └── package.json
-├── lean_financial_modeling_plan.md          # Original implementation plan
-└── LEAN_FINANCIAL_APP_DOCUMENTATION.md      # This documentation
+├── lean-financial-modeling-plan.md          # Original implementation plan
+└── lean-financial-app-documentation.md      # This documentation
 ```
 
 ## Testing & Validation
 
 ### Backend Tests Passed
+
 ```
 ✅ Application imports successfully
 ✅ Lean financial engine works! Net income: 4283.675
@@ -281,6 +308,7 @@ fin-model/
 ```
 
 ### Frontend Build Success
+
 ```
 ✅ Build completed successfully
 ✅ Assets: 132.94 kB CSS, 0.71 kB JS
@@ -290,12 +318,14 @@ fin-model/
 ## Technology Stack Summary
 
 ### Backend
+
 - **FastAPI**: Modern, fast web framework
 - **SQLAlchemy**: Robust ORM with migration support
 - **Pydantic**: Data validation and serialization
 - **Python 3.11+**: Latest Python features
 
 ### Frontend
+
 - **React 18**: Latest React with concurrent features
 - **TypeScript**: Type safety and enhanced development
 - **Vite**: Fast build tool and development server
@@ -306,6 +336,7 @@ fin-model/
 - **Lucide React**: Beautiful icon set
 
 ### Development Tools
+
 - **Alembic**: Database migrations
 - **ESLint/Prettier**: Code quality and formatting
 - **Claude Code**: AI-assisted development
