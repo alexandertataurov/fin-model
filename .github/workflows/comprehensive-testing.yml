@@ -15,51 +15,51 @@ env:
 
 jobs:
   # Quick feedback jobs (run on every push/PR)
-  code-quality:
-    name: Code Quality Checks
+  frontend-quality:
+    name: Frontend Quality Checks
+    uses: ./.github/workflows/reusable-frontend-quality.yml
+    with:
+      run-tests: false
+
+  backend-quality:
+    name: Backend Quality Checks
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
-        with:
-          version: 8
-
       - name: Setup Python
         uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: pnpm install --frozen-lockfile
+      - name: Cache pip dependencies
+        uses: actions/cache@2f8e54208210a422b2efd51efaa6bd6d7ca8920f # v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Frontend linting
-        working-directory: ./frontend
-        run: pnpm run lint:ci
-
-      - name: Frontend type checking
-        working-directory: ./frontend
-        run: pnpm run type-check
+          pip install -r requirements.txt --cache-dir ~/.cache/pip
 
       - name: Backend linting
         working-directory: ./backend
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Security scan
         uses: github/super-linter@985ef206aaca4d560cb9ee2af2b42ba44adc1d55 # v4
@@ -74,7 +74,7 @@ jobs:
   backend-tests:
     name: Backend Testing
     runs-on: ubuntu-latest
-    needs: code-quality
+    needs: [frontend-quality, backend-quality]
 
     services:
       postgres:
@@ -175,7 +175,7 @@ jobs:
   frontend-tests:
     name: Frontend Testing
     runs-on: ubuntu-latest
-    needs: code-quality
+    needs: [frontend-quality, backend-quality]
 
     steps:
       - name: Checkout code

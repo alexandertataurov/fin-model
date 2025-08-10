@@ -9,4 +9,5 @@ cmds = [
 
 [variables]
 PYTHONPATH = "/app"
-PYTHON_ENV = "production" 
+PYTHON_ENV = "production"
+PYTHONDONTWRITEBYTECODE = "1" 

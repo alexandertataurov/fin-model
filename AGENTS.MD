@@ -233,9 +233,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "border border-input hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "underline-offset-4 hover:underline text-primary",
       },
@@ -282,36 +285,63 @@ const Card = {
     ({ className, ...props }, ref) => (
       <div
         ref={ref}
-        className={cn("rounded-lg border bg-card text-card-foreground shadow-sm", className)}
+        className={cn(
+          "rounded-lg border bg-card text-card-foreground shadow-sm",
+          className
+        )}
         {...props}
       />
     )
   ),
-  Header: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ className, ...props }, ref) => (
-      <div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />
-    )
-  ),
-  Title: React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-    ({ className, ...props }, ref) => (
-      <h3 ref={ref} className={cn("text-2xl font-semibold leading-none tracking-tight", className)} {...props} />
-    )
-  ),
-  Description: React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-    ({ className, ...props }, ref) => (
-      <p ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
-    )
-  ),
-  Content: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ className, ...props }, ref) => (
-      <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-    )
-  ),
-  Footer: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ className, ...props }, ref) => (
-      <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
-    )
-  ),
+  Header: React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+  >(({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
+  )),
+  Title: React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLHeadingElement>
+  >(({ className, ...props }, ref) => (
+    <h3
+      ref={ref}
+      className={cn(
+        "text-2xl font-semibold leading-none tracking-tight",
+        className
+      )}
+      {...props}
+    />
+  )),
+  Description: React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLParagraphElement>
+  >(({ className, ...props }, ref) => (
+    <p
+      ref={ref}
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  )),
+  Content: React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+  >(({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  )),
+  Footer: React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+  >(({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn("flex items-center p-6 pt-0", className)}
+      {...props}
+    />
+  )),
 } as const;
 
 // Usage example
@@ -326,7 +356,7 @@ const Card = {
   <Card.Footer>
     <Button>View Details</Button>
   </Card.Footer>
-</Card.Root>
+</Card.Root>;
 ```
 
 #### 4. **Theme Integration**
@@ -370,17 +400,17 @@ const useStyles = makeStyles((theme) => ({
 
 ```typescript
 // ✅ GOOD: Lucide React icon system
-import { 
-  ChevronDown, 
-  User, 
-  Settings, 
-  BarChart3, 
+import {
+  ChevronDown,
+  User,
+  Settings,
+  BarChart3,
   PieChart,
   TrendingUp,
   AlertCircle,
   CheckCircle,
   XCircle,
-  Info
+  Info,
 } from "lucide-react";
 
 // ✅ GOOD: Icon component wrapper
@@ -388,7 +418,7 @@ interface IconProps {
   name: keyof typeof iconMap;
   size?: number;
   className?: string;
-  'aria-label'?: string;
+  "aria-label"?: string;
 }
 
 const iconMap = {
@@ -404,13 +434,18 @@ const iconMap = {
   info: Info,
 } as const;
 
-const Icon: React.FC<IconProps> = ({ name, size = 16, className, ...props }) => {
+const Icon: React.FC<IconProps> = ({
+  name,
+  size = 16,
+  className,
+  ...props
+}) => {
   const IconComponent = iconMap[name];
   return <IconComponent size={size} className={className} {...props} />;
 };
 
 // Usage
-<Icon name="barChart" size={24} aria-label="Chart data" />
+<Icon name="barChart" size={24} aria-label="Chart data" />;
 ```
 
 #### 6. **Form Components**
@@ -424,14 +459,13 @@ const FormField = React.forwardRef<
   return <FormFieldPrimitive.Root ref={ref} {...props} />;
 });
 
-const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => {
-    const { error } = useFormField();
-    return (
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
-    );
-  }
-);
+const FormItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  const { error } = useFormField();
+  return <div ref={ref} className={cn("space-y-2", className)} {...props} />;
+});
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
@@ -485,30 +519,33 @@ useEffect(() => {
 // ✅ GOOD: Keyboard navigation
 const useKeyboardNavigation = (items: MenuItem[]) => {
   const [activeIndex, setActiveIndex] = useState(-1);
-  
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        setActiveIndex((prev) => (prev + 1) % items.length);
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        setActiveIndex((prev) => (prev - 1 + items.length) % items.length);
-        break;
-      case 'Enter':
-      case ' ':
-        event.preventDefault();
-        if (activeIndex >= 0 && items[activeIndex]) {
-          items[activeIndex].onClick();
-        }
-        break;
-      case 'Escape':
-        setActiveIndex(-1);
-        break;
-    }
-  }, [items, activeIndex]);
-  
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          setActiveIndex((prev) => (prev + 1) % items.length);
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          setActiveIndex((prev) => (prev - 1 + items.length) % items.length);
+          break;
+        case "Enter":
+        case " ":
+          event.preventDefault();
+          if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].onClick();
+          }
+          break;
+        case "Escape":
+          setActiveIndex(-1);
+          break;
+      }
+    },
+    [items, activeIndex]
+  );
+
   return { activeIndex, handleKeyDown };
 };
 ```
@@ -517,32 +554,40 @@ const useKeyboardNavigation = (items: MenuItem[]) => {
 
 ```typescript
 // ✅ GOOD: Comprehensive Storybook stories
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from './Button';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "./Button";
 
 const meta: Meta<typeof Button> = {
-  title: 'UI/Button',
+  title: "UI/Button",
   component: Button,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
     docs: {
       description: {
-        component: 'A versatile button component with multiple variants and sizes.',
+        component:
+          "A versatile button component with multiple variants and sizes.",
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     variant: {
-      control: 'select',
-      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
+      control: "select",
+      options: [
+        "default",
+        "destructive",
+        "outline",
+        "secondary",
+        "ghost",
+        "link",
+      ],
     },
     size: {
-      control: 'select',
-      options: ['default', 'sm', 'lg', 'icon'],
+      control: "select",
+      options: ["default", "sm", "lg", "icon"],
     },
     disabled: {
-      control: 'boolean',
+      control: "boolean",
     },
   },
 };
@@ -552,7 +597,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'Button',
+    children: "Button",
   },
 };
 
@@ -1101,6 +1146,165 @@ jobs:
 - [ ] Database migrations are tested
 - [ ] Environment variables are configured
 - [ ] Monitoring and logging are set up
+
+---
+
+## ⚠️ Do Not Touch - Protected Files & Directories
+
+### Critical System Files
+
+**NEVER modify these files without explicit approval:**
+
+```
+# Configuration Files
+.env*                           # Environment variables
+.gitignore                      # Git ignore patterns
+.gitattributes                  # Git file attributes
+.github/                        # GitHub workflows and templates
+.vscode/                        # VS Code workspace settings
+.cursor/                        # Cursor editor settings
+
+# Package Management
+package.json                    # Node.js dependencies
+package-lock.json               # Locked dependency versions
+pnpm-lock.yaml                  # PNPM lock file
+yarn.lock                       # Yarn lock file
+requirements.txt                # Python dependencies
+poetry.lock                     # Poetry lock file
+Pipfile.lock                    # Pipenv lock file
+
+# Build & Deploy
+vite.config.ts                  # Vite build configuration
+tailwind.config.js              # Tailwind CSS configuration
+postcss.config.js               # PostCSS configuration
+tsconfig.json                   # TypeScript configuration
+tsconfig.node.json              # TypeScript Node configuration
+.storybook/                     # Storybook configuration
+cypress.config.ts               # Cypress E2E configuration
+vitest.config.ts                # Vitest test configuration
+docker-compose.yml              # Docker compose setup
+Dockerfile                      # Docker container definition
+railway.toml                    # Railway deployment config
+netlify.toml                    # Netlify deployment config
+
+# Database & Migrations
+alembic/                        # Database migration files
+alembic.ini                     # Alembic configuration
+```
+
+### Generated/Build Files
+
+**These are auto-generated - changes will be overwritten:**
+
+```
+# Frontend Build
+dist/                           # Vite build output
+build/                          # Alternative build directory
+.next/                          # Next.js build cache
+.turbo/                         # Turborepo cache
+node_modules/                   # Node.js dependencies
+.pnpm-store/                    # PNPM package store
+
+# Backend Build
+__pycache__/                    # Python bytecode cache
+*.pyc                           # Python compiled files
+.pytest_cache/                  # Pytest cache
+.coverage                       # Coverage reports
+htmlcov/                        # Coverage HTML reports
+
+# Development
+.DS_Store                       # macOS system files
+Thumbs.db                       # Windows system files
+*.log                           # Log files
+.temp/                          # Temporary files
+.cache/                         # Cache directories
+```
+
+### Design System Generated Files
+
+**Auto-generated from design tokens:**
+
+```
+# Style Dictionary Output
+src/design-system/tokens/       # Generated design tokens
+tokens/build/                   # Built token files
+storybook-static/               # Storybook build output
+```
+
+### Documentation That Should Remain Stable
+
+**Core documentation files - coordinate changes:**
+
+```
+README.md                       # Project overview
+AGENTS.MD                       # This file - development guidelines
+CONTRIBUTING.md                 # Contribution guidelines
+LICENSE                         # Project license
+CODE_OF_CONDUCT.md             # Code of conduct
+SECURITY.md                     # Security policies
+```
+
+### Protected Business Logic
+
+**Core application logic - requires careful review:**
+
+```
+# Authentication & Security
+src/contexts/AuthContext.tsx    # Authentication logic
+backend/app/core/security.py    # Security utilities
+backend/app/core/config.py      # Core configuration
+
+# Database Models
+backend/app/models/             # SQLAlchemy models
+backend/app/schemas/            # Pydantic schemas
+
+# Critical Services
+backend/app/services/auth.py    # Authentication service
+backend/app/services/financial_model.py  # Core business logic
+```
+
+### Environment-Specific Files
+
+**These vary per environment - handle with extreme care:**
+
+```
+.env.local                      # Local environment
+.env.development                # Development environment
+.env.staging                    # Staging environment
+.env.production                 # Production environment
+```
+
+### Guidelines for Protected Files
+
+1. **Always ask before modifying** files in the protected list
+2. **Create backups** before making any changes to configuration files
+3. **Test thoroughly** after any configuration changes
+4. **Coordinate with team** for changes to shared configuration
+5. **Document changes** to protected files in commit messages
+6. **Use feature flags** instead of modifying core configuration when possible
+
+### Safe Modification Areas
+
+**These areas are generally safe to modify:**
+
+```
+# Application Code
+src/components/                 # React components (except core UI)
+src/pages/                      # Page components
+src/hooks/                      # Custom hooks
+src/utils/                      # Utility functions
+backend/app/api/               # API routes (except auth)
+backend/app/services/          # Business logic services
+
+# Documentation
+docs/                          # Project documentation
+*.md (except protected list)   # Markdown documentation
+
+# Tests
+src/**/*.test.tsx              # Frontend tests
+backend/tests/                 # Backend tests
+cypress/e2e/                   # E2E tests
+```
 
 ---
 

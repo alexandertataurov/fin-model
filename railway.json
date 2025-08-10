@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd backend && /opt/venv/bin/python start.py"
+    "startCommand": "cd /app && /opt/venv/bin/python backend/start.py"
   }
 }

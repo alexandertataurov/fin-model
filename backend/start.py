@@ -8,6 +8,12 @@ import os
 import sys
 from pathlib import Path
 
+# Ensure we're not in a numpy source directory
+current_dir = Path.cwd()
+if (current_dir / "numpy").exists() and (current_dir / "setup.py").exists():
+    print("⚠️ Detected numpy source directory, changing to /app")
+    os.chdir("/app")
+
 from alembic import command
 from alembic.config import Config
 
@@ -450,7 +456,7 @@ def start_app():
     try:
         import uvicorn
 
-        from main import app
+        from backend.main import app
 
         uvicorn.run(
             app,
