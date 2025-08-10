@@ -20,6 +20,7 @@ import {
 import Dashboard from './pages/Dashboard';
 import FileUpload from './pages/FileUpload';
 import Scenarios from './pages/Scenarios';
+import Layout from './components/Layout/Layout';
 
 // Protected Layout Component
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({
@@ -43,42 +44,29 @@ export default function App() {
               <Route path="/reset-password" element={<ResetPasswordForm />} />
               <Route path="/verify-email" element={<EmailVerification />} />
 
-              {/* Protected Application Routes */}
+              {/* Protected Application Routes with Sidebar Layout */}
               <Route
-                path="/dashboard"
+                path="/"
                 element={
                   <ProtectedLayout>
-                    <Dashboard />
+                    <Layout />
                   </ProtectedLayout>
                 }
-              />
-
-              <Route
-                path="/upload"
-                element={
-                  <ProtectedLayout>
-                    <FileUpload />
-                  </ProtectedLayout>
-                }
-              />
-
-              <Route
-                path="/scenarios"
-                element={
-                  <AnalystGuard>
-                    <ProtectedLayout>
+              >
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="upload" element={<FileUpload />} />
+                <Route
+                  path="scenarios"
+                  element={
+                    <AnalystGuard>
                       <Scenarios />
-                    </ProtectedLayout>
-                  </AnalystGuard>
-                }
-              />
-
-              {/* Admin Only Routes - placeholder for future admin panel */}
-              <Route
-                path="/admin/*"
-                element={
-                  <AdminGuard>
-                    <ProtectedLayout>
+                    </AnalystGuard>
+                  }
+                />
+                <Route
+                  path="admin/*"
+                  element={
+                    <AdminGuard>
                       <div className="p-6">
                         <h1 className="text-2xl font-bold mb-4">
                           Admin Panel
@@ -87,16 +75,11 @@ export default function App() {
                           Admin features coming soon...
                         </p>
                       </div>
-                    </ProtectedLayout>
-                  </AdminGuard>
-                }
-              />
-
-              {/* Default redirects */}
-              <Route
-                path="/"
-                element={<Navigate to="/dashboard" replace />}
-              />
+                    </AdminGuard>
+                  }
+                />
+                <Route index element={<Navigate to="/dashboard" replace />} />
+              </Route>
 
               {/* 404 Fallback */}
               <Route
