@@ -64,15 +64,20 @@ app = FastAPI(
 
 # Set up CORS with explicit origins
 cors_origins = settings.get_cors_origins()
-# With credentials enabled, '*' is invalid; strip it when combined
-if "*" in cors_origins and len(cors_origins) > 1:
-    cors_origins = [o for o in cors_origins if o != "*"]
 logger.info("CORS origins configured: %s", cors_origins)
+
+# If we have wildcard, use it directly
+if "*" in cors_origins:
+    cors_origins = ["*"]
+    allow_credentials = False
+else:
+    allow_credentials = True
 
 # Regex to allow any Netlify/Railway subdomain and Netlify deploy-preview style
 cors_origin_regex = (
     r"^https://[A-Za-z0-9-]+\.[A-Za-z0-9-]+\.(netlify|railway)\.app$|"
-    r"^https://[A-Za-z0-9-]+--[A-Za-z0-9-]+\.netlify\.app$"
+    r"^https://[A-Za-z0-9-]+--[A-Za-z0-9-]+\.netlify\.app$|"
+    r"^https://pre-production--advanced-financial-modeling\.netlify\.app$"
 )
 
 app.add_middleware(
@@ -80,7 +85,7 @@ app.add_middleware(
     allow_origins=cors_origins,
     # Allow any Netlify/Railway subdomain via regex
     allow_origin_regex=cors_origin_regex,
-    allow_credentials=True,
+    allow_credentials=allow_credentials,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=[
         "Accept",
@@ -176,6 +181,8 @@ async def cors_debug():
             "raw_cors_origins": settings.BACKEND_CORS_ORIGINS,
             "frontend_url": settings.FRONTEND_URL,
             "environment": os.getenv("ENV", "development"),
+            "allow_credentials": allow_credentials,
+            "cors_origin_regex": cors_origin_regex,
         }
     )
 
