@@ -425,17 +425,21 @@ def fix_notification_schema():
             # Check if notifications table exists and has 'type' column instead of external file
             try:
                 result = conn.execute(
-                    text("""
+                    text(
+                        """
                         SELECT column_name 
                         FROM information_schema.columns 
                         WHERE table_name = 'notifications' 
                         AND column_name = 'type'
-                    """)
+                    """
+                    )
                 )
-                
+
                 if result.fetchone():
-                    # Rename 'type' to 'notification_type' 
-                    conn.execute(text("""
+                    # Rename 'type' to 'notification_type'
+                    conn.execute(
+                        text(
+                            """
                         DO $$
                         BEGIN
                             IF EXISTS (
@@ -445,10 +449,12 @@ def fix_notification_schema():
                                 ALTER TABLE notifications RENAME COLUMN type TO notification_type;
                             END IF;
                         END $$;
-                    """))
+                    """
+                        )
+                    )
                     conn.commit()
                     print("✅ Renamed 'type' column to 'notification_type'")
-                
+
             except Exception as e:
                 print(f"⚠️ Schema fix warning: {e}")
 
