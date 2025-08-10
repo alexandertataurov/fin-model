@@ -144,6 +144,9 @@ importers:
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@18.3.1)
+      esbuild:
+        specifier: ^0.18.20
+        version: 0.18.20
       formik:
         specifier: ^2.2.9
         version: 2.4.6(@types/react@18.3.23)(react@18.3.1)
@@ -8419,8 +8422,8 @@ snapshots:
       '@storybook/theming': 8.6.14(storybook@8.6.14(prettier@3.6.2))
       better-opn: 3.0.2
       browser-assert: 1.2.1
-      esbuild: 0.25.8
-      esbuild-register: 3.6.0(esbuild@0.25.8)
+      esbuild: 0.18.20
+      esbuild-register: 3.6.0(esbuild@0.18.20)
       jsdoc-type-pratt-parser: 4.1.0
       process: 0.11.10
       recast: 0.23.11
@@ -9785,10 +9788,10 @@ snapshots:
 
   es6-error@4.1.1: {}
 
-  esbuild-register@3.6.0(esbuild@0.25.8):
+  esbuild-register@3.6.0(esbuild@0.18.20):
     dependencies:
       debug: 4.4.1
-      esbuild: 0.25.8
+      esbuild: 0.18.20
     transitivePeerDependencies:
       - supports-color
 
