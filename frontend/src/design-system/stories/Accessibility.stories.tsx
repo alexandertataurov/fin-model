@@ -4,9 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 
-const meta: Meta<typeof Card> = {
+const meta: Meta = {
     title: 'Design System/Accessibility/Accessibility Testing',
-    component: Card,
     parameters: {
         layout: 'padded',
         docs: {
@@ -32,16 +31,10 @@ This story provides comprehensive accessibility testing and validation for all c
             },
         },
     },
-    argTypes: {
-        className: {
-            control: { type: 'text' },
-            description: 'Additional CSS classes',
-        },
-    },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 /**
  * ## Keyboard Navigation Test

@@ -84,6 +84,7 @@ const DataManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   // const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
   const [tableData, setTableData] = useState<TableInfo[]>([]);
+  const [tables, setTables] = useState<Record<string, any>>({});
   const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(
     null
   );
@@ -144,7 +145,7 @@ const DataManagement: React.FC = () => {
       setSchedulesDraft(sched);
 
       // Convert table data to TableInfo format
-      const tableDataFromTables: TableInfo[] = Object.entries(tables)
+      const tableDataFromTables: TableInfo[] = Object.entries(tables || {})
         .filter(([name]) => name !== '_total_records') // Exclude total records from table list
         .map(([name, data]) => ({
           name,
@@ -160,9 +161,15 @@ const DataManagement: React.FC = () => {
         }));
 
       setTableData(tableDataFromTables);
+      setTables(tables || {}); // Store tables data for total records display
     } catch (_error) {
       console.error('Failed to load data info:', _error);
       toast.error('Failed to load data management information');
+      // Set default empty data to prevent undefined errors
+      setTableData([]);
+      setTables({});
+      setDatabaseHealth({});
+      setPerformanceData([]);
     } finally {
       setLoading(false);
     }
