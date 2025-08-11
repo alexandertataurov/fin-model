@@ -51,7 +51,6 @@ import {
     Search,
     Calendar,
     MoreHorizontal,
-    Notifications,
 } from 'lucide-react';
 
 // Helper functions
@@ -938,7 +937,7 @@ export const AdminDashboard: React.FC = () => {
                 {/* Action Bar */}
                 <div className="flex items-center justify-end gap-3">
                     <Button variant="outline" size="sm" className="relative">
-                        <Notifications className="h-4 w-4 mr-2" />
+                        <Bell className="h-4 w-4 mr-2" />
                         Notifications
                         <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
                             3
