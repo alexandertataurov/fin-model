@@ -14,12 +14,6 @@ import {
   // Clock,
   // Users,
   Activity,
-  TrendingUp,
-  TrendingDown,
-  Clock,
-  Users,
-  Shield,
-  Zap,
 } from 'lucide-react';
 import {
   Card,
@@ -607,6 +601,7 @@ const DataManagement: React.FC = () => {
                 </Table>
               </CardContent>
             </Card>
+          </div>
         </TabsContent>
 
         {/* File Cleanup Tab */}
