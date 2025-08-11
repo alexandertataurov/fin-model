@@ -181,6 +181,64 @@ export const tokens = {
       'relaxed': '1.625',
       'loose': '2',
       'extra-loose': '2.5'
+    },
+    'textStyles': {
+      'headline': {
+        'fontFamily': 'display',
+        'fontSize': '4xl',
+        'fontWeight': 'bold',
+        'lineHeight': 'tight',
+        'letterSpacing': 'tight'
+      },
+      'subheadline': {
+        'fontFamily': 'display',
+        'fontSize': '2xl',
+        'fontWeight': 'semibold',
+        'lineHeight': 'snug',
+        'letterSpacing': 'normal'
+      },
+      'title': {
+        'fontFamily': 'sans',
+        'fontSize': 'xl',
+        'fontWeight': 'semibold',
+        'lineHeight': 'snug',
+        'letterSpacing': 'normal'
+      },
+      'subtitle': {
+        'fontFamily': 'sans',
+        'fontSize': 'lg',
+        'fontWeight': 'medium',
+        'lineHeight': 'normal',
+        'letterSpacing': 'normal'
+      },
+      'body': {
+        'fontFamily': 'sans',
+        'fontSize': 'base',
+        'fontWeight': 'normal',
+        'lineHeight': 'relaxed',
+        'letterSpacing': 'normal'
+      },
+      'caption': {
+        'fontFamily': 'sans',
+        'fontSize': 'sm',
+        'fontWeight': 'normal',
+        'lineHeight': 'normal',
+        'letterSpacing': 'wide'
+      },
+      'elegant': {
+        'fontFamily': 'elegant',
+        'fontSize': 'lg',
+        'fontWeight': 'light',
+        'lineHeight': 'relaxed',
+        'letterSpacing': 'wide'
+      },
+      'code': {
+        'fontFamily': 'mono',
+        'fontSize': 'sm',
+        'fontWeight': 'normal',
+        'lineHeight': 'normal',
+        'letterSpacing': 'normal'
+      }
     }
   },
   'spacing': {

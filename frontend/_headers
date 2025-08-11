@@ -1,13 +1,13 @@
 # Security and performance headers
 
-/_
+/\_
 X-Frame-Options: DENY
 X-XSS-Protection: 1; mode=block
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://_.railway.app wss://_.railway.app https://api.finvision.com https://_.netlify.app wss://\*.netlify.app; frame-src 'self' https://app.netlify.com;
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://_.railway.app wss://_.railway.app https://api.finvision.com https://_.netlify.app wss://_.netlify.app; frame-src 'self' https://app.netlify.com;
 
 # Cache static assets for 1 year with optimal settings
 

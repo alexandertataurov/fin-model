@@ -1,66 +1,71 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { Title, Subtitle, Description, Stories } from '@storybook/blocks';
 import { tokens } from '../tokens';
 
-// Helper function to apply text style (simplified version)
+// Helper function to apply text style using design tokens
 const applyTextStyle = (styleName: string) => {
-  const styles: Record<string, React.CSSProperties> = {
-    headline: {
-      fontFamily: 'Playfair Display, Georgia, serif',
-      fontSize: '2.25rem',
-      fontWeight: 700,
-      lineHeight: 1.25,
-      letterSpacing: '-0.025em'
-    },
-    subheadline: {
-      fontFamily: 'Playfair Display, Georgia, serif',
-      fontSize: '1.5rem',
-      fontWeight: 600,
-      lineHeight: 1.375,
-      letterSpacing: '0'
-    },
-    title: {
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: '1.25rem',
-      fontWeight: 600,
-      lineHeight: 1.375,
-      letterSpacing: '0'
-    },
-    subtitle: {
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: '1.125rem',
-      fontWeight: 500,
-      lineHeight: 1.5,
-      letterSpacing: '0'
-    },
-    body: {
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: '1rem',
-      fontWeight: 400,
-      lineHeight: 1.625,
-      letterSpacing: '0'
-    },
-    caption: {
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: '0.875rem',
-      fontWeight: 400,
-      lineHeight: 1.5,
-      letterSpacing: '0.025em'
-    }
-  };
+  const textStyle = tokens.typography.textStyles[styleName as keyof typeof tokens.typography.textStyles];
+  if (!textStyle) return {};
 
-  return styles[styleName] || {};
+  const fontFamilyKey = textStyle.fontFamily as keyof typeof tokens.typography.fontFamily;
+  const fontSizeKey = textStyle.fontSize as keyof typeof tokens.typography.fontSize;
+  const fontWeightKey = textStyle.fontWeight as keyof typeof tokens.typography.fontWeight;
+  const lineHeightKey = textStyle.lineHeight as keyof typeof tokens.typography.lineHeight;
+  const letterSpacingKey = textStyle.letterSpacing as keyof typeof tokens.typography.letterSpacing;
+
+  return {
+    fontFamily: tokens.typography.fontFamily[fontFamilyKey].join(', '),
+    fontSize: tokens.typography.fontSize[fontSizeKey],
+    fontWeight: tokens.typography.fontWeight[fontWeightKey],
+    lineHeight: parseFloat(tokens.typography.lineHeight[lineHeightKey]),
+    letterSpacing: tokens.typography.letterSpacing[letterSpacingKey]
+  };
 };
 
-const meta: Meta = {
+const meta = {
   title: 'Design System/Foundations/Shadows',
+  tags: ['autodocs'],
   parameters: {
-    layout: 'padded'
+    layout: 'padded',
+    docs: {
+      autodocs: true,
+      page: () => (
+        <>
+          <div style={{
+            background: `linear-gradient(135deg, ${tokens.colors.primary[500]} 0%, ${tokens.colors.accent[500]} 100%)`,
+            padding: tokens.spacing[8],
+            borderRadius: tokens.borderRadius.lg,
+            marginBottom: tokens.spacing[8],
+            color: tokens.colors.white,
+            textAlign: 'center'
+          }}>
+            <Title />
+            <Subtitle style={{
+              color: tokens.colors.white,
+              marginTop: tokens.spacing[2]
+            }}>Foundation: Shadows</Subtitle>
+            <Description>
+              <p style={{
+                color: tokens.colors.white + 'E6', // 90% opacity
+                fontSize: tokens.typography.fontSize.lg,
+                marginTop: tokens.spacing[4],
+                maxWidth: '600px',
+                margin: `${tokens.spacing[4]} auto 0`
+              }}>
+                Shadow scale, elevation levels, depth hierarchy.
+              </p>
+            </Description>
+          </div>
+          <Stories includePrimary={false} />
+        </>
+      ),
+    },
   },
 };
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
 
 function ShadowSwatch({ name, shadow, description, category }: {
   name: string;

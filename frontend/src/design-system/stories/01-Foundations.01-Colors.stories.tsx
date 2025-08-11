@@ -61,80 +61,13 @@ const meta: Meta = {
     docs: {
       autodocs: true,
       page: () => (
-        <div style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          padding: '2rem',
-          borderRadius: '12px',
-          marginBottom: '2rem',
-          color: 'white',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
-        }}>
-          <Title style={{
-            color: 'white',
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            marginBottom: '0.5rem',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-          }} />
-          <Subtitle style={{
-            color: '#f0f0f0',
-            fontSize: '1.5rem',
-            marginBottom: '1rem',
-            fontWeight: '500'
-          }}>
-            🎨 Foundation: Colors
-          </Subtitle>
-          <Description style={{
-            color: '#e0e0e0',
-            fontSize: '1.1rem',
-            lineHeight: '1.6',
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            padding: '1rem',
-            borderRadius: '8px',
-            backdropFilter: 'blur(10px)'
-          }}>
-            Explore our comprehensive color palette, design tokens, and accessibility guidelines.
-            Each color is carefully crafted for optimal contrast and visual harmony.
-          </Description>
-          <div style={{
-            display: 'flex',
-            gap: '1rem',
-            marginTop: '1.5rem',
-            flexWrap: 'wrap'
-          }}>
-            <div style={{
-              background: 'rgba(255,255,255,0.2)',
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
-              fontSize: '0.9rem',
-              backdropFilter: 'blur(5px)'
-            }}>
-              🎯 Design Tokens
-            </div>
-            <div style={{
-              background: 'rgba(255,255,255,0.2)',
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
-              fontSize: '0.9rem',
-              backdropFilter: 'blur(5px)'
-            }}>
-              ♿ Accessibility
-            </div>
-            <div style={{
-              background: 'rgba(255,255,255,0.2)',
-              padding: '0.5rem 1rem',
-              borderRadius: '20px',
-              fontSize: '0.9rem',
-              backdropFilter: 'blur(5px)'
-            }}>
-              🎨 Color Theory
-            </div>
-          </div>
-        </div>
+        <>
+          <Title />
+          <Subtitle>Foundation: Colors</Subtitle>
+          <Description>Palette, tokens, contrast notes.</Description>
+          <Stories includePrimary={false} /> {/* ← убирает авто-Primary наверху */}
+        </>
       ),
-      stories: {
-        includePrimary: false,
-      },
     },
   },
 };
