@@ -16,6 +16,15 @@ import { Badge } from '@/design-system/components/Badge';
 import { Button } from '@/design-system/components/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system';
 import { componentStyles } from '@/design-system/utils/designSystem';
+import {
+  Heading1,
+  Heading2,
+  Heading3,
+  BodyText,
+  Caption,
+  MetricText,
+  textStyles
+} from '@/design-system/utils/typography';
 import { CoreFinancialModeling } from '@/components/CoreFinancialModeling';
 import DashboardApiService, {
   DashboardOverview,
@@ -286,9 +295,9 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">
+            <BodyText className="text-muted-foreground mb-4">
               {loadingState.error.message}
-            </p>
+            </BodyText>
             <Button onClick={() => loadDashboardData()} className="w-full">
               <RefreshCw className="h-4 w-4 mr-2" />
               Retry
@@ -305,10 +314,10 @@ const Dashboard = () => {
       <section className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 sm:py-6">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-foreground leading-tight">
+            <Heading1 className="text-foreground leading-tight">
               Welcome back, {user?.first_name || user?.username || 'User'}!
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
+            </Heading1>
+            <Caption className="text-muted-foreground mt-1 sm:mt-2">
               {dashboardData && (dashboardData as any).data_quality_score !== undefined
                 ? `Last updated: ${new Date(
                   (dashboardData as any).last_updated
@@ -316,8 +325,7 @@ const Dashboard = () => {
                   Number((dashboardData as any).data_quality_score) * 100
                 ).toFixed(0)}%`
                 : 'Loading your financial dashboard...'}
-            </p>
-            {/* No demo badge */}
+            </Caption>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="flex items-center space-x-2">
@@ -338,7 +346,6 @@ const Dashboard = () => {
                   Last 12 Months
                 </option>
               </select>
-              {/* Removed demo/empty selector */}
               <Button
                 variant="outline"
                 size="sm"
@@ -373,9 +380,9 @@ const Dashboard = () => {
         {/* Key Metrics Section */}
         <section className="py-6">
           <div className={componentStyles.container}>
-            <h2 className="text-xl font-semibold mb-4">
+            <Heading2 className="mb-4">
               Key Financial Metrics
-            </h2>
+            </Heading2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {loadingState.isLoading ? (
                 // Loading skeleton
@@ -406,21 +413,19 @@ const Dashboard = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold mb-1">
+                        <MetricText className="mb-1">
                           {formatMetricValue(
                             metric.value,
                             metric.unit || '',
                             metric.format_type
                           )}
-                        </div>
+                        </MetricText>
                         {metric.change_percentage !== undefined && (
-                          <div
-                            className={`text-sm ${getTrendColor(metric.trend)}`}
-                          >
+                          <Caption className={getTrendColor(metric.trend)}>
                             {metric.change_percentage > 0 ? '+' : ''}
                             {metric.change_percentage.toFixed(1)}% from last
                             period
-                          </div>
+                          </Caption>
                         )}
                       </CardContent>
                     </Card>
@@ -442,35 +447,36 @@ const Dashboard = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold mb-1">
+                        <MetricText className="mb-1">
                           {formatMetricValue(
                             metric.value,
                             metric.unit || '',
                             metric.format_type
                           )}
-                        </div>
+                        </MetricText>
+                        {metric.change_percentage !== undefined && (
+                          <Caption className={getTrendColor(metric.trend)}>
+                            {metric.change_percentage > 0 ? '+' : ''}
+                            {metric.change_percentage.toFixed(1)}% from last
+                            period
+                          </Caption>
+                        )}
                       </CardContent>
                     </Card>
                   )
                 )
               ) : (
-                // No data state
-                <div className="col-span-full">
-                  <Card>
-                    <CardContent className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        No financial metrics available. Upload financial
-                        statements to see key metrics.
-                      </p>
-                      <div className="mt-4 flex items-center justify-center gap-2">
-                        <Button onClick={() => navigate('/upload')}>
-                          Upload Financial Data
-                        </Button>
-                        {/* No demo button */}
+                // Empty state
+                Array.from({ length: 4 }).map((_, index) => (
+                  <Card key={index} className="text-center py-8">
+                    <CardContent>
+                      <div className="text-muted-foreground">
+                        <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <BodyText className="text-sm">No metrics available</BodyText>
                       </div>
                     </CardContent>
                   </Card>
-                </div>
+                ))
               )}
             </div>
           </div>
@@ -480,9 +486,9 @@ const Dashboard = () => {
         <section className="py-6 border-t">
           <div className={componentStyles.container}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">
+              <Heading2>
                 Recent Financial Statements
-              </h2>
+              </Heading2>
               <Button
                 variant="outline"
                 size="sm"
@@ -542,52 +548,26 @@ const Dashboard = () => {
                       </CardHeader>
                       <CardContent>
                         <div className="text-xs text-muted-foreground space-y-1">
-                          {statement.period_start && statement.period_end && (
-                            <div>
-                              Period:{' '}
-                              {new Date(
-                                statement.period_start
-                              ).toLocaleDateString()}{' '}
-                              -{' '}
-                              {new Date(
-                                statement.period_end
-                              ).toLocaleDateString()}
-                            </div>
-                          )}
-                          <div>Currency: {statement.currency}</div>
-                          <div>
-                            Updated:{' '}
-                            {new Date(
-                              statement.last_updated
-                            ).toLocaleDateString()}
-                          </div>
+                          <div>Period: {statement.period}</div>
+                          <div>Uploaded: {new Date(statement.uploaded_at).toLocaleDateString()}</div>
+                          <div>Status: {statement.status}</div>
                         </div>
                       </CardContent>
                     </Card>
                   ))
               ) : (
-                // No statements state
+                // Empty state
                 <div className="col-span-full">
                   <Card>
                     <CardContent className="text-center py-8">
-                      <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-4">
-                        No financial statements found. Upload your financial
-                        data to get started.
-                      </p>
-                      <div className="space-x-2">
+                      <BodyText className="text-muted-foreground mb-4">
+                        No financial statements uploaded yet. Upload your first statement to get started.
+                      </BodyText>
+                      <div className="flex items-center justify-center gap-2">
                         <Button onClick={() => navigate('/upload')}>
                           <CloudUpload className="h-4 w-4 mr-2" />
-                          Upload Data
+                          Upload Financial Data
                         </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => navigate('/parameters')}
-                        >
-                          <Settings className="h-4 w-4 mr-2" />
-                          Set Parameters
-                        </Button>
-                        {/* No demo button */}
                       </div>
                     </CardContent>
                   </Card>
@@ -597,12 +577,74 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Core Financial Modeling Interface */}
-        <section className="py-8 border-t">
+        {/* Quick Actions Section */}
+        <section className="py-6 border-t">
           <div className={componentStyles.container}>
-            <h2 className="text-xl font-semibold mb-4">
-              Financial Modeling Tools
-            </h2>
+            <Heading2 className="mb-4">
+              Quick Actions
+            </Heading2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate('/financial-modeling')}
+              >
+                <CardContent className="p-6 text-center">
+                  <TrendingUp className="h-8 w-8 mx-auto mb-3 text-primary" />
+                  <Heading3 className="mb-2">Financial Modeling</Heading3>
+                  <BodyText className="text-muted-foreground">
+                    Create and analyze financial models
+                  </BodyText>
+                </CardContent>
+              </Card>
+
+              <Card
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate('/upload')}
+              >
+                <CardContent className="p-6 text-center">
+                  <CloudUpload className="h-8 w-8 mx-auto mb-3 text-primary" />
+                  <Heading3 className="mb-2">Upload Data</Heading3>
+                  <BodyText className="text-muted-foreground">
+                    Upload financial statements and data
+                  </BodyText>
+                </CardContent>
+              </Card>
+
+              <Card
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate('/scenarios')}
+              >
+                <CardContent className="p-6 text-center">
+                  <Target className="h-8 w-8 mx-auto mb-3 text-primary" />
+                  <Heading3 className="mb-2">Scenario Analysis</Heading3>
+                  <BodyText className="text-muted-foreground">
+                    Run what-if scenarios and sensitivity analysis
+                  </BodyText>
+                </CardContent>
+              </Card>
+
+              <Card
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate('/dcf-valuation')}
+              >
+                <CardContent className="p-6 text-center">
+                  <DollarSign className="h-8 w-8 mx-auto mb-3 text-primary" />
+                  <Heading3 className="mb-2">DCF Valuation</Heading3>
+                  <BodyText className="text-muted-foreground">
+                    Perform discounted cash flow analysis
+                  </BodyText>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Core Financial Modeling Component */}
+        <section className="py-6 border-t">
+          <div className={componentStyles.container}>
+            <Heading2 className="mb-4">
+              Financial Modeling Workspace
+            </Heading2>
             <CoreFinancialModeling
               onFileUpload={handleFileUpload}
               onParameterChange={handleParameterChange}
@@ -610,144 +652,6 @@ const Dashboard = () => {
               onValuationChange={handleValuationChange}
               onExportResults={handleExportResults}
             />
-          </div>
-        </section>
-
-        {/* Quick Actions */}
-        <section className="py-6 sm:py-8 border-t">
-          <div className={componentStyles.container}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <div>
-                <h2 className={componentStyles.heading.h2}>Quick Actions</h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  Get started with common financial modeling tasks
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {quickActions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant={action.variant}
-                  onClick={action.action}
-                  className="h-auto p-4 sm:p-6 flex flex-col items-start space-y-2 sm:space-y-3"
-                >
-                  <div className="flex items-center space-x-2 sm:space-x-3 w-full">
-                    {action.icon}
-                    <div className="text-left flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm sm:text-base">
-                        {action.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        {action.description}
-                      </p>
-                    </div>
-                  </div>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Navigation Cards */}
-        <section className="py-6 sm:py-8 border-t">
-          <div className={componentStyles.container}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <div>
-                <h2 className={componentStyles.heading.h2}>Financial Tools</h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  Access specialized financial analysis tools
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {dashboardCards.map((card, index) => (
-                <Card
-                  key={index}
-                  onClick={card.onClick}
-                  className="cursor-pointer transition-all duration-200 hover:scale-105"
-                >
-                  <CardHeader>
-                    <div className="flex items-center space-x-2">
-                      {card.icon}
-                      <CardTitle>{card.title}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {card.subtitle}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Getting Started Guide */}
-        <section className="py-6 sm:py-8 border-t">
-          <div className={componentStyles.container}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <div>
-                <h2 className={componentStyles.heading.h2}>Getting Started</h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  Learn how to use the financial modeling platform
-                </p>
-              </div>
-              <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                View All Guides
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <Card
-                onClick={() => navigate('/upload')}
-                className="cursor-pointer"
-              >
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <CloudUpload />
-                    <CardTitle>Upload Your Data</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Start by uploading your financial spreadsheets and documents
-                  </p>
-                </CardContent>
-              </Card>
-              <Card
-                onClick={() => navigate('/parameters')}
-                className="cursor-pointer"
-              >
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <Settings />
-                    <CardTitle>Configure Parameters</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Set up your modeling parameters and assumptions
-                  </p>
-                </CardContent>
-              </Card>
-              <Card
-                onClick={() => navigate('/dcf-valuation')}
-                className="cursor-pointer"
-              >
-                <CardHeader>
-                  <div className="flex items-center space-x-2">
-                    <Target />
-                    <CardTitle>Run Analysis</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Generate comprehensive financial statements and valuations
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </section>
       </main>

@@ -28,6 +28,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { textStyles } from '@/design-system/utils/typography';
 
 interface SidebarProps {
   open: boolean;
@@ -177,150 +178,125 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
   };
 
   const renderNavItem = (item: NavItem) => {
+    const isItemActive = isActive(item.path);
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.includes(item.id);
-    const active = isActive(item.path);
 
-    return (
-      <div key={item.id}>
-        {hasChildren ? (
-          <Collapsible
-            open={isExpanded}
-            onOpenChange={() => toggleExpanded(item.id)}
-          >
-            <CollapsibleTrigger asChild>
-              <Button
-                variant="ghost"
-                className={`w-full justify-between h-10 px-3 ${
-                  active ? 'bg-accent text-accent-foreground' : ''
+    if (hasChildren) {
+      return (
+        <Collapsible
+          key={item.id}
+          open={isExpanded}
+          onOpenChange={() => toggleExpanded(item.id)}
+        >
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className={`w-full justify-between p-2 h-auto ${isItemActive ? 'bg-accent text-accent-foreground' : ''
                 }`}
+            >
+              <div className="flex items-center space-x-2">
+                {item.icon}
+                <span style={textStyles.nav}>{item.label}</span>
+              </div>
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-1">
+            {item.children?.map(child => (
+              <Button
+                key={child.id}
+                variant="ghost"
+                className={`w-full justify-start p-2 h-auto pl-8 ${isActive(child.path) ? 'bg-accent text-accent-foreground' : ''
+                  }`}
+                onClick={() => handleNavigation(child.path!)}
               >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center space-x-3">
-                    {item.icon}
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                <div className="flex items-center space-x-2">
+                  {child.icon}
+                  <span style={textStyles.nav}>{child.label}</span>
                 </div>
               </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-1">
-              {item.children?.map(child => (
-                <Button
-                  key={child.id}
-                  variant="ghost"
-                  size="sm"
-                  className={`w-full justify-start h-8 px-6 ml-2 ${
-                    isActive(child.path)
-                      ? 'bg-accent text-accent-foreground'
-                      : ''
-                  }`}
-                  onClick={() => handleNavigation(child.path!)}
-                >
-                  <div className="flex items-center space-x-3">
-                    {child.icon}
-                    <span className="text-sm">{child.label}</span>
-                  </div>
-                </Button>
-              ))}
-            </CollapsibleContent>
-          </Collapsible>
-        ) : (
-          <Button
-            variant="ghost"
-            className={`w-full justify-start h-10 px-3 ${
-              active ? 'bg-accent text-accent-foreground' : ''
-            }`}
-            onClick={() => item.path && handleNavigation(item.path)}
-          >
-            <div className="flex items-center space-x-3">
-              {item.icon}
-              <span className="text-sm font-medium">{item.label}</span>
-            </div>
-          </Button>
-        )}
-      </div>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+      );
+    }
+
+    return (
+      <Button
+        key={item.id}
+        variant="ghost"
+        className={`w-full justify-start p-2 h-auto ${isItemActive ? 'bg-accent text-accent-foreground' : ''
+          }`}
+        onClick={() => item.path && handleNavigation(item.path)}
+      >
+        <div className="flex items-center space-x-2">
+          {item.icon}
+          <span style={textStyles.nav}>{item.label}</span>
+        </div>
+      </Button>
     );
   };
 
   return (
-    <>
-      {/* Mobile overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onToggle}
-        />
-      )}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out lg:relative lg:translate-x-0 lg:inset-y-0 lg:left-0 ${
-          open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+    <div
+      className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-background border-r transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'
         }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Activity className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-lg font-semibold">FinModel</h1>
-                <p className="text-xs text-muted-foreground">v2.0.0</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggle}
-              className="lg:hidden"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+    >
+      {/* Header */}
+      <div className="flex h-16 items-center justify-between border-b px-4">
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <span style={textStyles.title} className="text-primary-foreground font-bold">
+              FM
+            </span>
           </div>
+          <span style={textStyles.title} className="font-semibold">
+            FinVision
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggle}
+          className="lg:hidden"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+      </div>
 
-          {/* User Info */}
-          <div className="p-4 border-b">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <Shield className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {user?.first_name || user?.username || 'User'}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user?.email || 'user@example.com'}
-                </p>
-              </div>
+      {/* Navigation */}
+      <ScrollArea className="flex-1 px-2 py-4">
+        <nav className="space-y-1">
+          {baseNavigationItems.map(renderNavItem)}
+        </nav>
+      </ScrollArea>
+
+      {/* Footer */}
+      <div className="border-t p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+              <span style={textStyles.caption} className="text-primary-foreground font-medium text-xs">
+                {user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U'}
+              </span>
             </div>
-          </div>
-
-          {/* Navigation */}
-          <ScrollArea className="flex-1 p-4">
-            <nav className="space-y-2">
-              {navigationItems.map(renderNavItem)}
-            </nav>
-          </ScrollArea>
-
-          {/* Footer */}
-          <div className="p-4 border-t">
-            <div className="flex items-center justify-between">
-              <Badge variant="secondary" className="text-xs">
-                Lean App
-              </Badge>
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4" />
-              </Button>
+            <div className="flex flex-col">
+              <span style={textStyles.nav} className="font-medium">
+                {user?.first_name || user?.username || 'User'}
+              </span>
+              <span style={textStyles.caption} className="text-muted-foreground">
+                {user?.role || 'User'}
+              </span>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

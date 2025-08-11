@@ -15,6 +15,7 @@ import {
 import { Separator } from '@/design-system/components/Separator';
 import { Menu, LogOut, Home, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Caption, textStyles } from '@/design-system/utils/typography';
 // import { HelpButton } from '../ui';
 import { ThemeToggle } from '../theme-toggle';
 import Sidebar from './Sidebar';
@@ -69,7 +70,8 @@ const Layout = () => {
           <React.Fragment key={path}>
             <button
               onClick={() => navigate(path)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              style={textStyles.nav}
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               {breadcrumb.label}
             </button>
@@ -98,61 +100,64 @@ const Layout = () => {
               onClick={handleSidebarToggle}
               className="lg:hidden"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-4 w-4" />
             </Button>
 
             {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm">
-              <Home className="h-4 w-4 text-muted-foreground" />
-              {getBreadcrumbs()}
-            </div>
-
-            <div className="ml-auto flex items-center gap-4">
-              <ThemeToggle />
-              {/* <HelpButton /> */}
-
-              {/* User Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
-                  >
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="" alt={fullName} />
-                      <AvatarFallback>
-                        {userInitial.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex items-center justify-start gap-2 p-2">
-                    <div className="flex flex-col space-y-1 leading-none">
-                      {fullName && <p className="font-medium">{fullName}</p>}
-                      {user?.email && (
-                        <p className="w-[200px] truncate text-sm text-muted-foreground">
-                          {user.email}
-                        </p>
-                      )}
-                    </div>
+            <nav className="flex items-center space-x-1 text-sm">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center space-x-1 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Home className="h-4 w-4" />
+                <span style={textStyles.nav}>Home</span>
+              </button>
+              {getBreadcrumbs().length > 0 && (
+                <>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center space-x-1">
+                    {getBreadcrumbs()}
                   </div>
-                  <Separator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                </>
+              )}
+            </nav>
+
+            <div className="flex-1" />
+
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user?.avatar} alt={fullName} />
+                    <AvatarFallback>{userInitial}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    <Caption className="font-medium">{fullName}</Caption>
+                    <Caption className="w-[200px] truncate text-muted-foreground">
+                      {user?.email}
+                    </Caption>
+                  </div>
+                </div>
+                <Separator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <ThemeToggle />
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">
-          <div className="container mx-auto p-6">
-            <Outlet />
-          </div>
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
         </main>
       </div>
     </div>
