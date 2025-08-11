@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AuthGuard, AdminGuard, AnalystGuard, ViewerGuard, VerifiedUserGuard } from './AuthGuard';
+import AuthGuard, { AdminGuard, AnalystGuard, ViewerGuard, VerifiedUserGuard } from './AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
 import { BrowserRouter } from 'react-router-dom';
 
