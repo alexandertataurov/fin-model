@@ -339,7 +339,7 @@ const DataManagement: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               {formatNumber(
-                tableData.reduce((sum, t) => sum + t.record_count, 0)
+                tableData.reduce((sum, t) => sum + t.rows, 0)
               )}
             </div>
             <div className="text-xs text-muted-foreground">
@@ -663,7 +663,7 @@ const DataManagement: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">
-                      {formatNumber(tables._total_records || 0)}
+                      {formatNumber(tables._total_records?.count || 0)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Total Records
