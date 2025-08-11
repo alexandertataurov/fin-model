@@ -319,6 +319,22 @@ const DataManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* Debug Section - Remove after fixing */}
+      {process.env.NODE_ENV === 'development' && (
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Debug Info</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xs font-mono">
+              <div>Database Health: {JSON.stringify(databaseHealth, null, 2)}</div>
+              <div>Table Data Length: {tableData.length}</div>
+              <div>Tables Object Keys: {Object.keys(tables).join(', ')}</div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
@@ -735,6 +751,7 @@ const DataManagement: React.FC = () => {
                     <div className="text-2xl font-bold">
                       {(() => {
                         const avgTime = databaseHealth?.performance_metrics?.avg_query_time_ms;
+                        console.log('Avg query time:', avgTime); // Debug log
                         if (avgTime != null && avgTime > 0) {
                           return `${avgTime.toFixed(2)} ms`;
                         }
@@ -763,8 +780,11 @@ const DataManagement: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {databaseHealth?.connection_pool?.active_connections ??
-                        'N/A'}
+                      {(() => {
+                        const connections = databaseHealth?.connection_pool?.active_connections;
+                        console.log('Active connections:', connections); // Debug log
+                        return connections ?? 'N/A';
+                      })()}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Active Connections

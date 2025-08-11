@@ -49,12 +49,11 @@ async def get_database_health(
 
         # Get basic connection info
         try:
-            conn_info = db.execute(
+            # Get active connections
+            conn_count = db.execute(
                 text(
                     """
-                SELECT 
-                    count(*) as active_connections,
-                    max(EXTRACT(EPOCH FROM (now() - query_start))) * 1000 as max_query_time_ms
+                SELECT count(*) as active_connections
                 FROM pg_stat_activity 
                 WHERE state = 'active' 
                 AND query NOT LIKE '%pg_stat_activity%'
@@ -62,11 +61,27 @@ async def get_database_health(
                 )
             ).fetchone()
 
-            active_connections = conn_info[0] if conn_info else 0
-            max_query_time_ms = conn_info[1] if conn_info and conn_info[1] else 0
+            active_connections = conn_count[0] if conn_count else 0
+
+            # Get average query time from recent activity
+            query_time = db.execute(
+                text(
+                    """
+                SELECT 
+                    COALESCE(AVG(EXTRACT(EPOCH FROM (now() - query_start))) * 1000, 0) as avg_query_time_ms
+                FROM pg_stat_activity 
+                WHERE state = 'active' 
+                AND query_start IS NOT NULL
+                AND query NOT LIKE '%pg_stat_activity%'
+            """
+                )
+            ).fetchone()
+
+            avg_query_time_ms = query_time[0] if query_time and query_time[0] else 0
+
         except Exception:
             active_connections = 0
-            max_query_time_ms = 0
+            avg_query_time_ms = 0
 
         return {
             "status": "healthy",
@@ -77,7 +92,7 @@ async def get_database_health(
                 "available_connections": 20 - active_connections,
             },
             "performance_metrics": {
-                "avg_query_time_ms": max_query_time_ms,
+                "avg_query_time_ms": avg_query_time_ms,
                 "note": "Basic metrics available",
             },
             "database_stats": {
