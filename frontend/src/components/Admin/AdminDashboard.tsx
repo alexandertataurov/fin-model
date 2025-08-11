@@ -21,6 +21,7 @@ import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
 import { useLogFilters } from '@/hooks/useLogFilters';
 import LogFilterForm from './LogFilterForm';
+import DashboardCustomization from './DashboardCustomization';
 import type { LogEntry } from '@/services/adminApi';
 import {
     Users,
@@ -122,11 +123,11 @@ const OverviewTab: React.FC = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             {/* System Health Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Overall System Status */}
-                <Card className="lg:col-span-2 shadow-sm border-0 bg-gradient-to-br from-white to-gray-50/50">
+                <Card className="lg:col-span-2">
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center justify-between">
                             <div className="flex items-center">
@@ -190,7 +191,7 @@ const OverviewTab: React.FC = () => {
                 </Card>
 
                 {/* Performance Metrics */}
-                <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-blue-50/30">
+                <Card>
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center">
                             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
@@ -250,8 +251,8 @@ const OverviewTab: React.FC = () => {
             </div>
 
             {/* User Activity and System Alerts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-purple-50/30">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center justify-between">
                             <div className="flex items-center">
@@ -313,7 +314,7 @@ const OverviewTab: React.FC = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-orange-50/30">
+                <Card>
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center">
                             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
@@ -411,9 +412,9 @@ const HealthTab: React.FC = () => {
     const { systemHealth, databaseHealth } = useAdminStore();
 
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-emerald-50/30">
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center">
                             <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
@@ -459,7 +460,7 @@ const HealthTab: React.FC = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-blue-50/30">
+                <Card>
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center">
                             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
@@ -507,7 +508,7 @@ const HealthTab: React.FC = () => {
             </div>
 
             {/* Network and Services Health */}
-            <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-indigo-50/30">
+            <Card>
                 <CardHeader className="pb-4">
                     <CardTitle className="flex items-center">
                         <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
@@ -561,8 +562,8 @@ const LogsTab: React.FC = () => {
     const { items, total, skip, limit, level, from, to, search } = logs;
 
     return (
-        <div className="space-y-8">
-            <Card className="shadow-sm border-0 bg-gradient-to-br from-white to-slate-50/30">
+        <div className="space-y-6">
+            <Card>
                 <CardHeader className="pb-4">
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -647,11 +648,11 @@ export const AdminDashboard: React.FC = () => {
             sectionName="Admin Dashboard"
             onRetry={() => window.location.reload()}
         >
-            <div className="space-y-8">
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
                             Admin Dashboard
                         </h1>
                         <p className="text-lg text-muted-foreground mt-2">
@@ -659,11 +660,18 @@ export const AdminDashboard: React.FC = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <DashboardCustomization
+                            userRole="admin"
+                            onConfigChange={(config) => {
+                                console.log('Dashboard config changed:', config);
+                                // TODO: Save configuration to backend
+                            }}
+                        />
                         <Button variant="outline" size="sm">
                             <Settings className="h-4 w-4 mr-2" />
                             Settings
                         </Button>
-                        <Button size="sm" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+                        <Button size="sm">
                             <TrendingUp className="h-4 w-4 mr-2" />
                             Export Report
                         </Button>
@@ -671,7 +679,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                     <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50 p-1 rounded-lg">
                         <TabsTrigger
                             value="overview"
@@ -696,15 +704,15 @@ export const AdminDashboard: React.FC = () => {
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="space-y-8">
+                    <TabsContent value="overview" className="space-y-6">
                         <OverviewTab />
                     </TabsContent>
 
-                    <TabsContent value="health" className="space-y-8">
+                    <TabsContent value="health" className="space-y-6">
                         <HealthTab />
                     </TabsContent>
 
-                    <TabsContent value="logs" className="space-y-8">
+                    <TabsContent value="logs" className="space-y-6">
                         <LogsTab />
                     </TabsContent>
                 </Tabs>

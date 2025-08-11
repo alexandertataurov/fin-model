@@ -5,10 +5,10 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Settings, 
-  Eye, 
-  EyeOff, 
+import {
+  Settings,
+  Eye,
+  EyeOff,
   GripVertical,
   Save,
   RotateCcw,
@@ -18,8 +18,9 @@ import {
   Shield,
   FileText,
   AlertCircle,
+  CheckCircle,
 } from 'lucide-react';
-import { Card, CardContent } from '@/design-system/components/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
 import { Switch } from '@/design-system/components/Switch';
 import { Badge } from '@/design-system/components/Badge';
@@ -55,9 +56,9 @@ export interface DashboardWidget {
   settings?: Record<string, any>;
 }
 
-export type WidgetType = 
+export type WidgetType =
   | 'system-stats'
-  | 'user-activity' 
+  | 'user-activity'
   | 'system-metrics'
   | 'security-audit'
   | 'logs'
@@ -65,7 +66,7 @@ export type WidgetType =
   | 'performance'
   | 'alerts';
 
-export type UserRole = 'admin' | 'analyst' | 'viewer' | 'editor';
+export type UserRole = 'admin' | 'analyst' | 'editor' | 'viewer';
 
 // Default widget configurations based on role
 const ROLE_WIDGET_DEFAULTS: Record<UserRole, Partial<Record<WidgetType, boolean>>> = {
@@ -187,344 +188,226 @@ interface DashboardCustomizationProps {
   currentConfig?: DashboardWidget[];
 }
 
-interface WidgetConfigCardProps {
-  widget: DashboardWidget;
-  draggedWidget: string | null;
-  onDragStart: (id: string) => void;
-  onDragEnd: () => void;
-  onDrop: (targetId: string) => void;
-  onSizeChange: (id: string, size: DashboardWidget['size']) => void;
-  onToggle: (id: string) => void;
-}
-
-const WidgetConfigCard: React.FC<WidgetConfigCardProps> = ({
-  widget,
-  draggedWidget,
-  onDragStart,
-  onDragEnd,
-  onDrop,
-  onSizeChange,
-  onToggle,
-}) => (
-  <Card
-    className={`transition-all ${
-      draggedWidget === widget.id ? 'opacity-50' : ''
-    }`}
-    draggable
-    onDragStart={() => onDragStart(widget.id)}
-    onDragEnd={onDragEnd}
-    onDragOver={e => e.preventDefault()}
-    onDrop={e => {
-      e.preventDefault();
-      onDrop(widget.id);
-    }}
-  >
-    <CardContent className="p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-          <div className="flex items-center space-x-2">
-            {widget.icon}
-            <div>
-              <div className="font-medium">{widget.title}</div>
-              <div className="text-sm text-muted-foreground">
-                {widget.description}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">Size:</span>
-            <Select
-              value={widget.size}
-              onValueChange={value =>
-                onSizeChange(widget.id, value as DashboardWidget['size'])
-              }
-            >
-              <SelectTrigger className="w-24">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="small">Small</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="large">Large</SelectItem>
-                <SelectItem value="full-width">Full</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">Visible:</span>
-            <Switch
-              checked={widget.visible}
-              onCheckedChange={() => onToggle(widget.id)}
-            />
-          </div>
-
-          <Badge variant="outline" className="text-xs">
-            #{widget.position + 1}
-          </Badge>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
-
 export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
   userRole,
   onConfigChange,
-  currentConfig,
+  currentConfig = [],
 }) => {
-  const [widgets, setWidgets] = useState<DashboardWidget[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [draggedWidget, setDraggedWidget] = useState<string | null>(null);
+  const [widgets, setWidgets] = useState<DashboardWidget[]>(currentConfig);
+  const [hasChanges, setHasChanges] = useState(false);
 
-  // Initialize widgets based on role and current config
+  // Initialize widgets based on role if no current config
   useEffect(() => {
-    if (currentConfig) {
-      setWidgets(currentConfig);
-    } else {
-      // Initialize with role defaults
-      const roleDefaults = ROLE_WIDGET_DEFAULTS[userRole] || {};
-      const initialWidgets = AVAILABLE_WIDGETS
-        .filter(widget => widget.requiredRole.includes(userRole))
-        .map(widget => ({
-          ...widget,
-          visible: roleDefaults[widget.type] ?? widget.visible,
-        }))
-        .sort((a, b) => a.position - b.position);
-      
-      setWidgets(initialWidgets);
-    }
-  }, [userRole, currentConfig]);
-
-  const handleWidgetToggle = (widgetId: string) => {
-    setWidgets(prev => 
-      prev.map(widget => 
-        widget.id === widgetId 
-          ? { ...widget, visible: !widget.visible }
-          : widget
-      )
-    );
-  };
-
-  const handleWidgetReorder = (fromIndex: number, toIndex: number) => {
-    setWidgets(prev => {
-      const newWidgets = [...prev];
-      const [removed] = newWidgets.splice(fromIndex, 1);
-      newWidgets.splice(toIndex, 0, removed);
-      
-      // Update positions
-      return newWidgets.map((widget, index) => ({
+    if (currentConfig.length === 0) {
+      const defaultWidgets = AVAILABLE_WIDGETS.filter(widget =>
+        widget.requiredRole.includes(userRole)
+      ).map(widget => ({
         ...widget,
-        position: index,
+        visible: ROLE_WIDGET_DEFAULTS[userRole][widget.type] ?? false,
       }));
-    });
-  };
+      setWidgets(defaultWidgets);
+    } else {
+      setWidgets(currentConfig);
+    }
+  }, [currentConfig, userRole]);
 
-  const handleSizeChange = (widgetId: string, size: DashboardWidget['size']) => {
-    setWidgets(prev =>
-      prev.map(widget =>
-        widget.id === widgetId ? { ...widget, size } : widget
-      )
-    );
-  };
+  const handleWidgetToggle = useCallback((widgetId: string, visible: boolean) => {
+    setWidgets(prev => prev.map(widget =>
+      widget.id === widgetId ? { ...widget, visible } : widget
+    ));
+    setHasChanges(true);
+  }, []);
 
-  const handleSave = () => {
+  const handleReset = useCallback(() => {
+    const defaultWidgets = AVAILABLE_WIDGETS.filter(widget =>
+      widget.requiredRole.includes(userRole)
+    ).map(widget => ({
+      ...widget,
+      visible: ROLE_WIDGET_DEFAULTS[userRole][widget.type] ?? false,
+    }));
+    setWidgets(defaultWidgets);
+    setHasChanges(true);
+  }, [userRole]);
+
+  const handleSave = useCallback(() => {
     onConfigChange(widgets);
+    setHasChanges(false);
     setIsOpen(false);
-    toast.success('Dashboard layout saved successfully');
-  };
+    toast.success('Dashboard configuration saved successfully');
+  }, [widgets, onConfigChange]);
 
-  const handleReset = () => {
-    const roleDefaults = ROLE_WIDGET_DEFAULTS[userRole] || {};
-    const resetWidgets = AVAILABLE_WIDGETS
-      .filter(widget => widget.requiredRole.includes(userRole))
-      .map(widget => ({
-        ...widget,
-        visible: roleDefaults[widget.type] ?? widget.visible,
-      }))
-      .sort((a, b) => a.position - b.position);
-    
-    setWidgets(resetWidgets);
-    toast.info('Dashboard layout reset to defaults');
-  };
+  const handleCancel = useCallback(() => {
+    setWidgets(currentConfig);
+    setHasChanges(false);
+    setIsOpen(false);
+  }, [currentConfig]);
 
-  const availableWidgetsCount = widgets.filter(w => w.requiredRole.includes(userRole)).length;
-  const visibleWidgetsCount = widgets.filter(w => w.visible && w.requiredRole.includes(userRole)).length;
+  const visibleWidgets = widgets.filter(w => w.visible);
+  const hiddenWidgets = widgets.filter(w => !w.visible);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Settings className="h-4 w-4 mr-2" />
-          Customize Dashboard
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Dashboard Customization</DialogTitle>
-          <DialogDescription>
-            Customize your dashboard layout and widget visibility. 
-            Role: <Badge variant="secondary">{userRole}</Badge> | 
-            Showing {visibleWidgetsCount} of {availableWidgetsCount} available widgets
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Settings className="h-4 w-4 mr-2" />
+            Customize Dashboard
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Dashboard Customization
+            </DialogTitle>
+            <DialogDescription>
+              Configure which widgets are visible on your dashboard based on your role and preferences.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <div className="flex justify-between items-center">
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setWidgets(prev => prev.map(w => ({ ...w, visible: true })))}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Show All
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setWidgets(prev => prev.map(w => ({ ...w, visible: false })))}
-              >
-                <EyeOff className="h-4 w-4 mr-2" />
-                Hide All
-              </Button>
-            </div>
-            <Button variant="outline" size="sm" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Reset to Defaults
-            </Button>
-          </div>
+          <div className="space-y-6">
+            {/* Role Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Role: {userRole.charAt(0).toUpperCase() + userRole.slice(1)}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Badge variant="default">{userRole}</Badge>
+                  <span className="text-sm text-muted-foreground">
+                    You can customize {widgets.length} available widgets
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Widget Configuration */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Widget Configuration</h3>
-            <div className="grid gap-4">
-              {widgets
-                .filter(widget => widget.requiredRole.includes(userRole))
-                .sort((a, b) => a.position - b.position)
-                .map(widget => (
-                  <WidgetConfigCard
-                    key={widget.id}
-                    widget={widget}
-                    draggedWidget={draggedWidget}
-                    onDragStart={setDraggedWidget}
-                    onDragEnd={() => setDraggedWidget(null)}
-                    onDrop={targetId => {
-                      if (draggedWidget && draggedWidget !== targetId) {
-                        const fromIndex = widgets.findIndex(w => w.id === draggedWidget);
-                        const toIndex = widgets.findIndex(w => w.id === targetId);
-                        handleWidgetReorder(fromIndex, toIndex);
-                      }
-                    }}
-                    onSizeChange={handleSizeChange}
-                    onToggle={handleWidgetToggle}
-                  />
-                ))}
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Layout Preview</h3>
-            <div className="border rounded-lg p-4 bg-muted/20">
-              <div className="grid grid-cols-12 gap-4">
-                {widgets
-                  .filter(w => w.visible && w.requiredRole.includes(userRole))
-                  .sort((a, b) => a.position - b.position)
-                  .map(widget => (
-                    <div
-                      key={widget.id}
-                      className={`
-                        bg-background border rounded p-3 flex items-center justify-center text-sm
-                        ${widget.size === 'small' ? 'col-span-3' : ''}
-                        ${widget.size === 'medium' ? 'col-span-6' : ''}
-                        ${widget.size === 'large' ? 'col-span-9' : ''}
-                        ${widget.size === 'full-width' ? 'col-span-12' : ''}
-                      `}
-                    >
-                      <div className="flex items-center space-x-2">
-                        {widget.icon}
-                        <span>{widget.title}</span>
+            {/* Visible Widgets */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Eye className="h-5 w-5 text-green-600" />
+                Visible Widgets ({visibleWidgets.length})
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {visibleWidgets.map(widget => (
+                  <Card key={widget.id} className="border-green-200 bg-green-50/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            {widget.icon}
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">{widget.title}</h4>
+                            <p className="text-sm text-muted-foreground">{widget.description}</p>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={widget.visible}
+                          onCheckedChange={(checked) => handleWidgetToggle(widget.id, checked)}
+                        />
                       </div>
-                    </div>
-                  ))}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" />
-            Save Layout
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            {/* Hidden Widgets */}
+            {hiddenWidgets.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <EyeOff className="h-5 w-5 text-gray-500" />
+                  Hidden Widgets ({hiddenWidgets.length})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {hiddenWidgets.map(widget => (
+                    <Card key={widget.id} className="border-gray-200 bg-gray-50/30">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                              {widget.icon}
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{widget.title}</h4>
+                              <p className="text-sm text-muted-foreground">{widget.description}</p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={widget.visible}
+                            onCheckedChange={(checked) => handleWidgetToggle(widget.id, checked)}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Widget Size Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Widget Sizes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {visibleWidgets.map(widget => (
+                    <div key={widget.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          {widget.icon}
+                        </div>
+                        <span className="font-medium">{widget.title}</span>
+                      </div>
+                      <Select
+                        value={widget.size}
+                        onValueChange={(value) => {
+                          setWidgets(prev => prev.map(w =>
+                            w.id === widget.id ? { ...w, size: value as any } : w
+                          ));
+                          setHasChanges(true);
+                        }}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="large">Large</SelectItem>
+                          <SelectItem value="full-width">Full Width</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <DialogFooter className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleReset}>
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset to Defaults
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={!hasChanges}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
-// Hook for managing dashboard configuration
-export const useDashboardConfig = (userRole: UserRole) => {
-  const [config, setConfig] = useState<DashboardWidget[]>([]);
-
-  const initializeDefaults = useCallback(() => {
-    const roleDefaults = ROLE_WIDGET_DEFAULTS[userRole] || {};
-    const defaultConfig = AVAILABLE_WIDGETS
-      .filter(widget => widget.requiredRole.includes(userRole))
-      .map(widget => ({
-        ...widget,
-        visible: roleDefaults[widget.type] ?? widget.visible,
-      }))
-      .sort((a, b) => a.position - b.position);
-
-    setConfig(defaultConfig);
-  }, [userRole]);
-
-  useEffect(() => {
-    // Load saved config from localStorage
-    const savedConfig = localStorage.getItem(`dashboard-config-${userRole}`);
-    if (savedConfig) {
-      try {
-        setConfig(JSON.parse(savedConfig));
-      } catch (error) {
-        console.error('Failed to parse dashboard config:', error);
-        // Fall back to defaults
-        initializeDefaults();
-      }
-    } else {
-      initializeDefaults();
-    }
-  }, [userRole, initializeDefaults]);
-
-  const saveConfig = (newConfig: DashboardWidget[]) => {
-    setConfig(newConfig);
-    localStorage.setItem(`dashboard-config-${userRole}`, JSON.stringify(newConfig));
-  };
-
-  const resetConfig = () => {
-    localStorage.removeItem(`dashboard-config-${userRole}`);
-    initializeDefaults();
-  };
-
-  const getVisibleWidgets = () => {
-    return config
-      .filter(widget => widget.visible && widget.requiredRole.includes(userRole))
-      .sort((a, b) => a.position - b.position);
-  };
-
-  return {
-    config,
-    saveConfig,
-    resetConfig,
-    getVisibleWidgets,
-  };
-};
+export default DashboardCustomization;
