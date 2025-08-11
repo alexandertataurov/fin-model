@@ -7,7 +7,7 @@ const meta: Meta = {
   parameters: {
     docs: {
       description: {
-        component: 'Z-index tokens define the stacking order of elements. Higher values appear on top. Use semantic tokens for common UI patterns.'
+        component: 'Comprehensive z-index system for managing element stacking order. Includes semantic tokens for common UI patterns, accessibility considerations, and responsive design scenarios. Higher values appear on top.'
       }
     },
     layout: 'padded'
@@ -18,7 +18,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// Base layer visualization
+// Enhanced layer visualization with tokens
 export const ZIndexLayers: Story = {
   render: () => (
     <div className="space-y-8">
@@ -131,53 +131,12 @@ export const ZIndexLayers: Story = {
             </div>
           </div>
         </div>
-
-        {/* Usage guidelines */}
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-foreground border-b pb-2">Usage Guidelines</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <h5 className="font-medium text-foreground">When to Use</h5>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start space-x-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Base layers (0-50) for content organization</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Semantic tokens for consistent UI patterns</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span>Higher values only when necessary</span>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <h5 className="font-medium text-foreground">Avoid</h5>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start space-x-2">
-                  <span className="text-destructive mt-1">•</span>
-                  <span>Arbitrary z-index values</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-destructive mt-1">•</span>
-                  <span>Values above 1060 unless critical</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-destructive mt-1">•</span>
-                  <span>Nested stacking contexts without planning</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   ),
 };
 
-// Real-world use cases
+// Enhanced use cases with more scenarios
 export const UseCases: Story = {
   render: () => (
     <div className="space-y-8">
@@ -186,7 +145,7 @@ export const UseCases: Story = {
 
         {/* Navigation with dropdown */}
         <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Navigation with Dropdown (z-dropdown: 1000)</h4>
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Navigation with Dropdown (z-dropdown: {tokens.zIndex.dropdown})</h4>
           <div className="flex items-center space-x-4">
             <div className="bg-primary/10 px-4 py-2 rounded-md text-primary font-medium">Logo</div>
             <div className="bg-muted px-4 py-2 rounded-md">Home</div>
@@ -206,7 +165,7 @@ export const UseCases: Story = {
 
         {/* Sticky header */}
         <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Sticky Header (z-sticky: 1020)</h4>
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Sticky Header (z-sticky: {tokens.zIndex.sticky})</h4>
           <div className="space-y-4">
             <div
               className="bg-background border-b px-6 py-3 flex items-center justify-between"
@@ -224,7 +183,7 @@ export const UseCases: Story = {
 
         {/* Modal overlay */}
         <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Modal with Backdrop (z-modal: 1040)</h4>
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Modal with Backdrop (z-modal: {tokens.zIndex.modal})</h4>
           <div className="relative h-40 bg-muted/20 rounded-md overflow-hidden">
             <div
               className="absolute inset-0 bg-black/50 flex items-center justify-center"
@@ -244,7 +203,7 @@ export const UseCases: Story = {
 
         {/* Tooltip */}
         <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Tooltip (z-tooltip: 1060)</h4>
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Tooltip (z-tooltip: {tokens.zIndex.tooltip})</h4>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <div className="bg-primary px-4 py-2 rounded-md text-primary-foreground cursor-help">Hover me</div>
@@ -257,6 +216,214 @@ export const UseCases: Story = {
               </div>
             </div>
             <div className="text-sm text-muted-foreground">Tooltips appear above all other elements</div>
+          </div>
+        </div>
+
+        {/* Fixed sidebar */}
+        <div className="relative border rounded-lg p-6 bg-background">
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Fixed Sidebar (z-fixed: {tokens.zIndex.fixed})</h4>
+          <div className="relative h-40 bg-muted/20 rounded-md overflow-hidden">
+            <div
+              className="absolute left-0 top-0 h-full w-48 bg-background border-r shadow-lg"
+              style={{ zIndex: tokens.zIndex.fixed }}
+            >
+              <div className="p-4">
+                <div className="font-semibold mb-4">Sidebar</div>
+                <div className="space-y-2">
+                  <div className="px-2 py-1 hover:bg-muted rounded text-sm">Dashboard</div>
+                  <div className="px-2 py-1 hover:bg-muted rounded text-sm">Analytics</div>
+                  <div className="px-2 py-1 hover:bg-muted rounded text-sm">Settings</div>
+                </div>
+              </div>
+            </div>
+            <div className="ml-48 p-4">
+              <div className="text-sm text-muted-foreground">Main content area</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Popover menu */}
+        <div className="relative border rounded-lg p-6 bg-background">
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Popover Menu (z-popover: {tokens.zIndex.popover})</h4>
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <div className="bg-muted px-4 py-2 rounded-md cursor-pointer hover:bg-muted/80">Actions ▼</div>
+              <div
+                className="absolute top-full mt-1 bg-background border rounded-md shadow-lg p-2 min-w-[150px]"
+                style={{ zIndex: tokens.zIndex.popover }}
+              >
+                <div className="px-2 py-1 hover:bg-muted rounded text-sm flex items-center space-x-2">
+                  <span>📝</span>
+                  <span>Edit</span>
+                </div>
+                <div className="px-2 py-1 hover:bg-muted rounded text-sm flex items-center space-x-2">
+                  <span>📋</span>
+                  <span>Copy</span>
+                </div>
+                <div className="px-2 py-1 hover:bg-muted rounded text-sm flex items-center space-x-2 text-destructive">
+                  <span>🗑️</span>
+                  <span>Delete</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">Context menus appear above dropdowns</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+// Advanced stacking scenarios
+export const AdvancedScenarios: Story = {
+  render: () => (
+    <div className="space-y-8">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-foreground">Advanced Stacking Scenarios</h3>
+
+        {/* Nested stacking contexts */}
+        <div className="border rounded-lg p-6 bg-background">
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Nested Stacking Contexts</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="text-xs font-medium text-muted-foreground">Parent Container (z=10)</div>
+              <div
+                className="relative h-32 bg-blue-100 border-2 border-blue-300 rounded-lg p-4"
+                style={{ zIndex: tokens.zIndex[10] }}
+              >
+                <div className="text-xs text-blue-700 mb-2">Parent (z=10)</div>
+                <div
+                  className="absolute top-2 right-2 w-16 h-16 bg-green-200 border-2 border-green-400 rounded flex items-center justify-center text-xs"
+                  style={{ zIndex: tokens.zIndex[20] }}
+                >
+                  Child (z=20)
+                </div>
+                <div
+                  className="absolute bottom-2 left-2 w-16 h-16 bg-red-200 border-2 border-red-400 rounded flex items-center justify-center text-xs"
+                  style={{ zIndex: tokens.zIndex[30] }}
+                >
+                  Child (z=30)
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="text-xs font-medium text-muted-foreground">Sibling Containers</div>
+              <div className="relative h-32">
+                <div
+                  className="absolute inset-0 bg-purple-100 border-2 border-purple-300 rounded-lg p-4"
+                  style={{ zIndex: tokens.zIndex[20] }}
+                >
+                  <div className="text-xs text-purple-700">Sibling A (z=20)</div>
+                </div>
+                <div
+                  className="absolute inset-4 bg-orange-100 border-2 border-orange-300 rounded-lg p-4"
+                  style={{ zIndex: tokens.zIndex[40] }}
+                >
+                  <div className="text-xs text-orange-700">Sibling B (z=40)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Responsive z-index behavior */}
+        <div className="border rounded-lg p-6 bg-background">
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Responsive Z-Index Behavior</h4>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-xs font-medium text-muted-foreground mb-2">Mobile</div>
+                <div className="relative h-24 bg-muted/20 rounded border">
+                  <div
+                    className="absolute top-2 left-2 w-16 h-16 bg-blue-200 border rounded flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[10] }}
+                  >
+                    Nav
+                  </div>
+                  <div
+                    className="absolute bottom-2 right-2 w-16 h-16 bg-green-200 border rounded flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[20] }}
+                  >
+                    Menu
+                  </div>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-xs font-medium text-muted-foreground mb-2">Tablet</div>
+                <div className="relative h-24 bg-muted/20 rounded border">
+                  <div
+                    className="absolute top-2 left-2 w-20 h-12 bg-blue-200 border rounded flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[10] }}
+                  >
+                    Header
+                  </div>
+                  <div
+                    className="absolute top-2 right-2 w-12 h-12 bg-green-200 border rounded flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[20] }}
+                  >
+                    Menu
+                  </div>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-xs font-medium text-muted-foreground mb-2">Desktop</div>
+                <div className="relative h-24 bg-muted/20 rounded border">
+                  <div
+                    className="absolute top-2 left-2 w-32 h-8 bg-blue-200 border rounded flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[10] }}
+                  >
+                    Navigation Bar
+                  </div>
+                  <div
+                    className="absolute top-2 right-2 w-16 h-8 bg-green-200 border rounded flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[20] }}
+                  >
+                    Actions
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Accessibility considerations */}
+        <div className="border rounded-lg p-6 bg-background">
+          <h4 className="text-sm font-medium text-muted-foreground mb-4">Accessibility Considerations</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="text-xs font-medium text-muted-foreground">Focus Management</div>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Modal traps focus</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Tooltips don't block navigation</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Dropdowns close on escape</span>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="text-xs font-medium text-muted-foreground">Screen Reader Support</div>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>aria-modal for dialogs</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>aria-describedby for tooltips</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>aria-expanded for dropdowns</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -278,19 +445,19 @@ export const StackingContext: Story = {
             <h4 className="text-sm font-medium text-muted-foreground mb-3">Basic Stacking</h4>
             <div className="relative h-32">
               <div className="absolute inset-4 bg-blue-200 rounded border-2 border-blue-300 flex items-center justify-center text-sm">
-                Base Layer (z=0)
+                Base Layer (z={tokens.zIndex[0]})
               </div>
               <div
                 className="absolute inset-8 bg-green-200 rounded border-2 border-green-300 flex items-center justify-center text-sm"
                 style={{ zIndex: tokens.zIndex[10] }}
               >
-                Middle (z=10)
+                Middle (z={tokens.zIndex[10]})
               </div>
               <div
                 className="absolute inset-12 bg-red-200 rounded border-2 border-red-300 flex items-center justify-center text-sm"
                 style={{ zIndex: tokens.zIndex[50] }}
               >
-                Top (z=50)
+                Top (z={tokens.zIndex[50]})
               </div>
             </div>
           </div>
@@ -299,20 +466,64 @@ export const StackingContext: Story = {
           <div className="border rounded-lg p-4 bg-background">
             <h4 className="text-sm font-medium text-muted-foreground mb-3">Overlapping Elements</h4>
             <div className="relative h-32">
-              <div className="absolute left-2 top-2 w-20 h-20 bg-purple-200 rounded border-2 border-purple-300 flex items-center justify-center text-xs">
-                Card 1 (z=20)
+              <div
+                className="absolute left-2 top-2 w-20 h-20 bg-purple-200 rounded border-2 border-purple-300 flex items-center justify-center text-xs"
+                style={{ zIndex: tokens.zIndex[20] }}
+              >
+                Card 1 (z={tokens.zIndex[20]})
               </div>
               <div
                 className="absolute left-8 top-8 w-20 h-20 bg-orange-200 rounded border-2 border-orange-300 flex items-center justify-center text-xs"
                 style={{ zIndex: tokens.zIndex[30] }}
               >
-                Card 2 (z=30)
+                Card 2 (z={tokens.zIndex[30]})
               </div>
               <div
                 className="absolute left-14 top-14 w-20 h-20 bg-pink-200 rounded border-2 border-pink-300 flex items-center justify-center text-xs"
                 style={{ zIndex: tokens.zIndex[40] }}
               >
-                Card 3 (z=40)
+                Card 3 (z={tokens.zIndex[40]})
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Interactive stacking demo */}
+        <div className="border rounded-lg p-4 bg-background">
+          <h4 className="text-sm font-medium text-muted-foreground mb-3">Interactive Stacking Demo</h4>
+          <div className="relative h-40 bg-muted/20 rounded border">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center space-y-2">
+                <div className="text-sm text-muted-foreground">Click elements to bring them to front</div>
+                <div className="flex space-x-4">
+                  <div
+                    className="w-16 h-16 bg-blue-200 border-2 border-blue-400 rounded cursor-pointer hover:bg-blue-300 transition-colors flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[10] }}
+                    onClick={(e) => {
+                      e.currentTarget.style.zIndex = tokens.zIndex[50];
+                    }}
+                  >
+                    Layer 1
+                  </div>
+                  <div
+                    className="w-16 h-16 bg-green-200 border-2 border-green-400 rounded cursor-pointer hover:bg-green-300 transition-colors flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[20] }}
+                    onClick={(e) => {
+                      e.currentTarget.style.zIndex = tokens.zIndex[50];
+                    }}
+                  >
+                    Layer 2
+                  </div>
+                  <div
+                    className="w-16 h-16 bg-red-200 border-2 border-red-400 rounded cursor-pointer hover:bg-red-300 transition-colors flex items-center justify-center text-xs"
+                    style={{ zIndex: tokens.zIndex[30] }}
+                    onClick={(e) => {
+                      e.currentTarget.style.zIndex = tokens.zIndex[50];
+                    }}
+                  >
+                    Layer 3
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -322,7 +533,7 @@ export const StackingContext: Story = {
   ),
 };
 
-// Guidelines
+// Enhanced guidelines with tokens
 export const Guidelines: Story = {
   render: () => (
     <div className="space-y-6">
@@ -333,41 +544,82 @@ export const Guidelines: Story = {
           <div className="space-y-3">
             <h4 className="font-medium text-foreground">Semantic Tokens</h4>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">dropdown</span>
-                <span className="font-mono">1000</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">sticky</span>
-                <span className="font-mono">1020</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">fixed</span>
-                <span className="font-mono">1030</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">modal</span>
-                <span className="font-mono">1040</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">popover</span>
-                <span className="font-mono">1050</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">tooltip</span>
-                <span className="font-mono">1060</span>
-              </div>
+              {Object.entries(tokens.zIndex)
+                .filter(([name, z]) => typeof z === 'string' && !isNaN(Number(z)) && Number(z) >= 1000)
+                .map(([name, z]) => (
+                  <div key={name} className="flex justify-between items-center">
+                    <span className="text-muted-foreground capitalize">{name.replace(/([A-Z])/g, ' $1').trim()}</span>
+                    <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{z}</span>
+                  </div>
+                ))}
             </div>
           </div>
 
           <div className="space-y-3">
+            <h4 className="font-medium text-foreground">Numeric Tokens</h4>
+            <div className="space-y-2 text-sm">
+              {Object.entries(tokens.zIndex)
+                .filter(([name, z]) => typeof z === 'string' && !isNaN(Number(z)) && Number(z) <= 50)
+                .map(([name, z]) => (
+                  <div key={name} className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{name}</span>
+                    <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{z}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
             <h4 className="font-medium text-foreground">Best Practices</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>• Use semantic tokens for common UI patterns</li>
-              <li>• Avoid arbitrary z-index values</li>
-              <li>• Keep z-index values as low as possible</li>
-              <li>• Consider stacking context when nesting elements</li>
-              <li>• Test z-index behavior across different browsers</li>
+              <li className="flex items-start space-x-2">
+                <span className="text-primary mt-1">•</span>
+                <span>Use semantic tokens for common UI patterns</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-primary mt-1">•</span>
+                <span>Avoid arbitrary z-index values</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-primary mt-1">•</span>
+                <span>Keep z-index values as low as possible</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-primary mt-1">•</span>
+                <span>Consider stacking context when nesting elements</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-primary mt-1">•</span>
+                <span>Test z-index behavior across different browsers</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="font-medium text-foreground">Common Pitfalls</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-start space-x-2">
+                <span className="text-destructive mt-1">•</span>
+                <span>Using values above {tokens.zIndex.tooltip} unless critical</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-destructive mt-1">•</span>
+                <span>Creating unnecessary stacking contexts</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-destructive mt-1">•</span>
+                <span>Forgetting about transform and opacity effects</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-destructive mt-1">•</span>
+                <span>Not considering mobile vs desktop behavior</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-destructive mt-1">•</span>
+                <span>Ignoring accessibility implications</span>
+              </li>
             </ul>
           </div>
         </div>

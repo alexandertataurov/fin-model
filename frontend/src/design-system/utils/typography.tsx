@@ -199,7 +199,7 @@ export const typographyClasses = {
 
 // React component for applying text styles
 export const Text: React.FC<{
-    variant?: keyof typeof textStyles;
+    variant?: keyof typeof typography.styles;
     children: React.ReactNode;
     className?: string;
     as?: keyof JSX.IntrinsicElements;
@@ -212,53 +212,48 @@ export const Text: React.FC<{
     style = {},
     ...props
 }) => {
-        const textStyle = textStyles[variant];
+        const textStyle = typography.styles[variant] || {};
 
         return (
             <Component
-      style= {{ ...textStyle, ...style }
-    }
-className = { className }
-{...props }
-    >
-    { children }
-    < /Component>
-  );
+                style={{ ...textStyle, ...style }}
+                className={className}
+                {...props}
+            >
+                {children}
+            </Component>
+        );
 };
 
 // Export individual components for common text variants
 export const Heading1: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "h1" as="h1" className = { className } > { children } < /Text>
+    <Text variant="headline" as="h1" className={className}>{children}</Text>
 );
 
 export const Heading2: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "h2" as="h2" className = { className } > { children } < /Text>
+    <Text variant="subheadline" as="h2" className={className}>{children}</Text>
 );
 
 export const Heading3: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "h3" as="h3" className = { className } > { children } < /Text>
+    <Text variant="title" as="h3" className={className}>{children}</Text>
 );
 
 export const Heading4: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "h4" as="h4" className = { className } > { children } < /Text>
+    <Text variant="subtitle" as="h4" className={className}>{children}</Text>
 );
 
 export const BodyText: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "body" className = { className } > { children } < /Text>
+    <Text variant="body" className={className}>{children}</Text>
 );
 
 export const Caption: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "caption" className = { className } > { children } < /Text>
+    <Text variant="caption" className={className}>{children}</Text>
 );
 
 export const CodeText: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "code" as="code" className = { className } > { children } < /Text>
-);
-
-export const MetricText: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "metric" className = { className } > { children } < /Text>
+    <Text variant="code" as="code" className={className}>{children}</Text>
 );
 
 export const ElegantText: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-    <Text variant= "elegant" className = { className } > { children } < /Text>
+    <Text variant="elegant" className={className}>{children}</Text>
 );

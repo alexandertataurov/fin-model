@@ -181,64 +181,6 @@ export const tokens = {
       'relaxed': '1.625',
       'loose': '2',
       'extra-loose': '2.5'
-    },
-    'textStyles': {
-      'headline': {
-        'fontFamily': 'display',
-        'fontSize': '4xl',
-        'fontWeight': 'bold',
-        'lineHeight': 'tight',
-        'letterSpacing': 'tight'
-      },
-      'subheadline': {
-        'fontFamily': 'display',
-        'fontSize': '2xl',
-        'fontWeight': 'semibold',
-        'lineHeight': 'snug',
-        'letterSpacing': 'normal'
-      },
-      'title': {
-        'fontFamily': 'sans',
-        'fontSize': 'xl',
-        'fontWeight': 'semibold',
-        'lineHeight': 'snug',
-        'letterSpacing': 'normal'
-      },
-      'subtitle': {
-        'fontFamily': 'sans',
-        'fontSize': 'lg',
-        'fontWeight': 'medium',
-        'lineHeight': 'normal',
-        'letterSpacing': 'normal'
-      },
-      'body': {
-        'fontFamily': 'sans',
-        'fontSize': 'base',
-        'fontWeight': 'normal',
-        'lineHeight': 'relaxed',
-        'letterSpacing': 'normal'
-      },
-      'caption': {
-        'fontFamily': 'sans',
-        'fontSize': 'sm',
-        'fontWeight': 'normal',
-        'lineHeight': 'normal',
-        'letterSpacing': 'wide'
-      },
-      'elegant': {
-        'fontFamily': 'elegant',
-        'fontSize': 'lg',
-        'fontWeight': 'light',
-        'lineHeight': 'relaxed',
-        'letterSpacing': 'wide'
-      },
-      'code': {
-        'fontFamily': 'mono',
-        'fontSize': 'sm',
-        'fontWeight': 'normal',
-        'lineHeight': 'normal',
-        'letterSpacing': 'normal'
-      }
     }
   },
   'spacing': {
@@ -272,14 +214,49 @@ export const tokens = {
     '3xl': '1.5rem',
     'full': '9999px'
   },
-  'borderWidth': {},
+  'borderWidth': {
+    0: '0px',
+    1: '1px',
+    2: '2px',
+    4: '4px',
+    8: '8px',
+    'thin': '1px',
+    'base': '2px',
+    'thick': '4px',
+    'extra': '8px'
+  },
   'shadows': {
-    'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+    'xs': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+    'sm': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
     'base': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
     'md': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
     'lg': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
     'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-    '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)'
+    '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    '3xl': '0 35px 60px -15px rgb(0 0 0 / 0.3)',
+    'inner': 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
+    'inner-lg': 'inset 0 4px 8px 0 rgb(0 0 0 / 0.1)',
+    'glow': '0 0 20px 0 rgb(99 102 241 / 0.15)',
+    'glow-lg': '0 0 40px 0 rgb(99 102 241 / 0.2)',
+    'glow-accent': '0 0 20px 0 rgb(20 184 166 / 0.15)',
+    'glow-destructive': '0 0 20px 0 rgb(239 68 68 / 0.15)',
+    'elevation-1': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+    'elevation-2': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    'elevation-3': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+    'elevation-4': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+    'elevation-5': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    'card': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+    'card-hover': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    'button': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+    'button-hover': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    'button-active': 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
+    'modal': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    'dropdown': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+    'tooltip': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    'focus': '0 0 0 3px rgb(99 102 241 / 0.1)',
+    'focus-accent': '0 0 0 3px rgb(20 184 166 / 0.1)',
+    'focus-destructive': '0 0 0 3px rgb(239 68 68 / 0.1)',
+    'none': 'none'
   },
   'transitions': {},
   'motion': {

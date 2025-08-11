@@ -22,7 +22,6 @@ import {
   Heading3,
   BodyText,
   Caption,
-  MetricText,
   textStyles
 } from '@/design-system/utils/typography';
 import { CoreFinancialModeling } from '@/components/CoreFinancialModeling';
@@ -413,13 +412,13 @@ const Dashboard = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <MetricText className="mb-1">
+                        <BodyText className="mb-1">
                           {formatMetricValue(
                             metric.value,
                             metric.unit || '',
                             metric.format_type
                           )}
-                        </MetricText>
+                        </BodyText>
                         {metric.change_percentage !== undefined && (
                           <Caption className={getTrendColor(metric.trend)}>
                             {metric.change_percentage > 0 ? '+' : ''}
@@ -447,13 +446,13 @@ const Dashboard = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <MetricText className="mb-1">
+                        <BodyText className="mb-1">
                           {formatMetricValue(
                             metric.value,
                             metric.unit || '',
                             metric.format_type
                           )}
-                        </MetricText>
+                        </BodyText>
                         {metric.change_percentage !== undefined && (
                           <Caption className={getTrendColor(metric.trend)}>
                             {metric.change_percentage > 0 ? '+' : ''}
