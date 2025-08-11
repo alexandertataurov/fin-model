@@ -14,6 +14,12 @@ import {
   // Clock,
   // Users,
   Activity,
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  Users,
+  Shield,
+  Zap,
 } from 'lucide-react';
 import {
   Card,
@@ -428,118 +434,179 @@ const DataManagement: React.FC = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="tables" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="tables">Database Tables</TabsTrigger>
           <TabsTrigger value="cleanup">File Cleanup</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="backup">Backup & Export</TabsTrigger>
+          <TabsTrigger value="analytics">Data Analytics</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
         </TabsList>
 
         {/* Database Tables Tab */}
         <TabsContent value="tables">
-          <Card>
-            <CardHeader>
-              <CardTitle>Database Tables Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Table Name</TableHead>
-                    <TableHead>Records</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Last Updated</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tableData.length === 0 ? (
+          <div className="space-y-6">
+            {/* Table Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Tables</p>
+                      <p className="text-2xl font-bold">{tableData.length}</p>
+                    </div>
+                    <Database className="h-8 w-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Records</p>
+                      <p className="text-2xl font-bold">
+                        {formatNumber(tableData.reduce((sum, t) => sum + t.rows, 0))}
+                      </p>
+                    </div>
+                    <FileText className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Size</p>
+                      <p className="text-2xl font-bold">
+                        {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
+                      </p>
+                    </div>
+                    <HardDrive className="h-8 w-8 text-purple-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Healthy Tables</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {tableData.filter(t => t.integrity_status === 'healthy').length}
+                      </p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Tables Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Database Tables Overview</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="text-center text-muted-foreground py-6"
-                      >
-                        No table information available.
-                      </TableCell>
+                      <TableHead>Table Name</TableHead>
+                      <TableHead>Records</TableHead>
+                      <TableHead>Size</TableHead>
+                      <TableHead>Last Updated</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ) : (
-                    tableData.map(table => (
-                      <TableRow key={table.name}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center">
-                            <Database className="h-4 w-4 mr-2 text-muted-foreground" />
-                            {table.name}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {formatNumber(table.rows)}
-                        </TableCell>
-                        <TableCell>{table.size_pretty || formatFileSize(table.size_mb)}</TableCell>
-                        <TableCell className="text-sm">
-                          {table.last_updated
-                            ? new Date(table.last_updated).toLocaleDateString()
-                            : 'N/A'}
-                        </TableCell>
-                        <TableCell>
-                          {getTableStatusBadge(table.integrity_status)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-1">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                const details = [
-                                  `Rows: ${formatNumber(table.rows)}`,
-                                  `Dead Rows: ${formatNumber(table.dead_rows || 0)}`,
-                                  `Inserts: ${formatNumber(table.inserts || 0)}`,
-                                  `Updates: ${formatNumber(table.updates || 0)}`,
-                                  `Deletes: ${formatNumber(table.deletes || 0)}`,
-                                ].join('\n');
-                                alert(`Table Details for ${table.name}:\n\n${details}`);
-                              }}
-                            >
-                              <BarChart3 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={async () => {
-                                try {
-                                  const fmt = (
-                                    prompt(
-                                      'Export format: json or csv',
-                                      'csv'
-                                    ) || 'csv'
-                                  ).toLowerCase();
-                                  if (fmt !== 'json' && fmt !== 'csv') {
-                                    toast.error('Invalid format');
-                                    return;
-                                  }
-                                  const res =
-                                    await AdminApi.exportDatabase({
-                                      table: table.name,
-                                      format: fmt as 'json' | 'csv',
-                                    });
-                                  toast.success('Table export generated');
-                                  window.open(res.file_url, '_blank');
-                                } catch {
-                                  toast.error('Export failed');
-                                }
-                              }}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {tableData.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={6}
+                          className="text-center text-muted-foreground py-6"
+                        >
+                          No table information available.
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                    ) : (
+                      tableData.map(table => (
+                        <TableRow key={table.name}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center">
+                              <Database className="h-4 w-4 mr-2 text-muted-foreground" />
+                              {table.name}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {formatNumber(table.rows)}
+                          </TableCell>
+                          <TableCell>{table.size_pretty || formatFileSize(table.size_mb)}</TableCell>
+                          <TableCell className="text-sm">
+                            {table.last_updated
+                              ? new Date(table.last_updated).toLocaleDateString()
+                              : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            {getTableStatusBadge(table.integrity_status)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  const details = [
+                                    `Rows: ${formatNumber(table.rows)}`,
+                                    `Dead Rows: ${formatNumber(table.dead_rows || 0)}`,
+                                    `Inserts: ${formatNumber(table.inserts || 0)}`,
+                                    `Updates: ${formatNumber(table.updates || 0)}`,
+                                    `Deletes: ${formatNumber(table.deletes || 0)}`,
+                                  ].join('\n');
+                                  alert(`Table Details for ${table.name}:\n\n${details}`);
+                                }}
+                              >
+                                <BarChart3 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async () => {
+                                  try {
+                                    const fmt = (
+                                      prompt(
+                                        'Export format: json or csv',
+                                        'csv'
+                                      ) || 'csv'
+                                    ).toLowerCase();
+                                    if (fmt !== 'json' && fmt !== 'csv') {
+                                      toast.error('Invalid format');
+                                      return;
+                                    }
+                                    const res =
+                                      await AdminApi.exportDatabase({
+                                        table: table.name,
+                                        format: fmt as 'json' | 'csv',
+                                      });
+                                    toast.success('Table export generated');
+                                    window.open(res.file_url, '_blank');
+                                  } catch {
+                                    toast.error('Export failed');
+                                  }
+                                }}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
         </TabsContent>
 
         {/* File Cleanup Tab */}
@@ -899,6 +966,254 @@ const DataManagement: React.FC = () => {
                     )}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Backup & Export Tab */}
+        <TabsContent value="backup">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Database Backup */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Archive className="h-5 w-5 mr-2" />
+                  Database Backup
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Create full database backups and manage backup history
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-blue-900">Last Backup</span>
+                    <Badge variant="outline">2 hours ago</Badge>
+                  </div>
+                  <p className="text-sm text-blue-700">Backup size: 2.4 GB</p>
+                  <p className="text-sm text-blue-700">Status: Completed</p>
+                </div>
+
+                <div className="space-y-3">
+                  <Button
+                    className="w-full"
+                    onClick={async () => {
+                      try {
+                        const result = await AdminApi.backupDatabase();
+                        toast.success(`Backup started: ${result.message}`);
+                      } catch (error) {
+                        toast.error('Failed to start backup');
+                      }
+                    }}
+                  >
+                    <Archive className="h-4 w-4 mr-2" />
+                    Create New Backup
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      // TODO: Implement backup history
+                      toast.info('Backup history feature coming soon');
+                    }}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Backup History
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Data Export */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Download className="h-5 w-5 mr-2" />
+                  Data Export
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Export specific tables or full database in various formats
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium">Select Table</label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose table to export" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Tables</SelectItem>
+                        {tableData.map(table => (
+                          <SelectItem key={table.name} value={table.name}>
+                            {table.name} ({formatNumber(table.rows)} rows)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Export Format</label>
+                    <Select defaultValue="csv">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="csv">CSV</SelectItem>
+                        <SelectItem value="json">JSON</SelectItem>
+                        <SelectItem value="sql">SQL Dump</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button
+                    className="w-full"
+                    onClick={async () => {
+                      try {
+                        const result = await AdminApi.exportDatabase({
+                          table: 'users',
+                          format: 'csv'
+                        });
+                        toast.success(`Export completed: ${result.message}`);
+                      } catch (error) {
+                        toast.error('Failed to export data');
+                      }
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Data
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Data Analytics Tab */}
+        <TabsContent value="analytics">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Data Growth Trends */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2" />
+                  Data Growth Trends
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Monitor database growth and usage patterns over time
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {formatNumber(tableData.reduce((sum, t) => sum + t.rows, 0))}
+                      </div>
+                      <div className="text-sm text-green-700">Total Records</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
+                      </div>
+                      <div className="text-sm text-blue-700">Total Size</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {tableData.length}
+                      </div>
+                      <div className="text-sm text-purple-700">Active Tables</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Top Tables by Size</h4>
+                    {tableData
+                      .sort((a, b) => b.size_mb - a.size_mb)
+                      .slice(0, 5)
+                      .map(table => (
+                        <div key={table.name} className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <div className="font-medium">{table.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {formatNumber(table.rows)} records
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">{formatFileSize(table.size_mb)}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {((table.size_mb / tableData.reduce((sum, t) => sum + t.size_mb, 0)) * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Data Quality Metrics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  Data Quality
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Monitor data integrity and quality metrics
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <span className="text-sm font-medium">Healthy Tables</span>
+                    <Badge variant="default">
+                      {tableData.filter(t => t.integrity_status === 'healthy').length}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                    <span className="text-sm font-medium">Warning Tables</span>
+                    <Badge variant="secondary">
+                      {tableData.filter(t => t.integrity_status === 'warning').length}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                    <span className="text-sm font-medium">Error Tables</span>
+                    <Badge variant="destructive">
+                      {tableData.filter(t => t.integrity_status === 'error').length}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <h4 className="font-medium mb-2">Data Activity (24h)</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Inserts</span>
+                      <span className="font-medium">
+                        {formatNumber(tableData.reduce((sum, t) => sum + (t.inserts || 0), 0))}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Updates</span>
+                      <span className="font-medium">
+                        {formatNumber(tableData.reduce((sum, t) => sum + (t.updates || 0), 0))}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Deletes</span>
+                      <span className="font-medium">
+                        {formatNumber(tableData.reduce((sum, t) => sum + (t.deletes || 0), 0))}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

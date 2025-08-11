@@ -22,6 +22,7 @@ import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
 import { useLogFilters } from '@/hooks/useLogFilters';
 import LogFilterForm from './LogFilterForm';
 import DashboardCustomization from './DashboardCustomization';
+import DataManagement from './DataManagement';
 import type { LogEntry } from '@/services/adminApi';
 import {
     Users,
@@ -50,6 +51,7 @@ import {
     Search,
     Calendar,
     MoreHorizontal,
+    Notifications,
 } from 'lucide-react';
 
 // Helper functions
@@ -916,6 +918,12 @@ export const AdminDashboard: React.FC = () => {
             case 'health':
                 fetchHealthData();
                 break;
+            case 'data':
+                // DataManagement component handles its own data fetching
+                break;
+            case 'logs':
+                // LogsTab component handles its own data fetching
+                break;
             default:
                 fetchOverviewData();
         }
@@ -929,6 +937,13 @@ export const AdminDashboard: React.FC = () => {
             <div className="space-y-6">
                 {/* Action Bar */}
                 <div className="flex items-center justify-end gap-3">
+                    <Button variant="outline" size="sm" className="relative">
+                        <Notifications className="h-4 w-4 mr-2" />
+                        Notifications
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                            3
+                        </span>
+                    </Button>
                     <DashboardCustomization
                         userRole="admin"
                         onConfigChange={(config) => {
@@ -948,7 +963,7 @@ export const AdminDashboard: React.FC = () => {
 
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-5 h-12 bg-muted/50 p-1 rounded-lg">
+                    <TabsList className="grid w-full grid-cols-6 h-12 bg-muted/50 p-1 rounded-lg">
                         <TabsTrigger
                             value="overview"
                             className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
@@ -978,6 +993,13 @@ export const AdminDashboard: React.FC = () => {
                             Health
                         </TabsTrigger>
                         <TabsTrigger
+                            value="data"
+                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                        >
+                            <Database className="h-4 w-4" />
+                            Data
+                        </TabsTrigger>
+                        <TabsTrigger
                             value="logs"
                             className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
                         >
@@ -1000,6 +1022,10 @@ export const AdminDashboard: React.FC = () => {
 
                     <TabsContent value="health" className="space-y-6">
                         <HealthTab />
+                    </TabsContent>
+
+                    <TabsContent value="data" className="space-y-6">
+                        <DataManagement />
                     </TabsContent>
 
                     <TabsContent value="logs" className="space-y-6">

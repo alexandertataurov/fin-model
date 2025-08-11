@@ -7,9 +7,45 @@ export const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-input',
-        error: 'border-destructive focus-visible:ring-destructive',
-        success: 'border-success focus-visible:ring-success',
+        default: [
+          'border-input',
+          // Autofill styling for default variant
+          '[&:-webkit-autofill]:bg-background [&:-webkit-autofill]:text-foreground',
+          '[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+          '[&:-webkit-autofill]:border-ring [&:-webkit-autofill]:ring-2 [&:-webkit-autofill]:ring-ring [&:-webkit-autofill]:ring-offset-2',
+          '[&:-webkit-autofill]:transition-all [&:-webkit-autofill]:duration-normal',
+          '[&:-webkit-autofill:focus]:border-ring [&:-webkit-autofill:focus]:ring-2 [&:-webkit-autofill:focus]:ring-ring [&:-webkit-autofill:focus]:ring-offset-2',
+          '[&:-webkit-autofill:hover]:border-ring',
+          'dark:[&:-webkit-autofill]:bg-background dark:[&:-webkit-autofill]:text-foreground',
+          'dark:[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+          'dark:[&:-webkit-autofill]:border-ring dark:[&:-webkit-autofill]:ring-2 dark:[&:-webkit-autofill]:ring-ring dark:[&:-webkit-autofill]:ring-offset-2',
+        ],
+        error: [
+          'border-destructive focus-visible:ring-destructive',
+          // Autofill styling for error variant
+          '[&:-webkit-autofill]:bg-background [&:-webkit-autofill]:text-foreground',
+          '[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+          '[&:-webkit-autofill]:border-destructive [&:-webkit-autofill]:ring-destructive',
+          '[&:-webkit-autofill]:transition-all [&:-webkit-autofill]:duration-normal',
+          '[&:-webkit-autofill:focus]:border-destructive [&:-webkit-autofill:focus]:ring-destructive',
+          '[&:-webkit-autofill:hover]:border-destructive',
+          'dark:[&:-webkit-autofill]:bg-background dark:[&:-webkit-autofill]:text-foreground',
+          'dark:[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+          'dark:[&:-webkit-autofill]:border-destructive dark:[&:-webkit-autofill]:ring-destructive',
+        ],
+        success: [
+          'border-success focus-visible:ring-success',
+          // Autofill styling for success variant
+          '[&:-webkit-autofill]:bg-background [&:-webkit-autofill]:text-foreground',
+          '[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+          '[&:-webkit-autofill]:border-success [&:-webkit-autofill]:ring-success',
+          '[&:-webkit-autofill]:transition-all [&:-webkit-autofill]:duration-normal',
+          '[&:-webkit-autofill:focus]:border-success [&:-webkit-autofill:focus]:ring-success',
+          '[&:-webkit-autofill:hover]:border-success',
+          'dark:[&:-webkit-autofill]:bg-background dark:[&:-webkit-autofill]:text-foreground',
+          'dark:[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+          'dark:[&:-webkit-autofill]:border-success dark:[&:-webkit-autofill]:ring-success',
+        ],
       },
       size: {
         default: 'h-9 px-3 py-1',

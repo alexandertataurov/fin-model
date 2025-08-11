@@ -23,7 +23,25 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             'focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none',
             'md:text-sm',
-            error ? 'border-destructive focus-visible:ring-destructive' : 'border-input',
+            // Autofill styling for better design system compliance
+            '[&:-webkit-autofill]:bg-background [&:-webkit-autofill]:text-foreground',
+            '[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+            '[&:-webkit-autofill]:border-ring [&:-webkit-autofill]:ring-2 [&:-webkit-autofill]:ring-ring [&:-webkit-autofill]:ring-offset-2',
+            '[&:-webkit-autofill]:transition-all [&:-webkit-autofill]:duration-normal',
+            // Autofill focus states
+            '[&:-webkit-autofill:focus]:border-ring [&:-webkit-autofill:focus]:ring-2 [&:-webkit-autofill:focus]:ring-ring [&:-webkit-autofill:focus]:ring-offset-2',
+            // Autofill hover states
+            '[&:-webkit-autofill:hover]:border-ring',
+            // Dark mode autofill support
+            'dark:[&:-webkit-autofill]:bg-background dark:[&:-webkit-autofill]:text-foreground',
+            'dark:[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+            'dark:[&:-webkit-autofill]:border-ring dark:[&:-webkit-autofill]:ring-2 dark:[&:-webkit-autofill]:ring-ring dark:[&:-webkit-autofill]:ring-offset-2',
+            // Error state with autofill
+            error ? [
+              'border-destructive focus-visible:ring-destructive',
+              '[&:-webkit-autofill]:border-destructive [&:-webkit-autofill]:ring-destructive',
+              '[&:-webkit-autofill:focus]:border-destructive [&:-webkit-autofill:focus]:ring-destructive'
+            ] : 'border-input',
             className
           )}
           aria-invalid={error}

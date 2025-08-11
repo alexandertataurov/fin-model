@@ -79,10 +79,24 @@ export class DesignSystem {
       'placeholder:text-muted-foreground',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
       'disabled:cursor-not-allowed disabled:opacity-50',
+      // Autofill styling for better design system compliance
+      '[&:-webkit-autofill]:bg-background [&:-webkit-autofill]:text-foreground',
+      '[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+      '[&:-webkit-autofill]:border-ring [&:-webkit-autofill]:ring-2 [&:-webkit-autofill]:ring-ring [&:-webkit-autofill]:ring-offset-2',
+      '[&:-webkit-autofill]:transition-all [&:-webkit-autofill]:duration-normal',
+      '[&:-webkit-autofill:focus]:border-ring [&:-webkit-autofill:focus]:ring-2 [&:-webkit-autofill:focus]:ring-ring [&:-webkit-autofill:focus]:ring-offset-2',
+      '[&:-webkit-autofill:hover]:border-ring',
+      'dark:[&:-webkit-autofill]:bg-background dark:[&:-webkit-autofill]:text-foreground',
+      'dark:[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
+      'dark:[&:-webkit-autofill]:border-ring dark:[&:-webkit-autofill]:ring-2 dark:[&:-webkit-autofill]:ring-ring dark:[&:-webkit-autofill]:ring-offset-2',
     ];
 
     if (error) {
-      baseClasses.push('border-destructive focus-visible:ring-destructive');
+      baseClasses.push(
+        'border-destructive focus-visible:ring-destructive',
+        '[&:-webkit-autofill]:border-destructive [&:-webkit-autofill]:ring-destructive',
+        '[&:-webkit-autofill:focus]:border-destructive [&:-webkit-autofill:focus]:ring-destructive'
+      );
     } else {
       baseClasses.push('border-input');
     }
@@ -186,7 +200,7 @@ export class DesignSystem {
     xl?: number;
   }): string {
     const classes = ['grid gap-4'];
-    
+
     if (columns.base) classes.push(`grid-cols-${columns.base}`);
     if (columns.sm) classes.push(`sm:grid-cols-${columns.sm}`);
     if (columns.md) classes.push(`md:grid-cols-${columns.md}`);
@@ -208,14 +222,14 @@ export class DesignSystem {
   ): string {
     const sizeMap = {
       xs: '1',
-      sm: '2', 
+      sm: '2',
       md: '4',
       lg: '6',
       xl: '8',
       '2xl': '12',
       '3xl': '16',
     };
-    
+
     return `${direction}-${sizeMap[size]}`;
   }
 
@@ -238,10 +252,10 @@ export class DesignSystem {
       sm: 'shadow-sm',
       default: 'shadow',
       md: 'shadow-md',
-      lg: 'shadow-lg', 
+      lg: 'shadow-lg',
       xl: 'shadow-xl',
     };
-    
+
     return shadowMap[size] || 'shadow';
   }
 }
@@ -253,7 +267,7 @@ export const componentStyles = {
   // Common layout patterns
   container: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
   section: 'py-8 sm:py-12 lg:py-16 xl:py-20',
-  
+
   // Typography patterns
   heading: {
     h1: 'text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-foreground leading-tight',
@@ -263,13 +277,13 @@ export const componentStyles = {
     h5: 'text-sm sm:text-base lg:text-lg font-semibold text-foreground',
     h6: 'text-xs sm:text-sm lg:text-base font-semibold text-foreground',
   },
-  
+
   // Common patterns
   flexCenter: 'flex items-center justify-center',
   flexBetween: 'flex items-center justify-between',
   flexBetweenResponsive: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4',
   absoluteCenter: 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
-  
+
   // Interactive states
   interactive: 'transition-colors duration-normal hover:bg-accent hover:text-accent-foreground',
   focusRing: 'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
