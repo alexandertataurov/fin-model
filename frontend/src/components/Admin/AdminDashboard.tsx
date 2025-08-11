@@ -65,16 +65,6 @@ import {
     MoreHorizontal,
 } from 'lucide-react';
 
-// Import design system components
-import {
-    applyTypographyStyle,
-    Container,
-    SectionHeader,
-    MetricCard,
-    DashboardHeader,
-    QuickActions
-} from '@/design-system/stories/components';
-
 // Helper functions
 const formatPercentage = (value: number | null | undefined): string => {
     if (value === null || value === undefined || Number.isNaN(value)) {
@@ -177,8 +167,8 @@ const OverviewTab: React.FC = () => {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                             <div className="text-center group">
                                 <div className="flex items-center justify-center mb-4">
-                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
-                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.cpu_usage, { warning: 60, critical: 80 }) }} />
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200"
+                                        style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.cpu_usage, { warning: 60, critical: 80 }) }} />
                                     <span style={applyTypographyStyle('caption')} className="font-medium">CPU</span>
                                 </div>
                                 <div style={applyTypographyStyle('headline')} className="text-foreground">
@@ -188,8 +178,8 @@ const OverviewTab: React.FC = () => {
                             </div>
                             <div className="text-center group">
                                 <div className="flex items-center justify-center mb-4">
-                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
-                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.memory_usage, { warning: 70, critical: 85 }) }} />
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200"
+                                        style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.memory_usage, { warning: 70, critical: 85 }) }} />
                                     <span style={applyTypographyStyle('caption')} className="font-medium">Memory</span>
                                 </div>
                                 <div style={applyTypographyStyle('headline')} className="text-foreground">
@@ -199,8 +189,8 @@ const OverviewTab: React.FC = () => {
                             </div>
                             <div className="text-center group">
                                 <div className="flex items-center justify-center mb-4">
-                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
-                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.disk_usage, { warning: 75, critical: 90 }) }} />
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200"
+                                        style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.disk_usage, { warning: 75, critical: 90 }) }} />
                                     <span style={applyTypographyStyle('caption')} className="font-medium">Disk</span>
                                 </div>
                                 <div style={applyTypographyStyle('headline')} className="text-foreground">
@@ -210,8 +200,8 @@ const OverviewTab: React.FC = () => {
                             </div>
                             <div className="text-center group">
                                 <div className="flex items-center justify-center mb-4">
-                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
-                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.error_rate_24h, { warning: 2, critical: 5 }) }} />
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200"
+                                        style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.error_rate_24h, { warning: 2, critical: 5 }) }} />
                                     <span style={applyTypographyStyle('caption')} className="font-medium">Errors</span>
                                 </div>
                                 <div style={applyTypographyStyle('headline')} className="text-foreground">
