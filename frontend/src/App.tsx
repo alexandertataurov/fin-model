@@ -33,6 +33,7 @@ import Parameters from './pages/Parameters';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import Layout from './components/Layout/Layout';
+import DesignTokenTest from './components/DesignTokenTest';
 
 // Protected Layout Component
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({
@@ -56,6 +57,9 @@ export default function App() {
                 />
                 <Route path="/reset-password" element={<ResetPasswordForm />} />
                 <Route path="/verify-email" element={<EmailVerification />} />
+
+                {/* Design Token Test Route */}
+                <Route path="/design-tokens" element={<DesignTokenTest />} />
 
                 {/* Protected Application Routes with Sidebar Layout */}
                 <Route

@@ -1,10 +1,10 @@
 {
   "colors": {
-    "surface": { "value": "{colors.background.value}" },
-    "onSurface": { "value": "{colors.foreground.value}" },
-    "danger": { "value": "{colors.destructive.500.value}" },
-    "success": { "value": "{colors.success.500.value}" },
-    "warning": { "value": "{colors.warning.500.value}" },
-    "info": { "value": "{colors.info.500.value}" }
+    "surface": { "value": "#ffffff" },
+    "onSurface": { "value": "#0f172a" },
+    "danger": { "value": "#ef4444" },
+    "success": { "value": "#22c55e" },
+    "warning": { "value": "#f59e0b" },
+    "info": { "value": "#3b82f6" }
   }
 }

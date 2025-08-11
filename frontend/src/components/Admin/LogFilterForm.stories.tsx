@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { LogFilterForm } from './LogFilterForm';
+import LogFilterForm from './LogFilterForm';
 import type { LogsState } from '@/stores/admin/types';
 
 const meta: Meta<typeof LogFilterForm> = {
