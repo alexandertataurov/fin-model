@@ -136,7 +136,7 @@ const OverviewTab: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-semibold">System Status</h3>
-                                    <p className="text-sm text-muted-foreground">Real-time system health monitoring</p>
+                                    <p className="text-sm text-muted-foreground">Real-time health monitoring</p>
                                 </div>
                             </div>
                             <Button variant="ghost" size="sm" onClick={() => fetchOverviewData()}>
@@ -199,7 +199,7 @@ const OverviewTab: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold">Performance</h3>
-                                <p className="text-sm text-muted-foreground">Key metrics overview</p>
+                                <p className="text-sm text-muted-foreground">Key metrics</p>
                             </div>
                         </CardTitle>
                     </CardHeader>
@@ -260,8 +260,8 @@ const OverviewTab: React.FC = () => {
                                     <Users className="h-5 w-5 text-purple-600" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold">Recent User Activity</h3>
-                                    <p className="text-sm text-muted-foreground">Latest user interactions</p>
+                                    <h3 className="text-lg font-semibold">User Activity</h3>
+                                    <p className="text-sm text-muted-foreground">Recent interactions</p>
                                 </div>
                             </div>
                             <Button variant="ghost" size="sm">
@@ -322,7 +322,7 @@ const OverviewTab: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold">System Alerts</h3>
-                                <p className="text-sm text-muted-foreground">Active notifications</p>
+                                <p className="text-sm text-muted-foreground">Active alerts</p>
                             </div>
                         </CardTitle>
                     </CardHeader>
@@ -422,7 +422,7 @@ const HealthTab: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold">System Health</h3>
-                                <p className="text-sm text-muted-foreground">Core system status</p>
+                                <p className="text-sm text-muted-foreground">Core status</p>
                             </div>
                         </CardTitle>
                     </CardHeader>
@@ -468,7 +468,7 @@ const HealthTab: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold">Database Health</h3>
-                                <p className="text-sm text-muted-foreground">Database connection status</p>
+                                <p className="text-sm text-muted-foreground">Connection status</p>
                             </div>
                         </CardTitle>
                     </CardHeader>
@@ -516,7 +516,7 @@ const HealthTab: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold">Network & Services</h3>
-                            <p className="text-sm text-muted-foreground">Service connectivity status</p>
+                            <p className="text-sm text-muted-foreground">Connectivity status</p>
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -571,8 +571,8 @@ const SystemTab: React.FC = () => {
                                 <Cpu className="h-5 w-5 text-blue-600" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold">System Performance</h3>
-                                <p className="text-sm text-muted-foreground">Real-time performance metrics</p>
+                                <h3 className="text-lg font-semibold">Performance</h3>
+                                <p className="text-sm text-muted-foreground">Real-time metrics</p>
                             </div>
                         </CardTitle>
                     </CardHeader>
@@ -613,7 +613,7 @@ const SystemTab: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold">Data Integrity</h3>
-                                <p className="text-sm text-muted-foreground">Database health and integrity checks</p>
+                                <p className="text-sm text-muted-foreground">Database health checks</p>
                             </div>
                         </CardTitle>
                     </CardHeader>
@@ -652,8 +652,8 @@ const SystemTab: React.FC = () => {
                             <Server className="h-5 w-5 text-purple-600" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold">System Information</h3>
-                            <p className="text-sm text-muted-foreground">System configuration and details</p>
+                            <h3 className="text-lg font-semibold">System Info</h3>
+                            <p className="text-sm text-muted-foreground">Configuration details</p>
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -719,7 +719,7 @@ const AuditTab: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold">Security Audit</h3>
-                            <p className="text-sm text-muted-foreground">Security events and compliance monitoring</p>
+                            <p className="text-sm text-muted-foreground">Security events monitoring</p>
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -767,7 +767,7 @@ const AuditTab: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold">Audit Logs</h3>
-                            <p className="text-sm text-muted-foreground">User actions and system changes</p>
+                            <p className="text-sm text-muted-foreground">User actions & changes</p>
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -829,7 +829,7 @@ const LogsTab: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold">System Logs</h3>
-                                <p className="text-sm text-muted-foreground">Application and system logs</p>
+                                <p className="text-sm text-muted-foreground">Application logs</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -927,33 +927,23 @@ export const AdminDashboard: React.FC = () => {
             onRetry={() => window.location.reload()}
         >
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-                            Admin Dashboard
-                        </h1>
-                        <p className="text-lg text-muted-foreground mt-2">
-                            Monitor system health, user activity, and system performance
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <DashboardCustomization
-                            userRole="admin"
-                            onConfigChange={(config) => {
-                                console.log('Dashboard config changed:', config);
-                                // TODO: Save configuration to backend
-                            }}
-                        />
-                        <Button variant="outline" size="sm">
-                            <Settings className="h-4 w-4 mr-2" />
-                            Settings
-                        </Button>
-                        <Button size="sm">
-                            <TrendingUp className="h-4 w-4 mr-2" />
-                            Export Report
-                        </Button>
-                    </div>
+                {/* Action Bar */}
+                <div className="flex items-center justify-end gap-3">
+                    <DashboardCustomization
+                        userRole="admin"
+                        onConfigChange={(config) => {
+                            console.log('Dashboard config changed:', config);
+                            // TODO: Save configuration to backend
+                        }}
+                    />
+                    <Button variant="outline" size="sm">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
+                    </Button>
+                    <Button size="sm">
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Export Report
+                    </Button>
                 </div>
 
                 {/* Tabs */}
