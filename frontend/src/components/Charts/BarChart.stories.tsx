@@ -1,3 +1,4 @@
+import React from "react";
 // Use the consolidated story definition below
 import type { Meta, StoryObj } from '@storybook/react';
 import BarChart from '@/components/Charts/BarChart';

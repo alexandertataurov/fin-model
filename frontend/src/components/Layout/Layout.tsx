@@ -51,7 +51,7 @@ const Layout = () => {
       dashboards: { label: 'Financial Dashboards' },
       pl: { label: 'P&L Dashboard' },
       cashflow: { label: 'Cash Flow' },
-      'balance-sheet': { label: 'Balance Sheet' },
+      balance: { label: 'Balance Sheet' },
       files: { label: 'File Upload' },
       reports: { label: 'Reports' },
       scenarios: { label: 'Scenario Modeling' },

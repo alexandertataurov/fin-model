@@ -2,6 +2,7 @@
  * Consolidated Admin Dashboard Component
  * 
  * Modern admin dashboard with unified design and comprehensive functionality
+ * Updated to follow design system foundations guidelines
  */
 
 import React, { useState, useEffect } from 'react';
@@ -25,6 +26,16 @@ import LogFilterForm from './LogFilterForm';
 import DashboardCustomization from './DashboardCustomization';
 import DataManagement from './DataManagement';
 import type { LogEntry } from '@/services/adminApi';
+
+// Import design system components
+import {
+    applyTypographyStyle,
+    Container,
+    SectionHeader,
+    MetricCard,
+    DashboardHeader,
+    QuickActions
+} from '@/design-system/stories/components';
 import {
     Users,
     FileText,
@@ -54,6 +65,16 @@ import {
     MoreHorizontal,
 } from 'lucide-react';
 
+// Import design system components
+import {
+    applyTypographyStyle,
+    Container,
+    SectionHeader,
+    MetricCard,
+    DashboardHeader,
+    QuickActions
+} from '@/design-system/stories/components';
+
 // Helper functions
 const formatPercentage = (value: number | null | undefined): string => {
     if (value === null || value === undefined || Number.isNaN(value)) {
@@ -76,10 +97,10 @@ const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
 };
 
 const getHealthIndicator = (value: number | null | undefined, thresholds: { warning: number; critical: number }) => {
-    if (value === null || value === undefined) return 'bg-muted';
-    if (value > thresholds.critical) return 'bg-destructive';
-    if (value > thresholds.warning) return 'bg-warning';
-    return 'bg-success';
+    if (value === null || value === undefined) return tokens.colors.muted[400];
+    if (value > thresholds.critical) return tokens.colors.destructive[500];
+    if (value > thresholds.warning) return tokens.colors.warning;
+    return tokens.colors.success;
 };
 
 // Overview Tab Component
@@ -104,14 +125,16 @@ const OverviewTab: React.FC = () => {
 
     if (!hasAnyData) {
         return (
-            <div className="flex items-center justify-center py-16">
-                <div className="text-center space-y-4">
-                    <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
-                        <BarChart3 className="h-8 w-8 text-muted-foreground" />
+            <Container className="py-16">
+                <div className="text-center space-y-6">
+                    <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center">
+                        <BarChart3 className="h-10 w-10 text-muted-foreground" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold">No Data Available</h3>
-                        <p className="text-muted-foreground mt-1">
+                        <h3 style={applyTypographyStyle('title')} className="text-foreground mb-2">
+                            No Data Available
+                        </h3>
+                        <p style={applyTypographyStyle('body')} className="text-muted-foreground">
                             Admin data is currently unavailable. Please try refreshing the page.
                         </p>
                     </div>
@@ -120,25 +143,29 @@ const OverviewTab: React.FC = () => {
                         Refresh Data
                     </Button>
                 </div>
-            </div>
+            </Container>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* System Health Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Overall System Status */}
                 <Card className="lg:col-span-2">
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-6">
                         <CardTitle className="flex items-center justify-between">
                             <div className="flex items-center">
-                                <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center mr-3">
-                                    <CheckCircle className="h-5 w-5 text-success" />
+                                <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center mr-4">
+                                    <CheckCircle className="h-6 w-6 text-success" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold">System Status</h3>
-                                    <p className="text-sm text-muted-foreground">Real-time health monitoring</p>
+                                    <h3 style={applyTypographyStyle('title')} className="text-foreground">
+                                        System Status
+                                    </h3>
+                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                        Real-time health monitoring
+                                    </p>
                                 </div>
                             </div>
                             <Button variant="ghost" size="sm" onClick={() => fetchOverviewData()}>
@@ -147,46 +174,50 @@ const OverviewTab: React.FC = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                             <div className="text-center group">
-                                <div className="flex items-center justify-center mb-3">
-                                    <div className={`w-4 h-4 rounded-full mr-2 transition-all duration-200 ${getHealthIndicator(systemMetrics.data?.cpu_usage, { warning: 60, critical: 80 })}`} />
-                                    <span className="text-sm font-medium">CPU</span>
+                                <div className="flex items-center justify-center mb-4">
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
+                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.cpu_usage, { warning: 60, critical: 80 }) }} />
+                                    <span style={applyTypographyStyle('caption')} className="font-medium">CPU</span>
                                 </div>
-                                <div className="text-2xl font-bold text-foreground">
+                                <div style={applyTypographyStyle('headline')} className="text-foreground">
                                     {formatPercentage(systemMetrics.data?.cpu_usage)}
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-1">Usage</div>
+                                <div style={applyTypographyStyle('caption')} className="text-muted-foreground mt-2">Usage</div>
                             </div>
                             <div className="text-center group">
-                                <div className="flex items-center justify-center mb-3">
-                                    <div className={`w-4 h-4 rounded-full mr-2 transition-all duration-200 ${getHealthIndicator(systemMetrics.data?.memory_usage, { warning: 70, critical: 85 })}`} />
-                                    <span className="text-sm font-medium">Memory</span>
+                                <div className="flex items-center justify-center mb-4">
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
+                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.memory_usage, { warning: 70, critical: 85 }) }} />
+                                    <span style={applyTypographyStyle('caption')} className="font-medium">Memory</span>
                                 </div>
-                                <div className="text-2xl font-bold text-foreground">
+                                <div style={applyTypographyStyle('headline')} className="text-foreground">
                                     {formatPercentage(systemMetrics.data?.memory_usage)}
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-1">Usage</div>
+                                <div style={applyTypographyStyle('caption')} className="text-muted-foreground mt-2">Usage</div>
                             </div>
                             <div className="text-center group">
-                                <div className="flex items-center justify-center mb-3">
-                                    <div className={`w-4 h-4 rounded-full mr-2 transition-all duration-200 ${getHealthIndicator(systemMetrics.data?.disk_usage, { warning: 75, critical: 90 })}`} />
-                                    <span className="text-sm font-medium">Disk</span>
+                                <div className="flex items-center justify-center mb-4">
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
+                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.disk_usage, { warning: 75, critical: 90 }) }} />
+                                    <span style={applyTypographyStyle('caption')} className="font-medium">Disk</span>
                                 </div>
-                                <div className="text-2xl font-bold text-foreground">
+                                <div style={applyTypographyStyle('headline')} className="text-foreground">
                                     {formatPercentage(systemMetrics.data?.disk_usage)}
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-1">Usage</div>
+                                <div style={applyTypographyStyle('caption')} className="text-muted-foreground mt-2">Usage</div>
                             </div>
                             <div className="text-center group">
-                                <div className="flex items-center justify-center mb-3">
-                                    <div className={`w-4 h-4 rounded-full mr-2 transition-all duration-200 ${getHealthIndicator(systemMetrics.data?.error_rate_24h, { warning: 2, critical: 5 })}`} />
-                                    <span className="text-sm font-medium">Errors</span>
+                                <div className="flex items-center justify-center mb-4">
+                                    <div className="w-4 h-4 rounded-full mr-3 transition-all duration-200" 
+                                         style={{ backgroundColor: getHealthIndicator(systemMetrics.data?.error_rate_24h, { warning: 2, critical: 5 }) }} />
+                                    <span style={applyTypographyStyle('caption')} className="font-medium">Errors</span>
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900">
+                                <div style={applyTypographyStyle('headline')} className="text-foreground">
                                     {formatPercentage(systemMetrics.data?.error_rate_24h)}
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-1">Rate (24h)</div>
+                                <div style={applyTypographyStyle('caption')} className="text-muted-foreground mt-2">Rate (24h)</div>
                             </div>
                         </div>
                     </CardContent>
@@ -194,55 +225,63 @@ const OverviewTab: React.FC = () => {
 
                 {/* Performance Metrics */}
                 <Card>
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-6">
                         <CardTitle className="flex items-center">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                <BarChart3 className="h-5 w-5 text-blue-600" />
+                            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mr-4">
+                                <BarChart3 className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold">Performance</h3>
-                                <p className="text-sm text-muted-foreground">Key metrics</p>
+                                <h3 style={applyTypographyStyle('title')} className="text-foreground">
+                                    Performance
+                                </h3>
+                                <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                    Key metrics
+                                </p>
                             </div>
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Cpu className="h-4 w-4" /> CPU Usage
+                    <CardContent className="space-y-8">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 text-muted-foreground">
+                                    <Cpu className="h-4 w-4" />
+                                    <span style={applyTypographyStyle('caption')}>CPU Usage</span>
                                 </div>
-                                <span className="font-semibold text-gray-900">
+                                <span style={applyTypographyStyle('subtitle')} className="text-foreground">
                                     {formatPercentage(systemMetrics.data?.cpu_usage)}
                                 </span>
                             </div>
                             <Progress value={systemMetrics.data?.cpu_usage || 0} className="h-2" />
                         </div>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <HardDrive className="h-4 w-4" /> Disk Usage
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 text-muted-foreground">
+                                    <HardDrive className="h-4 w-4" />
+                                    <span style={applyTypographyStyle('caption')}>Disk Usage</span>
                                 </div>
-                                <span className="font-semibold text-gray-900">
+                                <span style={applyTypographyStyle('subtitle')} className="text-foreground">
                                     {formatPercentage(systemMetrics.data?.disk_usage)}
                                 </span>
                             </div>
                             <Progress value={systemMetrics.data?.disk_usage || 0} className="h-2" />
                         </div>
-                        <div className="pt-4 border-t">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="pt-6 border-t border-border">
+                            <div className="grid grid-cols-2 gap-6">
                                 <div>
-                                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                                        <Zap className="h-4 w-4" /> Requests/24h
+                                    <div className="flex items-center gap-3 text-muted-foreground mb-2">
+                                        <Zap className="h-4 w-4" />
+                                        <span style={applyTypographyStyle('caption')}>Requests/24h</span>
                                     </div>
-                                    <div className="font-semibold text-gray-900">
+                                    <div style={applyTypographyStyle('subtitle')} className="text-foreground">
                                         {formatNumber(systemMetrics.data?.request_count_24h)}
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                                        <Clock className="h-4 w-4" /> Avg Response
+                                    <div className="flex items-center gap-3 text-muted-foreground mb-2">
+                                        <Clock className="h-4 w-4" />
+                                        <span style={applyTypographyStyle('caption')}>Avg Response</span>
                                     </div>
-                                    <div className="font-semibold text-gray-900">
+                                    <div style={applyTypographyStyle('subtitle')} className="text-foreground">
                                         {formatNumber(systemMetrics.data?.avg_response_time)} ms
                                     </div>
                                 </div>
@@ -253,17 +292,21 @@ const OverviewTab: React.FC = () => {
             </div>
 
             {/* User Activity and System Alerts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card>
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-6">
                         <CardTitle className="flex items-center justify-between">
                             <div className="flex items-center">
-                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                                    <Users className="h-5 w-5 text-purple-600" />
+                                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mr-4">
+                                    <Users className="h-6 w-6 text-accent" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold">User Activity</h3>
-                                    <p className="text-sm text-muted-foreground">Recent interactions</p>
+                                    <h3 style={applyTypographyStyle('title')} className="text-foreground">
+                                        User Activity
+                                    </h3>
+                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                        Recent interactions
+                                    </p>
                                 </div>
                             </div>
                             <Button variant="ghost" size="sm">
@@ -273,114 +316,122 @@ const OverviewTab: React.FC = () => {
                     </CardHeader>
                     <CardContent>
                         {userActivity.data && userActivity.data.length > 0 ? (
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 {userActivity.data.slice(0, 5).map(user => (
-                                    <div key={user.user_id} className="flex items-center justify-between p-4 rounded-lg hover:bg-muted/50 transition-all duration-200 group">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
-                                                <span className="text-sm font-medium text-purple-700">
+                                    <div key={user.user_id} className="flex items-center justify-between p-6 rounded-xl hover:bg-muted/50 transition-all duration-200 group">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center">
+                                                <span style={applyTypographyStyle('subtitle')} className="text-accent">
                                                     {user.username.charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
                                             <div>
-                                                <p className="font-medium text-gray-900">{user.username}</p>
-                                                <p className="text-xs text-muted-foreground">
+                                                <p style={applyTypographyStyle('subtitle')} className="text-foreground">{user.username}</p>
+                                                <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
                                                     Last login: {user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             {getStatusBadge(user.is_active, true)}
-                                            <p className="text-xs text-muted-foreground mt-1">
+                                            <p style={applyTypographyStyle('caption')} className="text-muted-foreground mt-2">
                                                 {user.login_count} logins
                                             </p>
                                         </div>
                                     </div>
                                 ))}
                                 {userActivity.data.length > 5 && (
-                                    <Button variant="link" className="p-0 h-auto text-sm w-full justify-center">
-                                        View All Activity
-                                        <ArrowUpRight className="h-4 w-4 ml-1" />
+                                    <Button variant="link" className="p-0 h-auto w-full justify-center">
+                                        <span style={applyTypographyStyle('caption')}>View All Activity</span>
+                                        <ArrowUpRight className="h-4 w-4 ml-2" />
                                     </Button>
                                 )}
                             </div>
                         ) : (
-                            <div className="text-center py-12">
-                                <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
-                                    <Users className="h-8 w-8 text-muted-foreground" />
+                            <div className="text-center py-16">
+                                <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center mb-6">
+                                    <Users className="h-10 w-10 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-semibold mb-2">No Recent Activity</h3>
-                                <p className="text-muted-foreground">No user activity has been recorded recently.</p>
+                                <h3 style={applyTypographyStyle('title')} className="text-foreground mb-3">
+                                    No Recent Activity
+                                </h3>
+                                <p style={applyTypographyStyle('body')} className="text-muted-foreground">
+                                    No user activity has been recorded recently.
+                                </p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-6">
                         <CardTitle className="flex items-center">
-                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                                <Bell className="h-5 w-5 text-orange-600" />
+                            <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center mr-4">
+                                <Bell className="h-6 w-6 text-warning" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold">System Alerts</h3>
-                                <p className="text-sm text-muted-foreground">Active alerts</p>
+                                <h3 style={applyTypographyStyle('title')} className="text-foreground">
+                                    System Alerts
+                                </h3>
+                                <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                    Active alerts
+                                </p>
                             </div>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {systemMetrics.data?.cpu_usage && systemMetrics.data.cpu_usage > 90 && (
-                                <div className="p-4 rounded-lg bg-red-50 border border-red-200 transition-all duration-200 hover:bg-red-100/50">
-                                    <div className="flex items-start gap-3">
-                                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                                        <div>
-                                            <div className="font-medium text-red-900">High CPU Usage</div>
-                                            <p className="text-sm text-red-700 mt-1">
-                                                CPU usage at {formatPercentage(systemMetrics.data.cpu_usage)}. Consider scaling up resources.
-                                            </p>
+                                <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
+                                    <AlertCircle className="h-5 w-5" />
+                                    <AlertDescription>
+                                        <div style={applyTypographyStyle('subtitle')} className="text-destructive mb-2">
+                                            High CPU Usage
                                         </div>
-                                    </div>
-                                </div>
+                                        <p style={applyTypographyStyle('body')} className="text-destructive/80">
+                                            CPU usage at {formatPercentage(systemMetrics.data.cpu_usage)}. Consider scaling up resources.
+                                        </p>
+                                    </AlertDescription>
+                                </Alert>
                             )}
                             {systemMetrics.data?.memory_usage && systemMetrics.data.memory_usage > 90 && (
-                                <div className="p-4 rounded-lg bg-red-50 border border-red-200 transition-all duration-200 hover:bg-red-100/50">
-                                    <div className="flex items-start gap-3">
-                                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                                        <div>
-                                            <div className="font-medium text-red-900">High Memory Usage</div>
-                                            <p className="text-sm text-red-700 mt-1">
-                                                Memory usage at {formatPercentage(systemMetrics.data.memory_usage)}.
-                                            </p>
+                                <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
+                                    <AlertCircle className="h-5 w-5" />
+                                    <AlertDescription>
+                                        <div style={applyTypographyStyle('subtitle')} className="text-destructive mb-2">
+                                            High Memory Usage
                                         </div>
-                                    </div>
-                                </div>
+                                        <p style={applyTypographyStyle('body')} className="text-destructive/80">
+                                            Memory usage at {formatPercentage(systemMetrics.data.memory_usage)}.
+                                        </p>
+                                    </AlertDescription>
+                                </Alert>
                             )}
                             {systemMetrics.data?.disk_usage && systemMetrics.data.disk_usage > 90 && (
-                                <div className="p-4 rounded-lg bg-orange-50 border border-orange-200 transition-all duration-200 hover:bg-orange-100/50">
-                                    <div className="flex items-start gap-3">
-                                        <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
-                                        <div>
-                                            <div className="font-medium text-orange-900">Disk Usage Warning</div>
-                                            <p className="text-sm text-orange-700 mt-1">
-                                                Disk usage at {formatPercentage(systemMetrics.data.disk_usage)}.
-                                            </p>
+                                <Alert className="border-warning/20 bg-warning/5">
+                                    <AlertCircle className="h-5 w-5 text-warning" />
+                                    <AlertDescription>
+                                        <div style={applyTypographyStyle('subtitle')} className="text-warning mb-2">
+                                            Disk Usage Warning
                                         </div>
-                                    </div>
-                                </div>
+                                        <p style={applyTypographyStyle('body')} className="text-warning/80">
+                                            Disk usage at {formatPercentage(systemMetrics.data.disk_usage)}.
+                                        </p>
+                                    </AlertDescription>
+                                </Alert>
                             )}
                             {systemMetrics.data?.error_rate_24h && systemMetrics.data.error_rate_24h > 5 && (
-                                <div className="p-4 rounded-lg bg-red-50 border border-red-200 transition-all duration-200 hover:bg-red-100/50">
-                                    <div className="flex items-start gap-3">
-                                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                                        <div>
-                                            <div className="font-medium text-red-900">High Error Rate</div>
-                                            <p className="text-sm text-red-700 mt-1">
-                                                Error rate at {formatPercentage(systemMetrics.data.error_rate_24h)}.
-                                            </p>
+                                <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
+                                    <AlertCircle className="h-5 w-5" />
+                                    <AlertDescription>
+                                        <div style={applyTypographyStyle('subtitle')} className="text-destructive mb-2">
+                                            High Error Rate
                                         </div>
-                                    </div>
-                                </div>
+                                        <p style={applyTypographyStyle('body')} className="text-destructive/80">
+                                            Error rate at {formatPercentage(systemMetrics.data.error_rate_24h)}.
+                                        </p>
+                                    </AlertDescription>
+                                </Alert>
                             )}
                             {/* Show healthy state if no alerts */}
                             {!(
@@ -389,17 +440,17 @@ const OverviewTab: React.FC = () => {
                                 (systemMetrics.data?.disk_usage && systemMetrics.data.disk_usage > 90) ||
                                 (systemMetrics.data?.error_rate_24h && systemMetrics.data.error_rate_24h > 5)
                             ) && (
-                                    <div className="p-4 rounded-lg bg-green-50 border border-green-200">
-                                        <div className="flex items-start gap-3">
-                                            <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                                            <div>
-                                                <div className="font-medium text-green-900">All Systems Healthy</div>
-                                                <p className="text-sm text-green-700 mt-1">
-                                                    All system metrics are within normal ranges.
-                                                </p>
+                                    <Alert className="border-success/20 bg-success/5">
+                                        <CheckCircle className="h-5 w-5 text-success" />
+                                        <AlertDescription>
+                                            <div style={applyTypographyStyle('subtitle')} className="text-success mb-2">
+                                                All Systems Healthy
                                             </div>
-                                        </div>
-                                    </div>
+                                            <p style={applyTypographyStyle('body')} className="text-success/80">
+                                                All system metrics are within normal ranges.
+                                            </p>
+                                        </AlertDescription>
+                                    </Alert>
                                 )}
                         </div>
                     </CardContent>
@@ -934,101 +985,111 @@ export const AdminDashboard: React.FC = () => {
             sectionName="Admin Dashboard"
             onRetry={() => window.location.reload()}
         >
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {/* Action Bar */}
-                <div className="flex items-center justify-end gap-3">
-                    <Button variant="outline" size="sm" className="relative">
-                        <Bell className="h-4 w-4 mr-2" />
-                        Notifications
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full text-xs text-destructive-foreground flex items-center justify-center">
-                            3
-                        </span>
-                    </Button>
-                    <DashboardCustomization
-                        userRole="admin"
-                        onConfigChange={(config) => {
-                            console.log('Dashboard config changed:', config);
-                            // TODO: Save configuration to backend
-                        }}
-                    />
-                    <Button variant="outline" size="sm">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Settings
-                    </Button>
-                    <Button size="sm">
-                        <TrendingUp className="h-4 w-4 mr-2" />
-                        Export Report
-                    </Button>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 style={applyTypographyStyle('headline')} className="text-foreground">
+                            Admin Dashboard
+                        </h1>
+                        <p style={applyTypographyStyle('body')} className="text-muted-foreground mt-2">
+                            Monitor and manage system performance, user activity, and system health
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <Button variant="outline" size="sm" className="relative">
+                            <Bell className="h-4 w-4 mr-2" />
+                            <span style={applyTypographyStyle('caption')}>Notifications</span>
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full text-xs text-destructive-foreground flex items-center justify-center">
+                                3
+                            </span>
+                        </Button>
+                        <DashboardCustomization
+                            userRole="admin"
+                            onConfigChange={(config) => {
+                                console.log('Dashboard config changed:', config);
+                                // TODO: Save configuration to backend
+                            }}
+                        />
+                        <Button variant="outline" size="sm">
+                            <Settings className="h-4 w-4 mr-2" />
+                            <span style={applyTypographyStyle('caption')}>Settings</span>
+                        </Button>
+                        <Button size="sm">
+                            <TrendingUp className="h-4 w-4 mr-2" />
+                            <span style={applyTypographyStyle('caption')}>Export Report</span>
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-6 h-12 bg-muted/50 p-1 rounded-lg">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+                    <TabsList className="grid w-full grid-cols-6 h-14 bg-muted/50 p-1 rounded-xl">
                         <TabsTrigger
                             value="overview"
-                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
+                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
                         >
                             <Activity className="h-4 w-4" />
-                            Overview
+                            <span style={applyTypographyStyle('caption')}>Overview</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="system"
-                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
+                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
                         >
                             <Server className="h-4 w-4" />
-                            System
+                            <span style={applyTypographyStyle('caption')}>System</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="audit"
-                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
+                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
                         >
                             <Shield className="h-4 w-4" />
-                            Audit
+                            <span style={applyTypographyStyle('caption')}>Audit</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="health"
-                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
+                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
                         >
                             <CheckCircle className="h-4 w-4" />
-                            Health
+                            <span style={applyTypographyStyle('caption')}>Health</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="data"
-                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
+                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
                         >
                             <Database className="h-4 w-4" />
-                            Data
+                            <span style={applyTypographyStyle('caption')}>Data</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="logs"
-                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
+                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
                         >
                             <FileText className="h-4 w-4" />
-                            Logs
+                            <span style={applyTypographyStyle('caption')}>Logs</span>
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="space-y-6">
+                    <TabsContent value="overview" className="space-y-8">
                         <OverviewTab />
                     </TabsContent>
 
-                    <TabsContent value="system" className="space-y-6">
+                    <TabsContent value="system" className="space-y-8">
                         <SystemTab />
                     </TabsContent>
 
-                    <TabsContent value="audit" className="space-y-6">
+                    <TabsContent value="audit" className="space-y-8">
                         <AuditTab />
                     </TabsContent>
 
-                    <TabsContent value="health" className="space-y-6">
+                    <TabsContent value="health" className="space-y-8">
                         <HealthTab />
                     </TabsContent>
 
-                    <TabsContent value="data" className="space-y-6">
+                    <TabsContent value="data" className="space-y-8">
                         <DataManagement />
                     </TabsContent>
 
-                    <TabsContent value="logs" className="space-y-6">
+                    <TabsContent value="logs" className="space-y-8">
                         <LogsTab />
                     </TabsContent>
                 </Tabs>

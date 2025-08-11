@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import ProtectedRoute from './ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';

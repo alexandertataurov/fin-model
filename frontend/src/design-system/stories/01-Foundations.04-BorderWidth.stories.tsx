@@ -1,166 +1,265 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { tokens } from '../tokens';
+import { Title, Stories } from '@storybook/blocks';
+import {
+  AnimatedBanner,
+  BorderWidthScale,
+  BorderStyleShowcase,
+  InteractiveBorderStates,
+  PracticalExamples,
+  BorderRadiusCombinations,
+  SectionHeader,
+  GuidelinesCard,
+  GuidelinesSection,
+  PhilosophyItem
+} from './components';
 
 const meta: Meta = {
-    title: 'Design System/Foundations/Border Width',
-    parameters: {
-        docs: {
-            description: {
-                component: 'Comprehensive border width system for various UI components. Supports different border styles, states, and use cases. Accessibility: Keyboard and screen reader supported.'
+  title: 'Design System/Foundations/Border Width',
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+    docs: {
+      autodocs: true,
+      page: () => (
+        <>
+          <Title />
+          <AnimatedBanner
+            title="Foundation: Border Width"
+            subtitle="Comprehensive border width system for various UI components. Supports different border styles, states, and use cases with accessibility compliance."
+            icon={
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
             }
-        },
-        layout: 'padded'
+          />
+          <Stories includePrimary={false} />
+        </>
+      ),
     },
-    tags: ['autodocs'],
+  },
 };
 export default meta;
+
 type Story = StoryObj<typeof meta>;
 
+// ============================================================================
+// STORIES
+// ============================================================================
+
 export const Scale: Story = {
-    render: () => (
-        <div className="space-y-8">
-            {/* Basic Scale */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">Border Width Scale</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {Object.entries(tokens.borderWidth).map(([name, width]) => (
-                        <div key={name} className="p-4 rounded-lg border bg-card space-y-3">
-                            <div className="text-sm font-medium text-foreground">{name}</div>
-                            <div
-                                className="h-16 bg-gradient-to-br from-primary/5 to-primary/10 border"
-                                style={{ borderWidth: width as string }}
-                            />
-                            <div className="text-xs text-muted-foreground font-mono">
-                                {width as string}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+  render: () => (
+    <div className="space-y-16">
+      <BorderWidthScale />
+    </div>
+  ),
+};
+
+export const BorderStyles: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <SectionHeader
+        title="Border Styles"
+        subtitle="Different border styles for various UI patterns and visual hierarchy"
+      />
+      <BorderStyleShowcase />
+    </div>
+  ),
+};
+
+export const InteractiveStates: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <SectionHeader
+        title="Interactive Border States"
+        subtitle="Border width variations for different interactive states and feedback"
+      />
+      <InteractiveBorderStates />
+    </div>
+  ),
+};
+
+export const PracticalExamplesStory: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <SectionHeader
+        title="Practical Examples"
+        subtitle="Real-world applications of border width in UI components"
+      />
+      <PracticalExamples />
+    </div>
+  ),
+};
+
+export const BorderRadiusCombinationsStory: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <SectionHeader
+        title="Border Radius Combinations"
+        subtitle="How border width interacts with different border radius values"
+      />
+      <BorderRadiusCombinations />
+    </div>
+  ),
+};
+
+export const Documentation: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <div>
+        <SectionHeader
+          title="Complete Border Width Documentation"
+          subtitle="Comprehensive guide to our sophisticated border width system"
+        />
+
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+          <h4 className="text-xl font-semibold text-gray-900 mb-6">🌟 Design Philosophy</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <PhilosophyItem
+                color={tokens.colors.primary[500]}
+                title="Subtle Hierarchy"
+                description="Thin borders for subtle separation and visual hierarchy"
+              />
+              <PhilosophyItem
+                color={tokens.colors.secondary[500]}
+                title="Emphasis Control"
+                description="Medium borders for emphasis and interactive states"
+              />
             </div>
-
-            {/* Border Styles */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">Border Styles</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge'].map((style) => (
-                        <div key={style} className="p-6 rounded-xl border bg-card space-y-4">
-                            <div className="text-sm font-medium text-foreground capitalize">{style}</div>
-                            <div className="space-y-3">
-                                {Object.entries(tokens.borderWidth).slice(0, 3).map(([name, width]) => (
-                                    <div key={name} className="flex items-center space-x-3">
-                                        <div
-                                            className="h-8 w-16 bg-primary/10 border"
-                                            style={{
-                                                borderWidth: width as string,
-                                                borderStyle: style as any
-                                            }}
-                                        />
-                                        <span className="text-xs text-muted-foreground">{name}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            <div className="space-y-4">
+              <PhilosophyItem
+                color={tokens.colors.accent[500]}
+                title="Strong Definition"
+                description="Thick borders for strong visual definition and focus"
+              />
+              <PhilosophyItem
+                color={tokens.colors.danger}
+                title="Accessibility First"
+                description="Ensures sufficient contrast and clear visual boundaries"
+              />
             </div>
-
-            {/* Interactive States */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">Interactive States</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                        { name: 'Default', className: 'border-border' },
-                        { name: 'Focus', className: 'border-primary ring-2 ring-primary/20' },
-                        { name: 'Error', className: 'border-destructive' },
-                        { name: 'Success', className: 'border-green-500' }
-                    ].map((state) => (
-                        <div key={state.name} className="p-6 rounded-xl border bg-card space-y-4">
-                            <div className="text-sm font-medium text-foreground">{state.name}</div>
-                            <div className="space-y-3">
-                                {Object.entries(tokens.borderWidth).slice(0, 2).map(([name, width]) => (
-                                    <div key={name} className="space-y-2">
-                                        <div className="text-xs text-muted-foreground">{name}</div>
-                                        <div
-                                            className={`h-12 bg-background border ${state.className}`}
-                                            style={{ borderWidth: width as string }}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Practical Examples */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">Practical Examples</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Cards */}
-                    <div className="p-6 rounded-xl border bg-card space-y-4">
-                        <div className="text-sm font-medium text-foreground">Cards</div>
-                        <div className="space-y-3">
-                            <div className="p-4 rounded-lg border border-border bg-background">
-                                <div className="text-sm font-medium">Subtle Card</div>
-                                <div className="text-xs text-muted-foreground mt-1">Uses thin border</div>
-                            </div>
-                            <div className="p-4 rounded-lg border-2 border-primary/20 bg-background">
-                                <div className="text-sm font-medium">Emphasized Card</div>
-                                <div className="text-xs text-muted-foreground mt-1">Uses medium border</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="p-6 rounded-xl border bg-card space-y-4">
-                        <div className="text-sm font-medium text-foreground">Buttons</div>
-                        <div className="space-y-3">
-                            <button className="px-4 py-2 rounded-md border border-border bg-background text-sm hover:bg-accent transition-colors">
-                                Outline Button
-                            </button>
-                            <button className="px-4 py-2 rounded-md border-2 border-primary bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors">
-                                Primary Button
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Form Elements */}
-                    <div className="p-6 rounded-xl border bg-card space-y-4">
-                        <div className="text-sm font-medium text-foreground">Form Elements</div>
-                        <div className="space-y-3">
-                            <input
-                                type="text"
-                                placeholder="Input field"
-                                className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-                            />
-                            <div className="p-3 rounded-md border-2 border-destructive bg-destructive/5">
-                                <div className="text-sm text-destructive">Error state</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Border Radius Combinations */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">Border Radius Combinations</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {['rounded-none', 'rounded-md', 'rounded-lg', 'rounded-xl'].map((radius) => (
-                        <div key={radius} className="p-4 rounded-lg border bg-card space-y-3">
-                            <div className="text-sm font-medium text-foreground capitalize">
-                                {radius.replace('rounded-', '')}
-                            </div>
-                            <div
-                                className={`h-16 bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/30 ${radius}`}
-                            />
-                            <div className="text-xs text-muted-foreground">
-                                Border width: 2px
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+          </div>
         </div>
-    ),
+
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+          <h4 className="text-xl font-semibold text-gray-900 mb-6">🚀 Usage Guidelines</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <GuidelinesSection
+              title="Thin Borders (1px)"
+              items={[
+                "• <strong>Cards</strong>: Subtle separation",
+                "• <strong>Inputs</strong>: Default state borders",
+                "• <strong>Dividers</strong>: Content separation",
+                "• <strong>Tables</strong>: Cell boundaries"
+              ]}
+            />
+            <GuidelinesSection
+              title="Medium Borders (2px)"
+              items={[
+                "• <strong>Focus states</strong>: Active input focus",
+                "• <strong>Emphasis</strong>: Important elements",
+                "• <strong>Interactive</strong>: Button hover states",
+                "• <strong>Selection</strong>: Selected items"
+              ]}
+            />
+            <GuidelinesSection
+              title="Thick Borders (3px+)"
+              items={[
+                "• <strong>Strong focus</strong>: Critical elements",
+                "• <strong>Error states</strong>: Validation errors",
+                "• <strong>Success states</strong>: Confirmation feedback",
+                "• <strong>Brand elements</strong>: Logo containers"
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+          <h4 className="text-xl font-semibold text-gray-900 mb-6">♿ Accessibility</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <GuidelinesSection
+              title="Contrast Requirements"
+              items={[
+                "• Ensure sufficient contrast between border and background",
+                "• Test border visibility in high contrast mode",
+                "• Consider color blindness when using colored borders"
+              ]}
+            />
+            <GuidelinesSection
+              title="Best Practices"
+              items={[
+                "• Use consistent border widths for similar elements",
+                "• Don't rely solely on borders for information",
+                "• Provide alternative visual cues for screen readers"
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export const UsageGuidelines: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <div>
+        <SectionHeader
+          title="Border Width Usage Guidelines"
+          subtitle="Best practices for implementing our sophisticated border width system"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <GuidelinesCard
+              title="Thin Borders (1px)"
+              items={[
+                "• Use for subtle visual separation",
+                "• Default state for form elements",
+                "• Card and container boundaries",
+                "• Table cell dividers"
+              ]}
+            />
+
+            <GuidelinesCard
+              title="Medium Borders (2px)"
+              items={[
+                "• Focus states and active elements",
+                "• Interactive component emphasis",
+                "• Selected state indicators",
+                "• Important content boundaries"
+              ]}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <GuidelinesCard
+              title="Thick Borders (3px+)"
+              items={[
+                "• Strong visual emphasis",
+                "• Error and success states",
+                "• Critical UI elements",
+                "• Brand identity elements"
+              ]}
+            />
+
+            <GuidelinesCard
+              title="Accessibility"
+              items={[
+                "• Ensure sufficient contrast",
+                "• Test with screen readers",
+                "• Consider color blindness",
+                "• Provide alternative cues"
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
 };

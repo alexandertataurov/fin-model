@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import AdminGuard from './AdminGuard';
 
@@ -40,7 +41,7 @@ const meta: Meta<typeof AdminGuard> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = { 
+export const Default: Story = {
   args: {
     isAdmin: true,
     isLoading: false,
@@ -48,7 +49,7 @@ export const Default: Story = {
   },
 };
 
-export const NotAdmin: Story = { 
+export const NotAdmin: Story = {
   args: {
     isAdmin: false,
     isLoading: false,
@@ -57,7 +58,7 @@ export const NotAdmin: Story = {
   },
 };
 
-export const Loading: Story = { 
+export const Loading: Story = {
   args: {
     isAdmin: false,
     isLoading: true,
@@ -65,7 +66,7 @@ export const Loading: Story = {
   },
 };
 
-export const WithCustomFallback: Story = { 
+export const WithCustomFallback: Story = {
   args: {
     isAdmin: false,
     isLoading: false,
@@ -81,7 +82,7 @@ export const WithCustomFallback: Story = {
   },
 };
 
-export const Empty: Story = { 
+export const Empty: Story = {
   args: {
     isAdmin: false,
     isLoading: false,
@@ -89,7 +90,7 @@ export const Empty: Story = {
   },
 };
 
-export const Error: Story = { 
+export const Error: Story = {
   args: {
     isAdmin: false,
     isLoading: false,

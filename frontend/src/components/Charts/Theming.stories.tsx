@@ -1,3 +1,4 @@
+import React from "react";
 import type { Meta, StoryObj } from '@storybook/react';
 import LineChart from './LineChart';
 import { tokens } from '@/design-system/tokens';

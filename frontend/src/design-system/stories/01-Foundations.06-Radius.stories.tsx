@@ -1,7 +1,46 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { tokens } from '../tokens';
-import { Title, Subtitle, Description, Stories } from '@storybook/blocks';
+import { Title, Stories } from '@storybook/blocks';
+import {
+  AnimatedBanner,
+  Card,
+  applyTypographyStyle,
+  SectionHeader
+} from './components';
+
+const meta: Meta = {
+  title: 'Design System/Foundations/Radius',
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+    docs: {
+      autodocs: true,
+      page: () => (
+        <>
+          <Title />
+          <AnimatedBanner
+            title="Foundation: Border Radius"
+            subtitle="Sophisticated border radius system designed for financial applications. Features refined radius values that create elegant, professional interfaces with appropriate visual hierarchy and modern aesthetics."
+            icon={
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          />
+          <Stories includePrimary={false} />
+        </>
+      ),
+    },
+  },
+};
+export default meta;
+
+type Story = StoryObj<typeof meta>;
 
 // Helper function to apply text style (simplified version)
 const applyTextStyle = (styleName: string) => {
@@ -53,22 +92,6 @@ const applyTextStyle = (styleName: string) => {
   return styles[styleName] || {};
 };
 
-const meta: Meta = {
-  title: 'Design System/Foundations/Radius',
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-    docs: {
-      description: {
-        component: 'Our sophisticated border radius system designed for financial applications. Features refined radius values that create elegant, professional interfaces with appropriate visual hierarchy and modern aesthetics.',
-      },
-    },
-  },
-};
-export default meta;
-
-type Story = StoryObj<typeof meta>;
-
 function RadiusSwatch({ name, value, description, size = 'h-20' }: {
   name: string;
   value: string;
@@ -76,7 +99,7 @@ function RadiusSwatch({ name, value, description, size = 'h-20' }: {
   size?: string;
 }) {
   return (
-    <div className="group relative p-4 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+    <Card className="group relative p-4 hover:border-gray-300">
       <div className="flex items-center gap-4">
         <div
           className={`${size} w-16 rounded-lg border-2 border-gray-100 shadow-sm group-hover:shadow-md transition-shadow duration-200`}
@@ -88,21 +111,21 @@ function RadiusSwatch({ name, value, description, size = 'h-20' }: {
           {description && <div className="text-xs text-gray-600 mt-2 italic">{description}</div>}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
 export const Scale: Story = {
   render: () => (
     <div className="space-y-16">
-      <div className="text-center">
-        <h3 style={applyTextStyle('headline')} className="text-gray-900 mb-4">Border Radius Scale</h3>
-        <p style={applyTextStyle('subtitle')} className="text-gray-600 max-w-2xl mx-auto">Complete range of border radius values from sharp corners to fully rounded elements</p>
-      </div>
+      <SectionHeader
+        title="Border Radius Scale"
+        subtitle="Complete range of border radius values from sharp corners to fully rounded elements"
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {Object.entries(tokens.borderRadius).map(([name, radius]) => (
-          <div key={name} className="p-4 rounded-lg border bg-card space-y-3">
+          <Card key={name} className="p-4 space-y-3">
             <div className="text-sm text-muted-foreground font-medium">{name}</div>
             <div
               className="h-20 bg-primary/10 border"
@@ -111,7 +134,7 @@ export const Scale: Story = {
             <div className="text-xs text-muted-foreground font-mono">
               {radius as string}
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>
@@ -121,10 +144,10 @@ export const Scale: Story = {
 export const UsageExamples: Story = {
   render: () => (
     <div className="space-y-16">
-      <div className="text-center">
-        <h3 style={applyTextStyle('headline')} className="text-gray-900 mb-4">Usage Examples</h3>
-        <p style={applyTextStyle('subtitle')} className="text-gray-600 max-w-2xl mx-auto">Common UI patterns and their appropriate border radius values</p>
-      </div>
+      <SectionHeader
+        title="Usage Examples"
+        subtitle="Common UI patterns and their appropriate border radius values"
+      />
 
       {/* Buttons */}
       <div className="space-y-8">
@@ -139,7 +162,7 @@ export const UsageExamples: Story = {
             { name: 'Standard', radius: tokens.borderRadius.base, description: 'Default button radius' },
             { name: 'Rounded', radius: tokens.borderRadius.lg, description: 'Friendly, approachable feel' },
           ].map(({ name, radius, description }) => (
-            <div key={name} className="p-6 rounded-xl border border-gray-200 bg-white">
+            <Card key={name} className="p-6">
               <div className="text-sm font-medium text-gray-700 mb-4">{name}</div>
               <button
                 className="w-full px-4 py-2 text-white font-medium mb-3"
@@ -154,7 +177,7 @@ export const UsageExamples: Story = {
                 {radius as string}
               </div>
               <div className="text-xs text-gray-600">{description}</div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>
@@ -172,7 +195,7 @@ export const UsageExamples: Story = {
             { name: 'Standard Cards', radius: tokens.borderRadius.base, description: 'General content areas' },
             { name: 'Rounded Cards', radius: tokens.borderRadius.lg, description: 'User-friendly interfaces' },
           ].map(({ name, radius, description }) => (
-            <div key={name} className="p-6 rounded-xl border border-gray-200 bg-white">
+            <Card key={name} className="p-6">
               <div className="text-sm font-medium text-gray-700 mb-4">{name}</div>
               <div
                 className="h-32 bg-gray-50 border border-gray-200 mb-3 flex items-center justify-center"
@@ -187,7 +210,7 @@ export const UsageExamples: Story = {
                 {radius as string}
               </div>
               <div className="text-xs text-gray-600">{description}</div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>
@@ -205,7 +228,7 @@ export const UsageExamples: Story = {
             { name: 'Standard Inputs', radius: tokens.borderRadius.base, description: 'General forms' },
             { name: 'Rounded Inputs', radius: tokens.borderRadius.lg, description: 'User-friendly forms' },
           ].map(({ name, radius, description }) => (
-            <div key={name} className="p-6 rounded-xl border border-gray-200 bg-white">
+            <Card key={name} className="p-6">
               <div className="text-sm font-medium text-gray-700 mb-4">{name}</div>
               <input
                 type="text"
@@ -217,7 +240,7 @@ export const UsageExamples: Story = {
                 {radius as string}
               </div>
               <div className="text-xs text-gray-600">{description}</div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>
@@ -228,10 +251,10 @@ export const UsageExamples: Story = {
 export const InteractiveStates: Story = {
   render: () => (
     <div className="space-y-12">
-      <div className="text-center">
-        <h3 style={applyTextStyle('headline')} className="text-gray-900 mb-4">Interactive States</h3>
-        <p style={applyTextStyle('subtitle')} className="text-gray-600 max-w-2xl mx-auto">How border radius affects different interactive states and hover effects</p>
-      </div>
+      <SectionHeader
+        title="Interactive States"
+        subtitle="How border radius affects different interactive states and hover effects"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {[
@@ -251,7 +274,7 @@ export const InteractiveStates: Story = {
             states: ['Default', 'Focus', 'Error', 'Success']
           },
         ].map(({ name, radius, states }) => (
-          <div key={name} className="p-6 rounded-xl border border-gray-200 bg-white">
+          <Card key={name} className="p-6">
             <h4 className="font-semibold text-gray-900 capitalize mb-4 text-lg">{name}</h4>
             <div className="space-y-3">
               {states.map((state) => (
@@ -269,7 +292,7 @@ export const InteractiveStates: Story = {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>
@@ -279,10 +302,10 @@ export const InteractiveStates: Story = {
 export const FinancialDashboard: Story = {
   render: () => (
     <div className="space-y-12">
-      <div className="text-center">
-        <h3 style={applyTextStyle('headline')} className="text-gray-900 mb-4">Financial Dashboard Example</h3>
-        <p style={applyTextStyle('subtitle')} className="text-gray-600 max-w-2xl mx-auto">Real-world application of our radius system in financial interfaces</p>
-      </div>
+      <SectionHeader
+        title="Financial Dashboard Example"
+        subtitle="Real-world application of our radius system in financial interfaces"
+      />
 
       {/* Dashboard Header */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm" style={{ borderRadius: tokens.borderRadius.xl }}>
@@ -398,14 +421,14 @@ export const FinancialDashboard: Story = {
 export const RadiusCharacteristics: Story = {
   render: () => (
     <div className="space-y-12">
-      <div className="text-center">
-        <h3 style={applyTextStyle('headline')} className="text-gray-900 mb-4">Radius Characteristics</h3>
-        <p style={applyTextStyle('subtitle')} className="text-gray-600 max-w-2xl mx-auto">Understanding the refined characteristics of our border radius system</p>
-      </div>
+      <SectionHeader
+        title="Radius Characteristics"
+        subtitle="Understanding the refined characteristics of our border radius system"
+      />
 
       {/* Characteristic Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div className="group p-8 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-lg">
+        <Card className="group p-8 hover:shadow-lg">
           <div className="flex items-center gap-4 mb-6">
             <div
               className="h-12 w-12 shadow-md flex items-center justify-center text-white font-bold text-sm"
@@ -429,9 +452,9 @@ export const RadiusCharacteristics: Story = {
               <span className="text-gray-500">Data tables, charts</span>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div className="group p-8 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-lg">
+        <Card className="group p-8 hover:shadow-lg">
           <div className="flex items-center gap-4 mb-6">
             <div
               className="h-12 w-12 shadow-md flex items-center justify-center text-white font-bold text-sm"
@@ -455,9 +478,9 @@ export const RadiusCharacteristics: Story = {
               <span className="text-gray-500">Inputs, buttons</span>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div className="group p-8 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-lg">
+        <Card className="group p-8 hover:shadow-lg">
           <div className="flex items-center gap-4 mb-6">
             <div
               className="h-12 w-12 shadow-md flex items-center justify-center text-white font-bold text-sm"
@@ -481,7 +504,7 @@ export const RadiusCharacteristics: Story = {
               <span className="text-gray-500">Cards, modals</span>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   ),
@@ -490,13 +513,13 @@ export const RadiusCharacteristics: Story = {
 export const Documentation: Story = {
   render: () => (
     <div className="space-y-12">
-      <div className="text-center">
-        <h3 style={applyTextStyle('headline')} className="text-gray-900 mb-4">Complete Radius Documentation</h3>
-        <p style={applyTextStyle('subtitle')} className="text-gray-600 max-w-2xl mx-auto">Comprehensive guide to our sophisticated border radius system</p>
-      </div>
+      <SectionHeader
+        title="Complete Radius Documentation"
+        subtitle="Comprehensive guide to our sophisticated border radius system"
+      />
 
       {/* Design Philosophy */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+      <Card className="p-8">
         <h4 style={applyTextStyle('title')} className="text-gray-900 mb-6">🌟 Design Philosophy</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
@@ -564,10 +587,10 @@ export const Documentation: Story = {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Usage Guidelines */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+      <Card className="p-8">
         <h4 style={applyTextStyle('title')} className="text-gray-900 mb-6">🚀 Usage Guidelines</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -598,10 +621,10 @@ export const Documentation: Story = {
             </ul>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Accessibility */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+      <Card className="p-8">
         <h4 style={applyTextStyle('title')} className="text-gray-900 mb-6">♿ Accessibility</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -621,7 +644,7 @@ export const Documentation: Story = {
             </ul>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   ),
 };
@@ -629,13 +652,13 @@ export const Documentation: Story = {
 export const UsageGuidelines: Story = {
   render: () => (
     <div className="space-y-12">
-      <div className="text-center">
-        <h3 style={applyTextStyle('headline')} className="text-gray-900 mb-4">Radius Usage Guidelines</h3>
-        <p style={applyTextStyle('subtitle')} className="text-gray-600 max-w-2xl mx-auto">Best practices for implementing our sophisticated border radius system</p>
-      </div>
+      <SectionHeader
+        title="Radius Usage Guidelines"
+        subtitle="Best practices for implementing our sophisticated border radius system"
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="group p-6 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+          <Card className="group p-6 hover:shadow-md">
             <h4 className="font-semibold text-lg text-gray-900 mb-4">Sharp Elements</h4>
             <ul className="text-base text-gray-600 space-y-2 leading-relaxed">
               <li>• Use for data-heavy interfaces</li>
@@ -643,9 +666,9 @@ export const UsageGuidelines: Story = {
               <li>• Code blocks and monospace content</li>
               <li>• Grid layouts and tables</li>
             </ul>
-          </div>
+          </Card>
 
-          <div className="group p-6 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+          <Card className="group p-6 hover:shadow-md">
             <h4 className="font-semibold text-lg text-gray-900 mb-4">Subtle Elements</h4>
             <ul className="text-base text-gray-600 space-y-2 leading-relaxed">
               <li>• Form inputs and buttons</li>
@@ -653,11 +676,11 @@ export const UsageGuidelines: Story = {
               <li>• Small containers and badges</li>
               <li>• Tooltips and dropdowns</li>
             </ul>
-          </div>
+          </Card>
         </div>
 
         <div className="space-y-4">
-          <div className="group p-6 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+          <Card className="group p-6 hover:shadow-md">
             <h4 className="font-semibold text-lg text-gray-900 mb-4">Rounded Elements</h4>
             <ul className="text-base text-gray-600 space-y-2 leading-relaxed">
               <li>• Cards and content panels</li>
@@ -665,9 +688,9 @@ export const UsageGuidelines: Story = {
               <li>• User-friendly interfaces</li>
               <li>• Navigation elements</li>
             </ul>
-          </div>
+          </Card>
 
-          <div className="group p-6 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+          <Card className="group p-6 hover:shadow-md">
             <h4 className="font-semibold text-lg text-gray-900 mb-4">Consistency</h4>
             <ul className="text-base text-gray-600 space-y-2 leading-relaxed">
               <li>• Use consistent values within components</li>
@@ -675,7 +698,7 @@ export const UsageGuidelines: Story = {
               <li>• Consider touch targets on mobile</li>
               <li>• Test with different screen sizes</li>
             </ul>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

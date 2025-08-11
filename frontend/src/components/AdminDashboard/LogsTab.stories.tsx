@@ -1,3 +1,4 @@
+import React from "react";
 import type { Meta, StoryObj } from '@storybook/react';
 import LogsTab from './LogsTab';
 import { useLogFilters } from '@/hooks/useLogFilters';

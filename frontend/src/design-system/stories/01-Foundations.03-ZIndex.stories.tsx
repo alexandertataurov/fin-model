@@ -1,14 +1,39 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { tokens } from '../tokens';
 import React from 'react';
+import { Title, Stories } from '@storybook/blocks';
+import {
+  AnimatedBanner,
+  SectionHeader,
+  Card,
+  applyTypographyStyle,
+  Container
+} from './components';
 
 const meta: Meta = {
   title: 'Design System/Foundations/Z-Index',
   parameters: {
     docs: {
-      description: {
-        component: 'Comprehensive z-index system for managing element stacking order. Includes semantic tokens for common UI patterns, accessibility considerations, and responsive design scenarios. Higher values appear on top.'
-      }
+      autodocs: true,
+      page: () => (
+        <>
+          <Title />
+          <AnimatedBanner
+            title="Foundation: Z-Index"
+            subtitle="Comprehensive z-index system for managing element stacking order. Includes semantic tokens for common UI patterns, accessibility considerations, and responsive design scenarios."
+            icon={
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            }
+          />
+          <Stories includePrimary={false} />
+        </>
+      ),
     },
     layout: 'padded'
   },
@@ -23,16 +48,14 @@ export const ZIndexLayers: Story = {
   render: () => (
     <div className="space-y-8">
       <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h3 className="text-2xl font-bold text-foreground">Z-Index Token System</h3>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Our z-index tokens are organized into semantic layers, from base content to highest priority overlays.
-          </p>
-        </div>
+        <SectionHeader
+          title="Z-Index Token System"
+          subtitle="Our z-index tokens are organized into semantic layers, from base content to highest priority overlays."
+        />
 
         {/* Base layers (0-50) */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-foreground border-b pb-2">Base Layers</h4>
+          <h4 style={applyTypographyStyle('subtitle')} className="text-foreground border-b pb-2">Base Layers</h4>
           <div className="relative h-64 border-2 border-dashed border-muted rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted/20">
             <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
             {Object.entries(tokens.zIndex)
@@ -64,7 +87,7 @@ export const ZIndexLayers: Story = {
 
         {/* Semantic layers (dropdown-tooltip) */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-foreground border-b pb-2">Semantic Layers</h4>
+          <h4 style={applyTypographyStyle('subtitle')} className="text-foreground border-b pb-2">Semantic Layers</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Object.entries(tokens.zIndex)
               .filter(([name, z]) => typeof z === 'string' && !isNaN(Number(z)) && Number(z) >= 1000)
@@ -80,9 +103,9 @@ export const ZIndexLayers: Story = {
                 const colorClass = colors[i % colors.length];
 
                 return (
-                  <div
+                  <Card
                     key={name}
-                    className={`relative h-32 rounded-lg border-2 bg-gradient-to-br ${colorClass} flex items-center justify-center shadow-lg`}
+                    className={`relative h-32 bg-gradient-to-br ${colorClass} flex items-center justify-center shadow-lg`}
                     style={{ zIndex: Number(z as string) }}
                   >
                     <div className="text-center space-y-1">
@@ -97,7 +120,7 @@ export const ZIndexLayers: Story = {
                         {name === 'tooltip' && 'Help text'}
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
           </div>
@@ -105,7 +128,7 @@ export const ZIndexLayers: Story = {
 
         {/* Layer hierarchy visualization */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-foreground border-b pb-2">Layer Hierarchy</h4>
+          <h4 style={applyTypographyStyle('subtitle')} className="text-foreground border-b pb-2">Layer Hierarchy</h4>
           <div className="relative h-48 bg-gradient-to-b from-muted/10 to-background rounded-lg border overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="space-y-2">
@@ -140,12 +163,15 @@ export const ZIndexLayers: Story = {
 export const UseCases: Story = {
   render: () => (
     <div className="space-y-8">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">Common Use Cases</h3>
+      <SectionHeader
+        title="Common Use Cases"
+        subtitle="Real-world examples of z-index usage in UI patterns"
+      />
 
+      <div className="space-y-4">
         {/* Navigation with dropdown */}
-        <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Navigation with Dropdown (z-dropdown: {tokens.zIndex.dropdown})</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Navigation with Dropdown (z-dropdown: {tokens.zIndex.dropdown})</h4>
           <div className="flex items-center space-x-4">
             <div className="bg-primary/10 px-4 py-2 rounded-md text-primary font-medium">Logo</div>
             <div className="bg-muted px-4 py-2 rounded-md">Home</div>
@@ -161,11 +187,11 @@ export const UseCases: Story = {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Sticky header */}
-        <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Sticky Header (z-sticky: {tokens.zIndex.sticky})</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Sticky Header (z-sticky: {tokens.zIndex.sticky})</h4>
           <div className="space-y-4">
             <div
               className="bg-background border-b px-6 py-3 flex items-center justify-between"
@@ -179,11 +205,11 @@ export const UseCases: Story = {
             </div>
             <div className="h-32 bg-gradient-to-b from-muted/20 to-transparent rounded-md"></div>
           </div>
-        </div>
+        </Card>
 
         {/* Modal overlay */}
-        <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Modal with Backdrop (z-modal: {tokens.zIndex.modal})</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Modal with Backdrop (z-modal: {tokens.zIndex.modal})</h4>
           <div className="relative h-40 bg-muted/20 rounded-md overflow-hidden">
             <div
               className="absolute inset-0 bg-black/50 flex items-center justify-center"
@@ -199,11 +225,11 @@ export const UseCases: Story = {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Tooltip */}
-        <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Tooltip (z-tooltip: {tokens.zIndex.tooltip})</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Tooltip (z-tooltip: {tokens.zIndex.tooltip})</h4>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <div className="bg-primary px-4 py-2 rounded-md text-primary-foreground cursor-help">Hover me</div>
@@ -217,11 +243,11 @@ export const UseCases: Story = {
             </div>
             <div className="text-sm text-muted-foreground">Tooltips appear above all other elements</div>
           </div>
-        </div>
+        </Card>
 
         {/* Fixed sidebar */}
-        <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Fixed Sidebar (z-fixed: {tokens.zIndex.fixed})</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Fixed Sidebar (z-fixed: {tokens.zIndex.fixed})</h4>
           <div className="relative h-40 bg-muted/20 rounded-md overflow-hidden">
             <div
               className="absolute left-0 top-0 h-full w-48 bg-background border-r shadow-lg"
@@ -240,11 +266,11 @@ export const UseCases: Story = {
               <div className="text-sm text-muted-foreground">Main content area</div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Popover menu */}
-        <div className="relative border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Popover Menu (z-popover: {tokens.zIndex.popover})</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Popover Menu (z-popover: {tokens.zIndex.popover})</h4>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <div className="bg-muted px-4 py-2 rounded-md cursor-pointer hover:bg-muted/80">Actions ▼</div>
@@ -268,7 +294,7 @@ export const UseCases: Story = {
             </div>
             <div className="text-sm text-muted-foreground">Context menus appear above dropdowns</div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   ),
@@ -278,12 +304,15 @@ export const UseCases: Story = {
 export const AdvancedScenarios: Story = {
   render: () => (
     <div className="space-y-8">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">Advanced Stacking Scenarios</h3>
+      <SectionHeader
+        title="Advanced Stacking Scenarios"
+        subtitle="Complex z-index patterns and considerations for sophisticated UI"
+      />
 
+      <div className="space-y-4">
         {/* Nested stacking contexts */}
-        <div className="border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Nested Stacking Contexts</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Nested Stacking Contexts</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="text-xs font-medium text-muted-foreground">Parent Container (z=10)</div>
@@ -324,11 +353,11 @@ export const AdvancedScenarios: Story = {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Responsive z-index behavior */}
-        <div className="border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Responsive Z-Index Behavior</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Responsive Z-Index Behavior</h4>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
@@ -384,11 +413,11 @@ export const AdvancedScenarios: Story = {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Accessibility considerations */}
-        <div className="border rounded-lg p-6 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-4">Accessibility Considerations</h4>
+        <Card className="p-6">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-4">Accessibility Considerations</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="text-xs font-medium text-muted-foreground">Focus Management</div>
@@ -425,7 +454,7 @@ export const AdvancedScenarios: Story = {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   ),
@@ -435,14 +464,16 @@ export const AdvancedScenarios: Story = {
 export const StackingContext: Story = {
   render: () => (
     <div className="space-y-8">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">Stacking Context Examples</h3>
-        <p className="text-sm text-muted-foreground">Elements with higher z-index values appear on top, regardless of DOM order.</p>
+      <SectionHeader
+        title="Stacking Context Examples"
+        subtitle="Elements with higher z-index values appear on top, regardless of DOM order."
+      />
 
+      <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Basic stacking */}
-          <div className="border rounded-lg p-4 bg-background">
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Basic Stacking</h4>
+          <Card className="p-4">
+            <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-3">Basic Stacking</h4>
             <div className="relative h-32">
               <div className="absolute inset-4 bg-blue-200 rounded border-2 border-blue-300 flex items-center justify-center text-sm">
                 Base Layer (z={tokens.zIndex[0]})
@@ -460,11 +491,11 @@ export const StackingContext: Story = {
                 Top (z={tokens.zIndex[50]})
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Overlapping elements */}
-          <div className="border rounded-lg p-4 bg-background">
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Overlapping Elements</h4>
+          <Card className="p-4">
+            <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-3">Overlapping Elements</h4>
             <div className="relative h-32">
               <div
                 className="absolute left-2 top-2 w-20 h-20 bg-purple-200 rounded border-2 border-purple-300 flex items-center justify-center text-xs"
@@ -485,12 +516,12 @@ export const StackingContext: Story = {
                 Card 3 (z={tokens.zIndex[40]})
               </div>
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Interactive stacking demo */}
-        <div className="border rounded-lg p-4 bg-background">
-          <h4 className="text-sm font-medium text-muted-foreground mb-3">Interactive Stacking Demo</h4>
+        <Card className="p-4">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-muted-foreground mb-3">Interactive Stacking Demo</h4>
           <div className="relative h-40 bg-muted/20 rounded border">
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center space-y-2">
@@ -527,7 +558,7 @@ export const StackingContext: Story = {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   ),
@@ -537,91 +568,92 @@ export const StackingContext: Story = {
 export const Guidelines: Story = {
   render: () => (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">Z-Index Guidelines</h3>
+      <SectionHeader
+        title="Z-Index Guidelines"
+        subtitle="Best practices for implementing our z-index system"
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <h4 className="font-medium text-foreground">Semantic Tokens</h4>
-            <div className="space-y-2 text-sm">
-              {Object.entries(tokens.zIndex)
-                .filter(([name, z]) => typeof z === 'string' && !isNaN(Number(z)) && Number(z) >= 1000)
-                .map(([name, z]) => (
-                  <div key={name} className="flex justify-between items-center">
-                    <span className="text-muted-foreground capitalize">{name.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{z}</span>
-                  </div>
-                ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h4 className="font-medium text-foreground">Numeric Tokens</h4>
-            <div className="space-y-2 text-sm">
-              {Object.entries(tokens.zIndex)
-                .filter(([name, z]) => typeof z === 'string' && !isNaN(Number(z)) && Number(z) <= 50)
-                .map(([name, z]) => (
-                  <div key={name} className="flex justify-between items-center">
-                    <span className="text-muted-foreground">{name}</span>
-                    <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{z}</span>
-                  </div>
-                ))}
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">Semantic Tokens</h4>
+          <div className="space-y-2 text-sm">
+            {Object.entries(tokens.zIndex)
+              .filter(([name, z]) => typeof z === 'string' && !isNaN(Number(z)) && Number(z) >= 1000)
+              .map(([name, z]) => (
+                <div key={name} className="flex justify-between items-center">
+                  <span className="text-muted-foreground capitalize">{name.replace(/([A-Z])/g, ' $1').trim()}</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{z}</span>
+                </div>
+              ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <h4 className="font-medium text-foreground">Best Practices</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start space-x-2">
-                <span className="text-primary mt-1">•</span>
-                <span>Use semantic tokens for common UI patterns</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-primary mt-1">•</span>
-                <span>Avoid arbitrary z-index values</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-primary mt-1">•</span>
-                <span>Keep z-index values as low as possible</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-primary mt-1">•</span>
-                <span>Consider stacking context when nesting elements</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-primary mt-1">•</span>
-                <span>Test z-index behavior across different browsers</span>
-              </li>
-            </ul>
+        <div className="space-y-3">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">Numeric Tokens</h4>
+          <div className="space-y-2 text-sm">
+            {Object.entries(tokens.zIndex)
+              .filter(([name, z]) => typeof z === 'string' && !isNaN(Number(z)) && Number(z) <= 50)
+              .map(([name, z]) => (
+                <div key={name} className="flex justify-between items-center">
+                  <span className="text-muted-foreground">{name}</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{z}</span>
+                </div>
+              ))}
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-3">
-            <h4 className="font-medium text-foreground">Common Pitfalls</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start space-x-2">
-                <span className="text-destructive mt-1">•</span>
-                <span>Using values above {tokens.zIndex.tooltip} unless critical</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-destructive mt-1">•</span>
-                <span>Creating unnecessary stacking contexts</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-destructive mt-1">•</span>
-                <span>Forgetting about transform and opacity effects</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-destructive mt-1">•</span>
-                <span>Not considering mobile vs desktop behavior</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-destructive mt-1">•</span>
-                <span>Ignoring accessibility implications</span>
-              </li>
-            </ul>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">Best Practices</h4>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li className="flex items-start space-x-2">
+              <span className="text-primary mt-1">•</span>
+              <span>Use semantic tokens for common UI patterns</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-primary mt-1">•</span>
+              <span>Avoid arbitrary z-index values</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-primary mt-1">•</span>
+              <span>Keep z-index values as low as possible</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-primary mt-1">•</span>
+              <span>Consider stacking context when nesting elements</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-primary mt-1">•</span>
+              <span>Test z-index behavior across different browsers</span>
+            </li>
+          </ul>
+        </div>
+
+        <div className="space-y-3">
+          <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">Common Pitfalls</h4>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li className="flex items-start space-x-2">
+              <span className="text-destructive mt-1">•</span>
+              <span>Using values above {tokens.zIndex.tooltip} unless critical</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-destructive mt-1">•</span>
+              <span>Creating unnecessary stacking contexts</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-destructive mt-1">•</span>
+              <span>Forgetting about transform and opacity effects</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-destructive mt-1">•</span>
+              <span>Not considering mobile vs desktop behavior</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-destructive mt-1">•</span>
+              <span>Ignoring accessibility implications</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
