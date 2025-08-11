@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { tokens } from '../tokens';
 import { tokenVal } from './_utils';
@@ -191,7 +192,7 @@ export const StateColors: Story = {
           ))}
         </div>
       </div>
-      
+
       <div>
         <h3 className="text-lg font-semibold mb-4">Focus Rings</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

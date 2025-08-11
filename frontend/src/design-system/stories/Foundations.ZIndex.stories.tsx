@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { tokens } from '../tokens';
+import React from 'react';
 
 const meta: Meta = {
   title: 'Design System/Foundations/Z-Index',

@@ -9,6 +9,7 @@ import {
   Edit,
   Save,
 } from 'lucide-react';
+import React from 'react';
 
 const meta: Meta<typeof Button> = {
   title: 'Design System/Button',

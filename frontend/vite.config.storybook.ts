@@ -26,12 +26,19 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom'],
   },
-  // CSS optimization
+  // CSS optimization with Tailwind
   css: {
     postcss: './postcss.config.js',
   },
   // Define global variables
   define: {
     global: 'globalThis',
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+  },
+  // Ensure CSS variables are available
+  server: {
+    fs: {
+      allow: ['..'],
+    },
   },
 });

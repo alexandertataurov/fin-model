@@ -78,13 +78,20 @@ function buildTypography(jsonTypography: DeepRecord): DeepRecord {
   if (jsonTypography.fontFamily) result.fontFamily = jsonTypography.fontFamily;
   if (jsonTypography.fontWeight) result.fontWeight = jsonTypography.fontWeight;
   if (jsonTypography.letterSpacing) result.letterSpacing = jsonTypography.letterSpacing;
+  if (jsonTypography.lineHeight) result.lineHeight = jsonTypography.lineHeight;
   return result;
 }
 
 function normalizeSpacing(jsonSpacing: DeepRecord): DeepRecord {
   const out: DeepRecord = {};
   Object.keys(jsonSpacing).forEach((k) => {
-    out[k] = toRem(jsonSpacing[k]);
+    // Don't convert spacing values that are already in rem or other units
+    const v = jsonSpacing[k];
+    if (typeof v === 'string' && (v.includes('rem') || v.includes('px') || v === '0')) {
+      out[k] = v;
+    } else {
+      out[k] = toRem(v);
+    }
   });
   return out;
 }
@@ -92,7 +99,13 @@ function normalizeSpacing(jsonSpacing: DeepRecord): DeepRecord {
 function normalizeRadius(jsonRadius: DeepRecord): DeepRecord {
   const out: DeepRecord = {};
   Object.keys(jsonRadius).forEach((k) => {
-    out[k] = toRem(jsonRadius[k]);
+    // Don't convert radius values that are already in rem or other units
+    const v = jsonRadius[k];
+    if (typeof v === 'string' && (v.includes('rem') || v.includes('px') || v === '0' || v === '9999px')) {
+      out[k] = v;
+    } else {
+      out[k] = toRem(v);
+    }
   });
   return out;
 }
@@ -101,7 +114,13 @@ function normalizeBorderWidth(jsonBorderWidth: DeepRecord): DeepRecord {
   const out: DeepRecord = {};
   Object.keys(jsonBorderWidth).forEach((k) => {
     const v = jsonBorderWidth[k];
-    out[k] = v === '0' || v === 0 ? '0' : toRem(v);
+    if (v === '0' || v === 0) {
+      out[k] = '0';
+    } else if (typeof v === 'string' && v.includes('px')) {
+      out[k] = v;
+    } else {
+      out[k] = toRem(v);
+    }
   });
   return out;
 }
@@ -111,6 +130,19 @@ function normalizeTransitions(jsonTransitions: DeepRecord): DeepRecord {
   Object.keys(jsonTransitions).forEach((k) => {
     const v = jsonTransitions[k];
     out[k] = typeof v === 'string' && /\s/.test(v) ? v : `${v} ease-in-out`;
+  });
+  return out;
+}
+
+function normalizeMotion(jsonMotion: DeepRecord): DeepRecord {
+  const out: DeepRecord = {};
+  Object.keys(jsonMotion).forEach((k) => {
+    const v = jsonMotion[k];
+    if (typeof v === 'object') {
+      out[k] = v;
+    } else {
+      out[k] = v;
+    }
   });
   return out;
 }
@@ -131,7 +163,7 @@ function buildTokensTs(tokensJson: DeepRecord): string {
   const borderWidth = normalizeBorderWidth(tokensJson.borderWidth || {});
   const shadows = tokensJson.shadows || {};
   const transitions = normalizeTransitions(tokensJson.transitions || {});
-  const motion = tokensJson.motion || {};
+  const motion = normalizeMotion(tokensJson.motion || {});
   const zIndex = tokensJson.zIndex || {};
   const cssVariables = normalizeCssVariables(tokensJson.cssVariables || {});
 

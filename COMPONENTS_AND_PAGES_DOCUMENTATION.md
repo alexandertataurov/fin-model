@@ -22,7 +22,6 @@ This document provides a comprehensive overview of all components and pages in t
 - **Foundations.Radius.stories.tsx** - Border radius design tokens
 - **Foundations.Shadows.stories.tsx** - Shadow and elevation system
 - **Foundations.Spacing.stories.tsx** - Spacing and layout tokens
-- **Foundations.Tokens.stories.tsx** - Design token system overview
 - **Foundations.Transitions.stories.tsx** - Animation and transition tokens
 - **Foundations.Typography.stories.tsx** - Typography system
 - **Foundations.ZIndex.stories.tsx** - Z-index layering system

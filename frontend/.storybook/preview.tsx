@@ -4,8 +4,8 @@ import { DesignSystemProvider } from '../src/design-system/provider';
 import { withThemeByClassName } from '@storybook/addon-themes';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 
-// Import global styles (Tailwind + tokens)
-import '../src/styles/globals.css';
+// Import design system tokens and base styles
+import '../src/design-system/tokens.css';
 import '../src/index.css';
 
 // Initialize MSW once

@@ -24,11 +24,7 @@ const config: StorybookConfig = {
     disableTelemetry: true,
     enableCrashReports: false,
   },
-  features: {
-    storyStoreV7: true,
-    buildStoriesJson: true,
-    breakingChangesV7: true,
-  },
+
   stories: [
     // Design System Documentation (MDX files first)
     {
@@ -96,7 +92,19 @@ const config: StorybookConfig = {
     config.build = config.build || {};
     config.build.rollupOptions = config.build.rollupOptions || {};
     config.build.rollupOptions.output = config.build.rollupOptions.output || {};
-    config.build.rollupOptions.output.format = 'es';
+
+    // Handle output options properly - it can be an array or single object
+    const outputOptions = config.build.rollupOptions.output;
+    if (Array.isArray(outputOptions)) {
+      outputOptions.forEach(opt => {
+        if (opt && typeof opt === 'object') {
+          opt.format = 'es';
+        }
+      });
+    } else if (outputOptions && typeof outputOptions === 'object') {
+      outputOptions.format = 'es';
+    }
+
     config.build.rollupOptions.external = [
       ...(Array.isArray(config.build.rollupOptions.external)
         ? config.build.rollupOptions.external

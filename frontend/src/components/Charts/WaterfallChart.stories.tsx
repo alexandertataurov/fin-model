@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { WaterfallChart } from '@/components/Charts/WaterfallChart';
+import WaterfallChart from '@/components/Charts/WaterfallChart';
 
 const meta: Meta<typeof WaterfallChart> = {
   title: 'Components/Charts/WaterfallChart',

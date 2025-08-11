@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DashboardCustomization } from './DashboardCustomization';
+import DashboardCustomization from './DashboardCustomization';
 import { useState } from 'react';
 
 const meta: Meta<typeof DashboardCustomization> = {

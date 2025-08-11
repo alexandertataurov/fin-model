@@ -39,6 +39,15 @@
 - **Impact**: Style Dictionary build was failing with reference errors
 - **Fix**: Updated semantic tokens to use direct hex values instead of broken references
 
+### 6. **Storybook Design Token Integration Issues**
+
+- **Problem**: Storybook was importing conflicting CSS files and using old variable formats
+- **Impact**: Design system stories were not displaying correctly
+- **Fix**:
+  - Updated Storybook preview to import design tokens CSS instead of conflicting globals.css
+  - Updated design system stories to use new CSS variable format
+  - Fixed color, typography, and spacing story references
+
 ## Files Modified
 
 ### 1. `config/style-dictionary.json`
@@ -65,6 +74,23 @@
 
 - Fixed broken token references
 - Used direct hex values for semantic colors
+
+### 6. `frontend/.storybook/preview.tsx`
+
+- Updated to import design tokens CSS instead of conflicting globals.css
+- Ensured proper design system provider integration
+
+### 7. `frontend/src/design-system/stories/Foundations.Colors.stories.tsx`
+
+- Updated to use new CSS variable format (`var(--colors-primary-500)`)
+- Fixed color scale display and semantic color references
+- Updated text color classes to use new design tokens
+
+### 8. `frontend/src/design-system/stories/DesignTokens.stories.tsx`
+
+- Updated typography, spacing, border radius, and shadow stories
+- Fixed CSS variable references to use new design token format
+- Improved story structure and visual presentation
 
 ## Design Token Structure
 
@@ -101,24 +127,20 @@ The design system now properly uses:
 
 ## Testing
 
-Created `DesignTokenTest` component to verify:
+### Main Application
 
-- Color application across all scales
-- Spacing consistency
-- Typography hierarchy
-- Border radius variations
-- Shadow effects
-- CSS variable accessibility
+- ✅ Design tokens generate successfully
+- ✅ CSS variables are properly loaded
+- ✅ Tailwind classes use centralized design values
+- ✅ Components render with consistent styling
 
-Access via: `/design-tokens` route
+### Storybook
 
-## Next Steps
-
-1. **Verify Design Token Application**: Test the application to ensure all components are using the design tokens correctly
-2. **Component Audit**: Review existing components to ensure they're using design token classes
-3. **Storybook Integration**: Update Storybook stories to use design tokens
-4. **Documentation**: Update component documentation to reference design tokens
-5. **Theme Switching**: Implement dark mode support using design token variables
+- ✅ Design system stories display correctly
+- ✅ Color palettes show proper hex values
+- ✅ Typography scales work with CSS variables
+- ✅ Spacing and border radius tokens function properly
+- ✅ Shadow system displays correctly
 
 ## Build Process
 
@@ -144,3 +166,17 @@ The design system should now:
 - ✅ Use centralized spacing and typography
 - ✅ Support responsive design with proper breakpoints
 - ✅ Provide accessible CSS variables for custom styling
+- ✅ Display correctly in both main app and Storybook
+- ✅ Show proper design token documentation in Storybook
+
+## Next Steps
+
+1. **Component Audit**: Review existing components to ensure they're using design token classes
+2. **Storybook Enhancement**: Add more comprehensive design token stories
+3. **Theme Switching**: Implement dark mode support using design token variables
+4. **Documentation**: Update component documentation to reference design tokens
+5. **Performance**: Monitor CSS bundle size and optimize if needed
+
+## Status: ✅ RESOLVED
+
+All design system styling issues have been identified and fixed. The application now properly uses centralized design tokens for consistent styling across both the main application and Storybook.

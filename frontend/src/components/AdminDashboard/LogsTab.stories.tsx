@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { LogsTab } from './LogsTab';
+import LogsTab from './LogsTab';
 import { useLogFilters } from '@/hooks/useLogFilters';
 
 // Mock the log filters hook

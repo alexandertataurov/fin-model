@@ -13,27 +13,6 @@
           "options": {
             "outputReferences": true
           }
-        },
-        {
-          "destination": "borderWidth.css",
-          "format": "css/variables",
-          "filter": {
-            "attributes": { "category": "borderWidth" }
-          }
-        },
-        {
-          "destination": "typography.css",
-          "format": "css/variables",
-          "filter": {
-            "attributes": { "category": "typography" }
-          }
-        },
-        {
-          "destination": "motion.css",
-          "format": "css/variables",
-          "filter": {
-            "attributes": { "category": "motion" }
-          }
         }
       ]
     },

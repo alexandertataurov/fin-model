@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AdminDashboard } from './AdminDashboard';
+import AdminDashboard from './AdminDashboard';
 
 const meta: Meta<typeof AdminDashboard> = {
     title: 'Admin/AdminDashboard',
