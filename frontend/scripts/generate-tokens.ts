@@ -79,6 +79,7 @@ function buildTypography(jsonTypography: DeepRecord): DeepRecord {
   if (jsonTypography.fontWeight) result.fontWeight = jsonTypography.fontWeight;
   if (jsonTypography.letterSpacing) result.letterSpacing = jsonTypography.letterSpacing;
   if (jsonTypography.lineHeight) result.lineHeight = jsonTypography.lineHeight;
+  if (jsonTypography.textStyles) result.textStyles = jsonTypography.textStyles;
   return result;
 }
 

@@ -1,354 +1,854 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { tokens } from '../tokens';
+import { Title, Stories } from '@storybook/blocks';
+import {
+  AnimatedBanner,
+  Card,
+  SectionHeader,
+  applyTypographyStyle
+} from './components';
 
 const meta: Meta = {
-    title: 'Design System/Foundations/Motion',
-    parameters: {
-        docs: {
-            description: {
-                component: 'Motion tokens define easing functions and durations for consistent animations across the application. Use these tokens for hover states, transitions, and micro-interactions.'
+  title: 'Design System/Foundations/Motion',
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+    docs: {
+      autodocs: true,
+      page: () => (
+        <>
+          <Title />
+          <AnimatedBanner
+            title="Foundation: Motion"
+            subtitle="Motion tokens define easing functions and durations for consistent animations across the application. Use these tokens for hover states, transitions, and micro-interactions."
+            icon={
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
             }
-        },
-        layout: 'padded'
+          />
+          <Stories includePrimary={false} />
+        </>
+      ),
     },
-    tags: ['autodocs'],
+  },
 };
 export default meta;
+
 type Story = StoryObj<typeof meta>;
+
+// ============================================================================
+// STORIES
+// ============================================================================
 
 // Interactive demo component for easing functions
 const EasingDemo = ({ easing, name }: { easing: string; name: string }) => {
-    const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-    return (
-        <div className="p-4 rounded-lg border bg-white shadow-sm space-y-3">
-            <div className="text-sm font-medium text-gray-700">{name}</div>
-            <div className="h-20 flex items-center justify-center relative">
-                <div
-                    className={`w-12 h-12 rounded-md bg-blue-500 transition-all duration-1000 ${isAnimating ? 'translate-x-16 scale-110' : ''
-                        }`}
-                    style={{ transitionTimingFunction: easing }}
-                    onMouseEnter={() => setIsAnimating(true)}
-                    onMouseLeave={() => setIsAnimating(false)}
-                />
-            </div>
-            <div className="text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-                {easing}
-            </div>
-        </div>
-    );
+  return (
+    <Card className="p-6">
+      <div 
+        className="text-sm font-medium mb-3"
+        style={{
+          fontSize: tokens.typography.fontSize.sm,
+          fontWeight: tokens.typography.fontWeight.medium,
+          color: tokens.colors.foreground,
+          marginBottom: tokens.spacing[3]
+        }}
+      >
+        {name}
+      </div>
+      <div 
+        className="h-20 flex items-center justify-center relative"
+        style={{ height: tokens.spacing[20] }}
+      >
+        <div
+          className={`w-12 h-12 rounded-md transition-all duration-1000 ${
+            isAnimating ? 'translate-x-16 scale-110' : ''
+          }`}
+          style={{
+            width: tokens.spacing[12],
+            height: tokens.spacing[12],
+            borderRadius: tokens.borderRadius.md,
+            background: tokens.colors.primary[500],
+            transitionTimingFunction: easing,
+            transitionDuration: tokens.motion.duration.slow
+          }}
+          onMouseEnter={() => setIsAnimating(true)}
+          onMouseLeave={() => setIsAnimating(false)}
+        />
+      </div>
+      <div 
+        className="text-xs font-mono mt-3"
+        style={{
+          fontSize: tokens.typography.fontSize.xs,
+          fontFamily: tokens.typography.fontFamily.mono.join(', '),
+          color: tokens.colors.secondary[500],
+          marginTop: tokens.spacing[3]
+        }}
+      >
+        {easing}
+      </div>
+    </Card>
+  );
 };
 
 // Interactive demo component for durations
 const DurationDemo = ({ duration, name }: { duration: string; name: string }) => {
-    const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-    return (
-        <div className="p-4 rounded-lg border bg-white shadow-sm space-y-3">
-            <div className="text-sm font-medium text-gray-700">{name}</div>
-            <div className="h-20 flex items-center justify-center relative">
-                <div
-                    className={`w-12 h-12 rounded-md bg-green-500 transition-all ${isAnimating ? 'rotate-180 scale-125' : ''
-                        }`}
-                    style={{ transitionDuration: duration }}
-                    onMouseEnter={() => setIsAnimating(true)}
-                    onMouseLeave={() => setIsAnimating(false)}
-                />
-            </div>
-            <div className="text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-                {duration}
-            </div>
-        </div>
-    );
+  return (
+    <Card className="p-6">
+      <div 
+        className="text-sm font-medium mb-3"
+        style={{
+          fontSize: tokens.typography.fontSize.sm,
+          fontWeight: tokens.typography.fontWeight.medium,
+          color: tokens.colors.foreground,
+          marginBottom: tokens.spacing[3]
+        }}
+      >
+        {name}
+      </div>
+      <div 
+        className="h-20 flex items-center justify-center relative"
+        style={{ height: tokens.spacing[20] }}
+      >
+        <div
+          className={`w-12 h-12 rounded-md transition-all ${
+            isAnimating ? 'rotate-180 scale-125' : ''
+          }`}
+          style={{
+            width: tokens.spacing[12],
+            height: tokens.spacing[12],
+            borderRadius: tokens.borderRadius.md,
+            background: tokens.colors.accent[500],
+            transitionDuration: duration
+          }}
+          onMouseEnter={() => setIsAnimating(true)}
+          onMouseLeave={() => setIsAnimating(false)}
+        />
+      </div>
+      <div 
+        className="text-xs font-mono mt-3"
+        style={{
+          fontSize: tokens.typography.fontSize.xs,
+          fontFamily: tokens.typography.fontFamily.mono.join(', '),
+          color: tokens.colors.secondary[500],
+          marginTop: tokens.spacing[3]
+        }}
+      >
+        {duration}
+      </div>
+    </Card>
+  );
 };
 
 // Interactive demo component for delays
 const DelayDemo = ({ delay, name }: { delay: string; name: string }) => {
-    const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-    return (
-        <div className="p-4 rounded-lg border bg-white shadow-sm space-y-3">
-            <div className="text-sm font-medium text-gray-700">{name}</div>
-            <div className="h-20 flex items-center justify-center relative">
-                <div
-                    className={`w-12 h-12 rounded-md bg-purple-500 transition-all duration-500 ${isAnimating ? 'translate-x-16 scale-110' : ''
-                        }`}
-                    style={{ transitionDelay: delay }}
-                    onMouseEnter={() => setIsAnimating(true)}
-                    onMouseLeave={() => setIsAnimating(false)}
-                />
-            </div>
-            <div className="text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
-                {delay}
-            </div>
-        </div>
-    );
+  return (
+    <Card className="p-6">
+      <div 
+        className="text-sm font-medium mb-3"
+        style={{
+          fontSize: tokens.typography.fontSize.sm,
+          fontWeight: tokens.typography.fontWeight.medium,
+          color: tokens.colors.foreground,
+          marginBottom: tokens.spacing[3]
+        }}
+      >
+        {name}
+      </div>
+      <div 
+        className="h-20 flex items-center justify-center relative"
+        style={{ height: tokens.spacing[20] }}
+      >
+        <div
+          className={`w-12 h-12 rounded-md transition-all duration-500 ${
+            isAnimating ? 'translate-x-16 scale-110' : ''
+          }`}
+          style={{
+            width: tokens.spacing[12],
+            height: tokens.spacing[12],
+            borderRadius: tokens.borderRadius.md,
+            background: tokens.colors.secondary[500],
+            transitionDelay: delay,
+            transitionDuration: tokens.motion.duration.normal
+          }}
+          onMouseEnter={() => setIsAnimating(true)}
+          onMouseLeave={() => setIsAnimating(false)}
+        />
+      </div>
+      <div 
+        className="text-xs font-mono mt-3"
+        style={{
+          fontSize: tokens.typography.fontSize.xs,
+          fontFamily: tokens.typography.fontFamily.mono.join(', '),
+          color: tokens.colors.secondary[500],
+          marginTop: tokens.spacing[3]
+        }}
+      >
+        {delay}
+      </div>
+    </Card>
+  );
 };
 
 // Use case components
 const ButtonWithMotion = ({ easing, duration }: { easing: string; duration: string }) => (
-    <button
-        className="px-4 py-2 bg-blue-500 text-white rounded-md font-medium transition-all"
-        style={{
-            transitionTimingFunction: easing,
-            transitionDuration: duration
-        }}
-        onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        }}
-        onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0) scale(1)';
-            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-        }}
-    >
-        Interactive Button
-    </button>
+  <button
+    className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium transition-all"
+    style={{
+      padding: `${tokens.spacing[2]} ${tokens.spacing[4]}`,
+      background: tokens.colors.primary[500],
+      color: tokens.colors.background,
+      borderRadius: tokens.borderRadius.md,
+      fontWeight: tokens.typography.fontWeight.medium,
+      transitionTimingFunction: easing,
+      transitionDuration: duration
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    }}
+  >
+    Interactive Button
+  </button>
 );
 
 const CardWithMotion = ({ easing, duration }: { easing: string; duration: string }) => (
-    <div
-        className="p-6 bg-white border rounded-lg shadow-sm cursor-pointer transition-all"
-        style={{
-            transitionTimingFunction: easing,
-            transitionDuration: duration
-        }}
-        onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
-        }}
-        onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-        }}
+  <div
+    className="p-6 bg-background border rounded-lg shadow-sm cursor-pointer transition-all"
+    style={{
+      padding: tokens.spacing[6],
+      background: tokens.colors.background,
+      border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+      borderRadius: tokens.borderRadius.lg,
+      boxShadow: tokens.shadows.sm,
+      transitionTimingFunction: easing,
+      transitionDuration: duration
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-4px)';
+      e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    }}
+  >
+    <h3 
+      className="font-semibold mb-2"
+      style={{
+        fontWeight: tokens.typography.fontWeight.semibold,
+        color: tokens.colors.foreground,
+        marginBottom: tokens.spacing[2]
+      }}
     >
-        <h3 className="font-semibold text-gray-900 mb-2">Card Title</h3>
-        <p className="text-gray-600 text-sm">Hover to see motion in action</p>
-    </div>
+      Card Title
+    </h3>
+    <p 
+      className="text-sm"
+      style={{
+        fontSize: tokens.typography.fontSize.sm,
+        color: tokens.colors.secondary[600]
+      }}
+    >
+      Hover to see motion in action
+    </p>
+  </div>
 );
 
 export const Easing: Story = {
-    render: () => (
-        <div className="space-y-8">
-            <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">Easing Functions</h3>
-                <p className="text-gray-600 mb-6">
-                    Easing functions control the acceleration curve of animations. Hover over each demo to see the motion in action.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(tokens.motion.easing).map(([name, easing]) => (
-                        <EasingDemo key={name} name={name} easing={easing as string} />
-                    ))}
-                </div>
-            </div>
+  render: () => (
+    <div className="space-y-16">
+      <div>
+        <SectionHeader
+          title="Easing Functions"
+          subtitle="Easing functions control the acceleration curve of animations. Hover over each demo to see the motion in action."
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Object.entries(tokens.motion.easing).map(([name, easing]) => (
+            <EasingDemo key={name} name={name} easing={easing as string} />
+          ))}
         </div>
-    ),
+      </div>
+    </div>
+  ),
 };
 
 export const Duration: Story = {
-    render: () => (
-        <div className="space-y-8">
-            <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">Duration Values</h3>
-                <p className="text-gray-600 mb-6">
-                    Duration values define how long animations take to complete. Hover over each demo to see the timing in action.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(tokens.motion.duration).map(([name, duration]) => (
-                        <DurationDemo key={name} name={name} duration={duration as string} />
-                    ))}
-                </div>
-            </div>
+  render: () => (
+    <div className="space-y-16">
+      <div>
+        <SectionHeader
+          title="Duration Values"
+          subtitle="Duration values define how long animations take to complete. Hover over each demo to see the timing in action."
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Object.entries(tokens.motion.duration).map(([name, duration]) => (
+            <DurationDemo key={name} name={name} duration={duration as string} />
+          ))}
         </div>
-    ),
+      </div>
+    </div>
+  ),
 };
 
 export const Delay: Story = {
-    render: () => (
-        <div className="space-y-8">
-            <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">Delay Values</h3>
-                <p className="text-gray-600 mb-6">
-                    Delay values define when animations start after a trigger. Hover over each demo to see the delay in action.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(tokens.motion.delay).map(([name, delay]) => (
-                        <DelayDemo key={name} name={name} delay={delay as string} />
-                    ))}
-                </div>
-            </div>
+  render: () => (
+    <div className="space-y-16">
+      <div>
+        <SectionHeader
+          title="Delay Values"
+          subtitle="Delay values define when animations start after a trigger. Hover over each demo to see the delay in action."
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Object.entries(tokens.motion.delay).map(([name, delay]) => (
+            <DelayDemo key={name} name={name} delay={delay as string} />
+          ))}
         </div>
-    ),
+      </div>
+    </div>
+  ),
 };
 
 export const UseCases: Story = {
-    render: () => (
-        <div className="space-y-8">
-            <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">Common Use Cases</h3>
-                <p className="text-gray-600 mb-6">
-                    Examples of how motion tokens are used in real components.
-                </p>
+  render: () => (
+    <div className="space-y-16">
+      <div>
+        <SectionHeader
+          title="Common Use Cases"
+          subtitle="Examples of how motion tokens are used in real components."
+        />
 
-                <div className="space-y-6">
-                    <div>
-                        <h4 className="text-lg font-medium mb-3 text-gray-800">Button Interactions</h4>
-                        <div className="flex gap-4 flex-wrap">
-                            <ButtonWithMotion easing={tokens.motion.easing['ease-out']} duration={tokens.motion.duration.normal} />
-                            <ButtonWithMotion easing={tokens.motion.easing.bounce} duration={tokens.motion.duration.slow} />
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 className="text-lg font-medium mb-3 text-gray-800">Card Hover Effects</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <CardWithMotion easing={tokens.motion.easing['ease-in-out']} duration={tokens.motion.duration.normal} />
-                            <CardWithMotion easing={tokens.motion.easing['ease-out']} duration={tokens.motion.duration.fast} />
-                        </div>
-                    </div>
-                </div>
+        <div className="space-y-12">
+          <div>
+            <h4 
+              className="text-lg font-medium mb-6"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.foreground,
+                marginBottom: tokens.spacing[6]
+              }}
+            >
+              Button Interactions
+            </h4>
+            <div className="flex gap-6 flex-wrap">
+              <ButtonWithMotion 
+                easing={tokens.motion.easing['ease-out']} 
+                duration={tokens.motion.duration.normal} 
+              />
+              <ButtonWithMotion 
+                easing={tokens.motion.easing.bounce} 
+                duration={tokens.motion.duration.slow} 
+              />
             </div>
+          </div>
+
+          <div>
+            <h4 
+              className="text-lg font-medium mb-6"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.foreground,
+                marginBottom: tokens.spacing[6]
+              }}
+            >
+              Card Hover Effects
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardWithMotion 
+                easing={tokens.motion.easing['ease-in-out']} 
+                duration={tokens.motion.duration.normal} 
+              />
+              <CardWithMotion 
+                easing={tokens.motion.easing['ease-out']} 
+                duration={tokens.motion.duration.fast} 
+              />
+            </div>
+          </div>
         </div>
-    ),
+      </div>
+    </div>
+  ),
 };
 
 export const Scenarios: Story = {
-    render: () => (
-        <div className="space-y-8">
-            <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">Motion Scenarios</h3>
-                <p className="text-gray-600 mb-6">
-                    Different scenarios where motion tokens should be applied.
-                </p>
+  render: () => (
+    <div className="space-y-16">
+      <div>
+        <SectionHeader
+          title="Motion Scenarios"
+          subtitle="Different scenarios where motion tokens should be applied."
+        />
 
-                <div className="space-y-6">
-                    <div className="p-6 bg-gray-50 rounded-lg">
-                        <h4 className="text-lg font-medium mb-2 text-gray-800">Micro-interactions</h4>
-                        <p className="text-gray-600 mb-3">Use <code className="bg-gray-200 px-1 rounded">fast</code> duration with <code className="bg-gray-200 px-1 rounded">ease-out</code> for subtle feedback.</p>
-                        <div className="flex gap-2">
-                            <span className="text-sm text-gray-500">Example:</span>
-                            <code className="text-sm bg-blue-100 px-2 py-1 rounded">
-                                transition: all {tokens.motion.duration.fast} {tokens.motion.easing['ease-out']}
-                            </code>
-                        </div>
-                    </div>
-
-                    <div className="p-6 bg-gray-50 rounded-lg">
-                        <h4 className="text-lg font-medium mb-2 text-gray-800">Page Transitions</h4>
-                        <p className="text-gray-600 mb-3">Use <code className="bg-gray-200 px-1 rounded">slow</code> duration with <code className="bg-gray-200 px-1 rounded">ease-in-out</code> for smooth page changes.</p>
-                        <div className="flex gap-2">
-                            <span className="text-sm text-gray-500">Example:</span>
-                            <code className="text-sm bg-blue-100 px-2 py-1 rounded">
-                                transition: all {tokens.motion.duration.slow} {tokens.motion.easing['ease-in-out']}
-                            </code>
-                        </div>
-                    </div>
-
-                    <div className="p-6 bg-gray-50 rounded-lg">
-                        <h4 className="text-lg font-medium mb-2 text-gray-800">Attention-grabbing Elements</h4>
-                        <p className="text-gray-600 mb-3">Use <code className="bg-gray-200 px-1 rounded">bounce</code> easing for playful, attention-grabbing animations.</p>
-                        <div className="flex gap-2">
-                            <span className="text-sm text-gray-500">Example:</span>
-                            <code className="text-sm bg-blue-100 px-2 py-1 rounded">
-                                transition: all {tokens.motion.duration.normal} {tokens.motion.easing.bounce}
-                            </code>
-                        </div>
-                    </div>
-                </div>
+        <div className="space-y-6">
+          <Card className="p-6">
+            <h4 
+              className="text-lg font-medium mb-3"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.foreground,
+                marginBottom: tokens.spacing[3]
+              }}
+            >
+              Micro-interactions
+            </h4>
+            <p 
+              className="mb-3"
+              style={{
+                fontSize: tokens.typography.fontSize.sm,
+                color: tokens.colors.secondary[600],
+                marginBottom: tokens.spacing[3]
+              }}
+            >
+              Use <code 
+                className="bg-muted px-1 rounded"
+                style={{
+                  background: tokens.colors.secondary[100],
+                  padding: `0 ${tokens.spacing[1]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                fast
+              </code> duration with <code 
+                className="bg-muted px-1 rounded"
+                style={{
+                  background: tokens.colors.secondary[100],
+                  padding: `0 ${tokens.spacing[1]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                ease-out
+              </code> for subtle feedback.
+            </p>
+            <div className="flex gap-2">
+              <span 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.secondary[500]
+                }}
+              >
+                Example:
+              </span>
+              <code 
+                className="text-sm bg-primary/10 px-2 py-1 rounded"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  background: `${tokens.colors.primary[500]}1A`,
+                  padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                transition: all {tokens.motion.duration.fast} {tokens.motion.easing['ease-out']}
+              </code>
             </div>
+          </Card>
+
+          <Card className="p-6">
+            <h4 
+              className="text-lg font-medium mb-3"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.foreground,
+                marginBottom: tokens.spacing[3]
+              }}
+            >
+              Page Transitions
+            </h4>
+            <p 
+              className="mb-3"
+              style={{
+                fontSize: tokens.typography.fontSize.sm,
+                color: tokens.colors.secondary[600],
+                marginBottom: tokens.spacing[3]
+              }}
+            >
+              Use <code 
+                className="bg-muted px-1 rounded"
+                style={{
+                  background: tokens.colors.secondary[100],
+                  padding: `0 ${tokens.spacing[1]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                slow
+              </code> duration with <code 
+                className="bg-muted px-1 rounded"
+                style={{
+                  background: tokens.colors.secondary[100],
+                  padding: `0 ${tokens.spacing[1]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                ease-in-out
+              </code> for smooth page changes.
+            </p>
+            <div className="flex gap-2">
+              <span 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.secondary[500]
+                }}
+              >
+                Example:
+              </span>
+              <code 
+                className="text-sm bg-primary/10 px-2 py-1 rounded"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  background: `${tokens.colors.primary[500]}1A`,
+                  padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                transition: all {tokens.motion.duration.slow} {tokens.motion.easing['ease-in-out']}
+              </code>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h4 
+              className="text-lg font-medium mb-3"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.foreground,
+                marginBottom: tokens.spacing[3]
+              }}
+            >
+              Attention-grabbing Elements
+            </h4>
+            <p 
+              className="mb-3"
+              style={{
+                fontSize: tokens.typography.fontSize.sm,
+                color: tokens.colors.secondary[600],
+                marginBottom: tokens.spacing[3]
+              }}
+            >
+              Use <code 
+                className="bg-muted px-1 rounded"
+                style={{
+                  background: tokens.colors.secondary[100],
+                  padding: `0 ${tokens.spacing[1]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                bounce
+              </code> easing for playful, attention-grabbing animations.
+            </p>
+            <div className="flex gap-2">
+              <span 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.secondary[500]
+                }}
+              >
+                Example:
+              </span>
+              <code 
+                className="text-sm bg-primary/10 px-2 py-1 rounded"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  background: `${tokens.colors.primary[500]}1A`,
+                  padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
+                  borderRadius: tokens.borderRadius.base
+                }}
+              >
+                transition: all {tokens.motion.duration.normal} {tokens.motion.easing.bounce}
+              </code>
+            </div>
+          </Card>
         </div>
-    ),
+      </div>
+    </div>
+  ),
 };
 
 export const ComprehensiveExample: Story = {
-    render: () => (
-        <div className="space-y-8">
-            <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">Comprehensive Motion Example</h3>
-                <p className="text-gray-600 mb-6">
-                    A complete example showing how to combine easing, duration, and delay tokens for complex animations.
-                </p>
+  render: () => (
+    <div className="space-y-16">
+      <div>
+        <SectionHeader
+          title="Comprehensive Motion Example"
+          subtitle="A complete example showing how to combine easing, duration, and delay tokens for complex animations."
+        />
 
-                <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
-                    <h4 className="text-lg font-medium mb-4 text-gray-800">Staggered Animation Grid</h4>
-                    <div className="grid grid-cols-4 gap-4">
-                        {[0, 1, 2, 3].map((index) => (
-                            <div
-                                key={index}
-                                className="h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg shadow-md cursor-pointer transition-all duration-700 hover:scale-110 hover:rotate-3"
-                                style={{
-                                    transitionTimingFunction: tokens.motion.easing.elastic,
-                                    transitionDelay: tokens.motion.delay[['none', 'fast', 'normal', 'slow'][index] as keyof typeof tokens.motion.delay]
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.1) rotate(3deg)';
-                                    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.2)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0) scale(1) rotate(0deg)';
-                                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-                                }}
-                            >
-                                <div className="h-full flex items-center justify-center text-white font-semibold">
-                                    {index + 1}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="mt-4 text-sm text-gray-600">
-                        <p>Hover over each card to see elastic easing with staggered delays:</p>
-                        <ul className="mt-2 space-y-1">
-                            <li>• Card 1: No delay</li>
-                            <li>• Card 2: {tokens.motion.delay.fast} delay</li>
-                            <li>• Card 3: {tokens.motion.delay.normal} delay</li>
-                            <li>• Card 4: {tokens.motion.delay.slow} delay</li>
-                        </ul>
-                    </div>
+        <Card className="p-6">
+          <h4 
+            className="text-lg font-medium mb-6"
+            style={{
+              fontSize: tokens.typography.fontSize.lg,
+              fontWeight: tokens.typography.fontWeight.medium,
+              color: tokens.colors.foreground,
+              marginBottom: tokens.spacing[6]
+            }}
+          >
+            Staggered Animation Grid
+          </h4>
+          <div className="grid grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map((index) => (
+              <div
+                key={index}
+                className="h-20 bg-gradient-to-br from-primary/20 to-primary/30 rounded-lg shadow-md cursor-pointer transition-all duration-700 hover:scale-110 hover:rotate-3"
+                style={{
+                  height: tokens.spacing[20],
+                  background: `linear-gradient(to bottom right, ${tokens.colors.primary[200]}, ${tokens.colors.primary[300]})`,
+                  borderRadius: tokens.borderRadius.lg,
+                  boxShadow: tokens.shadows.md,
+                  transitionTimingFunction: tokens.motion.easing.elastic,
+                  transitionDelay: tokens.motion.delay[['none', 'fast', 'normal', 'slow'][index] as keyof typeof tokens.motion.delay],
+                  transitionDuration: tokens.motion.duration.slow
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-8px) scale(1.1) rotate(3deg)';
+                  e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1) rotate(0deg)';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                }}
+              >
+                <div 
+                  className="h-full flex items-center justify-center text-primary font-semibold"
+                  style={{
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: tokens.colors.primary[600],
+                    fontWeight: tokens.typography.fontWeight.semibold
+                  }}
+                >
+                  {index + 1}
                 </div>
-            </div>
-        </div>
-    ),
+              </div>
+            ))}
+          </div>
+          <div 
+            className="mt-6 text-sm"
+            style={{
+              marginTop: tokens.spacing[6],
+              fontSize: tokens.typography.fontSize.sm,
+              color: tokens.colors.secondary[600]
+            }}
+          >
+            <p>Hover over each card to see elastic easing with staggered delays:</p>
+            <ul 
+              className="mt-2 space-y-1"
+              style={{
+                marginTop: tokens.spacing[2],
+                gap: tokens.spacing[1]
+              }}
+            >
+              <li>• Card 1: No delay</li>
+              <li>• Card 2: {tokens.motion.delay.fast} delay</li>
+              <li>• Card 3: {tokens.motion.delay.normal} delay</li>
+              <li>• Card 4: {tokens.motion.delay.slow} delay</li>
+            </ul>
+          </div>
+        </Card>
+      </div>
+    </div>
+  ),
 };
 
 export const Guidelines: Story = {
-    render: () => (
-        <div className="space-y-8">
-            <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">Motion Guidelines</h3>
+  render: () => (
+    <div className="space-y-16">
+      <div>
+        <SectionHeader
+          title="Motion Guidelines"
+          subtitle="Best practices and accessibility considerations for implementing motion in your applications."
+        />
 
-                <div className="space-y-6">
-                    <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
-                        <h4 className="text-lg font-medium mb-2 text-blue-900">When to Use Motion</h4>
-                        <ul className="text-blue-800 space-y-1">
-                            <li>• Provide feedback for user interactions</li>
-                            <li>• Guide user attention to important elements</li>
-                            <li>• Create smooth transitions between states</li>
-                            <li>• Enhance the overall user experience</li>
-                        </ul>
-                    </div>
+        <div className="space-y-6">
+          <Card className="p-6">
+            <h4 
+              className="text-lg font-medium mb-4"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.primary[700],
+                marginBottom: tokens.spacing[4]
+              }}
+            >
+              When to Use Motion
+            </h4>
+            <ul 
+              className="space-y-1"
+              style={{ gap: tokens.spacing[1] }}
+            >
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.primary[800]
+                }}
+              >
+                • Provide feedback for user interactions
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.primary[800]
+                }}
+              >
+                • Guide user attention to important elements
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.primary[800]
+                }}
+              >
+                • Create smooth transitions between states
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.primary[800]
+                }}
+              >
+                • Enhance the overall user experience
+              </li>
+            </ul>
+          </Card>
 
-                    <div className="p-6 bg-yellow-50 rounded-lg border border-yellow-200">
-                        <h4 className="text-lg font-medium mb-2 text-yellow-900">Accessibility Considerations</h4>
-                        <ul className="text-yellow-800 space-y-1">
-                            <li>• Respect user's motion preferences (prefers-reduced-motion)</li>
-                            <li>• Ensure animations don't cause motion sickness</li>
-                            <li>• Keep animations under 500ms for optimal performance</li>
-                            <li>• Provide alternative states for users with disabilities</li>
-                        </ul>
-                    </div>
+          <Card className="p-6">
+            <h4 
+              className="text-lg font-medium mb-4"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.warning,
+                marginBottom: tokens.spacing[4]
+              }}
+            >
+              Accessibility Considerations
+            </h4>
+            <ul 
+              className="space-y-1"
+              style={{ gap: tokens.spacing[1] }}
+            >
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.warning
+                }}
+              >
+                • Respect user's motion preferences (prefers-reduced-motion)
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.warning
+                }}
+              >
+                • Ensure animations don't cause motion sickness
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.warning
+                }}
+              >
+                • Keep animations under 500ms for optimal performance
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.warning
+                }}
+              >
+                • Provide alternative states for users with disabilities
+              </li>
+            </ul>
+          </Card>
 
-                    <div className="p-6 bg-green-50 rounded-lg border border-green-200">
-                        <h4 className="text-lg font-medium mb-2 text-green-900">Performance Best Practices</h4>
-                        <ul className="text-green-800 space-y-1">
-                            <li>• Use transform and opacity for smooth animations</li>
-                            <li>• Avoid animating layout properties (width, height, margin)</li>
-                            <li>• Use will-change CSS property sparingly</li>
-                            <li>• Test animations on lower-end devices</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+          <Card className="p-6">
+            <h4 
+              className="text-lg font-medium mb-4"
+              style={{
+                fontSize: tokens.typography.fontSize.lg,
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.colors.accent[700],
+                marginBottom: tokens.spacing[4]
+              }}
+            >
+              Performance Best Practices
+            </h4>
+            <ul 
+              className="space-y-1"
+              style={{ gap: tokens.spacing[1] }}
+            >
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.accent[800]
+                }}
+              >
+                • Use transform and opacity for smooth animations
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.accent[800]
+                }}
+              >
+                • Avoid animating layout properties (width, height, margin)
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.accent[800]
+                }}
+              >
+                • Use will-change CSS property sparingly
+              </li>
+              <li 
+                className="text-sm"
+                style={{
+                  fontSize: tokens.typography.fontSize.sm,
+                  color: tokens.colors.accent[800]
+                }}
+              >
+                • Test animations on lower-end devices
+              </li>
+            </ul>
+          </Card>
         </div>
-    ),
+      </div>
+    </div>
+  ),
 };

@@ -284,14 +284,14 @@ export const FinancialDashboard: Story = {
           subtitle="Real-world application of our color system in financial interfaces"
         />
 
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm overflow-hidden">
           <DashboardHeader
             title="FinVision Analytics"
             subtitle="Portfolio Dashboard"
             initials="FV"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <MetricCard label="Total Assets" value="$2.4M" change="+12.3%" />
             <MetricCard label="Risk Score" value="Low" change="Optimal" />
             <MetricCard label="Performance" value="+8.7%" change="YTD" />
@@ -328,24 +328,24 @@ export const InteractiveExamples: Story = {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Form Elements</h4>
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm overflow-hidden">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4 break-words">Form Elements</h4>
             <div className="space-y-4">
               <FormField label="Email Address" type="email" placeholder="Enter your email" />
               <FormField label="Investment Amount" type="number" placeholder="$10,000" />
-              <div className="flex gap-3">
-                <button className="flex-1 px-4 py-2 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700">
+              <div className="flex gap-3 flex-wrap">
+                <button className="flex-1 min-w-0 px-4 py-2 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 text-sm">
                   Submit
                 </button>
-                <button className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">
+                <button className="flex-1 min-w-0 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 text-sm">
                   Cancel
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Status Indicators</h4>
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm overflow-hidden">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4 break-words">Status Indicators</h4>
             <div className="space-y-4">
               <StatusIndicator color={tokens.colors.accent[500]} label="Transaction Successful" />
               <StatusIndicator color={tokens.colors.warning} label="Risk Level: Medium" />
@@ -355,8 +355,8 @@ export const InteractiveExamples: Story = {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">Notification System</h4>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm overflow-hidden">
+          <h4 className="text-lg font-semibold text-gray-900 mb-4 break-words">Notification System</h4>
           <div className="space-y-3">
             <Notification type="success" title="Investment Completed" message="Your $5,000 investment has been successfully processed." color={tokens.colors.accent[500]} />
             <Notification type="warning" title="Security Alert" message="Unusual login activity detected. Please review your account." color={tokens.colors.warning} />
@@ -377,8 +377,8 @@ export const Documentation: Story = {
           subtitle="Comprehensive guide to our sophisticated color system"
         />
 
-        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-          <h4 className="text-xl font-semibold text-gray-900 mb-6">🌟 Design Philosophy</h4>
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm overflow-hidden">
+          <h4 className="text-xl font-semibold text-gray-900 mb-6 break-words">🌟 Design Philosophy</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <PhilosophyItem
@@ -407,8 +407,8 @@ export const Documentation: Story = {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-          <h4 className="text-xl font-semibold text-gray-900 mb-6">🚀 Usage Guidelines</h4>
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm overflow-hidden">
+          <h4 className="text-xl font-semibold text-gray-900 mb-6 break-words">🚀 Usage Guidelines</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <GuidelinesSection
               title="Primary Colors (Indigo)"
@@ -440,8 +440,8 @@ export const Documentation: Story = {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-          <h4 className="text-xl font-semibold text-gray-900 mb-6">♿ Accessibility</h4>
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm overflow-hidden">
+          <h4 className="text-xl font-semibold text-gray-900 mb-6 break-words">♿ Accessibility</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <GuidelinesSection
               title="Contrast Requirements"
@@ -517,6 +517,193 @@ export const UsageGuidelines: Story = {
                 "• Use semantic color roles"
               ]}
             />
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+// Add new unique real user case stories
+export const ECommerceInterface: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <div>
+        <SectionHeader
+          title="E-Commerce Interface Example"
+          subtitle="Color system applied to product catalog and shopping experience"
+        />
+
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 break-words">Premium Electronics Store</h3>
+              <p className="text-gray-600 break-words">High-end gadgets and accessories</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                <span className="text-indigo-600 font-semibold text-sm">3</span>
+              </div>
+              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                <span className="text-red-600 font-semibold text-sm">!</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+              <div className="w-full h-32 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-md mb-3"></div>
+              <h4 className="font-semibold text-gray-900 mb-2 break-words">Wireless Headphones</h4>
+              <p className="text-green-600 font-semibold mb-2">$299.99</p>
+              <div className="flex items-center space-x-2">
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i}>★</span>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-500">(127 reviews)</span>
+              </div>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+              <div className="w-full h-32 bg-gradient-to-br from-teal-100 to-teal-200 rounded-md mb-3"></div>
+              <h4 className="font-semibold text-gray-900 mb-2 break-words">Smart Watch</h4>
+              <p className="text-green-600 font-semibold mb-2">$199.99</p>
+              <div className="flex items-center space-x-2">
+                <div className="flex text-yellow-400">
+                  {[...Array(4)].map((_, i) => (
+                    <span key={i}>★</span>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-500">(89 reviews)</span>
+              </div>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+              <div className="w-full h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-md mb-3"></div>
+              <h4 className="font-semibold text-gray-900 mb-2 break-words">Laptop Stand</h4>
+              <p className="text-green-600 font-semibold mb-2">$79.99</p>
+              <div className="flex items-center space-x-2">
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i}>★</span>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-500">(203 reviews)</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+              Add to Cart
+            </button>
+            <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+              Wishlist
+            </button>
+            <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+              Compare
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export const HealthcareDashboard: Story = {
+  render: () => (
+    <div className="space-y-12">
+      <div>
+        <SectionHeader
+          title="Healthcare Dashboard Example"
+          subtitle="Color system applied to medical monitoring and patient care interfaces"
+        />
+
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 break-words">Patient Monitoring System</h3>
+              <p className="text-gray-600 break-words">Real-time health metrics and alerts</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-gray-600">Stable</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <span className="text-sm text-gray-600">Monitor</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-green-700 font-medium break-words">Heart Rate</p>
+                  <p className="text-2xl font-bold text-green-800">72 BPM</p>
+                </div>
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">❤️</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-700 font-medium break-words">Blood Pressure</p>
+                  <p className="text-2xl font-bold text-blue-800">120/80</p>
+                </div>
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 text-sm">💓</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-purple-700 font-medium break-words">Oxygen Level</p>
+                  <p className="text-2xl font-bold text-purple-800">98%</p>
+                </div>
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 text-sm">🫁</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-orange-700 font-medium break-words">Temperature</p>
+                  <p className="text-2xl font-bold text-orange-800">98.6°F</p>
+                </div>
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span className="text-orange-600 text-sm">🌡️</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <span className="text-sm font-medium text-yellow-800 break-words">Medication reminder due in 30 minutes</span>
+              </div>
+              <button className="text-sm text-yellow-700 hover:text-yellow-800">Dismiss</button>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-medium text-blue-800 break-words">Next appointment: Dr. Smith at 2:00 PM</span>
+              </div>
+              <button className="text-sm text-blue-700 hover:text-blue-800">View</button>
+            </div>
           </div>
         </div>
       </div>
