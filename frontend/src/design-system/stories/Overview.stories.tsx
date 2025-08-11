@@ -4,8 +4,8 @@ import { Input } from '../components/Input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/Card';
 import { Badge } from '../components/Badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/Avatar';
-import { 
-  Settings, 
+import {
+  Settings,
   Eye,
   Edit,
   Search
@@ -13,6 +13,7 @@ import {
 
 const meta: Meta = {
   title: 'Design System/Overview',
+  component: React.Fragment,
   parameters: {
     layout: 'padded',
     docs: {
@@ -22,6 +23,13 @@ const meta: Meta = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    theme: {
+      control: { type: 'select' },
+      options: ['light', 'dark'],
+      description: 'Theme setting',
+    },
+  },
 };
 
 export default meta;
@@ -95,7 +103,7 @@ export const CoreComponents: Story = {
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold mb-4">Core Components</h2>
-        
+
         <div className="space-y-6">
           {/* Buttons */}
           <div>
@@ -156,7 +164,7 @@ export const CoreComponents: Story = {
                   <Button>Action</Button>
                 </CardFooter>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Interactive Card</CardTitle>
@@ -219,7 +227,7 @@ export const FinancialComponents: Story = {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-4">Financial-Specific Components</h2>
-        
+
         <div className="space-y-6">
           {/* Financial Metrics */}
           <div>
@@ -234,7 +242,7 @@ export const FinancialComponents: Story = {
                   <p className="text-xs text-muted-foreground">+20.1% from last month</p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
@@ -244,7 +252,7 @@ export const FinancialComponents: Story = {
                   <p className="text-xs text-muted-foreground">+15.3% from last month</p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">Cash Flow</CardTitle>
@@ -287,7 +295,7 @@ export const UsageGuidelines: Story = {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-4">Usage Guidelines</h2>
-        
+
         <div className="space-y-6">
           {/* Spacing */}
           <div>

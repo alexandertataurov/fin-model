@@ -8,12 +8,56 @@ const meta: Meta<typeof BiometricLogin> = {
   parameters: {
     layout: 'padded',
   },
+  argTypes: {
+    onSuccess: {
+      action: 'success',
+      description: 'Callback when biometric authentication succeeds',
+    },
+    onError: {
+      action: 'error',
+      description: 'Callback when biometric authentication fails',
+    },
+    onFallback: {
+      action: 'fallback',
+      description: 'Callback when user chooses fallback authentication',
+    },
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = { args: {} };
-export const Loading: Story = { parameters: { docs: { description: { story: 'No data state.' } } } };
-export const Empty: Story = { parameters: { docs: { description: { story: 'No data state.' } } } };
-export const Error: Story = { parameters: { docs: { description: { story: 'Error state.' } } } };
+export const Default: Story = {
+  args: {},
+  render: (args) => <BiometricLogin {...args} />,
+};
+
+export const Loading: Story = {
+  args: {},
+  render: (args) => <BiometricLogin {...args} />,
+};
+
+export const Empty: Story = {
+  args: {},
+  render: (args) => <BiometricLogin {...args} />,
+};
+
+export const Error: Story = {
+  args: {},
+  render: (args) => <BiometricLogin {...args} />,
+};
+
+export const FingerprintAuth: Story = {
+  args: {},
+  render: (args) => <BiometricLogin {...args} />,
+};
+
+export const FaceIDAuth: Story = {
+  args: {},
+  render: (args) => <BiometricLogin {...args} />,
+};
+
+export const NotSupported: Story = {
+  args: {},
+  render: (args) => <BiometricLogin {...args} />,
+};

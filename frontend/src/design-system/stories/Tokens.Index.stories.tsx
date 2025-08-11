@@ -8,7 +8,6 @@ const meta: Meta<typeof tokens> = {
   parameters: {
     docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'padded'
   },
-},
   tags: ['autodocs'],
   argTypes: {
     colors: {
@@ -37,7 +36,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    colors: tokens.colors,
+    typography: tokens.typography,
+    spacing: tokens.spacing,
+    borderRadius: tokens.borderRadius,
+    shadows: tokens.shadows,
+  },
   render: () => (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold">Design System Tokens</h2>

@@ -13,6 +13,24 @@ const meta: Meta<typeof ErrorBoundary> = {
         },
     },
     tags: ['autodocs'],
+    argTypes: {
+        children: {
+            control: false,
+            description: 'Child components to wrap with error boundary',
+        },
+        fallback: {
+            control: false,
+            description: 'Custom fallback component to display on error',
+        },
+        showDetails: {
+            control: { type: 'boolean' },
+            description: 'Whether to show error details',
+        },
+        resetKeys: {
+            control: { type: 'object' },
+            description: 'Keys to trigger error boundary reset',
+        },
+    },
 };
 
 export default meta;
@@ -83,4 +101,41 @@ export const WithResetKeys: Story = {
             </div>
         );
     },
+};
+
+export const FinancialModelError: Story = {
+    render: () => (
+        <ErrorBoundary
+            fallback={(
+                <div className="p-6 border border-red-200 rounded-lg bg-red-50 max-w-md">
+                    <h3 className="text-red-800 font-medium mb-2">Financial Model Error</h3>
+                    <p className="text-red-600 text-sm mb-4">
+                        There was an error processing your financial model. Please check your input parameters and try again.
+                    </p>
+                    <button className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
+                        Retry Calculation
+                    </button>
+                </div>
+            )}
+        >
+            <BuggyComponent shouldThrow={true} />
+        </ErrorBoundary>
+    ),
+};
+
+export const ChartError: Story = {
+    render: () => (
+        <ErrorBoundary
+            fallback={(
+                <div className="p-4 border border-orange-200 rounded-lg bg-orange-50">
+                    <h3 className="text-orange-800 font-medium">Chart Loading Error</h3>
+                    <p className="text-orange-600 text-sm">
+                        Unable to load chart data. Please refresh the page or contact support.
+                    </p>
+                </div>
+            )}
+        >
+            <BuggyComponent shouldThrow={true} />
+        </ErrorBoundary>
+    ),
 };

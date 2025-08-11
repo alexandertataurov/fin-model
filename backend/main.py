@@ -188,6 +188,93 @@ async def cors_debug():
     )
 
 
+@app.get("/cors-test")
+async def cors_test():
+    """Simple CORS test endpoint."""
+    return JSONResponse(
+        content={
+            "message": "CORS is working!",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    )
+
+
+@app.get("/db-test")
+async def db_test():
+    """Simple database test endpoint."""
+    try:
+        from sqlalchemy import create_engine, text
+        from app.core.config import settings
+
+        engine = create_engine(settings.DATABASE_URL)
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT 1 as test"))
+            test_value = result.fetchone()[0]
+
+        return JSONResponse(
+            content={
+                "message": "Database connection successful!",
+                "test_value": test_value,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
+    except Exception as e:
+        return JSONResponse(
+            content={
+                "message": "Database connection failed!",
+                "error": str(e),
+                "timestamp": datetime.utcnow().isoformat(),
+            },
+            status_code=500,
+        )
+
+
+@app.get("/schema-check")
+async def schema_check():
+    """Check database schema for missing columns."""
+    try:
+        from sqlalchemy import create_engine, text
+        from app.core.config import settings
+
+        engine = create_engine(settings.DATABASE_URL)
+        issues = []
+
+        with engine.connect() as conn:
+            # Check uploaded_files table
+            try:
+                result = conn.execute(
+                    text("SELECT stored_filename FROM uploaded_files LIMIT 1")
+                )
+                result.fetchone()
+            except Exception as e:
+                if "column" in str(e).lower() and "does not exist" in str(e).lower():
+                    issues.append("uploaded_files.stored_filename column missing")
+
+            # Check other potential issues
+            try:
+                result = conn.execute(text("SELECT COUNT(*) FROM uploaded_files"))
+                result.fetchone()
+            except Exception as e:
+                issues.append(f"uploaded_files table issue: {str(e)}")
+
+        return JSONResponse(
+            content={
+                "message": "Schema check completed",
+                "issues": issues,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
+    except Exception as e:
+        return JSONResponse(
+            content={
+                "message": "Schema check failed!",
+                "error": str(e),
+                "timestamp": datetime.utcnow().isoformat(),
+            },
+            status_code=500,
+        )
+
+
 # Note: Let CORSMiddleware handle OPTIONS automatically.
 
 

@@ -616,6 +616,7 @@ const AdvancedThemingShowcase = () => {
 
 const meta: Meta = {
   title: 'Design System/Advanced Theming',
+  component: React.Fragment,
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -625,6 +626,13 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    theme: {
+      control: { type: 'select' },
+      options: ['light', 'dark', 'brand', 'high-contrast', 'sepia'],
+      description: 'Theme variation',
+    },
   },
 };
 

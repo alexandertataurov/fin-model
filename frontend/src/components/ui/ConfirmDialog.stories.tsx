@@ -17,6 +17,31 @@ const meta: Meta<typeof ConfirmDialog> = {
     argTypes: {
         open: {
             control: 'boolean',
+            description: 'Whether the dialog is open',
+        },
+        title: {
+            control: { type: 'text' },
+            description: 'Dialog title',
+        },
+        description: {
+            control: { type: 'text' },
+            description: 'Dialog description',
+        },
+        confirmText: {
+            control: { type: 'text' },
+            description: 'Confirm button text',
+        },
+        cancelText: {
+            control: { type: 'text' },
+            description: 'Cancel button text',
+        },
+        onConfirm: {
+            action: 'confirmed',
+            description: 'Callback when confirmed',
+        },
+        onCancel: {
+            action: 'cancelled',
+            description: 'Callback when cancelled',
         },
     },
 };
@@ -85,5 +110,35 @@ export const NoDescription: Story = {
         title: 'Continue?',
         confirmText: 'Yes',
         cancelText: 'No',
+    },
+};
+
+export const FinancialModelSave: Story = {
+    render: (args) => <ConfirmDialogWrapper {...args} />,
+    args: {
+        title: 'Save Financial Model',
+        description: 'Your model has unsaved changes. Do you want to save before closing?',
+        confirmText: 'Save & Close',
+        cancelText: 'Close Without Saving',
+    },
+};
+
+export const DeleteParameter: Story = {
+    render: (args) => <ConfirmDialogWrapper {...args} />,
+    args: {
+        title: 'Delete Parameter',
+        description: 'Are you sure you want to delete "Discount Rate"? This will affect all calculations using this parameter.',
+        confirmText: 'Delete Parameter',
+        cancelText: 'Keep Parameter',
+    },
+};
+
+export const ExportData: Story = {
+    render: (args) => <ConfirmDialogWrapper {...args} />,
+    args: {
+        title: 'Export Financial Data',
+        description: 'This will export all your financial model data to Excel. The file may be large.',
+        confirmText: 'Export Data',
+        cancelText: 'Cancel Export',
     },
 };

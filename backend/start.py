@@ -411,9 +411,9 @@ def create_notifications_table():
         return False
 
 
-def fix_notification_schema():
-    """Fix notification schema issues by renaming columns."""
-    print("🔧 Fixing notification schema...")
+def fix_database_schema():
+    """Fix database schema issues by adding missing columns and fixing inconsistencies."""
+    print("🔧 Fixing database schema issues...")
 
     try:
         from app.core.config import settings
@@ -422,7 +422,44 @@ def fix_notification_schema():
         engine = create_engine(settings.DATABASE_URL)
 
         with engine.connect() as conn:
-            # Check if notifications table exists and has 'type' column instead of external file
+            # Reset any aborted transactions first
+            try:
+                conn.execute(text("ROLLBACK"))
+                print("✅ Reset any aborted transactions")
+            except Exception:
+                pass  # Ignore if no transaction to rollback
+            # Fix uploaded_files table - add missing stored_filename column
+            try:
+                result = conn.execute(
+                    text(
+                        """
+                        SELECT column_name 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'uploaded_files' 
+                        AND column_name = 'stored_filename'
+                    """
+                    )
+                )
+
+                if not result.fetchone():
+                    print("🔄 Adding stored_filename column to uploaded_files...")
+                    conn.execute(
+                        text(
+                            """
+                        ALTER TABLE uploaded_files 
+                        ADD COLUMN stored_filename VARCHAR(255)
+                    """
+                        )
+                    )
+                    conn.commit()
+                    print("✅ Added stored_filename column to uploaded_files")
+                else:
+                    print("✅ stored_filename column already exists in uploaded_files")
+
+            except Exception as e:
+                print(f"⚠️ uploaded_files schema fix warning: {e}")
+
+            # Fix notification schema issues
             try:
                 result = conn.execute(
                     text(
@@ -456,13 +493,49 @@ def fix_notification_schema():
                     print("✅ Renamed 'type' column to 'notification_type'")
 
             except Exception as e:
-                print(f"⚠️ Schema fix warning: {e}")
+                print(f"⚠️ Notification schema fix warning: {e}")
 
-            print("✅ Notification schema fix completed")
+            # Fix any other potential schema issues
+            try:
+                # Check for common missing columns and add them
+                missing_columns = [
+                    ("uploaded_files", "processing_started_at", "TIMESTAMP"),
+                    ("uploaded_files", "processing_completed_at", "TIMESTAMP"),
+                    ("uploaded_files", "is_valid", "BOOLEAN DEFAULT TRUE"),
+                    ("uploaded_files", "validation_errors", "TEXT"),
+                    ("uploaded_files", "parsed_data", "JSON"),
+                ]
+
+                for table, column, column_type in missing_columns:
+                    result = conn.execute(
+                        text(
+                            f"""
+                            SELECT column_name 
+                            FROM information_schema.columns 
+                            WHERE table_name = '{table}' 
+                            AND column_name = '{column}'
+                        """
+                        )
+                    )
+
+                    if not result.fetchone():
+                        print(f"🔄 Adding {column} column to {table}...")
+                        conn.execute(
+                            text(
+                                f"ALTER TABLE {table} ADD COLUMN {column} {column_type}"
+                            )
+                        )
+                        conn.commit()
+                        print(f"✅ Added {column} column to {table}")
+
+            except Exception as e:
+                print(f"⚠️ Additional schema fixes warning: {e}")
+
+            print("✅ Database schema fixes completed")
             return True
 
     except Exception as e:
-        print(f"❌ Error fixing notification schema: {e}")
+        print(f"❌ Error fixing database schema: {e}")
         return False
 
 
@@ -501,8 +574,8 @@ def main():
     # Ensure system logs and maintenance tables exist
     ensure_system_logs_and_maintenance()
 
-    # Fix notification schema issues
-    fix_notification_schema()
+    # Fix database schema issues
+    fix_database_schema()
 
     # Run migrations
     if not run_migrations():

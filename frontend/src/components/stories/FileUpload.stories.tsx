@@ -20,6 +20,28 @@ const meta: Meta<typeof FileUploadDropzone> = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    maxFiles: {
+      control: { type: 'number', min: 1, max: 10 },
+      description: 'Maximum number of files allowed',
+    },
+    maxSize: {
+      control: { type: 'number', min: 1024, max: 100 * 1024 * 1024 },
+      description: 'Maximum file size in bytes',
+    },
+    accept: {
+      control: { type: 'object' },
+      description: 'Accepted file types',
+    },
+    onUploadComplete: {
+      action: 'upload complete',
+      description: 'Callback when upload completes',
+    },
+    onUploadError: {
+      action: 'upload error',
+      description: 'Callback when upload fails',
+    },
+  },
 };
 
 export default meta;

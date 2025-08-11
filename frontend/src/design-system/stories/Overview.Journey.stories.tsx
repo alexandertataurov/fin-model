@@ -4,9 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 
 const meta: Meta = {
   title: 'Design System/Overview/Journey',
+  component: React.Fragment,
   tags: ['autodocs'],
   parameters: {
-    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'padded' },
+    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'padded'
+  },
+},
+  argTypes: {
+    theme: {
+      control: { type: 'select' },
+      options: ['light', 'dark'],
+      description: 'Theme setting',
+    },
+  },
 };
 export default meta;
 

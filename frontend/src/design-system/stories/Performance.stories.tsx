@@ -5,7 +5,26 @@ import { Badge } from '../components/Badge';
 
 const meta: Meta = {
     title: 'Design System/Performance/Performance Monitor',
+    component: React.Fragment,
     tags: ['autodocs'],
+    argTypes: {
+        startupTime: {
+            control: { type: 'number', min: 0, max: 5000 },
+            description: 'Startup time in milliseconds',
+        },
+        bundleSize: {
+            control: { type: 'number', min: 0, max: 1000 },
+            description: 'Bundle size in KB',
+        },
+        renderTime: {
+            control: { type: 'number', min: 0, max: 50 },
+            description: 'Render time in milliseconds',
+        },
+        memoryUsage: {
+            control: { type: 'number', min: 0, max: 100 },
+            description: 'Memory usage in MB',
+        },
+    },
     parameters: {
         layout: 'padded',
         docs: {

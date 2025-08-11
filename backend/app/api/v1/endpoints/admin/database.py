@@ -91,7 +91,7 @@ async def get_table_information(
     try:
         # Simple approach: get basic table information
         from sqlalchemy import text
-        
+
         # Get all tables from information_schema
         tables_sql = """
             SELECT table_name 
@@ -100,27 +100,28 @@ async def get_table_information(
             AND table_type = 'BASE TABLE'
             ORDER BY table_name
         """
-        
+
         tables_result = db.execute(text(tables_sql)).fetchall()
         table_names = [row[0] for row in tables_result]
-        
+
         table_data = {}
         total_records = 0
-        
+
         # Get basic info for each table
         for table_name in table_names:
             try:
-                # Get row count
+                # Get row count with transaction isolation
+                db.rollback()  # Reset any failed transaction
                 count_sql = f'SELECT COUNT(*) FROM "{table_name}"'
                 count_result = db.execute(text(count_sql)).fetchone()
                 row_count = count_result[0] if count_result else 0
                 total_records += row_count
-                
+
                 # Get table size (simplified)
                 size_sql = f"""
                     SELECT COALESCE(pg_total_relation_size('"{table_name}"'), 0) as total_size
                 """
-                
+
                 try:
                     size_result = db.execute(text(size_sql)).fetchone()
                     total_size_bytes = size_result[0] if size_result else 0
@@ -129,7 +130,7 @@ async def get_table_information(
                 except Exception:
                     size_mb = 0.1
                     size_pretty = "0.1 MB"
-                
+
                 table_data[table_name] = {
                     "rows": row_count,
                     "dead_rows": 0,
@@ -141,9 +142,14 @@ async def get_table_information(
                     "last_updated": datetime.now(timezone.utc).isoformat(),
                     "integrity_status": "healthy",
                 }
-                
+
             except Exception as e:
-                # Add basic entry for failed table
+                # Reset transaction and add basic entry for failed table
+                try:
+                    db.rollback()
+                except:
+                    pass
+
                 table_data[table_name] = {
                     "rows": 0,
                     "dead_rows": 0,
@@ -153,14 +159,14 @@ async def get_table_information(
                     "size_mb": 0.1,
                     "size_pretty": "0.1 MB",
                     "last_updated": datetime.now(timezone.utc).isoformat(),
-                    "integrity_status": "warning",
+                    "integrity_status": "error",
                 }
-        
+
         # Add total records
         table_data["_total_records"] = total_records
-        
+
         return table_data
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
