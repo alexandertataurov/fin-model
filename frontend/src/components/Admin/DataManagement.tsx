@@ -752,8 +752,8 @@ const DataManagement: React.FC = () => {
                       {(() => {
                         const avgTime = databaseHealth?.performance_metrics?.avg_query_time_ms;
                         console.log('Avg query time:', avgTime); // Debug log
-                        if (avgTime != null && avgTime > 0) {
-                          return `${avgTime.toFixed(2)} ms`;
+                        if (avgTime != null && avgTime >= 0) {
+                          return `${avgTime.toFixed(1)} ms`;
                         }
                         return 'N/A';
                       })()}
@@ -886,6 +886,12 @@ const DataManagement: React.FC = () => {
                     <p className="text-xs">
                       {performanceData[0]?.note || 'Queries slower than 1000ms are flagged'}
                     </p>
+                    <div className="mt-4 p-3 bg-blue-50 rounded text-xs">
+                      <p className="font-medium text-blue-800">Current Performance:</p>
+                      <p>Avg Query Time: {databaseHealth?.performance_metrics?.avg_query_time_ms?.toFixed(1) || 'N/A'} ms</p>
+                      <p>Max Query Time: {databaseHealth?.performance_metrics?.max_query_time_ms?.toFixed(1) || 'N/A'} ms</p>
+                      <p>Active Queries: {databaseHealth?.performance_metrics?.active_queries || 0}</p>
+                    </div>
                     {performanceData[0]?.note && (
                       <p className="text-xs text-yellow-600 mt-2">
                         Consider enabling pg_stat_statements extension for detailed query analysis
