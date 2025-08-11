@@ -47,7 +47,7 @@ export const getSpacing = (size: SpacingToken, useVar = false): string => {
   if (useVar) {
     return cssVar(`spacing-${String(size)}`);
   }
-  return designTokens.spacing[size].value;
+  return designTokens.spacing[size] as string;
 };
 
 /**
@@ -60,7 +60,7 @@ export const getFontSize = (size: FontSizeToken, useVar = false): string => {
   if (useVar) {
     return cssVar(`text-${String(size)}`);
   }
-  return designTokens.fontSize[size].value;
+  return designTokens.fontSize[size] as string;
 };
 
 /**
@@ -84,7 +84,7 @@ export const getBorderRadius = (size: BorderRadiusToken, useVar = false): string
   if (useVar) {
     return cssVar(`radius-${String(size)}`);
   }
-  return designTokens.borderRadius[size].value;
+  return designTokens.borderRadius[size] as string;
 };
 
 /**
@@ -97,7 +97,7 @@ export const getBoxShadow = (size: BoxShadowToken, useVar = false): string => {
   if (useVar) {
     return cssVar(`shadow-${String(size)}`);
   }
-  return designTokens.boxShadow[size].value;
+  return designTokens.boxShadow[size] as string;
 };
 
 

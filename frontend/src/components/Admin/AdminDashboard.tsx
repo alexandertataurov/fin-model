@@ -16,6 +16,7 @@ import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
@@ -75,10 +76,10 @@ const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
 };
 
 const getHealthIndicator = (value: number | null | undefined, thresholds: { warning: number; critical: number }) => {
-    if (value === null || value === undefined) return 'bg-gray-400';
-    if (value > thresholds.critical) return 'bg-red-500';
-    if (value > thresholds.warning) return 'bg-yellow-500';
-    return 'bg-green-500';
+    if (value === null || value === undefined) return 'bg-muted';
+    if (value > thresholds.critical) return 'bg-destructive';
+    if (value > thresholds.warning) return 'bg-warning';
+    return 'bg-success';
 };
 
 // Overview Tab Component
@@ -132,8 +133,8 @@ const OverviewTab: React.FC = () => {
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center justify-between">
                             <div className="flex items-center">
-                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <CheckCircle className="h-5 w-5 text-green-600" />
+                                <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center mr-3">
+                                    <CheckCircle className="h-5 w-5 text-success" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-semibold">System Status</h3>
@@ -152,7 +153,7 @@ const OverviewTab: React.FC = () => {
                                     <div className={`w-4 h-4 rounded-full mr-2 transition-all duration-200 ${getHealthIndicator(systemMetrics.data?.cpu_usage, { warning: 60, critical: 80 })}`} />
                                     <span className="text-sm font-medium">CPU</span>
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900">
+                                <div className="text-2xl font-bold text-foreground">
                                     {formatPercentage(systemMetrics.data?.cpu_usage)}
                                 </div>
                                 <div className="text-xs text-muted-foreground mt-1">Usage</div>
@@ -162,7 +163,7 @@ const OverviewTab: React.FC = () => {
                                     <div className={`w-4 h-4 rounded-full mr-2 transition-all duration-200 ${getHealthIndicator(systemMetrics.data?.memory_usage, { warning: 70, critical: 85 })}`} />
                                     <span className="text-sm font-medium">Memory</span>
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900">
+                                <div className="text-2xl font-bold text-foreground">
                                     {formatPercentage(systemMetrics.data?.memory_usage)}
                                 </div>
                                 <div className="text-xs text-muted-foreground mt-1">Usage</div>
@@ -172,7 +173,7 @@ const OverviewTab: React.FC = () => {
                                     <div className={`w-4 h-4 rounded-full mr-2 transition-all duration-200 ${getHealthIndicator(systemMetrics.data?.disk_usage, { warning: 75, critical: 90 })}`} />
                                     <span className="text-sm font-medium">Disk</span>
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900">
+                                <div className="text-2xl font-bold text-foreground">
                                     {formatPercentage(systemMetrics.data?.disk_usage)}
                                 </div>
                                 <div className="text-xs text-muted-foreground mt-1">Usage</div>
@@ -939,7 +940,7 @@ export const AdminDashboard: React.FC = () => {
                     <Button variant="outline" size="sm" className="relative">
                         <Bell className="h-4 w-4 mr-2" />
                         Notifications
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full text-xs text-destructive-foreground flex items-center justify-center">
                             3
                         </span>
                     </Button>
@@ -965,42 +966,42 @@ export const AdminDashboard: React.FC = () => {
                     <TabsList className="grid w-full grid-cols-6 h-12 bg-muted/50 p-1 rounded-lg">
                         <TabsTrigger
                             value="overview"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
                         >
                             <Activity className="h-4 w-4" />
                             Overview
                         </TabsTrigger>
                         <TabsTrigger
                             value="system"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
                         >
                             <Server className="h-4 w-4" />
                             System
                         </TabsTrigger>
                         <TabsTrigger
                             value="audit"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
                         >
                             <Shield className="h-4 w-4" />
                             Audit
                         </TabsTrigger>
                         <TabsTrigger
                             value="health"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
                         >
                             <CheckCircle className="h-4 w-4" />
                             Health
                         </TabsTrigger>
                         <TabsTrigger
                             value="data"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
                         >
                             <Database className="h-4 w-4" />
                             Data
                         </TabsTrigger>
                         <TabsTrigger
                             value="logs"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground"
                         >
                             <FileText className="h-4 w-4" />
                             Logs

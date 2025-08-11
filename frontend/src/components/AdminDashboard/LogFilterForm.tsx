@@ -9,6 +9,7 @@ import {
 } from '@/design-system/components/Select';
 import { Input } from '@/design-system/components/Input';
 import { DatePicker } from '@/design-system/components/DatePicker';
+import { tokens } from '@/design-system/tokens';
 import type { LogsState } from '@/stores/admin/types';
 
 interface LogFilterFormProps {
@@ -47,8 +48,8 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
 }) => {
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
-        <Select value={level} onValueChange={v => onChange({ level: v as LogsState['level'], skip: 0 })}>
-        <SelectTrigger className="w-[110px]">
+      <Select value={level} onValueChange={v => onChange({ level: v as LogsState['level'], skip: 0 })}>
+        <SelectTrigger className="w-[var(--spacing-28)]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -64,7 +65,7 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
         value={String(limit)}
         onValueChange={v => onChange({ limit: Number(v), skip: 0 })}
       >
-        <SelectTrigger className="w-[90px]">
+        <SelectTrigger className="w-[var(--spacing-24)]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

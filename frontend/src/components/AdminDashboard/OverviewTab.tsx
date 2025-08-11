@@ -9,6 +9,7 @@ import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/adminStore';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import {
@@ -43,6 +44,15 @@ const OverviewTab: React.FC = () => {
     return <Badge variant="default">Active</Badge>;
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'healthy': return 'bg-success';
+      case 'warning': return 'bg-warning';
+      case 'critical': return 'bg-destructive';
+      default: return 'bg-muted';
+    }
+  };
+
   const hasAnyData =
     !!systemStats.data ||
     !!systemMetrics.data ||
@@ -73,7 +83,7 @@ const OverviewTab: React.FC = () => {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+              <CheckCircle className="h-5 w-5 mr-2 text-success" />
               System Status
             </CardTitle>
           </CardHeader>
@@ -82,11 +92,7 @@ const OverviewTab: React.FC = () => {
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <div
-                    className={`w-3 h-3 rounded-full mr-2 ${
-                      systemHealth?.data?.status === 'healthy'
-                        ? 'bg-green-500'
-                        : 'bg-yellow-500'
-                    }`}
+                    className={`w-3 h-3 rounded-full mr-2 ${getStatusColor(systemHealth?.data?.status)}`}
                   />
                   <span className="text-sm font-medium">Database</span>
                 </div>
@@ -102,11 +108,11 @@ const OverviewTab: React.FC = () => {
                     className={`w-3 h-3 rounded-full mr-2 ${
                       systemMetrics.data?.cpu_usage &&
                       systemMetrics.data.cpu_usage > 80
-                        ? 'bg-red-500'
+                        ? 'bg-destructive'
                         : systemMetrics.data?.cpu_usage &&
                           systemMetrics.data.cpu_usage > 60
-                        ? 'bg-yellow-500'
-                        : 'bg-green-500'
+                        ? 'bg-warning'
+                        : 'bg-success'
                     }`}
                   />
                   <span className="text-sm font-medium">CPU</span>
@@ -121,11 +127,11 @@ const OverviewTab: React.FC = () => {
                     className={`w-3 h-3 rounded-full mr-2 ${
                       systemMetrics.data?.memory_usage &&
                       systemMetrics.data.memory_usage > 80
-                        ? 'bg-red-500'
+                        ? 'bg-destructive'
                         : systemMetrics.data?.memory_usage &&
                           systemMetrics.data.memory_usage > 60
-                        ? 'bg-yellow-500'
-                        : 'bg-green-500'
+                        ? 'bg-warning'
+                        : 'bg-success'
                     }`}
                   />
                   <span className="text-sm font-medium">Memory</span>
@@ -140,11 +146,11 @@ const OverviewTab: React.FC = () => {
                     className={`w-3 h-3 rounded-full mr-2 ${
                       systemMetrics.data?.disk_usage &&
                       systemMetrics.data.disk_usage > 80
-                        ? 'bg-red-500'
+                        ? 'bg-destructive'
                         : systemMetrics.data?.disk_usage &&
                           systemMetrics.data.disk_usage > 60
-                        ? 'bg-yellow-500'
-                        : 'bg-green-500'
+                        ? 'bg-warning'
+                        : 'bg-success'
                     }`}
                   />
                   <span className="text-sm font-medium">Disk</span>

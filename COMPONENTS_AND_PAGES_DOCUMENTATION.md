@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides a comprehensive overview of all components and pages in the Financial Modeling Application, including their Storybook stories and parameters. The application contains **158 story files** across multiple categories.
+This document provides a comprehensive overview of all components and pages in the Financial Modeling Application, including their Storybook stories and parameters. The application contains **154 story files** across multiple categories.
 
 ## Table of Contents
 
@@ -17,6 +17,7 @@ This document provides a comprehensive overview of all components and pages in t
 ## Design System Components
 
 ### Foundations
+
 - **Foundations.Colors.stories.tsx** - Color palette and theming system
 - **Foundations.Radius.stories.tsx** - Border radius design tokens
 - **Foundations.Shadows.stories.tsx** - Shadow and elevation system
@@ -27,6 +28,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **Foundations.ZIndex.stories.tsx** - Z-index layering system
 
 ### Basic UI Components
+
 - **Alert.stories.tsx** - Alert and notification components
 - **AlertDialog.stories.tsx** - Confirmation dialogs
 - **AspectRatio.stories.tsx** - Aspect ratio container
@@ -77,6 +79,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **Tooltip.stories.tsx** - Tooltip components
 
 ### Design System Documentation
+
 - **Accessibility.stories.tsx** - Accessibility guidelines and examples
 - **AdvancedTheming.stories.tsx** - Advanced theming capabilities
 - **ComponentTemplate.stories.tsx** - Story creation template
@@ -88,6 +91,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **Providers.stories.tsx** - Context providers documentation
 
 ### Token Documentation
+
 - **Tokens.Badge.stories.tsx** - Badge design tokens
 - **Tokens.Index.stories.tsx** - Token index and reference
 - **Tokens.Select.stories.tsx** - Select component tokens
@@ -95,6 +99,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **Tokens.Tooltip.stories.tsx** - Tooltip design tokens
 
 ### Chart Helpers
+
 - **Charts.Helpers.stories.tsx** - Chart utility components
 
 ---
@@ -102,21 +107,21 @@ This document provides a comprehensive overview of all components and pages in t
 ## Core Application Components
 
 ### Admin Components
+
 - **AdminDashboard.stories.tsx** - Main admin dashboard
 - **DashboardCustomization.stories.tsx** - Dashboard customization tools
 - **DataManagement.stories.tsx** - Data management interface
+- **HealthTab.stories.tsx** - System health monitoring
 - **LogFilterForm.stories.tsx** - Log filtering and search
+- **LogsTab.stories.tsx** - Application logs viewer
 - **MaintenanceTools.stories.tsx** - System maintenance utilities
 - **OverviewSection.stories.tsx** - Admin overview section
+- **OverviewTab.stories.tsx** - Admin overview tab
 - **SystemMonitoring.stories.tsx** - System monitoring dashboard
 - **UserManagement.stories.tsx** - User management interface
 
-### Admin Dashboard Components
-- **HealthTab.stories.tsx** - System health monitoring
-- **LogsTab.stories.tsx** - Application logs viewer
-- **OverviewTab.stories.tsx** - Admin overview tab
-
 ### Authentication Components
+
 - **AdminGuard.stories.tsx** - Admin route protection
 - **AuthGuard.stories.tsx** - Authentication guard
 - **BiometricLogin.stories.tsx** - Biometric authentication
@@ -126,6 +131,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **ResetPasswordForm.stories.tsx** - Password reset form
 
 ### Balance Sheet Components
+
 - **AssetsBreakdown.stories.tsx** - Asset analysis charts
 - **BalanceSheetSummary.stories.tsx** - Balance sheet overview
 - **EquityTrend.stories.tsx** - Equity trend analysis
@@ -133,6 +139,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **LiabilitiesAnalysis.stories.tsx** - Liability analysis charts
 
 ### Chart Components
+
 - **BarChart.stories.tsx** - Bar chart component
 - **BaseChart.stories.tsx** - Base chart configuration
 - **CurrencyBarChart.stories.tsx** - Currency-specific bar charts
@@ -146,10 +153,12 @@ This document provides a comprehensive overview of all components and pages in t
 - **WaterfallChart.stories.tsx** - Waterfall chart component
 
 ### Core Financial Modeling
+
 - **CoreFinancialModeling.stories.tsx** - Core modeling engine
 - **DCFValuation.stories.tsx** - DCF valuation calculations
 
 ### Dashboard Components
+
 - **DashboardGrid.stories.tsx** - Dashboard grid layout
 - **ErrorBoundary.stories.tsx** - Error handling components
 - **FinancialDashboard.stories.tsx** - Financial dashboard
@@ -157,6 +166,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **RealtimeMetrics.stories.tsx** - Real-time metric display
 
 ### File Upload Components
+
 - **ExcelProcessingWorkflow.stories.tsx** - Excel file processing
 - **FileList.stories.tsx** - File list management
 - **FilePreview.stories.tsx** - File preview component
@@ -165,15 +175,18 @@ This document provides a comprehensive overview of all components and pages in t
 - **StatementSelector.stories.tsx** - Financial statement selection
 
 ### Financial Statements
+
 - **BalanceSheetView.stories.tsx** - Balance sheet display
 - **CashFlowView.stories.tsx** - Cash flow statement view
 - **DCFView.stories.tsx** - DCF analysis view
 - **ProfitLossView.stories.tsx** - P&L statement view
 
 ### Layout Components
+
 - **PageHeader.stories.tsx** - Page header component
 
 ### Parameter Components
+
 - **BulkParameterEdit.stories.tsx** - Bulk parameter editing
 - **ImpactAnalysis.stories.tsx** - Parameter impact analysis
 - **LoadingState.stories.tsx** - Parameter loading states
@@ -189,6 +202,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **ParameterTemplates.stories.tsx** - Parameter templates
 
 ### Scenario Components
+
 - **DistributionChart.stories.tsx** - Distribution analysis charts
 - **MonteCarloRunner.stories.tsx** - Monte Carlo simulation
 - **ScatterPlot.stories.tsx** - Scatter plot analysis
@@ -198,6 +212,7 @@ This document provides a comprehensive overview of all components and pages in t
 - **TornadoChart.stories.tsx** - Tornado chart analysis
 
 ### Tab Components
+
 - **BalanceTabEnhanced.stories.tsx** - Enhanced balance sheet tab
 - **CashFlowTabEnhanced.stories.tsx** - Enhanced cash flow tab
 - **DCFTab.stories.tsx** - DCF analysis tab
@@ -205,11 +220,12 @@ This document provides a comprehensive overview of all components and pages in t
 - **SalesTab.stories.tsx** - Sales analysis tab
 
 ### UI Components
+
 - **ConfirmDialog.stories.tsx** - Confirmation dialogs
 - **LoadingSkeleton.stories.tsx** - Loading skeleton components
 
 ### Utility Components
-- **ErrorBoundary.stories.tsx** - Error boundary wrapper
+
 - **ProtectedRoute.stories.tsx** - Route protection component
 - **theme-toggle.stories.tsx** - Theme switching component
 
@@ -218,6 +234,7 @@ This document provides a comprehensive overview of all components and pages in t
 ## Page Components
 
 ### Authentication Pages
+
 - **Login.stories.tsx** - User login page
 
 ---
@@ -227,6 +244,7 @@ This document provides a comprehensive overview of all components and pages in t
 ### By Functionality
 
 #### Financial Analysis
+
 - Balance Sheet components
 - Cash Flow components
 - DCF Valuation components
@@ -234,22 +252,26 @@ This document provides a comprehensive overview of all components and pages in t
 - P&L components
 
 #### Data Management
+
 - File Upload components
 - Parameter Management components
 - Data Export/Import components
 
 #### User Interface
+
 - Design System components
 - Layout components
 - Navigation components
 - Form components
 
 #### Administration
+
 - Admin Dashboard components
 - User Management components
 - System Monitoring components
 
 #### Visualization
+
 - Chart components
 - Dashboard components
 - Real-time components
@@ -257,16 +279,19 @@ This document provides a comprehensive overview of all components and pages in t
 ### By Complexity
 
 #### Simple Components
+
 - Basic UI elements (Button, Input, Label)
 - Utility components (ErrorBoundary, LoadingSkeleton)
 - Layout components (Card, Separator)
 
 #### Medium Complexity
+
 - Form components (ParameterControl, FileUpload)
 - Navigation components (Tabs, Sidebar)
 - Display components (Table, Chart)
 
 #### Complex Components
+
 - Dashboard components (FinancialDashboard, AdminDashboard)
 - Analysis components (DCFValuation, MonteCarloRunner)
 - Management components (ParameterManager, UserManagement)
@@ -278,16 +303,17 @@ This document provides a comprehensive overview of all components and pages in t
 ### Common Parameters
 
 #### Meta Configuration
+
 ```typescript
 const meta: Meta<typeof Component> = {
-  title: 'Category/ComponentName',
+  title: "Category/ComponentName",
   component: Component,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   parameters: {
-    layout: 'padded' | 'fullscreen',
+    layout: "padded" | "fullscreen",
     docs: {
       description: {
-        component: 'Component description',
+        component: "Component description",
       },
     },
   },
@@ -298,11 +324,13 @@ const meta: Meta<typeof Component> = {
 ```
 
 #### Layout Options
+
 - `'padded'` - Component with padding for isolated viewing
 - `'fullscreen'` - Full-screen layout for pages and complex components
 - `'centered'` - Centered layout for focused components
 
 #### Common ArgTypes
+
 ```typescript
 argTypes: {
   // Boolean controls
@@ -310,32 +338,32 @@ argTypes: {
     control: { type: 'boolean' },
     description: 'Component disabled state',
   },
-  
+
   // Select controls
   variant: {
     control: { type: 'select' },
     options: ['default', 'outlined', 'elevated'],
     description: 'Visual variant',
   },
-  
+
   // Number controls
   value: {
     control: { type: 'number' },
     description: 'Numeric value',
   },
-  
+
   // Text controls
   label: {
     control: { type: 'text' },
     description: 'Component label',
   },
-  
+
   // Object controls
   data: {
     control: { type: 'object' },
     description: 'Data object',
   },
-  
+
   // Action handlers
   onChange: {
     action: 'changed',
@@ -347,6 +375,7 @@ argTypes: {
 ### Story Variants
 
 #### Standard Variants
+
 - **Default** - Basic component state
 - **Loading** - Loading/processing state
 - **Empty** - No data state
@@ -354,6 +383,7 @@ argTypes: {
 - **Disabled** - Disabled state
 
 #### Component-Specific Variants
+
 - **Interactive** - With user interactions
 - **Complex** - Advanced usage examples
 - **Accessibility** - Accessibility features
@@ -361,6 +391,7 @@ argTypes: {
 - **Usage Guidelines** - Best practices
 
 ### Story Configuration
+
 ```typescript
 export const StoryName: Story = {
   args: {
@@ -369,7 +400,7 @@ export const StoryName: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Story description',
+        story: "Story description",
       },
     },
     // Additional parameters
@@ -382,6 +413,7 @@ export const StoryName: Story = {
 ## Usage Guidelines
 
 ### Creating New Stories
+
 1. Use the `ComponentTemplate.stories.tsx` as a reference
 2. Include comprehensive `argTypes` for all props
 3. Provide multiple story variants (Default, Loading, Error, etc.)
@@ -389,11 +421,13 @@ export const StoryName: Story = {
 5. Use appropriate layout parameters
 
 ### Story Organization
+
 - Design System: `Design System/Category/Component`
 - Components: `Components/Category/Component`
 - Pages: `Pages/PageName`
 
 ### Best Practices
+
 1. **Descriptive Titles**: Use clear, descriptive story titles
 2. **Comprehensive Props**: Document all component props with controls
 3. **Multiple Variants**: Show different states and configurations
@@ -402,6 +436,7 @@ export const StoryName: Story = {
 6. **Performance**: Include performance considerations where relevant
 
 ### Documentation Standards
+
 - Component purpose and usage
 - Props documentation with types and defaults
 - Variants and states explanation
@@ -438,4 +473,4 @@ frontend/src/
 
 ---
 
-*This documentation covers 158 story files across the entire application, providing a comprehensive reference for all components and their configurations.*
+_This documentation covers 154 story files across the entire application, providing a comprehensive reference for all components and their configurations._

@@ -41,7 +41,7 @@ export function useDesignTokens() {
    * @returns The spacing value
    */
   const getSpacing = (size: keyof typeof tokens.spacing): string => {
-    return tokens.spacing[size].value;
+    return tokens.spacing[size] as string;
   };
 
   /**
@@ -50,7 +50,7 @@ export function useDesignTokens() {
    * @returns The border radius value
    */
   const getBorderRadius = (size: keyof typeof tokens.borderRadius): string => {
-    return tokens.borderRadius[size].value;
+    return tokens.borderRadius[size] as string;
   };
 
   /**
@@ -80,7 +80,7 @@ export function useDesignTokens() {
    * @returns The box shadow value
    */
   const getBoxShadow = (size: keyof typeof tokens.shadows): string => {
-    return tokens.shadows[size].value;
+    return tokens.shadows[size] as string;
   };
 
   /**
@@ -130,20 +130,20 @@ export function useDesignTokens() {
     getSpacing,
     getBorderRadius,
     getFontSize,
-      getFontWeight,
-      getBoxShadow,
-      getZIndex,
+    getFontWeight,
+    getBoxShadow,
+    getZIndex,
     getComponentToken,
 
     // Quick access to common values
-      spacing: tokens.spacing,
-      borderRadius: tokens.borderRadius,
-      fontSize: tokens.typography.fontSize as any,
-      fontWeight: {} as any,
-      boxShadow: tokens.shadows,
-      zIndex: tokens.zIndex as any,
-    };
-  }
+    spacing: tokens.spacing,
+    borderRadius: tokens.borderRadius,
+    fontSize: tokens.typography.fontSize as any,
+    fontWeight: {} as any,
+    boxShadow: tokens.shadows,
+    zIndex: tokens.zIndex as any,
+  };
+}
 
 /**
  * Type-safe design token selectors

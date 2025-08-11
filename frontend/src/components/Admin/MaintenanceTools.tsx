@@ -44,6 +44,7 @@ import {
   TableRow,
 } from '@/design-system/components/Table';
 import { Textarea } from '@/design-system/components/Textarea';
+import { tokens } from '@/design-system/tokens';
 import { toast } from 'sonner';
 import * as AdminApi from '@/services/admin';
 
@@ -316,9 +317,10 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
 
   const getRiskColor = (risk: MaintenanceOperation['risk']) => {
     switch (risk) {
-      case 'low': return 'text-green-600 bg-green-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
-      case 'high': return 'text-red-600 bg-red-50';
+      case 'low': return 'text-success bg-success/10';
+      case 'medium': return 'text-warning bg-warning/10';
+      case 'high': return 'text-destructive bg-destructive/10';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
@@ -455,9 +457,9 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         {entry.result.success ? (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <CheckCircle className="h-4 w-4 text-success" />
                         ) : (
-                          <XCircle className="h-4 w-4 text-red-600" />
+                          <XCircle className="h-4 w-4 text-destructive" />
                         )}
                         <span className="text-sm">{entry.result.message}</span>
                       </div>
@@ -509,7 +511,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
 
             {/* Dry Run Result */}
             {dryRunResult && (
-              <Alert className={dryRunResult.success ? 'border-green-200' : 'border-red-200'}>
+              <Alert className={dryRunResult.success ? 'border-success' : 'border-destructive'}>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
                   <div className="space-y-2">
