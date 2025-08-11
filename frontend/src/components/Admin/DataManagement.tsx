@@ -7,7 +7,6 @@ import {
   Download,
   Upload,
   Archive,
-  AlertCircle,
   CheckCircle,
   BarChart3,
   HardDrive,
@@ -233,13 +232,9 @@ const DataManagement: React.FC = () => {
   const getTableStatusBadge = (status: string) => {
     switch (status) {
       case 'healthy':
-        return (
-          <Badge variant="default" className="bg-green-100 text-green-800">
-            Healthy
-          </Badge>
-        );
+        return <Badge variant="success">Healthy</Badge>;
       case 'warning':
-        return <Badge variant="secondary">Warning</Badge>;
+        return <Badge variant="warning">Warning</Badge>;
       case 'error':
         return <Badge variant="destructive">Error</Badge>;
       default:
@@ -408,10 +403,10 @@ const DataManagement: React.FC = () => {
                 <>
                   <div
                     className={`text-2xl font-bold ${score >= 80
-                      ? 'text-green-600'
+                      ? 'text-success'
                       : score >= 50
-                        ? 'text-yellow-600'
-                        : 'text-red-600'
+                        ? 'text-warning'
+                        : 'text-destructive'
                       }`}
                   >
                     {total === 0 && !dbHealthy ? 'N/A' : `${score}%`}
@@ -463,7 +458,7 @@ const DataManagement: React.FC = () => {
                         {formatNumber(tableData.reduce((sum, t) => sum + t.rows, 0))}
                       </p>
                     </div>
-                    <FileText className="h-8 w-8 text-green-500" />
+                    <FileText className="h-8 w-8 text-success" />
                   </div>
                 </CardContent>
               </Card>
@@ -487,11 +482,11 @@ const DataManagement: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Healthy Tables</p>
-                      <p className="text-2xl font-bold text-green-600">
+                      <p className="text-2xl font-bold text-success">
                         {tableData.filter(t => t.integrity_status === 'healthy').length}
                       </p>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-green-500" />
+                    <CheckCircle className="h-8 w-8 text-success" />
                   </div>
                 </CardContent>
               </Card>
@@ -617,7 +612,7 @@ const DataManagement: React.FC = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">
+                    <div className="text-2xl font-bold text-warning">
                       {cleanupPreview?.orphaned_files || '0'}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -625,7 +620,7 @@ const DataManagement: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">
+                    <div className="text-2xl font-bold text-destructive">
                       {cleanupPreview?.failed_files || '0'}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -644,16 +639,14 @@ const DataManagement: React.FC = () => {
                     Preview Cleanup
                   </Button>
 
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
+                  <Alert variant="warning">
                     <AlertDescription className="text-xs">
                       Cleanup will permanently remove files that cannot be
                       recovered. Always preview before executing.
                     </AlertDescription>
                   </Alert>
 
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
+                  <Alert variant="info">
                     <AlertDescription className="text-xs">
                       File cleanup checks for orphaned files in the uploads directory.
                       Zero values indicate no orphaned files were found.
@@ -717,8 +710,7 @@ const DataManagement: React.FC = () => {
                   </Button>
                 </div>
 
-                <Alert>
-                  <CheckCircle className="h-4 w-4" />
+                <Alert variant="success">
                   <AlertDescription className="text-xs">
                     Database cleanup removes stale records and optimizes
                     queries. Safe to run regularly.
@@ -760,7 +752,7 @@ const DataManagement: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-2xl font-bold text-success">
                       {tableData.filter(t => t.integrity_status === 'healthy').length}
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -768,7 +760,7 @@ const DataManagement: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">
+                    <div className="text-2xl font-bold text-warning">
                       {tableData.filter(t => t.integrity_status === 'warning').length}
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -776,7 +768,7 @@ const DataManagement: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">
+                    <div className="text-2xl font-bold text-destructive">
                       {tableData.filter(t => t.integrity_status === 'error').length}
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -824,7 +816,7 @@ const DataManagement: React.FC = () => {
                       Avg Query Time
                     </div>
                     {databaseHealth?.performance_metrics?.note && (
-                      <div className="text-xs text-yellow-600 mt-1">
+                      <div className="text-xs text-warning mt-1">
                         {databaseHealth.performance_metrics.note}
                       </div>
                     )}
@@ -955,7 +947,7 @@ const DataManagement: React.FC = () => {
                       <p>Active Queries: {databaseHealth?.performance_metrics?.active_queries || 0}</p>
                     </div>
                     {performanceData[0]?.note && (
-                      <p className="text-xs text-yellow-600 mt-2">
+                      <p className="text-xs text-warning mt-2">
                         Consider enabling pg_stat_statements extension for detailed query analysis
                       </p>
                     )}
@@ -1105,11 +1097,11 @@ const DataManagement: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="text-center p-4 bg-success/10 rounded-lg">
+                      <div className="text-2xl font-bold text-success">
                         {formatNumber(tableData.reduce((sum, t) => sum + t.rows, 0))}
                       </div>
-                      <div className="text-sm text-green-700">Total Records</div>
+                      <div className="text-sm text-success/80">Total Records</div>
                     </div>
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
                       <div className="text-2xl font-bold text-blue-600">
@@ -1164,21 +1156,21 @@ const DataManagement: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-success/10 rounded-lg">
                     <span className="text-sm font-medium">Healthy Tables</span>
-                    <Badge variant="default">
+                    <Badge variant="success">
                       {tableData.filter(t => t.integrity_status === 'healthy').length}
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-warning/10 rounded-lg">
                     <span className="text-sm font-medium">Warning Tables</span>
-                    <Badge variant="secondary">
+                    <Badge variant="warning">
                       {tableData.filter(t => t.integrity_status === 'warning').length}
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-destructive/10 rounded-lg">
                     <span className="text-sm font-medium">Error Tables</span>
                     <Badge variant="destructive">
                       {tableData.filter(t => t.integrity_status === 'error').length}
@@ -1427,7 +1419,7 @@ const DataManagement: React.FC = () => {
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-600">
+                  <div className="text-2xl font-bold text-warning">
                     {cleanupPreview.orphaned_files}
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -1435,7 +1427,7 @@ const DataManagement: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">
+                  <div className="text-2xl font-bold text-destructive">
                     {cleanupPreview.failed_files}
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -1459,8 +1451,7 @@ const DataManagement: React.FC = () => {
                 </div>
               </div>
 
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
+              <Alert variant="destructive">
                 <AlertDescription>
                   This operation cannot be undone. Files will be permanently
                   deleted.
@@ -1479,7 +1470,7 @@ const DataManagement: React.FC = () => {
             <Button
               onClick={executeCleanup}
               disabled={cleanupInProgress}
-              className="bg-red-600 hover:bg-red-700"
+              variant="destructive"
             >
               {cleanupInProgress && (
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />

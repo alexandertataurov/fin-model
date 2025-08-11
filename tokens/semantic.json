@@ -2,6 +2,9 @@
   "colors": {
     "surface": { "value": "{colors.background.value}" },
     "onSurface": { "value": "{colors.foreground.value}" },
-    "danger": { "value": "{colors.destructive.500.value}" }
+    "danger": { "value": "{colors.destructive.500.value}" },
+    "success": { "value": "{colors.success.500.value}" },
+    "warning": { "value": "{colors.warning.500.value}" },
+    "info": { "value": "{colors.info.500.value}" }
   }
 }
