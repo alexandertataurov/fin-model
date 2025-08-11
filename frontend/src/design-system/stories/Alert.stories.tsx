@@ -5,9 +5,14 @@ const meta: Meta<typeof Alert> = {
   title: 'Design System/Alert',
   component: Alert,
   parameters: {
-    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'centered'
+    docs: {
+      description: {
+        component:
+          'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.',
+      },
+    },
+    layout: 'centered',
   },
-},
   tags: ['autodocs'],
   argTypes: {
     variant: {

@@ -5,7 +5,13 @@ const meta: Meta<typeof Tabs> = {
   title: 'Design System/Tabs',
   component: Tabs,
   parameters: {
-    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'padded' },
+    docs: {
+      description: {
+        component:
+          'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.',
+      },
+    },
+    layout: 'padded',
   },
   tags: ['autodocs'],
   argTypes: {

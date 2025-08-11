@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../components/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
@@ -7,9 +8,14 @@ const meta: Meta = {
   component: React.Fragment,
   tags: ['autodocs'],
   parameters: {
-    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'padded'
+    docs: {
+      description: {
+        component:
+          'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.',
+      },
+    },
+    layout: 'padded',
   },
-},
   argTypes: {
     theme: {
       control: { type: 'select' },

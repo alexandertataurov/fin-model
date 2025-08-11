@@ -110,8 +110,10 @@ async def get_table_information(
         # Get basic info for each table
         for table_name in table_names:
             try:
-                # Get row count with transaction isolation
-                db.rollback()  # Reset any failed transaction
+                # Reset any failed transaction and start fresh
+                db.rollback()
+                db.commit()  # Ensure we're in a clean state
+
                 count_sql = f'SELECT COUNT(*) FROM "{table_name}"'
                 count_result = db.execute(text(count_sql)).fetchone()
                 row_count = count_result[0] if count_result else 0
@@ -147,7 +149,8 @@ async def get_table_information(
                 # Reset transaction and add basic entry for failed table
                 try:
                     db.rollback()
-                except:
+                    db.commit()  # Ensure clean state
+                except Exception:
                     pass
 
                 table_data[table_name] = {
@@ -160,10 +163,11 @@ async def get_table_information(
                     "size_pretty": "0.1 MB",
                     "last_updated": datetime.now(timezone.utc).isoformat(),
                     "integrity_status": "error",
+                    "error_message": str(e)[:100],  # Truncate error message
                 }
 
-        # Add total records
-        table_data["_total_records"] = total_records
+        # Add total records as a dictionary
+        table_data["_total_records"] = {"count": total_records}
 
         return table_data
 

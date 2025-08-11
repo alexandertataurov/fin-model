@@ -11,7 +11,13 @@ const meta: Meta<typeof Tooltip> = {
   title: 'Design System/Tooltip',
   component: Tooltip,
   parameters: {
-    docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'centered' },
+    docs: {
+      description: {
+        component:
+          'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.',
+      },
+    },
+    layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {

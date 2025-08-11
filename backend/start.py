@@ -425,6 +425,7 @@ def fix_database_schema():
             # Reset any aborted transactions first
             try:
                 conn.execute(text("ROLLBACK"))
+                conn.execute(text("COMMIT"))
                 print("✅ Reset any aborted transactions")
             except Exception:
                 pass  # Ignore if no transaction to rollback
@@ -504,6 +505,7 @@ def fix_database_schema():
                     ("uploaded_files", "is_valid", "BOOLEAN DEFAULT TRUE"),
                     ("uploaded_files", "validation_errors", "TEXT"),
                     ("uploaded_files", "parsed_data", "JSON"),
+                    ("uploaded_files", "upload_date", "TIMESTAMP DEFAULT NOW()"),
                 ]
 
                 for table, column, column_type in missing_columns:

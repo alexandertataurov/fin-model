@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import FormStatusAlert from './FormStatusAlert';
 
 const meta: Meta<typeof FormStatusAlert> = {
