@@ -4,7 +4,7 @@
  * Modern admin dashboard with unified design and comprehensive functionality
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card,
     CardContent,
@@ -556,6 +556,263 @@ const HealthTab: React.FC = () => {
     );
 };
 
+// System Tab Component
+const SystemTab: React.FC = () => {
+    const { systemMetrics, dataIntegrity, fetchSystemData } = useAdminStore();
+
+    return (
+        <div className="space-y-6">
+            {/* System Performance */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="flex items-center">
+                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <Cpu className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">System Performance</h3>
+                                <p className="text-sm text-muted-foreground">Real-time performance metrics</p>
+                            </div>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">CPU Usage</span>
+                                <span className="text-sm font-semibold">
+                                    {formatPercentage(systemMetrics.data?.cpu_usage)}
+                                </span>
+                            </div>
+                            <Progress value={systemMetrics.data?.cpu_usage || 0} className="h-2" />
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">Memory Usage</span>
+                                <span className="text-sm font-semibold">
+                                    {formatPercentage(systemMetrics.data?.memory_usage)}
+                                </span>
+                            </div>
+                            <Progress value={systemMetrics.data?.memory_usage || 0} className="h-2" />
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">Disk Usage</span>
+                                <span className="text-sm font-semibold">
+                                    {formatPercentage(systemMetrics.data?.disk_usage)}
+                                </span>
+                            </div>
+                            <Progress value={systemMetrics.data?.disk_usage || 0} className="h-2" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="flex items-center">
+                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <Database className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold">Data Integrity</h3>
+                                <p className="text-sm text-muted-foreground">Database health and integrity checks</p>
+                            </div>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {dataIntegrity.data && dataIntegrity.data.length > 0 ? (
+                            <div className="space-y-3">
+                                {dataIntegrity.data.slice(0, 5).map((check, index) => (
+                                    <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-3 h-3 rounded-full ${check.status === 'healthy' ? 'bg-green-500' : 'bg-red-500'}`} />
+                                            <span className="text-sm font-medium">{check.table_name}</span>
+                                        </div>
+                                        <Badge variant={check.status === 'healthy' ? 'default' : 'destructive'}>
+                                            {check.status}
+                                        </Badge>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <div className="w-12 h-12 mx-auto bg-muted rounded-full flex items-center justify-center mb-3">
+                                    <Database className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                                <p className="text-sm text-muted-foreground">No integrity data available</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* System Information */}
+            <Card>
+                <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                            <Server className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold">System Information</h3>
+                            <p className="text-sm text-muted-foreground">System configuration and details</p>
+                        </div>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <span className="text-sm font-medium">Uptime</span>
+                                <span className="text-sm text-muted-foreground">
+                                    {systemMetrics.data?.uptime || 'N/A'}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <span className="text-sm font-medium">Version</span>
+                                <span className="text-sm text-muted-foreground">v1.0.0</span>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <span className="text-sm font-medium">Environment</span>
+                                <span className="text-sm text-muted-foreground">Production</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <span className="text-sm font-medium">Last Restart</span>
+                                <span className="text-sm text-muted-foreground">
+                                    {new Date().toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <span className="text-sm font-medium">Active Users</span>
+                                <span className="text-sm text-muted-foreground">
+                                    {formatNumber(systemMetrics.data?.active_users)}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <span className="text-sm font-medium">Total Requests</span>
+                                <span className="text-sm text-muted-foreground">
+                                    {formatNumber(systemMetrics.data?.request_count_24h)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+};
+
+// Audit Tab Component
+const AuditTab: React.FC = () => {
+    const { audit, securityAudit, fetchAuditData } = useAdminStore();
+
+    return (
+        <div className="space-y-6">
+            {/* Security Audit */}
+            <Card>
+                <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center">
+                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                            <Shield className="h-5 w-5 text-red-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold">Security Audit</h3>
+                            <p className="text-sm text-muted-foreground">Security events and compliance monitoring</p>
+                        </div>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {securityAudit.data && securityAudit.data.length > 0 ? (
+                        <div className="space-y-4">
+                            {securityAudit.data.slice(0, 10).map((event, index) => (
+                                <div key={index} className="flex items-center justify-between p-4 rounded-lg border border-gray-200">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-3 h-3 rounded-full ${event.severity === 'high' ? 'bg-red-500' : event.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                                        <div>
+                                            <p className="font-medium text-gray-900">{event.event_type}</p>
+                                            <p className="text-sm text-muted-foreground">{event.description}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <Badge variant={event.severity === 'high' ? 'destructive' : event.severity === 'medium' ? 'secondary' : 'default'}>
+                                            {event.severity}
+                                        </Badge>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {new Date(event.timestamp).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
+                                <Shield className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">No Security Events</h3>
+                            <p className="text-muted-foreground">No security events have been detected recently.</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Audit Logs */}
+            <Card>
+                <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center">
+                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                            <FileText className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold">Audit Logs</h3>
+                            <p className="text-sm text-muted-foreground">User actions and system changes</p>
+                        </div>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {audit.data && audit.data.length > 0 ? (
+                        <div className="space-y-4">
+                            {audit.data.slice(0, 10).map((log, index) => (
+                                <div key={index} className="flex items-center justify-between p-4 rounded-lg border border-gray-200">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <span className="text-sm font-medium text-blue-700">
+                                                {log.user_name?.charAt(0).toUpperCase() || 'U'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-900">{log.action}</p>
+                                            <p className="text-sm text-muted-foreground">{log.resource}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <Badge variant={log.success ? 'default' : 'destructive'}>
+                                            {log.success ? 'Success' : 'Failed'}
+                                        </Badge>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {new Date(log.timestamp).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
+                                <FileText className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">No Audit Logs</h3>
+                            <p className="text-muted-foreground">No audit logs are available at the moment.</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    );
+};
+
 // Logs Tab Component
 const LogsTab: React.FC = () => {
     const { logs, handleFilterChange, handlePrev, handleNext, handleRefresh } = useLogFilters();
@@ -642,6 +899,27 @@ const LogsTab: React.FC = () => {
 // Main Admin Dashboard Component
 export const AdminDashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState('overview');
+    const { fetchOverviewData, fetchSystemData, fetchAuditData, fetchHealthData } = useAdminStore();
+
+    // Fetch data when tab changes
+    useEffect(() => {
+        switch (activeTab) {
+            case 'overview':
+                fetchOverviewData();
+                break;
+            case 'system':
+                fetchSystemData();
+                break;
+            case 'audit':
+                fetchAuditData();
+                break;
+            case 'health':
+                fetchHealthData();
+                break;
+            default:
+                fetchOverviewData();
+        }
+    }, [activeTab, fetchOverviewData, fetchSystemData, fetchAuditData, fetchHealthData]);
 
     return (
         <AdminSectionErrorBoundary
@@ -680,13 +958,27 @@ export const AdminDashboard: React.FC = () => {
 
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50 p-1 rounded-lg">
+                    <TabsList className="grid w-full grid-cols-5 h-12 bg-muted/50 p-1 rounded-lg">
                         <TabsTrigger
                             value="overview"
                             className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
                         >
                             <Activity className="h-4 w-4" />
                             Overview
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="system"
+                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                        >
+                            <Server className="h-4 w-4" />
+                            System
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="audit"
+                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+                        >
+                            <Shield className="h-4 w-4" />
+                            Audit
                         </TabsTrigger>
                         <TabsTrigger
                             value="health"
@@ -706,6 +998,14 @@ export const AdminDashboard: React.FC = () => {
 
                     <TabsContent value="overview" className="space-y-6">
                         <OverviewTab />
+                    </TabsContent>
+
+                    <TabsContent value="system" className="space-y-6">
+                        <SystemTab />
+                    </TabsContent>
+
+                    <TabsContent value="audit" className="space-y-6">
+                        <AuditTab />
                     </TabsContent>
 
                     <TabsContent value="health" className="space-y-6">
