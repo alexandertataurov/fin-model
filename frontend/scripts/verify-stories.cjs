@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const { globby } = require('globby');
+const path = require('path');
 
 (async () => {
   const componentGlobs = [
@@ -10,7 +11,10 @@ const { globby } = require('globby');
   const storyGlobs = ['src/**/*.{stories.tsx,stories.ts,stories.mdx}'];
 
   const allComponents = (await globby(componentGlobs)).filter(
-    p => !p.endsWith('.stories.tsx') && !p.endsWith('.stories.ts') && !p.endsWith('.stories.mdx')
+    p =>
+      !p.endsWith('.stories.tsx') &&
+      !p.endsWith('.stories.ts') &&
+      !p.endsWith('.stories.mdx')
   );
   const ignore = [
     /\/index\.(tsx|ts)$/,
@@ -49,9 +53,10 @@ const { globby } = require('globby');
   }
 
   if (missing.length) {
-    console.error(`Missing stories for ${missing.length} files:`);
-    for (const m of missing) console.error(` - ${m}`);
+    console.log(`Missing stories for ${missing.length} files:`);
+    missing.forEach(c => console.log(` - ${c}`));
     process.exit(1);
+  } else {
+    console.log('✅ All components have stories!');
   }
-  console.log('All components have stories.');
 })();
