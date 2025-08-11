@@ -7,7 +7,7 @@
 import React from 'react';
 import { AdminDashboard } from '@/components/Admin/AdminDashboard';
 import { AdminGuard } from '@/components/auth/AdminGuard';
-import { PageHeader } from '@/components/layout/PageHeader';
+import { PageHeader } from '@/components/Layout/PageHeader';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@/design-system/components/Breadcrumb';
 import { Shield, Settings, Activity } from 'lucide-react';
 

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { UserManagement } from './UserManagement';
+import UserManagement from './UserManagement';
 
 const meta: Meta<typeof UserManagement> = {
   title: 'Admin/UserManagement',
