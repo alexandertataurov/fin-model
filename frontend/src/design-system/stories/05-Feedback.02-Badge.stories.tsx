@@ -4,7 +4,7 @@ import { Badge } from '../components/Badge';
 import { CheckCircle, AlertCircle, Clock, XCircle } from 'lucide-react';
 
 const meta: Meta<typeof Badge> = {
-  title: 'Design System/Badge',
+  title: 'Design System/5 - Feedback/Badge',
   component: Badge,
   parameters: {
     layout: 'centered',

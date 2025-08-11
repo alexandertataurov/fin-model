@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/Tabs';
 
 const meta: Meta<typeof Tabs> = {
-  title: 'Design System/Tabs',
+  title: 'Design System/6 - Data/Tabs',
   component: Tabs,
   parameters: {
     docs: {

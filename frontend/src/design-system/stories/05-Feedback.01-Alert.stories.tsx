@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Alert, AlertTitle, AlertDescription } from '../components/Alert';
 
 const meta: Meta<typeof Alert> = {
-  title: 'Design System/Alert',
+  title: 'Design System/5 - Feedback/Alert',
   component: Alert,
   parameters: {
     docs: {

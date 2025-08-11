@@ -12,7 +12,7 @@ import {
 import { Button } from '../components/Button';
 
 const meta = {
-  title: 'Design System/Drawer',
+  title: 'Design System/7 - Overlay/Drawer',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };

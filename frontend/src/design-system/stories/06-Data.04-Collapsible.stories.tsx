@@ -7,7 +7,7 @@ import {
 import { Button } from '../components/Button';
 
 const meta = {
-  title: 'Design System/Collapsible',
+  title: 'Design System/6 - Data/Collapsible',
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 };

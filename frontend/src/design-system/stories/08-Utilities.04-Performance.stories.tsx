@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Badge } from '../components/Badge';
 
 const meta: Meta = {
-    title: 'Design System/Performance/Performance Monitor',
+    title: 'Design System/11 - Performance/Performance Monitor',
     component: React.Fragment,
     tags: ['autodocs'],
     argTypes: {

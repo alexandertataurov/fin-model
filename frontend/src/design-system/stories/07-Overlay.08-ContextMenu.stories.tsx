@@ -10,7 +10,7 @@ import {
 } from '../components/ContextMenu';
 
 const meta: Meta<typeof ContextMenu> = {
-  title: 'Design System/ContextMenu',
+  title: 'Design System/7 - Overlay/ContextMenu',
   component: ContextMenu,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

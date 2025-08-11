@@ -11,7 +11,7 @@ import {
 } from '../components/Toast';
 
 const meta: Meta<typeof Toast> = {
-  title: 'Design System/Toast',
+  title: 'Design System/5 - Feedback/Toast',
   component: Toast,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

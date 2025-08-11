@@ -11,7 +11,7 @@ import {
 import { Button } from '../components/Button';
 
 const meta: Meta<typeof Sheet> = {
-  title: 'Design System/Sheet',
+  title: 'Design System/7 - Overlay/Sheet',
   component: Sheet,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

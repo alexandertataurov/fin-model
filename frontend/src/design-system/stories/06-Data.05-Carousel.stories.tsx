@@ -8,7 +8,7 @@ import {
 } from '../components/Carousel';
 
 const meta = {
-  title: 'Design System/Carousel',
+  title: 'Design System/6 - Data/Carousel',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };

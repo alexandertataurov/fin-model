@@ -9,7 +9,7 @@ import {
 import { Button } from '../components/Button';
 
 const meta: Meta<typeof Tooltip> = {
-  title: 'Design System/Tooltip',
+  title: 'Design System/5 - Feedback/Tooltip',
   component: Tooltip,
   parameters: {
     docs: {

@@ -8,7 +8,7 @@ import {
 } from '../components/Accordion';
 
 const meta: Meta<typeof Accordion> = {
-  title: 'Design System/Accordion',
+  title: 'Design System/6 - Data/Accordion',
   component: Accordion,
   parameters: {
     docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'padded'

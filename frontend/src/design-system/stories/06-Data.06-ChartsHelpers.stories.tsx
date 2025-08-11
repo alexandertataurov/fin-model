@@ -7,7 +7,7 @@ import {
 } from '../components/Chart';
 
 const meta = {
-  title: 'Design System/Charts/Helpers',
+  title: 'Design System/6 - Data/Charts',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };

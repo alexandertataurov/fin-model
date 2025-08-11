@@ -12,7 +12,7 @@ import { Badge } from '../components/Badge';
  */
 
 const meta: Meta<typeof Card> = {
-    title: 'Design System/Templates/ComponentTemplate',
+    title: 'Design System/9 - Templates/ComponentTemplate',
     component: Card,
     tags: ['autodocs', 'template'],
     parameters: {

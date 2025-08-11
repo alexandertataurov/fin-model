@@ -13,7 +13,7 @@ import {
 } from '../components/Command';
 
 const meta: Meta<typeof Command> = {
-  title: 'Design System/Command',
+  title: 'Design System/7 - Overlay/Command',
   component: Command,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

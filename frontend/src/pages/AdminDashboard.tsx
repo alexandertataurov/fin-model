@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { AdminDashboard } from '@/components/Admin/AdminDashboard';
+import { AdminDashboard } from '@/components/AdminDashboard/AdminDashboard';
 import { AdminGuard } from '@/components/auth/AuthGuard';
 import { PageHeader } from '@/components/Layout/PageHeader';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@/design-system/components/Breadcrumb';

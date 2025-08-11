@@ -2,7 +2,7 @@ import React from 'react';
 import { ImageWithFallback } from '../components/ImageWithFallback';
 
 const meta = {
-  title: 'Design System/ImageWithFallback',
+  title: 'Design System/8 - Utilities/ImageWithFallback',
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
 };

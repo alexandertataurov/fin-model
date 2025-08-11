@@ -4,7 +4,7 @@ import { Progress } from '../components/Progress';
 import { Button } from '../components/Button';
 
 const meta: Meta<typeof Progress> = {
-  title: 'Design System/Progress',
+  title: 'Design System/5 - Feedback/Progress',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
   component: Progress,

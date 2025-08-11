@@ -11,7 +11,7 @@ import {
 } from '../components/Table';
 
 const meta: Meta<typeof Table> = {
-  title: 'Design System/Table',
+  title: 'Design System/6 - Data/Table',
   component: Table,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

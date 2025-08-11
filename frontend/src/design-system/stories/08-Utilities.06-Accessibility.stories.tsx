@@ -5,7 +5,7 @@ import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 
 const meta: Meta<typeof Card> = {
-    title: 'Design System/Accessibility/Accessibility Testing',
+    title: 'Design System/12 - Accessibility/Accessibility Testing',
     component: Card,
     parameters: {
         layout: 'padded',

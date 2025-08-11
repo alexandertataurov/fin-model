@@ -4,7 +4,7 @@ import { DesignSystemProvider, useDesignSystem } from '../provider';
 import { Button } from '../components/Button';
 
 const meta: Meta<typeof DesignSystemProvider> = {
-  title: 'Design System/Providers',
+  title: 'Design System/10 - Providers',
   component: DesignSystemProvider,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

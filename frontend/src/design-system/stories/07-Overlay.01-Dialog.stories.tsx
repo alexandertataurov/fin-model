@@ -11,7 +11,7 @@ import {
 import { Button } from '../components/Button';
 
 const meta: Meta<typeof Dialog> = {
-  title: 'Design System/Dialog',
+  title: 'Design System/7 - Overlay/Dialog',
   component: Dialog,
   parameters: {
     docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'centered' },

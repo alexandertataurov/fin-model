@@ -11,7 +11,7 @@ import {
 import { Button } from '../components/Button';
 
 const meta: Meta<typeof DropdownMenu> = {
-  title: 'Design System/DropdownMenu',
+  title: 'Design System/7 - Overlay/DropdownMenu',
   component: DropdownMenu,
   parameters: {
     docs: { description: { component: 'Usage: Refer to guidelines. Accessibility: Keyboard and screen reader supported.' } }, layout: 'centered'

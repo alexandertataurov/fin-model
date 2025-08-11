@@ -5,7 +5,7 @@ import { Button } from '../components/Button';
 import { toast } from 'sonner';
 
 const meta: Meta<typeof Toaster> = {
-  title: 'Design System/Toaster (Sonner)',
+  title: 'Design System/5 - Feedback/Toaster (Sonner)',
   component: Toaster,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

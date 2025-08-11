@@ -7,7 +7,7 @@ import {
 } from '../components/HoverCard';
 
 const meta: Meta<typeof HoverCard> = {
-  title: 'Design System/HoverCard',
+  title: 'Design System/7 - Overlay/HoverCard',
   component: HoverCard,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

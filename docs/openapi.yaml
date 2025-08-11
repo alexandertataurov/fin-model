@@ -1,0 +1,636 @@
+openapi: 3.1.0
+info:
+  title: FinVision API
+  description: Financial modeling and analysis platform API
+  version: 1.0.0
+  contact:
+    name: FinVision Support
+    email: support@finvision.com
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://fin-model-production.up.railway.app
+    description: Production server
+
+tags:
+  - name: authentication
+    description: User authentication and authorization
+  - name: dashboard
+    description: Dashboard metrics and analytics
+  - name: files
+    description: File upload and management
+  - name: parameters
+    description: Financial parameters and variables
+  - name: scenarios
+    description: Financial scenario modeling
+  - name: statements
+    description: Financial statements generation
+  - name: notifications
+    description: User notifications
+  - name: tasks
+    description: Task management
+  - name: lean-financial
+    description: Lean financial metrics
+  - name: administration
+    description: Administrative functions
+
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      responses:
+        "200":
+          description: API information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "FinVision API"
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: API health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/v1/status:
+    get:
+      summary: API status
+      tags:
+        - core
+      responses:
+        "200":
+          description: API operational status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "operational"
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  /api/v1/auth/login:
+    post:
+      summary: User login
+      tags:
+        - authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        "200":
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                    example: "bearer"
+                  expires_in:
+                    type: integer
+                    example: 1800
+                  user:
+                    $ref: "#/components/schemas/User"
+
+  /api/v1/auth/register:
+    post:
+      summary: User registration
+      tags:
+        - authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - first_name
+                - last_name
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /api/v1/dashboard/metrics:
+    get:
+      summary: Get dashboard metrics
+      tags:
+        - dashboard
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Dashboard metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_files:
+                    type: integer
+                    example: 25
+                  completed_files:
+                    type: integer
+                    example: 20
+                  processing_files:
+                    type: integer
+                    example: 3
+                  total_parameters:
+                    type: integer
+                    example: 150
+
+  /api/v1/files/upload:
+    post:
+      summary: Upload file
+      tags:
+        - files
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+                tags:
+                  type: string
+      responses:
+        "201":
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+
+  /api/v1/files/:
+    get:
+      summary: Get user files
+      tags:
+        - files
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/File"
+                  total:
+                    type: integer
+
+  /api/v1/parameters/:
+    get:
+      summary: Get parameters
+      tags:
+        - parameters
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of parameters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Parameter"
+
+    post:
+      summary: Create parameter
+      tags:
+        - parameters
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - value
+                - category
+              properties:
+                name:
+                  type: string
+                value:
+                  type: number
+                category:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Parameter created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Parameter"
+
+  /api/v1/scenarios/:
+    get:
+      summary: Get scenarios
+      tags:
+        - scenarios
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of scenarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Scenario"
+
+    post:
+      summary: Create scenario
+      tags:
+        - scenarios
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                parameters:
+                  type: object
+      responses:
+        "201":
+          description: Scenario created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scenario"
+
+  /api/v1/notifications/:
+    get:
+      summary: Get notifications
+      tags:
+        - notifications
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /api/v1/tasks/:
+    get:
+      summary: Get tasks
+      tags:
+        - tasks
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+
+    post:
+      summary: Create task
+      tags:
+        - tasks
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                priority:
+                  type: string
+                  enum: [low, medium, high, urgent]
+                due_date:
+                  type: string
+                  format: date
+      responses:
+        "201":
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /api/v1/lean-financial/metrics:
+    get:
+      summary: Get lean metrics
+      tags:
+        - lean-financial
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Lean metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeanMetrics"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        first_name:
+          type: string
+          example: "John"
+        last_name:
+          type: string
+          example: "Doe"
+        is_active:
+          type: boolean
+          example: true
+        is_verified:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    File:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        filename:
+          type: string
+          example: "financial_data.xlsx"
+        original_filename:
+          type: string
+          example: "financial_data.xlsx"
+        file_size:
+          type: integer
+          example: 1024000
+        file_type:
+          type: string
+          example: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        status:
+          type: string
+          enum: [uploaded, processing, completed, failed]
+          example: "completed"
+        description:
+          type: string
+          example: "Q4 financial data"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["financial", "q4"]
+        uploaded_at:
+          type: string
+          format: date-time
+        processed_at:
+          type: string
+          format: date-time
+
+    Parameter:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Revenue Growth Rate"
+        value:
+          type: number
+          example: 0.15
+        category:
+          type: string
+          example: "financial"
+        description:
+          type: string
+          example: "Annual revenue growth rate"
+        unit:
+          type: string
+          example: "percentage"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Scenario:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Base Case Scenario"
+        description:
+          type: string
+          example: "Base case financial projections"
+        parameters:
+          type: object
+          example:
+            revenue_growth: 0.15
+            margin: 0.25
+        status:
+          type: string
+          enum: [draft, active, archived]
+          example: "active"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "File Processing Complete"
+        message:
+          type: string
+          example: "Your file has been processed successfully"
+        type:
+          type: string
+          enum: [info, success, warning, error]
+          example: "success"
+        is_read:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, completed, cancelled]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        due_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+
+    LeanMetrics:
+      type: object
+      properties:
+        revenue:
+          type: number
+          description: Total revenue
+        costs:
+          type: number
+          description: Total costs
+        gross_margin:
+          type: number
+          description: Gross margin percentage
+        inventory_turnover:
+          type: number
+          description: Inventory turnover ratio
+        cash_conversion_cycle:
+          type: number
+          description: Cash conversion cycle in days
+        working_capital:
+          type: number
+          description: Working capital

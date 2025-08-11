@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Avatar, AvatarImage, AvatarFallback } from '../components/Avatar';
 
 const meta: Meta<typeof Avatar> = {
-  title: 'Design System/Avatar',
+  title: 'Design System/6 - Data/Avatar',
   component: Avatar,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

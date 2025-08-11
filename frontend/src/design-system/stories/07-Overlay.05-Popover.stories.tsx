@@ -4,7 +4,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '../components/Popover';
 import { Button } from '../components/Button';
 
 const meta: Meta<typeof Popover> = {
-  title: 'Design System/Popover',
+  title: 'Design System/7 - Overlay/Popover',
   component: Popover,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
