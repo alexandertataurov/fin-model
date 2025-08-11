@@ -139,12 +139,17 @@ const DataManagement: React.FC = () => {
       );
 
       // setTableInfo(tables);
+      console.log('Database health:', health); // Debug log
+      console.log('Performance data:', performance); // Debug log
+
       setDatabaseHealth(health);
       setPerformanceData(performance);
       setSchedules(sched);
       setSchedulesDraft(sched);
 
       // Convert table data to TableInfo format
+      console.log('Raw tables data:', tables); // Debug log
+
       const tableDataFromTables: TableInfo[] = Object.entries(tables || {})
         .filter(([name]) => name !== '_total_records') // Exclude total records from table list
         .map(([name, data]) => ({
@@ -159,6 +164,9 @@ const DataManagement: React.FC = () => {
           updates: data.updates || 0,
           deletes: data.deletes || 0,
         }));
+
+      console.log('Processed table data:', tableDataFromTables); // Debug log
+      console.log('Total records:', tables._total_records); // Debug log
 
       setTableData(tableDataFromTables);
       setTables(tables || {}); // Store tables data for total records display
@@ -663,7 +671,11 @@ const DataManagement: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">
-                      {formatNumber(tables._total_records?.count || 0)}
+                      {formatNumber(
+                        typeof tables._total_records === 'object'
+                          ? tables._total_records?.count || 0
+                          : tables._total_records || 0
+                      )}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Total Records
@@ -721,11 +733,13 @@ const DataManagement: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {databaseHealth?.performance_metrics?.avg_query_time_ms !=
-                        null
-                        ? `${databaseHealth.performance_metrics.avg_query_time_ms} ms`
-                        : databaseHealth?.performance_metrics?.avg_query_time ||
-                        'N/A'}
+                      {(() => {
+                        const avgTime = databaseHealth?.performance_metrics?.avg_query_time_ms;
+                        if (avgTime != null && avgTime > 0) {
+                          return `${avgTime.toFixed(2)} ms`;
+                        }
+                        return 'N/A';
+                      })()}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Avg Query Time
@@ -770,14 +784,14 @@ const DataManagement: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {databaseHealth?.database_stats?.table_count ?? 'N/A'}
+                      {tableData.length || 'N/A'}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Total Tables
                     </div>
                     <Progress
                       value={(() => {
-                        const count = databaseHealth?.database_stats?.table_count;
+                        const count = tableData.length;
                         if (typeof count !== 'number') return 0;
                         return Math.min((count / 50) * 100, 100); // 50 tables threshold
                       })()}
@@ -786,14 +800,14 @@ const DataManagement: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {databaseHealth?.database_stats?.size_pretty ?? 'N/A'}
+                      {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Database Size
                     </div>
                     <Progress
                       value={(() => {
-                        const size = databaseHealth?.database_stats?.size_mb;
+                        const size = tableData.reduce((sum, t) => sum + t.size_mb, 0);
                         if (typeof size !== 'number') return 0;
                         return Math.min((size / 1000) * 100, 100); // 1GB threshold
                       })()}

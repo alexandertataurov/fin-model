@@ -9,7 +9,7 @@ const meta: Meta<typeof DashboardCustomization> = {
         layout: 'padded',
         docs: {
             description: {
-                component: 'Dashboard customization component for role-based widget management and layout configuration.',
+                component: 'Dashboard customization component for role-based widget management and layout configuration. Integrates with the consolidated Admin Dashboard for personalized user experiences.',
             },
         },
     },
@@ -43,12 +43,26 @@ export const AdminRole: Story = {
     args: {
         userRole: 'admin',
     },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Admin role customization with full access to all dashboard widgets and configuration options.',
+            },
+        },
+    },
 };
 
 export const AnalystRole: Story = {
     render: (args) => <DashboardCustomizationWrapper {...args} />,
     args: {
         userRole: 'analyst',
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Analyst role customization with access to data analysis widgets and limited administrative features.',
+            },
+        },
     },
 };
 
@@ -57,12 +71,26 @@ export const EditorRole: Story = {
     args: {
         userRole: 'editor',
     },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Editor role customization with content management widgets and basic monitoring features.',
+            },
+        },
+    },
 };
 
 export const ViewerRole: Story = {
     render: (args) => <DashboardCustomizationWrapper {...args} />,
     args: {
         userRole: 'viewer',
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Viewer role customization with read-only access to dashboard widgets and reports.',
+            },
+        },
     },
 };
 
@@ -94,5 +122,12 @@ export const WithCustomConfig: Story = {
                 requiredRole: ['admin', 'analyst', 'editor'],
             },
         ],
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Dashboard customization with pre-configured widgets showing system statistics and user activity monitoring.',
+            },
+        },
     },
 };
