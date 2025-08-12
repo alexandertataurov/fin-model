@@ -28,6 +28,18 @@ import DashboardCustomization from './DashboardCustomization';
 import DataManagement from './DataManagement';
 import type { LogEntry } from '@/services/adminApi';
 
+// Import shared design system helpers
+import {
+    applyDesignSystemSpacing,
+    applyDesignSystemRadius,
+    applyDesignSystemShadow,
+    applyDesignSystemMotion,
+    getStatusColor,
+    formatPercentage,
+    formatNumber,
+    getStatusBadge
+} from './utils/designSystemHelpers';
+
 // Import design system components
 import {
     applyTypographyStyle,
@@ -68,7 +80,6 @@ import {
 
 // Lazy load heavy components to prevent initial bundle size issues
 const LazyDataManagement = lazy(() => import('./DataManagement'));
-const LazyDashboardCustomization = lazy(() => import('./DashboardCustomization').then(module => ({ default: module.DashboardCustomization })));
 const LazyMaintenanceTools = lazy(() => import('./MaintenanceTools').then(module => ({ default: module.MaintenanceTools })));
 const LazyUserManagement = lazy(() => import('./UserManagement'));
 const LazySystemMonitoring = lazy(() => import('./SystemMonitoring'));
@@ -82,10 +93,10 @@ const STYLES = {
     title: applyTypographyStyle('title'),
     headline: applyTypographyStyle('headline'),
     spacing: {
-        sm: tokens.spacing[2],
-        md: tokens.spacing[4],
-        lg: tokens.spacing[6],
-        xl: tokens.spacing[8],
+        sm: applyDesignSystemSpacing(2),
+        md: applyDesignSystemSpacing(4),
+        lg: applyDesignSystemSpacing(6),
+        xl: applyDesignSystemSpacing(8),
     },
     colors: {
         success: tokens.colors.success,
@@ -94,38 +105,24 @@ const STYLES = {
         muted: tokens.colors.muted[400],
     },
     motion: {
-        duration: tokens.motion.duration.normal,
-        easing: tokens.motion.easing.smooth,
+        duration: applyDesignSystemMotion('duration', 'normal'),
+        easing: applyDesignSystemMotion('easing', 'smooth'),
     },
     borderRadius: {
-        lg: tokens.borderRadius.lg,
-        xl: tokens.borderRadius.xl,
+        lg: applyDesignSystemRadius('lg'),
+        xl: applyDesignSystemRadius('xl'),
     },
     shadows: {
-        sm: tokens.shadows.sm,
-        md: tokens.shadows.md,
+        sm: applyDesignSystemShadow('sm'),
+        md: applyDesignSystemShadow('md'),
     },
 } as const;
 
 // Memoized helper functions
-const formatPercentage = (value: number | null | undefined): string => {
-    if (value === null || value === undefined || Number.isNaN(value)) {
-        return 'N/A';
-    }
-    return `${value.toFixed(1)}%`;
-};
-
-const formatNumber = (num: number | null | undefined): string => {
-    if (num === null || num === undefined || Number.isNaN(num as number)) {
-        return '0';
-    }
-    return (num as number).toLocaleString();
-};
-
-const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
-    if (!isActive) return <Badge variant="destructive">Inactive</Badge>;
-    if (!isVerified) return <Badge variant="secondary">Unverified</Badge>;
-    return <Badge variant="default">Active</Badge>;
+const getStatusBadgeComponent = (isActive: boolean, isVerified: boolean) => {
+    const variant = getStatusBadge(isActive, isVerified);
+    const label = !isActive ? 'Inactive' : !isVerified ? 'Unverified' : 'Active';
+    return <Badge variant={variant}>{label}</Badge>;
 };
 
 const getHealthIndicator = (value: number | null | undefined, thresholds: { warning: number; critical: number }) => {
@@ -148,17 +145,6 @@ const LoadingFallback = memo(() => (
 ));
 
 // Memoized icon component
-const Icon = memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
-    ({ icon: IconComponent, size = 'md', className = '' }) => {
-        const sizeClasses = useMemo(() => ({
-            sm: 'h-4 w-4',
-            md: 'h-5 w-5',
-            lg: 'h-6 w-6'
-        }), []);
-
-        return <IconComponent className={`${sizeClasses[size]} ${className}`} />;
-    }
-);
 
 // Memoized metric card component
 const SystemMetricCard = memo<{
@@ -169,8 +155,8 @@ const SystemMetricCard = memo<{
     color: string;
     healthValue?: number;
     healthThresholds?: { warning: number; critical: number };
-}>(({ title, value, subtitle, icon: IconComponent, color, healthValue, healthThresholds }) => {
-    const healthColor = useMemo(() => 
+}>(({ title, value, subtitle, color, healthValue, healthThresholds }) => {
+    const healthColor = useMemo(() =>
         healthValue && healthThresholds ? getHealthIndicator(healthValue, healthThresholds) : color,
         [healthValue, healthThresholds, color]
     );
@@ -178,9 +164,9 @@ const SystemMetricCard = memo<{
     return (
         <div className="text-center group">
             <div className="flex items-center justify-center mb-4">
-                <div 
+                <div
                     className="w-4 h-4 rounded-full mr-3 transition-all duration-200"
-                    style={{ backgroundColor: healthColor }} 
+                    style={{ backgroundColor: healthColor }}
                 />
                 <span style={STYLES.caption} className="font-medium">{title}</span>
             </div>
@@ -195,7 +181,7 @@ const SystemMetricCard = memo<{
 // Memoized system status card
 const SystemStatusCard = memo(() => {
     const { systemMetrics, fetchOverviewData } = useAdminStore();
-    
+
     const handleRefresh = useCallback(() => {
         fetchOverviewData();
     }, [fetchOverviewData]);
@@ -260,7 +246,11 @@ const SystemStatusCard = memo(() => {
             <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {metrics.map((metric, index) => (
-                        <SystemMetricCard key={index} {...metric} />
+                        <SystemMetricCard 
+                            key={index} 
+                            {...metric} 
+                            healthValue={metric.healthValue ?? undefined}
+                        />
                     ))}
                 </div>
             </CardContent>
@@ -350,13 +340,13 @@ const PerformanceMetricsCard = memo(() => {
 const UserActivityCard = memo(() => {
     const { userActivity } = useAdminStore();
 
-    const visibleUsers = useMemo(() => 
-        userActivity.data?.slice(0, 5) || [], 
+    const visibleUsers = useMemo(() =>
+        userActivity.data?.slice(0, 5) || [],
         [userActivity.data]
     );
 
-    const hasMoreUsers = useMemo(() => 
-        (userActivity.data?.length || 0) > 5, 
+    const hasMoreUsers = useMemo(() =>
+        (userActivity.data?.length || 0) > 5,
         [userActivity.data]
     );
 
@@ -427,7 +417,7 @@ const UserActivityCard = memo(() => {
                                 </div>
                             </div>
                             <div className="text-right">
-                                {getStatusBadge(user.is_active, true)}
+                                {getStatusBadgeComponent(user.is_active, true)}
                                 <p style={STYLES.caption} className="text-muted-foreground mt-2">
                                     {user.login_count} logins
                                 </p>
@@ -452,7 +442,7 @@ const SystemAlertsCard = memo(() => {
 
     const alerts = useMemo(() => {
         const alertsList = [];
-        
+
         if (systemMetrics.data?.cpu_usage && systemMetrics.data.cpu_usage > 90) {
             alertsList.push({
                 type: 'destructive',
@@ -461,7 +451,7 @@ const SystemAlertsCard = memo(() => {
                 icon: AlertCircle
             });
         }
-        
+
         if (systemMetrics.data?.memory_usage && systemMetrics.data.memory_usage > 90) {
             alertsList.push({
                 type: 'destructive',
@@ -470,7 +460,7 @@ const SystemAlertsCard = memo(() => {
                 icon: AlertCircle
             });
         }
-        
+
         if (systemMetrics.data?.disk_usage && systemMetrics.data.disk_usage > 90) {
             alertsList.push({
                 type: 'default',
@@ -479,7 +469,7 @@ const SystemAlertsCard = memo(() => {
                 icon: AlertCircle
             });
         }
-        
+
         if (systemMetrics.data?.error_rate_24h && systemMetrics.data.error_rate_24h > 5) {
             alertsList.push({
                 type: 'destructive',
@@ -518,7 +508,7 @@ const SystemAlertsCard = memo(() => {
             <CardContent>
                 <div className="space-y-6">
                     {alerts.map((alert, index) => (
-                        <Alert 
+                        <Alert
                             key={index}
                             variant={alert.type === 'destructive' ? 'destructive' : 'default'}
                             className={alert.type === 'destructive' ? 'border-destructive/20 bg-destructive/5' : 'border-success/20 bg-success/5'}
@@ -551,7 +541,7 @@ const OverviewTab = memo(() => {
         [systemStats.data, systemMetrics.data, userActivity.data]
     );
 
-    const isLoading = useMemo(() => 
+    const isLoading = useMemo(() =>
         systemStats.loading || userActivity.loading || systemMetrics.loading,
         [systemStats.loading, userActivity.loading, systemMetrics.loading]
     );
@@ -675,8 +665,8 @@ export const AdminDashboard: React.FC = memo(() => {
             <Suspense fallback={<LoadingFallback />}>
                 <DashboardCustomization
                     userRole="admin"
-                    onConfigChange={(config) => {
-                        console.log('Dashboard config changed:', config);
+                    onConfigChange={() => {
+                        
                     }}
                 />
             </Suspense>
@@ -749,17 +739,17 @@ export const AdminDashboard: React.FC = memo(() => {
                     <TabsContent value="logs" className="space-y-8">
                         <Suspense fallback={<LoadingFallback />}>
                             <LazyLogFilterForm
-                                level="all"
+                                level="INFO"
                                 limit={50}
                                 from=""
                                 to=""
                                 search=""
                                 skip={0}
                                 total={0}
-                                onChange={() => {}}
-                                onRefresh={() => {}}
-                                onPrev={() => {}}
-                                onNext={() => {}}
+                                onChange={() => { }}
+                                onRefresh={() => { }}
+                                onPrev={() => { }}
+                                onNext={() => { }}
                             />
                         </Suspense>
                     </TabsContent>

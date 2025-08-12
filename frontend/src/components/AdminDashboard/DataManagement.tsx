@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import {
   Database,
   FileText,
@@ -60,6 +60,14 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '@/design-system/stories/components';
+import {
+    applyDesignSystemSpacing,
+    applyDesignSystemRadius,
+    applyDesignSystemShadow,
+    applyDesignSystemMotion,
+    formatNumber,
+    formatPercentage
+} from './utils/designSystemHelpers';
 
 interface TableInfo {
   name: string;
@@ -81,13 +89,7 @@ interface CleanupPreview {
   estimated_cleanup_time: string;
 }
 
-const DataManagement: React.FC = () => {
-  // Design system helper functions
-  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+const DataManagement: React.FC = memo(() => {
 
   const [loading, setLoading] = useState(true);
   // const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
@@ -95,6 +97,17 @@ const DataManagement: React.FC = () => {
   const [tables, setTables] = useState<Record<string, any>>({});
   const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(
     null
+  );
+
+  // Memoized computed values
+  const totalSize = useMemo(() => 
+    tableData.reduce((sum, table) => sum + table.size_mb, 0), 
+    [tableData]
+  );
+
+  const healthyTables = useMemo(() => 
+    tableData.filter(table => table.integrity_status === 'healthy'), 
+    [tableData]
   );
   const [showCleanupDialog, setShowCleanupDialog] = useState(false);
   const [cleanupInProgress, setCleanupInProgress] = useState(false);
@@ -259,10 +272,7 @@ const DataManagement: React.FC = () => {
     return `${(sizeInMB / 1024).toFixed(1)} GB`;
   };
 
-  // Format number
-  const formatNumber = (num: number): string => {
-    return num.toLocaleString();
-  };
+  // Use shared helper function instead
 
   useEffect(() => {
     loadDataInfo();
@@ -1501,5 +1511,7 @@ const DataManagement: React.FC = () => {
     </div>
   );
 };
+
+DataManagement.displayName = 'DataManagement';
 
 export default DataManagement;
