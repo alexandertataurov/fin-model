@@ -843,7 +843,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
       )}
     </div>
   );
-};
+});
 
 SystemMonitoring.displayName = 'SystemMonitoring';
 
