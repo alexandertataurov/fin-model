@@ -22,34 +22,29 @@ import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
-import { useLogFilters } from '@/hooks/useLogFilters';
-import LogFilterForm from './LogFilterForm';
 import DashboardCustomization from './DashboardCustomization';
-import DataManagement from './DataManagement';
-import type { LogEntry } from '@/services/adminApi';
 import { AdminHeader } from './components/AdminHeader';
 
-// Import shared design system helpers
+// Import updated design system helpers
 import {
     applyDesignSystemSpacing,
     applyDesignSystemRadius,
-    applyDesignSystemShadow,
+    getSemanticShadow,
     applyDesignSystemMotion,
-    getStatusColor,
+    getSemanticColor,
+    getSemanticSpacing,
     formatPercentage,
     formatNumber,
-    getStatusBadge
+    getStatusBadge,
+    applyTypographyStyle
 } from './utils/designSystemHelpers';
 
-// Import design system components
+// Import updated AdminDashboard components
 import {
-    applyTypographyStyle,
-    Container,
-    SectionHeader,
-    MetricCard,
-    DashboardHeader,
-    QuickActions
-} from '@/design-system/stories/components';
+    AdminTitle,
+    AdminBody,
+    AdminLoadingSpinner
+} from './components';
 import {
     Users,
     FileText,
@@ -59,7 +54,6 @@ import {
     AlertCircle,
     ArrowUpRight,
     Activity,
-    Eye,
     Cpu,
     Clock,
     Zap,
@@ -69,13 +63,7 @@ import {
     BarChart3,
     TrendingUp,
     Server,
-    Globe,
-    Wifi,
     RefreshCw,
-    Download,
-    Filter,
-    Search,
-    Calendar,
     MoreHorizontal,
 } from 'lucide-react';
 
@@ -86,36 +74,55 @@ const LazyUserManagement = lazy(() => import('./UserManagement'));
 const LazySystemMonitoring = lazy(() => import('./SystemMonitoring'));
 const LazyLogFilterForm = lazy(() => import('./LogFilterForm'));
 
-// Pre-computed styles to prevent recalculation on every render
+// Pre-computed styles using updated design system helpers
 const STYLES = {
+    // Typography styles following design system guidelines
     subtitle: applyTypographyStyle('subtitle'),
     body: applyTypographyStyle('body'),
     caption: applyTypographyStyle('caption'),
     title: applyTypographyStyle('title'),
     headline: applyTypographyStyle('headline'),
+    subheadline: applyTypographyStyle('subheadline'),
+
+    // Spacing following 8px base unit
     spacing: {
-        sm: applyDesignSystemSpacing(2),
-        md: applyDesignSystemSpacing(4),
-        lg: applyDesignSystemSpacing(6),
-        xl: applyDesignSystemSpacing(8),
+        sm: applyDesignSystemSpacing(2), // 8px
+        md: applyDesignSystemSpacing(4), // 16px
+        lg: applyDesignSystemSpacing(6), // 24px
+        xl: applyDesignSystemSpacing(8), // 32px
+        component: getSemanticSpacing('component'),
+        layout: getSemanticSpacing('layout'),
     },
+
+    // Semantic colors following design system guidelines
     colors: {
-        success: tokens.colors.success,
-        warning: tokens.colors.warning,
-        destructive: tokens.colors.destructive[500],
-        muted: tokens.colors.muted[400],
+        success: getSemanticColor('success'),
+        warning: getSemanticColor('warning'),
+        destructive: getSemanticColor('danger'), // Alias for destructive
+        danger: getSemanticColor('danger'),
+        info: getSemanticColor('info'),
+        primary: tokens.colors.primary[500],
+        secondary: tokens.colors.secondary[500],
+        muted: tokens.colors.secondary[400],
     },
+
+    // Motion following design system guidelines
     motion: {
         duration: applyDesignSystemMotion('duration', 'normal'),
         easing: applyDesignSystemMotion('easing', 'smooth'),
     },
+
+    // Border radius following design system guidelines
     borderRadius: {
         lg: applyDesignSystemRadius('lg'),
         xl: applyDesignSystemRadius('xl'),
     },
+
+    // Shadows following elevation hierarchy
     shadows: {
-        sm: applyDesignSystemShadow('sm'),
-        md: applyDesignSystemShadow('md'),
+        sm: getSemanticShadow('card'),
+        md: getSemanticShadow('hover'),
+        lg: getSemanticShadow('modal'),
     },
 } as const;
 
@@ -135,13 +142,15 @@ const getHealthIndicator = (value: number | null | undefined, thresholds: { warn
 
 // Memoized loading fallback component
 const LoadingFallback = memo(() => (
-    <div className="flex items-center justify-center p-8">
-        <div className="flex items-center gap-3">
-            <RefreshCw className="h-5 w-5 animate-spin" />
-            <span style={STYLES.body} className="text-muted-foreground">
-                Loading component...
-            </span>
-        </div>
+    <div
+        style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: STYLES.spacing.xl
+        }}
+    >
+        <AdminLoadingSpinner message="Loading component..." size="md" />
     </div>
 ));
 
@@ -553,23 +562,54 @@ const OverviewTab = memo(() => {
 
     if (!hasAnyData) {
         return (
-            <Container className="py-16">
-                <div className="text-center space-y-6">
-                    <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center bg-muted">
-                        <BarChart3 className="h-10 w-10 text-muted-foreground" />
+            <div
+                className="py-16"
+                style={{
+                    padding: STYLES.spacing.layout.container,
+                    maxWidth: '1200px',
+                    margin: '0 auto'
+                }}
+            >
+                <div
+                    className="text-center"
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: STYLES.spacing.lg
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '80px',
+                            height: '80px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: tokens.colors.secondary[100]
+                        }}
+                    >
+                        <BarChart3
+                            style={{
+                                width: '40px',
+                                height: '40px',
+                                color: tokens.colors.secondary[400]
+                            }}
+                        />
                     </div>
                     <div>
-                        <h3 style={STYLES.title} className="text-foreground">No Data Available</h3>
-                        <p style={STYLES.body} className="text-muted-foreground">
+                        <AdminTitle>No Data Available</AdminTitle>
+                        <AdminBody>
                             Admin data is currently unavailable. Please try refreshing the page.
-                        </p>
+                        </AdminBody>
                     </div>
                     <Button onClick={() => fetchOverviewData()} variant="outline" size="sm">
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh Data
                     </Button>
                 </div>
-            </Container>
+            </div>
         );
     }
 

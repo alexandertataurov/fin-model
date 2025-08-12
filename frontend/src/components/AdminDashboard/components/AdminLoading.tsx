@@ -1,7 +1,12 @@
 import React from 'react';
-import { RefreshCw } from 'lucide-react';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import {
+    applyDesignSystemSpacing,
+    getSemanticSpacing,
+    applyDesignSystemRadius,
+    getSemanticShadow
+} from '../utils/designSystemHelpers';
+import { AdminBody, AdminCaption } from './AdminTypography';
 
 interface AdminLoadingProps {
     message?: string;
@@ -16,26 +21,35 @@ export const AdminLoadingSpinner: React.FC<AdminLoadingProps> = ({
 }) => {
     const getSpinnerSize = () => {
         switch (size) {
-            case 'sm': return 'h-4 w-4';
-            case 'lg': return 'h-8 w-8';
-            default: return 'h-6 w-6';
+            case 'sm': return '16px';
+            case 'lg': return '32px';
+            default: return '24px';
         }
     };
 
+    const componentSpacing = getSemanticSpacing('component');
+
     return (
-        <div className={`flex items-center justify-center gap-3 ${className}`}>
-            <RefreshCw
-                className={`${getSpinnerSize()} animate-spin`}
-                style={{ color: tokens.colors.primary[500] }}
-            />
-            <span
+        <div
+            className={`flex items-center justify-center ${className}`}
+            style={{
+                gap: componentSpacing.gap, // 8px - Standard component gap
+                padding: componentSpacing.padding // 16px - Standard component padding
+            }}
+        >
+            <div
                 style={{
-                    ...applyTypographyStyle('body'),
-                    color: tokens.colors.secondary[500]
+                    width: getSpinnerSize(),
+                    height: getSpinnerSize(),
+                    border: `2px solid ${tokens.colors.secondary[200]}`,
+                    borderTop: `2px solid ${tokens.colors.primary[500]}`,
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
                 }}
-            >
+            />
+            <AdminBody style={{ margin: 0, color: tokens.colors.secondary[600] }}>
                 {message}
-            </span>
+            </AdminBody>
         </div>
     );
 };
@@ -43,22 +57,70 @@ export const AdminLoadingSpinner: React.FC<AdminLoadingProps> = ({
 export const AdminLoadingSkeleton: React.FC<{
     rows?: number;
     className?: string;
-}> = ({ rows = 3, className = '' }) => (
-    <div className={`space-y-4 ${className}`}>
-        {Array.from({ length: rows }).map((_, i) => (
-            <div key={i} className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-            </div>
-        ))}
-    </div>
-);
+}> = ({ rows = 3, className = '' }) => {
+    const componentSpacing = getSemanticSpacing('component');
+
+    return (
+        <div
+            className={className}
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: componentSpacing.gap, // 8px - Standard component gap
+                padding: componentSpacing.padding // 16px - Standard component padding
+            }}
+        >
+            {Array.from({ length: rows }).map((_, index) => (
+                <div
+                    key={index}
+                    style={{
+                        height: '20px',
+                        backgroundColor: tokens.colors.secondary[200],
+                        borderRadius: applyDesignSystemRadius('sm'),
+                        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
 
 export const AdminLoadingCard: React.FC<{
     title?: string;
     className?: string;
-}> = ({ title = 'Loading...', className = '' }) => (
-    <div className={`p-6 border rounded-lg ${className}`}>
-        <AdminLoadingSpinner message={title} />
-    </div>
-);
+}> = ({ title = 'Loading...', className = '' }) => {
+    const componentSpacing = getSemanticSpacing('component');
+
+    return (
+        <div
+            className={className}
+            style={{
+                background: tokens.colors.background,
+                border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                borderRadius: applyDesignSystemRadius('xl'),
+                boxShadow: getSemanticShadow('card'),
+                padding: componentSpacing.padding, // 16px - Standard component padding
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: componentSpacing.gap // 8px - Standard component gap
+            }}
+        >
+            <div
+                style={{
+                    width: '40px',
+                    height: '40px',
+                    border: `3px solid ${tokens.colors.secondary[200]}`,
+                    borderTop: `3px solid ${tokens.colors.primary[500]}`,
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    marginBottom: tokens.spacing[4] // 16px - Bottom margin
+                }}
+            />
+            <AdminCaption style={{ margin: 0, textAlign: 'center' }}>
+                {title}
+            </AdminCaption>
+        </div>
+    );
+};

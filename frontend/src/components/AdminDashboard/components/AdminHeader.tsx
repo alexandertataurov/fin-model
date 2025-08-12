@@ -1,7 +1,7 @@
-import React, { memo, useMemo } from 'react';
-import { Shield } from 'lucide-react';
+import React from 'react';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import { getSemanticSpacing } from '../utils/designSystemHelpers';
+import { AdminHeadline, AdminSubheadline, AdminBody } from './AdminTypography';
 
 interface AdminHeaderProps {
     title?: string;
@@ -11,98 +11,93 @@ interface AdminHeaderProps {
     className?: string;
 }
 
-export const AdminHeader: React.FC<AdminHeaderProps> = memo(({
-    title = "Admin Dashboard",
-    description = "Monitor and manage system performance, user activity, and system health",
+export const AdminHeader: React.FC<AdminHeaderProps> = ({
+    title,
+    description,
     showBreadcrumb = false,
-    showAdminBadge = true,
-    className = ""
+    showAdminBadge = false,
+    className = ''
 }) => {
-    const titleStyle = useMemo(() => applyTypographyStyle('headline'), []);
-    const descriptionStyle = useMemo(() => ({
-        ...applyTypographyStyle('body'),
-        marginTop: tokens.spacing[3],
-        color: tokens.colors.secondary[500]
-    }), []);
-
-    const badgeStyle = useMemo(() => ({
-        border: `${tokens.borderWidth.base} solid ${tokens.colors.primary[200]}`,
-        background: tokens.colors.primary[50],
-        transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`
-    }), []);
-
-    const iconStyle = useMemo(() => ({ color: tokens.colors.primary[500] }), []);
-    const textStyle = useMemo(() => ({
-        ...applyTypographyStyle('caption'),
-        fontWeight: tokens.typography.fontWeight.medium,
-        color: tokens.colors.primary[500]
-    }), []);
+    const layoutSpacing = getSemanticSpacing('layout');
 
     return (
-        <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 ${className}`}>
-            <div className="space-y-2 sm:space-y-0 sm:flex-1">
-                {showBreadcrumb && (
-                    <nav aria-label="breadcrumb">
-                        <ol className="flex items-center space-x-2">
-                            <li className="inline-flex items-center gap-1.5">
-                                <a
-                                    className="transition-colors hover:text-foreground"
-                                    href="/admin"
-                                >
-                                    Admin
-                                </a>
-                            </li>
-                            <li className="inline-flex items-center gap-1.5">
-                                <a
-                                    className="transition-colors hover:text-foreground"
-                                    href="/admin/dashboard"
-                                    aria-current="page"
-                                >
-                                    Dashboard
-                                </a>
-                            </li>
-                        </ol>
-                    </nav>
-                )}
-                <div className="mt-2 sm:mt-4">
-                    <div className="space-y-2 sm:space-y-3">
-                        <h1
-                            style={titleStyle}
-                            className="text-foreground text-lg sm:text-xl lg:text-2xl"
+        <div
+            className={className}
+            style={{
+                padding: layoutSpacing.container, // 16px - Container padding
+                marginBottom: layoutSpacing.section // 48px - Section spacing
+            }}
+        >
+            {showBreadcrumb && (
+                <nav
+                    style={{
+                        marginBottom: tokens.spacing[4], // 16px - Breadcrumb bottom margin
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: tokens.spacing[2] // 8px - Breadcrumb item gap
+                    }}
+                >
+                    <AdminBody style={{ margin: 0, color: tokens.colors.secondary[500] }}>
+                        Admin Dashboard
+                    </AdminBody>
+                    <span style={{ color: tokens.colors.secondary[300] }}>/</span>
+                    <AdminBody style={{ margin: 0, color: tokens.colors.primary[600] }}>
+                        {title}
+                    </AdminBody>
+                </nav>
+            )}
+
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: tokens.spacing[6] // 24px - Header content gap
+                }}
+            >
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: tokens.spacing[3] // 12px - Title and description gap
+                    }}
+                >
+                    {title && (
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: tokens.spacing[3] // 12px - Title and badge gap
+                            }}
                         >
-                            {title}
-                        </h1>
-                        <p
-                            style={descriptionStyle}
-                            className="text-sm sm:text-base"
-                        >
+                            <AdminHeadline style={{ margin: 0 }}>
+                                {title}
+                            </AdminHeadline>
+                            {showAdminBadge && (
+                                <span
+                                    style={{
+                                        background: tokens.colors.primary[100],
+                                        color: tokens.colors.primary[700],
+                                        padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
+                                        borderRadius: tokens.borderRadius.full,
+                                        fontSize: tokens.typography.fontSize.xs,
+                                        fontWeight: tokens.typography.fontWeight.medium,
+                                        letterSpacing: tokens.typography.letterSpacing.wide
+                                    }}
+                                >
+                                    ADMIN
+                                </span>
+                            )}
+                        </div>
+                    )}
+                    {description && (
+                        <AdminBody style={{ margin: 0, maxWidth: '65ch' }}>
                             {description}
-                        </p>
-                    </div>
+                        </AdminBody>
+                    )}
                 </div>
             </div>
-            {showAdminBadge && (
-                <div className="flex items-center justify-center sm:justify-end">
-                    <div
-                        className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl border"
-                        style={badgeStyle}
-                    >
-                        <Shield
-                            className="h-4 w-4 sm:h-5 sm:w-5"
-                            style={iconStyle}
-                            aria-hidden="true"
-                        />
-                        <span
-                            style={textStyle}
-                            className="text-xs sm:text-sm"
-                        >
-                            Admin Access
-                        </span>
-                    </div>
-                </div>
-            )}
         </div>
     );
-});
-
-AdminHeader.displayName = 'AdminHeader';
+};

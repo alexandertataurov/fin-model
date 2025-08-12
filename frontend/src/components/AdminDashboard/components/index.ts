@@ -1,11 +1,16 @@
-// Shared AdminDashboard Components
+// AdminDashboard Components with Design System Compliance
+// Following typography, colors, spacing, and shadows guidelines
+
 export { AdminCard } from './AdminCard';
 export {
     AdminTitle,
     AdminSubtitle,
     AdminBody,
     AdminCaption,
-    AdminHeadline
+    AdminHeadline,
+    AdminSubheadline,
+    AdminCode,
+    AdminElegant
 } from './AdminTypography';
 export {
     AdminLoadingSpinner,
