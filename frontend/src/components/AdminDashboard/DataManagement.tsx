@@ -61,12 +61,12 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '@/design-system/stories/components';
 import {
-    applyDesignSystemSpacing,
-    applyDesignSystemRadius,
-    applyDesignSystemShadow,
-    applyDesignSystemMotion,
-    formatNumber,
-    formatPercentage
+  applyDesignSystemSpacing,
+  applyDesignSystemRadius,
+  applyDesignSystemShadow,
+  applyDesignSystemMotion,
+  formatNumber,
+  formatPercentage
 } from './utils/designSystemHelpers';
 
 interface TableInfo {
@@ -100,13 +100,13 @@ const DataManagement: React.FC = memo(() => {
   );
 
   // Memoized computed values
-  const totalSize = useMemo(() => 
-    tableData.reduce((sum, table) => sum + table.size_mb, 0), 
+  const totalSize = useMemo(() =>
+    tableData.reduce((sum, table) => sum + table.size_mb, 0),
     [tableData]
   );
 
-  const healthyTables = useMemo(() => 
-    tableData.filter(table => table.integrity_status === 'healthy'), 
+  const healthyTables = useMemo(() =>
+    tableData.filter(table => table.integrity_status === 'healthy'),
     [tableData]
   );
   const [showCleanupDialog, setShowCleanupDialog] = useState(false);
