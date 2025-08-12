@@ -17,8 +17,8 @@ import { tokens } from '../tokens';
   parameters={{
     viewMode: 'docs',
     previewTabs: {
-      canvas: { hidden: true }
-    }
+      canvas: { hidden: true },
+    },
   }}
 />
 
@@ -161,13 +161,15 @@ tokens.typography.letterSpacing = {
 
 ```tsx
 // ✅ Good - Optimized for reading
-<p style={{
-  fontFamily: tokens.typography.fontFamily.sans.join(', '),
-  fontSize: tokens.typography.fontSize.base,
-  lineHeight: tokens.typography.lineHeight.relaxed,
-  maxWidth: '65ch',
-  color: tokens.colors.secondary[700]
-}}>
+<p
+  style={{
+    fontFamily: tokens.typography.fontFamily.sans.join(', '),
+    fontSize: tokens.typography.fontSize.base,
+    lineHeight: tokens.typography.lineHeight.relaxed,
+    maxWidth: '65ch',
+    color: tokens.colors.secondary[700],
+  }}
+>
   Long-form content with optimal line length and spacing.
 </p>
 ```
@@ -261,9 +263,7 @@ const textStyles = {
 
 // Usage
 const Text = ({ variant = 'body', children, ...props }) => (
-  <div style={{ ...textStyles[variant], ...props }}>
-    {children}
-  </div>
+  <div style={{ ...textStyles[variant], ...props }}>{children}</div>
 );
 ```
 

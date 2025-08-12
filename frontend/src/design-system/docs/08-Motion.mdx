@@ -1,279 +1,263 @@
 ---
-title: "Motion"
-description: "Comprehensive motion system for smooth interactions and feedback"
+title: 'Motion'
+description: 'Comprehensive motion system for smooth interactions and feedback'
+parameters:
+  docs:
+    description:
+      component: 'Our motion system provides consistent, purposeful animations that enhance user experience, provide feedback, and guide attention through the interface.'
+    canvas:
+      sourceState: 'hidden'
 ---
+
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/addon-docs';
+import { tokens } from '../tokens';
+
+<Meta
+  title="Design System/Foundations/Motion"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
 
 # Motion
 
-Our motion system provides smooth, purposeful animations that enhance user experience while maintaining accessibility and performance. Each animation is designed to guide user attention, provide feedback, and create delightful interactions.
+Our motion system provides consistent, purposeful animations that enhance user experience, provide feedback, and guide attention through the interface.
 
 ## Overview
 
-The motion system consists of:
+The motion system is built on accessibility-first principles with consistent easing curves and duration scales. Each animation serves a specific purpose in the interface, from micro-interactions to page transitions.
 
-- **Easing Curves**: Natural, physics-based timing functions
-- **Duration Scales**: Consistent timing for different interaction types
-- **Animation Patterns**: Predefined animations for common use cases
-- **Performance Optimized**: Hardware-accelerated animations
-- **Accessibility Compliant**: Respects user motion preferences
-
-## Motion Tokens
+## Token Definitions
 
 ### Easing Curves
+
 ```typescript
 tokens.motion = {
   easing: {
-    linear: 'linear',                                    // No easing
-    ease: 'ease',                                       // Default easing
-    easeIn: 'ease-in',                                  // Slow start
-    easeOut: 'ease-out',                                // Slow end
-    easeInOut: 'ease-in-out',                          // Slow start and end
-    smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',           // Material Design standard
-    bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', // Bouncy effect
-    elastic: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' // Elastic effect
-  }
-}
+    linear: 'linear',
+    ease: 'ease',
+    easeIn: 'ease-in',
+    easeOut: 'ease-out',
+    easeInOut: 'ease-in-out',
+    // Custom easing curves
+    smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    elastic: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+  },
+};
 ```
 
-### Duration Scales
+### Duration Scale
+
 ```typescript
 tokens.motion = {
   duration: {
-    instant: '0ms',      // Immediate
-    fast: '100ms',       // Quick feedback
-    normal: '200ms',     // Standard transition
-    slow: '300ms',       // Smooth transition
-    slower: '500ms',     // Deliberate motion
-    slowest: '700ms'     // Dramatic effect
-  }
-}
+    fast: '150ms', // Quick feedback
+    normal: '300ms', // Standard transitions
+    slow: '500ms', // Complex animations
+    slower: '700ms', // Page transitions
+    slowest: '1000ms', // Hero animations
+  },
+};
 ```
 
 ### Animation Patterns
+
 ```typescript
 tokens.motion = {
   patterns: {
-    fadeIn: {
-      duration: '200ms',
-      easing: 'ease-out',
-      properties: ['opacity', 'transform']
+    // Micro-interactions
+    button: {
+      duration: '150ms',
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
     },
-    slideIn: {
+    // Component transitions
+    card: {
       duration: '300ms',
-      easing: 'ease-out',
-      properties: ['transform']
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
     },
-    scaleIn: {
-      duration: '200ms',
-      easing: 'ease-out',
-      properties: ['transform']
-    },
-    bounce: {
+    // Page transitions
+    page: {
       duration: '500ms',
-      easing: 'bounce',
-      properties: ['transform']
-    }
-  }
-}
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    },
+    // Loading states
+    loading: {
+      duration: '1000ms',
+      easing: 'linear',
+    },
+  },
+};
 ```
 
 ## Usage Rules
 
-### 1. **Easing Curve Usage**
-- **linear**: No easing, mechanical movements
-- **ease**: Default for most transitions
-- **easeIn**: Elements appearing, growing
-- **easeOut**: Elements disappearing, shrinking
-- **easeInOut**: Complex movements, state changes
-- **smooth**: Material Design standard, natural feel
-- **bounce**: Playful interactions, notifications
-- **elastic**: Attention-grabbing, important actions
+### 1. **Duration Guidelines**
 
-### 2. **Duration Guidelines**
-- **instant (0ms)**: Immediate state changes
-- **fast (100ms)**: Quick feedback, hover states
-- **normal (200ms)**: Standard transitions, most interactions
-- **slow (300ms)**: Smooth transitions, page changes
-- **slower (500ms)**: Deliberate motion, complex animations
-- **slowest (700ms)**: Dramatic effects, hero animations
+- **Fast (150ms)**: Button clicks, hover states, micro-interactions
+- **Normal (300ms)**: Component transitions, form interactions
+- **Slow (500ms)**: Page transitions, modal animations
+- **Slower (700ms)**: Complex animations, hero content
+- **Slowest (1000ms)**: Loading animations, decorative elements
+
+### 2. **Easing Usage**
+
+- **Smooth**: Standard UI transitions, component animations
+- **Ease-out**: Entering elements, expanding content
+- **Ease-in**: Exiting elements, collapsing content
+- **Ease-in-out**: Complex animations, page transitions
+- **Bounce**: Playful interactions, success feedback
+- **Elastic**: Attention-grabbing elements, notifications
 
 ### 3. **Animation Patterns**
-- **fadeIn**: Content appearing, loading states
-- **slideIn**: Elements entering from off-screen
-- **scaleIn**: Interactive elements, buttons
-- **bounce**: Notifications, success states
 
-### 4. **Performance Considerations**
-- Use `transform` and `opacity` for animations
-- Avoid animating `width`, `height`, `margin`, `padding`
-- Use `will-change` sparingly
+- **Micro-interactions**: Quick, subtle feedback
+- **Component transitions**: Smooth state changes
+- **Page transitions**: Clear navigation feedback
+- **Loading states**: Clear progress indication
+
+### 4. **Accessibility Considerations**
+
 - Respect `prefers-reduced-motion`
+- Provide alternative visual feedback
+- Ensure animations don't cause motion sickness
 
 ## Best Practices
 
 ### 1. **Purposeful Motion**
+
 ```tsx
 // ✅ Good - Purposeful animation
-<button 
-  style={{ 
+<button
+  style={{
     transition: `transform ${tokens.motion.duration.fast} ${tokens.motion.easing.smooth}`,
-    transform: isPressed ? 'scale(0.95)' : 'scale(1)'
   }}
-  onMouseDown={() => setIsPressed(true)}
-  onMouseUp={() => setIsPressed(false)}
+  onMouseEnter={e => {
+    e.target.style.transform = 'scale(1.05)';
+  }}
+  onMouseLeave={e => {
+    e.target.style.transform = 'scale(1)';
+  }}
 >
   Interactive Button
 </button>
 
 // ❌ Bad - Unnecessary animation
-<div style={{ 
-  transition: 'all 0.3s ease',
-  transform: isVisible ? 'rotate(360deg)' : 'rotate(0deg)'
-}}>
-  Confusing Animation
+<div style={{ animation: 'spin 2s infinite' }}>
+  Spinning content
 </div>
 ```
 
 ### 2. **Consistent Timing**
-```tsx
-// ✅ Good - Consistent timing
-const cardStyle = {
-  transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
-  transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
-  boxShadow: isHovered ? tokens.shadows.hover : tokens.shadows.base
-};
 
-// ❌ Bad - Inconsistent timing
-const cardStyle = {
-  transition: 'transform 0.2s ease, box-shadow 0.3s ease-out',
-  transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
-  boxShadow: isHovered ? tokens.shadows.hover : tokens.shadows.base
-};
+```tsx
+// ✅ Good - Consistent motion
+const cardTransition = `${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`;
+
+<div style={{ transition: cardTransition }}>
+  <div style={{ transition: cardTransition }}>Consistent timing</div>
+</div>;
 ```
 
 ### 3. **Accessibility Compliance**
+
 ```tsx
 // ✅ Good - Respects motion preferences
-const useReducedMotion = () => {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-  
-  return prefersReducedMotion;
-};
+const prefersReducedMotion = window.matchMedia(
+  '(prefers-reduced-motion: reduce)'
+).matches;
 
-const AnimatedComponent = () => {
-  const prefersReducedMotion = useReducedMotion();
-  
-  return (
-    <div style={{
-      transition: prefersReducedMotion ? 'none' : `transform ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`
-    }}>
-      Content
-    </div>
-  );
-};
+<div
+  style={{
+    transition: prefersReducedMotion
+      ? 'none'
+      : `${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
+  }}
+>
+  Accessible content
+</div>;
 ```
 
 ### 4. **Performance Optimization**
-```tsx
-// ✅ Good - Hardware-accelerated animation
-<div style={{
-  transform: isVisible ? 'translateX(0)' : 'translateX(-100%)',
-  transition: `transform ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
-  willChange: 'transform'
-}}>
-  Optimized Animation
-</div>
 
-// ❌ Bad - Layout-triggering animation
-<div style={{
-  marginLeft: isVisible ? '0' : '-100px',
-  transition: `margin-left ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`
-}}>
-  Performance Heavy Animation
+```tsx
+// ✅ Good - Optimized animation
+<div
+  style={{
+    transform: 'translateZ(0)', // Hardware acceleration
+    willChange: 'transform',
+    transition: `${tokens.motion.duration.fast} ${tokens.motion.easing.smooth}`,
+  }}
+>
+  Optimized animation
 </div>
 ```
 
 ## How-To Guides
 
 ### Creating a Motion Utility System
+
 ```tsx
 import { tokens } from '@/design-system/tokens';
 
 const motion = {
-  // Easing utilities
-  ease: (duration: keyof typeof tokens.motion.duration, easing: keyof typeof tokens.motion.easing) => ({
-    transition: `${duration} ${tokens.motion.easing[easing]}`
-  }),
-  
   // Duration utilities
-  fast: (property: string) => ({
-    transition: `${property} ${tokens.motion.duration.fast} ${tokens.motion.easing.smooth}`
-  }),
-  normal: (property: string) => ({
-    transition: `${property} ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`
-  }),
-  slow: (property: string) => ({
-    transition: `${property} ${tokens.motion.duration.slow} ${tokens.motion.easing.smooth}`
-  }),
-  
-  // Animation patterns
+  fast: tokens.motion.duration.fast,
+  normal: tokens.motion.duration.normal,
+  slow: tokens.motion.duration.slow,
+  slower: tokens.motion.duration.slower,
+  slowest: tokens.motion.duration.slowest,
+
+  // Easing utilities
+  linear: tokens.motion.easing.linear,
+  smooth: tokens.motion.easing.smooth,
+  bounce: tokens.motion.easing.bounce,
+  elastic: tokens.motion.easing.elastic,
+
+  // Transition utilities
+  button: `${tokens.motion.duration.fast} ${tokens.motion.easing.smooth}`,
+  card: `${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
+  page: `${tokens.motion.duration.slow} ${tokens.motion.easing.smooth}`,
+  loading: `${tokens.motion.duration.slowest} ${tokens.motion.easing.linear}`,
+
+  // Animation utilities
   fadeIn: {
-    opacity: 0,
-    animation: `fadeIn ${tokens.motion.patterns.fadeIn.duration} ${tokens.motion.patterns.fadeIn.easing} forwards`
+    opacity: [0, 1],
+    duration: tokens.motion.duration.normal,
+    easing: tokens.motion.easing.smooth,
   },
-  slideIn: {
-    transform: 'translateX(-100%)',
-    animation: `slideIn ${tokens.motion.patterns.slideIn.duration} ${tokens.motion.patterns.slideIn.easing} forwards`
+  slideUp: {
+    transform: ['translateY(20px)', 'translateY(0)'],
+    opacity: [0, 1],
+    duration: tokens.motion.duration.normal,
+    easing: tokens.motion.easing.smooth,
   },
-  scaleIn: {
-    transform: 'scale(0.8)',
-    animation: `scaleIn ${tokens.motion.patterns.scaleIn.duration} ${tokens.motion.patterns.scaleIn.easing} forwards`
-  }
+  scale: {
+    transform: ['scale(0.95)', 'scale(1)'],
+    duration: tokens.motion.duration.fast,
+    easing: tokens.motion.easing.smooth,
+  },
 };
 
-// CSS keyframes
-const keyframes = `
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideIn {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
-  }
-  
-  @keyframes scaleIn {
-    from { transform: scale(0.8); }
-    to { transform: scale(1); }
-  }
-`;
-
 // Usage example
-const AnimatedCard = ({ children, isVisible }: { children: React.ReactNode; isVisible: boolean }) => (
-  <div style={{
-    ...motion.normal('all'),
-    opacity: isVisible ? 1 : 0,
-    transform: isVisible ? 'translateY(0)' : 'translateY(20px)'
-  }}>
+const AnimatedCard = ({ children }: { children: React.ReactNode }) => (
+  <div
+    style={{
+      transition: motion.card,
+      transform: 'translateZ(0)',
+      willChange: 'transform, opacity',
+    }}
+  >
     {children}
   </div>
 );
 ```
 
-### Creating an Interactive Button Component
+### Creating an Animated Button Component
+
 ```tsx
 interface AnimatedButtonProps {
   children: React.ReactNode;
@@ -281,43 +265,51 @@ interface AnimatedButtonProps {
   onClick?: () => void;
 }
 
-const AnimatedButton = ({ children, variant = 'primary', onClick }: AnimatedButtonProps) => {
-  const [isHovered, setIsHovered] = useState(false);
+const AnimatedButton = ({
+  children,
+  variant = 'primary',
+  onClick,
+}: AnimatedButtonProps) => {
   const [isPressed, setIsPressed] = useState(false);
-
-  const getTransform = () => {
-    if (isPressed) return 'scale(0.95)';
-    if (isHovered) return 'scale(1.02)';
-    return 'scale(1)';
-  };
 
   const getStyles = () => {
     const baseStyles = {
       border: 'none',
       borderRadius: '6px',
       cursor: 'pointer',
-      transform: getTransform(),
-      transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.smooth}`,
-      willChange: 'transform'
+      padding: '12px 24px',
+      fontSize: '16px',
+      fontWeight: 500,
+      transition: `${tokens.motion.duration.fast} ${tokens.motion.easing.smooth}`,
+      transform: 'translateZ(0)',
+      willChange: 'transform, box-shadow',
     };
 
     const variantStyles = {
       primary: {
         backgroundColor: tokens.colors.primary[500],
         color: tokens.colors.white,
-        boxShadow: tokens.shadows.sm
+        boxShadow: tokens.shadows.sm,
       },
       secondary: {
         backgroundColor: tokens.colors.white,
         color: tokens.colors.secondary[700],
         border: `1px solid ${tokens.colors.secondary[300]}`,
-        boxShadow: tokens.shadows.sm
-      }
+        boxShadow: tokens.shadows.sm,
+      },
     };
+
+    const pressedStyles = isPressed
+      ? {
+          transform: 'translateZ(0) scale(0.98)',
+          boxShadow: tokens.shadows.active,
+        }
+      : {};
 
     return {
       ...baseStyles,
-      ...variantStyles[variant]
+      ...variantStyles[variant],
+      ...pressedStyles,
     };
   };
 
@@ -325,10 +317,9 @@ const AnimatedButton = ({ children, variant = 'primary', onClick }: AnimatedButt
     <button
       style={getStyles()}
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
+      onMouseLeave={() => setIsPressed(false)}
     >
       {children}
     </button>
@@ -336,29 +327,45 @@ const AnimatedButton = ({ children, variant = 'primary', onClick }: AnimatedButt
 };
 ```
 
-### Creating a Loading Animation
+### Creating a Loading Spinner
+
 ```tsx
-const LoadingSpinner = ({ size = 'medium' }: { size?: 'small' | 'medium' | 'large' }) => {
-  const sizeMap = {
-    small: '16px',
-    medium: '24px',
-    large: '32px'
+interface LoadingSpinnerProps {
+  size?: 'small' | 'medium' | 'large';
+  color?: string;
+}
+
+const LoadingSpinner = ({
+  size = 'medium',
+  color = tokens.colors.primary[500],
+}: LoadingSpinnerProps) => {
+  const getSize = () => {
+    switch (size) {
+      case 'small':
+        return '16px';
+      case 'medium':
+        return '24px';
+      case 'large':
+        return '32px';
+    }
   };
 
   return (
-    <div style={{
-      width: sizeMap[size],
-      height: sizeMap[size],
-      border: `2px solid ${tokens.colors.secondary[200]}`,
-      borderTop: `2px solid ${tokens.colors.primary[500]}`,
-      borderRadius: '50%',
-      animation: `spin ${tokens.motion.duration.slower} linear infinite`
-    }} />
+    <div
+      style={{
+        width: getSize(),
+        height: getSize(),
+        border: `2px solid ${tokens.colors.secondary[200]}`,
+        borderTop: `2px solid ${color}`,
+        borderRadius: '50%',
+        animation: `spin ${tokens.motion.duration.slowest} ${tokens.motion.easing.linear} infinite`,
+      }}
+    />
   );
 };
 
-// CSS keyframe
-const spinKeyframe = `
+// CSS for the spin animation
+const spinKeyframes = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -369,8 +376,15 @@ const spinKeyframe = `
 ## Common Patterns
 
 ### Fade In Animation
+
 ```tsx
-const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
+const FadeIn = ({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -379,12 +393,61 @@ const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   }, [delay]);
 
   return (
-    <div style={{
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-      transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
-      willChange: 'opacity, transform'
-    }}>
+    <div
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+        transition: `${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
+        willChange: 'opacity, transform',
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+```
+
+### Slide In Animation
+
+```tsx
+const SlideIn = ({
+  children,
+  direction = 'up',
+}: {
+  children: React.ReactNode;
+  direction?: 'up' | 'down' | 'left' | 'right';
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  const getTransform = () => {
+    if (!isVisible) {
+      switch (direction) {
+        case 'up':
+          return 'translateY(20px)';
+        case 'down':
+          return 'translateY(-20px)';
+        case 'left':
+          return 'translateX(20px)';
+        case 'right':
+          return 'translateX(-20px)';
+      }
+    }
+    return 'translate(0, 0)';
+  };
+
+  return (
+    <div
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: getTransform(),
+        transition: `${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
+        willChange: 'opacity, transform',
+      }}
+    >
       {children}
     </div>
   );
@@ -392,49 +455,37 @@ const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 ```
 
 ### Staggered Animation
-```tsx
-const StaggeredList = ({ items }: { items: string[] }) => (
-  <div>
-    {items.map((item, index) => (
-      <div
-        key={index}
-        style={{
-          opacity: 0,
-          transform: 'translateX(-20px)',
-          animation: `slideIn ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth} forwards`,
-          animationDelay: `${index * 100}ms`
-        }}
-      >
-        {item}
-      </div>
-    ))}
-  </div>
-);
-```
 
-### Hover Card Animation
 ```tsx
-const HoverCard = ({ title, content }: { title: string; content: string }) => {
-  const [isHovered, setIsHovered] = useState(false);
+const StaggeredList = ({ items }: { items: string[] }) => {
+  const [visibleItems, setVisibleItems] = useState<number[]>([]);
+
+  useEffect(() => {
+    items.forEach((_, index) => {
+      setTimeout(() => {
+        setVisibleItems(prev => [...prev, index]);
+      }, index * 100);
+    });
+  }, [items]);
 
   return (
-    <div
-      style={{
-        padding: tokens.spacing[4],
-        borderRadius: '8px',
-        backgroundColor: 'white',
-        border: `1px solid ${tokens.colors.secondary[200]}`,
-        transform: isHovered ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
-        boxShadow: isHovered ? tokens.shadows.hover : tokens.shadows.base,
-        transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
-        cursor: 'pointer',
-        willChange: 'transform, box-shadow'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <h3 style={{ marginBottom: tokens.spacing[3], margin: 0 }}>{title}</h3>
-      <p style={{ margin: 0, color: tokens.colors.secondary[600] }}>{content}</p>
+    <div>
+      {items.map((item, index) => (
+        <div
+          key={index}
+          style={{
+            opacity: visibleItems.includes(index) ? 1 : 0,
+            transform: visibleItems.includes(index)
+              ? 'translateX(0)'
+              : 'translateX(-20px)',
+            transition: `${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
+            marginBottom: tokens.spacing[2],
+            willChange: 'opacity, transform',
+          }}
+        >
+          {item}
+        </div>
+      ))}
     </div>
   );
 };
@@ -443,40 +494,40 @@ const HoverCard = ({ title, content }: { title: string; content: string }) => {
 ## Accessibility Guidelines
 
 ### 1. **Reduced Motion**
+
 - Always respect `prefers-reduced-motion` media query
 - Provide alternative visual feedback
 - Test with motion reduction enabled
 
-### 2. **Animation Duration**
-- Keep animations under 500ms for most interactions
-- Use longer durations only for dramatic effects
-- Ensure animations don't interfere with user tasks
+### 2. **Motion Sickness**
+
+- Avoid rapid, repetitive animations
+- Use smooth easing curves
+- Provide pause/stop controls for long animations
 
 ### 3. **Focus Management**
-- Don't animate focus indicators
+
 - Ensure animations don't interfere with focus
+- Maintain proper tab order during animations
 - Test with keyboard navigation
 
-### 4. **Performance**
-- Use hardware-accelerated properties
-- Avoid layout-triggering animations
-- Monitor animation performance
+### 4. **Screen Reader Support**
+
+- Use `aria-live` for dynamic content
+- Provide alternative text for animated content
+- Test with screen readers
 
 ## Testing Checklist
 
-- [ ] Animations respect `prefers-reduced-motion`
-- [ ] All animations are purposeful and meaningful
-- [ ] Performance is acceptable on all devices
-- [ ] Animations don't interfere with accessibility
-- [ ] Timing is consistent across similar interactions
-- [ ] Animations enhance rather than distract from content
-- [ ] Hardware acceleration is used appropriately
-- [ ] Animation performance is monitored
+- [ ] Animations respect reduced motion preferences
+- [ ] Motion doesn't cause motion sickness
+- [ ] Focus management works during animations
+- [ ] Screen readers can access animated content
+- [ ] Performance is optimized for animations
+- [ ] Alternative feedback is provided
 
 ## Resources
 
-- [Material Design Motion](https://material.io/design/motion/understanding-motion.html)
-- [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)
-- [CSS Transitions](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions)
+- [Web Animation API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)
 - [Reduced Motion Guidelines](https://www.w3.org/WAI/WCAG21/Understanding/motion-actuation.html)
 - [Animation Performance](https://web.dev/animations-guide/)

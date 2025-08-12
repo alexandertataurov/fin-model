@@ -1,23 +1,36 @@
 ---
 title: 'Spacing'
 description: 'Complete spacing system for consistent layout and visual rhythm'
+parameters:
+  docs:
+    description:
+      component: 'Our spacing system provides consistent, predictable spacing values that create visual hierarchy, improve readability, and ensure proper component relationships across the interface.'
+    canvas:
+      sourceState: 'hidden'
 ---
+
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/addon-docs';
+import { tokens } from '../tokens';
+
+<Meta
+  title="Design System/Foundations/Spacing"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true }
+    }
+  }}
+/>
 
 # Spacing
 
-Our spacing system provides a consistent, scalable approach to layout and visual hierarchy. Built on an 8px base unit, it ensures harmonious proportions and predictable spacing across all components and layouts.
+Our spacing system provides consistent, predictable spacing values that create visual hierarchy, improve readability, and ensure proper component relationships across the interface.
 
 ## Overview
 
-The spacing system consists of:
+The spacing system is built on an 8px base unit with semantic naming conventions. This creates a harmonious rhythm throughout the interface while maintaining flexibility for different use cases.
 
-- **Base Unit**: 8px foundation for all spacing calculations
-- **Scale**: Multiplicative scale from 0 to 16 (0px to 128px)
-- **Semantic Tokens**: Named spacing values for common use cases
-- **Responsive Patterns**: Breakpoint-specific spacing adjustments
-- **Component Spacing**: Predefined spacing for UI components
-
-## Spacing Tokens
+## Token Definitions
 
 ### Base Scale
 
@@ -117,18 +130,11 @@ tokens.spacing = {
 
 ```tsx
 // ✅ Good - Semantic spacing
-<section style={{ marginBottom: tokens.spacing.layout.section }}>
-  <div style={{ padding: tokens.spacing.component.padding }}>
-    Content
+<div style={{ padding: tokens.spacing.component.padding }}>
+  <div style={{ marginBottom: tokens.spacing.component.margin }}>
+    Component content
   </div>
-</section>
-
-// ❌ Bad - Arbitrary spacing
-<section style={{ marginBottom: '50px' }}>
-  <div style={{ padding: '18px' }}>
-    Content
-  </div>
-</section>
+</div>
 ```
 
 ### 3. **Responsive Spacing**
@@ -154,15 +160,13 @@ tokens.spacing = {
 
 ```tsx
 // ✅ Good - Clear hierarchy
-<article style={{ marginBottom: tokens.spacing[12] }}>
-  <header style={{ marginBottom: tokens.spacing[6] }}>
-    <h1 style={{ marginBottom: tokens.spacing[4] }}>Title</h1>
-    <p style={{ marginBottom: tokens.spacing[4] }}>Subtitle</p>
-  </header>
-  <div style={{ marginBottom: tokens.spacing[6] }}>
-    <p style={{ marginBottom: tokens.spacing[4] }}>Content</p>
+<section style={{ marginBottom: tokens.spacing[12] }}>
+  <h1 style={{ marginBottom: tokens.spacing[6] }}>Section Title</h1>
+  <div style={{ marginBottom: tokens.spacing[4] }}>
+    <h2 style={{ marginBottom: tokens.spacing[3] }}>Subsection</h2>
+    <p style={{ marginBottom: tokens.spacing[2] }}>Content</p>
   </div>
-</article>
+</section>
 ```
 
 ## How-To Guides
@@ -319,7 +323,7 @@ const Grid = ({
     if (responsive) {
       return {
         display: 'grid',
-        gridTemplateColumns: `repeat(auto-fit, minmax(250px, 1fr))`,
+        gridTemplateColumns: 'repeat(1, 1fr)',
         gap: tokens.spacing[gap],
         '@media (min-width: 768px)': {
           gridTemplateColumns: `repeat(${Math.min(columns, 2)}, 1fr)`,
@@ -507,18 +511,15 @@ const Navigation = ({
 
 ## Testing Checklist
 
-- [ ] Spacing is consistent across all components
-- [ ] Responsive spacing works on all breakpoints
+- [ ] Spacing is consistent across components
 - [ ] Touch targets meet minimum size requirements
-- [ ] Focus indicators have sufficient space
-- [ ] Content is properly grouped and separated
-- [ ] Spacing doesn't interfere with accessibility
 - [ ] Visual hierarchy is clear and logical
-- [ ] Spacing scales appropriately with content
+- [ ] Focus indicators have adequate space
+- [ ] Spacing works on all screen sizes
+- [ ] Content is properly grouped and separated
 
 ## Resources
 
-- [8-Point Grid System](https://spec.fm/specifics/8-pt-grid)
 - [Spacing in Design Systems](https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62)
 - [Responsive Spacing](https://www.smashingmagazine.com/2017/12/building-maintainable-accessible-spacing-system/)
 - [Touch Target Guidelines](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html)

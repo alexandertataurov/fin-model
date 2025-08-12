@@ -17,8 +17,8 @@ import { tokens } from '../tokens';
   parameters={{
     viewMode: 'docs',
     previewTabs: {
-      canvas: { hidden: true }
-    }
+      canvas: { hidden: true },
+    },
   }}
 />
 
@@ -198,7 +198,12 @@ interface ButtonProps {
   children: React.ReactNode;
 }
 
-const Button = ({ variant = 'primary', size = 'medium', disabled, children }: ButtonProps) => {
+const Button = ({
+  variant = 'primary',
+  size = 'medium',
+  disabled,
+  children,
+}: ButtonProps) => {
   const getColors = () => {
     if (disabled) {
       return {

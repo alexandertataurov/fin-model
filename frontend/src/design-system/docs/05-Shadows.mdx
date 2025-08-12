@@ -1,7 +1,26 @@
 ---
 title: 'Shadows'
 description: 'Complete shadow system for depth, hierarchy, and visual feedback'
+parameters:
+  docs:
+    description:
+      component: 'Our shadow system provides consistent elevation levels and visual feedback that create depth, hierarchy, and interactive states across all components.'
+    canvas:
+      sourceState: 'hidden'
 ---
+
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/addon-docs';
+import { tokens } from '../tokens';
+
+<Meta
+  title="Design System/Foundations/Shadows"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true }
+    }
+  }}
+/>
 
 # Shadows
 
