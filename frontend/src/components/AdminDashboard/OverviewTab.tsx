@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/adminStore';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 import {
   CheckCircle,
   Cpu,
@@ -44,12 +45,19 @@ const OverviewTab: React.FC = () => {
     return <Badge variant="default">Active</Badge>;
   };
 
+  // Design system helper functions
+  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
+  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
+  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
+  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
+      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'healthy': return 'bg-success';
-      case 'warning': return 'bg-warning';
-      case 'critical': return 'bg-destructive';
-      default: return 'bg-muted';
+      case 'healthy': return tokens.colors.success;
+      case 'warning': return tokens.colors.warning;
+      case 'critical': return tokens.colors.destructive[500];
+      default: return tokens.colors.muted[400];
     }
   };
 
@@ -67,9 +75,32 @@ const OverviewTab: React.FC = () => {
 
   if (!hasAnyData) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Alert className="max-w-md">
-          <AlertDescription>
+      <div 
+        className="flex items-center justify-center py-12"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: `${applyDesignSystemSpacing(12)} 0`
+        }}
+      >
+        <Alert 
+          className="max-w-md"
+          style={{
+            maxWidth: '28rem',
+            background: tokens.colors.background,
+            borderRadius: applyDesignSystemRadius('lg'),
+            boxShadow: applyDesignSystemShadow('md'),
+            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+          }}
+        >
+          <AlertDescription
+            style={{
+              ...applyTypographyStyle('body'),
+              color: tokens.colors.secondary[500]
+            }}
+          >
             Admin data is currently unavailable. Please try refreshing the page or check your connection.
           </AlertDescription>
         </Alert>
@@ -79,24 +110,117 @@ const OverviewTab: React.FC = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2 text-success" />
+      <div 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(1, 1fr)',
+          gap: applyDesignSystemSpacing(6),
+          marginBottom: applyDesignSystemSpacing(8),
+          '@media (min-width: 1024px)': {
+            gridTemplateColumns: 'repeat(3, 1fr)'
+          }
+        }}
+      >
+        <Card 
+          className="lg:col-span-2"
+          style={{
+            gridColumn: 'span 1',
+            '@media (min-width: 1024px)': {
+              gridColumn: 'span 2'
+            },
+            background: tokens.colors.background,
+            borderRadius: applyDesignSystemRadius('xl'),
+            boxShadow: applyDesignSystemShadow('md'),
+            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+          }}
+        >
+          <CardHeader
+            style={{
+              padding: applyDesignSystemSpacing(6)
+            }}
+          >
+            <CardTitle 
+              className="flex items-center"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                ...applyTypographyStyle('title'),
+                color: tokens.colors.foreground
+              }}
+            >
+              <CheckCircle 
+                className="h-5 w-5 mr-2"
+                style={{
+                  height: applyDesignSystemSpacing(5),
+                  width: applyDesignSystemSpacing(5),
+                  marginRight: applyDesignSystemSpacing(2),
+                  color: tokens.colors.success
+                }}
+              />
               System Status
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
+          <CardContent
+            style={{
+              padding: applyDesignSystemSpacing(6)
+            }}
+          >
+            <div 
+              className="grid grid-cols-2 md:grid-cols-4 gap-4"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: applyDesignSystemSpacing(4),
+                '@media (min-width: 768px)': {
+                  gridTemplateColumns: 'repeat(4, 1fr)'
+                }
+              }}
+            >
+              <div 
+                className="text-center"
+                style={{
+                  textAlign: 'center'
+                }}
+              >
+                <div 
+                  className="flex items-center justify-center mb-2"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: applyDesignSystemSpacing(2)
+                  }}
+                >
                   <div
-                    className={`w-3 h-3 rounded-full mr-2 ${getStatusColor(systemHealth?.data?.status)}`}
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{
+                      width: applyDesignSystemSpacing(3),
+                      height: applyDesignSystemSpacing(3),
+                      borderRadius: '50%',
+                      marginRight: applyDesignSystemSpacing(2),
+                      background: getStatusColor(systemHealth?.data?.status)
+                    }}
                   />
-                  <span className="text-sm font-medium">Database</span>
+                  <span 
+                    className="text-sm font-medium"
+                    style={{
+                      ...applyTypographyStyle('caption'),
+                      fontWeight: tokens.typography.fontWeight.medium,
+                      color: tokens.colors.foreground
+                    }}
+                  >
+                    Database
+                  </span>
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div 
+                  className="text-xs text-muted-foreground"
+                  style={{
+                    ...applyTypographyStyle('caption'),
+                    color: tokens.colors.secondary[500]
+                  }}
+                >
                   {systemHealth?.data?.status
                     ? String(systemHealth.data.status).toUpperCase()
                     : 'UNKNOWN'}

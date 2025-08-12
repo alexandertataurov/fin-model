@@ -74,6 +74,8 @@ import { Label } from '@/design-system/components/Label';
 import * as AdminApi from '@/services/admin';
 import type { UserWithRoles } from '@/services/admin';
 import { toast } from 'sonner';
+import { tokens } from '@/design-system/tokens';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 
 interface UserManagementProps {
   onUserUpdated?: () => void;
@@ -88,6 +90,13 @@ interface EditUserData {
 }
 
 const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
+  // Design system helper functions
+  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
+  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
+  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
+  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
+      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserWithRoles[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);

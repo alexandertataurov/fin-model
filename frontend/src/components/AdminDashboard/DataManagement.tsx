@@ -58,6 +58,8 @@ import {
 import * as AdminApi from '@/services/admin';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { tokens } from '@/design-system/tokens';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 
 interface TableInfo {
   name: string;
@@ -80,6 +82,13 @@ interface CleanupPreview {
 }
 
 const DataManagement: React.FC = () => {
+  // Design system helper functions
+  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
+  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
+  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
+  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
+      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+
   const [loading, setLoading] = useState(true);
   // const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
   const [tableData, setTableData] = useState<TableInfo[]>([]);

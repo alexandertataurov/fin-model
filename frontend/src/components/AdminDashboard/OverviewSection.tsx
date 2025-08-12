@@ -30,6 +30,7 @@ import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
+import { tokens } from '@/design-system/tokens';
 
 // Import design system components
 import {
@@ -61,12 +62,19 @@ const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
     return <Badge variant="default">Active</Badge>;
 };
 
+// Design system helper functions
+const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
+const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
+const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
+const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) =>
+    type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+
 const getStatusColor = (status: string) => {
     switch (status) {
-        case 'healthy': return 'bg-success';
-        case 'warning': return 'bg-warning';
-        case 'critical': return 'bg-destructive';
-        default: return 'bg-muted';
+        case 'healthy': return tokens.colors.success;
+        case 'warning': return tokens.colors.warning;
+        case 'critical': return tokens.colors.destructive[500];
+        default: return tokens.colors.muted[400];
     }
 };
 

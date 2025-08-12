@@ -47,6 +47,7 @@ import { Textarea } from '@/design-system/components/Textarea';
 import { tokens } from '@/design-system/tokens';
 import { toast } from 'sonner';
 import * as AdminApi from '@/services/admin';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 
 // Maintenance operation types
 export interface MaintenanceOperation {
@@ -161,6 +162,13 @@ interface MaintenanceToolsProps {
 export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
   onOperationComplete,
 }) => {
+  // Design system helper functions
+  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
+  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
+  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
+  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
+      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+
   const [history, setHistory] = useState<MaintenanceHistory[]>([]);
   const [runningOperations, setRunningOperations] = useState<Set<string>>(new Set());
   const [selectedOperation, setSelectedOperation] = useState<MaintenanceOperation | null>(null);

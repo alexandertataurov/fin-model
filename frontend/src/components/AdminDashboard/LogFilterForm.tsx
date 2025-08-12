@@ -11,6 +11,8 @@ import { Input } from '@/design-system/components/Input';
 import { DatePicker } from '@/design-system/components/DatePicker';
 import type { LogsState } from '@/stores/admin/types';
 import { Filter, Search, Calendar, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { tokens } from '@/design-system/tokens';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 
 interface LogFilterFormProps {
     level: LogsState['level'];
@@ -46,13 +48,60 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
     onPrev,
     onNext,
 }) => {
+    // Design system helper functions
+    const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
+    const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
+    const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
+    const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
+        type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+
     return (
-        <div className="space-y-6">
+        <div 
+            className="space-y-6"
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: applyDesignSystemSpacing(6)
+            }}
+        >
             {/* Filter Controls */}
-            <div className="bg-gray-50/50 rounded-lg p-4 border">
-                <div className="flex items-center gap-2 mb-4">
-                    <Filter className="h-4 w-4 text-gray-600" />
-                    <h4 className="font-medium text-gray-900">Filter Logs</h4>
+            <div 
+                className="bg-gray-50/50 rounded-lg p-4 border"
+                style={{
+                    background: `${tokens.colors.muted[50]}`,
+                    borderRadius: applyDesignSystemRadius('lg'),
+                    padding: applyDesignSystemSpacing(4),
+                    border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                    transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                }}
+            >
+                <div 
+                    className="flex items-center gap-2 mb-4"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: applyDesignSystemSpacing(2),
+                        marginBottom: applyDesignSystemSpacing(4)
+                    }}
+                >
+                    <Filter 
+                        className="h-4 w-4 text-gray-600"
+                        style={{
+                            height: applyDesignSystemSpacing(4),
+                            width: applyDesignSystemSpacing(4),
+                            color: tokens.colors.secondary[500]
+                        }}
+                    />
+                    <h4 
+                        className="font-medium text-gray-900"
+                        style={{
+                            ...applyTypographyStyle('subtitle'),
+                            fontWeight: tokens.typography.fontWeight.medium,
+                            color: tokens.colors.foreground
+                        }}
+                    >
+                        Filter Logs
+                    </h4>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
