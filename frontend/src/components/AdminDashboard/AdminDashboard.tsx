@@ -25,7 +25,7 @@ import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
 import DashboardCustomization from './DashboardCustomization';
 
 // Import global typography utilities
-import { applyTypographyStyle } from '@/design-system/utils/typography';
+import { applyTextStyle } from '@/design-system/utils/typography';
 
 // Import updated design system helpers
 import {
@@ -73,12 +73,12 @@ const LazyLogFilterForm = lazy(() => import('./LogFilterForm'));
 // Pre-computed styles using updated design system helpers
 const STYLES = {
     // Typography styles following design system guidelines
-    subtitle: applyTypographyStyle('subtitle'),
-    body: applyTypographyStyle('body'),
-    caption: applyTypographyStyle('caption'),
-    title: applyTypographyStyle('title'),
-    headline: applyTypographyStyle('headline'),
-    subheadline: applyTypographyStyle('subheadline'),
+    subtitle: applyTextStyle('subtitle'),
+    body: applyTextStyle('body'),
+    caption: applyTextStyle('caption'),
+    title: applyTextStyle('title'),
+    headline: applyTextStyle('headline'),
+    subheadline: applyTextStyle('subheadline'),
 
     // Spacing following 8px base unit
     spacing: {

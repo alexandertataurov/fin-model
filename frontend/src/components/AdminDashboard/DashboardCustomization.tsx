@@ -42,12 +42,12 @@ import {
 } from '@/design-system/components/Select';
 import { toast } from 'sonner';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/utils/typography';
+import { applyTextStyle } from '@/design-system/utils/typography';
 import {
-    applyDesignSystemSpacing,
-    applyDesignSystemRadius,
-    applyDesignSystemShadow,
-    applyDesignSystemMotion
+  applyDesignSystemSpacing,
+  applyDesignSystemRadius,
+  applyDesignSystemShadow,
+  applyDesignSystemMotion
 } from './utils/designSystemHelpers';
 
 // Dashboard widget types
@@ -258,8 +258,8 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             style={{
               display: 'inline-flex',
@@ -271,10 +271,10 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
               background: 'transparent',
               color: tokens.colors.foreground,
               transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
-              ...applyTypographyStyle('subtitle')
+              ...applyTextStyle('subtitle')
             }}
           >
-            <Settings 
+            <Settings
               className="h-4 w-4 mr-2"
               style={{
                 height: tokens.spacing[4],
@@ -285,30 +285,30 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
             Customize Dashboard
           </Button>
         </DialogTrigger>
-        <DialogContent 
+        <DialogContent
           className="max-w-4xl max-h-[80vh] overflow-y-auto"
-                      style={{
-              maxWidth: '56rem',
-              maxHeight: '80vh',
-              overflowY: 'auto',
-              borderRadius: applyDesignSystemRadius('xl'),
-              boxShadow: applyDesignSystemShadow('xl'),
-              border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-              background: tokens.colors.background
-            }}
+          style={{
+            maxWidth: '56rem',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            borderRadius: applyDesignSystemRadius('xl'),
+            boxShadow: applyDesignSystemShadow('xl'),
+            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+            background: tokens.colors.background
+          }}
         >
           <DialogHeader>
-            <DialogTitle 
+            <DialogTitle
               className="flex items-center gap-2"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: applyDesignSystemSpacing(2),
-                ...applyTypographyStyle('title'),
+                ...applyTextStyle('title'),
                 color: tokens.colors.foreground
               }}
             >
-              <Settings 
+              <Settings
                 className="h-5 w-5"
                 style={{
                   height: applyDesignSystemSpacing(5),
@@ -320,7 +320,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
             </DialogTitle>
             <DialogDescription
               style={{
-                ...applyTypographyStyle('body'),
+                ...applyTextStyle('body'),
                 color: tokens.colors.secondary[500]
               }}
             >
@@ -328,7 +328,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
             </DialogDescription>
           </DialogHeader>
 
-          <div 
+          <div
             className="space-y-6"
             style={{
               display: 'flex',
@@ -346,27 +346,27 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
                 transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
               }}
             >
-                        <CardHeader
-            style={{
-              padding: applyDesignSystemSpacing(6)
-            }}
-          >
-                <CardTitle 
+              <CardHeader
+                style={{
+                  padding: applyDesignSystemSpacing(6)
+                }}
+              >
+                <CardTitle
                   className="text-lg"
                   style={{
-                    ...applyTypographyStyle('title'),
+                    ...applyTextStyle('title'),
                     color: tokens.colors.foreground
                   }}
                 >
                   Role: {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                 </CardTitle>
               </CardHeader>
-                        <CardContent
-            style={{
-              padding: applyDesignSystemSpacing(6)
-            }}
-          >
-                <div 
+              <CardContent
+                style={{
+                  padding: applyDesignSystemSpacing(6)
+                }}
+              >
+                <div
                   className="flex items-center gap-2"
                   style={{
                     display: 'flex',
@@ -374,22 +374,22 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
                     gap: tokens.spacing[2]
                   }}
                 >
-                  <Badge 
+                  <Badge
                     variant="default"
                     style={{
                       padding: `${tokens.spacing[1]} ${tokens.spacing[3]}`,
                       borderRadius: tokens.borderRadius.full,
                       background: tokens.colors.primary[500],
                       color: tokens.colors.background,
-                      ...applyTypographyStyle('caption')
+                      ...applyTextStyle('caption')
                     }}
                   >
                     {userRole}
                   </Badge>
-                  <span 
+                  <span
                     className="text-sm text-muted-foreground"
                     style={{
-                      ...applyTypographyStyle('caption'),
+                      ...applyTextStyle('caption'),
                       color: tokens.colors.secondary[500]
                     }}
                   >

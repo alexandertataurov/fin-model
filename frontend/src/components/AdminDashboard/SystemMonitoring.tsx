@@ -201,12 +201,6 @@ import {
   getStatusColor,
   formatPercentage
 } from './utils/designSystemHelpers';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/design-system/components/Card';
 
 interface SystemMetrics {
   cpu_usage: number;
@@ -917,7 +911,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <FileText className="h-5 w-5 mr-2 text-blue-500" />
-                                      <h4 style={applyTextStyle('subtitle')}>System Logs</h4>
+                  <h4 style={applyTextStyle('subtitle')}>System Logs</h4>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm">

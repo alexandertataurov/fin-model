@@ -53,8 +53,7 @@ import {
   getSemanticShadow,
   applyDesignSystemMotion,
   getSemanticColor,
-  getSemanticSpacing,
-  applyTypographyStyle
+  getSemanticSpacing
 } from './utils/designSystemHelpers';
 import { applyTextStyle } from '@/design-system/utils/typography';
 import {
@@ -95,11 +94,11 @@ interface EditUserData {
 // Pre-computed styles using design system helpers
 const STYLES = {
   // Typography styles following design system guidelines
-  subtitle: applyTypographyStyle('subtitle'),
-  body: applyTypographyStyle('body'),
-  caption: applyTypographyStyle('caption'),
-  title: applyTypographyStyle('title'),
-  headline: applyTypographyStyle('headline'),
+  subtitle: applyTextStyle('subtitle'),
+  body: applyTextStyle('body'),
+  caption: applyTextStyle('caption'),
+  title: applyTextStyle('title'),
+  headline: applyTextStyle('headline'),
 
   // Spacing following 8px base unit
   spacing: {
