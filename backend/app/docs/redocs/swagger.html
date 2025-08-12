@@ -55,9 +55,9 @@
         --color-black: #000000;
 
         /* Typography Tokens */
-        --font-family-display: 'Playfair Display', 'Georgia', serif;
-        --font-family-sans: 'Inter', 'system-ui', sans-serif;
-        --font-family-mono: 'JetBrains Mono', 'monospace';
+        --font-family-display: "Playfair Display", "Georgia", serif;
+        --font-family-sans: "Inter", "system-ui", sans-serif;
+        --font-family-mono: "JetBrains Mono", "monospace";
 
         --font-size-xs: 0.75rem;
         --font-size-sm: 0.875rem;
@@ -107,10 +107,14 @@
         /* Shadow Tokens */
         --shadow-none: none;
         --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1),
+          0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+          0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+          0 8px 10px -6px rgb(0 0 0 / 0.1);
         --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
         --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
 
@@ -164,7 +168,11 @@
       }
 
       .header {
-        background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+        background: linear-gradient(
+          135deg,
+          var(--color-primary-500) 0%,
+          var(--color-primary-600) 100%
+        );
         color: var(--color-white);
         padding: var(--spacing-6) 0;
         text-align: center;
@@ -173,7 +181,7 @@
       }
 
       .header::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -272,7 +280,7 @@
       }
 
       .nav-links a.active::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: calc(-1 * var(--spacing-3));
         left: 0;
@@ -357,13 +365,13 @@
     <div class="nav-bar">
       <div class="nav-container">
         <div class="nav-links">
+          <a href="/api/v1/docs/">Home</a>
           <a href="/api/v1/docs/redoc">ReDoc</a>
           <a href="/api/v1/docs/swagger" class="active">Swagger UI</a>
-          <a href="/api/v1/docs/markdown" target="_blank">Full Docs</a>
-          <a href="/api/v1/docs/postman" target="_blank">Postman</a>
+          <a href="/api/v1/docs/comprehensive">Full Docs</a>
         </div>
         <div class="quick-links">
-          <a href="https://github.com/your-repo" target="_blank">GitHub</a>
+          <a href="https://github.com/finvision/api" target="_blank">GitHub</a>
           <a href="mailto:support@finvision.com">Support</a>
         </div>
       </div>
