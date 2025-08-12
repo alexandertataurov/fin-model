@@ -91,3 +91,27 @@ async def get_postman_collection():
         )
 
     return FileResponse(postman_file, media_type="application/json")
+
+
+@router.get("/markdown")
+async def get_markdown_docs():
+    """Serve the comprehensive markdown documentation."""
+    markdown_file = Path("/app/docs/API_DOCUMENTATION.md")
+    if not markdown_file.exists():
+        raise HTTPException(
+            status_code=404, detail="Markdown documentation not found"
+        )
+
+    return FileResponse(markdown_file, media_type="text/markdown")
+
+
+@router.get("/readme")
+async def get_readme_docs():
+    """Serve the quick start guide."""
+    readme_file = Path("/app/docs/API_README.md")
+    if not readme_file.exists():
+        raise HTTPException(
+            status_code=404, detail="README documentation not found"
+        )
+
+    return FileResponse(readme_file, media_type="text/markdown")
