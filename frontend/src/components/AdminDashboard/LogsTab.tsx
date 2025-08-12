@@ -1,13 +1,6 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import { useLogFilters } from '@/hooks/useLogFilters';
 import LogFilterForm from './LogFilterForm';
-import { tokens } from '@/design-system/tokens';
-import { applyTextStyle } from '@/design-system/utils/typography';
-import {
-  applyDesignSystemSpacing,
-  applyDesignSystemRadius,
-  applyDesignSystemMotion
-} from './utils/designSystemHelpers';
 import {
   Card,
   CardContent,
@@ -26,14 +19,7 @@ interface LogEntry {
 
 const LogsTab: React.FC = memo(() => {
   const {
-    items,
-    level,
-    limit,
-    from,
-    to,
-    search,
-    skip,
-    total,
+    logs,
     handleFilterChange,
     handleRefresh,
     handlePrev,
@@ -41,84 +27,57 @@ const LogsTab: React.FC = memo(() => {
   } = useLogFilters();
 
   // Memoized computed values
-  const hasLogs = useMemo(() => items.length > 0, [items.length]);
-  const logCount = useMemo(() => items.length, [items.length]);
+  const hasLogs = useMemo(() => logs.items?.length > 0, [logs.items?.length]);
+  const logCount = useMemo(() => logs.items?.length || 0, [logs.items?.length]);
+
+  // Wrapper function to handle type conversion
+  const handleFormChange = useCallback((updates: any) => {
+    handleFilterChange(updates);
+  }, [handleFilterChange]);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>System Logs</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         <LogFilterForm
-          level={level}
-          limit={limit}
-          from={from}
-          to={to}
-          search={search}
-          skip={skip}
-          total={total}
-          onChange={handleFilterChange}
+          level={logs.level as any}
+          limit={logs.limit}
+          from={logs.from}
+          to={logs.to}
+          search={logs.search}
+          skip={logs.skip}
+          total={logs.total}
+          onChange={handleFormChange}
           onRefresh={handleRefresh}
           onPrev={handlePrev}
           onNext={handleNext}
         />
-        <div
-          className="border rounded"
-          style={{
-            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-            borderRadius: applyDesignSystemRadius('lg'),
-            marginTop: applyDesignSystemSpacing(6)
-          }}
-        >
-          <div
-            className="max-h-96 overflow-auto"
-            style={{
-              maxHeight: '24rem',
-              overflow: 'auto'
-            }}
-          >
+        <div className="border border-border rounded-lg mt-6">
+          <div className="max-h-96 overflow-auto">
             {hasLogs ? (
-              items.map((log: LogEntry, idx: number) => (
+              logs.items?.map((log: LogEntry, idx: number) => (
                 <div
                   key={idx}
-                  className="px-3 py-2 border-b"
-                  style={{
-                    padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(3)}`,
-                    borderBottom: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                    transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-                  }}
+                  className="px-3 py-2 border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors"
                 >
-                  <div
-                    className="flex items-center justify-between"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: applyDesignSystemSpacing(1)
-                    }}
-                  >
-                    <span style={applyTextStyle('subtitle')}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-foreground">
                       [{log.level}] {log.module}
                     </span>
-                    <span style={applyTextStyle('caption')}>
+                    <span className="text-xs text-muted-foreground">
                       {new Date(log.timestamp).toLocaleString()}
                     </span>
                   </div>
-                  <p style={applyTextStyle('body')}>
+                  <p className="text-sm text-foreground">
                     {log.message}
                   </p>
                 </div>
               ))
             ) : (
-              <div
-                className="p-4 text-center"
-                style={{
-                  padding: applyDesignSystemSpacing(4),
-                  textAlign: 'center'
-                }}
-              >
-                <p style={applyTextStyle('body')}>No logs.</p>
+              <div className="p-4 text-center">
+                <p className="text-sm text-muted-foreground">No logs.</p>
               </div>
             )}
           </div>

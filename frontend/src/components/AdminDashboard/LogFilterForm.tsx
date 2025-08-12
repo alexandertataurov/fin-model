@@ -2,20 +2,11 @@ import React, { memo, useCallback } from 'react';
 import { Button } from '@/design-system/components/Button';
 import { Input } from '@/design-system/components/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
-import { tokens } from '@/design-system/tokens';
-import { applyTextStyle } from '@/design-system/utils/typography';
 import {
-    Search,
-    Filter,
     RefreshCw,
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
-import {
-    applyDesignSystemSpacing,
-    applyDesignSystemRadius,
-    applyDesignSystemMotion
-} from './utils/designSystemHelpers';
 
 interface LogsState {
     level: 'ALL' | 'ERROR' | 'WARNING' | 'INFO' | 'DEBUG';
@@ -87,39 +78,14 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
     const hasPrevPage = skip > 0;
 
     return (
-        <div
-            className="space-y-4"
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: applyDesignSystemSpacing(4)
-            }}
-        >
-            <div
-                className="flex flex-col sm:flex-row gap-4"
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: applyDesignSystemSpacing(4),
-                    '@media (min-width: 640px)': {
-                        flexDirection: 'row'
-                    }
-                }}
-            >
+        <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                     <Input
                         placeholder="Search logs..."
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         className="w-full"
-                        style={{
-                            borderRadius: applyDesignSystemRadius('lg'),
-                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
-                            fontSize: tokens.typography.fontSize.base,
-                            fontFamily: tokens.typography.fontFamily.sans.join(', '),
-                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-                        }}
                     />
                 </div>
                 <Select value={level} onValueChange={handleLevelChange}>
@@ -149,29 +115,13 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                     variant="outline"
                     size="sm"
                     onClick={onRefresh}
-                    style={{
-                        borderRadius: applyDesignSystemRadius('lg'),
-                        border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                        padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
-                        transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-                    }}
                 >
                     <RefreshCw className="h-4 w-4 mr-2" />
-                    <span style={applyTextStyle('subtitle')}>Refresh</span>
+                    <span className="text-sm">Refresh</span>
                 </Button>
             </div>
 
-            <div
-                className="flex flex-col sm:flex-row gap-4"
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: applyDesignSystemSpacing(4),
-                    '@media (min-width: 640px)': {
-                        flexDirection: 'row'
-                    }
-                }}
-            >
+            <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                     <Input
                         type="datetime-local"
@@ -179,14 +129,6 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                         value={from}
                         onChange={(e) => handleFromChange(e.target.value)}
                         className="w-full"
-                        style={{
-                            borderRadius: applyDesignSystemRadius('lg'),
-                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
-                            fontSize: tokens.typography.fontSize.base,
-                            fontFamily: tokens.typography.fontFamily.sans.join(', '),
-                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-                        }}
                     />
                 </div>
                 <div className="flex-1">
@@ -196,52 +138,24 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                         value={to}
                         onChange={(e) => handleToChange(e.target.value)}
                         className="w-full"
-                        style={{
-                            borderRadius: applyDesignSystemRadius('lg'),
-                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
-                            fontSize: tokens.typography.fontSize.base,
-                            fontFamily: tokens.typography.fontFamily.sans.join(', '),
-                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-                        }}
                     />
                 </div>
             </div>
 
-            <div
-                className="flex items-center justify-between"
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}
-            >
-                <span style={applyTextStyle('caption')}>
+            <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
                     Showing {skip + 1}-{Math.min(skip + limit, total)} of {total} logs
                 </span>
-                <div
-                    className="flex items-center gap-2"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: applyDesignSystemSpacing(2)
-                    }}
-                >
+                <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={onPrev}
                         disabled={!hasPrevPage}
-                        style={{
-                            borderRadius: applyDesignSystemRadius('lg'),
-                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
-                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-                        }}
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <span style={applyTextStyle('caption')}>
+                    <span className="text-sm text-muted-foreground">
                         Page {currentPage} of {totalPages}
                     </span>
                     <Button
@@ -249,12 +163,6 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                         size="sm"
                         onClick={onNext}
                         disabled={!hasNextPage}
-                        style={{
-                            borderRadius: applyDesignSystemRadius('lg'),
-                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
-                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-                        }}
                     >
                         <ChevronRight className="h-4 w-4" />
                     </Button>

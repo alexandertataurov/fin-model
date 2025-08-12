@@ -15,7 +15,6 @@ import {
 import { Badge } from '@/design-system/components/Badge';
 import { Button } from '@/design-system/components/Button';
 import { Progress } from '@/design-system/components/Progress';
-import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
@@ -38,7 +37,6 @@ import {
     formatNumber,
     formatPercentage
 } from './utils/designSystemHelpers';
-import { applyTextStyle } from '@/design-system/utils/typography';
 
 // Enhanced metric card component
 const MetricCard: React.FC<{
@@ -53,11 +51,11 @@ const MetricCard: React.FC<{
     };
     status?: 'success' | 'warning' | 'error' | 'info';
 }> = ({ title, value, subtitle, icon, trend, status = 'info' }) => {
-    const statusColors = {
-        success: tokens.colors.success,
-        warning: tokens.colors.warning,
-        error: tokens.colors.destructive[500],
-        info: tokens.colors.info,
+    const statusClasses = {
+        success: 'bg-green-100 border-green-200 text-green-600',
+        warning: 'bg-yellow-100 border-yellow-200 text-yellow-600',
+        error: 'bg-red-100 border-red-200 text-red-600',
+        info: 'bg-blue-100 border-blue-200 text-blue-600',
     };
 
     return (
@@ -65,23 +63,15 @@ const MetricCard: React.FC<{
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div
-                            className="p-3 rounded-xl transition-all duration-300 group-hover:scale-110"
-                            style={{
-                                background: `${statusColors[status]}20`,
-                                border: `1px solid ${statusColors[status]}30`,
-                            }}
-                        >
-                            <div style={{ color: statusColors[status] }}>
-                                {icon}
-                            </div>
+                        <div className={`p-3 rounded-xl transition-all duration-300 group-hover:scale-110 border ${statusClasses[status]}`}>
+                            {icon}
                         </div>
                         <div>
-                            <h4 style={applyTextStyle('subtitle')} className="text-muted-foreground mb-1">
+                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
                                 {title}
                             </h4>
                             {subtitle && (
-                                <span style={applyTextStyle('caption')} className="text-muted-foreground/70">
+                                <span className="text-xs text-muted-foreground/70">
                                     {subtitle}
                                 </span>
                             )}
@@ -94,13 +84,7 @@ const MetricCard: React.FC<{
                             ) : (
                                 <TrendingDown className="h-4 w-4 text-destructive" />
                             )}
-                            <span
-                                className={trend.isPositive ? 'text-success' : 'text-destructive'}
-                                style={{
-                                    fontWeight: tokens.typography.fontWeight.medium,
-                                    ...applyTextStyle('caption')
-                                }}
-                            >
+                            <span className={`text-xs font-medium ${trend.isPositive ? 'text-success' : 'text-destructive'}`}>
                                 {trend.isPositive ? '+' : ''}{trend.value}%
                             </span>
                         </div>
@@ -109,14 +93,11 @@ const MetricCard: React.FC<{
             </CardHeader>
             <CardContent>
                 <div className="space-y-2">
-                    <h1
-                        className="text-3xl font-bold text-foreground"
-                        style={applyTextStyle('headline')}
-                    >
+                    <h1 className="text-3xl font-bold text-foreground">
                         {value}
                     </h1>
                     {trend && (
-                        <span style={applyTextStyle('caption')} className="text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                             {trend.label}
                         </span>
                     )}
@@ -143,8 +124,8 @@ const ActivityItem: React.FC<{
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <p style={applyTextStyle('body')} className="font-semibold">{user.username}</p>
-                            <span style={applyTextStyle('caption')} className="text-muted-foreground">
+                            <p className="text-sm font-semibold text-foreground">{user.username}</p>
+                            <span className="text-xs text-muted-foreground">
                                 <Clock className="inline h-3 w-3 mr-1" />
                                 Last login: {user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}
                             </span>
@@ -157,7 +138,7 @@ const ActivityItem: React.FC<{
                         >
                             {user.is_active ? 'Active' : 'Inactive'}
                         </Badge>
-                        <span style={applyTextStyle('caption')} className="block text-muted-foreground">
+                        <span className="text-xs block text-muted-foreground">
                             <Hash className="inline h-3 w-3 mr-1" />
                             {user.login_count} logins
                         </span>
@@ -196,13 +177,10 @@ const OverviewSection: React.FC = memo(() => {
                         <Activity className="h-12 w-12 text-primary" />
                     </div>
                     <div className="space-y-4">
-                        <h1
-                            className="text-4xl font-bold text-foreground"
-                            style={applyTextStyle('headline')}
-                        >
+                        <h1 className="text-4xl font-bold text-foreground">
                             No Data Available
                         </h1>
-                        <p style={applyTextStyle('body')} className="text-lg text-muted-foreground max-w-md mx-auto">
+                        <p className="text-lg text-muted-foreground max-w-md mx-auto">
                             Overview data is currently unavailable. Please try refreshing the page or check your connection.
                         </p>
                         <Button
@@ -272,10 +250,10 @@ const OverviewSection: React.FC = memo(() => {
                                     <Activity className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h4 style={applyTextStyle('subtitle')} className="font-semibold">
+                                    <h4 className="text-sm font-semibold text-foreground">
                                         System Performance
                                     </h4>
-                                    <span style={applyTextStyle('caption')} className="text-muted-foreground">
+                                    <span className="text-xs text-muted-foreground">
                                         Real-time metrics
                                     </span>
                                 </div>
@@ -284,8 +262,8 @@ const OverviewSection: React.FC = memo(() => {
                         <CardContent className="space-y-8 pt-6">
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span style={applyTextStyle('caption')} className="font-medium">CPU Usage</span>
-                                    <span style={applyTextStyle('body')} className="font-semibold text-info">
+                                    <span className="text-xs font-medium text-muted-foreground">CPU Usage</span>
+                                    <span className="text-sm font-semibold text-info">
                                         {formatPercentage(systemMetrics.data?.cpu_usage || 0)}
                                     </span>
                                 </div>
@@ -293,8 +271,8 @@ const OverviewSection: React.FC = memo(() => {
                             </div>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span style={applyTextStyle('caption')} className="font-medium">Memory Usage</span>
-                                    <span style={applyTextStyle('body')} className="font-semibold text-warning">
+                                    <span className="text-xs font-medium text-muted-foreground">Memory Usage</span>
+                                    <span className="text-sm font-semibold text-warning">
                                         {formatPercentage(systemMetrics.data?.memory_usage || 0)}
                                     </span>
                                 </div>
@@ -302,8 +280,8 @@ const OverviewSection: React.FC = memo(() => {
                             </div>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span style={applyTextStyle('caption')} className="font-medium">Disk Usage</span>
-                                    <span style={applyTextStyle('body')} className="font-semibold text-destructive">
+                                    <span className="text-xs font-medium text-muted-foreground">Disk Usage</span>
+                                    <span className="text-sm font-semibold text-destructive">
                                         {formatPercentage(systemMetrics.data?.disk_usage || 0)}
                                     </span>
                                 </div>
@@ -319,10 +297,10 @@ const OverviewSection: React.FC = memo(() => {
                                     <Users className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h4 style={applyTextStyle('subtitle')} className="font-semibold">
+                                    <h4 className="text-sm font-semibold text-foreground">
                                         Recent Activity
                                     </h4>
-                                    <span style={applyTextStyle('caption')} className="text-muted-foreground">
+                                    <span className="text-xs text-muted-foreground">
                                         User interactions
                                     </span>
                                 </div>
@@ -338,7 +316,7 @@ const OverviewSection: React.FC = memo(() => {
                                         variant="ghost"
                                         className="text-primary hover:text-primary/80 transition-colors"
                                     >
-                                        <span style={applyTextStyle('caption')}>
+                                        <span className="text-muted-foreground">
                                             View All Activity
                                         </span>
                                         <ArrowUpRight className="h-4 w-4 ml-2" />

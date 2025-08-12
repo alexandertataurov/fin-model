@@ -1,28 +1,12 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import { useAdminStore } from '@/stores/admin';
-import { tokens } from '@/design-system/tokens';
-import { applyTextStyle } from '@/design-system/utils/typography';
-import {
-  applyDesignSystemSpacing
-} from './utils/designSystemHelpers';
-import {
-  Heart,
-  Activity,
-  Cpu,
-  HardDrive,
-  Database,
-  Wifi,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  RefreshCw
-} from 'lucide-react';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '@/design-system/components/Card';
+import { Badge } from '@/design-system/components/Badge';
 
 const HealthTab: React.FC = memo(() => {
   const { systemHealth, databaseHealth, fetchHealthData } = useAdminStore();
@@ -44,11 +28,6 @@ const HealthTab: React.FC = memo(() => {
   return (
     <div
       className="space-y-4"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: applyDesignSystemSpacing(4)
-      }}
     >
       <Card>
         <CardHeader>
@@ -58,44 +37,22 @@ const HealthTab: React.FC = memo(() => {
           {systemHealth.data ? (
             <div
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(1, 1fr)',
-                gap: applyDesignSystemSpacing(4),
-                '@media (min-width: 768px)': {
-                  gridTemplateColumns: 'repeat(2, 1fr)'
-                }
-              }}
             >
               <div
                 className="flex items-center justify-between"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
               >
-                <span style={applyTextStyle('caption')}>Status</span>
-                <span style={applyTextStyle('subtitle')}>
+                <span className="text-sm text-muted-foreground">Status</span>
+                <Badge variant={healthStatus === 'Healthy' ? 'success' : 'destructive'}>
                   {healthStatus}
-                </span>
+                </Badge>
               </div>
-              <div
-                className="flex items-center justify-between"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <span style={applyTextStyle('caption')}>Timestamp</span>
-                <span style={applyTextStyle('subtitle')}>
-                  {new Date().toLocaleString()}
-                </span>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Timestamp</span>
+                <span className="text-sm font-medium text-foreground">{new Date().toLocaleString()}</span>
               </div>
             </div>
           ) : (
-            <p style={applyTextStyle('body')}>No system health data.</p>
+            <p className="text-muted-foreground">No system health data.</p>
           )}
         </CardContent>
       </Card>
@@ -108,31 +65,16 @@ const HealthTab: React.FC = memo(() => {
           {databaseHealth.data ? (
             <div
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(1, 1fr)',
-                gap: applyDesignSystemSpacing(4),
-                '@media (min-width: 768px)': {
-                  gridTemplateColumns: 'repeat(2, 1fr)'
-                }
-              }}
             >
-              <div
-                className="flex items-center justify-between"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <span style={applyTextStyle('caption')}>Status</span>
-                <span style={applyTextStyle('subtitle')}>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <Badge variant={databaseStatus === 'Healthy' ? 'success' : 'destructive'}>
                   {databaseStatus}
-                </span>
+                </Badge>
               </div>
             </div>
           ) : (
-            <p style={applyTextStyle('body')}>No database health data.</p>
+            <p className="text-muted-foreground">No database health data.</p>
           )}
         </CardContent>
       </Card>

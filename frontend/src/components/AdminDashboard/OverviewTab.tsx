@@ -9,15 +9,9 @@ import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
-import { applyTextStyle } from '@/design-system/utils/typography';
 import {
-  applyDesignSystemSpacing,
-  applyDesignSystemRadius,
-  applyDesignSystemShadow,
-  applyDesignSystemMotion,
   formatNumber,
   getStatusBadge
 } from './utils/designSystemHelpers';
@@ -52,32 +46,9 @@ const OverviewTab: React.FC = memo(() => {
 
   if (!hasAnyData) {
     return (
-      <div
-        className="flex items-center justify-center py-12"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: `${applyDesignSystemSpacing(12)} 0`
-        }}
-      >
-        <Alert
-          className="max-w-md"
-          style={{
-            maxWidth: '28rem',
-            background: tokens.colors.background,
-            borderRadius: applyDesignSystemRadius('lg'),
-            boxShadow: applyDesignSystemShadow('md'),
-            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-          }}
-        >
-          <AlertDescription
-            style={{
-              ...applyTextStyle('body'),
-              color: tokens.colors.secondary[500]
-            }}
-          >
+      <div className="flex items-center justify-center py-12">
+        <Alert className="max-w-md">
+          <AlertDescription className="text-muted-foreground">
             Admin data is currently unavailable. Please try refreshing the page or check your connection.
           </AlertDescription>
         </Alert>
@@ -87,117 +58,24 @@ const OverviewTab: React.FC = memo(() => {
 
   return (
     <>
-      <div
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(1, 1fr)',
-          gap: applyDesignSystemSpacing(6),
-          marginBottom: applyDesignSystemSpacing(8),
-          '@media (min-width: 1024px)': {
-            gridTemplateColumns: 'repeat(3, 1fr)'
-          }
-        }}
-      >
-        <Card
-          className="lg:col-span-2"
-          style={{
-            gridColumn: 'span 1',
-            '@media (min-width: 1024px)': {
-              gridColumn: 'span 2'
-            },
-            background: tokens.colors.background,
-            borderRadius: applyDesignSystemRadius('xl'),
-            boxShadow: applyDesignSystemShadow('md'),
-            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-          }}
-        >
-          <CardHeader
-            style={{
-              padding: applyDesignSystemSpacing(6)
-            }}
-          >
-            <CardTitle
-              className="flex items-center"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                ...applyTextStyle('title'),
-                color: tokens.colors.foreground
-              }}
-            >
-              <CheckCircle
-                className="h-5 w-5 mr-2"
-                style={{
-                  height: applyDesignSystemSpacing(5),
-                  width: applyDesignSystemSpacing(5),
-                  marginRight: applyDesignSystemSpacing(2),
-                  color: tokens.colors.success
-                }}
-              />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center text-foreground">
+              <CheckCircle className="h-5 w-5 mr-2 text-success" />
               System Status
             </CardTitle>
           </CardHeader>
-          <CardContent
-            style={{
-              padding: applyDesignSystemSpacing(6)
-            }}
-          >
-            <div
-              className="grid grid-cols-2 md:grid-cols-4 gap-4"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: applyDesignSystemSpacing(4),
-                '@media (min-width: 768px)': {
-                  gridTemplateColumns: 'repeat(4, 1fr)'
-                }
-              }}
-            >
-              <div
-                className="text-center"
-                style={{
-                  textAlign: 'center'
-                }}
-              >
-                <div
-                  className="flex items-center justify-center mb-2"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: applyDesignSystemSpacing(2)
-                  }}
-                >
-                  <div
-                    className="w-3 h-3 rounded-full mr-2"
-                    style={{
-                      width: applyDesignSystemSpacing(3),
-                      height: applyDesignSystemSpacing(3),
-                      borderRadius: '50%',
-                      marginRight: applyDesignSystemSpacing(2),
-                      background: getStatusColor(systemHealth?.data?.status)
-                    }}
-                  />
-                  <span
-                    className="text-sm font-medium"
-                    style={{
-                      ...applyTextStyle('caption'),
-                      fontWeight: tokens.typography.fontWeight.medium,
-                      color: tokens.colors.foreground
-                    }}
-                  >
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <div className="w-3 h-3 rounded-full mr-2 bg-success" />
+                  <span className="text-sm font-medium text-foreground">
                     Database
                   </span>
                 </div>
-                <div
-                  className="text-xs text-muted-foreground"
-                  style={{
-                    ...applyTextStyle('caption'),
-                    color: tokens.colors.secondary[500]
-                  }}
-                >
+                <div className="text-xs text-muted-foreground">
                   {systemHealth?.data?.status
                     ? String(systemHealth.data.status).toUpperCase()
                     : 'UNKNOWN'}
@@ -218,7 +96,7 @@ const OverviewTab: React.FC = memo(() => {
                   <span className="text-sm font-medium">CPU</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {formatPercentage(systemMetrics.data?.cpu_usage ?? null)}
+                  {systemMetrics.data?.cpu_usage ? `${systemMetrics.data.cpu_usage}%` : '0%'}
                 </div>
               </div>
               <div className="text-center">
@@ -236,7 +114,7 @@ const OverviewTab: React.FC = memo(() => {
                   <span className="text-sm font-medium">Memory</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {formatPercentage(systemMetrics.data?.memory_usage ?? null)}
+                  {systemMetrics.data?.memory_usage ? `${systemMetrics.data.memory_usage}%` : '0%'}
                 </div>
               </div>
               <div className="text-center">
@@ -254,7 +132,7 @@ const OverviewTab: React.FC = memo(() => {
                   <span className="text-sm font-medium">Disk</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {formatPercentage(systemMetrics.data?.disk_usage ?? null)}
+                  {systemMetrics.data?.disk_usage ? `${systemMetrics.data.disk_usage}%` : '0%'}
                 </div>
               </div>
             </div>
@@ -271,7 +149,7 @@ const OverviewTab: React.FC = memo(() => {
                 <Cpu className="h-4 w-4" /> CPU
               </div>
               <span className="font-medium">
-                {formatPercentage(systemMetrics.data?.cpu_usage ?? null)}
+                {systemMetrics.data?.cpu_usage ? `${systemMetrics.data.cpu_usage}%` : '0%'}
               </span>
             </div>
             <Progress value={systemMetrics.data?.cpu_usage || 0} />
@@ -280,7 +158,7 @@ const OverviewTab: React.FC = memo(() => {
                 <HardDrive className="h-4 w-4" /> Disk
               </div>
               <span className="font-medium">
-                {formatPercentage(systemMetrics.data?.disk_usage ?? null)}
+                {systemMetrics.data?.disk_usage ? `${systemMetrics.data.disk_usage}%` : '0%'}
               </span>
             </div>
             <Progress value={systemMetrics.data?.disk_usage || 0} />
@@ -297,7 +175,7 @@ const OverviewTab: React.FC = memo(() => {
                 <Bell className="h-4 w-4" /> Error Rate
               </div>
               <span className="font-medium">
-                {formatPercentage(systemMetrics.data?.error_rate_24h ?? null)}
+                {systemMetrics.data?.error_rate_24h ? `${systemMetrics.data.error_rate_24h}%` : '0%'}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
