@@ -1,9 +1,22 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { useAdminStore } from '@/stores/adminStore';
 import { tokens } from '@/design-system/tokens';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 import {
     applyDesignSystemSpacing
 } from './utils/designSystemHelpers';
+import {
+    Heart,
+    Activity,
+    Cpu,
+    HardDrive,
+    Database,
+    Wifi,
+    AlertCircle,
+    CheckCircle,
+    Clock,
+    RefreshCw
+} from 'lucide-react';
 import {
     AdminCard,
     AdminTitle,
@@ -12,18 +25,21 @@ import {
 } from './components';
 
 const HealthTab: React.FC = memo(() => {
-  const { systemHealth, databaseHealth } = useAdminStore();
+  const { systemHealth, databaseHealth, fetchHealthData } = useAdminStore();
 
-  // Memoized computed values
   const healthStatus = useMemo(() => {
-    if (!systemHealth.data) return 'unknown';
-    return String(systemHealth.data.status).toUpperCase();
+    if (!systemHealth.data) return 'Unknown';
+    return systemHealth.data.status === 'healthy' ? 'Healthy' : 'Unhealthy';
   }, [systemHealth.data]);
 
   const databaseStatus = useMemo(() => {
-    if (!databaseHealth) return 'unknown';
-    return databaseHealth.status || 'unknown';
-  }, [databaseHealth]);
+    if (!databaseHealth.data) return 'Unknown';
+    return databaseHealth.data.status === 'healthy' ? 'Healthy' : 'Unhealthy';
+  }, [databaseHealth.data]);
+
+  const handleRefresh = useCallback(() => {
+    fetchHealthData();
+  }, [fetchHealthData]);
 
   return (
     <div 
@@ -41,12 +57,11 @@ const HealthTab: React.FC = memo(() => {
       >
         {systemHealth.data ? (
           <div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(1, 1fr)',
               gap: applyDesignSystemSpacing(4),
-              fontSize: tokens.typography.fontSize.sm,
               '@media (min-width: 768px)': {
                 gridTemplateColumns: 'repeat(2, 1fr)'
               }
@@ -61,13 +76,7 @@ const HealthTab: React.FC = memo(() => {
               }}
             >
               <AdminCaption>Status</AdminCaption>
-              <span 
-                className="font-medium"
-                style={{
-                  fontWeight: tokens.typography.fontWeight.medium,
-                  color: tokens.colors.foreground
-                }}
-              >
+              <span style={applyTypographyStyle('subtitle')}>
                 {healthStatus}
               </span>
             </div>
@@ -80,13 +89,7 @@ const HealthTab: React.FC = memo(() => {
               }}
             >
               <AdminCaption>Timestamp</AdminCaption>
-              <span 
-                className="font-medium"
-                style={{
-                  fontWeight: tokens.typography.fontWeight.medium,
-                  color: tokens.colors.foreground
-                }}
-              >
+              <span style={applyTypographyStyle('subtitle')}>
                 {new Date().toLocaleString()}
               </span>
             </div>
@@ -103,12 +106,11 @@ const HealthTab: React.FC = memo(() => {
       >
         {databaseHealth.data ? (
           <div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(1, 1fr)',
               gap: applyDesignSystemSpacing(4),
-              fontSize: tokens.typography.fontSize.sm,
               '@media (min-width: 768px)': {
                 gridTemplateColumns: 'repeat(2, 1fr)'
               }
@@ -123,13 +125,7 @@ const HealthTab: React.FC = memo(() => {
               }}
             >
               <AdminCaption>Status</AdminCaption>
-              <span 
-                className="font-medium"
-                style={{
-                  fontWeight: tokens.typography.fontWeight.medium,
-                  color: tokens.colors.foreground
-                }}
-              >
+              <span style={applyTypographyStyle('subtitle')}>
                 {databaseStatus}
               </span>
             </div>

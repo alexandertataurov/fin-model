@@ -271,8 +271,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
               background: 'transparent',
               color: tokens.colors.foreground,
               transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
-              fontSize: tokens.typography.fontSize.sm,
-              fontWeight: tokens.typography.fontWeight.medium
+              ...applyTypographyStyle('subtitle')
             }}
           >
             <Settings 
@@ -311,11 +310,11 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
             >
               <Settings 
                 className="h-5 w-5"
-                              style={{
-                height: applyDesignSystemSpacing(5),
-                width: applyDesignSystemSpacing(5),
-                color: tokens.colors.primary[500]
-              }}
+                style={{
+                  height: applyDesignSystemSpacing(5),
+                  width: applyDesignSystemSpacing(5),
+                  color: tokens.colors.primary[500]
+                }}
               />
               Dashboard Customization
             </DialogTitle>
@@ -382,8 +381,7 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
                       borderRadius: tokens.borderRadius.full,
                       background: tokens.colors.primary[500],
                       color: tokens.colors.background,
-                      fontSize: tokens.typography.fontSize.sm,
-                      fontWeight: tokens.typography.fontWeight.medium
+                      ...applyTypographyStyle('caption')
                     }}
                   >
                     {userRole}

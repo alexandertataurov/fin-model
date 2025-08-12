@@ -1,18 +1,31 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Button } from '@/design-system/components/Button';
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from '@/design-system/components/Select';
 import { Input } from '@/design-system/components/Input';
-import { DatePicker } from '@/design-system/components/DatePicker';
-import type { LogsState } from '@/stores/admin/types';
-import { Filter, Search, Calendar, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '@/design-system/stories/components';
+import {
+    Search,
+    Filter,
+    RefreshCw,
+    ChevronLeft,
+    ChevronRight
+} from 'lucide-react';
+import {
+    applyDesignSystemSpacing,
+    applyDesignSystemRadius,
+    applyDesignSystemMotion
+} from './utils/designSystemHelpers';
+
+interface LogsState {
+    level: 'ALL' | 'ERROR' | 'WARNING' | 'INFO' | 'DEBUG';
+    limit: number;
+    from: string;
+    to: string;
+    search: string;
+    skip: number;
+    total: number;
+}
 
 interface LogFilterFormProps {
     level: LogsState['level'];
@@ -46,206 +59,211 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
     onChange,
     onRefresh,
     onPrev,
-    onNext,
+    onNext
 }) => {
-    // Memoized computed values
-    const hasResults = useMemo(() => total > 0, [total]);
-    const canGoPrev = useMemo(() => skip > 0, [skip]);
-    const canGoNext = useMemo(() => skip + limit < total, [skip, limit, total]);
-    const currentPage = useMemo(() => Math.floor(skip / limit) + 1, [skip, limit]);
-    const totalPages = useMemo(() => Math.ceil(total / limit), [total, limit]);
-
-    // Memoized handlers
-    const handleLevelChange = useCallback((newLevel: string) => {
-        onChange({ level: newLevel as LogsState['level'], skip: 0 });
+    const handleSearchChange = useCallback((value: string) => {
+        onChange({ search: value, skip: 0 });
     }, [onChange]);
 
-    const handleLimitChange = useCallback((newLimit: string) => {
-        onChange({ limit: Number(newLimit), skip: 0 });
+    const handleLevelChange = useCallback((value: string) => {
+        onChange({ level: value as LogsState['level'], skip: 0 });
     }, [onChange]);
+
+    const handleLimitChange = useCallback((value: string) => {
+        onChange({ limit: parseInt(value), skip: 0 });
+    }, [onChange]);
+
+    const handleFromChange = useCallback((value: string) => {
+        onChange({ from: value, skip: 0 });
+    }, [onChange]);
+
+    const handleToChange = useCallback((value: string) => {
+        onChange({ to: value, skip: 0 });
+    }, [onChange]);
+
+    const currentPage = Math.floor(skip / limit) + 1;
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = skip + limit < total;
+    const hasPrevPage = skip > 0;
 
     return (
         <div 
-            className="space-y-6"
+            className="space-y-4"
             style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: applyDesignSystemSpacing(6)
+                gap: applyDesignSystemSpacing(4)
             }}
         >
-            {/* Filter Controls */}
             <div 
-                className="bg-gray-50/50 rounded-lg p-4 border"
+                className="flex flex-col sm:flex-row gap-4"
                 style={{
-                    background: `${tokens.colors.muted[50]}`,
-                    borderRadius: applyDesignSystemRadius('lg'),
-                    padding: applyDesignSystemSpacing(4),
-                    border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                    transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: applyDesignSystemSpacing(4),
+                    '@media (min-width: 640px)': {
+                        flexDirection: 'row'
+                    }
                 }}
             >
-                <div 
-                    className="flex items-center gap-2 mb-4"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: applyDesignSystemSpacing(2),
-                        marginBottom: applyDesignSystemSpacing(4)
-                    }}
-                >
-                    <Filter 
-                        className="h-4 w-4 text-gray-600"
+                <div className="flex-1">
+                    <Input
+                        placeholder="Search logs..."
+                        value={search}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="w-full"
                         style={{
-                            height: applyDesignSystemSpacing(4),
-                            width: applyDesignSystemSpacing(4),
-                            color: tokens.colors.secondary[500]
+                            borderRadius: applyDesignSystemRadius('lg'),
+                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                            fontSize: tokens.typography.fontSize.base,
+                            fontFamily: tokens.typography.fontFamily.sans.join(', '),
+                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
                         }}
                     />
-                    <h4 
-                        className="font-medium text-gray-900"
+                </div>
+                <Select value={level} onValueChange={handleLevelChange}>
+                    <SelectTrigger className="w-full sm:w-32">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ALL">All Levels</SelectItem>
+                        <SelectItem value="ERROR">Error</SelectItem>
+                        <SelectItem value="WARNING">Warning</SelectItem>
+                        <SelectItem value="INFO">Info</SelectItem>
+                        <SelectItem value="DEBUG">Debug</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={limit.toString()} onValueChange={handleLimitChange}>
+                    <SelectTrigger className="w-full sm:w-24">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={onRefresh}
+                    style={{
+                        borderRadius: applyDesignSystemRadius('lg'),
+                        border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                        padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                        transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                    }}
+                >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    <span style={applyTypographyStyle('subtitle')}>Refresh</span>
+                </Button>
+            </div>
+
+            <div 
+                className="flex flex-col sm:flex-row gap-4"
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: applyDesignSystemSpacing(4),
+                    '@media (min-width: 640px)': {
+                        flexDirection: 'row'
+                    }
+                }}
+            >
+                <div className="flex-1">
+                    <Input
+                        type="datetime-local"
+                        placeholder="From date"
+                        value={from}
+                        onChange={(e) => handleFromChange(e.target.value)}
+                        className="w-full"
                         style={{
-                            ...applyTypographyStyle('subtitle'),
-                            fontWeight: tokens.typography.fontWeight.medium,
-                            color: tokens.colors.foreground
+                            borderRadius: applyDesignSystemRadius('lg'),
+                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                            fontSize: tokens.typography.fontSize.base,
+                            fontFamily: tokens.typography.fontFamily.sans.join(', '),
+                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
                         }}
-                    >
-                        Filter Logs
-                    </h4>
+                    />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Log Level Filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Log Level</label>
-                        <Select value={level} onValueChange={handleLevelChange}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map(l => (
-                                    <SelectItem key={l} value={l}>
-                                        {l}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Results Limit */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Results per page</label>
-                        <Select
-                            value={String(limit)}
-                            onValueChange={handleLimitChange}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {[50, 100, 200, 500].map(l => (
-                                    <SelectItem key={l} value={String(l)}>
-                                        {l} entries
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Date Range */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">From Date</label>
-                        <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <DatePicker
-                                value={from}
-                                onChange={e => onChange({ from: e.target.value, skip: 0 })}
-                                className="pl-10"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">To Date</label>
-                        <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <DatePicker
-                                value={to}
-                                onChange={e => onChange({ to: e.target.value, skip: 0 })}
-                                className="pl-10"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Search and Actions */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-4 pt-4 border-t">
-                    <div className="flex-1 space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Search Logs</label>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input
-                                type="text"
-                                placeholder="Search log messages..."
-                                value={search}
-                                onChange={e => onChange({ search: e.target.value, skip: 0 })}
-                                className="pl-10"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex items-end">
-                        <Button
-                            onClick={onRefresh}
-                            variant="outline"
-                            className="bg-white hover:bg-gray-50"
-                        >
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Refresh
-                        </Button>
-                    </div>
+                <div className="flex-1">
+                    <Input
+                        type="datetime-local"
+                        placeholder="To date"
+                        value={to}
+                        onChange={(e) => handleToChange(e.target.value)}
+                        className="w-full"
+                        style={{
+                            borderRadius: applyDesignSystemRadius('lg'),
+                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                            fontSize: tokens.typography.fontSize.base,
+                            fontFamily: tokens.typography.fontFamily.sans.join(', '),
+                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                        }}
+                    />
                 </div>
             </div>
 
-            {/* Pagination and Results Info */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-lg p-4 border shadow-sm">
-                <div className="flex items-center gap-4">
-                    <div className="text-sm text-gray-600">
-                        <span className="font-medium">
-                            {total > 0
-                                ? `${Math.min(skip + 1, total)}-${Math.min(skip + limit, total)} of ${total}`
-                                : '0-0 of 0'}
-                        </span>
-                        <span className="ml-2 text-gray-500">log entries</span>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <Button
-                        size="sm"
-                        variant="outline"
+            <div 
+                className="flex items-center justify-between"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}
+            >
+                <span style={applyTypographyStyle('caption')}>
+                    Showing {skip + 1}-{Math.min(skip + limit, total)} of {total} logs
+                </span>
+                <div 
+                    className="flex items-center gap-2"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: applyDesignSystemSpacing(2)
+                    }}
+                >
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
                         onClick={onPrev}
-                        disabled={skip <= 0}
-                        className="flex items-center gap-1"
+                        disabled={!hasPrevPage}
+                        style={{
+                            borderRadius: applyDesignSystemRadius('lg'),
+                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                        }}
                     >
                         <ChevronLeft className="h-4 w-4" />
-                        Previous
                     </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
+                    <span style={applyTypographyStyle('caption')}>
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
                         onClick={onNext}
-                        disabled={skip + limit >= total}
-                        className="flex items-center gap-1"
+                        disabled={!hasNextPage}
+                        style={{
+                            borderRadius: applyDesignSystemRadius('lg'),
+                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                        }}
                     >
-                        Next
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
             </div>
-                  </div>
-      );
-  });
+        </div>
+    );
+});
 
-  LogFilterForm.displayName = 'LogFilterForm';
+LogFilterForm.displayName = 'LogFilterForm';
 
 export default LogFilterForm;

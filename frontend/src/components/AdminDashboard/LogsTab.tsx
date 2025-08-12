@@ -1,8 +1,8 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { useLogFilters } from '@/hooks/useLogFilters';
 import LogFilterForm from './LogFilterForm';
-import type { LogEntry } from '@/services/adminApi';
 import { tokens } from '@/design-system/tokens';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 import {
     applyDesignSystemSpacing,
     applyDesignSystemRadius,
@@ -15,10 +15,30 @@ import {
     AdminCaption
 } from './components';
 
+interface LogEntry {
+  id: string;
+  timestamp: string;
+  level: string;
+  module: string;
+  message: string;
+  details?: string;
+}
+
 const LogsTab: React.FC = memo(() => {
-  const { logs, handleFilterChange, handlePrev, handleNext, handleRefresh } =
-    useLogFilters();
-  const { items, total, skip, limit, level, from, to, search } = logs;
+  const {
+    items,
+    level,
+    limit,
+    from,
+    to,
+    search,
+    skip,
+    total,
+    handleFilterChange,
+    handleRefresh,
+    handlePrev,
+    handleNext
+  } = useLogFilters();
 
   // Memoized computed values
   const hasLogs = useMemo(() => items.length > 0, [items.length]);
@@ -52,12 +72,10 @@ const LogsTab: React.FC = memo(() => {
         }}
       >
         <div 
-          className="max-h-96 overflow-auto text-xs font-mono"
+          className="max-h-96 overflow-auto"
           style={{
             maxHeight: '24rem',
-            overflow: 'auto',
-            fontSize: tokens.typography.fontSize.xs,
-            fontFamily: tokens.typography.fontFamily.mono.join(', ')
+            overflow: 'auto'
           }}
         >
           {hasLogs ? (
@@ -80,13 +98,7 @@ const LogsTab: React.FC = memo(() => {
                     marginBottom: applyDesignSystemSpacing(1)
                   }}
                 >
-                  <span 
-                    className="font-semibold"
-                    style={{
-                      fontWeight: tokens.typography.fontWeight.semibold,
-                      color: tokens.colors.foreground
-                    }}
-                  >
+                  <span style={applyTypographyStyle('subtitle')}>
                     [{log.level}] {log.module}
                   </span>
                   <AdminCaption>
@@ -100,10 +112,9 @@ const LogsTab: React.FC = memo(() => {
             ))
           ) : (
             <div 
-              className="p-4 text-muted-foreground"
+              className="p-4 text-center"
               style={{
                 padding: applyDesignSystemSpacing(4),
-                color: tokens.colors.secondary[500],
                 textAlign: 'center'
               }}
             >
