@@ -8,207 +8,473 @@
     <!-- Google Fonts -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     />
 
-    <!-- Custom CSS -->
+    <!-- Custom CSS with Design System Tokens -->
     <style>
+      :root {
+        /* Color Tokens */
+        --color-primary-50: #f0f4ff;
+        --color-primary-100: #e0e7ff;
+        --color-primary-200: #c7d2fe;
+        --color-primary-300: #a5b4fc;
+        --color-primary-400: #818cf8;
+        --color-primary-500: #6366f1;
+        --color-primary-600: #4f46e5;
+        --color-primary-700: #4338ca;
+        --color-primary-800: #3730a3;
+        --color-primary-900: #312e81;
+        --color-primary-950: #1e1b4b;
+
+        --color-secondary-50: #fafafa;
+        --color-secondary-100: #f5f5f5;
+        --color-secondary-200: #e5e5e5;
+        --color-secondary-300: #d4d4d4;
+        --color-secondary-400: #a3a3a3;
+        --color-secondary-500: #737373;
+        --color-secondary-600: #525252;
+        --color-secondary-700: #404040;
+        --color-secondary-800: #262626;
+        --color-secondary-900: #171717;
+        --color-secondary-950: #0a0a0a;
+
+        --color-success: #10b981;
+        --color-warning: #f59e0b;
+        --color-info: #3b82f6;
+        --color-danger: #dc2626;
+        --color-destructive-500: #ef4444;
+
+        --color-white: #ffffff;
+        --color-black: #000000;
+
+        /* Typography Tokens */
+        --font-family-display: 'Playfair Display', 'Georgia', serif;
+        --font-family-sans: 'Inter', 'system-ui', sans-serif;
+        --font-family-mono: 'JetBrains Mono', 'monospace';
+
+        --font-size-xs: 0.75rem;
+        --font-size-sm: 0.875rem;
+        --font-size-base: 1rem;
+        --font-size-lg: 1.125rem;
+        --font-size-xl: 1.25rem;
+        --font-size-2xl: 1.5rem;
+        --font-size-3xl: 1.875rem;
+        --font-size-4xl: 2.25rem;
+
+        --font-weight-light: 300;
+        --font-weight-normal: 400;
+        --font-weight-medium: 500;
+        --font-weight-semibold: 600;
+        --font-weight-bold: 700;
+
+        --line-height-none: 1;
+        --line-height-tight: 1.25;
+        --line-height-snug: 1.375;
+        --line-height-normal: 1.5;
+        --line-height-relaxed: 1.625;
+        --line-height-loose: 2;
+
+        --letter-spacing-tighter: -0.05em;
+        --letter-spacing-tight: -0.025em;
+        --letter-spacing-normal: 0em;
+        --letter-spacing-wide: 0.025em;
+        --letter-spacing-wider: 0.05em;
+        --letter-spacing-widest: 0.1em;
+
+        /* Spacing Tokens */
+        --spacing-0: 0px;
+        --spacing-1: 0.25rem;
+        --spacing-2: 0.5rem;
+        --spacing-3: 0.75rem;
+        --spacing-4: 1rem;
+        --spacing-5: 1.25rem;
+        --spacing-6: 1.5rem;
+        --spacing-8: 2rem;
+        --spacing-10: 2.5rem;
+        --spacing-12: 3rem;
+        --spacing-16: 4rem;
+        --spacing-20: 5rem;
+        --spacing-24: 6rem;
+        --spacing-32: 8rem;
+
+        /* Shadow Tokens */
+        --shadow-none: none;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+        /* Motion Tokens */
+        --motion-duration-fast: 150ms;
+        --motion-duration-normal: 300ms;
+        --motion-duration-slow: 500ms;
+        --motion-duration-slower: 700ms;
+        --motion-duration-slowest: 1000ms;
+
+        --motion-easing-linear: linear;
+        --motion-easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        --motion-easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        --motion-easing-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        /* Z-Index Tokens */
+        --z-index-0: 0;
+        --z-index-10: 10;
+        --z-index-20: 20;
+        --z-index-30: 30;
+        --z-index-40: 40;
+        --z-index-50: 50;
+        --z-index-dropdown: 1000;
+        --z-index-sticky: 1020;
+        --z-index-fixed: 1030;
+        --z-index-modal: 1040;
+        --z-index-popover: 1050;
+        --z-index-tooltip: 1060;
+
+        /* Border Radius Tokens */
+        --border-radius-none: 0px;
+        --border-radius-sm: 0.125rem;
+        --border-radius-base: 0.25rem;
+        --border-radius-md: 0.375rem;
+        --border-radius-lg: 0.5rem;
+        --border-radius-xl: 0.75rem;
+        --border-radius-2xl: 1rem;
+        --border-radius-3xl: 1.5rem;
+        --border-radius-full: 9999px;
+      }
+
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
 
-             body {
-         font-family: "Inter", "system-ui", sans-serif;
-         line-height: 1.625;
-         color: #171717;
-         background: #ffffff;
-       }
+      body {
+        font-family: var(--font-family-sans);
+        line-height: var(--line-height-relaxed);
+        color: var(--color-secondary-900);
+        background: var(--color-white);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-normal);
+      }
 
       .header {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: white;
-        padding: 4rem 0;
+        background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+        color: var(--color-white);
+        padding: var(--spacing-16) 0;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: var(--z-index-10);
       }
 
       .header h1 {
-        font-family: "Playfair Display", "Georgia", serif;
-        font-size: 2.25rem;
-        font-weight: 700;
-        line-height: 1.25;
-        letter-spacing: -0.025em;
-        margin-bottom: 1rem;
+        font-family: var(--font-family-display);
+        font-size: var(--font-size-4xl);
+        font-weight: var(--font-weight-bold);
+        line-height: var(--line-height-tight);
+        letter-spacing: var(--letter-spacing-tight);
+        margin-bottom: var(--spacing-4);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .header p {
-        font-size: 1.125rem;
-        font-weight: 400;
-        line-height: 1.5;
-        opacity: 0.9;
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-normal);
+        line-height: var(--line-height-normal);
+        opacity: 0.95;
         max-width: 600px;
-        margin: 0 auto 2rem;
+        margin: 0 auto var(--spacing-8);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
       }
 
       .version-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.5rem 1.5rem;
-        border-radius: 9999px;
-        font-size: 1rem;
-        font-weight: 500;
+        background: rgba(255, 255, 255, 0.15);
+        padding: var(--spacing-2) var(--spacing-6);
+        border-radius: var(--border-radius-full);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-medium);
         display: inline-block;
         backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: var(--shadow-sm);
+        transition: all var(--motion-duration-fast) var(--motion-easing-smooth);
+      }
+
+      .version-badge:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
       }
 
       .container {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 0 2rem;
+        padding: 0 var(--spacing-8);
       }
 
-             .features {
-         padding: 4rem 0;
-         background: #f0f4ff;
-       }
+      .features {
+        padding: var(--spacing-16) 0;
+        background: var(--color-primary-50);
+        position: relative;
+      }
+
+      .features::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, var(--color-primary-200) 50%, transparent 100%);
+      }
 
       .features h2 {
         text-align: center;
-        font-family: "Playfair Display", "Georgia", serif;
-        font-size: 1.5rem;
-        font-weight: 600;
-        line-height: 1.375;
-        margin-bottom: 3rem;
-        color: #171717;
+        font-family: var(--font-family-display);
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--line-height-snug);
+        margin-bottom: var(--spacing-12);
+        color: var(--color-secondary-900);
+        position: relative;
+      }
+
+      .features h2::after {
+        content: '';
+        position: absolute;
+        bottom: calc(-1 * var(--spacing-6));
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-600));
+        border-radius: var(--border-radius-full);
       }
 
       .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: var(--spacing-8);
+        margin-bottom: var(--spacing-12);
       }
 
-             .feature-card {
-         background: #ffffff;
-         padding: 2rem;
-         border-radius: 0.5rem;
-         text-align: center;
-         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-           box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-         border: 1px solid #e0e7ff;
-       }
+      .feature-card {
+        background: var(--color-white);
+        padding: var(--spacing-8);
+        border-radius: var(--border-radius-lg);
+        text-align: center;
+        transition: all var(--motion-duration-normal) var(--motion-easing-smooth);
+        border: 1px solid var(--color-primary-200);
+        box-shadow: var(--shadow-base);
+        position: relative;
+        overflow: hidden;
+      }
 
-             .feature-card:hover {
-         transform: translateY(-5px);
-         box-shadow: 0 10px 15px -3px rgb(99 102 241 / 0.1),
-           0 4px 6px -4px rgb(99 102 241 / 0.1);
-         border-color: #6366f1;
-       }
+      .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-600));
+        transform: scaleX(0);
+        transition: transform var(--motion-duration-normal) var(--motion-easing-smooth);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--color-primary-400);
+      }
+
+      .feature-card:hover::before {
+        transform: scaleX(1);
+      }
 
       .feature-icon {
         font-size: 3rem;
-        margin-bottom: 1rem;
-        color: #6366f1;
+        margin-bottom: var(--spacing-4);
+        color: var(--color-primary-500);
+        transition: transform var(--motion-duration-fast) var(--motion-easing-smooth);
+      }
+
+      .feature-card:hover .feature-icon {
+        transform: scale(1.1);
       }
 
       .feature-card h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        line-height: 1.375;
-        margin-bottom: 1rem;
-        color: #171717;
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--line-height-snug);
+        margin-bottom: var(--spacing-4);
+        color: var(--color-secondary-900);
       }
 
       .feature-card p {
-        color: #737373;
-        line-height: 1.625;
-        font-size: 1rem;
+        color: var(--color-secondary-600);
+        line-height: var(--line-height-relaxed);
+        font-size: var(--font-size-base);
       }
 
-             .docs-section {
-         padding: 4rem 0;
-         background: #ffffff;
-       }
+      .docs-section {
+        padding: var(--spacing-16) 0;
+        background: var(--color-white);
+      }
 
       .docs-section h2 {
         text-align: center;
-        font-family: "Playfair Display", "Georgia", serif;
-        font-size: 1.5rem;
-        font-weight: 600;
-        line-height: 1.375;
-        margin-bottom: 3rem;
-        color: #171717;
+        font-family: var(--font-family-display);
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--line-height-snug);
+        margin-bottom: var(--spacing-12);
+        color: var(--color-secondary-900);
+        position: relative;
+      }
+
+      .docs-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: calc(-1 * var(--spacing-6));
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-600));
+        border-radius: var(--border-radius-full);
       }
 
       .docs-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: var(--spacing-8);
       }
 
-             .doc-card {
-         background: #ffffff;
-         border-radius: 0.5rem;
-         overflow: hidden;
-         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
-           0 1px 2px -1px rgb(0 0 0 / 0.1);
-         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-           box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-         border: 1px solid #e0e7ff;
-       }
+      .doc-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-base);
+        transition: all var(--motion-duration-normal) var(--motion-easing-smooth);
+        border: 1px solid var(--color-primary-200);
+        position: relative;
+      }
 
-             .doc-card:hover {
-         transform: translateY(-5px);
-         box-shadow: 0 20px 25px -5px rgb(99 102 241 / 0.1),
-           0 8px 10px -6px rgb(99 102 241 / 0.1);
-         border-color: #6366f1;
-       }
+      .doc-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-600));
+        transform: scaleX(0);
+        transition: transform var(--motion-duration-normal) var(--motion-easing-smooth);
+      }
+
+      .doc-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-2xl);
+        border-color: var(--color-primary-400);
+      }
+
+      .doc-card:hover::before {
+        transform: scaleX(1);
+      }
 
       .doc-card-header {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: white;
-        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+        color: var(--color-white);
+        padding: var(--spacing-6);
         text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .doc-card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .doc-card-header-content {
+        position: relative;
+        z-index: var(--z-index-10);
       }
 
       .doc-card-header h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        line-height: 1.375;
-        margin-bottom: 0.5rem;
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--line-height-snug);
+        margin-bottom: var(--spacing-2);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
       }
 
       .doc-card-header p {
-        opacity: 0.9;
-        font-size: 0.875rem;
-        line-height: 1.5;
+        opacity: 0.95;
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-normal);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
       }
 
       .doc-card-body {
-        padding: 2rem;
+        padding: var(--spacing-8);
       }
 
       .doc-card-body ul {
         list-style: none;
-        margin-bottom: 2rem;
+        margin-bottom: var(--spacing-8);
       }
 
-             .doc-card-body li {
-         padding: 0.5rem 0;
-         border-bottom: 1px solid #e0e7ff;
-         display: flex;
-         align-items: center;
-         font-size: 1rem;
-         line-height: 1.625;
-       }
+      .doc-card-body li {
+        padding: var(--spacing-2) 0;
+        border-bottom: 1px solid var(--color-primary-200);
+        display: flex;
+        align-items: center;
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-relaxed);
+        transition: all var(--motion-duration-fast) var(--motion-easing-smooth);
+      }
 
-             .doc-card-body li:before {
-         content: "✓";
-         color: #10b981;
-         font-weight: bold;
-         margin-right: 0.5rem;
-       }
+      .doc-card-body li:hover {
+        background: var(--color-primary-50);
+        margin: 0 calc(-1 * var(--spacing-8));
+        padding: var(--spacing-2) var(--spacing-8);
+        border-radius: var(--border-radius-base);
+      }
+
+      .doc-card-body li:before {
+        content: "✓";
+        color: var(--color-success);
+        font-weight: var(--font-weight-bold);
+        margin-right: var(--spacing-2);
+        font-size: var(--font-size-sm);
+      }
 
       .doc-card-body li:last-child {
         border-bottom: none;
@@ -216,152 +482,261 @@
 
       .btn {
         display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background: #6366f1;
-        color: white;
+        padding: var(--spacing-3) var(--spacing-6);
+        background: var(--color-primary-500);
+        color: var(--color-white);
         text-decoration: none;
-        border-radius: 0.375rem;
-        font-weight: 500;
-        font-size: 0.875rem;
-        transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: var(--border-radius-md);
+        font-weight: var(--font-weight-medium);
+        font-size: var(--font-size-sm);
+        transition: all var(--motion-duration-fast) var(--motion-easing-smooth);
         text-align: center;
         width: 100%;
         border: none;
         cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left var(--motion-duration-slow) var(--motion-easing-smooth);
       }
 
       .btn:hover {
-        background: #4f46e5;
+        background: var(--color-primary-600);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn:active {
+        transform: translateY(0);
+        box-shadow: var(--shadow-sm);
       }
 
       .btn-secondary {
-        background: #737373;
+        background: var(--color-secondary-500);
       }
 
       .btn-secondary:hover {
-        background: #525252;
+        background: var(--color-secondary-600);
       }
 
       .footer {
-        background: #171717;
-        color: white;
+        background: var(--color-secondary-900);
+        color: var(--color-white);
         text-align: center;
-        padding: 2rem 0;
+        padding: var(--spacing-8) 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, var(--color-primary-500) 50%, transparent 100%);
       }
 
       .footer p {
-        margin-bottom: 1rem;
-        font-size: 1rem;
-        line-height: 1.625;
+        margin-bottom: var(--spacing-4);
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-relaxed);
+        opacity: 0.9;
       }
 
       .footer-links {
         display: flex;
         justify-content: center;
-        gap: 2rem;
+        gap: var(--spacing-8);
       }
 
       .footer-links a {
-        color: #6366f1;
+        color: var(--color-primary-400);
         text-decoration: none;
-        font-size: 0.875rem;
-        transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: var(--font-size-sm);
+        transition: all var(--motion-duration-fast) var(--motion-easing-smooth);
+        padding: var(--spacing-2) var(--spacing-3);
+        border-radius: var(--border-radius-base);
       }
 
       .footer-links a:hover {
-        color: #4f46e5;
-        text-decoration: underline;
+        color: var(--color-primary-300);
+        background: rgba(99, 102, 241, 0.1);
+        transform: translateY(-1px);
       }
 
+      /* Responsive Design */
       @media (max-width: 768px) {
+        .container {
+          padding: 0 var(--spacing-4);
+        }
+
         .header h1 {
-          font-size: 1.875rem;
+          font-size: var(--font-size-3xl);
         }
 
         .header p {
-          font-size: 1rem;
+          font-size: var(--font-size-base);
         }
 
         .features h2,
         .docs-section h2 {
-          font-size: 1.25rem;
+          font-size: var(--font-size-xl);
         }
 
         .features-grid,
         .docs-grid {
           grid-template-columns: 1fr;
+          gap: var(--spacing-6);
+        }
+
+        .feature-card,
+        .doc-card {
+          padding: var(--spacing-6);
         }
 
         .footer-links {
           flex-direction: column;
-          gap: 1rem;
+          gap: var(--spacing-4);
         }
+      }
+
+      @media (max-width: 480px) {
+        .header {
+          padding: var(--spacing-12) 0;
+        }
+
+        .header h1 {
+          font-size: var(--font-size-2xl);
+        }
+
+        .features,
+        .docs-section {
+          padding: var(--spacing-12) 0;
+        }
+
+        .feature-card,
+        .doc-card {
+          padding: var(--spacing-4);
+        }
+      }
+
+      /* Reduced Motion Support */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* High Contrast Mode Support */
+      @media (prefers-contrast: high) {
+        .feature-card,
+        .doc-card {
+          border-width: 2px;
+        }
+
+        .btn {
+          border: 2px solid currentColor;
+        }
+      }
+
+      /* Focus Styles for Accessibility */
+      .btn:focus,
+      .footer-links a:focus {
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: 2px;
+      }
+
+      .feature-card:focus-within,
+      .doc-card:focus-within {
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: 2px;
       }
     </style>
   </head>
   <body>
-    <div class="header">
-      <div class="container">
-        <h1>FinVision API Documentation</h1>
-        <p>
-          Comprehensive documentation for the Financial Modeling and Analysis
-          Platform API. Choose your preferred format to explore endpoints, test
-          functionality, and integrate with your applications.
-        </p>
-        <div class="version-badge">Version 1.0.0</div>
+    <header class="header">
+      <div class="header-content">
+        <div class="container">
+          <h1>FinVision API Documentation Hub</h1>
+          <p>
+            Comprehensive documentation for the FinVision Financial Modeling and Analysis Platform API. 
+            Explore interactive documentation, code examples, and integration guides.
+          </p>
+          <div class="version-badge">Version 1.0.0</div>
+        </div>
       </div>
-    </div>
+    </header>
 
     <section class="features">
       <div class="container">
-        <h2>API Features</h2>
+        <h2>Platform Features</h2>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-icon">🔐</div>
-            <h3>Authentication</h3>
-            <p>
-              JWT tokens, MFA, WebAuthn, and OAuth integration for secure access
-              control.
-            </p>
-          </div>
-          <div class="feature-card">
             <div class="feature-icon">📊</div>
-            <h3>Dashboard Analytics</h3>
-            <p>
-              Comprehensive metrics, charts, and real-time analytics for
-              financial insights.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">📁</div>
-            <h3>File Management</h3>
-            <p>
-              Upload, process, and manage financial documents with advanced
-              processing capabilities.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">⚙️</div>
             <h3>Financial Modeling</h3>
             <p>
-              Create and manage scenarios, parameters, and generate financial
-              statements.
+              Advanced financial modeling capabilities with Monte Carlo simulations, 
+              scenario analysis, and real-time data integration.
             </p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">🔔</div>
-            <h3>Notifications</h3>
+            <div class="feature-icon">🔒</div>
+            <h3>Enterprise Security</h3>
             <p>
-              Real-time notifications and task management for workflow
-              coordination.
+              Bank-level security with end-to-end encryption, role-based access control, 
+              and comprehensive audit trails.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>High Performance</h3>
+            <p>
+              Optimized for speed with parallel processing, caching strategies, 
+              and scalable cloud infrastructure.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h3>Global Accessibility</h3>
+            <p>
+              Multi-language support, responsive design, and accessibility compliance 
+              for worldwide usage.
             </p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">📈</div>
-            <h3>Lean Metrics</h3>
+            <h3>Real-time Analytics</h3>
             <p>
-              Advanced financial performance indicators and lean methodology
-              calculations.
+              Live data visualization, interactive dashboards, and automated 
+              reporting with customizable templates.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔧</div>
+            <h3>Developer Friendly</h3>
+            <p>
+              RESTful API design, comprehensive SDKs, detailed documentation, 
+              and extensive code examples.
             </p>
           </div>
         </div>
@@ -370,101 +745,71 @@
 
     <section class="docs-section">
       <div class="container">
-        <h2>Documentation Formats</h2>
+        <h2>Documentation Options</h2>
         <div class="docs-grid">
           <div class="doc-card">
             <div class="doc-card-header">
-              <h3>ReDoc</h3>
-              <p>Beautiful, responsive documentation</p>
-            </div>
-            <div class="doc-card-body">
-              <ul>
-                <li>Clean, modern interface</li>
-                <li>Responsive design</li>
-                <li>Search functionality</li>
-                <li>Code examples</li>
-                <li>Schema documentation</li>
-              </ul>
-              <a href="/api/v1/docs/redoc" class="btn">View ReDoc</a>
-            </div>
-          </div>
-
-          <div class="doc-card">
-            <div class="doc-card-header">
-              <h3>Swagger UI</h3>
-              <p>Interactive API testing</p>
+              <div class="doc-card-header-content">
+                <h3>Interactive API Explorer</h3>
+                <p>Swagger UI with real-time testing</p>
+              </div>
             </div>
             <div class="doc-card-body">
               <ul>
                 <li>Interactive endpoint testing</li>
                 <li>Request/response examples</li>
-                <li>Authentication support</li>
-                <li>Try-it-out functionality</li>
-                <li>Real-time validation</li>
-              </ul>
-              <a href="/api/v1/docs/swagger" class="btn">Open Swagger UI</a>
-            </div>
-          </div>
-
-          <div class="doc-card">
-            <div class="doc-card-header">
-              <h3>Markdown Docs</h3>
-              <p>Comprehensive reference guide</p>
-            </div>
-            <div class="doc-card-body">
-              <ul>
-                <li>Detailed explanations</li>
-                <li>Code examples</li>
-                <li>Error handling guide</li>
-                <li>Setup instructions</li>
-                <li>Best practices</li>
-              </ul>
-              <a href="/api/v1/docs/markdown" class="btn">Read Full Docs</a>
-            </div>
-          </div>
-
-          <div class="doc-card">
-            <div class="doc-card-header">
-              <h3>Postman Collection</h3>
-              <p>Ready-to-use API collection</p>
-            </div>
-            <div class="doc-card-body">
-              <ul>
-                <li>Pre-configured requests</li>
-                <li>Environment variables</li>
-                <li>Authentication setup</li>
-                <li>Example data</li>
-                <li>Import ready</li>
-              </ul>
-              <a href="/api/v1/docs/postman" class="btn btn-secondary"
-                >Download Collection</a
-              >
-            </div>
-          </div>
-
-          <div class="doc-card">
-            <div class="doc-card-header">
-              <h3>OpenAPI Spec</h3>
-              <p>Machine-readable specification</p>
-            </div>
-            <div class="doc-card-body">
-              <ul>
-                <li>OpenAPI 3.1 compliant</li>
-                <li>Tool integration</li>
-                <li>Code generation</li>
+                <li>Authentication integration</li>
                 <li>Schema validation</li>
-                <li>API design</li>
+                <li>Code snippet generation</li>
               </ul>
-              <a href="/api/v1/docs/openapi.yaml" class="btn btn-secondary"
-                >Download Spec</a
-              >
+              <a href="swagger.html" class="btn">Open Swagger UI</a>
             </div>
           </div>
 
           <div class="doc-card">
             <div class="doc-card-header">
-              <h3>Quick Start</h3>
-              <p>Get started quickly</p>
+              <div class="doc-card-header-content">
+                <h3>Beautiful Documentation</h3>
+                <p>ReDoc with elegant presentation</p>
+              </div>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>Clean, readable interface</li>
+                <li>Responsive design</li>
+                <li>Search functionality</li>
+                <li>Dark mode support</li>
+                <li>Mobile optimized</li>
+              </ul>
+              <a href="index.html" class="btn">Open ReDoc</a>
+            </div>
+          </div>
+
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <div class="doc-card-header-content">
+                <h3>Comprehensive Guide</h3>
+                <p>Detailed API documentation</p>
+              </div>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>Complete API reference</li>
+                <li>Integration tutorials</li>
+                <li>Best practices guide</li>
+                <li>Troubleshooting tips</li>
+                <li>Performance optimization</li>
+              </ul>
+              <a href="comprehensive.html" class="btn">View Full Guide</a>
+            </div>
+          </div>
+
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <div class="doc-card-header-content">
+                <h3>Quick Start Guide</h3>
+                <p>Get started in minutes</p>
+              </div>
             </div>
             <div class="doc-card-body">
               <ul>
@@ -472,11 +817,9 @@
                 <li>Authentication guide</li>
                 <li>First API call</li>
                 <li>Common patterns</li>
-                <li>Troubleshooting</li>
+                <li>Next steps</li>
               </ul>
-              <a href="/api/v1/docs/readme" class="btn btn-secondary"
-                >Quick Start Guide</a
-              >
+              <a href="README.md" class="btn btn-secondary">Read Quick Start</a>
             </div>
           </div>
         </div>
@@ -485,17 +828,15 @@
 
     <footer class="footer">
       <div class="container">
-        <p>FinVision API Documentation Hub</p>
-        <div class="footer-links">
-          <a href="https://github.com/your-repo" target="_blank"
-            >GitHub Repository</a
-          >
-          <a href="mailto:support@finvision.com">Support Email</a>
-          <a href="/api/v1/docs/markdown">Full Documentation</a>
-        </div>
-        <p style="margin-top: 2rem; opacity: 0.7">
-          © 2024 FinVision. All rights reserved.
+        <p>
+          FinVision API Documentation Hub - Empowering financial modeling and analysis
         </p>
+        <div class="footer-links">
+          <a href="https://github.com/finvision/api" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://docs.finvision.com" target="_blank" rel="noopener">Documentation</a>
+          <a href="https://support.finvision.com" target="_blank" rel="noopener">Support</a>
+          <a href="https://finvision.com" target="_blank" rel="noopener">Website</a>
+        </div>
       </div>
     </footer>
   </body>
