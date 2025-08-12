@@ -16,18 +16,22 @@ async def docs_landing():
     
     # Debug information for Railway deployment
     import os
-    debug_info = {
-        "docs_path": str(DOCS_PATH),
-        "landing_file": str(landing_file),
-        "file_exists": landing_file.exists(),
-        "current_dir": os.getcwd(),
-        "app_dir_contents": list(Path("/app").iterdir()) if Path("/app").exists() else [],
-        "docs_dir_contents": list(DOCS_PATH.iterdir()) if DOCS_PATH.exists() else []
-    }
+            debug_info = {
+            "docs_path": str(DOCS_PATH),
+            "landing_file": str(landing_file),
+            "file_exists": landing_file.exists(),
+            "current_dir": os.getcwd(),
+            "app_dir_contents": (
+                list(Path("/app").iterdir()) if Path("/app").exists() else []
+            ),
+            "docs_dir_contents": (
+                list(DOCS_PATH.iterdir()) if DOCS_PATH.exists() else []
+            )
+        }
     
     if not landing_file.exists():
         raise HTTPException(
-            status_code=404, 
+            status_code=404,
             detail=f"Documentation not found. Debug: {debug_info}"
         )
 
@@ -115,3 +119,18 @@ async def get_readme_docs():
         )
 
     return FileResponse(readme_file, media_type="text/markdown")
+
+
+@router.get("/comprehensive")
+async def docs_comprehensive():
+    """Serve the comprehensive documentation page."""
+    comprehensive_file = DOCS_PATH / "comprehensive.html"
+    if not comprehensive_file.exists():
+        raise HTTPException(
+            status_code=404, detail="Comprehensive documentation not found"
+        )
+
+    with open(comprehensive_file, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return HTMLResponse(content=content)
