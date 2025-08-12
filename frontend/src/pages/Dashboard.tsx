@@ -547,9 +547,9 @@ const Dashboard = () => {
                       </CardHeader>
                       <CardContent>
                         <div className="text-xs text-muted-foreground space-y-1">
-                          <div>Period: {statement.period}</div>
-                          <div>Uploaded: {new Date(statement.uploaded_at).toLocaleDateString()}</div>
-                          <div>Status: {statement.status}</div>
+                          <div>Period: {statement.period_start} - {statement.period_end}</div>
+                          <div>Uploaded: {new Date(statement.last_updated).toLocaleDateString()}</div>
+                          <div>Type: {statement.type}</div>
                         </div>
                       </CardContent>
                     </Card>

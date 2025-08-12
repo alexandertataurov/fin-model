@@ -129,7 +129,7 @@ const Layout = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.avatar} alt={fullName} />
+                    <AvatarImage src={user?.avatar || undefined} alt={fullName} />
                     <AvatarFallback>{userInitial}</AvatarFallback>
                   </Avatar>
                 </Button>

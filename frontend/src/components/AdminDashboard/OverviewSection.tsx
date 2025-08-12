@@ -55,10 +55,10 @@ const MetricCard: React.FC<{
     variant?: 'default' | 'elevated' | 'gradient';
 }> = ({ title, value, subtitle, icon, trend, status = 'info', variant = 'default' }) => {
     const statusColors = {
-        success: { bg: tokens.colors.success, text: 'white', border: tokens.colors.success },
-        warning: { bg: tokens.colors.warning, text: 'white', border: tokens.colors.warning },
-        error: { bg: tokens.colors.destructive, text: 'white', border: tokens.colors.destructive },
-        info: { bg: tokens.colors.info, text: 'white', border: tokens.colors.info },
+        success: { bg: tokens.colors.success[500], text: 'white', border: tokens.colors.success[500] },
+        warning: { bg: tokens.colors.warning[500], text: 'white', border: tokens.colors.warning[500] },
+        error: { bg: tokens.colors.destructive[500], text: 'white', border: tokens.colors.destructive[500] },
+        info: { bg: tokens.colors.info[500], text: 'white', border: tokens.colors.info[500] },
     };
 
     const variantStyles = {
@@ -164,9 +164,9 @@ const ProgressIndicator: React.FC<{
     size?: 'sm' | 'md' | 'lg';
 }> = ({ label, value, max = 100, color, showValue = true, size = 'md' }) => {
     const percentage = Math.min((value / max) * 100, 100);
-    const progressColor = color || (percentage > 80 ? tokens.colors.destructive :
-        percentage > 60 ? tokens.colors.warning :
-            tokens.colors.success);
+    const progressColor = color || (percentage > 80 ? tokens.colors.destructive[500] :
+        percentage > 60 ? tokens.colors.warning[500] :
+            tokens.colors.success[500]);
 
     const sizeStyles = {
         sm: { height: '6px', fontSize: tokens.typography.fontSize.sm },
@@ -209,7 +209,7 @@ const ActivityItem: React.FC<{
     user: any;
     index: number;
 }> = ({ user, index }) => {
-    const statusColor = user.is_active ? tokens.colors.success : tokens.colors.destructive;
+    const statusColor = user.is_active ? tokens.colors.success[500] : tokens.colors.destructive[500];
     const statusIcon = user.is_active ? <CheckCircle className="h-4 w-4" /> : <XSquare className="h-4 w-4" />;
 
     return (
@@ -407,19 +407,19 @@ const OverviewSection: React.FC = memo(() => {
                             <ProgressIndicator
                                 label="CPU Usage"
                                 value={systemMetrics.data?.cpu_usage || 0}
-                                color={tokens.colors.info}
+                                color={tokens.colors.info[500]}
                                 size="lg"
                             />
                             <ProgressIndicator
                                 label="Memory Usage"
                                 value={systemMetrics.data?.memory_usage || 0}
-                                color={tokens.colors.warning}
+                                color={tokens.colors.warning[500]}
                                 size="lg"
                             />
                             <ProgressIndicator
                                 label="Disk Usage"
                                 value={systemMetrics.data?.disk_usage || 0}
-                                color={tokens.colors.destructive}
+                                color={tokens.colors.destructive[500]}
                                 size="lg"
                             />
                         </CardContent>

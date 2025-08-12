@@ -179,24 +179,44 @@ export const getSemanticSpacing = (context: 'component' | 'layout' | 'form'): Re
                     padding: tokens.spacing[4], // 16px - Standard component padding
                     margin: tokens.spacing[6], // 24px - Standard component margin
                     gap: tokens.spacing[2], // 8px - Standard component gap
+                    section: '',
+                    page: '',
+                    container: '',
+                    field: '',
+                    group: '',
                 };
             case 'layout':
                 return {
                     section: tokens.spacing[12], // 48px - Section spacing
                     page: tokens.spacing[8], // 32px - Page spacing
                     container: tokens.spacing[4], // 16px - Container padding
+                    padding: '',
+                    margin: '',
+                    gap: '',
+                    field: '',
+                    group: '',
                 };
             case 'form':
                 return {
                     field: tokens.spacing[4], // 16px - Form field spacing
                     group: tokens.spacing[6], // 24px - Form group spacing
                     section: tokens.spacing[8], // 32px - Form section spacing
+                    padding: '',
+                    margin: '',
+                    gap: '',
+                    page: '',
+                    container: '',
                 };
             default:
                 return {
                     padding: tokens.spacing[4],
                     margin: tokens.spacing[6],
                     gap: tokens.spacing[2],
+                    section: '',
+                    page: '',
+                    container: '',
+                    field: '',
+                    group: '',
                 };
         }
     }, {

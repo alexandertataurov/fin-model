@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/adminStore';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import { applyTextStyle } from '@/design-system/utils/typography';
 import {
   applyDesignSystemSpacing,
   applyDesignSystemRadius,
@@ -74,7 +74,7 @@ const OverviewTab: React.FC = memo(() => {
         >
           <AlertDescription
             style={{
-              ...applyTypographyStyle('body'),
+              ...applyTextStyle('body'),
               color: tokens.colors.secondary[500]
             }}
           >
@@ -400,7 +400,7 @@ const OverviewTab: React.FC = memo(() => {
       </div>
     </>
   );
-};
+});
 
 OverviewTab.displayName = 'OverviewTab';
 

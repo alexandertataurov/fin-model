@@ -11,6 +11,7 @@ import { Progress } from '@/design-system/components/Progress';
 import { Switch } from '@/design-system/components/Switch';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import { applyTextStyle } from '@/design-system/utils/typography';
 import {
   Monitor,
   Activity,
@@ -981,7 +982,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                     </div>
                   </AlertDescription>
                 </Alert>
-                <Alert variant="secondary">
+                <Alert variant="default">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">

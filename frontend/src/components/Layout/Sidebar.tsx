@@ -251,11 +251,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
       <div className="flex h-16 items-center justify-between border-b px-4">
         <div className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span style={textStyles.title} className="text-primary-foreground font-bold">
+            <span style={textStyles.h3} className="text-primary-foreground font-bold">
               FM
             </span>
           </div>
-          <span style={textStyles.title} className="font-semibold">
+          <span style={textStyles.h3} className="font-semibold">
             FinVision
           </span>
         </div>
@@ -290,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
                 {user?.first_name || user?.username || 'User'}
               </span>
               <span style={textStyles.caption} className="text-muted-foreground">
-                {user?.role || 'User'}
+                {user?.roles?.[0] || 'User'}
               </span>
             </div>
           </div>
