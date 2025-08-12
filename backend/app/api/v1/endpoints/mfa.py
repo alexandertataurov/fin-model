@@ -77,9 +77,7 @@ def verify_mfa_setup(
     mfa_service = MFAService(db)
 
     try:
-        success = mfa_service.verify_mfa_setup(
-            current_user, verify_request.token
-        )
+        success = mfa_service.verify_mfa_setup(current_user, verify_request.token)
         if success:
             return {"message": "MFA enabled successfully"}
         else:
@@ -145,9 +143,7 @@ def verify_mfa_token(
     # Check if MFA is enabled
     if not mfa_service.is_mfa_enabled(user):
         # MFA not enabled, proceed with normal login
-        access_token_expires = timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        )
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             subject=user.id, expires_delta=access_token_expires
         )
@@ -163,9 +159,7 @@ def verify_mfa_token(
         user, verify_request.mfa_token, verify_request.use_backup
     ):
         # MFA verification successful
-        access_token_expires = timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        )
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             subject=user.id, expires_delta=access_token_expires
         )
@@ -266,9 +260,7 @@ def disable_mfa(
     mfa_service = MFAService(db)
 
     try:
-        success = mfa_service.disable_mfa(
-            current_user, disable_request.password
-        )
+        success = mfa_service.disable_mfa(current_user, disable_request.password)
         if success:
             return {"message": "MFA disabled successfully"}
         else:

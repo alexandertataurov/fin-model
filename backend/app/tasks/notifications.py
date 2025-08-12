@@ -48,9 +48,7 @@ def send_processing_notification(
     """
     try:
         # Get file and user information
-        file_record = (
-            db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
-        )
+        file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         user = db.query(User).filter(User.id == user_id).first()
 
         if not file_record or not user:
@@ -140,9 +138,7 @@ def send_weekly_summary(self, db: Session) -> dict:
         notifications_sent = 0
 
         for stats in stats_query:
-            user = (
-                db.query(User).filter(User.id == stats.uploaded_by_id).first()
-            )
+            user = db.query(User).filter(User.id == stats.uploaded_by_id).first()
             if user:
                 summary_data = {
                     "user_email": user.email,
@@ -185,9 +181,7 @@ def send_weekly_summary(self, db: Session) -> dict:
 
 
 @celery_app.task(name="app.tasks.notifications.send_system_alert")
-def send_system_alert(
-    alert_type: str, message: str, severity: str = "info"
-) -> dict:
+def send_system_alert(alert_type: str, message: str, severity: str = "info") -> dict:
     """
     Send system alert notifications to administrators.
 

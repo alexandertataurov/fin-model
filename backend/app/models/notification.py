@@ -62,22 +62,16 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(
-        Integer, ForeignKey("users.id"), nullable=False, index=True
-    )
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     notification_type = Column(String(50), nullable=False, index=True)
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
     data = Column(JSON, default={})
-    priority = Column(
-        String(20), default=NotificationPriority.NORMAL, index=True
-    )
+    priority = Column(String(20), default=NotificationPriority.NORMAL, index=True)
     status = Column(String(20), default=NotificationStatus.PENDING, index=True)
     is_read = Column(Boolean, default=False, index=True)
     is_dismissed = Column(Boolean, default=False, index=True)
-    created_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, index=True
-    )
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
     sent_at = Column(DateTime)
     delivered_at = Column(DateTime)
     read_at = Column(DateTime)
@@ -100,9 +94,7 @@ class NotificationPreferences(Base):
     __tablename__ = "notification_preferences"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(
-        Integer, ForeignKey("users.id"), nullable=False, unique=True
-    )
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
     email_enabled = Column(Boolean, default=True)
     push_enabled = Column(Boolean, default=True)
     in_app_enabled = Column(Boolean, default=True)

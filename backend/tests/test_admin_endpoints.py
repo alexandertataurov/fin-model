@@ -205,9 +205,7 @@ def test_system_logs_filters_edge_cases(client: TestClient):
     assert r.status_code == 200
     items = r.json()
     assert isinstance(items, list)
-    assert all(
-        item["level"] in ["WARNING", "ERROR", "CRITICAL"] for item in items
-    )
+    assert all(item["level"] in ["WARNING", "ERROR", "CRITICAL"] for item in items)
 
 
 def test_reports_overview_json_csv(client: TestClient):

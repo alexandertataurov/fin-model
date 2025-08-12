@@ -176,9 +176,7 @@ class NotificationService:
             return NotificationPreferencesSchema.model_validate(preferences)
         return None
 
-    def create_default_preferences(
-        self, user_id: int
-    ) -> NotificationPreferencesSchema:
+    def create_default_preferences(self, user_id: int) -> NotificationPreferencesSchema:
         """Create default notification preferences for a user."""
         preferences = NotificationPreferences(
             user_id=user_id,
@@ -234,9 +232,7 @@ class NotificationService:
         """Get notification statistics for a user."""
         # Get total notifications
         total_notifications = (
-            self.db.query(Notification)
-            .filter(Notification.user_id == user_id)
-            .count()
+            self.db.query(Notification).filter(Notification.user_id == user_id).count()
         )
 
         # Get unread notifications

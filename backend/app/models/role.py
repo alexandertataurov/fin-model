@@ -63,9 +63,7 @@ class UserRole(Base):
     )
 
     # Relationships
-    user = relationship(
-        "User", back_populates="user_roles", foreign_keys=[user_id]
-    )
+    user = relationship("User", back_populates="user_roles", foreign_keys=[user_id])
     role = relationship("Role", back_populates="user_roles")
     assigned_by_user = relationship("User", foreign_keys=[assigned_by])
 

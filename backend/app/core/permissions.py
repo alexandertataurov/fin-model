@@ -131,9 +131,7 @@ class PermissionChecker:
     """Helper class for checking permissions."""
 
     @staticmethod
-    def has_permission(
-        user_roles: List[str], required_permission: Permission
-    ) -> bool:
+    def has_permission(user_roles: List[str], required_permission: Permission) -> bool:
         """Check if user roles have the required permission."""
         for role_str in user_roles:
             try:
@@ -192,9 +190,7 @@ class PermissionChecker:
 
         # Users can access their own resources
         if resource_owner_id == current_user_id:
-            return PermissionChecker.has_permission(
-                user_roles, required_permission
-            )
+            return PermissionChecker.has_permission(user_roles, required_permission)
 
         # For other users' resources, need explicit permission
         # Analysts can read others' work, but viewers cannot
@@ -203,9 +199,7 @@ class PermissionChecker:
             Permission.REPORT_READ,
             Permission.DATA_READ,
         ]:
-            return PermissionChecker.has_permission(
-                user_roles, required_permission
-            )
+            return PermissionChecker.has_permission(user_roles, required_permission)
 
         return False
 

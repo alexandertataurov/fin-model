@@ -242,9 +242,7 @@ class ScenarioComparisonRequest(BaseModel):
     base_scenario_id: int
     compare_scenario_ids: List[int]
     parameter_filters: Optional[List[int]] = None
-    comparison_type: str = Field(
-        "variance", pattern="^(variance|absolute|percentage)$"
-    )
+    comparison_type: str = Field("variance", pattern="^(variance|absolute|percentage)$")
 
 
 class ParameterComparison(BaseModel):
@@ -270,18 +268,14 @@ class SensitivityParameterConfig(BaseModel):
     min_value: float
     max_value: float
     step_size: Optional[float] = None
-    distribution: str = Field(
-        "uniform", pattern="^(uniform|normal|triangular)$"
-    )
+    distribution: str = Field("uniform", pattern="^(uniform|normal|triangular)$")
 
 
 class SensitivityAnalysisRequest(BaseModel):
     scenario_id: int
     target_parameter_id: int  # The output parameter to analyze
     input_parameters: List[SensitivityParameterConfig]
-    analysis_type: str = Field(
-        "tornado", pattern="^(tornado|spider|monte_carlo)$"
-    )
+    analysis_type: str = Field("tornado", pattern="^(tornado|spider|monte_carlo)$")
     iterations: Optional[int] = Field(1000, ge=100, le=10000)
     confidence_level: Optional[float] = Field(0.95, ge=0.01, le=0.99)
 

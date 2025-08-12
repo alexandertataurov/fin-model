@@ -57,9 +57,7 @@ class MFAService:
         return img_str
 
     @staticmethod
-    def verify_totp_token(
-        secret: str, token: str, valid_window: int = 1
-    ) -> bool:
+    def verify_totp_token(secret: str, token: str, valid_window: int = 1) -> bool:
         """
         Verify TOTP token.
 
@@ -78,8 +76,7 @@ class MFAService:
         for _ in range(count):
             # Generate 8-character alphanumeric code
             code = "".join(
-                secrets.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-                for _ in range(8)
+                secrets.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(8)
             )
             # Format as XXXX-XXXX
             formatted_code = f"{code[:4]}-{code[4:]}"
@@ -109,9 +106,7 @@ class MFAService:
         backup_codes = self.generate_backup_codes()
 
         # Create or update MFA token record
-        mfa_token = (
-            self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
-        )
+        mfa_token = self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
 
         if mfa_token:
             # Update existing unverified token
@@ -193,10 +188,7 @@ class MFAService:
 
         if use_backup:
             # Verify backup code
-            if (
-                not mfa_token.backup_codes
-                or token not in mfa_token.backup_codes
-            ):
+            if not mfa_token.backup_codes or token not in mfa_token.backup_codes:
                 return False
 
             # Remove used backup code
@@ -229,9 +221,7 @@ class MFAService:
             )
 
         # Remove MFA token
-        mfa_token = (
-            self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
-        )
+        mfa_token = self.db.query(MFAToken).filter(MFAToken.user_id == user.id).first()
 
         if mfa_token:
             self.db.delete(mfa_token)

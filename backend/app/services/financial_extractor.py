@@ -132,9 +132,7 @@ class FinancialExtractor:
                 name = sheet.get("name", "").lower()
                 data = sheet.get("data", [])
                 start_idx = (
-                    1
-                    if data and all(isinstance(v, str) for v in data[0])
-                    else 0
+                    1 if data and all(isinstance(v, str) for v in data[0]) else 0
                 )
                 if "balance" in name:
                     for row in data[start_idx:]:
@@ -194,9 +192,7 @@ class FinancialExtractor:
             relationships = self._map_sheet_relationships(workbook, sheets_info)
 
             # Track calculation dependencies
-            dependencies = self._track_calculation_dependencies(
-                workbook, sheets_info
-            )
+            dependencies = self._track_calculation_dependencies(workbook, sheets_info)
 
             # Assess data quality
             quality_assessment = self._assess_data_quality(
@@ -204,18 +200,14 @@ class FinancialExtractor:
             )
 
             # Extract parameters and drivers
-            parameters = self._extract_business_parameters(
-                workbook, sheets_info
-            )
+            parameters = self._extract_business_parameters(workbook, sheets_info)
 
             return {
                 "financial_metrics": [metric.__dict__ for metric in metrics],
                 "time_series_data": [ts.__dict__ for ts in time_series],
                 "key_assumptions": assumptions,
                 "sheet_relationships": [rel.__dict__ for rel in relationships],
-                "calculation_dependencies": [
-                    dep.__dict__ for dep in dependencies
-                ],
+                "calculation_dependencies": [dep.__dict__ for dep in dependencies],
                 "data_quality_score": quality_assessment["overall_score"],
                 "data_quality_details": quality_assessment,
                 "business_parameters": parameters,
@@ -301,9 +293,7 @@ class FinancialExtractor:
             # Calculate liquidity ratios
             if current_liabilities and current_liabilities != 0:
                 if current_assets is not None:
-                    ratios["current_ratio"] = (
-                        current_assets / current_liabilities
-                    )
+                    ratios["current_ratio"] = current_assets / current_liabilities
 
             # Calculate leverage ratios
             if total_assets and total_assets != 0:
@@ -355,9 +345,7 @@ class FinancialExtractor:
                     for item in statement_data:
                         if isinstance(item, dict):
                             for keyword in keywords:
-                                account_val = str(
-                                    item.get("account", "")
-                                ).lower()
+                                account_val = str(item.get("account", "")).lower()
                                 norm_account = account_val.replace(" ", "")
                                 norm_keyword = keyword.lower().replace("_", "")
                                 if norm_keyword in norm_account:
@@ -383,9 +371,7 @@ class FinancialExtractor:
 
         return None
 
-    def _analyze_sheets_structure(
-        self, workbook: Workbook
-    ) -> List[Dict[str, Any]]:
+    def _analyze_sheets_structure(self, workbook: Workbook) -> List[Dict[str, Any]]:
         """Analyze the structure of all sheets in the workbook."""
         sheets_info = []
 
@@ -417,22 +403,14 @@ class FinancialExtractor:
 
             # Extract different types of metrics based on sheet type
             if sheet_info["type"] in ["pnl", "income_statement"]:
-                metrics.extend(
-                    self._extract_profitability_metrics(sheet, sheet_info)
-                )
+                metrics.extend(self._extract_profitability_metrics(sheet, sheet_info))
             elif sheet_info["type"] in ["balance_sheet", "position"]:
-                metrics.extend(
-                    self._extract_balance_sheet_metrics(sheet, sheet_info)
-                )
+                metrics.extend(self._extract_balance_sheet_metrics(sheet, sheet_info))
             elif sheet_info["type"] in ["cash_flow"]:
-                metrics.extend(
-                    self._extract_cash_flow_metrics(sheet, sheet_info)
-                )
+                metrics.extend(self._extract_cash_flow_metrics(sheet, sheet_info))
 
             # Extract common metrics from any sheet
-            metrics.extend(
-                self._extract_common_financial_metrics(sheet, sheet_info)
-            )
+            metrics.extend(self._extract_common_financial_metrics(sheet, sheet_info))
 
         # Calculate derived metrics
         derived_metrics = self._calculate_derived_metrics(metrics)
@@ -515,8 +493,7 @@ class FinancialExtractor:
                     name=metric_key.replace("_", " ").title(),
                     value=cell_info["value"],
                     category=MetricType.LIQUIDITY
-                    if "current" in metric_key
-                    or metric_key in ["cash", "inventory"]
+                    if "current" in metric_key or metric_key in ["cash", "inventory"]
                     else MetricType.LEVERAGE,
                     formula=cell_info.get("formula", ""),
                     confidence=cell_info["confidence"],
@@ -602,9 +579,7 @@ class FinancialExtractor:
                     ts_data.growth_rate = self._calculate_growth_rate(
                         ts_data.data_points
                     )
-                    ts_data.volatility = self._calculate_volatility(
-                        ts_data.data_points
-                    )
+                    ts_data.volatility = self._calculate_volatility(ts_data.data_points)
 
                     time_series.append(ts_data)
 
@@ -689,9 +664,7 @@ class FinancialExtractor:
                         target_sheet=target_sheet,
                         relationship_type=relationship_type,
                         linked_cells=cell_refs,
-                        confidence=self._calculate_relationship_confidence(
-                            cell_refs
-                        ),
+                        confidence=self._calculate_relationship_confidence(cell_refs),
                     )
                     relationships.append(relationship)
 
@@ -719,9 +692,7 @@ class FinancialExtractor:
                         )
 
                         if precedents:
-                            calc_type = self._classify_calculation_type(
-                                cell.value
-                            )
+                            calc_type = self._classify_calculation_type(cell.value)
 
                             dependency = CalculationDependency(
                                 dependent_cell=f"{get_column_letter(cell.column)}{cell.row}",
@@ -752,9 +723,7 @@ class FinancialExtractor:
         expected_metrics = ["revenue", "profit", "assets", "cash_flow"]
         found_metrics = [m.name.lower() for m in metrics]
         completeness = sum(
-            1
-            for em in expected_metrics
-            if any(em in fm for fm in found_metrics)
+            1 for em in expected_metrics if any(em in fm for fm in found_metrics)
         ) / len(expected_metrics)
         quality_scores["completeness"] = completeness
 
@@ -770,9 +739,7 @@ class FinancialExtractor:
             quality_scores["accuracy"] = avg_confidence
 
         # Reliability: based on presence of formulas vs hardcoded values
-        formula_ratio = sum(1 for m in metrics if m.formula) / max(
-            len(metrics), 1
-        )
+        formula_ratio = sum(1 for m in metrics if m.formula) / max(len(metrics), 1)
         quality_scores["reliability"] = formula_ratio
 
         # Overall score
@@ -782,9 +749,7 @@ class FinancialExtractor:
             "overall_score": round(overall_score, 2),
             "component_scores": quality_scores,
             "consistency_issues": consistency_issues,
-            "recommendations": self._generate_quality_recommendations(
-                quality_scores
-            ),
+            "recommendations": self._generate_quality_recommendations(quality_scores),
         }
 
     # Helper methods (simplified implementations for core functionality)
@@ -810,13 +775,10 @@ class FinancialExtractor:
             / current_liabilities
             if current_liabilities != 0
             else 0,
-            "debt_ratio": lambda total_debt, total_assets: total_debt
-            / total_assets
+            "debt_ratio": lambda total_debt, total_assets: total_debt / total_assets
             if total_assets != 0
             else 0,
-            "roe": lambda net_income, equity: net_income / equity
-            if equity != 0
-            else 0,
+            "roe": lambda net_income, equity: net_income / equity if equity != 0 else 0,
         }
 
     def _initialize_time_patterns(self) -> List[str]:
@@ -834,9 +796,7 @@ class FinancialExtractor:
     def _identify_sheet_type(self, sheet, sheet_name: str) -> str:
         """Identify the type of financial statement."""
         name_lower = sheet_name.lower()
-        if any(
-            term in name_lower for term in ["pnl", "p&l", "income", "profit"]
-        ):
+        if any(term in name_lower for term in ["pnl", "p&l", "income", "profit"]):
             return "pnl"
         elif any(term in name_lower for term in ["balance", "position", "bs"]):
             return "balance_sheet"
@@ -920,9 +880,7 @@ class FinancialExtractor:
                 continue
         return None
 
-    def _calculate_match_confidence(
-        self, cell_text: str, search_term: str
-    ) -> float:
+    def _calculate_match_confidence(self, cell_text: str, search_term: str) -> float:
         """Calculate confidence in metric match."""
         if search_term.lower() == cell_text.lower():
             return 1.0
@@ -931,9 +889,7 @@ class FinancialExtractor:
         else:
             return 0.6
 
-    def _extract_period_from_sheet(
-        self, sheet_info: Dict[str, Any]
-    ) -> Optional[str]:
+    def _extract_period_from_sheet(self, sheet_info: Dict[str, Any]) -> Optional[str]:
         """Extract time period from sheet information."""
         # Implementation would look for period indicators
         return None
@@ -981,9 +937,7 @@ class FinancialExtractor:
         """Calculate trend direction."""
         return "stable"
 
-    def _calculate_growth_rate(
-        self, data_points: List[Dict[str, Any]]
-    ) -> float:
+    def _calculate_growth_rate(self, data_points: List[Dict[str, Any]]) -> float:
         """Calculate growth rate."""
         return 0.0
 
@@ -997,15 +951,11 @@ class FinancialExtractor:
         """Find assumptions based on keywords."""
         return {}
 
-    def _find_percentage_assumptions(
-        self, workbook: Workbook
-    ) -> Dict[str, Any]:
+    def _find_percentage_assumptions(self, workbook: Workbook) -> Dict[str, Any]:
         """Find percentage-based assumptions."""
         return {}
 
-    def _find_external_references(
-        self, sheet
-    ) -> Dict[str, List[Tuple[str, str]]]:
+    def _find_external_references(self, sheet) -> Dict[str, List[Tuple[str, str]]]:
         """Find external sheet references."""
         return {}
 
@@ -1021,9 +971,7 @@ class FinancialExtractor:
         """Calculate confidence in sheet relationship."""
         return 0.8
 
-    def _parse_formula_precedents(
-        self, formula: str, sheet_name: str
-    ) -> List[str]:
+    def _parse_formula_precedents(self, formula: str, sheet_name: str) -> List[str]:
         """Parse formula to find precedent cells."""
         return []
 
@@ -1051,9 +999,7 @@ class FinancialExtractor:
         recommendations = []
         for metric, score in quality_scores.items():
             if score < 0.7:
-                recommendations.append(
-                    f"Improve {metric}: score is {score:.2f}"
-                )
+                recommendations.append(f"Improve {metric}: score is {score:.2f}")
         return recommendations
 
     def _extract_business_parameters(

@@ -119,9 +119,7 @@ class ChartDataService:
             )
 
             if revenue is not None:
-                period_label = self._format_period_label(
-                    stmt.period_start, granularity
-                )
+                period_label = self._format_period_label(stmt.period_start, granularity)
                 revenue_data.append(
                     ChartDataPoint(
                         x=period_label,
@@ -290,9 +288,7 @@ class ChartDataService:
         for i, data_point in enumerate(expense_data):
             percentage = (data_point.y / total_expenses) * 100
             expense_data[i].metadata["percentage"] = percentage
-            expense_data[i].color = self.color_palette[
-                i % len(self.color_palette)
-            ]
+            expense_data[i].color = self.color_palette[i % len(self.color_palette)]
 
         series = ChartSeries(
             name="Expenses",
@@ -331,9 +327,7 @@ class ChartDataService:
         ]
 
         asset_data = []
-        total_assets = (
-            self._extract_numeric_value(line_items, ["total_assets"]) or 0
-        )
+        total_assets = self._extract_numeric_value(line_items, ["total_assets"]) or 0
 
         for i, (category_key, category_name) in enumerate(asset_categories):
             asset_value = self._extract_numeric_value(
@@ -342,9 +336,7 @@ class ChartDataService:
 
             if asset_value and asset_value > 0:
                 percentage = (
-                    (asset_value / total_assets) * 100
-                    if total_assets > 0
-                    else 0
+                    (asset_value / total_assets) * 100 if total_assets > 0 else 0
                 )
                 asset_data.append(
                     ChartDataPoint(
@@ -682,19 +674,12 @@ class ChartDataService:
                     line_items, ["current_liabilities"]
                 )
 
-                if (
-                    current_assets
-                    and current_liabilities
-                    and current_liabilities > 0
-                ):
+                if current_assets and current_liabilities and current_liabilities > 0:
                     if ratio_key == "current_ratio":
                         ratio_value = current_assets / current_liabilities
                     elif ratio_key == "quick_ratio":
                         inventory = (
-                            self._extract_numeric_value(
-                                line_items, ["inventory"]
-                            )
-                            or 0
+                            self._extract_numeric_value(line_items, ["inventory"]) or 0
                         )
                         quick_assets = current_assets - inventory
                         ratio_value = quick_assets / current_liabilities
@@ -824,9 +809,7 @@ class ChartDataService:
                             "name": point.x,
                             "value": point.y,
                             "fill": point.color
-                            or self.color_palette[
-                                len(data) % len(self.color_palette)
-                            ],
+                            or self.color_palette[len(data) % len(self.color_palette)],
                             "label": point.label,
                             "metadata": point.metadata,
                         }
@@ -852,9 +835,7 @@ class ChartDataService:
                             "type": point.metadata.get("type", "positive")
                             if point.metadata
                             else "positive",
-                            "cumulative": point.metadata.get(
-                                "cumulative", point.y
-                            )
+                            "cumulative": point.metadata.get("cumulative", point.y)
                             if point.metadata
                             else point.y,
                             "fill": point.color,
@@ -892,9 +873,7 @@ class ChartDataService:
                             series_value = point.y
                             break
 
-                    data_point[
-                        series.name.lower().replace(" ", "_")
-                    ] = series_value
+                    data_point[series.name.lower().replace(" ", "_")] = series_value
 
                 data.append(data_point)
 
@@ -932,9 +911,7 @@ class ChartDataService:
         def json_serializer(obj):
             if isinstance(obj, (datetime, date)):
                 return obj.isoformat()
-            raise TypeError(
-                f"Object of type {type(obj)} is not JSON serializable"
-            )
+            raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
         return json.dumps(recharts_format, default=json_serializer, indent=2)
 
@@ -966,9 +943,7 @@ class ChartDataService:
 
             for stmt in statements:
                 line_items = stmt.line_items or {}
-                current_value = self._extract_numeric_value(
-                    line_items, [metric]
-                )
+                current_value = self._extract_numeric_value(line_items, [metric])
 
                 if current_value is not None:
                     growth_rate = None
@@ -985,9 +960,7 @@ class ChartDataService:
                             x=period_label,
                             y=current_value,
                             label=f"${current_value:,.0f}"
-                            + (
-                                f" ({growth_rate:+.1f}%)" if growth_rate else ""
-                            ),
+                            + (f" ({growth_rate:+.1f}%)" if growth_rate else ""),
                             metadata={
                                 "statement_id": stmt.id,
                                 "metric": metric,

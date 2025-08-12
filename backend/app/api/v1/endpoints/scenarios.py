@@ -68,9 +68,7 @@ async def create_scenario(
         return ScenarioResponse.from_orm(db_scenario)
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -80,15 +78,9 @@ async def create_scenario(
 
 @router.get("/", response_model=List[ScenarioResponse])
 async def list_scenarios(
-    base_file_id: Optional[int] = Query(
-        None, description="Filter by base file ID"
-    ),
-    is_baseline: Optional[bool] = Query(
-        None, description="Filter baseline scenarios"
-    ),
-    is_template: Optional[bool] = Query(
-        None, description="Filter template scenarios"
-    ),
+    base_file_id: Optional[int] = Query(None, description="Filter by base file ID"),
+    is_baseline: Optional[bool] = Query(None, description="Filter baseline scenarios"),
+    is_template: Optional[bool] = Query(None, description="Filter template scenarios"),
     status_filter: Optional[str] = Query(None, description="Filter by status"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -102,9 +94,7 @@ async def list_scenarios(
     """
     try:
         # Build query
-        query = db.query(Scenario).filter(
-            Scenario.created_by_id == current_user.id
-        )
+        query = db.query(Scenario).filter(Scenario.created_by_id == current_user.id)
 
         # Apply filters
         if base_file_id:
@@ -118,10 +108,7 @@ async def list_scenarios(
 
         # Apply pagination and ordering
         scenarios = (
-            query.order_by(desc(Scenario.created_at))
-            .offset(skip)
-            .limit(limit)
-            .all()
+            query.order_by(desc(Scenario.created_at)).offset(skip).limit(limit).all()
         )
 
         return [ScenarioResponse.from_orm(scenario) for scenario in scenarios]
@@ -409,9 +396,7 @@ async def update_scenario_parameter(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -421,9 +406,7 @@ async def update_scenario_parameter(
 
 @router.post("/compare", response_model=ScenarioComparisonResponse)
 async def compare_scenarios(
-    scenario_ids: List[int] = Body(
-        ..., description="List of scenario IDs to compare"
-    ),
+    scenario_ids: List[int] = Body(..., description="List of scenario IDs to compare"),
     metrics: Optional[List[str]] = Body(
         None, description="Specific metrics to compare"
     ),
@@ -469,9 +452,7 @@ async def compare_scenarios(
 @router.post("/{scenario_id}/calculate")
 async def calculate_scenario(
     scenario_id: int,
-    force_recalculate: bool = Query(
-        False, description="Force full recalculation"
-    ),
+    force_recalculate: bool = Query(False, description="Force full recalculation"),
     current_user: User = Depends(require_permissions(Permission.MODEL_EXECUTE)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -506,9 +487,7 @@ async def calculate_scenario(
         )
 
 
-@router.get(
-    "/{scenario_id}/versions", response_model=List[ScenarioVersionResponse]
-)
+@router.get("/{scenario_id}/versions", response_model=List[ScenarioVersionResponse])
 async def get_scenario_versions(
     scenario_id: int,
     current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
@@ -558,9 +537,7 @@ async def get_scenario_versions(
 
 @router.get("/templates/", response_model=List[ScenarioResponse])
 async def get_scenario_templates(
-    category: Optional[str] = Query(
-        None, description="Filter by template category"
-    ),
+    category: Optional[str] = Query(None, description="Filter by template category"),
     current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -704,12 +681,8 @@ async def setup_monte_carlo_simulation(
     distributions: Dict[int, Dict[str, Any]] = Body(
         ..., description="Parameter distributions"
     ),
-    output_metrics: List[str] = Body(
-        ..., description="Output metrics to track"
-    ),
-    iterations: int = Body(
-        10000, description="Number of simulation iterations"
-    ),
+    output_metrics: List[str] = Body(..., description="Output metrics to track"),
+    iterations: int = Body(10000, description="Number of simulation iterations"),
     correlations: Optional[Dict[str, float]] = Body(
         None, description="Parameter correlations"
     ),
@@ -747,9 +720,7 @@ async def setup_monte_carlo_simulation(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -797,9 +768,7 @@ async def run_monte_carlo_simulation(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -829,9 +798,7 @@ async def get_monte_carlo_results(
         return results
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -861,9 +828,7 @@ async def get_monte_carlo_statistics(
         return statistics
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -898,9 +863,7 @@ async def calculate_risk_metrics(
         return risk_metrics
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

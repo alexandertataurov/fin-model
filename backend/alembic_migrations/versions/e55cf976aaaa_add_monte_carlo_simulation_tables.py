@@ -178,12 +178,8 @@ def downgrade() -> None:
     # Remove indexes
     op.drop_index("ix_scenario_parameters_parameter_id", "scenario_parameters")
     op.drop_index("ix_scenario_parameters_scenario_id", "scenario_parameters")
-    op.drop_index(
-        "ix_monte_carlo_simulations_created_at", "monte_carlo_simulations"
-    )
-    op.drop_index(
-        "ix_monte_carlo_simulations_scenario_id", "monte_carlo_simulations"
-    )
+    op.drop_index("ix_monte_carlo_simulations_created_at", "monte_carlo_simulations")
+    op.drop_index("ix_monte_carlo_simulations_scenario_id", "monte_carlo_simulations")
 
     # Remove columns from scenarios
     op.drop_column("scenarios", "is_base_case")

@@ -255,7 +255,7 @@ async def check_data_integrity(
                 user_recommendations.append(
                     "Run cleanup to remove orphaned file records"
                 )
-            
+
             integrity_checks.append(
                 DataIntegrityResponse(
                     table_name="users",
@@ -282,7 +282,7 @@ async def check_data_integrity(
             file_count = db.query(UploadedFile).count()
             file_issues: List[str] = []
             file_recommendations: List[str] = []
-            
+
             # Check for files with inconsistent status
             inconsistent_files = (
                 db.query(UploadedFile)
@@ -319,9 +319,7 @@ async def check_data_integrity(
                     table_name="uploaded_files",
                     record_count=0,
                     last_updated=datetime.now(timezone.utc),
-                    integrity_issues=[
-                        f"Error accessing files table: {str(e)}"
-                    ],
+                    integrity_issues=[f"Error accessing files table: {str(e)}"],
                     recommendations=["Check database connection and permissions"],
                 )
             )
@@ -476,10 +474,9 @@ async def cleanup_orphaned_files(
                     deleted_count += 1
                 except Exception as e:
                     logger.exception(
-                        "Failed to delete orphaned file %s: %s", 
-                        file_record.id, str(e)
+                        "Failed to delete orphaned file %s: %s", file_record.id, str(e)
                     )
-            
+
             try:
                 db.commit()
             except Exception as e:

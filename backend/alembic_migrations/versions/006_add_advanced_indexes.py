@@ -26,7 +26,9 @@ def upgrade():
     ):
         try:
             result = conn.execute(
-                sa.text("SELECT to_regclass(:idx)").bindparams(sa.bindparam("idx", index_name))
+                sa.text("SELECT to_regclass(:idx)").bindparams(
+                    sa.bindparam("idx", index_name)
+                )
             ).scalar()
             if result is None:
                 if expression:
@@ -56,9 +58,7 @@ def upgrade():
     )
 
     # ix_users_active_verified - compound index
-    safe_create_index(
-        "ix_users_active_verified", "users", ["is_active", "is_verified"]
-    )
+    safe_create_index("ix_users_active_verified", "users", ["is_active", "is_verified"])
 
     # Advanced indexes for uploaded_files table
     safe_create_index(
@@ -237,9 +237,7 @@ def upgrade():
     )
 
     # Advanced indexes for audit_logs table (for security and monitoring)
-    safe_create_index(
-        "ix_audit_action_time", "audit_logs", ["action", "created_at"]
-    )
+    safe_create_index("ix_audit_action_time", "audit_logs", ["action", "created_at"])
     safe_create_index(
         "ix_audit_user_success",
         "audit_logs",
@@ -288,15 +286,15 @@ def upgrade():
         def safe_create_concurrent_index(index_name, sql):
             try:
                 result = conn_autocommit.execute(
-                    sa.text("SELECT to_regclass(:idx)").bindparams(sa.bindparam("idx", index_name))
+                    sa.text("SELECT to_regclass(:idx)").bindparams(
+                        sa.bindparam("idx", index_name)
+                    )
                 ).scalar()
                 if result is None:
                     conn_autocommit.execute(sa.text(sql))
                     print(f"✅ Created concurrent index {index_name}")
                 else:
-                    print(
-                        f"⚠️ Skipping concurrent index {index_name}: already exists"
-                    )
+                    print(f"⚠️ Skipping concurrent index {index_name}: already exists")
             except Exception as e:
                 print(f"⚠️ Could not create concurrent index {index_name}: {e}")
 
@@ -387,9 +385,7 @@ def downgrade():
     # Drop covering and partial indexes
     with op.get_context().autocommit_block():
         op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_metrics_covering")
-        op.execute(
-            "DROP INDEX CONCURRENTLY IF EXISTS ix_parameter_values_covering"
-        )
+        op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_parameter_values_covering")
 
         # Drop partial indexes
         op.execute("DROP INDEX CONCURRENTLY IF EXISTS ix_calculations_pending")
@@ -405,9 +401,7 @@ def downgrade():
 
     # Drop report indexes
     op.drop_index("ix_report_exports_user_format", table_name="report_exports")
-    op.drop_index(
-        "ix_report_exports_status_created", table_name="report_exports"
-    )
+    op.drop_index("ix_report_exports_status_created", table_name="report_exports")
     op.drop_index("ix_report_schedules_next_run", table_name="report_schedules")
     op.drop_index("ix_report_templates_active", table_name="report_templates")
 
@@ -428,9 +422,7 @@ def downgrade():
     op.drop_index("ix_templates_type_active", table_name="templates")
 
     # Drop calculation indexes
-    op.drop_index(
-        "ix_calculations_executed_recently", table_name="calculations"
-    )
+    op.drop_index("ix_calculations_executed_recently", table_name="calculations")
     op.drop_index("ix_calculations_type_scenario", table_name="calculations")
     op.drop_index("ix_calculations_order_active", table_name="calculations")
 
@@ -448,18 +440,10 @@ def downgrade():
     op.drop_index("ix_metrics_name_period", table_name="metrics")
 
     # Drop financial statement indexes
-    op.drop_index(
-        "ix_statements_baseline_version", table_name="financial_statements"
-    )
-    op.drop_index(
-        "ix_statements_currency_period", table_name="financial_statements"
-    )
-    op.drop_index(
-        "ix_statements_scenario_type", table_name="financial_statements"
-    )
-    op.drop_index(
-        "ix_statements_period_range", table_name="financial_statements"
-    )
+    op.drop_index("ix_statements_baseline_version", table_name="financial_statements")
+    op.drop_index("ix_statements_currency_period", table_name="financial_statements")
+    op.drop_index("ix_statements_scenario_type", table_name="financial_statements")
+    op.drop_index("ix_statements_period_range", table_name="financial_statements")
 
     # Drop scenario indexes
     op.drop_index("ix_scenarios_user_active", table_name="scenarios")

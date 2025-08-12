@@ -95,7 +95,9 @@ def backup_database(self, db: Session) -> Dict[str, Any]:
         )
 
         # Run backup command
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True, shell=False)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, check=True, shell=False
+        )
 
         if result.returncode != 0:
             raise Exception(f"Backup failed: {result.stderr}")

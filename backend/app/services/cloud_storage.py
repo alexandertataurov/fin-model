@@ -75,9 +75,7 @@ class S3StorageService(CloudStorageInterface):
             self.s3_client = boto3.client(
                 "s3",
                 aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
-                aws_secret_access_key=getattr(
-                    settings, "AWS_SECRET_ACCESS_KEY", None
-                ),
+                aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
                 region_name=self.region,
             )
         except NoCredentialsError:
@@ -127,9 +125,7 @@ class S3StorageService(CloudStorageInterface):
     async def download_file(self, file_path: str) -> bytes:
         """Download file from S3."""
         try:
-            response = self.s3_client.get_object(
-                Bucket=self.bucket_name, Key=file_path
-            )
+            response = self.s3_client.get_object(Bucket=self.bucket_name, Key=file_path)
             return response["Body"].read()
         except ClientError as e:
             raise Exception(f"Failed to download file from S3: {str(e)}")
@@ -175,9 +171,7 @@ class AzureBlobStorageService(CloudStorageInterface):
         self.container_name = getattr(
             settings, "AZURE_CONTAINER_NAME", "finvision-files"
         )
-        connection_string = getattr(
-            settings, "AZURE_STORAGE_CONNECTION_STRING", None
-        )
+        connection_string = getattr(settings, "AZURE_STORAGE_CONNECTION_STRING", None)
 
         if not connection_string:
             raise ValueError(
@@ -189,9 +183,7 @@ class AzureBlobStorageService(CloudStorageInterface):
                 connection_string
             )
         except Exception as e:
-            raise ValueError(
-                f"Failed to initialize Azure Blob Storage: {str(e)}"
-            )
+            raise ValueError(f"Failed to initialize Azure Blob Storage: {str(e)}")
 
     async def upload_file(
         self,
@@ -372,9 +364,7 @@ class CloudStorageManager:
         """Upload file with organized path structure."""
         # Create organized path: user_id/year/month/filename
         now = datetime.utcnow()
-        organized_path = (
-            f"users/{user_id}/{now.year}/{now.month:02d}/{filename}"
-        )
+        organized_path = f"users/{user_id}/{now.year}/{now.month:02d}/{filename}"
 
         # Add default metadata
         upload_metadata = {
@@ -405,9 +395,7 @@ class CloudStorageManager:
         """Check if file exists."""
         return await self.storage_provider.file_exists(file_path)
 
-    def generate_secure_filename(
-        self, original_filename: str, user_id: int
-    ) -> str:
+    def generate_secure_filename(self, original_filename: str, user_id: int) -> str:
         """Generate a secure filename with hash."""
         # Create hash of filename + user_id + timestamp for uniqueness
         timestamp = datetime.utcnow().isoformat()

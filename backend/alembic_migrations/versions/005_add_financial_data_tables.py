@@ -46,18 +46,12 @@ def upgrade():
             ),
             nullable=False,
         ),
-        sa.Column(
-            "currency", sa.String(length=3), nullable=False
-        ),  # ISO currency code
+        sa.Column("currency", sa.String(length=3), nullable=False),  # ISO currency code
         sa.Column(
             "line_items", sa.JSON(), nullable=False
         ),  # JSON structure of financial line items
-        sa.Column(
-            "raw_data", sa.JSON(), nullable=True
-        ),  # Original extracted data
-        sa.Column(
-            "calculated_data", sa.JSON(), nullable=True
-        ),  # Derived calculations
+        sa.Column("raw_data", sa.JSON(), nullable=True),  # Original extracted data
+        sa.Column("calculated_data", sa.JSON(), nullable=True),  # Derived calculations
         sa.Column("version", sa.Integer(), nullable=False, default=1),
         sa.Column("is_baseline", sa.Boolean(), nullable=False, default=False),
         sa.Column("notes", sa.Text(), nullable=True),
@@ -135,13 +129,9 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        "ix_metrics_scenario", "metrics", ["scenario_id"], unique=False
-    )
+    op.create_index("ix_metrics_scenario", "metrics", ["scenario_id"], unique=False)
     op.create_index("ix_metrics_name", "metrics", ["metric_name"], unique=False)
-    op.create_index(
-        "ix_metrics_category", "metrics", ["metric_category"], unique=False
-    )
+    op.create_index("ix_metrics_category", "metrics", ["metric_category"], unique=False)
     op.create_index(
         "ix_metrics_period",
         "metrics",
@@ -202,12 +192,8 @@ def upgrade():
         ["scenario_id"],
         unique=False,
     )
-    op.create_index(
-        "ix_time_series_type", "time_series", ["data_type"], unique=False
-    )
-    op.create_index(
-        "ix_time_series_date", "time_series", ["period_date"], unique=False
-    )
+    op.create_index("ix_time_series_type", "time_series", ["data_type"], unique=False)
+    op.create_index("ix_time_series_date", "time_series", ["period_date"], unique=False)
     op.create_index(
         "ix_time_series_composite",
         "time_series",
@@ -301,9 +287,7 @@ def upgrade():
         sa.Column("validation_rules", sa.JSON(), nullable=True),
         sa.Column("transformation_rules", sa.JSON(), nullable=True),
         sa.Column("sample_file_path", sa.String(length=500), nullable=True),
-        sa.Column(
-            "version", sa.String(length=50), nullable=False, default="1.0"
-        ),
+        sa.Column("version", sa.String(length=50), nullable=False, default="1.0"),
         sa.Column(
             "is_system_template",
             sa.Boolean(),
@@ -321,9 +305,7 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        "ix_templates_type", "templates", ["template_type"], unique=False
-    )
+    op.create_index("ix_templates_type", "templates", ["template_type"], unique=False)
     op.create_index("ix_templates_name", "templates", ["name"], unique=False)
 
     # Create file_versions table
@@ -334,9 +316,7 @@ def upgrade():
         sa.Column("version_number", sa.Integer(), nullable=False),
         sa.Column("file_path", sa.String(length=500), nullable=False),
         sa.Column("file_size", sa.BigInteger(), nullable=False),
-        sa.Column(
-            "file_hash", sa.String(length=64), nullable=False
-        ),  # SHA-256 hash
+        sa.Column("file_hash", sa.String(length=64), nullable=False),  # SHA-256 hash
         sa.Column("change_description", sa.Text(), nullable=True),
         sa.Column(
             "change_type",
@@ -362,13 +342,9 @@ def upgrade():
             ["uploaded_files.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint(
-            "file_id", "version_number", name="unique_file_version"
-        ),
+        sa.UniqueConstraint("file_id", "version_number", name="unique_file_version"),
     )
-    op.create_index(
-        "ix_file_versions_file", "file_versions", ["file_id"], unique=False
-    )
+    op.create_index("ix_file_versions_file", "file_versions", ["file_id"], unique=False)
     op.create_index(
         "ix_file_versions_current",
         "file_versions",
@@ -405,9 +381,7 @@ def upgrade():
         sa.Column(
             "data_lineage", sa.JSON(), nullable=True
         ),  # Track data transformation chain
-        sa.Column(
-            "quality_metrics", sa.JSON(), nullable=True
-        ),  # Data quality scores
+        sa.Column("quality_metrics", sa.JSON(), nullable=True),  # Data quality scores
         sa.Column("refresh_frequency", sa.String(length=50), nullable=True),
         sa.Column("last_updated", sa.DateTime(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False, default=True),
@@ -474,9 +448,7 @@ def upgrade():
 
 def downgrade():
     # Remove foreign keys and columns first
-    op.drop_constraint(
-        "fk_parameters_data_source", "parameters", type_="foreignkey"
-    )
+    op.drop_constraint("fk_parameters_data_source", "parameters", type_="foreignkey")
     op.drop_column("parameters", "data_source_id")
 
     op.drop_constraint(
@@ -521,12 +493,8 @@ def downgrade():
     op.drop_index("ix_metrics_scenario", table_name="metrics")
     op.drop_table("metrics")
 
-    op.drop_index(
-        "ix_financial_statements_period", table_name="financial_statements"
-    )
-    op.drop_index(
-        "ix_financial_statements_type", table_name="financial_statements"
-    )
+    op.drop_index("ix_financial_statements_period", table_name="financial_statements")
+    op.drop_index("ix_financial_statements_type", table_name="financial_statements")
     op.drop_index(
         "ix_financial_statements_scenario",
         table_name="financial_statements",

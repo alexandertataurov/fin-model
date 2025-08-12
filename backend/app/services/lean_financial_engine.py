@@ -377,12 +377,8 @@ class LeanFinancialEngine:
         )
 
         # Operating Expenses
-        pl.sales_commission = (
-            pl.total_revenue * parameters.sales_commission_percentage
-        )
-        pl.marketing_spend = (
-            pl.total_revenue * parameters.marketing_spend_percentage
-        )
+        pl.sales_commission = pl.total_revenue * parameters.sales_commission_percentage
+        pl.marketing_spend = pl.total_revenue * parameters.marketing_spend_percentage
         pl.advertising = pl.total_revenue * 0.02
         pl.rnd_expenses = pl.total_revenue * parameters.rnd_percentage
         pl.executive_salaries = (
@@ -407,9 +403,7 @@ class LeanFinancialEngine:
         # Operating Income
         pl.operating_income = pl.gross_profit - pl.total_operating_expenses
         pl.operating_margin_percentage = (
-            pl.operating_income / pl.total_revenue
-            if pl.total_revenue > 0
-            else 0
+            pl.operating_income / pl.total_revenue if pl.total_revenue > 0 else 0
         )
 
         # Other Income/Expense
@@ -417,15 +411,11 @@ class LeanFinancialEngine:
         pl.interest_income = pl.total_revenue * 0.002
         pl.foreign_exchange_gain_loss = 0
         pl.total_other_income_expense = (
-            pl.interest_income
-            - pl.interest_expense
-            + pl.foreign_exchange_gain_loss
+            pl.interest_income - pl.interest_expense + pl.foreign_exchange_gain_loss
         )
 
         # Income Before Tax
-        pl.income_before_tax = (
-            pl.operating_income + pl.total_other_income_expense
-        )
+        pl.income_before_tax = pl.operating_income + pl.total_other_income_expense
 
         # Tax Calculations
         pl.current_tax_expense = max(
@@ -434,9 +424,7 @@ class LeanFinancialEngine:
         pl.deferred_tax_expense = 0
         pl.tax_credits_applied = parameters.tax_credits
         pl.total_tax_expense = (
-            pl.current_tax_expense
-            + pl.deferred_tax_expense
-            - pl.tax_credits_applied
+            pl.current_tax_expense + pl.deferred_tax_expense - pl.tax_credits_applied
         )
         pl.effective_tax_rate_actual = (
             pl.total_tax_expense / pl.income_before_tax
@@ -475,9 +463,7 @@ class LeanFinancialEngine:
         )
 
         # Current Assets
-        bs.cash = prior_cash + (
-            pl_statement.net_income * 0.3
-        )  # Simplified cash flow
+        bs.cash = prior_cash + (pl_statement.net_income * 0.3)  # Simplified cash flow
         bs.cash_equivalents = bs.cash * 0.1
         bs.marketable_securities = bs.cash * 0.05
         bs.accounts_receivable = (
@@ -487,9 +473,7 @@ class LeanFinancialEngine:
         bs.net_accounts_receivable = (
             bs.accounts_receivable - bs.allowance_for_doubtful_accounts
         )
-        bs.inventory = (
-            pl_statement.total_cogs * parameters.inventory_days
-        ) / 365
+        bs.inventory = (pl_statement.total_cogs * parameters.inventory_days) / 365
         bs.prepaid_expenses = pl_statement.total_revenue * 0.01
         bs.other_current_assets = pl_statement.total_revenue * 0.005
         bs.total_current_assets = (
@@ -516,9 +500,7 @@ class LeanFinancialEngine:
         bs.accumulated_amortization = (
             bs.intangible_assets * parameters.amortization_percentage
         )
-        bs.net_intangible_assets = (
-            bs.intangible_assets - bs.accumulated_amortization
-        )
+        bs.net_intangible_assets = bs.intangible_assets - bs.accumulated_amortization
         bs.long_term_investments = bs.cash * 0.02
         bs.other_non_current_assets = pl_statement.total_revenue * 0.01
         bs.total_non_current_assets = (
@@ -592,8 +574,7 @@ class LeanFinancialEngine:
             else 0
         )
         bs.quick_ratio = (
-            (bs.total_current_assets - bs.inventory)
-            / bs.total_current_liabilities
+            (bs.total_current_assets - bs.inventory) / bs.total_current_liabilities
             if bs.total_current_liabilities > 0
             else 0
         )
@@ -603,9 +584,7 @@ class LeanFinancialEngine:
         bs.debt_to_assets_ratio = (
             bs.total_liabilities / bs.total_assets if bs.total_assets > 0 else 0
         )
-        bs.working_capital = (
-            bs.total_current_assets - bs.total_current_liabilities
-        )
+        bs.working_capital = bs.total_current_assets - bs.total_current_liabilities
 
         return bs
 
@@ -622,12 +601,10 @@ class LeanFinancialEngine:
         # Operating Activities
         cf.net_income = pl_statement.net_income
         cf.depreciation = (
-            balance_sheet.accumulated_depreciation
-            * parameters.depreciation_percentage
+            balance_sheet.accumulated_depreciation * parameters.depreciation_percentage
         )
         cf.amortization = (
-            balance_sheet.accumulated_amortization
-            * parameters.amortization_percentage
+            balance_sheet.accumulated_amortization * parameters.amortization_percentage
         )
         cf.stock_based_compensation = pl_statement.total_revenue * 0.005
         cf.deferred_taxes = pl_statement.deferred_tax_expense
@@ -649,18 +626,12 @@ class LeanFinancialEngine:
         cf.accounts_payable_change = (
             balance_sheet.accounts_payable * 0.1
             if not prior_balance_sheet
-            else (
-                balance_sheet.accounts_payable
-                - prior_balance_sheet.accounts_payable
-            )
+            else (balance_sheet.accounts_payable - prior_balance_sheet.accounts_payable)
         )
         cf.accrued_expenses_change = (
             balance_sheet.accrued_expenses * 0.1
             if not prior_balance_sheet
-            else (
-                balance_sheet.accrued_expenses
-                - prior_balance_sheet.accrued_expenses
-            )
+            else (balance_sheet.accrued_expenses - prior_balance_sheet.accrued_expenses)
         )
         cf.net_working_capital_change = (
             cf.accounts_receivable_change
@@ -688,9 +659,7 @@ class LeanFinancialEngine:
         )
         cf.software_development = -(pl_statement.total_revenue * 0.01)
         cf.intangible_assets_investment = -(pl_statement.total_revenue * 0.005)
-        cf.marketable_securities_purchase = -(
-            balance_sheet.marketable_securities * 0.1
-        )
+        cf.marketable_securities_purchase = -(balance_sheet.marketable_securities * 0.1)
         cf.marketable_securities_sale = 0
         cf.business_acquisitions = 0
         cf.investing_cash_flow = (
@@ -709,11 +678,7 @@ class LeanFinancialEngine:
             else max(
                 0,
                 balance_sheet.short_term_debt
-                - (
-                    prior_balance_sheet.short_term_debt
-                    if prior_balance_sheet
-                    else 0
-                ),
+                - (prior_balance_sheet.short_term_debt if prior_balance_sheet else 0),
             )
         )
         cf.long_term_debt_issuance = (
@@ -722,16 +687,11 @@ class LeanFinancialEngine:
             else max(
                 0,
                 balance_sheet.long_term_debt
-                - (
-                    prior_balance_sheet.long_term_debt
-                    if prior_balance_sheet
-                    else 0
-                ),
+                - (prior_balance_sheet.long_term_debt if prior_balance_sheet else 0),
             )
         )
         cf.debt_repayment = (
-            -(balance_sheet.short_term_debt + balance_sheet.long_term_debt)
-            * 0.02
+            -(balance_sheet.short_term_debt + balance_sheet.long_term_debt) * 0.02
         )
         cf.common_stock_issuance = 0
         cf.stock_repurchase = 0
@@ -749,9 +709,7 @@ class LeanFinancialEngine:
 
         # Net Cash Flow
         cf.net_cash_flow = (
-            cf.operating_cash_flow
-            + cf.investing_cash_flow
-            + cf.financing_cash_flow
+            cf.operating_cash_flow + cf.investing_cash_flow + cf.financing_cash_flow
         )
         cf.beginning_cash_balance = (
             prior_balance_sheet.cash if prior_balance_sheet else 100000
@@ -788,9 +746,7 @@ class LeanFinancialEngine:
         dcf.risk_free_rate = parameters.risk_free_rate
         dcf.beta = parameters.beta
         dcf.market_risk_premium = parameters.market_risk_premium
-        dcf.cost_of_equity = dcf.risk_free_rate + (
-            dcf.beta * dcf.market_risk_premium
-        )
+        dcf.cost_of_equity = dcf.risk_free_rate + (dcf.beta * dcf.market_risk_premium)
         dcf.cost_of_debt = parameters.long_term_interest_rate * (
             1 - parameters.effective_tax_rate
         )
@@ -846,9 +802,7 @@ class LeanFinancialEngine:
         terminal_fcf = dcf.projected_free_cash_flow[-1] * (
             1 + parameters.terminal_growth_rate
         )
-        dcf.terminal_value = terminal_fcf / (
-            dcf.wacc - parameters.terminal_growth_rate
-        )
+        dcf.terminal_value = terminal_fcf / (dcf.wacc - parameters.terminal_growth_rate)
         dcf.terminal_growth_rate = parameters.terminal_growth_rate
 
         # Present Value Calculations
@@ -863,9 +817,7 @@ class LeanFinancialEngine:
         )
 
         # Enterprise and Equity Value
-        dcf.enterprise_value = (
-            dcf.present_value_fcf + dcf.present_value_terminal
-        )
+        dcf.enterprise_value = dcf.present_value_fcf + dcf.present_value_terminal
         dcf.net_debt = base_revenue * 0.1  # Assume net debt of 10% of revenue
         dcf.equity_value = dcf.enterprise_value - dcf.net_debt
         dcf.shares_outstanding = 1000000  # Assume 1M shares
@@ -914,9 +866,7 @@ class LeanFinancialEngine:
         base_revenue: float = 1000000,
     ) -> Dict[str, Any]:
         """Create a financial scenario with given parameters"""
-        model_results = self.calculate_comprehensive_model(
-            parameters, base_revenue
-        )
+        model_results = self.calculate_comprehensive_model(parameters, base_revenue)
 
         # Add scenario metadata
         model_results.update(
@@ -929,9 +879,7 @@ class LeanFinancialEngine:
 
         return model_results
 
-    def compare_scenarios(
-        self, scenarios: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def compare_scenarios(self, scenarios: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Compare multiple scenarios"""
         if not scenarios:
             return {}
@@ -981,11 +929,7 @@ class LeanFinancialEngine:
 
                 for scenario_summary in comparison["scenarios"][1:]:
                     variance = (
-                        (
-                            (scenario_summary[metric] - base_value)
-                            / base_value
-                            * 100
-                        )
+                        ((scenario_summary[metric] - base_value) / base_value * 100)
                         if base_value != 0
                         else 0
                     )

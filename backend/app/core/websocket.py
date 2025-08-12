@@ -159,17 +159,11 @@ class ConnectionManager:
                 },
             )
 
-    async def send_notification(
-        self, user_id: int, notification: Dict[str, Any]
-    ):
+    async def send_notification(self, user_id: int, notification: Dict[str, Any]):
         """Send a notification to a specific user."""
-        await self.send_to_user(
-            user_id, {"type": "notification", "data": notification}
-        )
+        await self.send_to_user(user_id, {"type": "notification", "data": notification})
 
-    async def broadcast_system_message(
-        self, message: str, message_type: str = "info"
-    ):
+    async def broadcast_system_message(self, message: str, message_type: str = "info"):
         """Broadcast a system message to all connected users."""
         data = {
             "type": "system_message",
@@ -186,9 +180,7 @@ class ConnectionManager:
 
     def get_connection_count(self) -> int:
         """Get total number of active connections."""
-        return sum(
-            len(connections) for connections in self.active_connections.values()
-        )
+        return sum(len(connections) for connections in self.active_connections.values())
 
 
 # Global connection manager instance

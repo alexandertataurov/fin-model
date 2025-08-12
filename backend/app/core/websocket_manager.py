@@ -82,9 +82,7 @@ class WebSocketManager:
             await websocket.accept()
 
             # Create connection metadata
-            metadata = ConnectionMetadata(
-                user_id, channel, channel_id, client_info
-            )
+            metadata = ConnectionMetadata(user_id, channel, channel_id, client_info)
             self.connection_metadata[websocket] = metadata
 
             # Add to channel
@@ -101,9 +99,7 @@ class WebSocketManager:
             self.stats["total_connections"] += 1
             self.stats["active_connections"] += 1
 
-            logger.info(
-                f"User {user_id} connected to {channel.value}:{channel_id}"
-            )
+            logger.info(f"User {user_id} connected to {channel.value}:{channel_id}")
 
             # Send connection confirmation
             await self._send_to_websocket(
@@ -296,9 +292,7 @@ class WebSocketManager:
 
             # Update last activity
             if websocket in self.connection_metadata:
-                self.connection_metadata[
-                    websocket
-                ].last_activity = datetime.utcnow()
+                self.connection_metadata[websocket].last_activity = datetime.utcnow()
 
             self.stats["messages_sent"] += 1
             return True
@@ -318,9 +312,7 @@ class WebSocketManager:
         }
         await websocket.send_text(json.dumps(message_with_timestamp))
 
-    def get_channel_connections(
-        self, channel: ChannelType, channel_id: str
-    ) -> int:
+    def get_channel_connections(self, channel: ChannelType, channel_id: str) -> int:
         """Get number of connections in a specific channel"""
         if channel_id in self.channels[channel]:
             return len(self.channels[channel][channel_id])
@@ -332,9 +324,7 @@ class WebSocketManager:
             return len(self.user_connections[user_id])
         return 0
 
-    def get_connection_info(
-        self, websocket: WebSocket
-    ) -> Optional[ConnectionMetadata]:
+    def get_connection_info(self, websocket: WebSocket) -> Optional[ConnectionMetadata]:
         """Get connection metadata for a WebSocket"""
         return self.connection_metadata.get(websocket)
 
@@ -358,13 +348,9 @@ class WebSocketManager:
 
         for channel in ChannelType:
             for channel_id in list(self.channels[channel].keys()):
-                await self.broadcast_to_channel(
-                    channel, channel_id, ping_message
-                )
+                await self.broadcast_to_channel(channel, channel_id, ping_message)
 
-    async def cleanup_stale_connections(
-        self, max_idle_minutes: int = 30
-    ) -> int:
+    async def cleanup_stale_connections(self, max_idle_minutes: int = 30) -> int:
         """Clean up connections that have been idle for too long"""
         cutoff_time = datetime.utcnow().timestamp() - (max_idle_minutes * 60)
         stale_connections = []

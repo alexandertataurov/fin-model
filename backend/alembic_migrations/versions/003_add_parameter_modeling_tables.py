@@ -62,12 +62,8 @@ def upgrade():
         ["category"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_parameters_id"), "parameters", ["id"], unique=False
-    )
-    op.create_index(
-        op.f("ix_parameters_name"), "parameters", ["name"], unique=False
-    )
+    op.create_index(op.f("ix_parameters_id"), "parameters", ["id"], unique=False)
+    op.create_index(op.f("ix_parameters_name"), "parameters", ["name"], unique=False)
     op.create_index(
         op.f("ix_parameters_parameter_type"),
         "parameters",

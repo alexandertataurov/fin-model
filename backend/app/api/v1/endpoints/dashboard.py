@@ -25,16 +25,12 @@ router = APIRouter()
 
 @router.get("/metrics")
 async def get_dashboard_metrics(
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """Return simple dashboard metrics."""
     total_files = (
-        db.query(UploadedFile)
-        .filter(UploadedFile.user_id == current_user.id)
-        .count()
+        db.query(UploadedFile).filter(UploadedFile.user_id == current_user.id).count()
     )
     completed_files = (
         db.query(UploadedFile)
@@ -68,9 +64,7 @@ async def get_dashboard_metrics(
 
 @router.get("/charts")
 async def get_dashboard_charts(
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """Return simple example chart data used in tests."""
@@ -95,15 +89,9 @@ class DashboardPeriod:
 @router.get("/metrics/overview")
 @safe_cache(expire=300)
 async def get_overview_metrics(
-    period: str = Query(
-        DashboardPeriod.YTD, description="Time period for metrics"
-    ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -135,15 +123,9 @@ async def get_overview_metrics(
 @router.get("/metrics/pl")
 @safe_cache(expire=300)
 async def get_pl_metrics(
-    period: str = Query(
-        DashboardPeriod.YTD, description="Time period for metrics"
-    ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -177,15 +159,9 @@ async def get_pl_metrics(
 @router.get("/metrics/cash-flow")
 @safe_cache(expire=300)
 async def get_cash_flow_metrics(
-    period: str = Query(
-        DashboardPeriod.YTD, description="Time period for metrics"
-    ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -220,15 +196,9 @@ async def get_cash_flow_metrics(
 @router.get("/metrics/balance-sheet")
 @safe_cache(expire=300)
 async def get_balance_sheet_metrics(
-    period: str = Query(
-        DashboardPeriod.YTD, description="Time period for metrics"
-    ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    period: str = Query(DashboardPeriod.YTD, description="Time period for metrics"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -270,12 +240,8 @@ async def get_financial_trends(
     period_range: str = Query(
         "last_12_months", description="Period range for trend analysis"
     ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -313,18 +279,10 @@ async def get_financial_trends(
 @router.get("/metrics/kpis")
 @safe_cache(expire=300)
 async def get_key_performance_indicators(
-    period: str = Query(
-        DashboardPeriod.YTD, description="Time period for KPIs"
-    ),
-    industry: Optional[str] = Query(
-        None, description="Industry for benchmarking"
-    ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    period: str = Query(DashboardPeriod.YTD, description="Time period for KPIs"),
+    industry: Optional[str] = Query(None, description="Industry for benchmarking"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -366,15 +324,9 @@ async def get_financial_ratios(
         None,
         description="Category of ratios (liquidity, profitability, leverage, efficiency)",
     ),
-    period: str = Query(
-        DashboardPeriod.YTD, description="Time period for ratios"
-    ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    period: str = Query(DashboardPeriod.YTD, description="Time period for ratios"),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -416,12 +368,8 @@ async def get_variance_analysis(
     variance_type: str = Query(
         "absolute", description="Type of variance (absolute, percentage)"
     ),
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to analyze"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    file_id: Optional[int] = Query(None, description="Specific file ID to analyze"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -460,9 +408,7 @@ async def get_variance_analysis(
 
 @router.get("/data-sources")
 async def get_dashboard_data_sources(
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -510,12 +456,8 @@ async def get_dashboard_data_sources(
 
 @router.post("/refresh-cache")
 async def refresh_dashboard_cache(
-    file_id: Optional[int] = Query(
-        None, description="Specific file ID to refresh"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    file_id: Optional[int] = Query(None, description="Specific file ID to refresh"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -557,9 +499,7 @@ async def get_dashboard_overview(
     fallback: str = Query(
         "empty", description="Fallback when no data: 'demo' or 'empty'"
     ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -605,9 +545,7 @@ async def get_dashboard_overview(
 @router.get("/pl/{statement_id}")
 async def get_pl_dashboard_data(
     statement_id: int,
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -639,9 +577,7 @@ async def get_pl_dashboard_data(
 @router.get("/balance/{statement_id}")
 async def get_balance_sheet_dashboard_data(
     statement_id: int,
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -673,9 +609,7 @@ async def get_balance_sheet_dashboard_data(
 @router.get("/cashflow/{statement_id}")
 async def get_cash_flow_dashboard_data(
     statement_id: int,
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -707,9 +641,7 @@ async def get_cash_flow_dashboard_data(
 @router.get("/metrics/{statement_id}")
 async def get_statement_key_metrics(
     statement_id: int,
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -737,14 +669,10 @@ async def get_statement_key_metrics(
         )
 
         # Calculate comprehensive ratios
-        financial_ratios = metrics_service.calculate_financial_ratios(
-            user_statements
-        )
+        financial_ratios = metrics_service.calculate_financial_ratios(user_statements)
 
         # Calculate DuPont analysis if possible
-        dupont_analysis = metrics_service.calculate_dupont_analysis(
-            user_statements
-        )
+        dupont_analysis = metrics_service.calculate_dupont_analysis(user_statements)
 
         return {
             "statement_id": statement_id,
@@ -770,15 +698,11 @@ async def get_statement_key_metrics(
 @router.get("/export/{format}")
 async def export_dashboard_data(
     format: str = Path(..., description="Export format (pdf, excel, json)"),
-    period: str = Query(
-        PeriodFilter.YTD.value, description="Time period for export"
-    ),
+    period: str = Query(PeriodFilter.YTD.value, description="Time period for export"),
     statement_ids: Optional[str] = Query(
         None, description="Comma-separated statement IDs"
     ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -807,9 +731,7 @@ async def export_dashboard_data(
         if statement_ids:
             stmt_ids = [int(id.strip()) for id in statement_ids.split(",")]
             selected_statements = [
-                stmt
-                for stmt in dashboard_data.statements
-                if stmt["id"] in stmt_ids
+                stmt for stmt in dashboard_data.statements if stmt["id"] in stmt_ids
             ]
         else:
             selected_statements = dashboard_data.statements
@@ -837,9 +759,7 @@ async def export_dashboard_data(
                     "charts_count": len(dashboard_data.chart_data),
                 },
                 "download_url": f"/api/v1/dashboard/download/{format}/dashboard_export_{current_user.id}_{int(datetime.utcnow().timestamp())}",
-                "expires_at": (
-                    datetime.utcnow() + timedelta(hours=24)
-                ).isoformat(),
+                "expires_at": (datetime.utcnow() + timedelta(hours=24)).isoformat(),
             }
 
     except ValueError as e:
@@ -861,15 +781,9 @@ async def export_dashboard_data(
 
 @router.get("/statements")
 async def list_user_statements(
-    statement_type: Optional[str] = Query(
-        None, description="Filter by statement type"
-    ),
-    limit: int = Query(
-        10, ge=1, le=50, description="Number of statements to return"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    statement_type: Optional[str] = Query(None, description="Filter by statement type"),
+    limit: int = Query(10, ge=1, le=50, description="Number of statements to return"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -922,9 +836,7 @@ async def list_user_statements(
 async def get_time_series_data(
     metric_key: str = Query(..., description="Metric key to track over time"),
     statement_type: str = Query(..., description="Statement type for metric"),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -1003,15 +915,9 @@ async def get_time_series_data(
 
 @router.get("/comparisons")
 async def get_period_comparisons(
-    statement_id_1: int = Query(
-        ..., description="First statement ID for comparison"
-    ),
-    statement_id_2: int = Query(
-        ..., description="Second statement ID for comparison"
-    ),
-    current_user: User = Depends(
-        require_permissions(Permission.DASHBOARD_READ)
-    ),
+    statement_id_1: int = Query(..., description="First statement ID for comparison"),
+    statement_id_2: int = Query(..., description="Second statement ID for comparison"),
+    current_user: User = Depends(require_permissions(Permission.DASHBOARD_READ)),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -1059,12 +965,8 @@ async def get_period_comparisons(
         all_keys = set(line_items_1.keys()) | set(line_items_2.keys())
 
         for key in all_keys:
-            value_1 = dashboard_service._extract_metric_value(
-                line_items_1, [key]
-            )
-            value_2 = dashboard_service._extract_metric_value(
-                line_items_2, [key]
-            )
+            value_1 = dashboard_service._extract_metric_value(line_items_1, [key])
+            value_2 = dashboard_service._extract_metric_value(line_items_2, [key])
 
             if value_1 is not None and value_2 is not None:
                 absolute_change = value_2 - value_1
@@ -1141,9 +1043,7 @@ async def dashboard_health_check(
         # Check data availability
         total_files = db.query(UploadedFile).count()
         processed_files = (
-            db.query(UploadedFile)
-            .filter(UploadedFile.status == "completed")
-            .count()
+            db.query(UploadedFile).filter(UploadedFile.status == "completed").count()
         )
 
         return {

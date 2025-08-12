@@ -117,9 +117,7 @@ def upgrade() -> None:
             notification_priority_enum,
             default="NORMAL",
         ),
-        sa.Column(
-            "min_priority_push", notification_priority_enum, default="HIGH"
-        ),
+        sa.Column("min_priority_push", notification_priority_enum, default="HIGH"),
         sa.Column(
             "min_priority_in_app",
             notification_priority_enum,

@@ -33,9 +33,7 @@ async def google_login(request: Request):
 
 
 @router.get("/google/callback")
-async def google_callback(
-    request: Request, db: Session = Depends(get_db)
-) -> Any:
+async def google_callback(request: Request, db: Session = Depends(get_db)) -> Any:
     """Handle Google OAuth callback."""
     try:
         google = get_oauth_client("google")
@@ -68,9 +66,7 @@ async def google_callback(
         # Generate JWT token for our application
         access_token = create_access_token(
             subject=user.id,
-            expires_delta=timedelta(
-                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-            ),
+            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         )
 
         # Redirect to frontend with token
@@ -103,9 +99,7 @@ async def microsoft_login(request: Request):
 
 
 @router.get("/microsoft/callback")
-async def microsoft_callback(
-    request: Request, db: Session = Depends(get_db)
-) -> Any:
+async def microsoft_callback(request: Request, db: Session = Depends(get_db)) -> Any:
     """Handle Microsoft OAuth callback."""
     try:
         microsoft = get_oauth_client("microsoft")
@@ -138,9 +132,7 @@ async def microsoft_callback(
         # Generate JWT token for our application
         access_token = create_access_token(
             subject=user.id,
-            expires_delta=timedelta(
-                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-            ),
+            expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         )
 
         # Redirect to frontend with token
@@ -262,9 +254,7 @@ async def link_oauth_account(
 
     try:
         oauth_client = get_oauth_client(provider)
-        redirect_uri = str(
-            request.url_for("oauth_link_callback", provider=provider)
-        )
+        redirect_uri = str(request.url_for("oauth_link_callback", provider=provider))
         return await oauth_client.authorize_redirect(
             request, redirect_uri, state=str(current_user.id)
         )

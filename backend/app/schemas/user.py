@@ -56,9 +56,7 @@ class UserCreate(UserBase):
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
         if not any(c.islower() for c in v):
-            raise ValueError(
-                "Password must contain at least one lowercase letter"
-            )
+            raise ValueError("Password must contain at least one lowercase letter")
 
         # Special case used in tests: passwords containing the phrase
         # "nonumbers" should be rejected as weak.
@@ -177,9 +175,7 @@ class PasswordChange(BaseModel):
         # Minimum checks for tests: digit and lowercase required. Uppercase or
         # special characters are optional to keep things simple.
         if not any(c.islower() for c in v):
-            raise ValueError(
-                "Password must contain at least one lowercase letter"
-            )
+            raise ValueError("Password must contain at least one lowercase letter")
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 
@@ -207,9 +203,7 @@ class PasswordResetConfirm(BaseModel):
 
         # Match the simple checks used elsewhere
         if not any(c.islower() for c in v):
-            raise ValueError(
-                "Password must contain at least one lowercase letter"
-            )
+            raise ValueError("Password must contain at least one lowercase letter")
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 

@@ -14,9 +14,7 @@ class MFASetupResponse(BaseModel):
 class MFAVerifySetupRequest(BaseModel):
     """Request to verify MFA setup."""
 
-    token: str = Field(
-        ..., min_length=6, max_length=6, description="6-digit TOTP code"
-    )
+    token: str = Field(..., min_length=6, max_length=6, description="6-digit TOTP code")
 
 
 class MFAVerifyRequest(BaseModel):
@@ -37,9 +35,7 @@ class MFADisableRequest(BaseModel):
 class MFABackupCodesResponse(BaseModel):
     """Response containing backup codes."""
 
-    backup_codes: List[str] = Field(
-        ..., description="List of backup recovery codes"
-    )
+    backup_codes: List[str] = Field(..., description="List of backup recovery codes")
     remaining_count: int = Field(..., description="Number of remaining codes")
 
 
@@ -47,21 +43,15 @@ class MFAStatusResponse(BaseModel):
     """Response showing MFA status."""
 
     enabled: bool = Field(..., description="Whether MFA is enabled")
-    backup_codes_count: int = Field(
-        0, description="Number of remaining backup codes"
-    )
-    last_used: Optional[datetime] = Field(
-        None, description="Last time MFA was used"
-    )
+    backup_codes_count: int = Field(0, description="Number of remaining backup codes")
+    last_used: Optional[datetime] = Field(None, description="Last time MFA was used")
 
 
 class OAuthLoginRequest(BaseModel):
     """Request for OAuth login callback."""
 
     provider: str = Field(..., description="OAuth provider (google, microsoft)")
-    authorization_code: str = Field(
-        ..., description="Authorization code from provider"
-    )
+    authorization_code: str = Field(..., description="Authorization code from provider")
     state: str = Field(..., description="State parameter for CSRF protection")
 
 
@@ -114,9 +104,7 @@ class WebAuthnRegistrationRequest(BaseModel):
     """Request to complete WebAuthn registration."""
 
     credential: dict = Field(..., description="WebAuthn credential object")
-    device_name: Optional[str] = Field(
-        None, description="User-friendly device name"
-    )
+    device_name: Optional[str] = Field(None, description="User-friendly device name")
 
 
 class WebAuthnAuthenticationOptionsResponse(BaseModel):
@@ -145,9 +133,7 @@ class AuthenticationFlowResponse(BaseModel):
         None, description="JWT access token if authentication complete"
     )
     token_type: Optional[str] = Field(None, description="Token type (bearer)")
-    challenge_id: Optional[str] = Field(
-        None, description="Challenge ID for next step"
-    )
+    challenge_id: Optional[str] = Field(None, description="Challenge ID for next step")
     available_methods: Optional[List[str]] = Field(
         None, description="Available 2FA methods"
     )

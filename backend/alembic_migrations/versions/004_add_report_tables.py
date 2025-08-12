@@ -151,9 +151,7 @@ def upgrade():
         sa.Column("schedule_id", sa.Integer(), nullable=True),
         sa.Column("generation_config", sa.JSON(), nullable=True),
         sa.Column("source_file_ids", sa.JSON(), nullable=True),
-        sa.Column(
-            "data_period_start", sa.DateTime(timezone=True), nullable=True
-        ),
+        sa.Column("data_period_start", sa.DateTime(timezone=True), nullable=True),
         sa.Column("data_period_end", sa.DateTime(timezone=True), nullable=True),
         sa.Column(
             "processing_started_at",
@@ -256,15 +254,9 @@ def downgrade():
     op.drop_index("ix_report_exports_template_id", table_name="report_exports")
     op.drop_index("ix_report_exports_created_by", table_name="report_exports")
     op.drop_index("ix_report_exports_status", table_name="report_exports")
-    op.drop_index(
-        "ix_report_schedules_created_by", table_name="report_schedules"
-    )
-    op.drop_index(
-        "ix_report_schedules_template_id", table_name="report_schedules"
-    )
-    op.drop_index(
-        "ix_report_templates_created_by", table_name="report_templates"
-    )
+    op.drop_index("ix_report_schedules_created_by", table_name="report_schedules")
+    op.drop_index("ix_report_schedules_template_id", table_name="report_schedules")
+    op.drop_index("ix_report_templates_created_by", table_name="report_templates")
     op.drop_index("ix_report_templates_type", table_name="report_templates")
 
     # Drop tables

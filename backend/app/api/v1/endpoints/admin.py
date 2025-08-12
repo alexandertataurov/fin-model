@@ -57,7 +57,6 @@ class UserActivityResponse(BaseModel):
     is_active: bool
 
 
-
 class BulkUserActionRequest(BaseModel):
     user_ids: List[int]
     action: str
@@ -624,7 +623,6 @@ def get_user_permissions(
 
 
 @router.get("/database/health", response_model=Dict[str, Any])
-
 @router.get("/maintenance/schedules", response_model=MaintenanceSchedules)
 async def get_maintenance_schedules(
     current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),

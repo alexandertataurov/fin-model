@@ -23,7 +23,9 @@ def test_log_audit_creates_entry(db_session: Session):
     assert entry.success == "true"
 
 
-def test_log_audit_rolls_back_on_error(db_session: Session, monkeypatch: pytest.MonkeyPatch):
+def test_log_audit_rolls_back_on_error(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+):
     called = {"rollback": False}
 
     def fail_commit():

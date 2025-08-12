@@ -119,9 +119,7 @@ def upgrade() -> None:
         ["user_id"],
     )
     op.create_index("ix_mfa_challenges_user_id", "mfa_challenges", ["user_id"])
-    op.create_index(
-        "ix_mfa_challenges_expires_at", "mfa_challenges", ["expires_at"]
-    )
+    op.create_index("ix_mfa_challenges_expires_at", "mfa_challenges", ["expires_at"])
 
 
 def downgrade() -> None:

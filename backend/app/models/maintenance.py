@@ -12,7 +12,5 @@ class MaintenanceSchedule(Base):
     task = Column(String(32), nullable=False)
     schedule = Column(String(128), nullable=False)
     enabled = Column(Boolean, nullable=False, default=True)
-    updated_at = Column(
-        DateTime, server_default=func.now(), onupdate=func.now()
-    )
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     created_at = Column(DateTime, server_default=func.now(), nullable=False)

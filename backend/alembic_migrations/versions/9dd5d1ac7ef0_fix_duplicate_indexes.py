@@ -117,9 +117,9 @@ def upgrade() -> None:
         conn = op.get_bind()
         for index_name in concurrent_indexes:
             try:
-                stmt = sa.text(
-                    "DROP INDEX CONCURRENTLY IF EXISTS :idx"
-                ).bindparams(sa.bindparam("idx", index_name, literal_execute=True))
+                stmt = sa.text("DROP INDEX CONCURRENTLY IF EXISTS :idx").bindparams(
+                    sa.bindparam("idx", index_name, literal_execute=True)
+                )
                 conn.execute(stmt)
                 print(f"✅ Dropped index {index_name} (concurrent)")
             except Exception as e:
@@ -143,6 +143,4 @@ def downgrade() -> None:
     to allow migration 006 to run. The actual indexes will be managed by
     migration 006's downgrade function.
     """
-    print(
-        "⚠️ Downgrade: This migration only cleaned up duplicates. No action needed."
-    )
+    print("⚠️ Downgrade: This migration only cleaned up duplicates. No action needed.")

@@ -114,23 +114,17 @@ class Parameter(Base):
     )  # number, percentage, currency
 
     # UI Configuration - enhanced for Task 04
-    control_type = Column(
-        String(50), default="input"
-    )  # slider, input, dropdown
+    control_type = Column(String(50), default="input")  # slider, input, dropdown
     step_size = Column(Float, nullable=True)
     display_format = Column(
         String(50), default="number"
     )  # number, percentage, currency
 
     # Grouping
-    group_id = Column(
-        String(50), ForeignKey("parameter_groups.id"), nullable=True
-    )
+    group_id = Column(String(50), ForeignKey("parameter_groups.id"), nullable=True)
 
     # Excel Source Information
-    source_file_id = Column(
-        Integer, ForeignKey("uploaded_files.id"), nullable=True
-    )
+    source_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=True)
     # Alias for backward compatibility with tests
     file_id = synonym("source_file_id")
     source_sheet = Column(String(255), nullable=True)
@@ -138,9 +132,7 @@ class Parameter(Base):
     source_range = Column(String(50), nullable=True)  # e.g., "A1:B10"
 
     # Dependencies and Relationships
-    depends_on = Column(
-        JSON, nullable=True
-    )  # List of parameter IDs this depends on
+    depends_on = Column(JSON, nullable=True)  # List of parameter IDs this depends on
     affects = Column(JSON, nullable=True)  # List of parameter IDs this affects
     formula = Column(Text, nullable=True)  # Excel formula if this is calculated
 
@@ -151,21 +143,15 @@ class Parameter(Base):
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user_id = synonym("created_by_id")
-    data_source_id = Column(
-        Integer, ForeignKey("data_sources.id"), nullable=True
-    )
+    data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
 
     # Relationships
     source_file = relationship("UploadedFile", back_populates="parameters")
     created_by = relationship("User", back_populates="parameters")
-    parameter_values = relationship(
-        "ParameterValue", back_populates="parameter"
-    )
+    parameter_values = relationship("ParameterValue", back_populates="parameter")
     data_source = relationship("DataSource", back_populates="parameters")
     group = relationship("ParameterGroup", back_populates="parameters")
     history = relationship("ParameterHistory", back_populates="parameter")
@@ -185,9 +171,7 @@ class ParameterGroup(Base):
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     parameters = relationship("Parameter", back_populates="group")
@@ -234,14 +218,10 @@ class Scenario(Base):
 
     # Version Control
     version = Column(String(50), nullable=False, default="1.0")
-    parent_scenario_id = Column(
-        Integer, ForeignKey("scenarios.id"), nullable=True
-    )
+    parent_scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=True)
 
     # Model Association
-    base_file_id = Column(
-        Integer, ForeignKey("uploaded_files.id"), nullable=False
-    )
+    base_file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
 
     # Calculation Results
     last_calculated_at = Column(DateTime, nullable=True)
@@ -252,9 +232,7 @@ class Scenario(Base):
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     # Relationships
@@ -263,9 +241,7 @@ class Scenario(Base):
     parameter_values = relationship("ParameterValue", back_populates="scenario")
     parent_scenario = relationship("Scenario", remote_side=[id])
     child_scenarios = relationship("Scenario", back_populates="parent_scenario")
-    financial_statements = relationship(
-        "FinancialStatement", back_populates="scenario"
-    )
+    financial_statements = relationship("FinancialStatement", back_populates="scenario")
     metrics = relationship("Metric", back_populates="scenario")
     time_series = relationship("TimeSeries", back_populates="scenario")
     calculations = relationship("Calculation", back_populates="scenario")
@@ -314,9 +290,7 @@ class FormulaNode(Base):
     cell_reference = Column(String(50), nullable=False)  # e.g., "Sheet1!A1"
     formula = Column(Text, nullable=True)
     value = Column(Float, nullable=True)
-    data_type = Column(
-        String(50), default="number"
-    )  # number, text, boolean, error
+    data_type = Column(String(50), default="number")  # number, text, boolean, error
 
     # File Association
     file_id = Column(Integer, ForeignKey("uploaded_files.id"), nullable=False)
@@ -335,9 +309,7 @@ class FormulaNode(Base):
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     file = relationship("UploadedFile")
@@ -354,20 +326,14 @@ class SensitivityAnalysis(Base):
     # Analysis Information
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    analysis_type = Column(
-        String(50), nullable=False
-    )  # tornado, spider, monte_carlo
+    analysis_type = Column(String(50), nullable=False)  # tornado, spider, monte_carlo
 
     # References
     scenario_id = Column(Integer, ForeignKey("scenarios.id"), nullable=False)
-    target_parameter_id = Column(
-        Integer, ForeignKey("parameters.id"), nullable=False
-    )
+    target_parameter_id = Column(Integer, ForeignKey("parameters.id"), nullable=False)
 
     # Analysis Configuration
-    input_parameters = Column(
-        JSON, nullable=False
-    )  # List of parameter IDs and ranges
+    input_parameters = Column(JSON, nullable=False)  # List of parameter IDs and ranges
     analysis_config = Column(JSON, nullable=True)  # Additional configuration
 
     # Results
@@ -376,9 +342,7 @@ class SensitivityAnalysis(Base):
     summary_statistics = Column(JSON, nullable=True)
 
     # Status
-    status = Column(
-        String(50), default="pending"
-    )  # pending, running, completed, error
+    status = Column(String(50), default="pending")  # pending, running, completed, error
     error_message = Column(Text, nullable=True)
 
     # Performance
@@ -448,9 +412,7 @@ class ScenarioParameter(Base):
     parameter_value = Column(Float, nullable=False)
     override_default = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     scenario = relationship("Scenario")

@@ -33,11 +33,7 @@ class FileService:
     def validate_file(self, file: UploadFile) -> None:
         """Validate uploaded file."""
         # Check file size
-        if (
-            hasattr(file, "size")
-            and file.size
-            and file.size > self.max_file_size
-        ):
+        if hasattr(file, "size") and file.size and file.size > self.max_file_size:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=f"File size {file.size} exceeds maximum allowed size {self.max_file_size} bytes",
@@ -73,9 +69,7 @@ class FileService:
         unique_id = str(uuid.uuid4())
         return f"{unique_id}{ext}"
 
-    async def save_uploaded_file(
-        self, file: UploadFile, user: User
-    ) -> UploadedFile:
+    async def save_uploaded_file(self, file: UploadFile, user: User) -> UploadedFile:
         """Save uploaded file to disk and create database record."""
         self.validate_file(file)
 
@@ -127,14 +121,10 @@ class FileService:
                 detail=f"Failed to save file: {str(e)}",
             )
 
-    def get_file_by_id(
-        self, file_id: int, user: User
-    ) -> Optional[UploadedFile]:
+    def get_file_by_id(self, file_id: int, user: User) -> Optional[UploadedFile]:
         """Get file by ID, enforcing ownership unless admin."""
         file_record = (
-            self.db.query(UploadedFile)
-            .filter(UploadedFile.id == file_id)
-            .first()
+            self.db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         )
 
         if not file_record:
@@ -159,9 +149,7 @@ class FileService:
         status_filter: Optional[FileStatus] = None,
     ) -> Dict[str, Any]:
         """Get files uploaded by user with pagination."""
-        query = self.db.query(UploadedFile).filter(
-            UploadedFile.user_id == user.id
-        )
+        query = self.db.query(UploadedFile).filter(UploadedFile.user_id == user.id)
 
         if status_filter:
             query = query.filter(UploadedFile.status == status_filter)
@@ -195,9 +183,7 @@ class FileService:
     ) -> Optional[UploadedFile]:
         """Update file processing status."""
         file_record = (
-            self.db.query(UploadedFile)
-            .filter(UploadedFile.id == file_id)
-            .first()
+            self.db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         )
 
         if not file_record:

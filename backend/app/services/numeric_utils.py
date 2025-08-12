@@ -1,7 +1,9 @@
 from typing import Any, Dict, List, Optional
 
 
-def extract_numeric_value(data: Dict[str, Any], possible_keys: List[str]) -> Optional[float]:
+def extract_numeric_value(
+    data: Dict[str, Any], possible_keys: List[str]
+) -> Optional[float]:
     """Safely extract a numeric value from data using possible key names.
 
     Handles both exact and case-insensitive matches and cleans common

@@ -54,9 +54,7 @@ def redis_cache(expire: int = 300, key_prefix: str = "cache"):
 
                 # Execute function and cache result
                 result = await func(*args, **kwargs)
-                redis_client.setex(
-                    cache_key, expire, json.dumps(result, default=str)
-                )
+                redis_client.setex(cache_key, expire, json.dumps(result, default=str))
                 logger.debug(f"Cached result for {cache_key}")
                 return result
 
@@ -83,9 +81,7 @@ def redis_cache(expire: int = 300, key_prefix: str = "cache"):
 
                 # Execute function and cache result
                 result = func(*args, **kwargs)
-                redis_client.setex(
-                    cache_key, expire, json.dumps(result, default=str)
-                )
+                redis_client.setex(cache_key, expire, json.dumps(result, default=str))
                 logger.debug(f"Cached result for {cache_key}")
                 return result
 

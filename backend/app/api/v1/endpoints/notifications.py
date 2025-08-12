@@ -328,9 +328,7 @@ def mark_as_read(
     """Mark a notification as read."""
     notification_service = NotificationService(db)
 
-    success = notification_service.mark_as_read(
-        notification_id, current_user.id
-    )
+    success = notification_service.mark_as_read(notification_id, current_user.id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

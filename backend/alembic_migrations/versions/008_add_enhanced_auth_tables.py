@@ -122,9 +122,7 @@ def upgrade() -> None:
             ),
             sa.Column("ip_address", sa.String(length=45), nullable=True),
             sa.Column("user_agent", sa.Text(), nullable=True),
-            sa.ForeignKeyConstraint(
-                ["user_id"], ["users.id"], ondelete="CASCADE"
-            ),
+            sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
             sa.PrimaryKeyConstraint("id"),
             sa.UniqueConstraint("refresh_token"),
         )
@@ -162,7 +160,9 @@ def upgrade() -> None:
     def safe_create_index(index_name, table_name, columns, unique=False):
         try:
             result = conn.execute(
-                sa.text("SELECT to_regclass(:idx)").bindparams(sa.bindparam("idx", index_name))
+                sa.text("SELECT to_regclass(:idx)").bindparams(
+                    sa.bindparam("idx", index_name)
+                )
             ).scalar()
             if result is None:
                 op.create_index(index_name, table_name, columns, unique=unique)
@@ -173,9 +173,7 @@ def upgrade() -> None:
             print(f"⚠️ Skipping index {index_name}: {e}")
 
     safe_create_index("ix_rate_limits_key", "rate_limits", ["key"])
-    safe_create_index(
-        "ix_rate_limits_window_start", "rate_limits", ["window_start"]
-    )
+    safe_create_index("ix_rate_limits_window_start", "rate_limits", ["window_start"])
 
 
 def downgrade() -> None:

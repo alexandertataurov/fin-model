@@ -277,9 +277,7 @@ class UserWithPermissions:
 
     def is_analyst(self) -> bool:
         """Check if user is analyst."""
-        return (
-            Permission.MODEL_CREATE in self.permissions and not self.is_admin()
-        )
+        return Permission.MODEL_CREATE in self.permissions and not self.is_admin()
 
 
 def get_current_user_with_permissions(
@@ -316,9 +314,7 @@ def require_resource_access(resource_type: str):
             # Default to general read permission
             required_permission = Permission.DATA_READ
 
-        if not PermissionChecker.has_permission(
-            user_roles, required_permission
-        ):
+        if not PermissionChecker.has_permission(user_roles, required_permission):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,
@@ -367,9 +363,7 @@ def check_resource_ownership(resource_id: int, resource_type: str):
         else:
             required_permission = Permission.DATA_READ
 
-        if not PermissionChecker.has_permission(
-            user_roles, required_permission
-        ):
+        if not PermissionChecker.has_permission(user_roles, required_permission):
             # Log permission denied
             auth_service.log_audit_action(
                 user_id=current_user.id,

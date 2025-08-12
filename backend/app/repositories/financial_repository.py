@@ -68,9 +68,7 @@ class FinancialStatementRepository(BaseRepository[FinancialStatement]):
             .first()
         )
 
-    def get_baseline_statements(
-        self, scenario_id: int
-    ) -> List[FinancialStatement]:
+    def get_baseline_statements(self, scenario_id: int) -> List[FinancialStatement]:
         """Get all baseline financial statements for a scenario."""
         return (
             self.db.query(self.model)
@@ -90,9 +88,7 @@ class MetricRepository(BaseRepository[Metric]):
     def __init__(self, db: Session):
         super().__init__(db, Metric)
 
-    def get_by_unique_field(
-        self, field_name: str, value: Any
-    ) -> Optional[Metric]:
+    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[Metric]:
         """Get metric by unique field."""
         if hasattr(self.model, field_name):
             field = getattr(self.model, field_name)
@@ -138,9 +134,7 @@ class MetricRepository(BaseRepository[Metric]):
             .all()
         )
 
-    def get_dashboard_metrics(
-        self, scenario_id: int
-    ) -> Dict[str, List[Metric]]:
+    def get_dashboard_metrics(self, scenario_id: int) -> Dict[str, List[Metric]]:
         """Get key metrics grouped by category for dashboard display."""
         metrics = (
             self.db.query(self.model)
@@ -164,9 +158,7 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
     def __init__(self, db: Session):
         super().__init__(db, TimeSeries)
 
-    def get_by_unique_field(
-        self, field_name: str, value: Any
-    ) -> Optional[TimeSeries]:
+    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[TimeSeries]:
         """Get time series by unique field."""
         if hasattr(self.model, field_name):
             field = getattr(self.model, field_name)
@@ -253,8 +245,7 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
                         self.model.scenario_id == scenario_id,
                         self.model.data_type == data_type,
                         self.model.period_date == data_point["period_date"],
-                        self.model.data_subtype
-                        == data_point.get("data_subtype"),
+                        self.model.data_subtype == data_point.get("data_subtype"),
                     )
                 )
                 .first()
@@ -268,9 +259,7 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
                 updated_count += 1
             else:
                 # Create new record
-                data_point.update(
-                    {"scenario_id": scenario_id, "data_type": data_type}
-                )
+                data_point.update({"scenario_id": scenario_id, "data_type": data_type})
                 new_record = self.model(**data_point)
                 self.db.add(new_record)
                 updated_count += 1
@@ -285,9 +274,7 @@ class CalculationRepository(BaseRepository[Calculation]):
     def __init__(self, db: Session):
         super().__init__(db, Calculation)
 
-    def get_by_unique_field(
-        self, field_name: str, value: Any
-    ) -> Optional[Calculation]:
+    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[Calculation]:
         """Get calculation by unique field."""
         if hasattr(self.model, field_name):
             field = getattr(self.model, field_name)
@@ -342,9 +329,7 @@ class TemplateRepository(BaseRepository[Template]):
     def __init__(self, db: Session):
         super().__init__(db, Template)
 
-    def get_by_unique_field(
-        self, field_name: str, value: Any
-    ) -> Optional[Template]:
+    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[Template]:
         """Get template by unique field."""
         if hasattr(self.model, field_name):
             field = getattr(self.model, field_name)
@@ -392,9 +377,7 @@ class FileVersionRepository(BaseRepository[FileVersion]):
     def __init__(self, db: Session):
         super().__init__(db, FileVersion)
 
-    def get_by_unique_field(
-        self, field_name: str, value: Any
-    ) -> Optional[FileVersion]:
+    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[FileVersion]:
         """Get file version by unique field."""
         if hasattr(self.model, field_name):
             field = getattr(self.model, field_name)
@@ -448,9 +431,7 @@ class FileVersionRepository(BaseRepository[FileVersion]):
     def get_by_hash(self, file_hash: str) -> Optional[FileVersion]:
         """Get file version by hash (for deduplication)."""
         return (
-            self.db.query(self.model)
-            .filter(self.model.file_hash == file_hash)
-            .first()
+            self.db.query(self.model).filter(self.model.file_hash == file_hash).first()
         )
 
 
@@ -460,9 +441,7 @@ class DataSourceRepository(BaseRepository[DataSource]):
     def __init__(self, db: Session):
         super().__init__(db, DataSource)
 
-    def get_by_unique_field(
-        self, field_name: str, value: Any
-    ) -> Optional[DataSource]:
+    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[DataSource]:
         """Get data source by unique field."""
         if hasattr(self.model, field_name):
             field = getattr(self.model, field_name)

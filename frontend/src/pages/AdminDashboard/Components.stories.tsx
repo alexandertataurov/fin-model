@@ -117,14 +117,6 @@ const LogFilterForm = createLazyComponent(
     'LogFilterForm'
 );
 
-// Pre-computed typography styles with memoization
-const useTypographyStyles = () => {
-    return useMemo(() => ({
-        subtitle: applyTypographyStyle('subtitle'),
-        body: applyTypographyStyle('body')
-    }), []);
-};
-
 // Enhanced icon component with performance optimizations
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
     ({ icon: IconComponent, size = 'md', className = '' }) => {
@@ -155,55 +147,6 @@ const useDebouncedCallback = (callback: Function, delay: number) => {
     }, [callback, delay]);
 };
 
-const handleConfigChange = useCallback((config: any) => {
-    console.log('Dashboard config changed:', config);
-}, []);
-
-// Enhanced static props objects with memoization
-const useLogFilterFormProps = () => {
-    return useMemo(() => ({
-        level: "all" as const,
-        limit: 50,
-        from: "",
-        to: "",
-        search: "",
-        skip: 0,
-        total: 1250,
-        onChange: useCallback((filters: any) => console.log('Log filters changed:', filters), []),
-        onRefresh: useCallback(() => console.log('Refreshing logs...'), []),
-        onPrev: useCallback(() => console.log('Previous page'), []),
-        onNext: useCallback(() => console.log('Next page'), [])
-    }), []);
-};
-
-const useDashboardCustomizationProps = () => {
-    return useMemo(() => ({
-        userRole: "admin" as const,
-        onConfigChange: handleConfigChange
-    }), [handleConfigChange]);
-};
-
-// Enhanced loading fallback component with performance monitoring
-const LoadingFallback = React.memo(() => {
-    usePerformanceMonitor('LoadingFallback');
-    const styles = useTypographyStyles();
-
-    return (
-        <div className="flex items-center justify-center p-8">
-            <div className="flex items-center gap-3">
-                <Icon icon={Loader2} className="animate-spin" />
-                <span
-                    style={styles.body}
-                    className="text-muted-foreground"
-                >
-                    Loading component...
-                </span>
-            </div>
-        </div>
-    );
-});
-LoadingFallback.displayName = 'LoadingFallback';
-
 // Virtual scrolling hook for large lists
 const useVirtualScroll = (items: any[], itemHeight: number, containerHeight: number) => {
     const [scrollTop, setScrollTop] = useState(0);
@@ -230,49 +173,30 @@ const useCleanup = (cleanupFn: () => void) => {
     }, [cleanupFn]);
 };
 
-const meta: Meta = {
-    title: 'Pages/Admin Dashboard/Components',
-    tags: ['autodocs'],
-    parameters: {
-        layout: 'padded',
-        docs: {
-            autodocs: true,
-            page: () => {
-                const styles = useTypographyStyles();
+// Enhanced loading fallback component with performance monitoring
+const LoadingFallback = React.memo(() => {
+    usePerformanceMonitor('LoadingFallback');
 
-                return (
-                    <>
-                        <Title />
-                        <div style={styles.body}>
-                            Comprehensive collection of admin dashboard components designed for enterprise-level
-                            financial modeling and business intelligence applications. Each component is optimized
-                            for performance, accessibility, and user experience.
-                        </div>
-                        <AnimatedBanner
-                            title="Admin Dashboard Components"
-                            subtitle="Individual components and tools for the admin dashboard system"
-                            icon={<BannerIcon />}
-                        />
-                        <Controls />
-                        <Stories includePrimary={true} />
-                    </>
-                );
-            },
-        },
-    },
-    decorators: [
-        (Story) => (
-            <ComponentErrorBoundary>
-                <div className="min-h-screen bg-background">
-                    <Story />
-                </div>
-            </ComponentErrorBoundary>
-        ),
-    ],
-};
-export default meta;
+    const styles = useMemo(() => ({
+        subtitle: applyTypographyStyle('subtitle'),
+        body: applyTypographyStyle('body')
+    }), []);
 
-type Story = StoryObj<typeof meta>;
+    return (
+        <div className="flex items-center justify-center p-8">
+            <div className="flex items-center gap-3">
+                <Icon icon={Loader2} className="animate-spin" />
+                <span
+                    style={styles.body}
+                    className="text-muted-foreground"
+                >
+                    Loading component...
+                </span>
+            </div>
+        </div>
+    );
+});
+LoadingFallback.displayName = 'LoadingFallback';
 
 // Enhanced component wrapper with performance optimizations
 const ComponentWrapper = React.memo<{
@@ -284,7 +208,11 @@ const ComponentWrapper = React.memo<{
     description?: string;
 }>(({ title, subtitle, children, useCard = false, cardTitle, description }) => {
     usePerformanceMonitor('ComponentWrapper');
-    const styles = useTypographyStyles();
+
+    const styles = useMemo(() => ({
+        subtitle: applyTypographyStyle('subtitle'),
+        body: applyTypographyStyle('body')
+    }), []);
 
     // Preload components on mount
     useEffect(() => {
@@ -347,6 +275,85 @@ const ComponentWrapper = React.memo<{
 });
 ComponentWrapper.displayName = 'ComponentWrapper';
 
+// Hook-based props components
+const LogFilterFormPropsProvider: React.FC<{ children: (props: any) => React.ReactNode }> = ({ children }) => {
+    const props = useMemo(() => ({
+        level: "all" as const,
+        limit: 50,
+        from: "",
+        to: "",
+        search: "",
+        skip: 0,
+        total: 1250,
+        onChange: useCallback((filters: any) => console.log('Log filters changed:', filters), []),
+        onRefresh: useCallback(() => console.log('Refreshing logs...'), []),
+        onPrev: useCallback(() => console.log('Previous page'), []),
+        onNext: useCallback(() => console.log('Next page'), [])
+    }), []);
+
+    return <>{children(props)}</>;
+};
+
+const DashboardCustomizationPropsProvider: React.FC<{ children: (props: any) => React.ReactNode }> = ({ children }) => {
+    const handleConfigChange = useCallback((config: any) => {
+        console.log('Dashboard config changed:', config);
+    }, []);
+
+    const props = useMemo(() => ({
+        userRole: "admin" as const,
+        onConfigChange: handleConfigChange
+    }), [handleConfigChange]);
+
+    return <>{children(props)}</>;
+};
+
+const meta: Meta = {
+    title: 'Pages/Admin Dashboard/Components',
+    tags: ['autodocs'],
+    parameters: {
+        layout: 'padded',
+        docs: {
+            autodocs: true,
+            page: () => {
+                const styles = useMemo(() => ({
+                    subtitle: applyTypographyStyle('subtitle'),
+                    body: applyTypographyStyle('body')
+                }), []);
+
+                return (
+                    <>
+                        <Title />
+                        <div style={styles.body}>
+                            Comprehensive collection of admin dashboard components designed for enterprise-level
+                            financial modeling and business intelligence applications. Each component is optimized
+                            for performance, accessibility, and user experience.
+                        </div>
+                        <AnimatedBanner
+                            title="Admin Dashboard Components"
+                            subtitle="Individual components and tools for the admin dashboard system"
+                            icon={<BannerIcon />}
+                        />
+                        <Controls />
+                        <Stories includePrimary={true} />
+                    </>
+                );
+            },
+        },
+    },
+    decorators: [
+        (Story) => (
+            <ComponentErrorBoundary>
+                <div className="min-h-screen bg-background">
+                    <Story />
+                </div>
+            </ComponentErrorBoundary>
+        ),
+    ],
+};
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
 export const DataManagementComponent: Story = {
     render: () => (
         <ComponentWrapper
@@ -376,23 +383,23 @@ export const DataManagementComponent: Story = {
 };
 
 export const DashboardCustomizationComponent: Story = {
-    render: () => {
-        const dashboardProps = useDashboardCustomizationProps();
-
-        return (
-            <ComponentWrapper
-                title="Dashboard Customization Component"
-                subtitle="Customize dashboard layout and preferences"
-                useCard={true}
-                cardTitle="Dashboard Customization"
-                description="Flexible dashboard customization interface allowing users to personalize their workspace, 
-                configure widgets, set preferences, and manage dashboard layouts. Supports drag-and-drop functionality 
-                and role-based customization options."
-            >
-                <DashboardCustomization.LazyComponent {...dashboardProps} />
-            </ComponentWrapper>
-        );
-    },
+    render: () => (
+        <DashboardCustomizationPropsProvider>
+            {(dashboardProps) => (
+                <ComponentWrapper
+                    title="Dashboard Customization Component"
+                    subtitle="Customize dashboard layout and preferences"
+                    useCard={true}
+                    cardTitle="Dashboard Customization"
+                    description="Flexible dashboard customization interface allowing users to personalize their workspace, 
+                    configure widgets, set preferences, and manage dashboard layouts. Supports drag-and-drop functionality 
+                    and role-based customization options."
+                >
+                    <DashboardCustomization.LazyComponent {...dashboardProps} />
+                </ComponentWrapper>
+            )}
+        </DashboardCustomizationPropsProvider>
+    ),
     parameters: {
         docs: {
             description: {
@@ -506,23 +513,23 @@ export const SystemMonitoringComponent: Story = {
 };
 
 export const LogFilterFormComponent: Story = {
-    render: () => {
-        const logFilterProps = useLogFilterFormProps();
-
-        return (
-            <ComponentWrapper
-                title="Log Filter Form Component"
-                subtitle="Advanced log filtering and search capabilities"
-                useCard={true}
-                cardTitle="Log Filter Form"
-                description="Advanced log filtering interface with comprehensive search capabilities, date range selection, 
-                log level filtering, and export functionality. Supports complex queries, saved filters, and 
-                real-time log streaming."
-            >
-                <LogFilterForm.LazyComponent {...logFilterProps} />
-            </ComponentWrapper>
-        );
-    },
+    render: () => (
+        <LogFilterFormPropsProvider>
+            {(logFilterProps) => (
+                <ComponentWrapper
+                    title="Log Filter Form Component"
+                    subtitle="Advanced log filtering and search capabilities"
+                    useCard={true}
+                    cardTitle="Log Filter Form"
+                    description="Advanced log filtering interface with comprehensive search capabilities, date range selection, 
+                    log level filtering, and export functionality. Supports complex queries, saved filters, and 
+                    real-time log streaming."
+                >
+                    <LogFilterForm.LazyComponent {...logFilterProps} />
+                </ComponentWrapper>
+            )}
+        </LogFilterFormPropsProvider>
+    ),
     parameters: {
         docs: {
             description: {
@@ -555,7 +562,10 @@ export const LogFilterFormComponent: Story = {
 // Additional story showcasing component interactions with performance optimizations
 export const ComponentInteractions: Story = {
     render: () => {
-        const styles = useTypographyStyles();
+        const styles = useMemo(() => ({
+            subtitle: applyTypographyStyle('subtitle'),
+            body: applyTypographyStyle('body')
+        }), []);
 
         // Memoized static data to prevent re-creation
         const systemStatusData = useMemo(() => [

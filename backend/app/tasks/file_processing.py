@@ -56,15 +56,11 @@ def process_uploaded_file(
             "processing_started",
             "Background processing started",
             "info",
-            json.dumps(
-                {"task_id": self.request.id, "options": processing_options}
-            ),
+            json.dumps({"task_id": self.request.id, "options": processing_options}),
         )
 
         # Get file record
-        file_record = (
-            db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
-        )
+        file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         if not file_record:
             raise ValueError(f"File with ID {file_id} not found")
 
@@ -100,12 +96,10 @@ def process_uploaded_file(
 
         # Store validation results
         is_valid = (
-            parsed_data.validation_summary.is_valid
-            and validation_result.is_valid
+            parsed_data.validation_summary.is_valid and validation_result.is_valid
         )
         validation_errors = (
-            parsed_data.validation_summary.errors
-            + validation_result.validation_errors
+            parsed_data.validation_summary.errors + validation_result.validation_errors
         )
 
         if not is_valid:
@@ -159,9 +153,7 @@ def process_uploaded_file(
 
             val_summary = getattr(parsed_data, "validation_summary", None)
             if val_summary is not None:
-                val_summary = getattr(
-                    val_summary, "dict", lambda: val_summary
-                )()
+                val_summary = getattr(val_summary, "dict", lambda: val_summary)()
                 val_summary = _safe(val_summary)
             parsed_data_json = json.dumps(
                 {
@@ -169,12 +161,8 @@ def process_uploaded_file(
                     "financial_statements": _safe(
                         getattr(parsed_data, "financial_statements", None)
                     ),
-                    "key_metrics": _safe(
-                        getattr(parsed_data, "key_metrics", None)
-                    ),
-                    "assumptions": _safe(
-                        getattr(parsed_data, "assumptions", None)
-                    ),
+                    "key_metrics": _safe(getattr(parsed_data, "key_metrics", None)),
+                    "assumptions": _safe(getattr(parsed_data, "assumptions", None)),
                     "validation_summary": val_summary,
                 }
             )
@@ -239,9 +227,7 @@ def process_uploaded_file(
             "file_id": file_id,
             "status": final_status.value,
             "is_valid": is_valid,
-            "errors": parsed_data.validation_summary.errors
-            if not is_valid
-            else [],
+            "errors": parsed_data.validation_summary.errors if not is_valid else [],
             "sheets_processed": len(parsed_data.sheets),
             "task_id": self.request.id,
         }
@@ -270,9 +256,7 @@ def process_uploaded_file(
         )
 
         # Send error notification
-        file_record = (
-            db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
-        )
+        file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         if file_record:
             send_processing_notification.__wrapped__(
                 self,
@@ -320,9 +304,7 @@ def reprocess_file(
     file_service = FileService(db)
 
     # Check if file exists and can be reprocessed
-    file_record = (
-        db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
-    )
+    file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
     if not file_record:
         raise ValueError(f"File with ID {file_id} not found")
 

@@ -65,9 +65,7 @@ class PerformanceMonitor:
         request_count.labels(
             method=method, endpoint=endpoint, status_code=status_code
         ).inc()
-        request_duration.labels(method=method, endpoint=endpoint).observe(
-            duration
-        )
+        request_duration.labels(method=method, endpoint=endpoint).observe(duration)
 
         # Store detailed metric
         metric = PerformanceMetric(
@@ -104,9 +102,7 @@ class PerformanceMonitor:
             metric_type="database_query",
             value=duration,
             tags={"query_type": query_type},
-            context={
-                "query": query[:200] if query else None
-            },  # Truncate long queries
+            context={"query": query[:200] if query else None},  # Truncate long queries
         )
         self.metrics_buffer.append(metric)
 
@@ -147,20 +143,14 @@ class PerformanceMonitor:
     def get_metrics_summary(self, hours: int = 24) -> Dict:
         """Get metrics summary for the last N hours"""
         cutoff_time = datetime.utcnow() - timedelta(hours=hours)
-        recent_metrics = [
-            m for m in self.metrics_buffer if m.timestamp > cutoff_time
-        ]
+        recent_metrics = [m for m in self.metrics_buffer if m.timestamp > cutoff_time]
 
         if not recent_metrics:
             return {"message": "No metrics available for the specified period"}
 
         # Calculate statistics
-        request_metrics = [
-            m for m in recent_metrics if m.metric_type == "http_request"
-        ]
-        db_metrics = [
-            m for m in recent_metrics if m.metric_type == "database_query"
-        ]
+        request_metrics = [m for m in recent_metrics if m.metric_type == "http_request"]
+        db_metrics = [m for m in recent_metrics if m.metric_type == "database_query"]
 
         summary = {
             "period_hours": hours,
@@ -170,16 +160,13 @@ class PerformanceMonitor:
             / len(request_metrics)
             if request_metrics
             else 0,
-            "avg_db_query_time": sum(m.value for m in db_metrics)
-            / len(db_metrics)
+            "avg_db_query_time": sum(m.value for m in db_metrics) / len(db_metrics)
             if db_metrics
             else 0,
             "max_request_time": max(m.value for m in request_metrics)
             if request_metrics
             else 0,
-            "max_db_query_time": max(m.value for m in db_metrics)
-            if db_metrics
-            else 0,
+            "max_db_query_time": max(m.value for m in db_metrics) if db_metrics else 0,
         }
 
         return summary

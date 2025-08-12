@@ -120,15 +120,11 @@ async def create_parameter(
 
 @router.get("/", response_model=List[ParameterResponse])
 async def list_parameters(
-    file_id: Optional[int] = Query(
-        None, description="Filter by source file ID"
-    ),
+    file_id: Optional[int] = Query(None, description="Filter by source file ID"),
     category: Optional[ParameterCategory] = Query(
         None, description="Filter by category"
     ),
-    parameter_type: Optional[ParameterType] = Query(
-        None, description="Filter by type"
-    ),
+    parameter_type: Optional[ParameterType] = Query(None, description="Filter by type"),
     sensitivity_level: Optional[SensitivityLevel] = Query(
         None, description="Filter by sensitivity"
     ),
@@ -154,9 +150,7 @@ async def list_parameters(
         if parameter_type:
             query = query.filter(Parameter.parameter_type == parameter_type)
         if sensitivity_level:
-            query = query.filter(
-                Parameter.sensitivity_level == sensitivity_level
-            )
+            query = query.filter(Parameter.sensitivity_level == sensitivity_level)
 
         # Apply pagination
         parameters = query.offset(skip).limit(limit).all()
@@ -206,9 +200,7 @@ async def update_parameter(
     """
     try:
         # Get existing parameter
-        db_parameter = (
-            db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        )
+        db_parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
 
         if not db_parameter:
             raise HTTPException(
@@ -248,9 +240,7 @@ async def delete_parameter(
     """
     try:
         # Get parameter
-        db_parameter = (
-            db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        )
+        db_parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
 
         if not db_parameter:
             raise HTTPException(
@@ -295,9 +285,7 @@ async def batch_update_parameters(
             try:
                 # Get parameter
                 db_parameter = (
-                    db.query(Parameter)
-                    .filter(Parameter.id == param_update.id)
-                    .first()
+                    db.query(Parameter).filter(Parameter.id == param_update.id).first()
                 )
 
                 if not db_parameter:
@@ -327,9 +315,7 @@ async def batch_update_parameters(
                         continue
 
                 # Apply updates
-                update_data = param_update.dict(
-                    exclude_unset=True, exclude={"id"}
-                )
+                update_data = param_update.dict(exclude_unset=True, exclude={"id"})
                 for field, value in update_data.items():
                     setattr(db_parameter, field, value)
 
@@ -373,9 +359,7 @@ async def get_parameter_history(
     """
     try:
         # Verify parameter exists
-        parameter = (
-            db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        )
+        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -391,9 +375,7 @@ async def get_parameter_history(
             .all()
         )
 
-        return [
-            ParameterHistoryResponse.from_orm(pv) for pv in parameter_values
-        ]
+        return [ParameterHistoryResponse.from_orm(pv) for pv in parameter_values]
 
     except Exception as e:
         raise HTTPException(
@@ -402,9 +384,7 @@ async def get_parameter_history(
         )
 
 
-@router.post(
-    "/{parameter_id}/validate", response_model=ParameterValidationResponse
-)
+@router.post("/{parameter_id}/validate", response_model=ParameterValidationResponse)
 async def validate_parameter_value(
     parameter_id: int,
     value: float = Body(..., description="Value to validate"),
@@ -418,9 +398,7 @@ async def validate_parameter_value(
     """
     try:
         # Get parameter
-        parameter = (
-            db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        )
+        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -439,9 +417,7 @@ async def validate_parameter_value(
         )
 
 
-@router.post(
-    "/detect-from-file/{file_id}", response_model=List[ParameterResponse]
-)
+@router.post("/detect-from-file/{file_id}", response_model=List[ParameterResponse])
 async def detect_parameters_from_file(
     file_id: int,
     auto_create: bool = Query(
@@ -508,9 +484,7 @@ async def detect_parameters_from_file(
 
                 db.add(db_parameter)
                 db.flush()
-                created_parameters.append(
-                    ParameterResponse.from_orm(db_parameter)
-                )
+                created_parameters.append(ParameterResponse.from_orm(db_parameter))
 
             db.commit()
         else:
@@ -616,9 +590,7 @@ async def get_parameter_dependencies(
     """
     try:
         # Get parameter
-        parameter = (
-            db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        )
+        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -629,21 +601,15 @@ async def get_parameter_dependencies(
         depends_on = []
         if parameter.depends_on:
             depends_on_params = (
-                db.query(Parameter)
-                .filter(Parameter.id.in_(parameter.depends_on))
-                .all()
+                db.query(Parameter).filter(Parameter.id.in_(parameter.depends_on)).all()
             )
-            depends_on = [
-                ParameterResponse.from_orm(p) for p in depends_on_params
-            ]
+            depends_on = [ParameterResponse.from_orm(p) for p in depends_on_params]
 
         # Find affected parameters
         affects = []
         if parameter.affects:
             affects_params = (
-                db.query(Parameter)
-                .filter(Parameter.id.in_(parameter.affects))
-                .all()
+                db.query(Parameter).filter(Parameter.id.in_(parameter.affects)).all()
             )
             affects = [ParameterResponse.from_orm(p) for p in affects_params]
 
@@ -697,16 +663,10 @@ async def _validate_parameter_data(
 
     # Validate current value against range
     if parameter.value is not None:
-        if (
-            parameter.min_value is not None
-            and parameter.value < parameter.min_value
-        ):
+        if parameter.min_value is not None and parameter.value < parameter.min_value:
             errors.append("value is below minimum allowed value")
 
-        if (
-            parameter.max_value is not None
-            and parameter.value > parameter.max_value
-        ):
+        if parameter.max_value is not None and parameter.value > parameter.max_value:
             errors.append("value is above maximum allowed value")
 
     return ParameterValidationResponse(
@@ -779,9 +739,7 @@ async def update_parameter_value(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -789,14 +747,10 @@ async def update_parameter_value(
         )
 
 
-@router.post(
-    "/models/{model_id}/parameters/batch", response_model=Dict[str, Any]
-)
+@router.post("/models/{model_id}/parameters/batch", response_model=Dict[str, Any])
 async def batch_update_parameter_values(
     model_id: str,
-    updates: List[Dict[str, Any]] = Body(
-        ..., description="List of parameter updates"
-    ),
+    updates: List[Dict[str, Any]] = Body(..., description="List of parameter updates"),
     current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -859,9 +813,7 @@ async def trigger_model_recalculation(
         )
 
 
-@router.get(
-    "/models/{model_id}/calculation-status", response_model=Dict[str, Any]
-)
+@router.get("/models/{model_id}/calculation-status", response_model=Dict[str, Any])
 async def get_calculation_status(
     model_id: str,
     current_user: User = Depends(require_permissions(Permission.MODEL_READ)),
@@ -900,9 +852,7 @@ async def calculate_parameter_impact(
     """
     try:
         # Get parameter and model info
-        parameter = (
-            db.query(Parameter).filter(Parameter.id == parameter_id).first()
-        )
+        parameter = db.query(Parameter).filter(Parameter.id == parameter_id).first()
         if not parameter:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -940,14 +890,10 @@ async def calculate_parameter_impact(
         )
 
 
-@router.post(
-    "/models/{model_id}/reset-parameters", response_model=Dict[str, Any]
-)
+@router.post("/models/{model_id}/reset-parameters", response_model=Dict[str, Any])
 async def reset_parameters_to_default(
     model_id: str,
-    parameter_ids: List[str] = Body(
-        ..., description="List of parameter IDs to reset"
-    ),
+    parameter_ids: List[str] = Body(..., description="List of parameter IDs to reset"),
     current_user: User = Depends(require_permissions(Permission.MODEL_UPDATE)),
     db: Session = Depends(get_db),
 ) -> Any:
@@ -1006,9 +952,7 @@ async def list_parameter_groups(
         )
 
 
-@router.post(
-    "/models/{model_id}/parameter-groups", response_model=Dict[str, Any]
-)
+@router.post("/models/{model_id}/parameter-groups", response_model=Dict[str, Any])
 async def create_parameter_group(
     model_id: str,
     name: str = Body(..., description="Group name"),

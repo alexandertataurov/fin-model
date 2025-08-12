@@ -108,9 +108,7 @@ def require_role(required_role: RoleType):
     return role_checker
 
 
-@router.post(
-    "/register", response_model=User, status_code=status.HTTP_201_CREATED
-)
+@router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
 def register(
     user_in: UserRegister, request: Request, db: Session = Depends(get_db)
 ) -> Any:
@@ -207,9 +205,7 @@ async def login(
     # Email verification temporarily disabled
 
     # Create tokens
-    access_token_expires = timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     if remember_me:
         access_token_expires = timedelta(days=30)
 
@@ -290,9 +286,7 @@ async def login_enhanced(
         available_methods.append("webauthn")
     # If no additional authentication is required, issue token
     if not has_mfa and not has_webauthn:
-        access_token_expires = timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        )
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         if remember_me:
             access_token_expires = timedelta(days=30)
 
@@ -377,9 +371,7 @@ def refresh_token(refresh_request: dict, db: Session = Depends(get_db)) -> Any:
         )
 
     # Create new access token
-    access_token_expires = timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
     )
@@ -416,9 +408,7 @@ def update_users_me(
 
 
 @router.post("/verify-email")
-def verify_email(
-    verification: EmailVerification, db: Session = Depends(get_db)
-) -> Any:
+def verify_email(verification: EmailVerification, db: Session = Depends(get_db)) -> Any:
     """Verify user email."""
     auth_service = AuthService(db)
 
@@ -492,9 +482,7 @@ def request_password_reset(
     # Always return success to prevent email enumeration
     auth_service.request_password_reset(password_reset.email)
 
-    return {
-        "message": ("If the email exists, a password reset link has been sent")
-    }
+    return {"message": ("If the email exists, a password reset link has been sent")}
 
 
 @router.post("/reset-password")

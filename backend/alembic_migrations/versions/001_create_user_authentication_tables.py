@@ -81,9 +81,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=False)
     op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)
-    op.create_index(
-        op.f("ix_users_username"), "users", ["username"], unique=False
-    )
+    op.create_index(op.f("ix_users_username"), "users", ["username"], unique=False)
 
     # Create user_roles table
     op.create_table(
@@ -119,9 +117,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_user_roles_id"), "user_roles", ["id"], unique=False
-    )
+    op.create_index(op.f("ix_user_roles_id"), "user_roles", ["id"], unique=False)
 
     # Create audit_logs table
     op.create_table(
@@ -166,9 +162,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_audit_logs_id"), "audit_logs", ["id"], unique=False
-    )
+    op.create_index(op.f("ix_audit_logs_id"), "audit_logs", ["id"], unique=False)
 
     # Insert default roles
     op.execute(

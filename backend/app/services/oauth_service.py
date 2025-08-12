@@ -120,9 +120,7 @@ class OAuthService:
         # Assign default role
         from app.models.role import Role, UserRole, RoleType
 
-        default_role = (
-            self.db.query(Role).filter(Role.name == RoleType.VIEWER).first()
-        )
+        default_role = self.db.query(Role).filter(Role.name == RoleType.VIEWER).first()
         if default_role:
             user_role = UserRole(
                 user_id=new_user.id,
@@ -215,11 +213,7 @@ class OAuthService:
 
     def get_oauth_accounts(self, user: User) -> list[OAuthAccount]:
         """Get all OAuth accounts for a user."""
-        return (
-            self.db.query(OAuthAccount)
-            .filter(OAuthAccount.user_id == user.id)
-            .all()
-        )
+        return self.db.query(OAuthAccount).filter(OAuthAccount.user_id == user.id).all()
 
     def unlink_oauth_account(self, user: User, provider: str) -> bool:
         """

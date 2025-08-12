@@ -150,9 +150,7 @@ class LeanParameterManager:
                 SensitivityLevel.MEDIUM,
             ),
         ]
-        parameter_groups[
-            ParameterCategory.ECONOMIC_ENVIRONMENT
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.ECONOMIC_ENVIRONMENT] = ParameterGroup(
             ParameterCategory.ECONOMIC_ENVIRONMENT,
             "Economic Environment",
             "Macroeconomic parameters affecting the business",
@@ -459,9 +457,7 @@ class LeanParameterManager:
                 "%",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.FINANCIAL_PARAMETERS
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.FINANCIAL_PARAMETERS] = ParameterGroup(
             ParameterCategory.FINANCIAL_PARAMETERS,
             "Financial Parameters",
             "Interest rates and investment returns",
@@ -532,9 +528,7 @@ class LeanParameterManager:
                 "%",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.OPERATIONAL_PARAMETERS
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.OPERATIONAL_PARAMETERS] = ParameterGroup(
             ParameterCategory.OPERATIONAL_PARAMETERS,
             "Operational Parameters",
             "Working capital and capital expenditure parameters",
@@ -581,9 +575,7 @@ class LeanParameterManager:
                 "days",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.CASH_FLOW_LIFECYCLE
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.CASH_FLOW_LIFECYCLE] = ParameterGroup(
             ParameterCategory.CASH_FLOW_LIFECYCLE,
             "Cash Flow Lifecycle",
             "Cash conversion and working capital cycle parameters",
@@ -618,9 +610,7 @@ class LeanParameterManager:
                 "%",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.CASH_FLOW_STATEMENT
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.CASH_FLOW_STATEMENT] = ParameterGroup(
             ParameterCategory.CASH_FLOW_STATEMENT,
             "Cash Flow Statement",
             "Cash flow statement specific parameters",
@@ -666,9 +656,7 @@ class LeanParameterManager:
                 SensitivityLevel.HIGH,
             ),
         ]
-        parameter_groups[
-            ParameterCategory.BALANCE_SHEET_PARAMETERS
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.BALANCE_SHEET_PARAMETERS] = ParameterGroup(
             ParameterCategory.BALANCE_SHEET_PARAMETERS,
             "Balance Sheet Parameters",
             "Balance sheet structure and ratios",
@@ -797,9 +785,7 @@ class LeanParameterManager:
                 "years",
             ),
         ]
-        parameter_groups[
-            ParameterCategory.VALUATION_PARAMETERS
-        ] = ParameterGroup(
+        parameter_groups[ParameterCategory.VALUATION_PARAMETERS] = ParameterGroup(
             ParameterCategory.VALUATION_PARAMETERS,
             "Valuation Parameters",
             "DCF and valuation model parameters",
@@ -1016,9 +1002,7 @@ class LeanParameterManager:
         sensitivity_results = {
             "base_case": {
                 "parameters": asdict(base_parameters),
-                "enterprise_value": base_model[
-                    "dcf_valuation"
-                ].enterprise_value,
+                "enterprise_value": base_model["dcf_valuation"].enterprise_value,
                 "value_per_share": base_model["dcf_valuation"].value_per_share,
                 "net_income": base_model["profit_loss"].net_income,
             },
@@ -1052,12 +1036,8 @@ class LeanParameterManager:
                     "variation_percent": variation_percent,
                     "upward_case": {
                         "value": base_value * (1 + variation_percent),
-                        "enterprise_value": up_model[
-                            "dcf_valuation"
-                        ].enterprise_value,
-                        "value_per_share": up_model[
-                            "dcf_valuation"
-                        ].value_per_share,
+                        "enterprise_value": up_model["dcf_valuation"].enterprise_value,
+                        "value_per_share": up_model["dcf_valuation"].value_per_share,
                         "ev_change_percent": (
                             (
                                 up_model["dcf_valuation"].enterprise_value
@@ -1072,9 +1052,7 @@ class LeanParameterManager:
                         "enterprise_value": down_model[
                             "dcf_valuation"
                         ].enterprise_value,
-                        "value_per_share": down_model[
-                            "dcf_valuation"
-                        ].value_per_share,
+                        "value_per_share": down_model["dcf_valuation"].value_per_share,
                         "ev_change_percent": (
                             (
                                 down_model["dcf_valuation"].enterprise_value
@@ -1148,9 +1126,7 @@ class LeanParameterManager:
         else:
             raise ValueError(f"Unsupported export format: {format}")
 
-    def import_parameters(
-        self, data: str, format: str = "json"
-    ) -> CoreParameters:
+    def import_parameters(self, data: str, format: str = "json") -> CoreParameters:
         """Import parameters from specified format"""
         if format.lower() == "json":
             params_dict = json.loads(data)
