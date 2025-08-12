@@ -4,12 +4,11 @@
  * Role-based dashboard layout and widget customization
  */
 
-import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   Settings,
   Eye,
   EyeOff,
-  GripVertical,
   Save,
   RotateCcw,
   Users,
@@ -18,7 +17,6 @@ import {
   Shield,
   FileText,
   AlertCircle,
-  CheckCircle,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { Button } from '@/design-system/components/Button';
@@ -41,14 +39,8 @@ import {
   SelectValue,
 } from '@/design-system/components/Select';
 import { toast } from 'sonner';
-import { tokens } from '@/design-system/tokens';
-import { applyTextStyle } from '@/design-system/utils/typography';
-import {
-  applyDesignSystemSpacing,
-  applyDesignSystemRadius,
-  applyDesignSystemShadow,
-  applyDesignSystemMotion
-} from './utils/designSystemHelpers';
+
+
 
 // Dashboard widget types
 export interface DashboardWidget {
@@ -261,138 +253,41 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
           <Button
             variant="outline"
             size="sm"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: applyDesignSystemSpacing(2),
-              padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
-              borderRadius: applyDesignSystemRadius('lg'),
-              border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-              background: 'transparent',
-              color: tokens.colors.foreground,
-              transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
-              ...applyTextStyle('subtitle')
-            }}
+            className="flex items-center gap-2"
           >
-            <Settings
-              className="h-4 w-4 mr-2"
-              style={{
-                height: tokens.spacing[4],
-                width: tokens.spacing[4],
-                marginRight: tokens.spacing[2]
-              }}
-            />
+            <Settings className="h-4 w-4" />
             Customize Dashboard
           </Button>
         </DialogTrigger>
-        <DialogContent
-          className="max-w-4xl max-h-[80vh] overflow-y-auto"
-          style={{
-            maxWidth: '56rem',
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            borderRadius: applyDesignSystemRadius('xl'),
-            boxShadow: applyDesignSystemShadow('xl'),
-            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-            background: tokens.colors.background
-          }}
-        >
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle
-              className="flex items-center gap-2"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: applyDesignSystemSpacing(2),
-                ...applyTextStyle('title'),
-                color: tokens.colors.foreground
-              }}
-            >
-              <Settings
-                className="h-5 w-5"
-                style={{
-                  height: applyDesignSystemSpacing(5),
-                  width: applyDesignSystemSpacing(5),
-                  color: tokens.colors.primary[500]
-                }}
-              />
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5 text-primary" />
               Dashboard Customization
             </DialogTitle>
-            <DialogDescription
-              style={{
-                ...applyTextStyle('body'),
-                color: tokens.colors.secondary[500]
-              }}
-            >
+            <DialogDescription className="text-muted-foreground">
               Configure which widgets are visible on your dashboard based on your role and preferences.
             </DialogDescription>
           </DialogHeader>
 
-          <div
-            className="space-y-6"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: applyDesignSystemSpacing(6)
-            }}
-          >
+          <div className="space-y-6">
             {/* Role Information */}
-            <Card
-              style={{
-                background: tokens.colors.background,
-                borderRadius: applyDesignSystemRadius('xl'),
-                boxShadow: applyDesignSystemShadow('md'),
-                border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
-              }}
-            >
+            <Card>
               <CardHeader
-                style={{
-                  padding: applyDesignSystemSpacing(6)
-                }}
+                className="p-6"
               >
-                <CardTitle
-                  className="text-lg"
-                  style={{
-                    ...applyTextStyle('title'),
-                    color: tokens.colors.foreground
-                  }}
-                >
+                <CardTitle className="text-lg">
                   Role: {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                 </CardTitle>
               </CardHeader>
               <CardContent
-                style={{
-                  padding: applyDesignSystemSpacing(6)
-                }}
+                className="p-6"
               >
-                <div
-                  className="flex items-center gap-2"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: tokens.spacing[2]
-                  }}
-                >
-                  <Badge
-                    variant="default"
-                    style={{
-                      padding: `${tokens.spacing[1]} ${tokens.spacing[3]}`,
-                      borderRadius: tokens.borderRadius.full,
-                      background: tokens.colors.primary[500],
-                      color: tokens.colors.background,
-                      ...applyTextStyle('caption')
-                    }}
-                  >
+                <div className="flex items-center gap-2">
+                  <Badge variant="default">
                     {userRole}
                   </Badge>
-                  <span
-                    className="text-sm text-muted-foreground"
-                    style={{
-                      ...applyTextStyle('caption'),
-                      color: tokens.colors.secondary[500]
-                    }}
-                  >
+                  <span className="text-sm text-muted-foreground">
                     You can customize {widgets.length} available widgets
                   </span>
                 </div>
@@ -471,33 +366,37 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = mem
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {visibleWidgets.map(widget => (
-                    <div key={widget.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          {widget.icon}
+                    <Card key={widget.id} className="p-3">
+                      <CardContent className="p-0">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                              {widget.icon}
+                            </div>
+                            <span className="font-medium">{widget.title}</span>
+                          </div>
+                          <Select
+                            value={widget.size}
+                            onValueChange={(value) => {
+                              setWidgets(prev => prev.map(w =>
+                                w.id === widget.id ? { ...w, size: value as any } : w
+                              ));
+                              setHasChanges(true);
+                            }}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="small">Small</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="large">Large</SelectItem>
+                              <SelectItem value="full-width">Full Width</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <span className="font-medium">{widget.title}</span>
-                      </div>
-                      <Select
-                        value={widget.size}
-                        onValueChange={(value) => {
-                          setWidgets(prev => prev.map(w =>
-                            w.id === widget.id ? { ...w, size: value as any } : w
-                          ));
-                          setHasChanges(true);
-                        }}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="small">Small</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="large">Large</SelectItem>
-                          <SelectItem value="full-width">Full Width</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </CardContent>

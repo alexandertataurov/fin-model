@@ -18,23 +18,13 @@ import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
-import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
 import DashboardCustomization from './DashboardCustomization';
 
-// Import global typography utilities
-import { applyTextStyle } from '@/design-system/utils/typography';
-
 // Import updated design system helpers
 import {
-    applyDesignSystemSpacing,
-    applyDesignSystemRadius,
-    getSemanticShadow,
-    applyDesignSystemMotion,
-    getSemanticColor,
-    getSemanticSpacing,
     formatPercentage,
     formatNumber,
     getStatusBadge,
@@ -70,58 +60,6 @@ const LazyUserManagement = lazy(() => import('./UserManagement'));
 const LazySystemMonitoring = lazy(() => import('./SystemMonitoring'));
 const LazyLogsTab = lazy(() => import('./LogsTab'));
 
-// Pre-computed styles using updated design system helpers
-const STYLES = {
-    // Typography styles following design system guidelines
-    subtitle: applyTextStyle('subtitle'),
-    body: applyTextStyle('body'),
-    caption: applyTextStyle('caption'),
-    title: applyTextStyle('title'),
-    headline: applyTextStyle('headline'),
-    subheadline: applyTextStyle('subheadline'),
-
-    // Spacing following 8px base unit
-    spacing: {
-        sm: applyDesignSystemSpacing(2), // 8px
-        md: applyDesignSystemSpacing(4), // 16px
-        lg: applyDesignSystemSpacing(6), // 24px
-        xl: applyDesignSystemSpacing(8), // 32px
-        component: getSemanticSpacing('component'),
-        layout: getSemanticSpacing('layout'),
-    },
-
-    // Semantic colors following design system guidelines
-    colors: {
-        success: getSemanticColor('success'),
-        warning: getSemanticColor('warning'),
-        destructive: getSemanticColor('danger'), // Alias for destructive
-        danger: getSemanticColor('danger'),
-        info: getSemanticColor('info'),
-        primary: tokens.colors.primary[500],
-        secondary: tokens.colors.secondary[500],
-        muted: tokens.colors.secondary[400],
-    },
-
-    // Motion following design system guidelines
-    motion: {
-        duration: applyDesignSystemMotion('duration', 'normal'),
-        easing: applyDesignSystemMotion('easing', 'smooth'),
-    },
-
-    // Border radius following design system guidelines
-    borderRadius: {
-        lg: applyDesignSystemRadius('lg'),
-        xl: applyDesignSystemRadius('xl'),
-    },
-
-    // Shadows following elevation hierarchy
-    shadows: {
-        sm: getSemanticShadow('card'),
-        md: getSemanticShadow('hover'),
-        lg: getSemanticShadow('modal'),
-    },
-} as const;
-
 // Memoized helper functions
 const getStatusBadgeComponent = (isActive: boolean, isVerified: boolean) => {
     const variant = getStatusBadge(isActive, isVerified);
@@ -130,34 +68,18 @@ const getStatusBadgeComponent = (isActive: boolean, isVerified: boolean) => {
 };
 
 const getHealthIndicator = (value: number | null | undefined, thresholds: { warning: number; critical: number }) => {
-    if (value === null || value === undefined) return STYLES.colors.muted;
-    if (value > thresholds.critical) return STYLES.colors.destructive;
-    if (value > thresholds.warning) return STYLES.colors.warning;
-    return STYLES.colors.success;
+    if (value === null || value === undefined) return '#6b7280'; // gray-500
+    if (value > thresholds.critical) return '#ef4444'; // red-500
+    if (value > thresholds.warning) return '#f59e0b'; // amber-500
+    return '#10b981'; // emerald-500
 };
 
-// Memoized loading fallback component using global Skeleton
+// Memoized loading fallback component using design system Skeleton
 const LoadingFallback = memo(() => (
-    <div
-        style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: STYLES.spacing.xl
-        }}
-    >
+    <div className="flex items-center justify-center p-8">
         <div className="flex items-center gap-3">
-            <div
-                style={{
-                    width: '24px',
-                    height: '24px',
-                    border: `2px solid ${tokens.colors.secondary[200]}`,
-                    borderTop: `2px solid ${tokens.colors.primary[500]}`,
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                }}
-            />
-            <span style={STYLES.caption}>Loading component...</span>
+            <div className="w-6 h-6 border-2 border-muted border-t-primary rounded-full animate-spin" />
+            <span className="text-sm text-muted-foreground">Loading component...</span>
         </div>
     </div>
 ));
@@ -178,19 +100,21 @@ const SystemMetricCard = memo<{
     );
 
     return (
-        <div className="text-center group">
-            <div className="flex items-center justify-center mb-4">
-                <div
-                    className="w-4 h-4 rounded-full mr-3 transition-all duration-200"
-                    style={{ backgroundColor: healthColor }}
-                />
-                <span style={STYLES.caption} className="font-medium">{title}</span>
-            </div>
-            <div style={STYLES.headline} className="text-foreground">
-                {value}
-            </div>
-            <div style={STYLES.caption} className="text-muted-foreground mt-2">{subtitle}</div>
-        </div>
+        <Card className="text-center group">
+            <CardContent className="p-4">
+                <div className="flex items-center justify-center mb-4">
+                    <div
+                        className="w-4 h-4 rounded-full mr-3 transition-all duration-200"
+                        style={{ backgroundColor: healthColor }}
+                    />
+                    <span className="text-sm font-medium text-muted-foreground">{title}</span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">
+                    {value}
+                </div>
+                <div className="text-sm text-muted-foreground mt-2">{subtitle}</div>
+            </CardContent>
+        </Card>
     );
 });
 
@@ -208,7 +132,7 @@ const SystemStatusCard = memo(() => {
             value: formatPercentage(systemMetrics.data?.cpu_usage),
             subtitle: 'Usage',
             icon: Cpu,
-            color: STYLES.colors.success,
+            color: 'text-success',
             healthValue: systemMetrics.data?.cpu_usage,
             healthThresholds: { warning: 60, critical: 80 }
         },
@@ -217,7 +141,7 @@ const SystemStatusCard = memo(() => {
             value: formatPercentage(systemMetrics.data?.memory_usage),
             subtitle: 'Usage',
             icon: HardDrive,
-            color: STYLES.colors.success,
+            color: 'text-success',
             healthValue: systemMetrics.data?.memory_usage,
             healthThresholds: { warning: 70, critical: 85 }
         },
@@ -226,7 +150,7 @@ const SystemStatusCard = memo(() => {
             value: formatPercentage(systemMetrics.data?.disk_usage),
             subtitle: 'Usage',
             icon: Database,
-            color: STYLES.colors.success,
+            color: 'text-success',
             healthValue: systemMetrics.data?.disk_usage,
             healthThresholds: { warning: 75, critical: 90 }
         },
@@ -235,7 +159,7 @@ const SystemStatusCard = memo(() => {
             value: formatPercentage(systemMetrics.data?.error_rate_24h),
             subtitle: 'Rate (24h)',
             icon: AlertCircle,
-            color: STYLES.colors.success,
+            color: 'text-success',
             healthValue: systemMetrics.data?.error_rate_24h,
             healthThresholds: { warning: 2, critical: 5 }
         }
@@ -250,8 +174,8 @@ const SystemStatusCard = memo(() => {
                             <CheckCircle className="h-6 w-6 text-green-600" />
                         </div>
                         <div>
-                            <h3 style={STYLES.title} className="text-foreground">System Status</h3>
-                            <p style={STYLES.caption} className="text-muted-foreground">Real-time health monitoring</p>
+                            <h3 className="text-lg font-semibold text-foreground">System Status</h3>
+                            <p className="text-sm text-muted-foreground">Real-time health monitoring</p>
                         </div>
                     </div>
                     <Button variant="ghost" size="sm" onClick={handleRefresh}>
@@ -312,8 +236,8 @@ const PerformanceMetricsCard = memo(() => {
                         <BarChart3 className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                        <h3 style={STYLES.title} className="text-foreground">Performance</h3>
-                        <p style={STYLES.caption} className="text-muted-foreground">Key metrics</p>
+                        <h3 className="text-lg font-semibold text-foreground">Performance</h3>
+                        <p className="text-sm text-muted-foreground">Key metrics</p>
                     </div>
                 </CardTitle>
             </CardHeader>
@@ -323,9 +247,9 @@ const PerformanceMetricsCard = memo(() => {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3 text-muted-foreground">
                                 <item.icon className="h-4 w-4" />
-                                <span style={STYLES.caption}>{item.label}</span>
+                                <span className="text-sm">{item.label}</span>
                             </div>
-                            <span style={STYLES.subtitle} className="text-foreground">
+                            <span className="text-sm font-medium text-foreground">
                                 {formatPercentage(item.value)}
                             </span>
                         </div>
@@ -338,9 +262,9 @@ const PerformanceMetricsCard = memo(() => {
                             <div key={index}>
                                 <div className="flex items-center gap-3 text-muted-foreground mb-2">
                                     <item.icon className="h-4 w-4" />
-                                    <span style={STYLES.caption}>{item.label}</span>
+                                    <span className="text-sm">{item.label}</span>
                                 </div>
-                                <div style={STYLES.subtitle} className="text-foreground">
+                                <div className="text-sm font-medium text-foreground">
                                     {item.value}
                                 </div>
                             </div>
@@ -376,8 +300,8 @@ const UserActivityCard = memo(() => {
                                 <Users className="h-6 w-6 text-accent" />
                             </div>
                             <div>
-                                <h3 style={STYLES.title} className="text-foreground">User Activity</h3>
-                                <p style={STYLES.caption} className="text-muted-foreground">Recent interactions</p>
+                                <h3 className="text-lg font-semibold text-foreground">User Activity</h3>
+                                <p className="text-sm text-muted-foreground">Recent interactions</p>
                             </div>
                         </div>
                     </CardTitle>
@@ -387,8 +311,8 @@ const UserActivityCard = memo(() => {
                         <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center mb-6">
                             <Users className="h-10 w-10 text-muted-foreground" />
                         </div>
-                        <h3 style={STYLES.title} className="text-foreground mb-3">No Recent Activity</h3>
-                        <p style={STYLES.body} className="text-muted-foreground">
+                        <h3 className="text-lg font-semibold text-foreground mb-3">No Recent Activity</h3>
+                        <p className="text-muted-foreground">
                             No user activity has been recorded recently.
                         </p>
                     </div>
@@ -406,8 +330,8 @@ const UserActivityCard = memo(() => {
                             <Users className="h-6 w-6 text-accent" />
                         </div>
                         <div>
-                            <h3 style={STYLES.title} className="text-foreground">User Activity</h3>
-                            <p style={STYLES.caption} className="text-muted-foreground">Recent interactions</p>
+                            <h3 className="text-lg font-semibold text-foreground">User Activity</h3>
+                            <p className="text-sm text-muted-foreground">Recent interactions</p>
                         </div>
                     </div>
                     <Button variant="ghost" size="sm">
@@ -421,20 +345,20 @@ const UserActivityCard = memo(() => {
                         <div key={user.user_id} className="flex items-center justify-between p-6 rounded-xl hover:bg-muted/50 transition-all duration-200 group">
                             <div className="flex items-center space-x-4">
                                 <div className="w-10 h-10 bg-gradient-to-br from-accent/20 to-accent/30 rounded-full flex items-center justify-center">
-                                    <span style={STYLES.subtitle} className="text-accent">
+                                    <span className="text-accent">
                                         {user.username.charAt(0).toUpperCase()}
                                     </span>
                                 </div>
                                 <div>
-                                    <p style={STYLES.subtitle} className="text-foreground">{user.username}</p>
-                                    <p style={STYLES.caption} className="text-muted-foreground">
+                                    <p className="text-foreground">{user.username}</p>
+                                    <p className="text-muted-foreground">
                                         Last login: {user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}
                                     </p>
                                 </div>
                             </div>
                             <div className="text-right">
                                 {getStatusBadgeComponent(user.is_active, true)}
-                                <p style={STYLES.caption} className="text-muted-foreground mt-2">
+                                <p className="text-muted-foreground mt-2">
                                     {user.login_count} logins
                                 </p>
                             </div>
@@ -442,7 +366,7 @@ const UserActivityCard = memo(() => {
                     ))}
                     {hasMoreUsers && (
                         <Button variant="link" className="p-0 h-auto w-full justify-center">
-                            <span style={STYLES.caption}>View All Activity</span>
+                            <span className="text-sm">View All Activity</span>
                             <ArrowUpRight className="h-4 w-4 ml-2" />
                         </Button>
                     )}
@@ -516,8 +440,8 @@ const SystemAlertsCard = memo(() => {
                         <Bell className="h-6 w-6 text-warning" />
                     </div>
                     <div>
-                        <h3 style={STYLES.title} className="text-foreground">System Alerts</h3>
-                        <p style={STYLES.caption} className="text-muted-foreground">Active alerts</p>
+                        <h3 className="text-lg font-semibold text-foreground">System Alerts</h3>
+                        <p className="text-sm text-muted-foreground">Active alerts</p>
                     </div>
                 </CardTitle>
             </CardHeader>
@@ -531,10 +455,10 @@ const SystemAlertsCard = memo(() => {
                         >
                             <alert.icon className={`h-5 w-5 ${alert.type === 'destructive' ? '' : 'text-success'}`} />
                             <AlertDescription>
-                                <div style={STYLES.subtitle} className={`${alert.type === 'destructive' ? 'text-destructive' : 'text-success'} mb-2`}>
+                                <div className={`${alert.type === 'destructive' ? 'text-destructive' : 'text-success'} mb-2`}>
                                     {alert.title}
                                 </div>
-                                <p style={STYLES.body} className={`${alert.type === 'destructive' ? 'text-destructive/80' : 'text-success/80'}`}>
+                                <p className={`${alert.type === 'destructive' ? 'text-destructive/80' : 'text-success/80'}`}>
                                     {alert.message}
                                 </p>
                             </AlertDescription>
@@ -568,45 +492,14 @@ const OverviewTab = memo(() => {
 
     if (!hasAnyData) {
         return (
-            <div
-                className="py-16"
-                style={{
-                    padding: STYLES.spacing.layout.container,
-                    maxWidth: '1200px',
-                    margin: '0 auto'
-                }}
-            >
-                <div
-                    className="text-center"
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: STYLES.spacing.lg
-                    }}
-                >
-                    <div
-                        style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: tokens.colors.secondary[100]
-                        }}
-                    >
-                        <BarChart3
-                            style={{
-                                width: '40px',
-                                height: '40px',
-                                color: tokens.colors.secondary[400]
-                            }}
-                        />
+            <Card className="py-16">
+                <CardContent className="text-center space-y-8">
+                    <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center">
+                        <BarChart3 className="h-10 w-10 text-muted-foreground" />
                     </div>
                     <div>
-                        <h1 style={STYLES.headline}>No Data Available</h1>
-                        <p style={STYLES.body}>
+                        <h1 className="text-4xl font-bold text-foreground">No Data Available</h1>
+                        <p className="text-muted-foreground">
                             Admin data is currently unavailable. Please try refreshing the page.
                         </p>
                     </div>
@@ -614,8 +507,8 @@ const OverviewTab = memo(() => {
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh Data
                     </Button>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         );
     }
 
@@ -647,7 +540,7 @@ const TabTrigger = memo<{
         className="flex items-center gap-3 rounded-lg"
     >
         <IconComponent className="h-4 w-4" />
-        <span style={STYLES.caption}>{label}</span>
+        <span className="text-sm">{label}</span>
     </TabsTrigger>
 ));
 
@@ -704,7 +597,7 @@ export const AdminDashboard: React.FC = memo(() => {
         <div className="flex items-center gap-4">
             <Button variant="outline" size="sm" className="relative">
                 <Bell className="h-4 w-4 mr-2" />
-                <span style={STYLES.caption}>Notifications</span>
+                <span className="text-sm">Notifications</span>
                 <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-xs flex items-center justify-center bg-destructive text-background">
                     3
                 </span>
@@ -719,11 +612,11 @@ export const AdminDashboard: React.FC = memo(() => {
             </Suspense>
             <Button variant="outline" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
-                <span style={STYLES.caption}>Settings</span>
+                <span className="text-sm">Settings</span>
             </Button>
             <Button size="sm">
                 <TrendingUp className="h-4 w-4 mr-2" />
-                <span style={STYLES.caption}>Export Report</span>
+                <span className="text-sm">Export Report</span>
             </Button>
         </div>
     ), []);
@@ -737,8 +630,8 @@ export const AdminDashboard: React.FC = memo(() => {
                 {/* Action Bar */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 style={STYLES.headline} className="text-foreground">Admin Dashboard</h1>
-                        <p style={STYLES.body} className="text-muted-foreground">
+                        <h1 className="text-4xl font-bold text-foreground">Admin Dashboard</h1>
+                        <p className="text-muted-foreground">
                             Monitor and manage system performance, user activity, and system health
                         </p>
                     </div>
