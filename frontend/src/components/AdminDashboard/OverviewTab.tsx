@@ -14,6 +14,14 @@ import { useAdminStore } from '@/stores/adminStore';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { applyTypographyStyle } from '@/design-system/stories/components';
 import {
+  applyDesignSystemSpacing,
+  applyDesignSystemRadius,
+  applyDesignSystemShadow,
+  applyDesignSystemMotion,
+  formatNumber,
+  getStatusBadge
+} from './utils/designSystemHelpers';
+import {
   CheckCircle,
   Cpu,
   HardDrive,
@@ -199,12 +207,12 @@ const OverviewTab: React.FC = memo(() => {
                 <div className="flex items-center justify-center mb-2">
                   <div
                     className={`w-3 h-3 rounded-full mr-2 ${systemMetrics.data?.cpu_usage &&
-                        systemMetrics.data.cpu_usage > 80
-                        ? 'bg-destructive'
-                        : systemMetrics.data?.cpu_usage &&
-                          systemMetrics.data.cpu_usage > 60
-                          ? 'bg-warning'
-                          : 'bg-success'
+                      systemMetrics.data.cpu_usage > 80
+                      ? 'bg-destructive'
+                      : systemMetrics.data?.cpu_usage &&
+                        systemMetrics.data.cpu_usage > 60
+                        ? 'bg-warning'
+                        : 'bg-success'
                       }`}
                   />
                   <span className="text-sm font-medium">CPU</span>
@@ -217,12 +225,12 @@ const OverviewTab: React.FC = memo(() => {
                 <div className="flex items-center justify-center mb-2">
                   <div
                     className={`w-3 h-3 rounded-full mr-2 ${systemMetrics.data?.memory_usage &&
-                        systemMetrics.data.memory_usage > 80
-                        ? 'bg-destructive'
-                        : systemMetrics.data?.memory_usage &&
-                          systemMetrics.data.memory_usage > 60
-                          ? 'bg-warning'
-                          : 'bg-success'
+                      systemMetrics.data.memory_usage > 80
+                      ? 'bg-destructive'
+                      : systemMetrics.data?.memory_usage &&
+                        systemMetrics.data.memory_usage > 60
+                        ? 'bg-warning'
+                        : 'bg-success'
                       }`}
                   />
                   <span className="text-sm font-medium">Memory</span>
@@ -235,12 +243,12 @@ const OverviewTab: React.FC = memo(() => {
                 <div className="flex items-center justify-center mb-2">
                   <div
                     className={`w-3 h-3 rounded-full mr-2 ${systemMetrics.data?.disk_usage &&
-                        systemMetrics.data.disk_usage > 80
-                        ? 'bg-destructive'
-                        : systemMetrics.data?.disk_usage &&
-                          systemMetrics.data.disk_usage > 60
-                          ? 'bg-warning'
-                          : 'bg-success'
+                      systemMetrics.data.disk_usage > 80
+                      ? 'bg-destructive'
+                      : systemMetrics.data?.disk_usage &&
+                        systemMetrics.data.disk_usage > 60
+                        ? 'bg-warning'
+                        : 'bg-success'
                       }`}
                   />
                   <span className="text-sm font-medium">Disk</span>
@@ -369,16 +377,23 @@ const OverviewTab: React.FC = memo(() => {
                 </div>
               )}
               {/* If no alerts, show a clear healthy state message for tests */}
-              {!(
-                (systemMetrics.data?.cpu_usage && systemMetrics.data.cpu_usage > 90) ||
-                (systemMetrics.data?.memory_usage && systemMetrics.data.memory_usage > 90) ||
-                (systemMetrics.data?.disk_usage && systemMetrics.data.disk_usage > 90) ||
-                (systemMetrics.data?.error_rate_24h && systemMetrics.data.error_rate_24h > 5)
-              ) && (
-                  <div className="p-4 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm">
-                    All Systems Healthy
-                  </div>
-                )}
+              {(() => {
+                const hasAlerts = (
+                  (systemMetrics.data?.cpu_usage && systemMetrics.data.cpu_usage > 90) ||
+                  (systemMetrics.data?.memory_usage && systemMetrics.data.memory_usage > 90) ||
+                  (systemMetrics.data?.disk_usage && systemMetrics.data.disk_usage > 90) ||
+                  (systemMetrics.data?.error_rate_24h && systemMetrics.data.error_rate_24h > 5)
+                );
+
+                if (!hasAlerts) {
+                  return (
+                    <div className="p-4 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm">
+                      All Systems Healthy
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
           </CardContent>
         </Card>

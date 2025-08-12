@@ -1,0 +1,586 @@
+---
+title: 'Sizing'
+description: 'Comprehensive sizing system for consistent element dimensions. Includes width, height, aspect ratios, and viewport-based sizing tokens.'
+parameters:
+  docs:
+    description:
+      component: 'Our sizing system provides a consistent approach to defining element dimensions and proportions through carefully crafted width, height, and aspect ratio tokens.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/blocks';
+import { tokens } from '../../tokens';
+
+<Meta
+  title="Design System/Foundations/Sizing"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Sizing
+
+Our sizing system provides a consistent approach to defining element dimensions and proportions through carefully crafted width, height, and aspect ratio tokens.
+
+## Overview
+
+The sizing system is designed to create consistent, predictable element dimensions across all components. It provides a comprehensive set of tokens for widths, heights, aspect ratios, and viewport-based sizing that work seamlessly with our responsive design approach.
+
+## Token Definitions
+
+### Width Scale
+
+```typescript
+tokens.sizing = {
+  width: {
+    0: '0px',
+    1: '4px',
+    2: '8px',
+    3: '12px',
+    4: '16px',
+    5: '20px',
+    6: '24px',
+    8: '32px',
+    10: '40px',
+    12: '48px',
+    16: '64px',
+    20: '80px',
+    24: '96px',
+    32: '128px',
+    40: '160px',
+    48: '192px',
+    56: '224px',
+    64: '256px',
+    auto: 'auto',
+    full: '100%',
+    screen: '100vw',
+    min: 'min-content',
+    max: 'max-content',
+    fit: 'fit-content',
+  },
+  height: {
+    0: '0px',
+    1: '4px',
+    2: '8px',
+    3: '12px',
+    4: '16px',
+    5: '20px',
+    6: '24px',
+    8: '32px',
+    10: '40px',
+    12: '48px',
+    16: '64px',
+    20: '80px',
+    24: '96px',
+    32: '128px',
+    40: '160px',
+    48: '192px',
+    56: '224px',
+    64: '256px',
+    auto: 'auto',
+    full: '100%',
+    screen: '100vh',
+    min: 'min-content',
+    max: 'max-content',
+    fit: 'fit-content',
+  },
+  aspectRatio: {
+    square: '1 / 1',
+    video: '16 / 9',
+    photo: '4 / 3',
+    portrait: '3 / 4',
+    landscape: '3 / 2',
+    wide: '21 / 9',
+    ultrawide: '32 / 9',
+  },
+};
+```
+
+### Viewport Sizing
+
+```typescript
+tokens.viewport = {
+  width: {
+    sm: '640px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+    '2xl': '1536px',
+  },
+  height: {
+    sm: '640px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+    '2xl': '1536px',
+  },
+};
+```
+
+## Usage Rules
+
+### 1. **Width Sizing**
+
+- **Fixed widths**: Use specific pixel values for consistent sizing
+- **Responsive widths**: Use percentage and viewport units
+- **Content-based**: Use min/max/fit-content for dynamic sizing
+- **Full width**: Use 100% for full container width
+
+### 2. **Height Sizing**
+
+- **Fixed heights**: Use specific pixel values for consistent sizing
+- **Viewport heights**: Use vh units for full-screen elements
+- **Content-based**: Use auto for natural content height
+- **Full height**: Use 100% for full container height
+
+### 3. **Aspect Ratios**
+
+- **Square (1:1)**: Icons, avatars, thumbnails
+- **Video (16:9)**: Video content, hero images
+- **Photo (4:3)**: Traditional photography
+- **Portrait (3:4)**: Mobile-first content
+- **Landscape (3:2)**: Wide content areas
+
+## Best Practices
+
+### 1. **Consistent Sizing**
+
+```tsx
+// ✅ Good - Consistent sizing tokens
+<div style={{
+  width: tokens.sizing.width[64],
+  height: tokens.sizing.height[64],
+  backgroundColor: tokens.colors.primary[100],
+}}>
+  Consistent square
+</div>
+
+<div style={{
+  width: tokens.sizing.width[48],
+  height: tokens.sizing.height[48],
+  backgroundColor: tokens.colors.primary[200],
+}}>
+  Smaller square
+</div>
+
+// ❌ Bad - Inconsistent sizing
+<div style={{
+  width: '256px',
+  height: '256px',
+  backgroundColor: tokens.colors.primary[100],
+}}>
+  Inconsistent sizing
+</div>
+
+<div style={{
+  width: '192px',
+  height: '192px',
+  backgroundColor: tokens.colors.primary[200],
+}}>
+  Different approach
+</div>
+```
+
+### 2. **Responsive Sizing**
+
+```tsx
+// ✅ Good - Responsive sizing
+<div style={{
+  width: tokens.sizing.width.full,
+  height: tokens.sizing.height[32],
+  '@media (min-width: 768px)': {
+    width: tokens.sizing.width[64],
+    height: tokens.sizing.height[64],
+  },
+}}>
+  Responsive element
+</div>
+
+// ❌ Bad - Fixed sizing
+<div style={{
+  width: '256px',
+  height: '256px',
+}}>
+  Fixed element
+</div>
+```
+
+### 3. **Aspect Ratio Usage**
+
+```tsx
+// ✅ Good - Proper aspect ratio usage
+<div style={{
+  width: tokens.sizing.width.full,
+  aspectRatio: tokens.sizing.aspectRatio.video,
+  backgroundColor: tokens.colors.secondary[200],
+}}>
+  Video container
+</div>
+
+<div style={{
+  width: tokens.sizing.width[64],
+  aspectRatio: tokens.sizing.aspectRatio.square,
+  backgroundColor: tokens.colors.primary[100],
+}}>
+  Avatar container
+</div>
+
+// ❌ Bad - Manual aspect ratio calculation
+<div style={{
+  width: '100%',
+  height: '56.25%', // 16:9 ratio calculated manually
+  backgroundColor: tokens.colors.secondary[200],
+}}>
+  Manual ratio
+</div>
+```
+
+### 4. **Content-Based Sizing**
+
+```tsx
+// ✅ Good - Content-based sizing
+<div style={{
+  width: tokens.sizing.width.fit,
+  height: tokens.sizing.height.auto,
+  padding: tokens.spacing[4],
+  backgroundColor: tokens.colors.white,
+  border: `1px solid ${tokens.colors.secondary[200]}`,
+}}>
+  Content fits naturally
+</div>
+
+// ❌ Bad - Fixed content sizing
+<div style={{
+  width: tokens.sizing.width[32],
+  height: tokens.sizing.height[16],
+  padding: tokens.spacing[4],
+  backgroundColor: tokens.colors.white,
+  border: `1px solid ${tokens.colors.secondary[200]}`,
+}}>
+  Content may be cut off
+</div>
+```
+
+## How-To Guides
+
+### Creating an Avatar Component
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+interface AvatarProps {
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  src?: string;
+  alt?: string;
+  fallback?: string;
+}
+
+const Avatar = ({ size = 'md', src, alt, fallback }: AvatarProps) => {
+  const getSize = () => {
+    const sizes = {
+      sm: tokens.sizing.width[8],
+      md: tokens.sizing.width[12],
+      lg: tokens.sizing.width[16],
+      xl: tokens.sizing.width[24],
+    };
+    return sizes[size];
+  };
+
+  return (
+    <div
+      style={{
+        width: getSize(),
+        height: getSize(),
+        aspectRatio: tokens.sizing.aspectRatio.square,
+        borderRadius: tokens.borderRadius.full,
+        overflow: 'hidden',
+        backgroundColor: tokens.colors.secondary[200],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {src ? (
+        <img
+          src={src}
+          alt={alt}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      ) : (
+        <span
+          style={{
+            fontSize: tokens.typography.fontSize.sm,
+            fontWeight: tokens.typography.fontWeight.medium,
+            color: tokens.colors.secondary[600],
+          }}
+        >
+          {fallback || alt?.charAt(0).toUpperCase() || 'U'}
+        </span>
+      )}
+    </div>
+  );
+};
+```
+
+### Creating a Responsive Image Container
+
+```tsx
+interface ImageContainerProps {
+  src: string;
+  alt: string;
+  aspectRatio?: 'square' | 'video' | 'photo' | 'portrait' | 'landscape';
+  responsive?: boolean;
+}
+
+const ImageContainer = ({
+  src,
+  alt,
+  aspectRatio = 'video',
+  responsive = true,
+}: ImageContainerProps) => {
+  const getContainerStyle = () => ({
+    width: responsive ? tokens.sizing.width.full : tokens.sizing.width[64],
+    aspectRatio: tokens.sizing.aspectRatio[aspectRatio],
+    borderRadius: tokens.borderRadius.lg,
+    overflow: 'hidden',
+    backgroundColor: tokens.colors.secondary[100],
+  });
+
+  return (
+    <div style={getContainerStyle()}>
+      <img
+        src={src}
+        alt={alt}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    </div>
+  );
+};
+```
+
+### Creating a Modal Component
+
+```tsx
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+}
+
+const Modal = ({ isOpen, onClose, children, size = 'md' }: ModalProps) => {
+  const getModalSize = () => {
+    const sizes = {
+      sm: { width: tokens.sizing.width[96], maxWidth: '90vw' },
+      md: { width: tokens.sizing.width[128], maxWidth: '90vw' },
+      lg: { width: tokens.sizing.width[160], maxWidth: '95vw' },
+      xl: { width: tokens.sizing.width[192], maxWidth: '95vw' },
+      full: { width: tokens.sizing.width.full, maxWidth: '100vw' },
+    };
+    return sizes[size];
+  };
+
+  if (!isOpen) return null;
+
+  const modalSize = getModalSize();
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: tokens.zIndex.modal,
+        padding: tokens.spacing[4],
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: modalSize.width,
+          maxWidth: modalSize.maxWidth,
+          maxHeight: '90vh',
+          backgroundColor: tokens.colors.white,
+          borderRadius: tokens.borderRadius.lg,
+          padding: tokens.spacing[8],
+          boxShadow: tokens.shadows.xl,
+          overflow: 'auto',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+```
+
+## Common Patterns
+
+### Responsive Card Sizing
+
+```tsx
+const ResponsiveCard = () => {
+  return (
+    <div
+      style={{
+        width: tokens.sizing.width.full,
+        maxWidth: tokens.sizing.width[64],
+        minHeight: tokens.sizing.height[32],
+        '@media (min-width: 768px)': {
+          maxWidth: tokens.sizing.width[96],
+          minHeight: tokens.sizing.height[48],
+        },
+        '@media (min-width: 1024px)': {
+          maxWidth: tokens.sizing.width[128],
+          minHeight: tokens.sizing.height[64],
+        },
+        backgroundColor: tokens.colors.white,
+        border: `1px solid ${tokens.colors.secondary[200]}`,
+        borderRadius: tokens.borderRadius.lg,
+        padding: tokens.spacing[6],
+      }}
+    >
+      <h3
+        style={{
+          fontSize: tokens.typography.fontSize.lg,
+          fontWeight: tokens.typography.fontWeight.semibold,
+          marginBottom: tokens.spacing[4],
+        }}
+      >
+        Responsive Card
+      </h3>
+      <p
+        style={{
+          color: tokens.colors.secondary[700],
+          lineHeight: tokens.typography.lineHeight.relaxed,
+        }}
+      >
+        This card adapts its size based on screen size while maintaining proper
+        proportions.
+      </p>
+    </div>
+  );
+};
+```
+
+### Aspect Ratio Gallery
+
+```tsx
+const AspectRatioGallery = () => {
+  const ratios = [
+    { name: 'Square', ratio: tokens.sizing.aspectRatio.square },
+    { name: 'Video', ratio: tokens.sizing.aspectRatio.video },
+    { name: 'Photo', ratio: tokens.sizing.aspectRatio.photo },
+    { name: 'Portrait', ratio: tokens.sizing.aspectRatio.portrait },
+    { name: 'Landscape', ratio: tokens.sizing.aspectRatio.landscape },
+  ];
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: tokens.spacing[6],
+      }}
+    >
+      {ratios.map((item, index) => (
+        <div key={index}>
+          <div
+            style={{
+              width: tokens.sizing.width.full,
+              aspectRatio: item.ratio,
+              backgroundColor: tokens.colors.primary[100],
+              border: `2px solid ${tokens.colors.primary[300]}`,
+              borderRadius: tokens.borderRadius.md,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: tokens.spacing[2],
+            }}
+          >
+            <span
+              style={{
+                fontSize: tokens.typography.fontSize.sm,
+                color: tokens.colors.primary[700],
+                fontWeight: tokens.typography.fontWeight.medium,
+              }}
+            >
+              {item.ratio}
+            </span>
+          </div>
+          <p
+            style={{
+              fontSize: tokens.typography.fontSize.sm,
+              color: tokens.colors.secondary[600],
+              textAlign: 'center',
+            }}
+          >
+            {item.name}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+## Accessibility Guidelines
+
+### 1. **Touch Targets**
+
+- Ensure minimum 44px touch targets for interactive elements
+- Use appropriate sizing for mobile interactions
+- Test touch targets across different screen sizes
+
+### 2. **Content Scaling**
+
+- Support text scaling up to 200%
+- Ensure content remains accessible at all sizes
+- Test with different zoom levels
+
+### 3. **Screen Reader Support**
+
+- Provide appropriate sizing for screen reader navigation
+- Ensure focus indicators are properly sized
+- Test with assistive technologies
+
+### 4. **Responsive Accessibility**
+
+- Maintain accessibility across all screen sizes
+- Ensure content is readable on all devices
+- Test with different viewport sizes
+
+## Testing Checklist
+
+- [ ] Sizing works correctly across all screen sizes
+- [ ] Aspect ratios maintain proper proportions
+- [ ] Touch targets meet accessibility requirements
+- [ ] Content scales appropriately
+- [ ] Responsive sizing functions properly
+- [ ] Elements maintain proper dimensions
+- [ ] Accessibility requirements are met
+
+## Resources
+
+- [CSS Sizing Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model)
+- [Aspect Ratio CSS](https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio)
+- [Touch Target Guidelines](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html)

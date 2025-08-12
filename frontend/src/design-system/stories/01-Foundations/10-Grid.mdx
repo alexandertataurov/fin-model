@@ -1,0 +1,541 @@
+---
+title: 'Grid'
+description: 'Comprehensive grid system for layout and spacing. Includes responsive grid patterns, flexbox utilities, and semantic layout tokens.'
+parameters:
+  docs:
+    description:
+      component: 'Our grid system provides a consistent approach to creating responsive layouts and managing element positioning through carefully crafted grid and flexbox utilities.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/blocks';
+import { tokens } from '../../tokens';
+
+<Meta
+  title="Design System/Foundations/Grid"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Grid
+
+Our grid system provides a consistent approach to creating responsive layouts and managing element positioning through carefully crafted grid and flexbox utilities.
+
+## Overview
+
+The grid system is designed to create flexible, responsive layouts that adapt seamlessly across different screen sizes. It combines CSS Grid and Flexbox to provide powerful layout capabilities while maintaining consistency and accessibility.
+
+## Token Definitions
+
+### Grid Columns
+
+```typescript
+tokens.grid = {
+  columns: {
+    1: 'repeat(1, minmax(0, 1fr))',
+    2: 'repeat(2, minmax(0, 1fr))',
+    3: 'repeat(3, minmax(0, 1fr))',
+    4: 'repeat(4, minmax(0, 1fr))',
+    5: 'repeat(5, minmax(0, 1fr))',
+    6: 'repeat(6, minmax(0, 1fr))',
+    12: 'repeat(12, minmax(0, 1fr))',
+  },
+  gaps: {
+    none: '0px',
+    sm: tokens.spacing[2],
+    md: tokens.spacing[4],
+    lg: tokens.spacing[6],
+    xl: tokens.spacing[8],
+  },
+};
+```
+
+### Flexbox Utilities
+
+```typescript
+tokens.flex = {
+  direction: {
+    row: 'row',
+    col: 'column',
+    'row-reverse': 'row-reverse',
+    'col-reverse': 'column-reverse',
+  },
+  justify: {
+    start: 'flex-start',
+    center: 'center',
+    end: 'flex-end',
+    between: 'space-between',
+    around: 'space-around',
+    evenly: 'space-evenly',
+  },
+  align: {
+    start: 'flex-start',
+    center: 'center',
+    end: 'flex-end',
+    stretch: 'stretch',
+    baseline: 'baseline',
+  },
+  wrap: {
+    nowrap: 'nowrap',
+    wrap: 'wrap',
+    'wrap-reverse': 'wrap-reverse',
+  },
+};
+```
+
+## Usage Rules
+
+### 1. **Grid Layouts**
+
+- **1-2 columns**: Simple layouts, hero sections
+- **3-4 columns**: Content grids, feature lists
+- **6 columns**: Detailed layouts, image galleries
+- **12 columns**: Complex layouts, dashboards
+
+### 2. **Responsive Behavior**
+
+- **Mobile**: Stack elements vertically
+- **Tablet**: Use 2-3 column grids
+- **Desktop**: Use 4-6 column grids
+- **Large screens**: Use 6-12 column grids
+
+### 3. **Gap Sizing**
+
+- **None**: Tight layouts, compact designs
+- **Small**: Standard spacing between elements
+- **Medium**: Comfortable spacing for content
+- **Large**: Generous spacing for emphasis
+
+## Best Practices
+
+### 1. **Responsive Design**
+
+```tsx
+// ✅ Good - Responsive grid with breakpoints
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: '1fr',
+  gap: tokens.grid.gaps.md,
+  '@media (min-width: 768px)': {
+    gridTemplateColumns: tokens.grid.columns[2],
+  },
+  '@media (min-width: 1024px)': {
+    gridTemplateColumns: tokens.grid.columns[3],
+  },
+}}>
+  <div>Content 1</div>
+  <div>Content 2</div>
+  <div>Content 3</div>
+</div>
+
+// ❌ Bad - Fixed grid without responsiveness
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: tokens.grid.columns[3],
+  gap: tokens.grid.gaps.md,
+}}>
+  <div>Content 1</div>
+  <div>Content 2</div>
+  <div>Content 3</div>
+</div>
+```
+
+### 2. **Semantic Grid Usage**
+
+```tsx
+// ✅ Good - Semantic grid structure
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: tokens.grid.columns[12],
+  gap: tokens.grid.gaps.lg,
+}}>
+  <div style={{ gridColumn: 'span 8' }}>Main content</div>
+  <div style={{ gridColumn: 'span 4' }}>Sidebar</div>
+</div>
+
+// ❌ Bad - Arbitrary grid usage
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: 'repeat(5, 1fr)',
+  gap: '20px',
+}}>
+  <div>Content</div>
+</div>
+```
+
+### 3. **Flexbox for Alignment**
+
+```tsx
+// ✅ Good - Proper flexbox usage
+<div style={{
+  display: 'flex',
+  flexDirection: tokens.flex.direction.row,
+  justifyContent: tokens.flex.justify.between,
+  alignItems: tokens.flex.align.center,
+  gap: tokens.grid.gaps.md,
+}}>
+  <div>Left content</div>
+  <div>Right content</div>
+</div>
+
+// ❌ Bad - Inconsistent flexbox usage
+<div style={{
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: '16px',
+}}>
+  <div>Left content</div>
+  <div>Right content</div>
+</div>
+```
+
+### 4. **Accessibility Considerations**
+
+```tsx
+// ✅ Good - Accessible grid layout
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: tokens.grid.columns[3],
+  gap: tokens.grid.gaps.md,
+}} role="grid" aria-label="Content grid">
+  <div role="gridcell">Accessible content 1</div>
+  <div role="gridcell">Accessible content 2</div>
+  <div role="gridcell">Accessible content 3</div>
+</div>
+
+// ❌ Bad - Grid without accessibility
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: tokens.grid.columns[3],
+  gap: tokens.grid.gaps.md,
+}}>
+  <div>Content 1</div>
+  <div>Content 2</div>
+  <div>Content 3</div>
+</div>
+```
+
+## How-To Guides
+
+### Creating a Responsive Card Grid
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+interface CardGridProps {
+  items: Array<{ id: string; title: string; content: string }>;
+  columns?: 1 | 2 | 3 | 4;
+}
+
+const CardGrid = ({ items, columns = 3 }: CardGridProps) => {
+  const getGridColumns = () => {
+    const responsiveColumns = {
+      1: '1fr',
+      2: 'repeat(auto-fit, minmax(300px, 1fr))',
+      3: 'repeat(auto-fit, minmax(250px, 1fr))',
+      4: 'repeat(auto-fit, minmax(200px, 1fr))',
+    };
+    return responsiveColumns[columns];
+  };
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: getGridColumns(),
+        gap: tokens.grid.gaps.lg,
+        padding: tokens.spacing[6],
+      }}
+    >
+      {items.map(item => (
+        <div
+          key={item.id}
+          style={{
+            backgroundColor: tokens.colors.white,
+            border: `1px solid ${tokens.colors.secondary[200]}`,
+            borderRadius: tokens.borderRadius.lg,
+            padding: tokens.spacing[6],
+            boxShadow: tokens.shadows.sm,
+          }}
+        >
+          <h3
+            style={{
+              fontSize: tokens.typography.fontSize.lg,
+              fontWeight: tokens.typography.fontWeight.semibold,
+              marginBottom: tokens.spacing[3],
+              color: tokens.colors.secondary[900],
+            }}
+          >
+            {item.title}
+          </h3>
+          <p
+            style={{
+              fontSize: tokens.typography.fontSize.base,
+              color: tokens.colors.secondary[700],
+              lineHeight: tokens.typography.lineHeight.relaxed,
+            }}
+          >
+            {item.content}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### Creating a Navigation Layout
+
+```tsx
+interface NavigationLayoutProps {
+  logo: React.ReactNode;
+  navItems: React.ReactNode;
+  actions: React.ReactNode;
+}
+
+const NavigationLayout = ({
+  logo,
+  navItems,
+  actions,
+}: NavigationLayoutProps) => {
+  return (
+    <nav
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr auto',
+        alignItems: tokens.flex.align.center,
+        gap: tokens.grid.gaps.lg,
+        padding: `${tokens.spacing[4]} ${tokens.spacing[6]}`,
+        backgroundColor: tokens.colors.white,
+        borderBottom: `1px solid ${tokens.colors.secondary[200]}`,
+      }}
+    >
+      <div>{logo}</div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: tokens.flex.justify.center,
+          alignItems: tokens.flex.align.center,
+        }}
+      >
+        {navItems}
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: tokens.flex.justify.end,
+          alignItems: tokens.flex.align.center,
+          gap: tokens.grid.gaps.md,
+        }}
+      >
+        {actions}
+      </div>
+    </nav>
+  );
+};
+```
+
+### Creating a Dashboard Layout
+
+```tsx
+interface DashboardLayoutProps {
+  sidebar: React.ReactNode;
+  header: React.ReactNode;
+  main: React.ReactNode;
+  footer?: React.ReactNode;
+}
+
+const DashboardLayout = ({
+  sidebar,
+  header,
+  main,
+  footer,
+}: DashboardLayoutProps) => {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateAreas: `
+          "sidebar header"
+          "sidebar main"
+          "sidebar footer"
+        `,
+        gridTemplateColumns: '250px 1fr',
+        gridTemplateRows: 'auto 1fr auto',
+        minHeight: '100vh',
+      }}
+    >
+      <div
+        style={{
+          gridArea: 'sidebar',
+          backgroundColor: tokens.colors.secondary[50],
+        }}
+      >
+        {sidebar}
+      </div>
+      <div
+        style={{
+          gridArea: 'header',
+          backgroundColor: tokens.colors.white,
+          borderBottom: `1px solid ${tokens.colors.secondary[200]}`,
+        }}
+      >
+        {header}
+      </div>
+      <div
+        style={{
+          gridArea: 'main',
+          backgroundColor: tokens.colors.background,
+          padding: tokens.spacing[6],
+        }}
+      >
+        {main}
+      </div>
+      {footer && (
+        <div
+          style={{
+            gridArea: 'footer',
+            backgroundColor: tokens.colors.white,
+            borderTop: `1px solid ${tokens.colors.secondary[200]}`,
+          }}
+        >
+          {footer}
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+## Common Patterns
+
+### Masonry Layout
+
+```tsx
+const MasonryLayout = () => {
+  const items = [
+    { height: '200px', content: 'Short content' },
+    { height: '300px', content: 'Medium content' },
+    { height: '150px', content: 'Very short' },
+    { height: '250px', content: 'Longer content' },
+    { height: '180px', content: 'Medium short' },
+    { height: '320px', content: 'Very long content' },
+  ];
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+        gap: tokens.grid.gaps.md,
+        gridAutoRows: '10px',
+      }}
+    >
+      {items.map((item, index) => (
+        <div
+          key={index}
+          style={{
+            gridRow: `span ${parseInt(item.height) / 10}`,
+            backgroundColor: tokens.colors.primary[100],
+            border: `1px solid ${tokens.colors.primary[300]}`,
+            borderRadius: tokens.borderRadius.md,
+            padding: tokens.spacing[4],
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: tokens.typography.fontSize.sm,
+            color: tokens.colors.primary[700],
+          }}
+        >
+          {item.content}
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### Responsive Image Gallery
+
+```tsx
+const ImageGallery = () => {
+  const images = Array.from({ length: 12 }, (_, i) => `image-${i + 1}.jpg`);
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: tokens.grid.gaps.md,
+        padding: tokens.spacing[6],
+      }}
+    >
+      {images.map((image, index) => (
+        <div
+          key={index}
+          style={{
+            aspectRatio: '16/9',
+            backgroundColor: tokens.colors.secondary[200],
+            borderRadius: tokens.borderRadius.lg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: tokens.typography.fontSize.sm,
+            color: tokens.colors.secondary[600],
+          }}
+        >
+          {image}
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+## Accessibility Guidelines
+
+### 1. **Semantic Structure**
+
+- Use appropriate HTML elements for grid containers
+- Provide ARIA labels for complex grid layouts
+- Ensure logical tab order in grid navigation
+
+### 2. **Screen Reader Support**
+
+- Use semantic grid roles when appropriate
+- Provide alternative text for grid content
+- Ensure grid navigation is keyboard accessible
+
+### 3. **Focus Management**
+
+- Maintain logical focus order in grid layouts
+- Provide clear focus indicators for grid items
+- Test keyboard navigation through grid elements
+
+### 4. **Responsive Accessibility**
+
+- Ensure grid layouts work with screen readers on mobile
+- Test grid navigation with different screen sizes
+- Provide alternative layouts for assistive technologies
+
+## Testing Checklist
+
+- [ ] Grid layouts work correctly across all screen sizes
+- [ ] Flexbox alignment functions properly
+- [ ] Grid gaps are consistent and appropriate
+- [ ] Responsive breakpoints work as expected
+- [ ] Grid navigation is keyboard accessible
+- [ ] Screen readers can navigate grid layouts
+- [ ] Grid content is properly structured semantically
+
+## Resources
+
+- [CSS Grid Layout Guide](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout)
+- [Flexbox Complete Guide](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+- [Grid Accessibility](https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html)

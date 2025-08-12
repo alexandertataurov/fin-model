@@ -64,7 +64,6 @@ import {
   Hexagon,
   Star,
   Heart,
-  Zap,
   Target,
   Crosshair,
   Gauge,
@@ -195,18 +194,18 @@ import { useAdminStore } from '@/stores/admin';
 import { toast } from 'sonner';
 import { formatNumber } from '@/utils/formatters';
 import {
-    getMetricTrend,
-    getTrendIcon,
-    formatTimestamp,
-    getStatusColor,
-    formatPercentage
+  getMetricTrend,
+  getTrendIcon,
+  formatTimestamp,
+  getStatusColor,
+  formatPercentage
 } from './utils/designSystemHelpers';
 import {
-    AdminCard,
-    AdminTitle,
-    AdminBody,
-    AdminCaption,
-    AdminSubtitle
+  AdminCard,
+  AdminTitle,
+  AdminBody,
+  AdminCaption,
+  AdminSubtitle
 } from './components';
 
 interface SystemMetrics {
@@ -587,7 +586,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
-                    <AdminHeadline 
+                    <AdminHeadline
                       className={`ml-2 ${getStatusColor(
                         systemMetrics.cpu_usage,
                         { warning: 70, critical: 90 }
@@ -596,8 +595,8 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                       {formatPercentage(systemMetrics.cpu_usage)}
                     </AdminHeadline>
                   </div>
-                  <Progress 
-                    value={systemMetrics.cpu_usage} 
+                  <Progress
+                    value={systemMetrics.cpu_usage}
                     className="h-2"
                   />
                   <AdminCaption className="mt-2">
@@ -622,7 +621,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
-                    <AdminHeadline 
+                    <AdminHeadline
                       className={`ml-2 ${getStatusColor(
                         systemMetrics.memory_usage,
                         { warning: 80, critical: 90 }
@@ -631,8 +630,8 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                       {formatPercentage(systemMetrics.memory_usage)}
                     </AdminHeadline>
                   </div>
-                  <Progress 
-                    value={systemMetrics.memory_usage} 
+                  <Progress
+                    value={systemMetrics.memory_usage}
                     className="h-2"
                   />
                   <AdminCaption className="mt-2">
@@ -657,7 +656,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
-                    <AdminHeadline 
+                    <AdminHeadline
                       className={`ml-2 ${getStatusColor(
                         systemMetrics.disk_usage,
                         { warning: 85, critical: 95 }
@@ -666,8 +665,8 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                       {formatPercentage(systemMetrics.disk_usage)}
                     </AdminHeadline>
                   </div>
-                  <Progress 
-                    value={systemMetrics.disk_usage} 
+                  <Progress
+                    value={systemMetrics.disk_usage}
                     className="h-2"
                   />
                   <AdminCaption className="mt-2">
