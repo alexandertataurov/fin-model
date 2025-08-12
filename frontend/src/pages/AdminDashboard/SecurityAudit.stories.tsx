@@ -197,7 +197,7 @@ const SecurityAuditItem = React.memo<{ item: typeof securityAuditData[0] }>(({ i
         </div>
         <div className="text-right">
             <Badge variant={item.severity === "medium" ? "secondary" : "default"}>{item.severity}</Badge>
-            <AdminCaption 
+            <AdminCaption
                 className="text-xs text-muted-foreground mt-1"
                 style={{ marginTop: componentSpacing.gap }}
             >
@@ -235,7 +235,7 @@ const AuditLogItem = React.memo<{ item: typeof auditLogsData[0] }>(({ item }) =>
         </div>
         <div className="text-right">
             <Badge variant="default">{item.status}</Badge>
-            <AdminCaption 
+            <AdminCaption
                 className="text-xs text-muted-foreground mt-1"
                 style={{ marginTop: componentSpacing.gap }}
             >
