@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -8,16 +8,26 @@ import {
 import { useAdminStore } from '@/stores/adminStore';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '@/design-system/stories/components';
+import {
+    applyDesignSystemSpacing,
+    applyDesignSystemRadius,
+    applyDesignSystemShadow,
+    applyDesignSystemMotion
+} from './utils/designSystemHelpers';
 
-const HealthTab: React.FC = () => {
-  // Design system helper functions
-  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
-
+const HealthTab: React.FC = memo(() => {
   const { systemHealth, databaseHealth } = useAdminStore();
+
+  // Memoized computed values
+  const healthStatus = useMemo(() => {
+    if (!systemHealth.data) return 'unknown';
+    return String(systemHealth.data.status).toUpperCase();
+  }, [systemHealth.data]);
+
+  const databaseStatus = useMemo(() => {
+    if (!databaseHealth) return 'unknown';
+    return databaseHealth.status || 'unknown';
+  }, [databaseHealth]);
 
   return (
     <div 
@@ -92,7 +102,7 @@ const HealthTab: React.FC = () => {
                     color: tokens.colors.foreground
                   }}
                 >
-                  {String(systemHealth.data.status).toUpperCase()}
+                  {healthStatus}
                 </span>
               </div>
               <div 
@@ -200,7 +210,7 @@ const HealthTab: React.FC = () => {
                     color: tokens.colors.foreground
                   }}
                 >
-                  {String(databaseHealth.data.status || 'unknown').toUpperCase()}
+                  {databaseStatus}
                 </span>
               </div>
             </div>
@@ -220,5 +230,7 @@ const HealthTab: React.FC = () => {
     </div>
   );
 };
+
+HealthTab.displayName = 'HealthTab';
 
 export default HealthTab;

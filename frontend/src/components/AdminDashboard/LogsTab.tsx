@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -11,17 +11,14 @@ import type { LogEntry } from '@/services/adminApi';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '@/design-system/stories/components';
 
-const LogsTab: React.FC = () => {
-  // Design system helper functions
-  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
-
+const LogsTab: React.FC = memo(() => {
   const { logs, handleFilterChange, handlePrev, handleNext, handleRefresh } =
     useLogFilters();
   const { items, total, skip, limit, level, from, to, search } = logs;
+
+  // Memoized computed values
+  const hasLogs = useMemo(() => items.length > 0, [items.length]);
+  const logCount = useMemo(() => items.length, [items.length]);
 
   return (
     <Card
@@ -82,7 +79,7 @@ const LogsTab: React.FC = () => {
               fontFamily: tokens.typography.fontFamily.mono.join(', ')
             }}
           >
-            {items.length > 0 ? (
+            {hasLogs ? (
               items.map((log: LogEntry, idx: number) => (
                 <div 
                   key={idx} 
@@ -147,5 +144,7 @@ const LogsTab: React.FC = () => {
     </Card>
   );
 };
+
+LogsTab.displayName = 'LogsTab';
 
 export default LogsTab;

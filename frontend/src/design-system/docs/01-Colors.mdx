@@ -1,0 +1,488 @@
+---
+title: 'Colors'
+description: 'Complete color system with primary, secondary, accent, and semantic palettes'
+parameters:
+  docs:
+    description:
+      component: 'Our color system provides a comprehensive palette of semantic colors that ensure consistency, accessibility, and brand alignment across all components.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/addon-docs';
+import { tokens } from '../tokens';
+
+<Meta
+  title="Design System/Foundations/Colors"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true }
+    }
+  }}
+/>
+
+# Colors
+
+Our color system provides a comprehensive palette of semantic colors that ensure consistency, accessibility, and brand alignment across all components.
+
+## Overview
+
+The color system is built on semantic naming conventions and accessibility-first principles. Each color serves a specific purpose in the interface, from primary actions to status indicators.
+
+## Token Definitions
+
+### Primary Colors
+
+```typescript
+tokens.colors.primary = {
+  50: '#f0f4ff', // Lightest background
+  100: '#e0e7ff', // Light background
+  200: '#c7d2fe', // Subtle borders
+  300: '#a5b4fc', // Disabled states
+  400: '#818cf8', // Secondary actions
+  500: '#6366f1', // Main brand color
+  600: '#4f46e5', // Hover states
+  700: '#4338ca', // Active states
+  800: '#3730a3', // Focus indicators
+  900: '#312e81', // Dark text
+  950: '#1e1b4b', // Darkest accent
+};
+```
+
+### Secondary Colors
+
+```typescript
+tokens.colors.secondary = {
+  50: '#fafafa', // Lightest background
+  100: '#f5f5f5', // Light background
+  200: '#e5e5e5', // Borders
+  300: '#d4d4d4', // Disabled text
+  400: '#a3a3a3', // Muted text
+  500: '#737373', // Main text
+  600: '#525252', // Strong text
+  700: '#404040', // Headings
+  800: '#262626', // Dark text
+  900: '#171717', // Darkest text
+  950: '#0a0a0a', // Pure black
+};
+```
+
+### Semantic Colors
+
+```typescript
+tokens.colors = {
+  success: '#10b981', // Sophisticated emerald
+  warning: '#f59e0b', // Warm amber
+  info: '#3b82f6', // Trustworthy blue
+  danger: '#dc2626', // Professional red
+  destructive: {
+    /* red scale */
+  },
+};
+```
+
+## Usage Rules
+
+### 1. **Primary Color Usage**
+
+- **500**: Main brand elements, primary buttons, links
+- **600**: Hover states, active interactions
+- **700**: Active states, pressed buttons
+- **400**: Secondary actions, disabled states
+- **200-300**: Backgrounds, borders, subtle elements
+
+### 2. **Secondary Color Usage**
+
+- **500**: Primary text, headings
+- **400**: Secondary text, labels
+- **300**: Disabled text, placeholders
+- **200**: Borders, dividers
+- **100-50**: Backgrounds, subtle surfaces
+
+### 3. **Semantic Color Usage**
+
+- **Success**: Positive feedback, completed actions
+- **Warning**: Caution states, attention required
+- **Info**: Informational content, links
+- **Danger**: Error states, destructive actions
+
+### 4. **Interactive States**
+
+Always provide clear visual feedback:
+
+- **Hover**: Slightly darker shade (600)
+- **Active**: Even darker shade (700)
+- **Focus**: Use focus ring with primary color
+- **Disabled**: Muted colors with reduced opacity
+
+## Best Practices
+
+### 1. **Accessibility Compliance**
+
+```tsx
+// ✅ Good - High contrast ratio
+<div style={{
+  backgroundColor: tokens.colors.primary[500],
+  color: tokens.colors.white
+}}>
+  High contrast text
+</div>
+
+// ❌ Bad - Low contrast ratio
+<div style={{
+  backgroundColor: tokens.colors.primary[100],
+  color: tokens.colors.primary[200]
+}}>
+  Low contrast text
+</div>
+```
+
+### 2. **Semantic Color Usage**
+
+```tsx
+// ✅ Good - Semantic meaning
+<div style={{ color: tokens.colors.success }}>
+  Payment successful
+</div>
+
+// ❌ Bad - Non-semantic usage
+<div style={{ color: tokens.colors.primary[500] }}>
+  Payment successful
+</div>
+```
+
+### 3. **Consistent Interactive States**
+
+```tsx
+// ✅ Good - Consistent hover states
+<button
+  style={{ backgroundColor: tokens.colors.primary[500] }}
+  onMouseEnter={e => {
+    e.target.style.backgroundColor = tokens.colors.primary[600];
+  }}
+  onMouseLeave={e => {
+    e.target.style.backgroundColor = tokens.colors.primary[500];
+  }}
+>
+  Interactive Button
+</button>
+```
+
+### 4. **Color Hierarchy**
+
+```tsx
+// ✅ Good - Clear hierarchy
+<h1 style={{ color: tokens.colors.secondary[800] }}>
+  Main Heading
+</h1>
+<h2 style={{ color: tokens.colors.secondary[700] }}>
+  Sub Heading
+</h2>
+<p style={{ color: tokens.colors.secondary[600] }}>
+  Body text
+</p>
+```
+
+## How-To Guides
+
+### Creating a Button Component
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'destructive';
+  size?: 'small' | 'medium' | 'large';
+  disabled?: boolean;
+  children: React.ReactNode;
+}
+
+const Button = ({ variant = 'primary', size = 'medium', disabled, children }: ButtonProps) => {
+  const getColors = () => {
+    if (disabled) {
+      return {
+        background: tokens.colors.secondary[200],
+        color: tokens.colors.secondary[400],
+        border: tokens.colors.secondary[200],
+      };
+    }
+
+    switch (variant) {
+      case 'primary':
+        return {
+          background: tokens.colors.primary[500],
+          color: tokens.colors.white,
+          border: tokens.colors.primary[500],
+        };
+      case 'secondary':
+        return {
+          background: tokens.colors.white,
+          color: tokens.colors.secondary[700],
+          border: tokens.colors.secondary[300],
+        };
+      case 'destructive':
+        return {
+          background: tokens.colors.destructive[500],
+          color: tokens.colors.white,
+          border: tokens.colors.destructive[500],
+        };
+    }
+  };
+
+  const colors = getColors();
+
+  return (
+    <button
+      style={{
+        ...colors,
+        padding:
+          size === 'small'
+            ? '8px 16px'
+            : size === 'medium'
+            ? '12px 24px'
+            : '16px 32px',
+        borderRadius: '6px',
+        fontSize:
+          size === 'small' ? '14px' : size === 'medium' ? '16px' : '18px',
+        fontWeight: 500,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'all 0.2s ease',
+      }}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+### Creating a Status Indicator
+
+```tsx
+interface StatusIndicatorProps {
+  status: 'success' | 'warning' | 'error' | 'info';
+  label: string;
+}
+
+const StatusIndicator = ({ status, label }: StatusIndicatorProps) => {
+  const getColors = () => {
+    switch (status) {
+      case 'success':
+        return {
+          background: tokens.colors.success,
+          text: tokens.colors.white,
+        };
+      case 'warning':
+        return {
+          background: tokens.colors.warning,
+          text: tokens.colors.white,
+        };
+      case 'error':
+        return {
+          background: tokens.colors.destructive[500],
+          text: tokens.colors.white,
+        };
+      case 'info':
+        return {
+          background: tokens.colors.info,
+          text: tokens.colors.white,
+        };
+    }
+  };
+
+  const colors = getColors();
+
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '4px 12px',
+        borderRadius: '16px',
+        backgroundColor: colors.background,
+        color: colors.text,
+        fontSize: '14px',
+        fontWeight: 500,
+      }}
+    >
+      <div
+        style={{
+          width: '8px',
+          height: '8px',
+          borderRadius: '50%',
+          backgroundColor: colors.text,
+        }}
+      />
+      {label}
+    </div>
+  );
+};
+```
+
+### Creating a Color Palette Component
+
+```tsx
+interface ColorSwatchProps {
+  name: string;
+  color: string;
+  description?: string;
+}
+
+const ColorSwatch = ({ name, color, description }: ColorSwatchProps) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+    }}
+  >
+    <div
+      style={{
+        width: '100%',
+        height: '60px',
+        backgroundColor: color,
+        borderRadius: '8px',
+        border: '1px solid #e5e5e5',
+      }}
+    />
+    <div>
+      <div
+        style={{
+          fontWeight: 600,
+          fontSize: '14px',
+          color: tokens.colors.secondary[700],
+        }}
+      >
+        {name}
+      </div>
+      <div
+        style={{
+          fontSize: '12px',
+          color: tokens.colors.secondary[500],
+          fontFamily: 'monospace',
+        }}
+      >
+        {color}
+      </div>
+      {description && (
+        <div
+          style={{
+            fontSize: '12px',
+            color: tokens.colors.secondary[400],
+            marginTop: '4px',
+          }}
+        >
+          {description}
+        </div>
+      )}
+    </div>
+  </div>
+);
+```
+
+## Common Patterns
+
+### Form Validation Colors
+
+```tsx
+const getValidationColor = (isValid: boolean, hasError: boolean) => {
+  if (hasError) return tokens.colors.destructive[500];
+  if (isValid) return tokens.colors.success;
+  return tokens.colors.secondary[400];
+};
+
+const Input = ({ isValid, hasError, ...props }) => (
+  <input
+    style={{
+      border: `2px solid ${getValidationColor(isValid, hasError)}`,
+      borderRadius: '6px',
+      padding: '12px',
+      fontSize: '16px',
+    }}
+    {...props}
+  />
+);
+```
+
+### Progress Indicators
+
+```tsx
+const ProgressBar = ({ progress, variant = 'primary' }) => {
+  const getColor = () => {
+    switch (variant) {
+      case 'success':
+        return tokens.colors.success;
+      case 'warning':
+        return tokens.colors.warning;
+      case 'error':
+        return tokens.colors.destructive[500];
+      default:
+        return tokens.colors.primary[500];
+    }
+  };
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '8px',
+        backgroundColor: tokens.colors.secondary[200],
+        borderRadius: '4px',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          width: `${progress}%`,
+          height: '100%',
+          backgroundColor: getColor(),
+          transition: 'width 0.3s ease',
+        }}
+      />
+    </div>
+  );
+};
+```
+
+## Accessibility Guidelines
+
+### 1. **Contrast Ratios**
+
+- Normal text: Minimum 4.5:1 contrast ratio
+- Large text: Minimum 3:1 contrast ratio
+- UI components: Minimum 3:1 contrast ratio
+
+### 2. **Color Blindness**
+
+- Don't rely solely on color to convey information
+- Use patterns, icons, or text labels
+- Test with color blindness simulators
+
+### 3. **High Contrast Mode**
+
+- Ensure colors work in high contrast mode
+- Test with system high contrast settings
+- Provide alternative color schemes
+
+### 4. **Focus Indicators**
+
+- Use visible focus indicators
+- Ensure focus colors meet contrast requirements
+- Test with keyboard navigation
+
+## Testing Checklist
+
+- [ ] All color combinations meet WCAG 2.1 AA contrast ratios
+- [ ] Colors work in high contrast mode
+- [ ] Color-blind users can distinguish all states
+- [ ] Focus indicators are clearly visible
+- [ ] Interactive states provide clear feedback
+- [ ] Semantic colors are used appropriately
+
+## Resources
+
+- [WCAG Color Contrast Guidelines](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)
+- [Material Design Color System](https://material.io/design/color/the-color-system.html)

@@ -5,7 +5,7 @@
  * Updated to follow design system foundations guidelines
  */
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import {
     Users,
     FileText,
@@ -78,15 +78,21 @@ const getStatusColor = (status: string) => {
     }
 };
 
-const OverviewSection: React.FC = () => {
+const OverviewSection: React.FC = memo(() => {
     const { systemStats, userActivity, systemMetrics, systemHealth } = useAdminStore();
 
-    const hasAnyData =
+    // Memoized computed values
+    const hasAnyData = useMemo(() =>
         !!systemStats.data ||
         !!systemMetrics.data ||
-        (userActivity.data && userActivity.data.length > 0);
+        (userActivity.data && userActivity.data.length > 0),
+        [systemStats.data, systemMetrics.data, userActivity.data]
+    );
 
-    const isLoading = systemStats.loading || userActivity.loading || systemMetrics.loading;
+    const isLoading = useMemo(() => 
+        systemStats.loading || userActivity.loading || systemMetrics.loading,
+        [systemStats.loading, userActivity.loading, systemMetrics.loading]
+    );
 
     if (isLoading && !hasAnyData) {
         return <StatsSkeleton />;
@@ -365,5 +371,7 @@ const OverviewSection: React.FC = () => {
         </AdminSectionErrorBoundary>
     );
 };
+
+OverviewSection.displayName = 'OverviewSection';
 
 export default OverviewSection;

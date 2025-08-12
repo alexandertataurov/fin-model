@@ -1510,7 +1510,7 @@ const DataManagement: React.FC = memo(() => {
       />
     </div>
   );
-};
+});
 
 DataManagement.displayName = 'DataManagement';
 

@@ -55,6 +55,7 @@ def main():
                 f"   • Postman Collection: http://localhost:{PORT}/../FinVision_API.postman_collection.json"
             )
             print(f"   • Full Docs: http://localhost:{PORT}/../API_DOCUMENTATION.md")
+            print(f"   • Quick Start: http://localhost:{PORT}/../API_README.md")
             print(f"\n🛑 Press Ctrl+C to stop the server")
             print(f"=" * 60)
 

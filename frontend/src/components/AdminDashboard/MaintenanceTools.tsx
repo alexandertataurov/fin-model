@@ -4,7 +4,7 @@
  * Advanced maintenance operations with dry-run previews, audit tracking, and safety checks
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import {
   Play,
   RefreshCw,
@@ -159,15 +159,9 @@ interface MaintenanceToolsProps {
   onOperationComplete?: (result: MaintenanceResult) => void;
 }
 
-export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
+export const MaintenanceTools: React.FC<MaintenanceToolsProps> = memo(({
   onOperationComplete,
 }) => {
-  // Design system helper functions
-  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
 
   const [history, setHistory] = useState<MaintenanceHistory[]>([]);
   const [runningOperations, setRunningOperations] = useState<Set<string>>(new Set());
@@ -198,13 +192,13 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
   }, []);
 
   // Save history to localStorage
-  const saveHistory = (newEntry: MaintenanceHistory) => {
+  const saveHistory = useCallback((newEntry: MaintenanceHistory) => {
     const updatedHistory = [newEntry, ...history].slice(0, 50); // Keep last 50 entries
     setHistory(updatedHistory);
     localStorage.setItem('maintenance-history', JSON.stringify(updatedHistory));
-  };
+  }, [history]);
 
-  const executeOperation = async (operation: MaintenanceOperation, dryRun: boolean = false) => {
+  const executeOperation = useCallback(async (operation: MaintenanceOperation, dryRun: boolean = false) => {
     const operationId = operation.id;
     setRunningOperations(prev => new Set(prev).add(operationId));
 
@@ -321,7 +315,7 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
         return newSet;
       });
     }
-  };
+  });
 
   const getRiskColor = (risk: MaintenanceOperation['risk']) => {
     switch (risk) {
@@ -594,4 +588,8 @@ export const MaintenanceTools: React.FC<MaintenanceToolsProps> = ({
       </Dialog>
     </div>
   );
-};
+});
+
+MaintenanceTools.displayName = 'MaintenanceTools';
+
+export default MaintenanceTools;

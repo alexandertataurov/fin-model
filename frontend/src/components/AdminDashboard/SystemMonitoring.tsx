@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import {
   Activity,
   Server,
@@ -79,15 +79,9 @@ interface MetricTrend {
   trend: 'up' | 'down' | 'stable';
 }
 
-const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
+const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
   refreshInterval = 30000, // 30 seconds default
 }) => {
-  // Design system helper functions
-  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
 
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(
     null
@@ -850,5 +844,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = ({
     </div>
   );
 };
+
+SystemMonitoring.displayName = 'SystemMonitoring';
 
 export default SystemMonitoring;

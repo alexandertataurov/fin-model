@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -22,52 +22,21 @@ import {
   Bell,
 } from 'lucide-react';
 
-const OverviewTab: React.FC = () => {
+const OverviewTab: React.FC = memo(() => {
   const { systemStats, userActivity, systemMetrics, systemHealth } = useAdminStore();
 
-  const formatPercentage = (value: number | null | undefined): string => {
-    if (value === null || value === undefined || Number.isNaN(value)) {
-      return 'N/A';
-    }
-    return `${value.toFixed(1)}%`;
-  };
-
-  const formatNumber = (num: number | null | undefined): string => {
-    if (num === null || num === undefined || Number.isNaN(num as number)) {
-      return '0';
-    }
-    return (num as number).toLocaleString();
-  };
-
-  const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
-    if (!isActive) return <Badge variant="destructive">Inactive</Badge>;
-    if (!isVerified) return <Badge variant="secondary">Unverified</Badge>;
-    return <Badge variant="default">Active</Badge>;
-  };
-
-  // Design system helper functions
-  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'healthy': return tokens.colors.success;
-      case 'warning': return tokens.colors.warning;
-      case 'critical': return tokens.colors.destructive[500];
-      default: return tokens.colors.muted[400];
-    }
-  };
-
-  const hasAnyData =
+  // Memoized computed values
+  const hasAnyData = useMemo(() =>
     !!systemStats.data ||
     !!systemMetrics.data ||
-    (userActivity.data && userActivity.data.length > 0);
+    (userActivity.data && userActivity.data.length > 0),
+    [systemStats.data, systemMetrics.data, userActivity.data]
+  );
 
-  const isLoading =
-    systemStats.loading || userActivity.loading || systemMetrics.loading;
+  const isLoading = useMemo(() =>
+    systemStats.loading || userActivity.loading || systemMetrics.loading,
+    [systemStats.loading, userActivity.loading, systemMetrics.loading]
+  );
 
   if (isLoading && !hasAnyData) {
     return <StatsSkeleton />;
@@ -75,7 +44,7 @@ const OverviewTab: React.FC = () => {
 
   if (!hasAnyData) {
     return (
-      <div 
+      <div
         className="flex items-center justify-center py-12"
         style={{
           display: 'flex',
@@ -84,7 +53,7 @@ const OverviewTab: React.FC = () => {
           padding: `${applyDesignSystemSpacing(12)} 0`
         }}
       >
-        <Alert 
+        <Alert
           className="max-w-md"
           style={{
             maxWidth: '28rem',
@@ -110,7 +79,7 @@ const OverviewTab: React.FC = () => {
 
   return (
     <>
-      <div 
+      <div
         className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
         style={{
           display: 'grid',
@@ -122,7 +91,7 @@ const OverviewTab: React.FC = () => {
           }
         }}
       >
-        <Card 
+        <Card
           className="lg:col-span-2"
           style={{
             gridColumn: 'span 1',
@@ -141,7 +110,7 @@ const OverviewTab: React.FC = () => {
               padding: applyDesignSystemSpacing(6)
             }}
           >
-            <CardTitle 
+            <CardTitle
               className="flex items-center"
               style={{
                 display: 'flex',
@@ -150,7 +119,7 @@ const OverviewTab: React.FC = () => {
                 color: tokens.colors.foreground
               }}
             >
-              <CheckCircle 
+              <CheckCircle
                 className="h-5 w-5 mr-2"
                 style={{
                   height: applyDesignSystemSpacing(5),
@@ -167,7 +136,7 @@ const OverviewTab: React.FC = () => {
               padding: applyDesignSystemSpacing(6)
             }}
           >
-            <div 
+            <div
               className="grid grid-cols-2 md:grid-cols-4 gap-4"
               style={{
                 display: 'grid',
@@ -178,13 +147,13 @@ const OverviewTab: React.FC = () => {
                 }
               }}
             >
-              <div 
+              <div
                 className="text-center"
                 style={{
                   textAlign: 'center'
                 }}
               >
-                <div 
+                <div
                   className="flex items-center justify-center mb-2"
                   style={{
                     display: 'flex',
@@ -203,7 +172,7 @@ const OverviewTab: React.FC = () => {
                       background: getStatusColor(systemHealth?.data?.status)
                     }}
                   />
-                  <span 
+                  <span
                     className="text-sm font-medium"
                     style={{
                       ...applyTypographyStyle('caption'),
@@ -214,7 +183,7 @@ const OverviewTab: React.FC = () => {
                     Database
                   </span>
                 </div>
-                <div 
+                <div
                   className="text-xs text-muted-foreground"
                   style={{
                     ...applyTypographyStyle('caption'),
@@ -229,15 +198,14 @@ const OverviewTab: React.FC = () => {
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <div
-                    className={`w-3 h-3 rounded-full mr-2 ${
-                      systemMetrics.data?.cpu_usage &&
-                      systemMetrics.data.cpu_usage > 80
+                    className={`w-3 h-3 rounded-full mr-2 ${systemMetrics.data?.cpu_usage &&
+                        systemMetrics.data.cpu_usage > 80
                         ? 'bg-destructive'
                         : systemMetrics.data?.cpu_usage &&
                           systemMetrics.data.cpu_usage > 60
-                        ? 'bg-warning'
-                        : 'bg-success'
-                    }`}
+                          ? 'bg-warning'
+                          : 'bg-success'
+                      }`}
                   />
                   <span className="text-sm font-medium">CPU</span>
                 </div>
@@ -248,15 +216,14 @@ const OverviewTab: React.FC = () => {
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <div
-                    className={`w-3 h-3 rounded-full mr-2 ${
-                      systemMetrics.data?.memory_usage &&
-                      systemMetrics.data.memory_usage > 80
+                    className={`w-3 h-3 rounded-full mr-2 ${systemMetrics.data?.memory_usage &&
+                        systemMetrics.data.memory_usage > 80
                         ? 'bg-destructive'
                         : systemMetrics.data?.memory_usage &&
                           systemMetrics.data.memory_usage > 60
-                        ? 'bg-warning'
-                        : 'bg-success'
-                    }`}
+                          ? 'bg-warning'
+                          : 'bg-success'
+                      }`}
                   />
                   <span className="text-sm font-medium">Memory</span>
                 </div>
@@ -267,15 +234,14 @@ const OverviewTab: React.FC = () => {
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <div
-                    className={`w-3 h-3 rounded-full mr-2 ${
-                      systemMetrics.data?.disk_usage &&
-                      systemMetrics.data.disk_usage > 80
+                    className={`w-3 h-3 rounded-full mr-2 ${systemMetrics.data?.disk_usage &&
+                        systemMetrics.data.disk_usage > 80
                         ? 'bg-destructive'
                         : systemMetrics.data?.disk_usage &&
                           systemMetrics.data.disk_usage > 60
-                        ? 'bg-warning'
-                        : 'bg-success'
-                    }`}
+                          ? 'bg-warning'
+                          : 'bg-success'
+                      }`}
                   />
                   <span className="text-sm font-medium">Disk</span>
                 </div>
@@ -409,10 +375,10 @@ const OverviewTab: React.FC = () => {
                 (systemMetrics.data?.disk_usage && systemMetrics.data.disk_usage > 90) ||
                 (systemMetrics.data?.error_rate_24h && systemMetrics.data.error_rate_24h > 5)
               ) && (
-                <div className="p-4 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm">
-                  All Systems Healthy
-                </div>
-              )}
+                  <div className="p-4 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm">
+                    All Systems Healthy
+                  </div>
+                )}
             </div>
           </CardContent>
         </Card>
@@ -420,5 +386,7 @@ const OverviewTab: React.FC = () => {
     </>
   );
 };
+
+OverviewTab.displayName = 'OverviewTab';
 
 export default OverviewTab;

@@ -4,7 +4,7 @@
  * Role-based dashboard layout and widget customization
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import {
   Settings,
   Eye,
@@ -43,6 +43,12 @@ import {
 import { toast } from 'sonner';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '@/design-system/stories/components';
+import {
+    applyDesignSystemSpacing,
+    applyDesignSystemRadius,
+    applyDesignSystemShadow,
+    applyDesignSystemMotion
+} from './utils/designSystemHelpers';
 
 // Dashboard widget types
 export interface DashboardWidget {
@@ -190,7 +196,7 @@ interface DashboardCustomizationProps {
   currentConfig?: DashboardWidget[];
 }
 
-export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
+export const DashboardCustomization: React.FC<DashboardCustomizationProps> = memo(({
   userRole,
   onConfigChange,
   currentConfig = [],
@@ -258,13 +264,13 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: tokens.spacing[2],
-              padding: `${tokens.spacing[2]} ${tokens.spacing[4]}`,
-              borderRadius: tokens.borderRadius.lg,
+              gap: applyDesignSystemSpacing(2),
+              padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+              borderRadius: applyDesignSystemRadius('lg'),
               border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
               background: 'transparent',
               color: tokens.colors.foreground,
-              transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
+              transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
               fontSize: tokens.typography.fontSize.sm,
               fontWeight: tokens.typography.fontWeight.medium
             }}
@@ -282,15 +288,15 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
         </DialogTrigger>
         <DialogContent 
           className="max-w-4xl max-h-[80vh] overflow-y-auto"
-          style={{
-            maxWidth: '56rem',
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            borderRadius: tokens.borderRadius.xl,
-            boxShadow: tokens.shadows.xl,
-            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-            background: tokens.colors.background
-          }}
+                      style={{
+              maxWidth: '56rem',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              borderRadius: applyDesignSystemRadius('xl'),
+              boxShadow: applyDesignSystemShadow('xl'),
+              border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+              background: tokens.colors.background
+            }}
         >
           <DialogHeader>
             <DialogTitle 
@@ -298,18 +304,18 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: tokens.spacing[2],
+                gap: applyDesignSystemSpacing(2),
                 ...applyTypographyStyle('title'),
                 color: tokens.colors.foreground
               }}
             >
               <Settings 
                 className="h-5 w-5"
-                style={{
-                  height: tokens.spacing[5],
-                  width: tokens.spacing[5],
-                  color: tokens.colors.primary[500]
-                }}
+                              style={{
+                height: applyDesignSystemSpacing(5),
+                width: applyDesignSystemSpacing(5),
+                color: tokens.colors.primary[500]
+              }}
               />
               Dashboard Customization
             </DialogTitle>
@@ -328,24 +334,24 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: tokens.spacing[6]
+              gap: applyDesignSystemSpacing(6)
             }}
           >
             {/* Role Information */}
             <Card
               style={{
                 background: tokens.colors.background,
-                borderRadius: tokens.borderRadius.xl,
-                boxShadow: tokens.shadows.md,
+                borderRadius: applyDesignSystemRadius('xl'),
+                boxShadow: applyDesignSystemShadow('md'),
                 border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-                transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`
+                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
               }}
             >
-              <CardHeader
-                style={{
-                  padding: tokens.spacing[6]
-                }}
-              >
+                        <CardHeader
+            style={{
+              padding: applyDesignSystemSpacing(6)
+            }}
+          >
                 <CardTitle 
                   className="text-lg"
                   style={{
@@ -356,11 +362,11 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
                   Role: {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
                 </CardTitle>
               </CardHeader>
-              <CardContent
-                style={{
-                  padding: tokens.spacing[6]
-                }}
-              >
+                        <CardContent
+            style={{
+              padding: applyDesignSystemSpacing(6)
+            }}
+          >
                 <div 
                   className="flex items-center gap-2"
                   style={{
@@ -521,6 +527,8 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
       </Dialog>
     </>
   );
-};
+});
+
+DashboardCustomization.displayName = 'DashboardCustomization';
 
 export default DashboardCustomization;

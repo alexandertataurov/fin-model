@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import {
   Users,
   UserPlus,
@@ -89,13 +89,7 @@ interface EditUserData {
   is_active: boolean;
 }
 
-const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
-  // Design system helper functions
-  const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-  const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-  const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-  const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-      type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) => {
 
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserWithRoles[]>([]);
@@ -133,6 +127,16 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
   const [page, setPage] = useState(0);
   const rowsPerPage = 20;
   const [total, setTotal] = useState(0);
+
+  // Memoized computed values
+  const paginatedUsers = useMemo(() => {
+    const start = page * rowsPerPage;
+    const end = start + rowsPerPage;
+    return filteredUsers.slice(start, end);
+  }, [filteredUsers, page, rowsPerPage]);
+
+  const totalPages = useMemo(() => Math.ceil(total / rowsPerPage), [total, rowsPerPage]);
+  const hasSelectedUsers = useMemo(() => selectedUsers.length > 0, [selectedUsers.length]);
 
   // Load users
   const loadUsers = useCallback(async () => {
@@ -1232,5 +1236,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserUpdated }) => {
     </div>
   );
 };
+
+UserManagement.displayName = 'UserManagement';
 
 export default UserManagement;

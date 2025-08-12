@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { Button } from '@/design-system/components/Button';
 import {
     Select,
@@ -35,7 +35,7 @@ interface LogFilterFormProps {
     onNext: () => void | Promise<void>;
 }
 
-const LogFilterForm: React.FC<LogFilterFormProps> = ({
+const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
     level,
     limit,
     from,
@@ -48,12 +48,21 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
     onPrev,
     onNext,
 }) => {
-    // Design system helper functions
-    const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-    const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-    const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-    const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
-        type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+    // Memoized computed values
+    const hasResults = useMemo(() => total > 0, [total]);
+    const canGoPrev = useMemo(() => skip > 0, [skip]);
+    const canGoNext = useMemo(() => skip + limit < total, [skip, limit, total]);
+    const currentPage = useMemo(() => Math.floor(skip / limit) + 1, [skip, limit]);
+    const totalPages = useMemo(() => Math.ceil(total / limit), [total, limit]);
+
+    // Memoized handlers
+    const handleLevelChange = useCallback((newLevel: string) => {
+        onChange({ level: newLevel as LogsState['level'], skip: 0 });
+    }, [onChange]);
+
+    const handleLimitChange = useCallback((newLimit: string) => {
+        onChange({ limit: Number(newLimit), skip: 0 });
+    }, [onChange]);
 
     return (
         <div 
@@ -108,7 +117,7 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
                     {/* Log Level Filter */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">Log Level</label>
-                        <Select value={level} onValueChange={v => onChange({ level: v as LogsState['level'], skip: 0 })}>
+                        <Select value={level} onValueChange={handleLevelChange}>
                             <SelectTrigger className="w-full">
                                 <SelectValue />
                             </SelectTrigger>
@@ -127,7 +136,7 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
                         <label className="text-sm font-medium text-gray-700">Results per page</label>
                         <Select
                             value={String(limit)}
-                            onValueChange={v => onChange({ limit: Number(v), skip: 0 })}
+                            onValueChange={handleLimitChange}
                         >
                             <SelectTrigger className="w-full">
                                 <SelectValue />
@@ -233,8 +242,10 @@ const LogFilterForm: React.FC<LogFilterFormProps> = ({
                     </Button>
                 </div>
             </div>
-        </div>
-    );
-};
+                  </div>
+      );
+  });
+
+  LogFilterForm.displayName = 'LogFilterForm';
 
 export default LogFilterForm;

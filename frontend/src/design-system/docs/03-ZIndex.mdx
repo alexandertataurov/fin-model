@@ -1,0 +1,628 @@
+---
+title: 'Z-Index'
+description: 'Comprehensive z-index system for managing element stacking order'
+---
+
+# Z-Index
+
+Our z-index system provides a structured approach to managing element stacking order across the application. It ensures consistent layering behavior and prevents z-index conflicts while maintaining accessibility and responsive design considerations.
+
+## Overview
+
+The z-index system consists of:
+
+- **Semantic Layers**: Named z-index values for common UI patterns
+- **Numeric Scale**: Predictable numeric values for custom layering
+- **Stacking Contexts**: Guidelines for managing nested stacking
+- **Responsive Behavior**: Breakpoint-specific z-index adjustments
+- **Accessibility Considerations**: Focus management and screen reader support
+
+## Z-Index Tokens
+
+### Semantic Tokens
+
+```typescript
+tokens.zIndex = {
+  // Base layers (0-50)
+  0: '0', // Base content
+  10: '10', // Slightly elevated
+  20: '20', // Medium elevation
+  30: '30', // High elevation
+  40: '40', // Very high elevation
+  50: '50', // Maximum base elevation
+
+  // Semantic layers (1000+)
+  dropdown: '1000', // Navigation menus, dropdowns
+  sticky: '1020', // Fixed headers, sticky elements
+  fixed: '1030', // Fixed elements, sidebars
+  modal: '1040', // Modal overlays, dialogs
+  popover: '1050', // Context menus, tooltips
+  tooltip: '1060', // Help text, notifications
+};
+```
+
+### Usage Guidelines
+
+```typescript
+// Common z-index patterns
+const zIndexPatterns = {
+  // Navigation
+  navigation: tokens.zIndex.dropdown,
+  submenu: tokens.zIndex.dropdown + 10,
+
+  // Overlays
+  backdrop: tokens.zIndex.modal - 10,
+  modal: tokens.zIndex.modal,
+  modalContent: tokens.zIndex.modal + 10,
+
+  // Interactive elements
+  tooltip: tokens.zIndex.tooltip,
+  popover: tokens.zIndex.popover,
+  dropdown: tokens.zIndex.dropdown,
+
+  // Fixed elements
+  header: tokens.zIndex.sticky,
+  sidebar: tokens.zIndex.fixed,
+  floating: tokens.zIndex.fixed + 10,
+};
+```
+
+## Usage Rules
+
+### 1. **Semantic Layer Usage**
+
+- **dropdown (1000)**: Navigation menus, dropdown lists
+- **sticky (1020)**: Fixed headers, sticky navigation
+- **fixed (1030)**: Fixed sidebars, floating elements
+- **modal (1040)**: Modal dialogs, overlay content
+- **popover (1050)**: Context menus, floating panels
+- **tooltip (1060)**: Help text, notifications
+
+### 2. **Numeric Scale Usage**
+
+- **0-50**: Base content, background elements
+- **100-500**: Component-level layering
+- **1000+**: Semantic UI patterns
+- **Avoid values between 500-1000**: Reserved for future use
+
+### 3. **Stacking Context Guidelines**
+
+- Create new stacking contexts sparingly
+- Use `position: relative` to create stacking contexts
+- Avoid unnecessary z-index values
+- Test stacking behavior across browsers
+
+### 4. **Responsive Considerations**
+
+- Z-index values should work across all breakpoints
+- Consider mobile-specific layering needs
+- Test touch interactions with z-index
+
+## Best Practices
+
+### 1. **Semantic Naming**
+
+```tsx
+// ✅ Good - Semantic z-index usage
+<div style={{ zIndex: tokens.zIndex.modal }}>
+  <div style={{ zIndex: tokens.zIndex.modal + 10 }}>
+    Modal content
+  </div>
+</div>
+
+// ❌ Bad - Arbitrary z-index values
+<div style={{ zIndex: 9999 }}>
+  <div style={{ zIndex: 10000 }}>
+    Modal content
+  </div>
+</div>
+```
+
+### 2. **Consistent Layering**
+
+```tsx
+// ✅ Good - Consistent z-index hierarchy
+const Modal = ({ isOpen, children }) => (
+  <>
+    {isOpen && <div style={{ zIndex: tokens.zIndex.modal - 10 }}>Backdrop</div>}
+    {isOpen && <div style={{ zIndex: tokens.zIndex.modal }}>{children}</div>}
+  </>
+);
+
+// ❌ Bad - Inconsistent layering
+const Modal = ({ isOpen, children }) => (
+  <>
+    {isOpen && <div style={{ zIndex: 1000 }}>Backdrop</div>}
+    {isOpen && <div style={{ zIndex: 9999 }}>{children}</div>}
+  </>
+);
+```
+
+### 3. **Stacking Context Management**
+
+```tsx
+// ✅ Good - Proper stacking context
+const Dropdown = ({ isOpen, children }) => (
+  <div style={{ position: 'relative' }}>
+    <button>Trigger</button>
+    {isOpen && (
+      <div
+        style={{
+          position: 'absolute',
+          zIndex: tokens.zIndex.dropdown,
+          top: '100%',
+          left: 0,
+        }}
+      >
+        {children}
+      </div>
+    )}
+  </div>
+);
+
+// ❌ Bad - Unnecessary stacking context
+const Dropdown = ({ isOpen, children }) => (
+  <div style={{ position: 'relative', zIndex: 1000 }}>
+    <button>Trigger</button>
+    {isOpen && (
+      <div
+        style={{
+          position: 'absolute',
+          zIndex: 1001,
+          top: '100%',
+          left: 0,
+        }}
+      >
+        {children}
+      </div>
+    )}
+  </div>
+);
+```
+
+### 4. **Accessibility Compliance**
+
+```tsx
+// ✅ Good - Accessible focus management
+const Modal = ({ isOpen, onClose, children }) => {
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, [isOpen]);
+
+  return (
+    <>
+      {isOpen && (
+        <div
+          style={{ zIndex: tokens.zIndex.modal - 10 }}
+          onClick={onClose}
+          role="presentation"
+        >
+          Backdrop
+        </div>
+      )}
+      {isOpen && (
+        <div
+          ref={modalRef}
+          style={{ zIndex: tokens.zIndex.modal }}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
+        >
+          {children}
+        </div>
+      )}
+    </>
+  );
+};
+```
+
+## How-To Guides
+
+### Creating a Z-Index Utility System
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+const zIndex = {
+  // Base utilities
+  base: { zIndex: tokens.zIndex[0] },
+  elevated: { zIndex: tokens.zIndex[10] },
+  high: { zIndex: tokens.zIndex[20] },
+  higher: { zIndex: tokens.zIndex[30] },
+  highest: { zIndex: tokens.zIndex[50] },
+
+  // Semantic utilities
+  dropdown: { zIndex: tokens.zIndex.dropdown },
+  sticky: { zIndex: tokens.zIndex.sticky },
+  fixed: { zIndex: tokens.zIndex.fixed },
+  modal: { zIndex: tokens.zIndex.modal },
+  popover: { zIndex: tokens.zIndex.popover },
+  tooltip: { zIndex: tokens.zIndex.tooltip },
+
+  // Relative utilities
+  above: (base: number) => ({ zIndex: base + 10 }),
+  below: (base: number) => ({ zIndex: base - 10 }),
+
+  // Component-specific
+  backdrop: { zIndex: tokens.zIndex.modal - 10 },
+  modalContent: { zIndex: tokens.zIndex.modal + 10 },
+  submenu: { zIndex: tokens.zIndex.dropdown + 10 },
+};
+
+// Usage example
+const DropdownMenu = ({ isOpen, children }) => (
+  <div style={{ position: 'relative' }}>
+    {isOpen && (
+      <div
+        style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          ...zIndex.dropdown,
+          backgroundColor: 'white',
+          border: '1px solid #e5e5e5',
+          borderRadius: '8px',
+          boxShadow: tokens.shadows.md,
+        }}
+      >
+        {children}
+      </div>
+    )}
+  </div>
+);
+```
+
+### Creating a Modal System
+
+```tsx
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}
+
+const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: tokens.zIndex.modal - 10,
+        }}
+        onClick={onClose}
+        role="presentation"
+      />
+
+      {/* Modal */}
+      <div
+        ref={modalRef}
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: tokens.spacing[6],
+          maxWidth: '500px',
+          width: '90%',
+          maxHeight: '80vh',
+          overflow: 'auto',
+          zIndex: tokens.zIndex.modal,
+          boxShadow: tokens.shadows.modal,
+        }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        tabIndex={-1}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: tokens.spacing[4],
+          }}
+        >
+          <h2
+            id="modal-title"
+            style={{
+              fontSize: tokens.typography.fontSize.xl,
+              fontWeight: tokens.typography.fontWeight.semibold,
+              margin: 0,
+            }}
+          >
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: tokens.spacing[2],
+              borderRadius: '4px',
+            }}
+            aria-label="Close modal"
+          >
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </>
+  );
+};
+```
+
+### Creating a Tooltip System
+
+```tsx
+interface TooltipProps {
+  content: string;
+  children: React.ReactNode;
+  position?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+const Tooltip = ({ content, children, position = 'top' }: TooltipProps) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const getPosition = () => {
+    if (!triggerRef.current) return { x: 0, y: 0 };
+
+    const rect = triggerRef.current.getBoundingClientRect();
+    const tooltipHeight = 32; // Approximate tooltip height
+    const tooltipWidth = 120; // Approximate tooltip width
+
+    switch (position) {
+      case 'top':
+        return {
+          x: rect.left + rect.width / 2 - tooltipWidth / 2,
+          y: rect.top - tooltipHeight - 8,
+        };
+      case 'bottom':
+        return {
+          x: rect.left + rect.width / 2 - tooltipWidth / 2,
+          y: rect.bottom + 8,
+        };
+      case 'left':
+        return {
+          x: rect.left - tooltipWidth - 8,
+          y: rect.top + rect.height / 2 - tooltipHeight / 2,
+        };
+      case 'right':
+        return {
+          x: rect.right + 8,
+          y: rect.top + rect.height / 2 - tooltipHeight / 2,
+        };
+    }
+  };
+
+  return (
+    <div
+      ref={triggerRef}
+      onMouseEnter={() => {
+        setIsVisible(true);
+        setTooltipPosition(getPosition());
+      }}
+      onMouseLeave={() => setIsVisible(false)}
+      style={{ display: 'inline-block' }}
+    >
+      {children}
+      {isVisible && (
+        <div
+          style={{
+            position: 'fixed',
+            left: tooltipPosition.x,
+            top: tooltipPosition.y,
+            backgroundColor: tokens.colors.secondary[800],
+            color: tokens.colors.white,
+            padding: `${tokens.spacing[1]} ${tokens.spacing[2]}`,
+            borderRadius: '4px',
+            fontSize: tokens.typography.fontSize.sm,
+            zIndex: tokens.zIndex.tooltip,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+          }}
+          role="tooltip"
+        >
+          {content}
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+## Common Patterns
+
+### Sticky Header
+
+```tsx
+const StickyHeader = ({ children }: { children: React.ReactNode }) => (
+  <header
+    style={{
+      position: 'sticky',
+      top: 0,
+      backgroundColor: 'white',
+      borderBottom: `1px solid ${tokens.colors.secondary[200]}`,
+      padding: tokens.spacing[4],
+      zIndex: tokens.zIndex.sticky,
+      boxShadow: tokens.shadows.sm,
+    }}
+  >
+    {children}
+  </header>
+);
+```
+
+### Floating Action Button
+
+```tsx
+const FloatingActionButton = ({
+  icon,
+  onClick,
+}: {
+  icon: string;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    style={{
+      position: 'fixed',
+      bottom: tokens.spacing[6],
+      right: tokens.spacing[6],
+      width: '56px',
+      height: '56px',
+      borderRadius: '50%',
+      backgroundColor: tokens.colors.primary[500],
+      color: tokens.colors.white,
+      border: 'none',
+      cursor: 'pointer',
+      zIndex: tokens.zIndex.fixed,
+      boxShadow: tokens.shadows.lg,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '24px',
+    }}
+  >
+    {icon}
+  </button>
+);
+```
+
+### Dropdown Menu
+
+```tsx
+const DropdownMenu = ({
+  trigger,
+  items,
+  isOpen,
+  onToggle,
+}: {
+  trigger: React.ReactNode;
+  items: Array<{ label: string; onClick: () => void }>;
+  isOpen: boolean;
+  onToggle: () => void;
+}) => (
+  <div style={{ position: 'relative' }}>
+    <div onClick={onToggle}>{trigger}</div>
+
+    {isOpen && (
+      <div
+        style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          border: `1px solid ${tokens.colors.secondary[200]}`,
+          boxShadow: tokens.shadows.dropdown,
+          zIndex: tokens.zIndex.dropdown,
+          marginTop: tokens.spacing[1],
+        }}
+      >
+        {items.map((item, index) => (
+          <button
+            key={index}
+            onClick={item.onClick}
+            style={{
+              width: '100%',
+              padding: `${tokens.spacing[2]} ${tokens.spacing[3]}`,
+              border: 'none',
+              background: 'none',
+              textAlign: 'left',
+              cursor: 'pointer',
+              fontSize: tokens.typography.fontSize.base,
+              color: tokens.colors.secondary[700],
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+);
+```
+
+## Accessibility Guidelines
+
+### 1. **Focus Management**
+
+- Ensure focus is trapped within modals
+- Return focus to trigger element when modal closes
+- Use proper ARIA attributes for screen readers
+
+### 2. **Screen Reader Support**
+
+- Use semantic HTML elements
+- Provide proper ARIA labels and descriptions
+- Test with screen readers
+
+### 3. **Keyboard Navigation**
+
+- Ensure all interactive elements are keyboard accessible
+- Test tab order with z-index layering
+- Provide keyboard shortcuts where appropriate
+
+### 4. **Touch Interactions**
+
+- Ensure touch targets are appropriately sized
+- Test z-index behavior on touch devices
+- Consider mobile-specific layering needs
+
+## Testing Checklist
+
+- [ ] Z-index values work consistently across browsers
+- [ ] Stacking contexts are properly managed
+- [ ] Focus management works with z-index layering
+- [ ] Touch interactions work correctly
+- [ ] Screen readers can navigate layered content
+- [ ] Z-index values don't conflict with other components
+- [ ] Responsive behavior is appropriate
+- [ ] Performance is acceptable with complex layering
+
+## Resources
+
+- [CSS Z-Index](https://developer.mozilla.org/en-US/docs/Web/CSS/z-index)
+- [Stacking Context](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context)
+- [Accessible Modal Dialogs](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/)
+- [Focus Management](https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html)
