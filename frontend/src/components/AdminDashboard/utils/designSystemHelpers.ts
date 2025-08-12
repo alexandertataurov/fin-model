@@ -42,3 +42,39 @@ export const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
     if (!isVerified) return 'secondary';
     return 'default';
 };
+
+// Additional helper functions to eliminate duplication
+export const getMetricTrend = (
+    current: number | null,
+    previous: number | null
+): 'up' | 'down' | 'stable' => {
+    if (current === null || previous === null) return 'stable';
+    if (current > previous) return 'up';
+    if (current < previous) return 'down';
+    return 'stable';
+};
+
+export const getTrendIcon = (
+    trend: 'up' | 'down' | 'stable',
+    isGoodTrend = false
+) => {
+    switch (trend) {
+        case 'up':
+            return isGoodTrend ? '↗️' : '↗️';
+        case 'down':
+            return isGoodTrend ? '↘️' : '↘️';
+        default:
+            return '→';
+    }
+};
+
+export const formatTimestamp = (date: Date): string => {
+    return date.toLocaleString();
+};
+
+export const formatFileSize = (sizeInMB: number): string => {
+    if (sizeInMB < 1024) {
+        return `${sizeInMB.toFixed(1)} MB`;
+    }
+    return `${(sizeInMB / 1024).toFixed(1)} GB`;
+};

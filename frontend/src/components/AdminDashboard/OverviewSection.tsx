@@ -7,76 +7,41 @@
 
 import React, { memo, useMemo } from 'react';
 import {
-    Users,
-    FileText,
-    Database,
-    HardDrive,
-    CheckCircle,
-    AlertCircle,
-    ArrowUpRight,
-    Activity,
-    Eye,
-} from 'lucide-react';
-import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
 } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
-import { tokens } from '@/design-system/tokens';
-
-// Import design system components
+import { Container } from '@/design-system/stories/components';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 import {
-    applyTypographyStyle,
-    Container,
-    SectionHeader,
-    MetricCard,
-    DashboardHeader
-} from '@/design-system/stories/components';
-
-// Helper functions
-const formatPercentage = (value: number | null | undefined): string => {
-    if (value === null || value === undefined || Number.isNaN(value)) {
-        return 'N/A';
-    }
-    return `${value.toFixed(1)}%`;
-};
-
-const formatNumber = (num: number | null | undefined): string => {
-    if (num === null || num === undefined || Number.isNaN(num as number)) {
-        return '0';
-    }
-    return (num as number).toLocaleString();
-};
-
-const getStatusBadge = (isActive: boolean, isVerified: boolean) => {
-    if (!isActive) return <Badge variant="destructive">Inactive</Badge>;
-    if (!isVerified) return <Badge variant="secondary">Unverified</Badge>;
-    return <Badge variant="default">Active</Badge>;
-};
-
-// Design system helper functions
-const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
-const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
-const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
-const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) =>
-    type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
-
-const getStatusColor = (status: string) => {
-    switch (status) {
-        case 'healthy': return tokens.colors.success;
-        case 'warning': return tokens.colors.warning;
-        case 'critical': return tokens.colors.destructive[500];
-        default: return tokens.colors.muted[400];
-    }
-};
+    Users,
+    FileText,
+    Database,
+    HardDrive,
+    Activity,
+    ArrowUpRight,
+} from 'lucide-react';
+import {
+    formatNumber,
+    formatPercentage,
+    getStatusBadge,
+    getStatusColor
+} from './utils/designSystemHelpers';
+import {
+    AdminCard,
+    AdminTitle,
+    AdminBody,
+    AdminCaption,
+    AdminHeadline,
+    AdminSubtitle
+} from './components';
 
 const OverviewSection: React.FC = memo(() => {
     const { systemStats, userActivity, systemMetrics, systemHealth } = useAdminStore();
@@ -106,12 +71,12 @@ const OverviewSection: React.FC = memo(() => {
                         <Activity className="h-10 w-10 text-muted-foreground" />
                     </div>
                     <div>
-                        <h3 style={applyTypographyStyle('title')} className="text-foreground mb-2">
+                        <AdminTitle className="mb-2">
                             No Data Available
-                        </h3>
-                        <p style={applyTypographyStyle('body')} className="text-muted-foreground">
+                        </AdminTitle>
+                        <AdminBody>
                             Overview data is currently unavailable. Please try refreshing the page.
-                        </p>
+                        </AdminBody>
                     </div>
                 </div>
             </Container>
@@ -130,57 +95,26 @@ const OverviewSection: React.FC = memo(() => {
                                     <Users className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
-                                    <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">
+                                    <AdminSubtitle>
                                         Total Users
-                                    </h4>
-                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                    </AdminSubtitle>
+                                    <AdminCaption>
                                         Registered users
-                                    </p>
+                                    </AdminCaption>
                                 </div>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div style={applyTypographyStyle('headline')} className="text-foreground mb-2">
+                            <AdminHeadline className="mb-2">
                                 {formatNumber(systemStats.data?.total_users)}
-                            </div>
+                            </AdminHeadline>
                             <div className="flex items-center gap-2">
-                                <span style={applyTypographyStyle('caption')} className="text-success">
+                                <AdminCaption className="text-success">
                                     +{formatNumber(systemStats.data?.new_users_this_month)}
-                                </span>
-                                <span style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                </AdminCaption>
+                                <AdminCaption>
                                     this month
-                                </span>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="flex items-center">
-                                <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center mr-3">
-                                    <FileText className="h-5 w-5 text-accent" />
-                                </div>
-                                <div>
-                                    <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">
-                                        Total Files
-                                    </h4>
-                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                        Stored files
-                                    </p>
-                                </div>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div style={applyTypographyStyle('headline')} className="text-foreground mb-2">
-                                {formatNumber(systemStats.data?.total_files)}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span style={applyTypographyStyle('caption')} className="text-accent">
-                                    {formatNumber(systemStats.data?.total_storage_gb)} GB
-                                </span>
-                                <span style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                    used
-                                </span>
+                                </AdminCaption>
                             </div>
                         </CardContent>
                     </Card>
@@ -189,27 +123,29 @@ const OverviewSection: React.FC = memo(() => {
                         <CardHeader className="pb-4">
                             <CardTitle className="flex items-center">
                                 <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center mr-3">
-                                    <Database className="h-5 w-5 text-success" />
+                                    <FileText className="h-5 w-5 text-success" />
                                 </div>
                                 <div>
-                                    <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">
-                                        Database
-                                    </h4>
-                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                        Health status
-                                    </p>
+                                    <AdminSubtitle>
+                                        Total Files
+                                    </AdminSubtitle>
+                                    <AdminCaption>
+                                        Uploaded files
+                                    </AdminCaption>
                                 </div>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-3 h-3 rounded-full bg-success"></div>
-                                <span style={applyTypographyStyle('subtitle')} className="text-foreground">
-                                    Healthy
-                                </span>
-                            </div>
-                            <div style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                {formatNumber(systemStats.data?.database_connections)} connections
+                            <AdminHeadline className="mb-2">
+                                {formatNumber(systemStats.data?.total_files)}
+                            </AdminHeadline>
+                            <div className="flex items-center gap-2">
+                                <AdminCaption>
+                                    {formatNumber(systemStats.data?.total_storage_gb)} GB
+                                </AdminCaption>
+                                <AdminCaption>
+                                    total storage
+                                </AdminCaption>
                             </div>
                         </CardContent>
                     </Card>
@@ -218,159 +154,181 @@ const OverviewSection: React.FC = memo(() => {
                         <CardHeader className="pb-4">
                             <CardTitle className="flex items-center">
                                 <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center mr-3">
-                                    <HardDrive className="h-5 w-5 text-warning" />
+                                    <Database className="h-5 w-5 text-warning" />
                                 </div>
                                 <div>
-                                    <h4 style={applyTypographyStyle('subtitle')} className="text-foreground">
-                                        Storage
-                                    </h4>
-                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                        Usage status
-                                    </p>
+                                    <AdminSubtitle>
+                                        Database
+                                    </AdminSubtitle>
+                                    <AdminCaption>
+                                        Connections
+                                    </AdminCaption>
                                 </div>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div style={applyTypographyStyle('headline')} className="text-foreground mb-3">
-                                {formatPercentage(systemStats.data?.storage_usage)}
+                            <AdminHeadline className="mb-2">
+                                {formatNumber(systemStats.data?.database_connections)} connections
+                            </AdminHeadline>
+                            <div className="flex items-center gap-2">
+                                <AdminCaption>
+                                    Active connections
+                                </AdminCaption>
                             </div>
-                            <Progress value={systemStats.data?.storage_usage || 0} className="h-2" />
-                            <div style={applyTypographyStyle('caption')} className="text-muted-foreground mt-2">
-                                {formatNumber(systemStats.data?.available_storage_gb)} GB available
+                        </CardContent>
+                    </Card>
+
+                    <Card className="hover:shadow-md transition-shadow">
+                        <CardHeader className="pb-4">
+                            <CardTitle className="flex items-center">
+                                <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center mr-3">
+                                    <HardDrive className="h-5 w-5 text-destructive" />
+                                </div>
+                                <div>
+                                    <AdminSubtitle>
+                                        Storage
+                                    </AdminSubtitle>
+                                    <AdminCaption>
+                                        Usage
+                                    </AdminCaption>
+                                </div>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <AdminHeadline className="mb-2">
+                                {formatPercentage(systemStats.data?.storage_usage)}
+                            </AdminHeadline>
+                            <div className="flex items-center gap-2">
+                                <AdminCaption>
+                                    {formatNumber(systemStats.data?.available_storage_gb)} GB available
+                                </AdminCaption>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* System Health Overview */}
-                <Card>
-                    <CardHeader className="pb-6">
-                        <CardTitle className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center mr-4">
-                                    <CheckCircle className="h-6 w-6 text-success" />
+                {/* System Metrics */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <Activity className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <h3 style={applyTypographyStyle('title')} className="text-foreground">
-                                        System Health
-                                    </h3>
-                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                        Real-time monitoring
-                                    </p>
+                                    <AdminSubtitle>
+                                        System Metrics
+                                    </AdminSubtitle>
+                                    <AdminCaption>
+                                        Real-time performance
+                                    </AdminCaption>
                                 </div>
-                            </div>
-                            <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4 mr-2" />
-                                <span style={applyTypographyStyle('caption')}>View Details</span>
-                            </Button>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <span style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                        CPU Usage
-                                    </span>
-                                    <span style={applyTypographyStyle('subtitle')} className="text-foreground">
+                                    <AdminCaption>CPU Usage</AdminCaption>
+                                    <AdminBody>
                                         {formatPercentage(systemMetrics.data?.cpu_usage)}
-                                    </span>
+                                    </AdminBody>
                                 </div>
-                                <Progress value={systemMetrics.data?.cpu_usage || 0} className="h-2" />
+                                <Progress 
+                                    value={systemMetrics.data?.cpu_usage || 0} 
+                                    className="h-2"
+                                    style={{
+                                        background: getStatusColor(systemHealth?.data?.status)
+                                    }}
+                                />
                             </div>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <span style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                        Memory Usage
-                                    </span>
-                                    <span style={applyTypographyStyle('subtitle')} className="text-foreground">
-                                        {formatPercentage(systemMetrics.data?.memory_usage)}
-                                    </span>
-                                </div>
-                                <Progress value={systemMetrics.data?.memory_usage || 0} className="h-2" />
-                            </div>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <span style={applyTypographyStyle('caption')} className="text-muted-foreground">
-                                        Disk Usage
-                                    </span>
-                                    <span style={applyTypographyStyle('subtitle')} className="text-foreground">
-                                        {formatPercentage(systemMetrics.data?.disk_usage)}
-                                    </span>
-                                </div>
-                                <Progress value={systemMetrics.data?.disk_usage || 0} className="h-2" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
 
-                {/* Recent Activity */}
-                <Card>
-                    <CardHeader className="pb-6">
-                        <CardTitle className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mr-4">
-                                    <Activity className="h-6 w-6 text-primary" />
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <AdminCaption>Memory Usage</AdminCaption>
+                                    <AdminBody>
+                                        {formatPercentage(systemMetrics.data?.memory_usage)}
+                                    </AdminBody>
+                                </div>
+                                <Progress 
+                                    value={systemMetrics.data?.memory_usage || 0} 
+                                    className="h-2"
+                                />
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <AdminCaption>Disk Usage</AdminCaption>
+                                    <AdminBody>
+                                        {formatPercentage(systemMetrics.data?.disk_usage)}
+                                    </AdminBody>
+                                </div>
+                                <Progress 
+                                    value={systemMetrics.data?.disk_usage || 0} 
+                                    className="h-2"
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <Users className="h-5 w-5 text-green-600" />
                                 </div>
                                 <div>
-                                    <h3 style={applyTypographyStyle('title')} className="text-foreground">
+                                    <AdminSubtitle>
                                         Recent Activity
-                                    </h3>
-                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                    </AdminSubtitle>
+                                    <AdminCaption>
                                         User interactions
-                                    </p>
+                                    </AdminCaption>
                                 </div>
-                            </div>
-                            <Button variant="ghost" size="sm">
-                                <ArrowUpRight className="h-4 w-4" />
-                            </Button>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {userActivity.data && userActivity.data.length > 0 ? (
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
                             <div className="space-y-4">
-                                {userActivity.data.slice(0, 5).map(user => (
-                                    <div key={user.user_id} className="flex items-center justify-between p-4 rounded-lg hover:bg-muted/50 transition-colors">
+                                {userActivity.data?.slice(0, 5).map((user, index) => (
+                                    <div key={user.user_id} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                                         <div className="flex items-center space-x-3">
                                             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                                                <span style={applyTypographyStyle('caption')} className="text-primary font-medium">
+                                                <span className="text-sm font-medium text-primary">
                                                     {user.username.charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
                                             <div>
-                                                <p style={applyTypographyStyle('subtitle')} className="text-foreground">
-                                                    {user.username}
-                                                </p>
-                                                <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                                <AdminBody>{user.username}</AdminBody>
+                                                <AdminCaption>
                                                     Last login: {user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}
-                                                </p>
+                                                </AdminCaption>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             {getStatusBadge(user.is_active, true)}
+                                            <AdminCaption className="mt-1">
+                                                {user.login_count} logins
+                                            </AdminCaption>
                                         </div>
                                     </div>
                                 ))}
+                                {userActivity.data && userActivity.data.length > 5 && (
+                                    <div className="text-center pt-2">
+                                        <button className="text-primary hover:text-primary/80 transition-colors">
+                                            <AdminCaption>
+                                                View All Activity
+                                            </AdminCaption>
+                                            <ArrowUpRight className="inline h-4 w-4 ml-1" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="text-center py-12">
-                                <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
-                                    <Activity className="h-8 w-8 text-muted-foreground" />
-                                </div>
-                                <h3 style={applyTypographyStyle('title')} className="text-foreground mb-2">
-                                    No Recent Activity
-                                </h3>
-                                <p style={applyTypographyStyle('body')} className="text-muted-foreground">
-                                    No user activity has been recorded recently.
-                                </p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AdminSectionErrorBoundary>
     );
-};
+});
 
 OverviewSection.displayName = 'OverviewSection';
 

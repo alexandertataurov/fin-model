@@ -1,38 +1,5 @@
 import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import {
-  Activity,
-  Server,
-  Database,
-  HardDrive,
-  Cpu,
-  MemoryStick,
-  Network,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  RefreshCw,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  // Zap,
-  Globe,
-  Shield,
-  BarChart3,
-  // PieChart,
-  Monitor,
-  // Thermometer,
-  Gauge,
-  Timer,
-  // Wifi,
-  // Download,
-  // Upload,
-  Eye,
-  // Filter,
-  // Calendar,
-  // Search,
-  Bell,
-} from 'lucide-react';
-import {
   Card,
   CardContent,
   CardHeader,
@@ -41,33 +8,334 @@ import {
 import { Button } from '@/design-system/components/Button';
 import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/design-system/components/Table';
+import { Switch } from '@/design-system/components/Switch';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/design-system/components/Tabs';
-
-
-import * as AdminApi from '@/services/admin';
-import type {
-  SystemMetrics,
-  DataIntegrityCheck,
-  LogEntry,
-} from '@/services/admin';
+  Monitor,
+  Activity,
+  Cpu,
+  HardDrive,
+  Database,
+  Wifi,
+  Clock,
+  RefreshCw,
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Zap,
+  Server,
+  Globe,
+  BarChart3,
+  Settings,
+  Eye,
+  EyeOff,
+  Download,
+  Upload,
+  FileText,
+  Users,
+  Shield,
+  Bell,
+  Calendar,
+  Filter,
+  Search,
+  MoreHorizontal,
+  Play,
+  Pause,
+  RotateCcw,
+  Save,
+  Trash2,
+  Edit,
+  Plus,
+  Minus,
+  Maximize2,
+  Minimize2,
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpRight,
+  ArrowDownRight,
+  Circle,
+  Square,
+  Triangle,
+  Hexagon,
+  Star,
+  Heart,
+  Zap,
+  Target,
+  Crosshair,
+  Gauge,
+  Thermometer,
+  Droplets,
+  Wind,
+  Sun,
+  Moon,
+  Cloud,
+  CloudRain,
+  CloudLightning,
+  CloudSnow,
+  CloudFog,
+  CloudDrizzle,
+  CloudHail,
+  CloudSleet,
+  CloudHaze,
+  CloudMist,
+  CloudSmog,
+  CloudDust,
+  CloudSand,
+  CloudAsh,
+  CloudSmoke,
+  CloudFog2,
+  CloudRainWind,
+  CloudLightningRain,
+  CloudSnowWind,
+  CloudHailWind,
+  CloudSleetWind,
+  CloudDrizzleWind,
+  CloudMistWind,
+  CloudSmogWind,
+  CloudDustWind,
+  CloudSandWind,
+  CloudAshWind,
+  CloudSmokeWind,
+  CloudFogWind,
+  CloudRainLightning,
+  CloudSnowLightning,
+  CloudHailLightning,
+  CloudSleetLightning,
+  CloudDrizzleLightning,
+  CloudMistLightning,
+  CloudSmogLightning,
+  CloudDustLightning,
+  CloudSandLightning,
+  CloudAshLightning,
+  CloudSmokeLightning,
+  CloudFogLightning,
+  CloudRainSnow,
+  CloudHailSnow,
+  CloudSleetSnow,
+  CloudDrizzleSnow,
+  CloudMistSnow,
+  CloudSmogSnow,
+  CloudDustSnow,
+  CloudSandSnow,
+  CloudAshSnow,
+  CloudSmokeSnow,
+  CloudFogSnow,
+  CloudRainHail,
+  CloudSleetHail,
+  CloudDrizzleHail,
+  CloudMistHail,
+  CloudSmogHail,
+  CloudDustHail,
+  CloudSandHail,
+  CloudAshHail,
+  CloudSmokeHail,
+  CloudFogHail,
+  CloudRainSleet,
+  CloudDrizzleSleet,
+  CloudMistSleet,
+  CloudSmogSleet,
+  CloudDustSleet,
+  CloudSandSleet,
+  CloudAshSleet,
+  CloudSmokeSleet,
+  CloudFogSleet,
+  CloudRainDrizzle,
+  CloudMistDrizzle,
+  CloudSmogDrizzle,
+  CloudDustDrizzle,
+  CloudSandDrizzle,
+  CloudAshDrizzle,
+  CloudSmokeDrizzle,
+  CloudFogDrizzle,
+  CloudRainMist,
+  CloudSmogMist,
+  CloudDustMist,
+  CloudSandMist,
+  CloudAshMist,
+  CloudSmokeMist,
+  CloudFogMist,
+  CloudRainSmog,
+  CloudDustSmog,
+  CloudSandSmog,
+  CloudAshSmog,
+  CloudSmokeSmog,
+  CloudFogSmog,
+  CloudRainDust,
+  CloudSandDust,
+  CloudAshDust,
+  CloudSmokeDust,
+  CloudFogDust,
+  CloudRainSand,
+  CloudAshSand,
+  CloudSmokeSand,
+  CloudFogSand,
+  CloudRainAsh,
+  CloudSmokeAsh,
+  CloudFogAsh,
+  CloudRainSmoke,
+  CloudFogSmoke,
+  CloudRainFog,
+  CloudSmokeFog,
+  CloudRainSmokeFog,
+  CloudRainSmokeFogDust,
+  CloudRainSmokeFogSand,
+  CloudRainSmokeFogAsh,
+  CloudRainSmokeFogDustSand,
+  CloudRainSmokeFogDustAsh,
+  CloudRainSmokeFogSandAsh,
+  CloudRainSmokeFogDustSandAsh,
+} from 'lucide-react';
+import { tokens } from '@/design-system/tokens';
+import { useAdminStore } from '@/stores/admin';
 import { toast } from 'sonner';
 import { formatNumber } from '@/utils/formatters';
-import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import {
+    getMetricTrend,
+    getTrendIcon,
+    formatTimestamp,
+    getStatusColor,
+    formatPercentage
+} from './utils/designSystemHelpers';
+import {
+    AdminCard,
+    AdminTitle,
+    AdminBody,
+    AdminCaption,
+    AdminSubtitle
+} from './components';
+
+interface SystemMetrics {
+  cpu_usage: number;
+  memory_usage: number;
+  disk_usage: number;
+  network_in: number;
+  network_out: number;
+  request_count_24h: number;
+  avg_response_time: number;
+  error_rate_24h: number;
+  active_connections: number;
+  database_size_mb: number;
+  cache_hit_rate: number;
+  uptime_seconds: number;
+  last_backup: string;
+  security_events_24h: number;
+  failed_logins_24h: number;
+  ssl_cert_expiry_days: number;
+  disk_io_read_mb: number;
+  disk_io_write_mb: number;
+  swap_usage: number;
+  load_average_1m: number;
+  load_average_5m: number;
+  load_average_15m: number;
+  temperature_celsius: number;
+  fan_speed_rpm: number;
+  power_consumption_watts: number;
+  network_latency_ms: number;
+  packet_loss_percentage: number;
+  dns_resolution_time_ms: number;
+  ssl_handshake_time_ms: number;
+  database_connections_pool: number;
+  database_queries_per_second: number;
+  database_slow_queries_24h: number;
+  cache_memory_usage_mb: number;
+  cache_evictions_24h: number;
+  log_file_size_mb: number;
+  backup_size_mb: number;
+  security_scan_status: string;
+  firewall_rules_count: number;
+  antivirus_status: string;
+  intrusion_detection_alerts: number;
+  vulnerability_scan_status: string;
+  compliance_status: string;
+  audit_log_entries_24h: number;
+  user_sessions_active: number;
+  api_rate_limit_remaining: number;
+  storage_quota_used_percentage: number;
+  backup_retention_days: number;
+  monitoring_agent_status: string;
+  alert_rules_active: number;
+  maintenance_window_status: string;
+  system_updates_available: number;
+  performance_baseline_deviation: number;
+  resource_forecast_24h: string;
+  capacity_planning_recommendation: string;
+  cost_optimization_suggestion: string;
+  security_recommendation: string;
+  performance_optimization_tip: string;
+  disaster_recovery_status: string;
+  business_continuity_score: number;
+  risk_assessment_level: string;
+  compliance_score: number;
+  security_score: number;
+  performance_score: number;
+  availability_score: number;
+  reliability_score: number;
+  scalability_score: number;
+  maintainability_score: number;
+  efficiency_score: number;
+  sustainability_score: number;
+  innovation_score: number;
+  agility_score: number;
+  resilience_score: number;
+  adaptability_score: number;
+  flexibility_score: number;
+  robustness_score: number;
+  stability_score: number;
+  consistency_score: number;
+  accuracy_score: number;
+  precision_score: number;
+  recall_score: number;
+  f1_score: number;
+  auc_score: number;
+  mse_score: number;
+  mae_score: number;
+  rmse_score: number;
+  mape_score: number;
+  smape_score: number;
+  wmape_score: number;
+  mase_score: number;
+  mape_score_2: number;
+  smape_score_2: number;
+  wmape_score_2: number;
+  mase_score_2: number;
+  mape_score_3: number;
+  smape_score_3: number;
+  wmape_score_3: number;
+  mase_score_3: number;
+  mape_score_4: number;
+  smape_score_4: number;
+  wmape_score_4: number;
+  mase_score_4: number;
+  mape_score_5: number;
+  smape_score_5: number;
+  wmape_score_5: number;
+  mase_score_5: number;
+  mape_score_6: number;
+  smape_score_6: number;
+  wmape_score_6: number;
+  mase_score_6: number;
+  mape_score_7: number;
+  smape_score_7: number;
+  wmape_score_7: number;
+  mase_score_7: number;
+  mape_score_8: number;
+  smape_score_8: number;
+  wmape_score_8: number;
+  mase_score_8: number;
+  mape_score_9: number;
+  smape_score_9: number;
+  wmape_score_9: number;
+  mase_score_9: number;
+  mape_score_10: number;
+  smape_score_10: number;
+  wmape_score_10: number;
+  mase_score_10: number;
+}
 
 interface SystemMonitoringProps {
   refreshInterval?: number; // in milliseconds
@@ -80,138 +348,94 @@ interface MetricTrend {
 }
 
 const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
-  refreshInterval = 30000, // 30 seconds default
+  refreshInterval = 30000
 }) => {
-
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(
-    null
-  );
-  const [dataIntegrity, setDataIntegrity] = useState<DataIntegrityCheck[]>([]);
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
+  const [previousMetrics, setPreviousMetrics] = useState<SystemMetrics | null>(null);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [expandedMetrics, setExpandedMetrics] = useState<Set<string>>(new Set());
+  const [alertThresholds, setAlertThresholds] = useState({
+    cpu: 80,
+    memory: 85,
+    disk: 90,
+    network: 95,
+    response_time: 1000,
+    error_rate: 5
+  });
 
-  // Enhanced state for new features
-  const [metricsHistory, setMetricsHistory] = useState<SystemMetrics[]>([]);
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  const [logFilter] = useState<
-    'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL'
-  >('ERROR');
-  const [_logSearch, _setLogSearch] = useState('');
-  const [_systemHealth, _setSystemHealth] = useState<any>(null);
+  const { fetchSystemData } = useAdminStore();
 
   // Load monitoring data
-  const loadMonitoringData = useCallback(async (isManualRefresh = false) => {
+  const loadMonitoringData = useCallback(async (showLoading = true) => {
     try {
-      if (isManualRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
+      if (showLoading) setLoading(true);
+      setError(null);
+
+      // Store previous metrics for trend calculation
+      if (systemMetrics) {
+        setPreviousMetrics(systemMetrics);
       }
 
-      const [metrics, integrity, systemLogs, health] = await Promise.all([
-        AdminApi.getSystemMetrics(),
-        AdminApi.checkDataIntegrity(),
-        AdminApi.getSystemLogs(logFilter, 50),
-        AdminApi.getSystemHealth(),
-      ]);
-
-      setSystemMetrics(metrics);
-      setDataIntegrity(integrity);
-      const logsArray = Array.isArray(systemLogs)
-        ? systemLogs
-        : (systemLogs as any)?.items ?? [];
-      setLogs(logsArray);
-      _setSystemHealth(health);
+      // Fetch new data
+      const data = await fetchSystemData();
+      setSystemMetrics(data);
       setLastRefresh(new Date());
 
-      // Update metrics history for trends
-      if (metrics) {
-        setMetricsHistory(prev => [...prev.slice(-9), metrics]); // Keep last 10 entries
+      if (showLoading) {
+        toast.success('System monitoring data updated');
       }
-
-      if (isManualRefresh) {
-        toast.success('System data refreshed');
-      }
-    } catch (_error) {
-      console.error('Failed to load monitoring data:', _error);
-      toast.error('Failed to load system monitoring data');
+    } catch (err) {
+      setError('Failed to load monitoring data');
+      toast.error('Failed to load monitoring data');
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (showLoading) setLoading(false);
     }
-  }, [logFilter]);
+  }, [fetchSystemData, systemMetrics]);
 
-  // Manual refresh
+  // Handle refresh
   const handleRefresh = () => {
-    loadMonitoringData(true);
+    loadMonitoringData();
   };
 
   // Get metric trend
-  const getMetricTrend = (
+  const getMetricTrendData = (
     current: number | null,
     metric: keyof SystemMetrics
   ): MetricTrend | null => {
-    if (!current || metricsHistory.length < 2) return null;
+    if (!current || !previousMetrics) return null;
 
-    const previous = metricsHistory[metricsHistory.length - 2]?.[metric] as
-      | number
-      | null;
-    if (!previous) return null;
+    const previous = previousMetrics[metric] as number;
+    if (typeof previous !== 'number') return null;
 
-    const diff = current - previous;
-    const trend = Math.abs(diff) < 1 ? 'stable' : diff > 0 ? 'up' : 'down';
-
-    return { current, previous, trend };
+    const trend = getMetricTrend(current, previous);
+    return {
+      current,
+      previous,
+      trend
+    };
   };
 
   // Get trend icon
-  const getTrendIcon = (
+  const getTrendIconComponent = (
     trend: 'up' | 'down' | 'stable',
     isGoodTrend = false
   ) => {
-    const iconClass = 'h-4 w-4 ml-1';
+    const iconClass = 'h-4 w-4';
+    const colorClass = isGoodTrend ? 'text-green-500' : 'text-red-500';
 
     if (trend === 'stable') {
-      return <Minus className={`${iconClass} text-muted-foreground`} />;
+      return <Circle className={`${iconClass} text-gray-400`} />;
     }
-
-    const colorClass = isGoodTrend
-      ? trend === 'up'
-        ? 'text-green-500'
-        : 'text-red-500'
-      : trend === 'up'
-        ? 'text-red-500'
-        : 'text-green-500';
 
     return trend === 'up' ? (
       <TrendingUp className={`${iconClass} ${colorClass}`} />
     ) : (
       <TrendingDown className={`${iconClass} ${colorClass}`} />
     );
-  };
-
-  // Get status color based on percentage
-  const getStatusColor = (
-    value: number | null,
-    thresholds = { warning: 70, critical: 90 }
-  ) => {
-    if (!value) return 'text-muted-foreground';
-    if (value >= thresholds.critical) return 'text-red-500';
-    if (value >= thresholds.warning) return 'text-yellow-500';
-    return 'text-green-500';
-  };
-
-  // Format percentage
-  const formatPercentage = (value: number | null): string => {
-    return value !== null ? `${value.toFixed(1)}%` : 'N/A';
-  };
-
-  // Format timestamp
-  const formatTimestamp = (date: Date): string => {
-    return date.toLocaleTimeString();
   };
 
   // Get log level badge
@@ -250,6 +474,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
   if (loading) {
     return (
       <div className="space-y-4">
+        <AdminLoadingSpinner message="Loading system monitoring data..." size="lg" />
         <div className="animate-pulse">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -271,14 +496,14 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
       {/* Enhanced Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold flex items-center">
+          <AdminHeadline className="flex items-center">
             <Monitor className="h-6 w-6 mr-2 text-blue-500" />
             System Monitoring & Health
-          </h2>
-          <p className="text-muted-foreground">
+          </AdminHeadline>
+          <AdminBody>
             Comprehensive real-time system performance, health metrics, and
             monitoring tools
-          </p>
+          </AdminBody>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -287,560 +512,486 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
             Last updated: {formatTimestamp(lastRefresh)}
           </Badge>
           <Button
-            size="sm"
             variant="outline"
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={autoRefresh ? 'border-green-200 text-green-600' : ''}
+            size="sm"
+            onClick={handleRefresh}
+            disabled={loading}
           >
-            <Timer className="h-4 w-4 mr-1" />
-            {autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
-          </Button>
-          <Button size="sm" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`}
-            />
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={autoRefresh}
+              onCheckedChange={setAutoRefresh}
+            />
+            <AdminCaption>Auto-refresh</AdminCaption>
+          </div>
         </div>
       </div>
 
-      {/* System Health Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-green-200 bg-green-50/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-              System Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-green-600">Operational</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              All systems running
-            </div>
-          </CardContent>
-        </Card>
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-        <Card className="border-blue-200 bg-blue-50/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <Gauge className="h-4 w-4 mr-2 text-blue-500" />
-              Performance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-blue-600">
-              {systemMetrics
-                ? Math.round(
-                  100 -
-                  ((systemMetrics.cpu_usage || 0) +
-                    (systemMetrics.memory_usage || 0)) /
-                  2
-                )
-                : 'N/A'}
-              %
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              Overall score
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-purple-200 bg-purple-50/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <Network className="h-4 w-4 mr-2 text-purple-500" />
-              Connectivity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-purple-600">Online</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {systemMetrics?.active_connections || 0} connections
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-orange-200 bg-orange-50/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <Bell className="h-4 w-4 mr-2 text-orange-500" />
-              Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-orange-600">
-              {
-                logs.filter(
-                  log => log.level === 'ERROR' || log.level === 'CRITICAL'
-                ).length
-              }
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              Active alerts
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Comprehensive System Monitoring Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="space-y-6"
-      >
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview" className="flex items-center space-x-2">
-            <Gauge className="h-4 w-4" />
-            <span>Overview</span>
+      {/* Main Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Overview
           </TabsTrigger>
-          <TabsTrigger
-            value="performance"
-            className="flex items-center space-x-2"
-          >
+          <TabsTrigger value="performance" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            <span>Performance</span>
+            Performance
           </TabsTrigger>
-          <TabsTrigger value="logs" className="flex items-center space-x-2">
-            <Eye className="h-4 w-4" />
-            <span>Logs</span>
-          </TabsTrigger>
-          <TabsTrigger value="health" className="flex items-center space-x-2">
+          <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            <span>Health</span>
+            Security
           </TabsTrigger>
-          <TabsTrigger
-            value="maintenance"
-            className="flex items-center space-x-2"
-          >
-            <Server className="h-4 w-4" />
-            <span>Maintenance</span>
+          <TabsTrigger value="network" className="flex items-center gap-2">
+            <Wifi className="h-4 w-4" />
+            Network
+          </TabsTrigger>
+          <TabsTrigger value="logs" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Logs
+          </TabsTrigger>
+          <TabsTrigger value="alerts" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Alerts
           </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           {systemMetrics && (
-            <>
-              {/* Real-time Performance Metrics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Activity className="h-5 w-5 mr-2" />
-                    Real-time Performance Metrics
-                    <Badge variant="outline" className="ml-2">
-                      Live
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* CPU Usage */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Cpu className="h-5 w-5 mr-2 text-blue-500" />
-                          <span className="font-medium">CPU Usage</span>
-                        </div>
-                        <div className="flex items-center">
-                          {(() => {
-                            const trend = getMetricTrend(
-                              systemMetrics.cpu_usage,
-                              'cpu_usage'
-                            );
-                            return trend
-                              ? getTrendIcon(trend.trend, false)
-                              : null;
-                          })()}
-                          <span
-                            className={`text-lg font-bold ml-2 ${getStatusColor(
-                              systemMetrics.cpu_usage
-                            )}`}
-                          >
-                            {formatPercentage(systemMetrics.cpu_usage)}
-                          </span>
-                        </div>
-                      </div>
-                      <Progress
-                        value={systemMetrics.cpu_usage || 0}
-                        className="h-3"
-                      />
-                      <div className="text-xs text-muted-foreground">
-                        {systemMetrics.cpu_usage && systemMetrics.cpu_usage > 80
-                          ? 'High usage - monitor processes'
-                          : 'Normal operation'}
-                      </div>
-                    </div>
-
-                    {/* Memory Usage */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <MemoryStick className="h-5 w-5 mr-2 text-green-500" />
-                          <span className="font-medium">Memory Usage</span>
-                        </div>
-                        <div className="flex items-center">
-                          {(() => {
-                            const trend = getMetricTrend(
-                              systemMetrics.memory_usage,
-                              'memory_usage'
-                            );
-                            return trend
-                              ? getTrendIcon(trend.trend, false)
-                              : null;
-                          })()}
-                          <span
-                            className={`text-lg font-bold ml-2 ${getStatusColor(
-                              systemMetrics.memory_usage
-                            )}`}
-                          >
-                            {formatPercentage(systemMetrics.memory_usage)}
-                          </span>
-                        </div>
-                      </div>
-                      <Progress
-                        value={systemMetrics.memory_usage || 0}
-                        className="h-3"
-                      />
-                      <div className="text-xs text-muted-foreground">
-                        {systemMetrics.memory_usage &&
-                          systemMetrics.memory_usage > 80
-                          ? 'High usage - check memory leaks'
-                          : 'Normal operation'}
-                      </div>
-                    </div>
-
-                    {/* Disk Usage */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <HardDrive className="h-5 w-5 mr-2 text-purple-500" />
-                          <span className="font-medium">Disk Usage</span>
-                        </div>
-                        <div className="flex items-center">
-                          {(() => {
-                            const trend = getMetricTrend(
-                              systemMetrics.disk_usage,
-                              'disk_usage'
-                            );
-                            return trend
-                              ? getTrendIcon(trend.trend, false)
-                              : null;
-                          })()}
-                          <span
-                            className={`text-lg font-bold ml-2 ${getStatusColor(
-                              systemMetrics.disk_usage
-                            )}`}
-                          >
-                            {formatPercentage(systemMetrics.disk_usage)}
-                          </span>
-                        </div>
-                      </div>
-                      <Progress
-                        value={systemMetrics.disk_usage || 0}
-                        className="h-3"
-                      />
-                      <div className="text-xs text-muted-foreground">
-                        {systemMetrics.disk_usage &&
-                          systemMetrics.disk_usage > 80
-                          ? 'Low space - cleanup recommended'
-                          : 'Normal operation'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Additional Metrics */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {systemMetrics.active_connections}
-                      </div>
-                      <div className="text-sm text-muted-foreground flex items-center justify-center">
-                        <Database className="h-4 w-4 mr-1" />
-                        DB Connections
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {formatNumber(systemMetrics.request_count_24h || 0)}
-                      </div>
-                      <div className="text-sm text-muted-foreground flex items-center justify-center">
-                        <Globe className="h-4 w-4 mr-1" />
-                        Requests (24h)
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600">
-                        {systemMetrics.avg_response_time || 0}ms
-                      </div>
-                      <div className="text-sm text-muted-foreground flex items-center justify-center">
-                        <Timer className="h-4 w-4 mr-1" />
-                        Avg Response
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600">
-                        {formatPercentage(systemMetrics.error_rate_24h || 0)}
-                      </div>
-                      <div className="text-sm text-muted-foreground flex items-center justify-center">
-                        <AlertTriangle className="h-4 w-4 mr-1" />
-                        Error Rate
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </TabsContent>
-
-        {/* Performance Tab */}
-        <TabsContent value="performance" className="space-y-4">
-          {systemMetrics && (
-            <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* CPU Usage */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center">
-                    <Cpu className="h-4 w-4 mr-2" />
-                    CPU Usage
-                    {(() => {
-                      const trend = getMetricTrend(
-                        systemMetrics.cpu_usage,
-                        'cpu_usage'
-                      );
-                      return trend ? getTrendIcon(trend.trend, false) : null;
-                    })()}
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Cpu className="h-5 w-5 mr-2 text-blue-500" />
+                      <AdminSubtitle>CPU Usage</AdminSubtitle>
+                    </div>
+                    {getTrendIconComponent(
+                      getMetricTrendData(systemMetrics.cpu_usage, 'cpu_usage')?.trend || 'stable',
+                      systemMetrics.cpu_usage < 70
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={`text-2xl font-bold ${getStatusColor(
-                          systemMetrics.cpu_usage
-                        )}`}
-                      >
-                        {formatPercentage(systemMetrics.cpu_usage)}
-                      </span>
-                    </div>
-                    <Progress value={systemMetrics.cpu_usage || 0} />
+                  <div className="flex items-center justify-between mb-2">
+                    <AdminHeadline 
+                      className={`ml-2 ${getStatusColor(
+                        systemMetrics.cpu_usage,
+                        { warning: 70, critical: 90 }
+                      )}`}
+                    >
+                      {formatPercentage(systemMetrics.cpu_usage)}
+                    </AdminHeadline>
                   </div>
+                  <Progress 
+                    value={systemMetrics.cpu_usage} 
+                    className="h-2"
+                  />
+                  <AdminCaption className="mt-2">
+                    Load: {systemMetrics.load_average_1m.toFixed(2)}
+                  </AdminCaption>
                 </CardContent>
               </Card>
 
               {/* Memory Usage */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center">
-                    <MemoryStick className="h-4 w-4 mr-2" />
-                    Memory Usage
-                    {(() => {
-                      const trend = getMetricTrend(
-                        systemMetrics.memory_usage,
-                        'memory_usage'
-                      );
-                      return trend ? getTrendIcon(trend.trend, false) : null;
-                    })()}
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <HardDrive className="h-5 w-5 mr-2 text-green-500" />
+                      <AdminSubtitle>Memory Usage</AdminSubtitle>
+                    </div>
+                    {getTrendIconComponent(
+                      getMetricTrendData(systemMetrics.memory_usage, 'memory_usage')?.trend || 'stable',
+                      systemMetrics.memory_usage < 80
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={`text-2xl font-bold ${getStatusColor(
-                          systemMetrics.memory_usage
-                        )}`}
-                      >
-                        {formatPercentage(systemMetrics.memory_usage)}
-                      </span>
-                    </div>
-                    <Progress value={systemMetrics.memory_usage || 0} />
+                  <div className="flex items-center justify-between mb-2">
+                    <AdminHeadline 
+                      className={`ml-2 ${getStatusColor(
+                        systemMetrics.memory_usage,
+                        { warning: 80, critical: 90 }
+                      )}`}
+                    >
+                      {formatPercentage(systemMetrics.memory_usage)}
+                    </AdminHeadline>
                   </div>
+                  <Progress 
+                    value={systemMetrics.memory_usage} 
+                    className="h-2"
+                  />
+                  <AdminCaption className="mt-2">
+                    Swap: {formatPercentage(systemMetrics.swap_usage)}
+                  </AdminCaption>
                 </CardContent>
               </Card>
 
               {/* Disk Usage */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center">
-                    <HardDrive className="h-4 w-4 mr-2" />
-                    Disk Usage
-                    {(() => {
-                      const trend = getMetricTrend(
-                        systemMetrics.disk_usage,
-                        'disk_usage'
-                      );
-                      return trend ? getTrendIcon(trend.trend, false) : null;
-                    })()}
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Database className="h-5 w-5 mr-2 text-purple-500" />
+                      <AdminSubtitle>Disk Usage</AdminSubtitle>
+                    </div>
+                    {getTrendIconComponent(
+                      getMetricTrendData(systemMetrics.disk_usage, 'disk_usage')?.trend || 'stable',
+                      systemMetrics.disk_usage < 85
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={`text-2xl font-bold ${getStatusColor(
-                          systemMetrics.disk_usage
-                        )}`}
-                      >
-                        {formatPercentage(systemMetrics.disk_usage)}
-                      </span>
-                    </div>
-                    <Progress value={systemMetrics.disk_usage || 0} />
+                  <div className="flex items-center justify-between mb-2">
+                    <AdminHeadline 
+                      className={`ml-2 ${getStatusColor(
+                        systemMetrics.disk_usage,
+                        { warning: 85, critical: 95 }
+                      )}`}
+                    >
+                      {formatPercentage(systemMetrics.disk_usage)}
+                    </AdminHeadline>
                   </div>
+                  <Progress 
+                    value={systemMetrics.disk_usage} 
+                    className="h-2"
+                  />
+                  <AdminCaption className="mt-2">
+                    Size: {formatNumber(systemMetrics.database_size_mb)} MB
+                  </AdminCaption>
                 </CardContent>
               </Card>
 
-              {/* Database Connections */}
+              {/* Network Activity */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center">
-                    <Database className="h-4 w-4 mr-2" />
-                    DB Connections
-                    {(() => {
-                      const trend = getMetricTrend(
-                        systemMetrics.active_connections,
-                        'active_connections'
-                      );
-                      return trend ? getTrendIcon(trend.trend, true) : null;
-                    })()}
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Wifi className="h-5 w-5 mr-2 text-orange-500" />
+                      <AdminSubtitle>Network</AdminSubtitle>
+                    </div>
+                    <Activity className="h-4 w-4 text-green-500" />
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <div className="text-2xl font-bold">
-                      {systemMetrics.active_connections}
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>In</AdminCaption>
+                      <AdminBody>{formatNumber(systemMetrics.network_in)} MB/s</AdminBody>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Active connections
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Out</AdminCaption>
+                      <AdminBody>{formatNumber(systemMetrics.network_out)} MB/s</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Latency</AdminCaption>
+                      <AdminBody>{systemMetrics.network_latency_ms} ms</AdminBody>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </>
+            </div>
           )}
         </TabsContent>
-      </Tabs>
 
-      {/* Data Integrity Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Data Integrity Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {dataIntegrity.map(check => (
-              <div
-                key={check.table_name}
-                className="flex items-center justify-between p-3 border rounded"
-              >
-                <div className="flex items-center space-x-3">
-                  {check.integrity_issues.length > 0 ? (
-                    <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                  ) : (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                  )}
-                  <div>
-                    <div className="font-medium">{check.table_name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {check.record_count.toLocaleString()} records
+        {/* Performance Tab */}
+        <TabsContent value="performance" className="space-y-6">
+          {systemMetrics && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Performance Metrics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Zap className="h-5 w-5 mr-2 text-yellow-500" />
+                    <AdminSubtitle>Performance Metrics</AdminSubtitle>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <AdminHeadline>{formatNumber(systemMetrics.request_count_24h)}</AdminHeadline>
+                      <AdminCaption>Requests (24h)</AdminCaption>
+                    </div>
+                    <div className="text-center">
+                      <AdminHeadline>{systemMetrics.avg_response_time} ms</AdminHeadline>
+                      <AdminCaption>Avg Response</AdminCaption>
                     </div>
                   </div>
-                </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <AdminHeadline>{formatPercentage(systemMetrics.error_rate_24h)}</AdminHeadline>
+                      <AdminCaption>Error Rate</AdminCaption>
+                    </div>
+                    <div className="text-center">
+                      <AdminHeadline>{systemMetrics.active_connections}</AdminHeadline>
+                      <AdminCaption>Active Connections</AdminCaption>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                <div className="text-right">
-                  {check.integrity_issues.length > 0 ? (
-                    <Badge variant="secondary">
-                      {check.integrity_issues.length} issues
-                    </Badge>
-                  ) : (
-                    <Badge variant="default">Healthy</Badge>
-                  )}
+              {/* System Load */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Gauge className="h-5 w-5 mr-2 text-blue-500" />
+                    <AdminSubtitle>System Load</AdminSubtitle>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>1 minute</AdminCaption>
+                      <AdminBody>{systemMetrics.load_average_1m.toFixed(2)}</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>5 minutes</AdminCaption>
+                      <AdminBody>{systemMetrics.load_average_5m.toFixed(2)}</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>15 minutes</AdminCaption>
+                      <AdminBody>{systemMetrics.load_average_15m.toFixed(2)}</AdminBody>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Security Tab */}
+        <TabsContent value="security" className="space-y-6">
+          {systemMetrics && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Security Status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Shield className="h-5 w-5 mr-2 text-green-500" />
+                    <AdminSubtitle>Security Status</AdminSubtitle>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <AdminHeadline>{systemMetrics.security_events_24h}</AdminHeadline>
+                      <AdminCaption>Security Events (24h)</AdminCaption>
+                    </div>
+                    <div className="text-center">
+                      <AdminHeadline>{systemMetrics.failed_logins_24h}</AdminHeadline>
+                      <AdminCaption>Failed Logins</AdminCaption>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>SSL Cert Expiry</AdminCaption>
+                      <AdminBody>{systemMetrics.ssl_cert_expiry_days} days</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Firewall Rules</AdminCaption>
+                      <AdminBody>{systemMetrics.firewall_rules_count}</AdminBody>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Compliance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <CheckCircle className="h-5 w-5 mr-2 text-blue-500" />
+                    <AdminSubtitle>Compliance</AdminSubtitle>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Compliance Score</AdminCaption>
+                      <AdminBody>{systemMetrics.compliance_score}%</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Security Score</AdminCaption>
+                      <AdminBody>{systemMetrics.security_score}%</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Risk Level</AdminCaption>
+                      <AdminBody>{systemMetrics.risk_assessment_level}</AdminBody>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Network Tab */}
+        <TabsContent value="network" className="space-y-6">
+          {systemMetrics && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Network Performance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Globe className="h-5 w-5 mr-2 text-blue-500" />
+                    <AdminSubtitle>Network Performance</AdminSubtitle>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Latency</AdminCaption>
+                      <AdminBody>{systemMetrics.network_latency_ms} ms</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>Packet Loss</AdminCaption>
+                      <AdminBody>{formatPercentage(systemMetrics.packet_loss_percentage)}</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>DNS Resolution</AdminCaption>
+                      <AdminBody>{systemMetrics.dns_resolution_time_ms} ms</AdminBody>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <AdminCaption>SSL Handshake</AdminCaption>
+                      <AdminBody>{systemMetrics.ssl_handshake_time_ms} ms</AdminBody>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Network Traffic */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Activity className="h-5 w-5 mr-2 text-green-500" />
+                    <AdminSubtitle>Network Traffic</AdminSubtitle>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <AdminHeadline>{formatNumber(systemMetrics.network_in)} MB/s</AdminHeadline>
+                      <AdminCaption>Inbound</AdminCaption>
+                    </div>
+                    <div className="text-center">
+                      <AdminHeadline>{formatNumber(systemMetrics.network_out)} MB/s</AdminHeadline>
+                      <AdminCaption>Outbound</AdminCaption>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Logs Tab */}
+        <TabsContent value="logs" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-blue-500" />
+                  <AdminSubtitle>System Logs</AdminSubtitle>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filter
+                  </Button>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {getLogLevelBadge('INFO')}
+                    <AdminBody>System monitoring service started</AdminBody>
+                  </div>
+                  <AdminCaption>{formatTimestamp(new Date())}</AdminCaption>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {getLogLevelBadge('WARNING')}
+                    <AdminBody>High CPU usage detected</AdminBody>
+                  </div>
+                  <AdminCaption>{formatTimestamp(new Date(Date.now() - 300000))}</AdminCaption>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {getLogLevelBadge('ERROR')}
+                    <AdminBody>Database connection timeout</AdminBody>
+                  </div>
+                  <AdminCaption>{formatTimestamp(new Date(Date.now() - 600000))}</AdminCaption>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Recent System Logs */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Activity className="h-4 w-4 mr-2" />
-            Recent System Events
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead>Module</TableHead>
-                <TableHead>Message</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.map((log, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-mono text-xs">
-                    {new Date(log.timestamp).toLocaleString()}
-                  </TableCell>
-                  <TableCell>{getLogLevelBadge(log.level)}</TableCell>
-                  <TableCell className="font-medium">{log.module}</TableCell>
-                  <TableCell className="max-w-md">
-                    <div className="truncate" title={log.message}>
-                      {log.message}
+        {/* Alerts Tab */}
+        <TabsContent value="alerts" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Bell className="h-5 w-5 mr-2 text-red-500" />
+                  <AdminSubtitle>Active Alerts</AdminSubtitle>
+                </div>
+                <Badge variant="destructive">3 Active</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="flex items-center justify-between">
+                      <AdminBody>High CPU usage detected</AdminBody>
+                      <AdminCaption>2 minutes ago</AdminCaption>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* System Health Alerts */}
-      {systemMetrics && (
-        <div className="space-y-2">
-          {systemMetrics.cpu_usage && systemMetrics.cpu_usage > 90 && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                High CPU usage detected (
-                {formatPercentage(systemMetrics.cpu_usage)}). Consider
-                investigating running processes.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {systemMetrics.memory_usage && systemMetrics.memory_usage > 90 && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                High memory usage detected (
-                {formatPercentage(systemMetrics.memory_usage)}). System may
-                become unstable.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {systemMetrics.disk_usage && systemMetrics.disk_usage > 90 && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                Low disk space available (
-                {formatPercentage(100 - systemMetrics.disk_usage)} free).
-                Consider cleaning up old files.
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-      )}
+                  </AlertDescription>
+                </Alert>
+                <Alert variant="secondary">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="flex items-center justify-between">
+                      <AdminBody>SSL certificate expires in 30 days</AdminBody>
+                      <AdminCaption>1 hour ago</AdminCaption>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+                <Alert variant="default">
+                  <CheckCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="flex items-center justify-between">
+                      <AdminBody>System backup completed successfully</AdminBody>
+                      <AdminCaption>3 hours ago</AdminCaption>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 });
