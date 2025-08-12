@@ -1,6 +1,6 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Title, Stories, Description, Controls, Canvas } from '@storybook/blocks';
+import { Title, Stories, Controls, Canvas } from '@storybook/blocks';
 import {
     AnimatedBanner,
     Container,
@@ -10,73 +10,225 @@ import {
 } from '../../design-system/stories/components';
 import { Settings, Loader2, Database, Users, Wrench, Monitor, FileText, Palette } from 'lucide-react';
 
-// Lazy load heavy components to prevent freezing
-const DataManagement = lazy(() => import('../../components/AdminDashboard/DataManagement'));
-const DashboardCustomization = lazy(() => import('../../components/AdminDashboard/DashboardCustomization').then(module => ({ default: module.DashboardCustomization })));
-const MaintenanceTools = lazy(() => import('../../components/AdminDashboard/MaintenanceTools').then(module => ({ default: module.MaintenanceTools })));
-const UserManagement = lazy(() => import('../../components/AdminDashboard/UserManagement'));
-const SystemMonitoring = lazy(() => import('../../components/AdminDashboard/SystemMonitoring'));
-const LogFilterForm = lazy(() => import('../../components/AdminDashboard/LogFilterForm'));
+// Performance monitoring utility
+const usePerformanceMonitor = (componentName: string) => {
+    const renderCount = useRef(0);
+    const startTime = useRef(performance.now());
 
-// Pre-computed typography styles to prevent re-computation
-const subtitleStyle = applyTypographyStyle('subtitle');
-const bodyStyle = applyTypographyStyle('body');
+    useEffect(() => {
+        renderCount.current++;
+        const endTime = performance.now();
+        const renderTime = endTime - startTime.current;
 
-// Enhanced icon component with design system principles
+        if (renderTime > 16) { // 60fps threshold
+            console.warn(`[Performance] ${componentName} render took ${renderTime.toFixed(2)}ms (render #${renderCount.current})`);
+        }
+
+        startTime.current = performance.now();
+    });
+};
+
+// Error boundary for component isolation
+class ComponentErrorBoundary extends React.Component<
+    { children: React.ReactNode; fallback?: React.ReactNode },
+    { hasError: boolean; error?: Error }
+> {
+    constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        console.error('Component Error Boundary caught error:', error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return this.props.fallback || (
+                <div className="p-4 border border-red-200 bg-red-50 rounded-md">
+                    <h3 className="text-red-800 font-medium">Component Error</h3>
+                    <p className="text-red-600 text-sm mt-1">
+                        {this.state.error?.message || 'An error occurred while rendering this component'}
+                    </p>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
+
+// Enhanced lazy loading with preloading and error handling
+const createLazyComponent = (importFn: () => Promise<any>, componentName: string) => {
+    const LazyComponent = lazy(() =>
+        importFn().catch(error => {
+            console.error(`Failed to load ${componentName}:`, error);
+            return Promise.resolve({
+                default: () => (
+                    <div className="p-4 border border-red-200 bg-red-50 rounded-md">
+                        <h3 className="text-red-800 font-medium">Failed to Load {componentName}</h3>
+                        <p className="text-red-600 text-sm mt-1">Please check the console for details</p>
+                    </div>
+                )
+            });
+        })
+    );
+
+    // Preload function for better UX
+    const preload = () => {
+        importFn().catch(() => { }); // Silent preload
+    };
+
+    return { LazyComponent, preload };
+};
+
+// Lazy load heavy components with enhanced error handling
+const DataManagement = createLazyComponent(
+    () => import('../../components/AdminDashboard/DataManagement'),
+    'DataManagement'
+);
+
+const DashboardCustomization = createLazyComponent(
+    () => import('../../components/AdminDashboard/DashboardCustomization').then(module => ({ default: module.DashboardCustomization })),
+    'DashboardCustomization'
+);
+
+const MaintenanceTools = createLazyComponent(
+    () => import('../../components/AdminDashboard/MaintenanceTools').then(module => ({ default: module.MaintenanceTools })),
+    'MaintenanceTools'
+);
+
+const UserManagement = createLazyComponent(
+    () => import('../../components/AdminDashboard/UserManagement'),
+    'UserManagement'
+);
+
+const SystemMonitoring = createLazyComponent(
+    () => import('../../components/AdminDashboard/SystemMonitoring'),
+    'SystemMonitoring'
+);
+
+const LogFilterForm = createLazyComponent(
+    () => import('../../components/AdminDashboard/LogFilterForm'),
+    'LogFilterForm'
+);
+
+// Pre-computed typography styles with memoization
+const useTypographyStyles = () => {
+    return useMemo(() => ({
+        subtitle: applyTypographyStyle('subtitle'),
+        body: applyTypographyStyle('body')
+    }), []);
+};
+
+// Enhanced icon component with performance optimizations
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
     ({ icon: IconComponent, size = 'md', className = '' }) => {
-        const sizeClasses = {
+        const sizeClasses = useMemo(() => ({
             sm: 'h-4 w-4',
             md: 'h-5 w-5',
             lg: 'h-6 w-6'
-        };
+        }), []);
+
         return <IconComponent className={`${sizeClasses[size]} ${className}`} />;
     }
 );
+Icon.displayName = 'Icon';
 
 // Memoized banner icon
 const BannerIcon = React.memo(() => <Icon icon={Settings} size="lg" />);
+BannerIcon.displayName = 'BannerIcon';
 
-// Enhanced callback functions with better logging
-const noop = () => { };
-const handleConfigChange = (config: any) => {
+// Enhanced callback functions with debouncing and memoization
+const useDebouncedCallback = (callback: Function, delay: number) => {
+    const timeoutRef = useRef<NodeJS.Timeout>();
+
+    return useCallback((...args: any[]) => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => callback(...args), delay);
+    }, [callback, delay]);
+};
+
+const handleConfigChange = useCallback((config: any) => {
     console.log('Dashboard config changed:', config);
+}, []);
+
+// Enhanced static props objects with memoization
+const useLogFilterFormProps = () => {
+    return useMemo(() => ({
+        level: "all" as const,
+        limit: 50,
+        from: "",
+        to: "",
+        search: "",
+        skip: 0,
+        total: 1250,
+        onChange: useCallback((filters: any) => console.log('Log filters changed:', filters), []),
+        onRefresh: useCallback(() => console.log('Refreshing logs...'), []),
+        onPrev: useCallback(() => console.log('Previous page'), []),
+        onNext: useCallback(() => console.log('Next page'), [])
+    }), []);
 };
 
-// Enhanced static props objects with realistic data
-const logFilterFormProps = {
-    level: "all" as const,
-    limit: 50,
-    from: "",
-    to: "",
-    search: "",
-    skip: 0,
-    total: 1250,
-    onChange: (filters: any) => console.log('Log filters changed:', filters),
-    onRefresh: () => console.log('Refreshing logs...'),
-    onPrev: () => console.log('Previous page'),
-    onNext: () => console.log('Next page')
+const useDashboardCustomizationProps = () => {
+    return useMemo(() => ({
+        userRole: "admin" as const,
+        onConfigChange: handleConfigChange
+    }), [handleConfigChange]);
 };
 
-const dashboardCustomizationProps = {
-    userRole: "admin" as const,
-    onConfigChange: handleConfigChange
-};
+// Enhanced loading fallback component with performance monitoring
+const LoadingFallback = React.memo(() => {
+    usePerformanceMonitor('LoadingFallback');
+    const styles = useTypographyStyles();
 
-// Enhanced loading fallback component
-const LoadingFallback = React.memo(() => (
-    <div className="flex items-center justify-center p-8">
-        <div className="flex items-center gap-3">
-            <Icon icon={Loader2} className="animate-spin" />
-            <span
-                style={bodyStyle}
-                className="text-muted-foreground"
-            >
-                Loading component...
-            </span>
+    return (
+        <div className="flex items-center justify-center p-8">
+            <div className="flex items-center gap-3">
+                <Icon icon={Loader2} className="animate-spin" />
+                <span
+                    style={styles.body}
+                    className="text-muted-foreground"
+                >
+                    Loading component...
+                </span>
+            </div>
         </div>
-    </div>
-));
+    );
+});
+LoadingFallback.displayName = 'LoadingFallback';
+
+// Virtual scrolling hook for large lists
+const useVirtualScroll = (items: any[], itemHeight: number, containerHeight: number) => {
+    const [scrollTop, setScrollTop] = useState(0);
+
+    const visibleItems = useMemo(() => {
+        const startIndex = Math.floor(scrollTop / itemHeight);
+        const endIndex = Math.min(startIndex + Math.ceil(containerHeight / itemHeight) + 1, items.length);
+        return items.slice(startIndex, endIndex).map((item, index) => ({
+            ...item,
+            index: startIndex + index,
+            style: { transform: `translateY(${(startIndex + index) * itemHeight}px)` }
+        }));
+    }, [items, itemHeight, containerHeight, scrollTop]);
+
+    const totalHeight = items.length * itemHeight;
+
+    return { visibleItems, totalHeight, setScrollTop };
+};
+
+// Memory leak prevention hook
+const useCleanup = (cleanupFn: () => void) => {
+    useEffect(() => {
+        return cleanupFn;
+    }, [cleanupFn]);
+};
 
 const meta: Meta = {
     title: 'Pages/Admin Dashboard/Components',
@@ -85,30 +237,36 @@ const meta: Meta = {
         layout: 'padded',
         docs: {
             autodocs: true,
-            page: () => (
-                <>
-                    <Title />
-                    <Description>
-                        Comprehensive collection of admin dashboard components designed for enterprise-level
-                        financial modeling and business intelligence applications. Each component is optimized
-                        for performance, accessibility, and user experience.
-                    </Description>
-                    <AnimatedBanner
-                        title="Admin Dashboard Components"
-                        subtitle="Individual components and tools for the admin dashboard system"
-                        icon={<BannerIcon />}
-                    />
-                    <Controls />
-                    <Stories includePrimary={true} />
-                </>
-            ),
+            page: () => {
+                const styles = useTypographyStyles();
+
+                return (
+                    <>
+                        <Title />
+                        <div style={styles.body}>
+                            Comprehensive collection of admin dashboard components designed for enterprise-level
+                            financial modeling and business intelligence applications. Each component is optimized
+                            for performance, accessibility, and user experience.
+                        </div>
+                        <AnimatedBanner
+                            title="Admin Dashboard Components"
+                            subtitle="Individual components and tools for the admin dashboard system"
+                            icon={<BannerIcon />}
+                        />
+                        <Controls />
+                        <Stories includePrimary={true} />
+                    </>
+                );
+            },
         },
     },
     decorators: [
         (Story) => (
-            <div className="min-h-screen bg-background">
-                <Story />
-            </div>
+            <ComponentErrorBoundary>
+                <div className="min-h-screen bg-background">
+                    <Story />
+                </div>
+            </ComponentErrorBoundary>
         ),
     ],
 };
@@ -116,7 +274,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// Enhanced component wrapper with better documentation
+// Enhanced component wrapper with performance optimizations
 const ComponentWrapper = React.memo<{
     title: string;
     subtitle: string;
@@ -124,41 +282,70 @@ const ComponentWrapper = React.memo<{
     useCard?: boolean;
     cardTitle?: string;
     description?: string;
-}>(({ title, subtitle, children, useCard = false, cardTitle, description }) => (
-    <div className="space-y-8">
-        <SectionHeader title={title} subtitle={subtitle} />
-        {description && (
-            <div className="max-w-4xl">
-                <p style={bodyStyle} className="text-muted-foreground">
-                    {description}
-                </p>
-            </div>
-        )}
-        <Container>
-            {useCard ? (
-                <Card>
-                    <div className="p-6">
-                        {cardTitle && (
-                            <h2
-                                style={subtitleStyle}
-                                className="mb-6"
-                            >
-                                {cardTitle}
-                            </h2>
-                        )}
-                        <Suspense fallback={<LoadingFallback />}>
-                            {children}
-                        </Suspense>
-                    </div>
-                </Card>
-            ) : (
-                <Suspense fallback={<LoadingFallback />}>
-                    {children}
-                </Suspense>
+}>(({ title, subtitle, children, useCard = false, cardTitle, description }) => {
+    usePerformanceMonitor('ComponentWrapper');
+    const styles = useTypographyStyles();
+
+    // Preload components on mount
+    useEffect(() => {
+        const preloadComponents = () => {
+            DataManagement.preload();
+            DashboardCustomization.preload();
+            MaintenanceTools.preload();
+            UserManagement.preload();
+            SystemMonitoring.preload();
+            LogFilterForm.preload();
+        };
+
+        // Use requestIdleCallback for non-critical preloading
+        if ('requestIdleCallback' in window) {
+            (window as any).requestIdleCallback(preloadComponents);
+        } else {
+            setTimeout(preloadComponents, 1000);
+        }
+    }, []);
+
+    return (
+        <div className="space-y-8">
+            <SectionHeader title={title} subtitle={subtitle} />
+            {description && (
+                <div className="max-w-4xl">
+                    <p style={styles.body} className="text-muted-foreground">
+                        {description}
+                    </p>
+                </div>
             )}
-        </Container>
-    </div>
-));
+            <Container>
+                {useCard ? (
+                    <Card>
+                        <div className="p-6">
+                            {cardTitle && (
+                                <h2
+                                    style={styles.subtitle}
+                                    className="mb-6"
+                                >
+                                    {cardTitle}
+                                </h2>
+                            )}
+                            <Suspense fallback={<LoadingFallback />}>
+                                <ComponentErrorBoundary>
+                                    {children}
+                                </ComponentErrorBoundary>
+                            </Suspense>
+                        </div>
+                    </Card>
+                ) : (
+                    <Suspense fallback={<LoadingFallback />}>
+                        <ComponentErrorBoundary>
+                            {children}
+                        </ComponentErrorBoundary>
+                    </Suspense>
+                )}
+            </Container>
+        </div>
+    );
+});
+ComponentWrapper.displayName = 'ComponentWrapper';
 
 export const DataManagementComponent: Story = {
     render: () => (
@@ -169,7 +356,7 @@ export const DataManagementComponent: Story = {
             export capabilities, and comprehensive reporting tools. Features include data filtering, 
             bulk operations, and integration with external data sources."
         >
-            <DataManagement />
+            <DataManagement.LazyComponent />
         </ComponentWrapper>
     ),
     parameters: {
@@ -189,19 +376,23 @@ export const DataManagementComponent: Story = {
 };
 
 export const DashboardCustomizationComponent: Story = {
-    render: () => (
-        <ComponentWrapper
-            title="Dashboard Customization Component"
-            subtitle="Customize dashboard layout and preferences"
-            useCard={true}
-            cardTitle="Dashboard Customization"
-            description="Flexible dashboard customization interface allowing users to personalize their workspace, 
-            configure widgets, set preferences, and manage dashboard layouts. Supports drag-and-drop functionality 
-            and role-based customization options."
-        >
-            <DashboardCustomization {...dashboardCustomizationProps} />
-        </ComponentWrapper>
-    ),
+    render: () => {
+        const dashboardProps = useDashboardCustomizationProps();
+
+        return (
+            <ComponentWrapper
+                title="Dashboard Customization Component"
+                subtitle="Customize dashboard layout and preferences"
+                useCard={true}
+                cardTitle="Dashboard Customization"
+                description="Flexible dashboard customization interface allowing users to personalize their workspace, 
+                configure widgets, set preferences, and manage dashboard layouts. Supports drag-and-drop functionality 
+                and role-based customization options."
+            >
+                <DashboardCustomization.LazyComponent {...dashboardProps} />
+            </ComponentWrapper>
+        );
+    },
     parameters: {
         docs: {
             description: {
@@ -232,7 +423,7 @@ export const MaintenanceToolsComponent: Story = {
             cache management, backup operations, and system health monitoring. Provides detailed logs and 
             performance metrics for troubleshooting."
         >
-            <MaintenanceTools />
+            <MaintenanceTools.LazyComponent />
         </ComponentWrapper>
     ),
     parameters: {
@@ -261,7 +452,7 @@ export const UserManagementComponent: Story = {
             permission management, and audit trails. Supports bulk operations, user activity monitoring, 
             and integration with external authentication systems."
         >
-            <UserManagement />
+            <UserManagement.LazyComponent />
         </ComponentWrapper>
     ),
     parameters: {
@@ -291,7 +482,7 @@ export const SystemMonitoringComponent: Story = {
             application health, and alert management. Features interactive charts, historical data analysis, 
             and configurable alert thresholds."
         >
-            <SystemMonitoring refreshInterval={30000} />
+            <SystemMonitoring.LazyComponent refreshInterval={30000} />
         </ComponentWrapper>
     ),
     parameters: {
@@ -315,19 +506,23 @@ export const SystemMonitoringComponent: Story = {
 };
 
 export const LogFilterFormComponent: Story = {
-    render: () => (
-        <ComponentWrapper
-            title="Log Filter Form Component"
-            subtitle="Advanced log filtering and search capabilities"
-            useCard={true}
-            cardTitle="Log Filter Form"
-            description="Advanced log filtering interface with comprehensive search capabilities, date range selection, 
-            log level filtering, and export functionality. Supports complex queries, saved filters, and 
-            real-time log streaming."
-        >
-            <LogFilterForm {...logFilterFormProps} />
-        </ComponentWrapper>
-    ),
+    render: () => {
+        const logFilterProps = useLogFilterFormProps();
+
+        return (
+            <ComponentWrapper
+                title="Log Filter Form Component"
+                subtitle="Advanced log filtering and search capabilities"
+                useCard={true}
+                cardTitle="Log Filter Form"
+                description="Advanced log filtering interface with comprehensive search capabilities, date range selection, 
+                log level filtering, and export functionality. Supports complex queries, saved filters, and 
+                real-time log streaming."
+            >
+                <LogFilterForm.LazyComponent {...logFilterProps} />
+            </ComponentWrapper>
+        );
+    },
     parameters: {
         docs: {
             description: {
@@ -357,70 +552,75 @@ export const LogFilterFormComponent: Story = {
     },
 };
 
-// Additional story showcasing component interactions
+// Additional story showcasing component interactions with performance optimizations
 export const ComponentInteractions: Story = {
-    render: () => (
-        <ComponentWrapper
-            title="Component Interactions"
-            subtitle="Demonstrating component communication and state management"
-            description="This example showcases how different admin dashboard components can interact with each other, 
-            sharing state and communicating through events. Demonstrates best practices for component composition 
-            and data flow in complex admin interfaces."
-        >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                    <div className="p-6">
-                        <h3 style={subtitleStyle} className="mb-4 flex items-center gap-2">
-                            <Icon icon={Monitor} size="sm" />
-                            System Status
-                        </h3>
-                        <p style={bodyStyle} className="text-muted-foreground mb-4">
-                            Real-time system monitoring with alert integration
-                        </p>
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span>CPU Usage</span>
-                                <span className="text-green-600">45%</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>Memory Usage</span>
-                                <span className="text-yellow-600">78%</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>Active Users</span>
-                                <span className="text-blue-600">127</span>
-                            </div>
-                        </div>
-                    </div>
-                </Card>
-                <Card>
-                    <div className="p-6">
-                        <h3 style={subtitleStyle} className="mb-4 flex items-center gap-2">
-                            <Icon icon={Users} size="sm" />
-                            User Activity
-                        </h3>
-                        <p style={bodyStyle} className="text-muted-foreground mb-4">
-                            Recent user actions and system events
-                        </p>
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center text-sm">
-                                <span>Data export completed</span>
-                                <span className="text-muted-foreground">2 min ago</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span>New user registered</span>
-                                <span className="text-muted-foreground">5 min ago</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span>Backup process started</span>
-                                <span className="text-muted-foreground">10 min ago</span>
+    render: () => {
+        const styles = useTypographyStyles();
+
+        // Memoized static data to prevent re-creation
+        const systemStatusData = useMemo(() => [
+            { label: 'CPU Usage', value: '45%', color: 'text-green-600' },
+            { label: 'Memory Usage', value: '78%', color: 'text-yellow-600' },
+            { label: 'Active Users', value: '127', color: 'text-blue-600' }
+        ], []);
+
+        const userActivityData = useMemo(() => [
+            { action: 'Data export completed', time: '2 min ago' },
+            { action: 'New user registered', time: '5 min ago' },
+            { action: 'Backup process started', time: '10 min ago' }
+        ], []);
+
+        return (
+            <ComponentWrapper
+                title="Component Interactions"
+                subtitle="Demonstrating component communication and state management"
+                description="This example showcases how different admin dashboard components can interact with each other, 
+                sharing state and communicating through events. Demonstrates best practices for component composition 
+                and data flow in complex admin interfaces."
+            >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                        <div className="p-6">
+                            <h3 style={styles.subtitle} className="mb-4 flex items-center gap-2">
+                                <Icon icon={Monitor} size="sm" />
+                                System Status
+                            </h3>
+                            <p style={styles.body} className="text-muted-foreground mb-4">
+                                Real-time system monitoring with alert integration
+                            </p>
+                            <div className="space-y-2">
+                                {systemStatusData.map((item, index) => (
+                                    <div key={index} className="flex justify-between items-center">
+                                        <span>{item.label}</span>
+                                        <span className={item.color}>{item.value}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                    </div>
-                </Card>
-            </div>
-        </ComponentWrapper>
-    ),
+                    </Card>
+                    <Card>
+                        <div className="p-6">
+                            <h3 style={styles.subtitle} className="mb-4 flex items-center gap-2">
+                                <Icon icon={Users} size="sm" />
+                                User Activity
+                            </h3>
+                            <p style={styles.body} className="text-muted-foreground mb-4">
+                                Recent user actions and system events
+                            </p>
+                            <div className="space-y-2">
+                                {userActivityData.map((item, index) => (
+                                    <div key={index} className="flex justify-between items-center text-sm">
+                                        <span>{item.action}</span>
+                                        <span className="text-muted-foreground">{item.time}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            </ComponentWrapper>
+        );
+    },
     parameters: {
         docs: {
             description: {

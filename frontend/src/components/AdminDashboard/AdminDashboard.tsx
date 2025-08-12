@@ -161,7 +161,7 @@ const Icon = memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; c
 );
 
 // Memoized metric card component
-const MetricCard = memo<{
+const SystemMetricCard = memo<{
     title: string;
     value: string;
     subtitle: string;
@@ -260,7 +260,7 @@ const SystemStatusCard = memo(() => {
             <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {metrics.map((metric, index) => (
-                        <MetricCard key={index} {...metric} />
+                        <SystemMetricCard key={index} {...metric} />
                     ))}
                 </div>
             </CardContent>
