@@ -12,3 +12,4 @@ export {
     AdminLoadingSkeleton,
     AdminLoadingCard
 } from './AdminLoading';
+export { AdminHeader } from './AdminHeader';

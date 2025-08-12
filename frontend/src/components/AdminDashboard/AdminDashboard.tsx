@@ -27,6 +27,7 @@ import LogFilterForm from './LogFilterForm';
 import DashboardCustomization from './DashboardCustomization';
 import DataManagement from './DataManagement';
 import type { LogEntry } from '@/services/adminApi';
+import { AdminHeader } from './components/AdminHeader';
 
 // Import shared design system helpers
 import {
@@ -246,9 +247,9 @@ const SystemStatusCard = memo(() => {
             <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {metrics.map((metric, index) => (
-                        <SystemMetricCard 
-                            key={index} 
-                            {...metric} 
+                        <SystemMetricCard
+                            key={index}
+                            {...metric}
                             healthValue={metric.healthValue ?? undefined}
                         />
                     ))}
@@ -666,7 +667,7 @@ export const AdminDashboard: React.FC = memo(() => {
                 <DashboardCustomization
                     userRole="admin"
                     onConfigChange={() => {
-                        
+
                     }}
                 />
             </Suspense>
@@ -689,14 +690,12 @@ export const AdminDashboard: React.FC = memo(() => {
             <div className="space-y-8">
                 {/* Action Bar */}
                 <div className="flex items-center justify-between">
-                    <div>
-                        <h1 style={STYLES.headline} className="text-foreground">
-                            Admin Dashboard
-                        </h1>
-                        <p style={STYLES.body} className="text-muted-foreground mt-2">
-                            Monitor and manage system performance, user activity, and system health
-                        </p>
-                    </div>
+                    <AdminHeader
+                        title="Admin Dashboard"
+                        description="Monitor and manage system performance, user activity, and system health"
+                        showBreadcrumb={false}
+                        showAdminBadge={false}
+                    />
                     {actionBarContent}
                 </div>
 
