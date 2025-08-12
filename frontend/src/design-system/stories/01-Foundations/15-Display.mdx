@@ -1,0 +1,583 @@
+---
+title: 'Display'
+description: 'Comprehensive display system for controlling element visibility and layout behavior. Includes display types, visibility states, and responsive display utilities.'
+parameters:
+  docs:
+    description:
+      component: 'Our display system provides a consistent approach to controlling element visibility and layout behavior through carefully crafted display and visibility tokens.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/blocks';
+import { tokens } from '../../tokens';
+
+<Meta
+  title="Design System/Foundations/Display"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Display
+
+Our display system provides a consistent approach to controlling element visibility and layout behavior through carefully crafted display and visibility tokens.
+
+## Overview
+
+The display system is designed to create flexible, responsive layouts by controlling how elements are rendered and interact with the document flow. It provides comprehensive tokens for display types, visibility states, and responsive display utilities that work seamlessly with our layout and positioning systems.
+
+## Token Definitions
+
+### Display Types
+
+```typescript
+tokens.display = {
+  block: 'block',
+  inline: 'inline',
+  'inline-block': 'inline-block',
+  flex: 'flex',
+  'inline-flex': 'inline-flex',
+  grid: 'grid',
+  'inline-grid': 'inline-grid',
+  table: 'table',
+  'table-row': 'table-row',
+  'table-cell': 'table-cell',
+  none: 'none',
+};
+```
+
+### Visibility States
+
+```typescript
+tokens.visibility = {
+  visible: 'visible',
+  hidden: 'hidden',
+  collapse: 'collapse',
+};
+```
+
+### Responsive Display
+
+```typescript
+tokens.responsiveDisplay = {
+  mobile: {
+    block: 'block',
+    none: 'none',
+    flex: 'flex',
+    grid: 'grid',
+  },
+  tablet: {
+    block: 'block',
+    none: 'none',
+    flex: 'flex',
+    grid: 'grid',
+  },
+  desktop: {
+    block: 'block',
+    none: 'none',
+    flex: 'flex',
+    grid: 'grid',
+  },
+};
+```
+
+## Usage Rules
+
+### 1. **Display Types**
+
+- **Block**: Full-width elements that create line breaks
+- **Inline**: Elements that flow with text content
+- **Inline-block**: Inline elements with block properties
+- **Flex**: Flexible box layout for modern layouts
+- **Grid**: CSS Grid layout for complex arrangements
+- **None**: Hidden elements that don't take up space
+
+### 2. **Visibility States**
+
+- **Visible**: Normal visibility (default)
+- **Hidden**: Hidden but takes up space
+- **Collapse**: Hidden and doesn't take up space (for tables)
+
+### 3. **Responsive Display**
+
+- **Mobile-first**: Start with mobile display states
+- **Progressive enhancement**: Add display states for larger screens
+- **Content priority**: Ensure essential content is visible on all devices
+
+## Best Practices
+
+### 1. **Consistent Display Usage**
+
+```tsx
+// ✅ Good - Consistent display usage
+<div style={{ display: tokens.display.flex }}>
+  <div style={{ display: tokens.display.block }}>Block element</div>
+  <div style={{ display: tokens.display.inline }}>Inline element</div>
+</div>
+
+<div style={{ display: tokens.display.grid }}>
+  <div>Grid item 1</div>
+  <div>Grid item 2</div>
+</div>
+
+// ❌ Bad - Inconsistent display usage
+<div style={{ display: 'flex' }}>
+  <div style={{ display: 'block' }}>Block element</div>
+  <div style={{ display: 'inline' }}>Inline element</div>
+</div>
+
+<div style={{ display: 'grid' }}>
+  <div>Grid item 1</div>
+  <div>Grid item 2</div>
+</div>
+```
+
+### 2. **Responsive Display Patterns**
+
+```tsx
+// ✅ Good - Responsive display with breakpoints
+<div style={{
+  display: tokens.display.none,
+  '@media (min-width: 768px)': {
+    display: tokens.display.block,
+  },
+}}>
+  Desktop-only content
+</div>
+
+<div style={{
+  display: tokens.display.block,
+  '@media (min-width: 768px)': {
+    display: tokens.display.none,
+  },
+}}>
+  Mobile-only content
+</div>
+
+// ❌ Bad - Fixed display without responsiveness
+<div style={{ display: tokens.display.block }}>
+  Fixed display content
+</div>
+```
+
+### 3. **Accessibility Considerations**
+
+```tsx
+// ✅ Good - Accessible display patterns
+<div style={{ display: tokens.display.none }} aria-hidden="true">
+  Hidden from screen readers
+</div>
+
+<div style={{ visibility: tokens.visibility.hidden }}>
+  Hidden but accessible to screen readers
+</div>
+
+// ❌ Bad - Inaccessible display patterns
+<div style={{ display: tokens.display.none }}>
+  Hidden content without proper ARIA
+</div>
+```
+
+### 4. **Performance Optimization**
+
+```tsx
+// ✅ Good - Performance-optimized display
+<div style={{ display: tokens.display.none }}>
+  Heavy content that's not rendered
+</div>
+
+<div style={{ visibility: tokens.visibility.hidden }}>
+  Light content that's rendered but hidden
+</div>
+
+// ❌ Bad - Performance-heavy display
+<div style={{ opacity: 0, pointerEvents: 'none' }}>
+  Content that's rendered but not visible
+</div>
+```
+
+## How-To Guides
+
+### Creating a Responsive Navigation Component
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+interface ResponsiveNavigationProps {
+  logo: React.ReactNode;
+  desktopNav: React.ReactNode;
+  mobileNav: React.ReactNode;
+}
+
+const ResponsiveNavigation = ({
+  logo,
+  desktopNav,
+  mobileNav,
+}: ResponsiveNavigationProps) => {
+  return (
+    <nav
+      style={{
+        display: tokens.display.flex,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: tokens.spacing[4],
+        backgroundColor: tokens.colors.white,
+        borderBottom: `1px solid ${tokens.colors.secondary[200]}`,
+      }}
+    >
+      <div>{logo}</div>
+
+      {/* Desktop Navigation */}
+      <div
+        style={{
+          display: tokens.display.none,
+          '@media (min-width: 768px)': {
+            display: tokens.display.flex,
+            alignItems: 'center',
+            gap: tokens.spacing[6],
+          },
+        }}
+      >
+        {desktopNav}
+      </div>
+
+      {/* Mobile Navigation */}
+      <div
+        style={{
+          display: tokens.display.block,
+          '@media (min-width: 768px)': {
+            display: tokens.display.none,
+          },
+        }}
+      >
+        {mobileNav}
+      </div>
+    </nav>
+  );
+};
+```
+
+### Creating a Conditional Content Component
+
+```tsx
+interface ConditionalContentProps {
+  children: React.ReactNode;
+  show?: boolean;
+  variant?: 'display' | 'visibility';
+}
+
+const ConditionalContent = ({
+  children,
+  show = true,
+  variant = 'display',
+}: ConditionalContentProps) => {
+  const getStyle = () => {
+    if (show) {
+      return variant === 'display'
+        ? { display: tokens.display.block }
+        : { visibility: tokens.visibility.visible };
+    } else {
+      return variant === 'display'
+        ? { display: tokens.display.none }
+        : { visibility: tokens.visibility.hidden };
+    }
+  };
+
+  return <div style={getStyle()}>{children}</div>;
+};
+```
+
+### Creating a Layout Container Component
+
+```tsx
+interface LayoutContainerProps {
+  children: React.ReactNode;
+  layout?: 'flex' | 'grid' | 'block';
+  direction?: 'row' | 'column';
+  gap?: string;
+}
+
+const LayoutContainer = ({
+  children,
+  layout = 'flex',
+  direction = 'row',
+  gap = tokens.spacing[4],
+}: LayoutContainerProps) => {
+  const getLayoutStyle = () => {
+    const baseStyle = {
+      gap,
+    };
+
+    switch (layout) {
+      case 'flex':
+        return {
+          ...baseStyle,
+          display: tokens.display.flex,
+          flexDirection: direction,
+        };
+      case 'grid':
+        return {
+          ...baseStyle,
+          display: tokens.display.grid,
+          gridTemplateColumns:
+            direction === 'row'
+              ? 'repeat(auto-fit, minmax(200px, 1fr))'
+              : '1fr',
+        };
+      case 'block':
+        return {
+          ...baseStyle,
+          display: tokens.display.block,
+        };
+    }
+  };
+
+  return <div style={getLayoutStyle()}>{children}</div>;
+};
+```
+
+## Common Patterns
+
+### Responsive Content Switching
+
+```tsx
+const ResponsiveContent = () => {
+  return (
+    <div>
+      {/* Mobile Content */}
+      <div
+        style={{
+          display: tokens.display.block,
+          '@media (min-width: 768px)': {
+            display: tokens.display.none,
+          },
+        }}
+      >
+        <h3 style={{ marginBottom: tokens.spacing[4] }}>Mobile Experience</h3>
+        <p>
+          This content is optimized for mobile devices with touch interactions
+          and simplified navigation.
+        </p>
+      </div>
+
+      {/* Desktop Content */}
+      <div
+        style={{
+          display: tokens.display.none,
+          '@media (min-width: 768px)': {
+            display: tokens.display.block,
+          },
+        }}
+      >
+        <h3 style={{ marginBottom: tokens.spacing[4] }}>Desktop Experience</h3>
+        <p>
+          This content is optimized for desktop devices with advanced features
+          and detailed information.
+        </p>
+      </div>
+
+      {/* Shared Content */}
+      <div
+        style={{
+          display: tokens.display.block,
+          marginTop: tokens.spacing[6],
+          padding: tokens.spacing[4],
+          backgroundColor: tokens.colors.secondary[50],
+          borderRadius: tokens.borderRadius.md,
+        }}
+      >
+        <h4 style={{ marginBottom: tokens.spacing[2] }}>Shared Features</h4>
+        <p>
+          This content is visible on all devices and provides essential
+          functionality.
+        </p>
+      </div>
+    </div>
+  );
+};
+```
+
+### Conditional Loading States
+
+```tsx
+const LoadingStates = () => {
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [hasError, setHasError] = React.useState(false);
+
+  return (
+    <div>
+      {/* Loading State */}
+      <div
+        style={{
+          display: isLoading ? tokens.display.flex : tokens.display.none,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: tokens.spacing[8],
+        }}
+      >
+        <div
+          style={{
+            width: tokens.sizing.width[8],
+            height: tokens.sizing.height[8],
+            border: `3px solid ${tokens.colors.secondary[200]}`,
+            borderTop: `3px solid ${tokens.colors.primary[500]}`,
+            borderRadius: tokens.borderRadius.full,
+            animation: 'spin 1s linear infinite',
+          }}
+        />
+        <span style={{ marginLeft: tokens.spacing[3] }}>Loading...</span>
+      </div>
+
+      {/* Error State */}
+      <div
+        style={{
+          display: hasError ? tokens.display.block : tokens.display.none,
+          padding: tokens.spacing[6],
+          backgroundColor: tokens.colors.destructive[50],
+          border: `1px solid ${tokens.colors.destructive[200]}`,
+          borderRadius: tokens.borderRadius.md,
+          color: tokens.colors.destructive[700],
+        }}
+      >
+        <h4 style={{ marginBottom: tokens.spacing[2] }}>Error</h4>
+        <p>Something went wrong. Please try again.</p>
+      </div>
+
+      {/* Content State */}
+      <div
+        style={{
+          display:
+            !isLoading && !hasError
+              ? tokens.display.block
+              : tokens.display.none,
+        }}
+      >
+        <h3>Content Loaded Successfully</h3>
+        <p>Your content is ready to view.</p>
+      </div>
+    </div>
+  );
+};
+```
+
+### Flexible Layout System
+
+```tsx
+const FlexibleLayout = () => {
+  return (
+    <div
+      style={{
+        display: tokens.display.flex,
+        flexDirection: 'column',
+        gap: tokens.spacing[6],
+        '@media (min-width: 768px)': {
+          flexDirection: 'row',
+        },
+      }}
+    >
+      {/* Sidebar */}
+      <aside
+        style={{
+          display: tokens.display.none,
+          '@media (min-width: 768px)': {
+            display: tokens.display.block,
+            width: tokens.sizing.width[64],
+            flexShrink: 0,
+          },
+        }}
+      >
+        <div
+          style={{
+            padding: tokens.spacing[4],
+            backgroundColor: tokens.colors.secondary[50],
+            borderRadius: tokens.borderRadius.md,
+          }}
+        >
+          <h4 style={{ marginBottom: tokens.spacing[3] }}>Sidebar</h4>
+          <nav>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              <li style={{ marginBottom: tokens.spacing[2] }}>
+                Navigation Item 1
+              </li>
+              <li style={{ marginBottom: tokens.spacing[2] }}>
+                Navigation Item 2
+              </li>
+              <li style={{ marginBottom: tokens.spacing[2] }}>
+                Navigation Item 3
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main
+        style={{
+          display: tokens.display.block,
+          flex: 1,
+        }}
+      >
+        <div
+          style={{
+            padding: tokens.spacing[6],
+            backgroundColor: tokens.colors.white,
+            borderRadius: tokens.borderRadius.lg,
+            border: `1px solid ${tokens.colors.secondary[200]}`,
+          }}
+        >
+          <h2 style={{ marginBottom: tokens.spacing[4] }}>Main Content</h2>
+          <p>
+            This is the main content area that adapts to the available space.
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+};
+```
+
+## Accessibility Guidelines
+
+### 1. **Screen Reader Support**
+
+- Use `display: none` to hide content from screen readers
+- Use `visibility: hidden` to hide content but keep it accessible
+- Provide alternative content for hidden elements when necessary
+
+### 2. **Focus Management**
+
+- Ensure hidden elements don't receive focus
+- Maintain logical tab order when elements are shown/hidden
+- Provide clear focus indicators for visible elements
+
+### 3. **Responsive Accessibility**
+
+- Test display changes with screen readers
+- Ensure content remains accessible across all screen sizes
+- Provide alternative navigation for hidden elements
+
+### 4. **Performance Considerations**
+
+- Use `display: none` for heavy content that's not needed
+- Use `visibility: hidden` for light content that might be needed
+- Consider loading strategies for conditional content
+
+## Testing Checklist
+
+- [ ] Display properties work correctly across all screen sizes
+- [ ] Responsive display changes function properly
+- [ ] Hidden content is properly managed for accessibility
+- [ ] Focus management works with display changes
+- [ ] Screen readers can access appropriate content
+- [ ] Performance is optimized for display changes
+- [ ] Content remains accessible across all devices
+
+## Resources
+
+- [CSS Display Property](https://developer.mozilla.org/en-US/docs/Web/CSS/display)
+- [CSS Visibility Property](https://developer.mozilla.org/en-US/docs/Web/CSS/visibility)
+- [Display Accessibility](https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html)

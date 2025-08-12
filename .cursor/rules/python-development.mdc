@@ -1,0 +1,354 @@
+# Python Development Guidelines
+
+## Project Structure
+
+- Main entry: [main.py](mdc:main.py)
+- Backend app: [backend/app/](mdc:backend/app/)
+- Requirements: [requirements.txt](mdc:requirements.txt)
+- Setup: [setup.py](mdc:setup.py)
+- Tests: [backend/tests/](mdc:backend/tests/)
+
+## Code Style & Standards
+
+```python
+# PEP 8 compliance
+# Use type hints for all functions
+from typing import List, Optional, Dict, Any, Union
+from datetime import datetime
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+def process_data(
+    items: List[Dict[str, Any]],
+    config: Optional[Dict[str, Any]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Process a list of items with optional configuration.
+
+    Args:
+        items: List of items to process
+        config: Optional configuration dictionary
+
+    Returns:
+        List of processed items
+
+    Raises:
+        ValueError: If items list is empty
+    """
+    if not items:
+        raise ValueError("Items list cannot be empty")
+
+    logger.info(f"Processing {len(items)} items")
+
+    # Process items
+    result = []
+    for item in items:
+        processed_item = _process_single_item(item, config)
+        result.append(processed_item)
+
+    logger.info(f"Successfully processed {len(result)} items")
+    return result
+
+def _process_single_item(
+    item: Dict[str, Any],
+    config: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
+    """Process a single item (private function)."""
+    # Implementation here
+    return item
+```
+
+## Class Structure
+
+```python
+# Use dataclasses for simple data containers
+from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class User:
+    id: int
+    name: str
+    email: str
+    is_active: bool = True
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+    def __post_init__(self):
+        """Validate data after initialization."""
+        if not self.name.strip():
+            raise ValueError("Name cannot be empty")
+        if "@" not in self.email:
+            raise ValueError("Invalid email format")
+
+# Use ABC for abstract base classes
+from abc import ABC, abstractmethod
+
+class DataProcessor(ABC):
+    """Abstract base class for data processors."""
+
+    @abstractmethod
+    def process(self, data: Any) -> Any:
+        """Process the given data."""
+        pass
+
+    def validate(self, data: Any) -> bool:
+        """Validate input data."""
+        return data is not None
+
+class CSVProcessor(DataProcessor):
+    """Concrete implementation for CSV processing."""
+
+    def process(self, data: str) -> List[Dict[str, Any]]:
+        """Process CSV data."""
+        # Implementation here
+        return []
+```
+
+## Error Handling
+
+```python
+# Use custom exceptions
+class ProcessingError(Exception):
+    """Base exception for processing errors."""
+    pass
+
+class ValidationError(ProcessingError):
+    """Exception for validation errors."""
+    pass
+
+class DataNotFoundError(ProcessingError):
+    """Exception for missing data."""
+    pass
+
+# Proper exception handling
+def safe_process_data(data: Any) -> Any:
+    """Safely process data with proper error handling."""
+    try:
+        return process_data(data)
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
+        raise
+    except DataNotFoundError as e:
+        logger.warning(f"Data not found: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise ProcessingError(f"Failed to process data: {e}") from e
+```
+
+## Configuration Management
+
+```python
+# Use Pydantic for configuration
+from pydantic import BaseSettings, Field
+from typing import List
+
+class Settings(BaseSettings):
+    """Application settings."""
+
+    # Database
+    database_url: str = Field(..., env="DATABASE_URL")
+    database_pool_size: int = Field(default=10, env="DB_POOL_SIZE")
+
+    # API
+    api_host: str = Field(default="0.0.0.0", env="API_HOST")
+    api_port: int = Field(default=8000, env="API_PORT")
+    debug: bool = Field(default=False, env="DEBUG")
+
+    # Security
+    secret_key: str = Field(..., env="SECRET_KEY")
+    allowed_hosts: List[str] = Field(default=["*"], env="ALLOWED_HOSTS")
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+
+# Global settings instance
+settings = Settings()
+```
+
+## Database Operations
+
+```python
+# Use context managers for database connections
+from contextlib import contextmanager
+from sqlalchemy.orm import Session
+
+@contextmanager
+def get_db_session():
+    """Context manager for database sessions."""
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+# Usage
+def create_user(user_data: Dict[str, Any]) -> User:
+    """Create a new user."""
+    with get_db_session() as session:
+        user = User(**user_data)
+        session.add(user)
+        session.flush()  # Get the ID
+        return user
+```
+
+## Testing
+
+```python
+# Pytest structure
+import pytest
+from unittest.mock import Mock, patch
+from typing import Generator
+
+@pytest.fixture
+def sample_data() -> List[Dict[str, Any]]:
+    """Fixture providing sample data."""
+    return [
+        {"id": 1, "name": "Test 1"},
+        {"id": 2, "name": "Test 2"}
+    ]
+
+@pytest.fixture
+def mock_database() -> Generator[Mock, None, None]:
+    """Fixture providing a mock database."""
+    with patch('app.database.get_session') as mock:
+        yield mock
+
+def test_process_data_success(sample_data: List[Dict[str, Any]]):
+    """Test successful data processing."""
+    result = process_data(sample_data)
+    assert len(result) == 2
+    assert result[0]["id"] == 1
+
+def test_process_data_empty_list():
+    """Test processing empty data list."""
+    with pytest.raises(ValueError, match="Items list cannot be empty"):
+        process_data([])
+
+@pytest.mark.asyncio
+async def test_async_operation():
+    """Test async operations."""
+    result = await async_process_data([])
+    assert result is not None
+```
+
+## Performance & Optimization
+
+```python
+# Use generators for large datasets
+def process_large_dataset(items: List[Any]) -> Generator[Any, None, None]:
+    """Process large datasets using generators."""
+    for item in items:
+        processed = process_item(item)
+        yield processed
+
+# Use caching for expensive operations
+from functools import lru_cache
+import hashlib
+
+@lru_cache(maxsize=128)
+def expensive_calculation(data_hash: str) -> Any:
+    """Cache expensive calculations."""
+    # Expensive operation here
+    return result
+
+def get_data_hash(data: Any) -> str:
+    """Generate hash for caching."""
+    return hashlib.md5(str(data).encode()).hexdigest()
+
+# Use async for I/O operations
+import asyncio
+import aiohttp
+
+async def fetch_data_async(urls: List[str]) -> List[Any]:
+    """Fetch data from multiple URLs asynchronously."""
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch_url(session, url) for url in urls]
+        return await asyncio.gather(*tasks)
+
+async def fetch_url(session: aiohttp.ClientSession, url: str) -> Any:
+    """Fetch data from a single URL."""
+    async with session.get(url) as response:
+        return await response.json()
+```
+
+## Security Best Practices
+
+```python
+# Use secrets for cryptographic operations
+import secrets
+import hashlib
+import hmac
+
+def generate_secure_token() -> str:
+    """Generate a secure random token."""
+    return secrets.token_urlsafe(32)
+
+def verify_signature(data: str, signature: str, secret: str) -> bool:
+    """Verify HMAC signature."""
+    expected = hmac.new(
+        secret.encode(),
+        data.encode(),
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
+
+# Sanitize user input
+import re
+from html import escape
+
+def sanitize_input(user_input: str) -> str:
+    """Sanitize user input."""
+    # Remove potentially dangerous characters
+    sanitized = re.sub(r'[<>"\']', '', user_input)
+    # Escape HTML entities
+    return escape(sanitized)
+```
+
+## Dependencies & Environment
+
+```python
+# Use virtual environments
+# python -m venv .venv
+# source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate     # Windows
+
+# Install dependencies
+# pip install -r requirements.txt
+
+# Development dependencies
+# pip install -r requirements-dev.txt
+
+# Use dependency injection
+from typing import Protocol
+
+class DataService(Protocol):
+    """Protocol for data services."""
+    def get_data(self) -> List[Any]:
+        """Get data from service."""
+        ...
+
+class UserService:
+    """User service with dependency injection."""
+
+    def __init__(self, data_service: DataService):
+        self.data_service = data_service
+
+    def get_users(self) -> List[User]:
+        """Get users using injected data service."""
+        data = self.data_service.get_data()
+        return [User(**item) for item in data]
+```
+
+description:
+globs:
+alwaysApply: false
+
+---

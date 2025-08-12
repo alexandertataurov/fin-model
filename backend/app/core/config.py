@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 
 class Settings(BaseSettings):
@@ -24,7 +25,16 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
 
     # CORS - Use string type to avoid JSON parsing issues
-    BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    BACKEND_CORS_ORIGINS: str = (
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "https://pre-production--advanced-financial-modeling.netlify.app,"
+        "https://advanced-financial-modeling.netlify.app,"
+        "https://fin-model-production.up.railway.app,"
+        "https://*.netlify.app,"
+        "https://*.railway.app,"
+        "https://pre-production--advanced-financial-modeling.netlify.app,"
+        "*"
+    )
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
@@ -37,15 +47,60 @@ class Settings(BaseSettings):
         """Get CORS origins as a list."""
         if self.BACKEND_CORS_ORIGINS == "*":
             return ["*"]
-        return [
-            origin.strip()
-            for origin in self.BACKEND_CORS_ORIGINS.split(",")
-            if origin.strip()
-        ]
+
+        origins = []
+        for origin in self.BACKEND_CORS_ORIGINS.split(","):
+            origin = origin.strip()
+            if origin:
+                # Handle wildcard domains
+                if origin.startswith("https://*."):
+                    # Add common subdomains for wildcard domains
+                    domain = origin.replace("https://*.", "")
+                    origins.extend(
+                        [
+                            f"https://{domain}",
+                            f"https://www.{domain}",
+                            f"https://pre-production--{domain}",
+                            f"https://production--{domain}",
+                            f"https://staging--{domain}",
+                            f"https://dev--{domain}",
+                        ]
+                    )
+                else:
+                    origins.append(origin)
+
+        # Add the original wildcard entries for broader compatibility
+        if "https://*.netlify.app" in self.BACKEND_CORS_ORIGINS:
+            origins.append("https://*.netlify.app")
+        if "https://*.railway.app" in self.BACKEND_CORS_ORIGINS:
+            origins.append("https://*.railway.app")
+
+        # Add specific Netlify domains to ensure they're included
+        origins.append(
+            "https://pre-production--advanced-financial-modeling.netlify.app"
+        )
+        origins.append("https://advanced-financial-modeling.netlify.app")
+
+        # Add any additional Netlify preview domains
+        origins.append("https://*.netlify.app")
+        origins.append("https://*.railway.app")
+
+        return list(set(origins))  # Remove duplicates
 
     # JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+
+    # OAuth Settings
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    MICROSOFT_CLIENT_ID: str = os.getenv("MICROSOFT_CLIENT_ID", "")
+    MICROSOFT_CLIENT_SECRET: str = os.getenv("MICROSOFT_CLIENT_SECRET", "")
+
+    # WebAuthn Settings
+    WEBAUTHN_RP_ID: str = os.getenv("WEBAUTHN_RP_ID", "localhost")
+    WEBAUTHN_RP_NAME: str = os.getenv("WEBAUTHN_RP_NAME", "FinVision")
+    WEBAUTHN_ORIGIN: str = os.getenv("WEBAUTHN_ORIGIN", "http://localhost:3000")
 
     # Email settings
     SMTP_HOST: str = os.getenv("SMTP_HOST", "localhost")
@@ -102,9 +157,7 @@ class Settings(BaseSettings):
     )
     DEMO_FILES_RETENTION_DAYS: int = int(os.getenv("DEMO_FILES_RETENTION_DAYS", "1"))
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+    model_config = ConfigDict(case_sensitive=True, env_file=".env")
 
 
 settings = Settings()

@@ -252,7 +252,8 @@ class FinancialExtractor:
                 statements, ["gross_profit", "gross_margin"]
             )
             operating_income = self._get_value_from_statements(
-                statements, ["operating_income", "ebit", "operating_profit"]
+                statements,
+                ["operating_income", "ebit", "operating_profit"],
             )
             net_income = self._get_value_from_statements(
                 statements, ["net_income", "net_profit", "bottom_line"]
@@ -427,10 +428,22 @@ class FinancialExtractor:
         target_metrics = {
             "revenue": ["revenue", "sales", "income", "total revenue"],
             "gross_profit": ["gross profit", "gross margin"],
-            "operating_profit": ["operating profit", "operating income", "ebit"],
+            "operating_profit": [
+                "operating profit",
+                "operating income",
+                "ebit",
+            ],
             "net_profit": ["net profit", "net income", "profit after tax"],
-            "cost_of_sales": ["cost of sales", "cogs", "cost of goods sold"],
-            "operating_expenses": ["operating expenses", "opex", "operating costs"],
+            "cost_of_sales": [
+                "cost of sales",
+                "cogs",
+                "cost of goods sold",
+            ],
+            "operating_expenses": [
+                "operating expenses",
+                "opex",
+                "operating costs",
+            ],
         }
 
         for metric_key, search_terms in target_metrics.items():
@@ -503,9 +516,18 @@ class FinancialExtractor:
         metrics = []
 
         target_metrics = {
-            "operating_cash_flow": ["operating cash flow", "cash from operations"],
-            "investing_cash_flow": ["investing cash flow", "cash from investing"],
-            "financing_cash_flow": ["financing cash flow", "cash from financing"],
+            "operating_cash_flow": [
+                "operating cash flow",
+                "cash from operations",
+            ],
+            "investing_cash_flow": [
+                "investing cash flow",
+                "cash from investing",
+            ],
+            "financing_cash_flow": [
+                "financing cash flow",
+                "cash from financing",
+            ],
             "free_cash_flow": ["free cash flow", "fcf"],
             "net_cash_change": ["net change in cash", "net cash flow"],
         }
@@ -577,7 +599,12 @@ class FinancialExtractor:
 
         assumption_keywords = {
             "growth_rates": ["growth", "growth rate", "increase", "cagr"],
-            "cost_assumptions": ["cost per", "unit cost", "cost ratio", "margin"],
+            "cost_assumptions": [
+                "cost per",
+                "unit cost",
+                "cost ratio",
+                "margin",
+            ],
             "operational_assumptions": [
                 "capacity",
                 "utilization",
@@ -590,7 +617,12 @@ class FinancialExtractor:
                 "discount rate",
                 "wacc",
             ],
-            "market_assumptions": ["market size", "market share", "price", "volume"],
+            "market_assumptions": [
+                "market size",
+                "market share",
+                "price",
+                "volume",
+            ],
         }
 
         for sheet_info in sheets_info:

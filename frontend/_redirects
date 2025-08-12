@@ -1,9 +1,8 @@
-# SPA routing - redirect all routes to index.html for client-side routing
-/*    /index.html   200
+# API proxy to Railway backend - MUST COME FIRST
+/api/*  https://fin-model-production.up.railway.app/api/:splat  200
 
-# API proxy (optional - update with your actual backend URL)
-/api/*  https://your-backend-api.com/api/:splat  200
+# Health check endpoint
+/health https://fin-model-production.up.railway.app/health 200
 
-# Legacy redirects (if you have any old URLs to redirect)
-# /old-dashboard  /dashboard  301
-# /old-login      /login      301 
+# SPA routing - redirect all routes to index.html for client-side routing - MUST COME LAST
+/*    /index.html   200 

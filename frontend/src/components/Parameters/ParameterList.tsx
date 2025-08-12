@@ -1,44 +1,41 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader } from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
+import { Input } from '@/design-system/components/Input';
+import { Badge } from '@/design-system/components/Badge';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/components/Select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/design-system/components/Dialog';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  Paper,
-  Button,
-  IconButton,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Alert,
-  CircularProgress,
-  Tooltip,
-  Grid,
-} from '@mui/material';
+} from '@/design-system/components/Table';
 import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Add as AddIcon,
-  Refresh as RefreshIcon,
-  Info as InfoIcon,
-  History as HistoryIcon,
-  Analytics as AnalyticsIcon,
-} from '@mui/icons-material';
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/design-system/components/Tooltip';
+import { Edit, Trash2, RefreshCw, History } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { SelectChangeEvent } from '@mui/material/Select';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 // Types
 interface Parameter {
@@ -66,11 +63,11 @@ interface Parameter {
   created_at: string;
   updated_at: string;
 }
+
 interface Category {
   category: string;
   description: string;
 }
-
 
 interface ParameterListProps {
   fileId?: number;
@@ -94,545 +91,409 @@ const ParameterList: React.FC<ParameterListProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedSensitivity, setSelectedSensitivity] = useState<string>('all');
-  const [editingParameter, setEditingParameter] = useState<Parameter | null>(null);
-  const [, setCreateDialogOpen] = useState(false);
-  const [, setHistoryDialogOpen] = useState(false);
-  const [, setSelectedParameterId] = useState<number | null>(null);
+  const [editingParameter, setEditingParameter] = useState<Parameter | null>(
+    null
+  );
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [parameterToDelete, setParameterToDelete] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
 
   // Fetch parameters
-  const { data: parameters = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['parameters', fileId, selectedCategory, selectedType, selectedSensitivity],
+  const {
+    data: parameters = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<Parameter[]>({
+    queryKey: ['parameters', fileId],
     queryFn: async () => {
-      const token = localStorage.getItem('auth_token');
-      const params = new URLSearchParams();
-      
-      if (fileId) params.append('file_id', fileId.toString());
-      if (selectedCategory !== 'all') params.append('category', selectedCategory);
-      if (selectedType !== 'all') params.append('parameter_type', selectedType);
-      if (selectedSensitivity !== 'all') params.append('sensitivity_level', selectedSensitivity);
-      
-      const response = await fetch(`/api/v1/parameters?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
+      const response = await fetch(
+        `/api/v1/parameters${fileId ? `?file_id=${fileId}` : ''}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch parameters');
       }
-      
-      return await response.json() as Parameter[];
+      return response.json();
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  // Fetch parameter categories
-  const { data: categories = [] } = useQuery({
+  // Fetch categories
+  const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['parameter-categories'],
     queryFn: async () => {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/v1/parameters/categories/', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
+      const response = await fetch('/api/v1/parameters/categories');
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
-      
       return response.json();
-    },
-  });
-
-  // Update parameter mutation
-  const updateParameterMutation = useMutation({
-    mutationFn: async ({ id, updates }: { id: number; updates: Partial<Parameter> }) => {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/v1/parameters/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updates),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update parameter');
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['parameters']);
-      setEditingParameter(null);
     },
   });
 
   // Delete parameter mutation
-  const deleteParameterMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/v1/parameters/${id}`, {
+  const deleteMutation = useMutation({
+    mutationFn: async (parameterId: number) => {
+      const response = await fetch(`/api/v1/parameters/${parameterId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
       });
-      
       if (!response.ok) {
         throw new Error('Failed to delete parameter');
       }
-      
-      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['parameters']);
+      queryClient.invalidateQueries({ queryKey: ['parameters'] });
     },
   });
 
-  // Detect parameters from file mutation
-  const detectParametersMutation = useMutation({
-    mutationFn: async (fileId: number) => {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/v1/parameters/detect-from-file/${fileId}?auto_create=true`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+  // Update parameter mutation
+  const updateMutation = useMutation({
+    mutationFn: async (data: { id: number; value: number }) => {
+      const response = await fetch(`/api/v1/parameters/${data.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: data.value }),
       });
-      
       if (!response.ok) {
-        throw new Error('Failed to detect parameters');
+        throw new Error('Failed to update parameter');
       }
-      
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['parameters']);
+      queryClient.invalidateQueries({ queryKey: ['parameters'] });
     },
   });
 
-  const handleCategoryChange = (event: SelectChangeEvent) => {
-    setSelectedCategory(event.target.value);
+  // Filter parameters based on selected filters
+  const filteredParameters = parameters.filter(parameter => {
+    if (selectedCategory !== 'all' && parameter.category !== selectedCategory)
+      return false;
+    if (selectedType !== 'all' && parameter.parameter_type !== selectedType)
+      return false;
+    if (
+      selectedSensitivity !== 'all' &&
+      parameter.sensitivity_level !== selectedSensitivity
+    )
+      return false;
+    return true;
+  });
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
   };
 
-  const handleTypeChange = (event: SelectChangeEvent) => {
-    setSelectedType(event.target.value);
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
   };
 
-  const handleSensitivityChange = (event: SelectChangeEvent) => {
-    setSelectedSensitivity(event.target.value);
+  const handleSensitivityChange = (value: string) => {
+    setSelectedSensitivity(value);
   };
 
   const handleEditParameter = (parameter: Parameter) => {
     setEditingParameter(parameter);
   };
 
-  const handleSaveParameter = useCallback(async () => {
-    if (!editingParameter) return;
+  const handleDeleteParameter = (parameterId: number) => {
+    setParameterToDelete(parameterId);
+    setConfirmOpen(true);
+  };
 
-    const updates = {
-      display_name: editingParameter.display_name,
-      description: editingParameter.description,
-      current_value: editingParameter.current_value,
-      min_value: editingParameter.min_value,
-      max_value: editingParameter.max_value,
-      unit: editingParameter.unit,
-      is_required: editingParameter.is_required,
-      is_editable: editingParameter.is_editable,
-    };
-
-    updateParameterMutation.mutate({ id: editingParameter.id, updates });
-  }, [editingParameter, updateParameterMutation]);
-
-  const handleDeleteParameter = useCallback(async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this parameter?')) {
-      deleteParameterMutation.mutate(id);
+  const confirmDelete = () => {
+    if (parameterToDelete !== null) {
+      deleteMutation.mutate(parameterToDelete);
     }
-  }, [deleteParameterMutation]);
+  };
 
-  const handleDetectParameters = useCallback(async () => {
-    if (!fileId) return;
-    
-    detectParametersMutation.mutate(fileId);
-  }, [fileId, detectParametersMutation]);
-
-
+  const handleUpdateParameter = (parameterId: number, newValue: number) => {
+    updateMutation.mutate({ id: parameterId, value: newValue });
+  };
 
   const formatValue = (parameter: Parameter): string => {
-    const value = parameter.current_value;
-    
     switch (parameter.format_type) {
-      case 'currency':
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(value);
       case 'percentage':
-        return `${(value * 100).toFixed(2)}%`;
+        return `${parameter.current_value.toFixed(2)}%`;
+      case 'currency':
+        return `$${parameter.current_value.toLocaleString()}`;
       default:
-        return value.toLocaleString();
+        return parameter.current_value.toLocaleString();
     }
   };
 
   const getSensitivityColor = (level: string) => {
     switch (level) {
-      case 'critical': return 'error';
-      case 'high': return 'warning';
-      case 'medium': return 'info';
-      case 'low': return 'success';
-      default: return 'default';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'high':
+        return 'bg-orange-100 text-orange-800';
+      case 'critical':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   if (error) {
     return (
-      <Alert severity="error" sx={{ mt: 2 }}>
-        Failed to load parameters. Please try again later.
+      <Alert>
+        <AlertDescription>
+          Failed to load parameters:{' '}
+          {error instanceof Error ? error.message : 'Unknown error'}
+        </AlertDescription>
       </Alert>
     );
   }
 
   return (
-    <Box>
-      {/* Header and Controls */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" component="h2">
-          Parameters
-        </Typography>
-        
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {fileId && (
-            <Button
-              variant="outlined"
-              startIcon={<AnalyticsIcon />}
-              onClick={handleDetectParameters}
-              disabled={detectParametersMutation.isLoading}
-            >
-              {detectParametersMutation.isLoading ? 'Detecting...' : 'Auto-Detect'}
-            </Button>
-          )}
-          
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateDialogOpen(true)}
-          >
-            Add Parameter
-          </Button>
-          
-          <IconButton onClick={() => refetch()} disabled={isLoading}>
-            <RefreshIcon />
-          </IconButton>
-        </Box>
-      </Box>
+    <div className="space-y-4">
+      {/* Header with filters */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Parameters</h2>
+        <div className="flex items-center gap-4">
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map(category => (
+                <SelectItem key={category.category} value={category.category}>
+                  {category.category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      {/* Filters */}
-      <Card sx={{ mb: 3 }}>
+          <Select value={selectedType} onValueChange={handleTypeChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="input">Input</SelectItem>
+              <SelectItem value="calculated">Calculated</SelectItem>
+              <SelectItem value="derived">Derived</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedSensitivity}
+            onValueChange={handleSensitivityChange}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by sensitivity" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sensitivity Levels</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button onClick={() => refetch()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* Parameters Table */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">Parameter List</h3>
+        </CardHeader>
         <CardContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Category</InputLabel>
-                <Select
-                  value={selectedCategory}
-                  label="Category"
-                  onChange={handleCategoryChange}
-                >
-                  <MenuItem value="all">All Categories</MenuItem>
-                  {categories.map((category: Category) => (
-                    <MenuItem key={category.category} value={category.category}>
-                      {category.description}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Type</InputLabel>
-                <Select
-                  value={selectedType}
-                  label="Type"
-                  onChange={handleTypeChange}
-                >
-                  <MenuItem value="all">All Types</MenuItem>
-                  <MenuItem value="growth_rate">Growth Rate</MenuItem>
-                  <MenuItem value="revenue_assumption">Revenue Assumption</MenuItem>
-                  <MenuItem value="cost_assumption">Cost Assumption</MenuItem>
-                  <MenuItem value="discount_rate">Discount Rate</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            <Grid item xs={12} sm={4}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Sensitivity</InputLabel>
-                <Select
-                  value={selectedSensitivity}
-                  label="Sensitivity"
-                  onChange={handleSensitivityChange}
-                >
-                  <MenuItem value="all">All Levels</MenuItem>
-                  <MenuItem value="critical">Critical</MenuItem>
-                  <MenuItem value="high">High</MenuItem>
-                  <MenuItem value="medium">Medium</MenuItem>
-                  <MenuItem value="low">Low</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Sensitivity</TableHead>
+                  <TableHead>Current Value</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredParameters.map(parameter => (
+                  <TableRow key={parameter.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">
+                          {parameter.display_name || parameter.name}
+                        </p>
+                        {parameter.description && (
+                          <p className="text-sm text-muted-foreground">
+                            {parameter.description}
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{parameter.category}</TableCell>
+                    <TableCell>{parameter.parameter_type}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className={getSensitivityColor(
+                          parameter.sensitivity_level
+                        )}
+                      >
+                        {parameter.sensitivity_level}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">
+                          {formatValue(parameter)}
+                        </span>
+                        {parameter.unit && (
+                          <span className="text-sm text-muted-foreground">
+                            {parameter.unit}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditParameter(parameter)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit parameter</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setHistoryDialogOpen(true)}
+                              >
+                                <History className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View history</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteParameter(parameter.id)
+                                }
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Delete parameter</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
-      {/* Parameters Table */}
-      {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Parameter</TableCell>
-                <TableCell>Current Value</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Sensitivity</TableCell>
-                <TableCell>Source</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {parameters.map((parameter) => (
-                <TableRow key={parameter.id} hover>
-                  <TableCell>
-                    <Box>
-                      <Typography variant="subtitle2">
-                        {parameter.display_name || parameter.name}
-                      </Typography>
-                      {parameter.description && (
-                        <Typography variant="caption" color="text.secondary">
-                          {parameter.description}
-                        </Typography>
-                      )}
-                      {parameter.unit && (
-                        <Chip 
-                          label={parameter.unit} 
-                          size="small" 
-                          variant="outlined" 
-                          sx={{ ml: 1 }} 
-                        />
-                      )}
-                    </Box>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2" fontWeight="medium">
-                        {formatValue(parameter)}
-                      </Typography>
-                      {parameter.is_editable && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEditParameter(parameter)}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                    </Box>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Chip 
-                      label={parameter.parameter_type.replace('_', ' ')} 
-                      size="small" 
-                      variant="outlined" 
-                    />
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Chip 
-                      label={parameter.category} 
-                      size="small" 
-                      color="primary" 
-                      variant="outlined" 
-                    />
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Chip 
-                      label={parameter.sensitivity_level} 
-                      size="small" 
-                      color={getSensitivityColor(parameter.sensitivity_level)} 
-                    />
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Box>
-                      {parameter.source_sheet && (
-                        <Typography variant="caption" display="block">
-                          Sheet: {parameter.source_sheet}
-                        </Typography>
-                      )}
-                      {parameter.source_cell && (
-                        <Typography variant="caption" display="block">
-                          Cell: {parameter.source_cell}
-                        </Typography>
-                      )}
-                    </Box>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <Tooltip title="View History">
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            setSelectedParameterId(parameter.id);
-                            setHistoryDialogOpen(true);
-                          }}
-                        >
-                          <HistoryIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      
-                      <Tooltip title="Parameter Info">
-                        <IconButton size="small">
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      
-                      <Tooltip title="Delete Parameter">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteParameter(parameter.id)}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-              
-              {parameters.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <Typography color="text.secondary">
-                      No parameters found. {fileId ? 'Try auto-detecting parameters from your file.' : 'Upload a file to get started.'}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
       {/* Edit Parameter Dialog */}
-      <Dialog 
-        open={!!editingParameter} 
-        onClose={() => setEditingParameter(null)}
-        maxWidth="md"
-        fullWidth
+      <Dialog
+        open={!!editingParameter}
+        onOpenChange={() => setEditingParameter(null)}
       >
-        <DialogTitle>Edit Parameter</DialogTitle>
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Parameter</DialogTitle>
+            <DialogDescription>
+              Update the value for{' '}
+              {editingParameter?.display_name || editingParameter?.name}
+            </DialogDescription>
+          </DialogHeader>
           {editingParameter && (
-            <Box sx={{ pt: 1 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Display Name"
-                    value={editingParameter.display_name || ''}
-                    onChange={(e) => setEditingParameter({
-                      ...editingParameter,
-                      display_name: e.target.value
-                    })}
-                  />
-                </Grid>
-                
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Current Value"
-                    type="number"
-                    value={editingParameter.current_value || ''}
-                    onChange={(e) => setEditingParameter({
-                      ...editingParameter,
-                      current_value: parseFloat(e.target.value)
-                    })}
-                  />
-                </Grid>
-                
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Description"
-                    multiline
-                    rows={2}
-                    value={editingParameter.description || ''}
-                    onChange={(e) => setEditingParameter({
-                      ...editingParameter,
-                      description: e.target.value
-                    })}
-                  />
-                </Grid>
-                
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Minimum Value"
-                    type="number"
-                    value={editingParameter.min_value || ''}
-                    onChange={(e) => setEditingParameter({
-                      ...editingParameter,
-                      min_value: parseFloat(e.target.value)
-                    })}
-                  />
-                </Grid>
-                
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Maximum Value"
-                    type="number"
-                    value={editingParameter.max_value || ''}
-                    onChange={(e) => setEditingParameter({
-                      ...editingParameter,
-                      max_value: parseFloat(e.target.value)
-                    })}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">New Value</label>
+                <Input
+                  type="number"
+                  defaultValue={editingParameter.current_value}
+                  onChange={e => {
+                    const newValue = Number(e.target.value);
+                    if (!isNaN(newValue)) {
+                      handleUpdateParameter(editingParameter.id, newValue);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingParameter(null)}>
+              Cancel
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditingParameter(null)}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSaveParameter}
-            variant="contained"
-            disabled={updateParameterMutation.isLoading}
-          >
-            {updateParameterMutation.isLoading ? 'Saving...' : 'Save'}
-          </Button>
-        </DialogActions>
       </Dialog>
-    </Box>
+
+      {/* History Dialog */}
+      <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Parameter History</DialogTitle>
+            <DialogDescription>
+              View the change history for this parameter
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              History feature coming soon...
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={open => {
+          setConfirmOpen(open);
+          if (!open) setParameterToDelete(null);
+        }}
+        title="Delete Parameter"
+        description="Are you sure you want to delete this parameter?"
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+      />
+    </div>
   );
 };
 
-export default ParameterList; 
+export default ParameterList;

@@ -177,7 +177,8 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
         """Get time series data with filtering."""
         query = self.db.query(self.model).filter(
             and_(
-                self.model.scenario_id == scenario_id, self.model.data_type == data_type
+                self.model.scenario_id == scenario_id,
+                self.model.data_type == data_type,
             )
         )
 
@@ -203,7 +204,8 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
         """Get aggregated time series data."""
         query = self.db.query(self.model).filter(
             and_(
-                self.model.scenario_id == scenario_id, self.model.data_type == data_type
+                self.model.scenario_id == scenario_id,
+                self.model.data_type == data_type,
             )
         )
 
@@ -226,7 +228,10 @@ class TimeSeriesRepository(BaseRepository[TimeSeries]):
         return float(result) if result else 0.0
 
     def bulk_upsert_series(
-        self, scenario_id: int, data_type: str, series_data: List[Dict[str, Any]]
+        self,
+        scenario_id: int,
+        data_type: str,
+        series_data: List[Dict[str, Any]],
     ) -> int:
         """Bulk upsert time series data."""
         updated_count = 0
@@ -282,7 +287,8 @@ class CalculationRepository(BaseRepository[Calculation]):
             self.db.query(self.model)
             .filter(
                 and_(
-                    self.model.scenario_id == scenario_id, self.model.is_active == True
+                    self.model.scenario_id == scenario_id,
+                    self.model.is_active == True,
                 )
             )
             .order_by(self.model.execution_order)
@@ -347,7 +353,8 @@ class TemplateRepository(BaseRepository[Template]):
             self.db.query(self.model)
             .filter(
                 and_(
-                    self.model.is_system_template == True, self.model.is_active == True
+                    self.model.is_system_template == True,
+                    self.model.is_active == True,
                 )
             )
             .order_by(self.model.name)
@@ -390,7 +397,12 @@ class FileVersionRepository(BaseRepository[FileVersion]):
         """Get current version of a file."""
         return (
             self.db.query(self.model)
-            .filter(and_(self.model.file_id == file_id, self.model.is_current == True))
+            .filter(
+                and_(
+                    self.model.file_id == file_id,
+                    self.model.is_current == True,
+                )
+            )
             .first()
         )
 
@@ -442,7 +454,8 @@ class DataSourceRepository(BaseRepository[DataSource]):
             self.db.query(self.model)
             .filter(
                 and_(
-                    self.model.source_type == source_type, self.model.is_active == True
+                    self.model.source_type == source_type,
+                    self.model.is_active == True,
                 )
             )
             .order_by(self.model.source_name)
@@ -456,7 +469,8 @@ class DataSourceRepository(BaseRepository[DataSource]):
             self.db.query(self.model)
             .filter(
                 and_(
-                    self.model.is_active == True, self.model.last_updated < cutoff_time
+                    self.model.is_active == True,
+                    self.model.last_updated < cutoff_time,
                 )
             )
             .all()

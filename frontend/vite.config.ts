@@ -1,66 +1,47 @@
 import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
+import { mergeConfig, sharedOptimizeDeps } from './vite.config.base';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
   const env = loadEnv(mode, process.cwd(), '');
 
-  return {
-    plugins: [react()],
+  return mergeConfig({
+    plugins: [
+      react({
+        // Enable fast refresh in development
+        ...(mode === 'development' && { fastRefresh: true }),
+        // Ensure React is available globally
+        jsxImportSource: 'react',
+      }),
+    ],
     optimizeDeps: {
       include: [
+        ...sharedOptimizeDeps,
+        'react',
+        'react-dom',
         'react/jsx-runtime',
-        'lucide-react',
-        '@radix-ui/react-accordion',
-        '@radix-ui/react-alert-dialog',
-        '@radix-ui/react-aspect-ratio',
-        '@radix-ui/react-avatar',
-        '@radix-ui/react-checkbox',
-        '@radix-ui/react-collapsible',
-        '@radix-ui/react-context-menu',
-        '@radix-ui/react-dialog',
-        '@radix-ui/react-dropdown-menu',
-        '@radix-ui/react-hover-card',
-        '@radix-ui/react-label',
-        '@radix-ui/react-menubar',
-        '@radix-ui/react-navigation-menu',
-        '@radix-ui/react-popover',
-        '@radix-ui/react-progress',
-        '@radix-ui/react-radio-group',
-        '@radix-ui/react-scroll-area',
-        '@radix-ui/react-select',
-        '@radix-ui/react-separator',
-        '@radix-ui/react-slider',
-        '@radix-ui/react-slot',
-        '@radix-ui/react-switch',
-        '@radix-ui/react-tabs',
-        '@radix-ui/react-toggle',
-        '@radix-ui/react-toggle-group',
-        '@radix-ui/react-tooltip',
-        '@mui/material',
-        '@mui/icons-material',
-        '@tanstack/react-query',
-        'react-router-dom',
-        'axios',
-        'date-fns',
-        'recharts',
-        'formik',
-        'yup',
-        'class-variance-authority',
-        'clsx',
-        'tailwind-merge',
       ],
       force: true,
     },
+    
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
-        '@mui/styled-engine': '@mui/styled-engine/index.js',
       },
       conditions: ['development', 'browser'],
     },
+    
+    define: {
+      // Ensure React is available globally
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      __DEV__: mode === 'development',
+      __PROD__: mode === 'production',
+      // Ensure React is available globally
+      'global': 'globalThis',
+    },
+    
     server: {
       port: 3000,
       host: true,
@@ -77,31 +58,24 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    
     build: {
-      outDir: 'dist',
       sourcemap: mode === 'development',
       minify: mode === 'production' ? 'esbuild' : false,
+      target: 'esnext',
+      chunkSizeWarningLimit: 1200,
+      // Remove complex chunking to avoid React bundling issues
       rollupOptions: {
-        // Don't externalize packages in production - bundle them all
-        external: [],
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            mui: ['@mui/material', '@mui/icons-material'],
-            charts: ['recharts'],
-            utils: ['axios', 'date-fns', 'yup', 'lucide-react'],
-          },
+          manualChunks: undefined, // Disable manual chunking
         },
       },
-      chunkSizeWarningLimit: 1000,
     },
+    
     test: {
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
-      deps: {
-        inline: [/^@mui\/./],
-      },
       server: {
         deps: {
           inline: [
@@ -112,17 +86,6 @@ export default defineConfig(({ mode }) => {
           ],
         },
       },
-      coverage: {
-        reporter: ['text', 'json', 'html'],
-        exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*'],
-      },
     },
-    define: {
-      // Make environment variables available to the app
-      __APP_VERSION__: JSON.stringify(env.VITE_APP_VERSION || '1.0.0'),
-      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    },
-    // Ensure environment variables are properly handled
-    envPrefix: 'VITE_',
-  };
+  });
 });

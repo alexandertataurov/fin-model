@@ -218,7 +218,10 @@ class VirusTotalScanner(VirusScannerInterface):
                         file_hash=file_hash,
                         scan_timestamp=start_time,
                         confidence=0.5,  # Lower confidence for pending scans
-                        details={"status": "scan_pending", "scan_id": scan_id},
+                        details={
+                            "status": "scan_pending",
+                            "scan_id": scan_id,
+                        },
                     )
             else:
                 raise Exception(f"Failed to upload file to VirusTotal: {upload_result}")
@@ -390,7 +393,10 @@ class BasicFileScanner(VirusScannerInterface):
                 file_hash=file_hash,
                 scan_timestamp=start_time,
                 confidence=0.6,  # Lower confidence for basic scanning
-                details={"file_size": file_size, "file_extension": file_ext},
+                details={
+                    "file_size": file_size,
+                    "file_extension": file_ext,
+                },
             )
 
         except Exception as e:

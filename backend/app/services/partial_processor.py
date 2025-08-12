@@ -189,10 +189,18 @@ class PartialProcessor:
             )
 
     def _process_sheet_with_recovery(
-        self, workbook, sheet_name: str, global_issues: List[ProcessingIssue]
+        self,
+        workbook,
+        sheet_name: str,
+        global_issues: List[ProcessingIssue],
     ) -> Dict[str, Any]:
         """Process a single sheet with error recovery."""
-        result = {"success": False, "data": {}, "issues": [], "recovery_actions": []}
+        result = {
+            "success": False,
+            "data": {},
+            "issues": [],
+            "recovery_actions": [],
+        }
 
         try:
             sheet = workbook[sheet_name]
@@ -433,7 +441,10 @@ class PartialProcessor:
             return None
 
     def _extract_partial_metrics(
-        self, workbook, processed_sheets: List[str], issues: List[ProcessingIssue]
+        self,
+        workbook,
+        processed_sheets: List[str],
+        issues: List[ProcessingIssue],
     ) -> Dict[str, Any]:
         """Extract what metrics we can from successfully processed sheets."""
         result = {"metrics": {}, "recovery_actions": []}
@@ -457,7 +468,10 @@ class PartialProcessor:
                 result["metrics"] = {
                     "financial_metrics": filtered_metrics,
                     "extraction_confidence": len(filtered_metrics)
-                    / max(len(partial_extraction.get("financial_metrics", [])), 1),
+                    / max(
+                        len(partial_extraction.get("financial_metrics", [])),
+                        1,
+                    ),
                     "sheets_contributing": processed_sheets,
                 }
 

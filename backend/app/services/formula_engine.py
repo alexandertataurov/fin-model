@@ -883,7 +883,14 @@ class FormulaEngine:
                 return True
 
         # Check for suspicious characters/patterns
-        suspicious_chars = ["__", "{{", "}}", "system", "shell", "subprocess"]
+        suspicious_chars = [
+            "__",
+            "{{",
+            "}}",
+            "system",
+            "shell",
+            "subprocess",
+        ]
         for char in suspicious_chars:
             if char in expression_lower:
                 return True

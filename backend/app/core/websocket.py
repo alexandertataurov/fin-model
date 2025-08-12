@@ -135,7 +135,11 @@ class ConnectionManager:
         ):
             await self.send_to_user(
                 user_id,
-                {"type": "file_status_update", "file_id": file_id, "data": status_data},
+                {
+                    "type": "file_status_update",
+                    "file_id": file_id,
+                    "data": status_data,
+                },
             )
 
     async def broadcast_task_progress(
@@ -212,18 +216,25 @@ async def handle_websocket_message(
 
         elif message_type == "ping":
             await manager.send_to_user(
-                user_id, {"type": "pong", "timestamp": message.get("timestamp")}
+                user_id,
+                {"type": "pong", "timestamp": message.get("timestamp")},
             )
 
         else:
             await manager.send_to_user(
                 user_id,
-                {"type": "error", "message": f"Unknown message type: {message_type}"},
+                {
+                    "type": "error",
+                    "message": f"Unknown message type: {message_type}",
+                },
             )
 
     except Exception as e:
         logger.error(f"Error handling WebSocket message: {e}")
         await manager.send_to_user(
             user_id,
-            {"type": "error", "message": f"Failed to process message: {str(e)}"},
+            {
+                "type": "error",
+                "message": f"Failed to process message: {str(e)}",
+            },
         )

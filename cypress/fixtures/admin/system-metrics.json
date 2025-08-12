@@ -1,0 +1,9 @@
+{
+  "cpu_usage": 42.5,
+  "memory_usage": 68.9,
+  "disk_usage": 34.2,
+  "active_connections": 18,
+  "request_count_24h": 4567,
+  "error_rate_24h": 0.012,
+  "avg_response_time": 185
+}

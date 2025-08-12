@@ -1,0 +1,178 @@
+openapi: 3.1.0
+info:
+  title: FinVision API
+  description: Financial Modeling and Analysis Platform API
+  version: 1.0.0
+  contact:
+    name: FinVision Support
+    email: support@finvision.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://fin-model-production.up.railway.app/api/v1
+    description: Production server
+  - url: http://localhost:8000/api/v1
+    description: Development server
+
+paths:
+  /docs/:
+    get:
+      summary: Documentation landing page
+      description: Main documentation hub with navigation to all formats
+      responses:
+        "200":
+          description: HTML documentation page
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: Documentation not found
+
+  /docs/redoc:
+    get:
+      summary: ReDoc documentation
+      description: Beautiful, responsive API documentation
+      responses:
+        "200":
+          description: ReDoc HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: ReDoc documentation not found
+
+  /docs/swagger:
+    get:
+      summary: Swagger UI documentation
+      description: Interactive API testing and documentation
+      responses:
+        "200":
+          description: Swagger UI HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: Swagger documentation not found
+
+  /docs/comprehensive:
+    get:
+      summary: Comprehensive documentation
+      description: Full documentation with examples and guides
+      responses:
+        "200":
+          description: Comprehensive HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: Comprehensive documentation not found
+
+  /docs/openapi.yaml:
+    get:
+      summary: OpenAPI specification
+      description: Machine-readable API specification
+      responses:
+        "200":
+          description: OpenAPI YAML specification
+          content:
+            application/x-yaml:
+              schema:
+                type: string
+        "404":
+          description: OpenAPI specification not found
+
+  /docs/postman:
+    get:
+      summary: Postman collection
+      description: Ready-to-use API collection for Postman
+      responses:
+        "200":
+          description: Postman collection JSON
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: Postman collection not found
+
+  /docs/markdown:
+    get:
+      summary: Markdown documentation
+      description: Comprehensive reference guide in markdown format
+      responses:
+        "200":
+          description: Markdown documentation
+          content:
+            text/markdown:
+              schema:
+                type: string
+        "404":
+          description: Markdown documentation not found
+
+  /docs/readme:
+    get:
+      summary: Quick start guide
+      description: Getting started guide for the API
+      responses:
+        "200":
+          description: README documentation
+          content:
+            text/markdown:
+              schema:
+                type: string
+        "404":
+          description: README documentation not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for API authentication
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+      required:
+        - detail
+
+    Success:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+        data:
+          type: object
+          description: Response data
+      required:
+        - message
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Documentation
+    description: API documentation endpoints
+  - name: Authentication
+    description: Authentication and authorization endpoints
+  - name: Financial Models
+    description: Financial modeling operations
+  - name: Risk Analysis
+    description: Risk assessment and analysis
+  - name: Portfolio Optimization
+    description: Portfolio optimization and management

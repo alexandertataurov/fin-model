@@ -8,7 +8,12 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import UploadFile, HTTPException, status
 
-from app.models.file import UploadedFile, ProcessingLog, FileStatus, FileType
+from app.models.file import (
+    UploadedFile,
+    ProcessingLog,
+    FileStatus,
+    FileType,
+)
 from app.models.user import User
 from app.core.config import settings
 
@@ -44,7 +49,8 @@ class FileService:
                 )
         else:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Filename is required"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Filename is required",
             )
 
     def get_file_type(self, filename: str) -> FileType:
@@ -193,7 +199,11 @@ class FileService:
 
         if status == FileStatus.PROCESSING:
             file_record.processing_started_at = datetime.utcnow()
-        elif status in [FileStatus.COMPLETED, FileStatus.FAILED, FileStatus.CANCELLED]:
+        elif status in [
+            FileStatus.COMPLETED,
+            FileStatus.FAILED,
+            FileStatus.CANCELLED,
+        ]:
             file_record.processing_completed_at = datetime.utcnow()
 
         self.db.commit()
@@ -211,7 +221,11 @@ class FileService:
     ) -> ProcessingLog:
         """Log a processing step for a file."""
         log_entry = ProcessingLog(
-            file_id=file_id, step=step, message=message, level=level, details=details
+            file_id=file_id,
+            step=step,
+            message=message,
+            level=level,
+            details=details,
         )
 
         self.db.add(log_entry)
@@ -226,7 +240,8 @@ class FileService:
         file_record = self.get_file_by_id(file_id, user)
         if not file_record:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found",
             )
 
         return (
@@ -275,7 +290,8 @@ class FileService:
         file_path = Path(file_record.file_path)
         if not file_path.exists():
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Physical file not found"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Physical file not found",
             )
 
         return str(file_path)

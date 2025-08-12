@@ -54,17 +54,10 @@ interface LineChartProps {
   formatYAxisTick?: (value: number) => string;
 }
 
-// DESIGN_FIX: use design system chart color tokens instead of hex values
-const defaultColors = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-];
+import { DEFAULT_CHART_COLORS } from '../../constants/colors';
+
+// Use centralized chart color constants
+const defaultColors = DEFAULT_CHART_COLORS;
 
 export const LineChart: React.FC<LineChartProps> = ({
   data,
@@ -161,7 +154,6 @@ export const LineChart: React.FC<LineChartProps> = ({
           data-testid="tooltip"
           content={
             <CustomTooltip
-              currency={currency}
               formatter={formatTooltip}
               labelFormatter={label => `Period: ${label}`}
             />
@@ -225,6 +217,8 @@ export const LineChart: React.FC<LineChartProps> = ({
       error={error}
       onExport={onExport}
       onFullscreen={onFullscreen}
+      aria-label={title || 'Line Chart'}
+      aria-describedby={subtitle ? undefined : undefined}
     >
       {chartContent}
     </BaseChart>

@@ -74,7 +74,13 @@ class ExcelExporter:
             wb.remove(wb["Sheet"])
 
         # Create sheets based on data structure
-        sheet_order = ["Summary", "P&L", "Balance Sheet", "Cash Flow", "Raw Data"]
+        sheet_order = [
+            "Summary",
+            "P&L",
+            "Balance Sheet",
+            "Cash Flow",
+            "Raw Data",
+        ]
 
         for sheet_name in sheet_order:
             if sheet_name.lower().replace(" ", "_").replace("&", "") in data:
@@ -125,7 +131,11 @@ class ExcelExporter:
         if "tables" in data:
             for table_name, table_data in data["tables"].items():
                 current_row = self._add_table_section(
-                    ws, table_name, table_data, current_row, preserve_formulas
+                    ws,
+                    table_name,
+                    table_data,
+                    current_row,
+                    preserve_formulas,
                 )
 
         # Auto-adjust column widths
@@ -171,7 +181,9 @@ class ExcelExporter:
                 if isinstance(metric_value, dict):
                     # Handle structured metric data
                     worksheet.cell(
-                        row=current_row, column=2, value=metric_value.get("current", "")
+                        row=current_row,
+                        column=2,
+                        value=metric_value.get("current", ""),
                     )
                     worksheet.cell(
                         row=current_row,
@@ -188,7 +200,9 @@ class ExcelExporter:
                                 (current_val - previous_val) / previous_val
                             ) * 100
                             worksheet.cell(
-                                row=current_row, column=4, value=change_pct / 100
+                                row=current_row,
+                                column=4,
+                                value=change_pct / 100,
                             )
                             worksheet.cell(
                                 row=current_row, column=4
@@ -202,7 +216,13 @@ class ExcelExporter:
                 # Apply formatting based on metric type
                 if any(
                     keyword in metric_name.lower()
-                    for keyword in ["revenue", "profit", "cost", "expense", "cash"]
+                    for keyword in [
+                        "revenue",
+                        "profit",
+                        "cost",
+                        "expense",
+                        "cash",
+                    ]
                 ):
                     worksheet.cell(
                         row=current_row, column=2
@@ -222,7 +242,10 @@ class ExcelExporter:
         return current_row + 2
 
     def _add_time_series_section(
-        self, worksheet, time_series_data: List[Dict[str, Any]], start_row: int
+        self,
+        worksheet,
+        time_series_data: List[Dict[str, Any]],
+        start_row: int,
     ) -> int:
         """Add time series data section to worksheet."""
         if not time_series_data:
@@ -299,7 +322,9 @@ class ExcelExporter:
 
         # Section header
         worksheet.cell(
-            row=current_row, column=1, value=table_name.replace("_", " ").title()
+            row=current_row,
+            column=1,
+            value=table_name.replace("_", " ").title(),
         )
         header_cell = worksheet.cell(row=current_row, column=1)
         header_cell.font = Font(size=14, bold=True)
@@ -401,10 +426,14 @@ class ExcelExporter:
             data_start_row = start_row + 1
             for idx, row in df.iterrows():
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col, value=row["period"]
+                    row=data_start_row + idx,
+                    column=start_col,
+                    value=row["period"],
                 )
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col + 1, value=row["value"]
+                    row=data_start_row + idx,
+                    column=start_col + 1,
+                    value=row["value"],
                 )
 
             # Create chart
@@ -449,10 +478,14 @@ class ExcelExporter:
             data_start_row = start_row + 1
             for idx, row in df.iterrows():
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col, value=row["period"]
+                    row=data_start_row + idx,
+                    column=start_col,
+                    value=row["period"],
                 )
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col + 1, value=row["value"]
+                    row=data_start_row + idx,
+                    column=start_col + 1,
+                    value=row["value"],
                 )
 
             # Create chart
@@ -497,10 +530,14 @@ class ExcelExporter:
             data_start_row = start_row + 1
             for idx, row in df.iterrows():
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col, value=row["period"]
+                    row=data_start_row + idx,
+                    column=start_col,
+                    value=row["period"],
                 )
                 worksheet.cell(
-                    row=data_start_row + idx, column=start_col + 1, value=row["value"]
+                    row=data_start_row + idx,
+                    column=start_col + 1,
+                    value=row["value"],
                 )
 
             # Create chart

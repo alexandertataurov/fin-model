@@ -26,8 +26,8 @@ export class PerformanceMonitor {
     _componentName: string
   ): React.ComponentType<T> {
     return (props: T) => {
-      const startTime = useRef<number>();
-      const endTime = useRef<number>();
+      const startTime = useRef<number | undefined>(undefined);
+      const endTime = useRef<number | undefined>(undefined);
 
       useEffect(() => {
         startTime.current = performance.now();
@@ -40,7 +40,7 @@ export class PerformanceMonitor {
               loadTime: 0, 
               renderTime,
               memoryUsage: this.getMemoryUsage()
-            });
+            } as PerformanceMetrics);
             
             if (renderTime > 16.67) { // 60fps threshold
               // Removed console.warn (no-console lint rule)
@@ -57,16 +57,18 @@ export class PerformanceMonitor {
   measurePageLoad(_pageName: string): void {
     if (typeof window !== 'undefined' && window.performance) {
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      const loadTime = navigation.loadEventEnd - navigation.fetchStart;
-      
-      this.recordMetric({
-        loadTime,
-        renderTime: 0,
-        memoryUsage: this.getMemoryUsage()
-      });
+      if (navigation) {
+        const loadTime = navigation.loadEventEnd - navigation.fetchStart;
+        
+        this.recordMetric({
+          loadTime,
+          renderTime: 0,
+          memoryUsage: this.getMemoryUsage()
+        } as PerformanceMetrics);
 
-      if (loadTime > 3000) { // 3 second threshold
-        // Removed console.warn (no-console lint rule)
+        if (loadTime > 3000) { // 3 second threshold
+          // Removed console.warn (no-console lint rule)
+        }
       }
     }
   }
@@ -157,7 +159,7 @@ export const usePerformanceMonitor = () => {
 
 // Deep comparison hook for object dependencies
 export const useDeepMemo = <T>(fn: () => T, deps: unknown[]): T => {
-  const ref = useRef<{ deps: unknown[]; value: T }>();
+  const ref = useRef<{ deps: unknown[]; value: T } | undefined>(undefined);
   
   if (!ref.current || !deepEqual(ref.current.deps, deps)) {
     ref.current = { deps, value: fn() };
@@ -284,7 +286,7 @@ export const useLazyImage = (src: string, placeholder?: string) => {
   const [isError, setIsError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const { hasIntersected } = useIntersectionObserver(imgRef);
+  const { hasIntersected } = useIntersectionObserver(imgRef as React.RefObject<Element>);
 
   useEffect(() => {
     if (hasIntersected && src) {

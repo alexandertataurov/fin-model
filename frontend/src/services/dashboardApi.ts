@@ -1,0 +1,535 @@
+/**
+ * Dashboard API Service
+ *
+ * Frontend API client for dashboard data integration
+ */
+
+import { apiClient } from './api';
+import {
+  DashboardData,
+  CashFlowDashboardData,
+  BalanceSheetDashboardData,
+  FinancialRatio,
+  DashboardPeriod,
+} from '../types/dashboard';
+import type { PLDashboardData as PLDashboardDataType } from '../types/dashboard';
+
+export interface DashboardOverview {
+  statements: FinancialStatement[];
+  active_statement: FinancialStatement | null;
+  key_metrics: KeyMetrics;
+  chart_data: ChartDatasets;
+  last_updated: string;
+  data_quality_score: number;
+  period_info: PeriodInfo;
+  generated_at: string;
+  // Backend may include these when fallback demo data is used
+  is_demo?: boolean;
+  data_state?: 'demo' | 'real';
+}
+
+export interface FinancialStatement {
+  id: string;
+  type: 'pl' | 'balance_sheet' | 'cash_flow';
+  name: string;
+  period_start: string;
+  period_end: string;
+  period_type: string;
+  currency: string;
+  data_quality_score: number;
+  line_items_count: number;
+  last_updated: string;
+}
+
+export interface KeyMetrics {
+  revenue: MetricValue;
+  net_income: MetricValue;
+  gross_margin: MetricValue;
+  operating_margin: MetricValue;
+  current_ratio: MetricValue;
+  debt_to_equity: MetricValue;
+  return_on_assets: MetricValue;
+  return_on_equity: MetricValue;
+}
+
+export interface MetricValue {
+  current: number;
+  previous?: number;
+  change_percent?: number;
+  trend: 'up' | 'down' | 'stable';
+  unit: string;
+  benchmark?: number;
+}
+
+export interface ChartDatasets {
+  revenue_trend: ChartData[];
+  expense_breakdown: ChartData[];
+  profit_margins: ChartData[];
+  cash_flow_waterfall: ChartData[];
+  balance_sheet_composition: ChartData[];
+  financial_ratios_trend: ChartData[];
+}
+
+export interface ChartData {
+  name: string;
+  value: number;
+  date?: string;
+  category?: string;
+  color?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface PeriodInfo {
+  filter: string;
+  start_date: string;
+  end_date: string;
+  description: string;
+}
+
+export interface PLDashboardData {
+  statement_id: string;
+  period: string;
+  revenue_data: ChartData[];
+  expense_data: ChartData[];
+  margin_analysis: ChartData[];
+  key_metrics: KeyMetrics;
+  time_series: ChartData[];
+  generated_at: string;
+}
+
+export interface BalanceSheetData {
+  statement_id: string;
+  period: string;
+  asset_composition: ChartData[];
+  liability_breakdown: ChartData[];
+  equity_structure: ChartData[];
+  liquidity_ratios: ChartData[];
+  leverage_metrics: KeyMetrics;
+  generated_at: string;
+}
+
+export interface CashFlowData {
+  statement_id: string;
+  period: string;
+  waterfall_data: ChartData[];
+  operating_cash_flow: ChartData[];
+  investing_cash_flow: ChartData[];
+  financing_cash_flow: ChartData[];
+  cash_position_trend: ChartData[];
+  generated_at: string;
+}
+
+export interface TimeSeriesParams {
+  metric_key: string;
+  statement_type: string;
+  periods?: number;
+}
+
+export interface ComparisonParams {
+  statement_id_1: string;
+  statement_id_2: string;
+}
+
+export interface ExportParams {
+  format: 'pdf' | 'excel' | 'json';
+  period?: string;
+  statement_ids?: string[];
+}
+
+// Additional response types for metrics endpoints
+export interface DashboardSimpleMetrics {
+  total_files: number;
+  completed_files: number;
+  processing_files: number;
+  total_parameters: number;
+  total_reports: number;
+}
+
+export interface DashboardCharts {
+  revenue_trend: number[];
+  expense_breakdown: Record<string, number>;
+}
+
+export interface OverviewMetricsResponse {
+  period: string;
+  file_id?: number;
+  metrics: Record<string, any>;
+  generated_at: string;
+}
+
+export interface FinancialTrendsResponse {
+  metric_type: string;
+  period_range: string;
+  file_id?: number;
+  trend_data: any[];
+  statistics?: Record<string, any>;
+  forecast?: any[];
+  generated_at: string;
+}
+
+export interface KPIResponse {
+  period: string;
+  industry?: string;
+  file_id?: number;
+  kpis: Record<string, any>;
+  benchmarks?: Record<string, any>;
+  performance_score?: number;
+  generated_at: string;
+}
+
+export interface DataSourcesResponse {
+  data_sources: Array<{
+    id: number;
+    filename: string;
+    file_type: string;
+    status: string;
+    is_valid: boolean;
+    created_at: string;
+    file_size?: number;
+    has_financial_data: boolean;
+  }>;
+  total_count: number;
+  valid_count: number;
+  generated_at: string;
+}
+
+export interface VarianceAnalysisResponse {
+  base_period: string;
+  compare_period: string;
+  variance_type: 'absolute' | 'percentage';
+  file_id?: number;
+  variances: Record<string, any>;
+  significant_changes?: any[];
+  summary?: Record<string, any>;
+  generated_at: string;
+}
+
+export interface HealthStatusResponse {
+  status: 'healthy' | 'unhealthy';
+  database: string;
+  cache: string;
+  data_availability: {
+    total_files: number;
+    processed_files: number;
+    processing_rate: number;
+  };
+  timestamp: string;
+}
+
+// Period filter options
+export enum PeriodFilter {
+  MTD = 'mtd',
+  QTD = 'qtd',
+  YTD = 'ytd',
+  LAST_30_DAYS = 'last_30_days',
+  LAST_90_DAYS = 'last_90_days',
+  LAST_12_MONTHS = 'last_12_months',
+  CUSTOM = 'custom',
+}
+
+export class DashboardApiService {
+  /**
+   * Get complete dashboard overview
+   */
+  static async getDashboardOverview(
+    period: PeriodFilter = PeriodFilter.YTD
+  ): Promise<DashboardOverview> {
+    const response = await apiClient.get('/dashboard/overview', {
+      params: { period, fallback: 'empty' },
+    });
+    return response.data;
+  }
+
+  /**
+   * Get Cash Flow dashboard metrics with real backend data
+   */
+  static async getCashFlowMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<CashFlowDashboardData> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+
+    const response = await apiClient.get('/dashboard/metrics/cash-flow', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get P&L dashboard metrics with real backend data
+   */
+  static async getPLMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<PLDashboardDataType> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+
+    const response = await apiClient.get('/dashboard/metrics/pl', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get ratio metrics for analysis
+   */
+  static async getRatioMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<DashboardData> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+
+    const response = await apiClient.get('/dashboard/metrics/ratios', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get variance analysis metrics
+   */
+  static async getVarianceMetrics(
+    basePeriod: string,
+    comparePeriod: string,
+    options?: { varianceType?: 'absolute' | 'percentage'; fileId?: number }
+  ): Promise<VarianceAnalysisResponse> {
+    const params: any = {
+      base_period: basePeriod,
+      compare_period: comparePeriod,
+      variance_type: options?.varianceType || 'absolute',
+    };
+    if (options?.fileId) params.file_id = options.fileId;
+
+    const response = await apiClient.get('/dashboard/metrics/variance', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get Balance Sheet dashboard metrics with real backend data
+   */
+  static async getBalanceSheetMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<BalanceSheetDashboardData> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+
+    const response = await apiClient.get('/dashboard/metrics/balance-sheet', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get financial ratios with filtering
+   */
+  static async getFinancialRatios(
+    period: DashboardPeriod,
+    category?: string,
+    fileId?: number
+  ): Promise<FinancialRatio[]> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    if (category) params.ratio_category = category;
+
+    const response = await apiClient.get('/dashboard/metrics/ratios', {
+      params,
+    });
+    return response.data.ratios || [];
+  }
+
+  /**
+   * Get P&L dashboard data for specific statement
+   */
+  static async getPLData(statementId: string): Promise<PLDashboardData> {
+    const response = await apiClient.get(`/dashboard/pl/${statementId}`);
+    return response.data;
+  }
+
+  /**
+   * Get Balance Sheet dashboard data
+   */
+  static async getBalanceSheetData(
+    statementId: string
+  ): Promise<BalanceSheetData> {
+    const response = await apiClient.get(`/dashboard/balance/${statementId}`);
+    return response.data;
+  }
+
+  /**
+   * Get Cash Flow dashboard data
+   */
+  static async getCashFlowData(statementId: string): Promise<CashFlowData> {
+    const response = await apiClient.get(`/dashboard/cashflow/${statementId}`);
+    return response.data;
+  }
+
+  /**
+   * Get key metrics for specific statement
+   */
+  static async getStatementMetrics(statementId: string): Promise<KeyMetrics> {
+    const response = await apiClient.get(`/dashboard/metrics/${statementId}`);
+    return response.data;
+  }
+
+  /**
+   * Get list of user's financial statements
+   */
+  static async getUserStatements(
+    statementType?: string,
+    limit = 10
+  ): Promise<{ statements: FinancialStatement[]; total_count: number }> {
+    const response = await apiClient.get('/dashboard/statements', {
+      params: { statement_type: statementType, limit },
+    });
+    return response.data;
+  }
+
+  /**
+   * Get time series data for charts
+   */
+  static async getTimeSeriesData(params: TimeSeriesParams): Promise<{
+    time_series: {
+      periods: string[];
+      values: number[];
+      dates: string[];
+      unit: string;
+    };
+    statistics: Record<string, any>;
+    forecast: ChartData[];
+  }> {
+    const response = await apiClient.get('/dashboard/time-series', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Get period-over-period comparisons
+   */
+  static async getPeriodComparisons(params: ComparisonParams): Promise<{
+    statement_1: any;
+    statement_2: any;
+    comparisons: Record<string, any>;
+    significant_changes: any[];
+    summary: Record<string, any>;
+  }> {
+    const response = await apiClient.get('/dashboard/comparisons', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Export dashboard data
+   */
+  static async exportDashboardData(params: ExportParams): Promise<{
+    export_id?: string;
+    download_url?: string;
+    data?: any;
+    message: string;
+  }> {
+    const response = await apiClient.get(`/dashboard/export/${params.format}`, {
+      params: {
+        period: params.period,
+        statement_ids: params.statement_ids?.join(','),
+      },
+    });
+    return response.data;
+  }
+
+  /**
+   * Refresh dashboard cache
+   */
+  static async refreshDashboard(): Promise<{ message: string }> {
+    const response = await apiClient.post('/dashboard/refresh-cache');
+    return response.data;
+  }
+
+  /**
+   * Simple dashboard metrics
+   */
+  static async getDashboardMetrics(): Promise<DashboardSimpleMetrics> {
+    const response = await apiClient.get('/dashboard/metrics');
+    return response.data;
+  }
+
+  /**
+   * Simple dashboard charts used in tests/examples
+   */
+  static async getDashboardCharts(): Promise<DashboardCharts> {
+    const response = await apiClient.get('/dashboard/charts');
+    return response.data;
+  }
+
+  /**
+   * Overview metrics across statements
+   */
+  static async getOverviewMetrics(
+    period: DashboardPeriod,
+    fileId?: number
+  ): Promise<OverviewMetricsResponse> {
+    const params: any = { period };
+    if (fileId) params.file_id = fileId;
+    const response = await apiClient.get('/dashboard/metrics/overview', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Financial trends over time
+   */
+  static async getFinancialTrends(
+    metricType: string,
+    periodRange = 'last_12_months',
+    fileId?: number
+  ): Promise<FinancialTrendsResponse> {
+    const params: any = { metric_type: metricType, period_range: periodRange };
+    if (fileId) params.file_id = fileId;
+    const response = await apiClient.get('/dashboard/metrics/trends', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * KPIs with optional industry benchmarking
+   */
+  static async getKPIs(
+    period: DashboardPeriod,
+    industry?: string,
+    fileId?: number
+  ): Promise<KPIResponse> {
+    const params: any = { period };
+    if (industry) params.industry = industry;
+    if (fileId) params.file_id = fileId;
+    const response = await apiClient.get('/dashboard/metrics/kpis', {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Data sources available for dashboard
+   */
+  static async getDataSources(): Promise<DataSourcesResponse> {
+    const response = await apiClient.get('/dashboard/data-sources');
+    return response.data;
+  }
+
+  /**
+   * Dashboard health status
+   */
+  static async getHealth(): Promise<HealthStatusResponse> {
+    const response = await apiClient.get('/dashboard/health');
+    return response.data;
+  }
+}
+
+export default DashboardApiService;

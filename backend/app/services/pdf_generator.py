@@ -56,7 +56,13 @@ class PDFReportGenerator:
             "dpi": 300,
             "font_size": 10,
             "title_font_size": 14,
-            "colors": ["#1976d2", "#dc004e", "#2e7d32", "#ed6c02", "#9c27b0"],
+            "colors": [
+                "#1976d2",
+                "#dc004e",
+                "#2e7d32",
+                "#ed6c02",
+                "#9c27b0",
+            ],
         }
 
     def _setup_custom_styles(self):
@@ -168,7 +174,9 @@ class PDFReportGenerator:
 
         # Build PDF
         doc.build(
-            story, onFirstPage=self._add_page_number, onLaterPages=self._add_page_number
+            story,
+            onFirstPage=self._add_page_number,
+            onLaterPages=self._add_page_number,
         )
 
         return str(output_path)
@@ -181,7 +189,9 @@ class PDFReportGenerator:
         if branding_config and "logo_path" in branding_config:
             try:
                 logo = Image(
-                    branding_config["logo_path"], width=2 * inch, height=1 * inch
+                    branding_config["logo_path"],
+                    width=2 * inch,
+                    height=1 * inch,
                 )
                 story.append(logo)
                 story.append(Spacer(1, 20))
@@ -255,7 +265,8 @@ class PDFReportGenerator:
                 table_data.append(row)
 
             table = Table(
-                table_data, colWidths=[2 * inch, 1.5 * inch, 2 * inch, 1.5 * inch]
+                table_data,
+                colWidths=[2 * inch, 1.5 * inch, 2 * inch, 1.5 * inch],
             )
             table.setStyle(
                 TableStyle(
@@ -289,7 +300,8 @@ class PDFReportGenerator:
 
             story.append(
                 Paragraph(
-                    chart_name.replace("_", " ").title(), self.styles["MetricTitle"]
+                    chart_name.replace("_", " ").title(),
+                    self.styles["MetricTitle"],
                 )
             )
 
@@ -314,11 +326,18 @@ class PDFReportGenerator:
             # Convert data to pandas DataFrame for easier manipulation
             df = pd.DataFrame(data)
 
-            if chart_type in ["revenue_trend", "profit_trend", "cash_flow_trend"]:
+            if chart_type in [
+                "revenue_trend",
+                "profit_trend",
+                "cash_flow_trend",
+            ]:
                 self._create_line_chart(ax, df, chart_type)
             elif chart_type in ["expense_breakdown", "profit_margins"]:
                 self._create_bar_chart(ax, df, chart_type)
-            elif chart_type in ["asset_distribution", "expense_categories"]:
+            elif chart_type in [
+                "asset_distribution",
+                "expense_categories",
+            ]:
                 self._create_pie_chart(ax, df, chart_type)
             else:
                 # Default to line chart
@@ -363,7 +382,9 @@ class PDFReportGenerator:
         """Create bar chart."""
         if "period" in df.columns and "value" in df.columns:
             bars = ax.bar(
-                df["period"], df["value"], color=self.chart_config["colors"][: len(df)]
+                df["period"],
+                df["value"],
+                color=self.chart_config["colors"][: len(df)],
             )
             ax.set_xlabel("Category")
             ax.set_ylabel("Value")
@@ -406,7 +427,8 @@ class PDFReportGenerator:
 
             story.append(
                 Paragraph(
-                    table_name.replace("_", " ").title(), self.styles["MetricTitle"]
+                    table_name.replace("_", " ").title(),
+                    self.styles["MetricTitle"],
                 )
             )
 
@@ -431,14 +453,40 @@ class PDFReportGenerator:
                     table.setStyle(
                         TableStyle(
                             [
-                                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                                (
+                                    "BACKGROUND",
+                                    (0, 0),
+                                    (-1, 0),
+                                    colors.grey,
+                                ),
+                                (
+                                    "TEXTCOLOR",
+                                    (0, 0),
+                                    (-1, 0),
+                                    colors.whitesmoke,
+                                ),
                                 ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                                (
+                                    "FONTNAME",
+                                    (0, 0),
+                                    (-1, 0),
+                                    "Helvetica-Bold",
+                                ),
                                 ("FONTSIZE", (0, 0), (-1, 0), 10),
                                 ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                                (
+                                    "BACKGROUND",
+                                    (0, 1),
+                                    (-1, -1),
+                                    colors.beige,
+                                ),
+                                (
+                                    "GRID",
+                                    (0, 0),
+                                    (-1, -1),
+                                    1,
+                                    colors.black,
+                                ),
                             ]
                         )
                     )

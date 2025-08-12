@@ -1,0 +1,17 @@
+{
+  "--background": "#0f172a",
+  "--foreground": "#f8fafc",
+  "--primary": "#2563eb",
+  "--primary-foreground": "#f8fafc",
+  "--secondary": "#334155",
+  "--secondary-foreground": "#e2e8f0",
+  "--muted": "#1e293b",
+  "--muted-foreground": "#94a3b8",
+  "--destructive": "#dc2626",
+  "--destructive-foreground": "#f8fafc",
+  "--accent": "#22c55e",
+  "--accent-foreground": "#052e16",
+  "--border": "#1e293b",
+  "--input": "#1e293b",
+  "--ring": "#3b82f6"
+}

@@ -1,0 +1,404 @@
+{
+  "info": {
+    "name": "FinVision API",
+    "description": "Financial Modeling and Analysis Platform API - Complete collection for testing and development",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://fin-model-production.up.railway.app/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "local_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "your-jwt-token-here",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Documentation",
+      "description": "API documentation endpoints",
+      "item": [
+        {
+          "name": "Documentation Landing Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/",
+              "host": ["{{base_url}}"],
+              "path": ["docs", ""]
+            },
+            "description": "Main documentation hub with navigation to all formats"
+          },
+          "response": []
+        },
+        {
+          "name": "ReDoc Documentation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/redoc",
+              "host": ["{{base_url}}"],
+              "path": ["docs", "redoc"]
+            },
+            "description": "Beautiful, responsive API documentation"
+          },
+          "response": []
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/swagger",
+              "host": ["{{base_url}}"],
+              "path": ["docs", "swagger"]
+            },
+            "description": "Interactive API testing and documentation"
+          },
+          "response": []
+        },
+        {
+          "name": "Comprehensive Documentation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/comprehensive",
+              "host": ["{{base_url}}"],
+              "path": ["docs", "comprehensive"]
+            },
+            "description": "Full documentation with examples and guides"
+          },
+          "response": []
+        },
+        {
+          "name": "OpenAPI Specification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/openapi.yaml",
+              "host": ["{{base_url}}"],
+              "path": ["docs", "openapi.yaml"]
+            },
+            "description": "Machine-readable API specification"
+          },
+          "response": []
+        },
+        {
+          "name": "Postman Collection",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/postman",
+              "host": ["{{base_url}}"],
+              "path": ["docs", "postman"]
+            },
+            "description": "Ready-to-use API collection for Postman"
+          },
+          "response": []
+        },
+        {
+          "name": "Markdown Documentation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/markdown",
+              "host": ["{{base_url}}"],
+              "path": ["docs", "markdown"]
+            },
+            "description": "Comprehensive reference guide in markdown format"
+          },
+          "response": []
+        },
+        {
+          "name": "Quick Start Guide",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs/readme",
+              "host": ["{{base_url}}"],
+              "path": ["docs", "readme"]
+            },
+            "description": "Getting started guide for the API"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "description": "Authentication and authorization endpoints",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"your-username\",\n  \"password\": \"your-password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticate with username and password to obtain a JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"your-refresh-token\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refresh an expired JWT token using a refresh token"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Financial Models",
+      "description": "Financial modeling operations",
+      "item": [
+        {
+          "name": "Get All Models",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/models",
+              "host": ["{{base_url}}"],
+              "path": ["models"]
+            },
+            "description": "Retrieve all financial models for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Model",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Conservative Portfolio Model\",\n  \"description\": \"Low-risk portfolio for retirement planning\",\n  \"type\": \"portfolio_optimization\",\n  \"parameters\": {\n    \"risk_tolerance\": 0.2,\n    \"time_horizon\": 10,\n    \"investment_amount\": 100000\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/models",
+              "host": ["{{base_url}}"],
+              "path": ["models"]
+            },
+            "description": "Create a new financial model with specified parameters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Model by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/models/{model_id}",
+              "host": ["{{base_url}}"],
+              "path": ["models", "{model_id}"]
+            },
+            "description": "Retrieve a specific financial model by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Risk Analysis",
+      "description": "Risk assessment and analysis",
+      "item": [
+        {
+          "name": "Calculate VaR",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"portfolio_id\": \"portfolio_123\",\n  \"confidence_level\": 0.95,\n  \"time_horizon\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/risk/var",
+              "host": ["{{base_url}}"],
+              "path": ["risk", "var"]
+            },
+            "description": "Calculate Value at Risk (VaR) for a portfolio"
+          },
+          "response": []
+        },
+        {
+          "name": "Stress Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"portfolio_id\": \"portfolio_123\",\n  \"scenarios\": [\n    {\n      \"name\": \"Market Crash\",\n      \"market_shock\": -0.2\n    },\n    {\n      \"name\": \"Interest Rate Hike\",\n      \"rate_change\": 0.02\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/risk/stress-test",
+              "host": ["{{base_url}}"],
+              "path": ["risk", "stress-test"]
+            },
+            "description": "Perform stress testing on financial models"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Portfolio Optimization",
+      "description": "Portfolio optimization and management",
+      "item": [
+        {
+          "name": "Optimize Portfolio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assets\": [\n    {\n      \"symbol\": \"AAPL\",\n      \"expected_return\": 0.12,\n      \"volatility\": 0.25\n    },\n    {\n      \"symbol\": \"GOOGL\",\n      \"expected_return\": 0.15,\n      \"volatility\": 0.30\n    },\n    {\n      \"symbol\": \"MSFT\",\n      \"expected_return\": 0.10,\n      \"volatility\": 0.20\n    }\n  ],\n  \"target_return\": 0.12,\n  \"risk_free_rate\": 0.02\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/portfolio/optimize",
+              "host": ["{{base_url}}"],
+              "path": ["portfolio", "optimize"]
+            },
+            "description": "Optimize portfolio allocation using modern portfolio theory"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Efficient Frontier",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/portfolio/efficient-frontier?portfolio_id={portfolio_id}",
+              "host": ["{{base_url}}"],
+              "path": ["portfolio", "efficient-frontier"],
+              "query": [
+                {
+                  "key": "portfolio_id",
+                  "value": "{portfolio_id}"
+                }
+              ]
+            },
+            "description": "Generate efficient frontier data for portfolio analysis"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set environment variables based on the request",
+          "if (pm.request.url.host.includes('localhost')) {",
+          "    pm.environment.set('base_url', pm.collectionVariables.get('local_url'));",
+          "} else {",
+          "    pm.environment.set('base_url', pm.collectionVariables.get('base_url'));",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response validation",
+          "pm.test('Status code is 200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// For JSON responses, validate structure",
+          "if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
+          "    pm.test('Response is valid JSON', function () {",
+          "        pm.response.to.be.json;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

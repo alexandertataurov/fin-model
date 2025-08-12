@@ -25,10 +25,15 @@ class DatabaseTask(Task):
 
 
 @celery_app.task(
-    bind=True, base=DatabaseTask, name="app.tasks.file_processing.process_uploaded_file"
+    bind=True,
+    base=DatabaseTask,
+    name="app.tasks.file_processing.process_uploaded_file",
 )
 def process_uploaded_file(
-    self, db: Session, file_id: int, processing_options: Optional[Dict[str, Any]] = None
+    self,
+    db: Session,
+    file_id: int,
+    processing_options: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Process an uploaded file in the background.
@@ -62,7 +67,11 @@ def process_uploaded_file(
         # Update progress
         self.update_state(
             state="PROGRESS",
-            meta={"current": 10, "total": 100, "status": "Validating file..."},
+            meta={
+                "current": 10,
+                "total": 100,
+                "status": "Validating file...",
+            },
         )
 
         # Parse and validate the Excel file
@@ -78,7 +87,11 @@ def process_uploaded_file(
         # Update progress
         self.update_state(
             state="PROGRESS",
-            meta={"current": 40, "total": 100, "status": "Extracting data..."},
+            meta={
+                "current": 40,
+                "total": 100,
+                "status": "Extracting data...",
+            },
         )
 
         # Store validation results
@@ -105,7 +118,10 @@ def process_uploaded_file(
             )
         else:
             file_service.log_processing_step(
-                file_id, "validation", "File validation passed successfully", "info"
+                file_id,
+                "validation",
+                "File validation passed successfully",
+                "info",
             )
 
         # Update progress
@@ -189,13 +205,22 @@ def process_uploaded_file(
 
         # Send notification without celery in tests
         send_processing_notification.__wrapped__(
-            self, db, file_id, final_status.value, file_record.uploaded_by_id, None
+            self,
+            db,
+            file_id,
+            final_status.value,
+            file_record.uploaded_by_id,
+            None,
         )
 
         # Final progress update
         self.update_state(
             state="SUCCESS",
-            meta={"current": 100, "total": 100, "status": "Processing complete"},
+            meta={
+                "current": 100,
+                "total": 100,
+                "status": "Processing complete",
+            },
         )
 
         return {
@@ -234,23 +259,37 @@ def process_uploaded_file(
         file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
         if file_record:
             send_processing_notification.__wrapped__(
-                self, db, file_id, "failed", file_record.uploaded_by_id, error_message
+                self,
+                db,
+                file_id,
+                "failed",
+                file_record.uploaded_by_id,
+                error_message,
             )
 
         # Update task state
         self.update_state(
             state="FAILURE",
-            meta={"current": 0, "total": 100, "status": f"Failed: {error_message}"},
+            meta={
+                "current": 0,
+                "total": 100,
+                "status": f"Failed: {error_message}",
+            },
         )
 
         raise
 
 
 @celery_app.task(
-    bind=True, base=DatabaseTask, name="app.tasks.file_processing.reprocess_file"
+    bind=True,
+    base=DatabaseTask,
+    name="app.tasks.file_processing.reprocess_file",
 )
 def reprocess_file(
-    self, db: Session, file_id: int, processing_options: Optional[Dict[str, Any]] = None
+    self,
+    db: Session,
+    file_id: int,
+    processing_options: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Reprocess a failed or completed file.
@@ -286,7 +325,9 @@ def reprocess_file(
 
 
 @celery_app.task(
-    bind=True, base=DatabaseTask, name="app.tasks.file_processing.cleanup_old_files"
+    bind=True,
+    base=DatabaseTask,
+    name="app.tasks.file_processing.cleanup_old_files",
 )
 def cleanup_old_files(self, db: Session, days_old: int = 30) -> Dict[str, Any]:
     """
@@ -310,7 +351,11 @@ def cleanup_old_files(self, db: Session, days_old: int = 30) -> Dict[str, Any]:
         .filter(
             UploadedFile.created_at < cutoff_date,
             UploadedFile.status.in_(
-                [FileStatus.COMPLETED, FileStatus.FAILED, FileStatus.CANCELLED]
+                [
+                    FileStatus.COMPLETED,
+                    FileStatus.FAILED,
+                    FileStatus.CANCELLED,
+                ]
             ),
         )
         .all()

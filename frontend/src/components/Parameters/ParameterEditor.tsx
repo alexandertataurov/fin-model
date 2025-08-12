@@ -1,33 +1,20 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader } from '@/design-system/components/Card';
+import { Button } from '@/design-system/components/Button';
+import { Input } from '@/design-system/components/Input';
+import { Label } from '@/design-system/components/Label';
+import { Badge } from '@/design-system/components/Badge';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { Slider } from '@/design-system/components/Slider';
+import { Textarea } from '@/design-system/components/Textarea';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Slider,
-  Button,
-  IconButton,
-  Chip,
-  Alert,
-  Tooltip,
-  Grid,
   Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  InputAdornment,
-} from '@mui/material';
-import {
-  ExpandMore as ExpandMoreIcon,
-  Edit as EditIcon,
-  Save as SaveIcon,
-  Cancel as CancelIcon,
-  Info as InfoIcon,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-} from '@mui/icons-material';
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/design-system/components/Accordion';
+import { Edit, Save, X, Info, TrendingUp, TrendingDown } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tokens } from '@/theme';
 
 // Types
 interface Parameter {
@@ -62,9 +49,12 @@ interface ParameterValidation {
 
 interface ParameterEditorProps {
   parameter: Parameter;
-  onValueChange?: (parameterId: number, newValue: number, changeReason?: string) => void;
+  onValueChange?: (
+    parameterId: number,
+    newValue: number,
+    changeReason?: string
+  ) => void;
   readonly?: boolean;
-  showDependencies?: boolean;
   compact?: boolean;
 }
 
@@ -72,14 +62,12 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
   parameter,
   onValueChange,
   readonly = false,
-  showDependencies = true,
   compact = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(parameter.current_value);
   const [changeReason, setChangeReason] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -98,407 +86,329 @@ const ParameterEditor: React.FC<ParameterEditorProps> = ({
         }),
       });
 
-      if (!response.ok) throw new Error('Validation failed');
-      return await response.json() as ParameterValidation;
+      if (!response.ok) {
+        throw new Error('Validation failed');
+      }
+
+      return response.json() as Promise<ParameterValidation>;
     },
-    enabled: isEditing && editValue !== parameter.current_value,
-    staleTime: 1000, // 1 second
+    enabled: editValue !== parameter.current_value,
   });
 
   // Update parameter mutation
-  const updateParameterMutation = useMutation({
-    mutationFn: async ({ value, reason }: { value: number; reason?: string }) => {
+  const updateMutation = useMutation({
+    mutationFn: async (data: { value: number; reason?: string }) => {
       const response = await fetch(`/api/v1/parameters/${parameter.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          current_value: value,
-          change_reason: reason,
-        }),
+        body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error('Update failed');
+      if (!response.ok) {
+        throw new Error('Failed to update parameter');
+      }
+
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parameters'] });
-      queryClient.invalidateQueries({ queryKey: ['scenarios'] });
       setIsEditing(false);
-      setChangeReason('');
+      setValidationError(null);
+    },
+    onError: error => {
+      setValidationError(
+        error instanceof Error ? error.message : 'Update failed'
+      );
     },
   });
 
-  // Format value display
-  const formatValue = useCallback((value: number) => {
+  const getSensitivityColor = (level: string) => {
+    switch (level) {
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'high':
+        return 'bg-orange-100 text-orange-800';
+      case 'critical':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatValue = (value: number) => {
     switch (parameter.format_type) {
-      case 'currency':
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(value);
       case 'percentage':
-        return `${(value * 100).toFixed(2)}%`;
+        return `${value.toFixed(2)}%`;
+      case 'currency':
+        return `$${value.toLocaleString()}`;
       default:
         return value.toLocaleString();
     }
-  }, [parameter.format_type]);
-
-  // DESIGN_FIX: use design tokens for sensitivity colors
-  const getSensitivityColor = (level: string) => {
-    switch (level) {
-      case 'critical':
-        return tokens.colors.error[500];
-      case 'high':
-        return tokens.colors.warning[500];
-      case 'medium':
-        return tokens.colors.primary[500];
-      case 'low':
-        return tokens.colors.success[500];
-      default:
-        return tokens.colors.grey[600];
-    }
   };
 
-  // Handle edit start
   const handleEditStart = () => {
-    if (!parameter.is_editable || readonly) return;
-    setIsEditing(true);
-    setEditValue(parameter.current_value);
-    setValidationError(null);
-  };
-
-  // Handle edit cancel
-  const handleEditCancel = () => {
-    setIsEditing(false);
     setEditValue(parameter.current_value);
     setChangeReason('');
     setValidationError(null);
+    setIsEditing(true);
   };
 
-  // Handle edit save
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    setEditValue(parameter.current_value);
+    setValidationError(null);
+  };
+
   const handleEditSave = async () => {
     if (validation && !validation.is_valid) {
       setValidationError(validation.validation_errors.join(', '));
       return;
     }
 
-    try {
-      if (onValueChange) {
-        onValueChange(parameter.id, editValue, changeReason || undefined);
-      } else {
-        await updateParameterMutation.mutateAsync({
-          value: editValue,
-          reason: changeReason || undefined,
-        });
-      }
-    } catch (error) {
-      setValidationError(error instanceof Error ? error.message : 'Update failed');
-    }
+    updateMutation.mutate({
+      value: editValue,
+      reason: changeReason || undefined,
+    });
+
+    onValueChange?.(parameter.id, editValue, changeReason);
   };
 
-  // Handle value change
   const handleValueChange = (newValue: number) => {
     setEditValue(newValue);
     setValidationError(null);
   };
 
-  // Handle slider change
-  const handleSliderChange = (_event: Event, newValue: number | number[]) => {
-    if (typeof newValue === 'number') {
-      handleValueChange(newValue);
-    }
+  const handleSliderChange = (value: number[]) => {
+    handleValueChange(value[0]);
   };
 
-  // Get trend indicator
   const getTrendIndicator = () => {
-    if (editValue > parameter.current_value) {
-      return <TrendingUpIcon color="success" fontSize="small" />;
-    } else if (editValue < parameter.current_value) {
-      return <TrendingDownIcon color="error" fontSize="small" />;
+    if (parameter.current_value > (parameter.default_value || 0)) {
+      return <TrendingUp className="h-4 w-4 text-green-500" />;
+    } else if (parameter.current_value < (parameter.default_value || 0)) {
+      return <TrendingDown className="h-4 w-4 text-red-500" />;
     }
     return null;
   };
 
-  // Render compact view
   if (compact) {
     return (
-      <Card variant="outlined" sx={{ mb: 1 }}>
-        <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-          <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Box>
-              <Typography variant="body2" fontWeight="medium">
+      <Card className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div>
+              <p className="font-medium text-sm">
                 {parameter.display_name || parameter.name}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {formatValue(parameter.current_value)}
-              </Typography>
-            </Box>
-
-            <Box display="flex" alignItems="center" gap={1}>
-              <Chip
-                size="small"
-                label={parameter.sensitivity_level}
-                sx={{
-                  backgroundColor: getSensitivityColor(parameter.sensitivity_level),
-                  color: 'white',
-                  fontSize: '0.7rem',
-                }}
-              />
-
-              {!readonly && parameter.is_editable && (
-                <IconButton size="small" onClick={handleEditStart}>
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-          </Box>
-        </CardContent>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {parameter.description}
+              </p>
+            </div>
+            <Badge
+              variant="secondary"
+              className={getSensitivityColor(parameter.sensitivity_level)}
+            >
+              {parameter.sensitivity_level}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">
+              {formatValue(parameter.current_value)}
+            </span>
+            {getTrendIndicator()}
+            {!readonly && parameter.is_editable && (
+              <Button variant="ghost" size="sm" onClick={handleEditStart}>
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
       </Card>
     );
   }
 
-  // Main component render
   return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
-      <CardContent>
-        {/* Header */}
-        <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-          <Box>
-            <Typography variant="h6" component="h3">
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-semibold">
               {parameter.display_name || parameter.name}
-            </Typography>
-            {parameter.description && (
-              <Typography variant="body2" color="text.secondary">
-                {parameter.description}
-              </Typography>
+            </h3>
+            <Badge
+              variant="secondary"
+              className={getSensitivityColor(parameter.sensitivity_level)}
+            >
+              {parameter.sensitivity_level}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            {getTrendIndicator()}
+            {!readonly && parameter.is_editable && !isEditing && (
+              <Button variant="outline" size="sm" onClick={handleEditStart}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
             )}
-          </Box>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Description */}
+        {parameter.description && (
+          <p className="text-sm text-muted-foreground">
+            {parameter.description}
+          </p>
+        )}
 
-          <Box display="flex" alignItems="center" gap={1}>
-            <Chip
-              size="small"
-              label={parameter.sensitivity_level}
-              sx={{
-                backgroundColor: getSensitivityColor(parameter.sensitivity_level),
-                color: 'white',
-              }}
-            />
+        {/* Current Value Display */}
+        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+          <div>
+            <Label className="text-sm font-medium">Current Value</Label>
+            <p className="text-2xl font-bold">
+              {formatValue(parameter.current_value)}
+            </p>
+          </div>
+          {parameter.default_value !== undefined && (
+            <div className="text-right">
+              <Label className="text-sm text-muted-foreground">Default</Label>
+              <p className="text-sm">{formatValue(parameter.default_value)}</p>
+            </div>
+          )}
+        </div>
 
-            {parameter.source_cell && (
-              <Tooltip title={`Source: ${parameter.source_sheet}!${parameter.source_cell}`}>
-                <Chip
-                  size="small"
-                  label={parameter.source_cell}
-                  variant="outlined"
-                  icon={<InfoIcon />}
-                />
-              </Tooltip>
-            )}
-          </Box>
-        </Box>
-
-        {/* Value Editor */}
-        <Box mb={2}>
-          {isEditing ? (
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Value"
+        {/* Edit Mode */}
+        {isEditing && (
+          <div className="space-y-4 p-4 border rounded-lg">
+            <div className="space-y-2">
+              <Label htmlFor="value">New Value</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="value"
                   type="number"
                   value={editValue}
-                  onChange={(e) => handleValueChange(Number(e.target.value))}
-                  error={!!validationError || (validation ? !validation.is_valid : false)}
-                  helperText={
-                    validationError ||
-                    (validation && !validation.is_valid
-                      ? validation.validation_errors.join(', ')
-                      : `Current: ${formatValue(parameter.current_value)}`
-                    )
-                  }
-                  InputProps={{
-                    startAdornment: parameter.unit && (
-                      <InputAdornment position="start">{parameter.unit}</InputAdornment>
-                    ),
-                    endAdornment: getTrendIndicator() && (
-                      <InputAdornment position="end">{getTrendIndicator()}</InputAdornment>
-                    ),
-                  }}
+                  onChange={e => handleValueChange(Number(e.target.value))}
+                  className="flex-1"
                 />
-              </Grid>
+                {parameter.unit && (
+                  <span className="text-sm text-muted-foreground">
+                    {parameter.unit}
+                  </span>
+                )}
+              </div>
+            </div>
 
-              {/* Slider for range inputs */}
-              {parameter.min_value !== undefined && parameter.max_value !== undefined && (
-                <Grid item xs={12} md={6}>
-                  <Typography variant="caption" gutterBottom>
-                    Range: {formatValue(parameter.min_value)} - {formatValue(parameter.max_value)}
-                  </Typography>
+            {/* Slider for range */}
+            {parameter.min_value !== undefined &&
+              parameter.max_value !== undefined && (
+                <div className="space-y-2">
+                  <Label>Adjust Value</Label>
                   <Slider
-                    value={editValue}
-                    onChange={handleSliderChange}
+                    value={[editValue]}
+                    onValueChange={handleSliderChange}
                     min={parameter.min_value}
                     max={parameter.max_value}
-                    step={(parameter.max_value - parameter.min_value) / 100}
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={formatValue}
+                    step={0.01}
+                    className="w-full"
                   />
-                </Grid>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{formatValue(parameter.min_value)}</span>
+                    <span>{formatValue(parameter.max_value)}</span>
+                  </div>
+                </div>
               )}
 
-              {/* Change Reason */}
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Change Reason (Optional)"
-                  value={changeReason}
-                  onChange={(e) => setChangeReason(e.target.value)}
-                  placeholder="Why are you changing this value?"
-                  size="small"
-                />
-              </Grid>
+            {/* Change Reason */}
+            <div className="space-y-2">
+              <Label htmlFor="reason">Change Reason (Optional)</Label>
+              <Textarea
+                id="reason"
+                value={changeReason}
+                onChange={e => setChangeReason(e.target.value)}
+                placeholder="Explain why this value is being changed..."
+                rows={2}
+              />
+            </div>
 
-              {/* Action Buttons */}
-              <Grid item xs={12}>
-                <Box display="flex" gap={1}>
-                  <Button
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                    onClick={handleEditSave}
-                    disabled={
-                      validating ||
-                      (validation && !validation.is_valid) ||
-                      updateParameterMutation.isPending
-                    }
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={<CancelIcon />}
-                    onClick={handleEditCancel}
-                  >
-                    Cancel
-                  </Button>
+            {/* Validation Error */}
+            {validationError && (
+              <Alert>
+                <AlertDescription>{validationError}</AlertDescription>
+              </Alert>
+            )}
 
-                  {validation && validation.suggested_value !== undefined && (
-                    <Button
-                      variant="text"
-                      onClick={() => handleValueChange(validation.suggested_value ?? 0)}
-                    >
-                      Use Suggested: {formatValue(validation.suggested_value)}
-                    </Button>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
-          ) : (
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Typography variant="h4" component="div">
-                {formatValue(parameter.current_value)}
-              </Typography>
-
-              {!readonly && parameter.is_editable && (
-                <Button
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  onClick={handleEditStart}
-                >
-                  Edit
-                </Button>
-              )}
-            </Box>
-          )}
-        </Box>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleEditSave}
+                disabled={validating || updateMutation.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {updateMutation.isPending ? 'Saving...' : 'Save'}
+              </Button>
+              <Button variant="outline" onClick={handleEditCancel}>
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Advanced Information */}
-        {showDependencies && (parameter.depends_on?.length || parameter.affects?.length || parameter.formula) && (
-          <Accordion expanded={showAdvanced} onChange={() => setShowAdvanced(!showAdvanced)}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="subtitle2">Advanced Information</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={2}>
-                {/* Formula */}
+        <Accordion type="single" collapsible>
+          <AccordionItem value="advanced">
+            <AccordionTrigger>
+              <div className="flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Advanced Information
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Parameter Type
+                  </Label>
+                  <p>{parameter.parameter_type}</p>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Category
+                  </Label>
+                  <p>{parameter.category}</p>
+                </div>
+                {parameter.source_sheet && (
+                  <div>
+                    <Label className="text-xs text-muted-foreground">
+                      Source Sheet
+                    </Label>
+                    <p>{parameter.source_sheet}</p>
+                  </div>
+                )}
+                {parameter.source_cell && (
+                  <div>
+                    <Label className="text-xs text-muted-foreground">
+                      Source Cell
+                    </Label>
+                    <p>{parameter.source_cell}</p>
+                  </div>
+                )}
                 {parameter.formula && (
-                  <Grid item xs={12}>
-                    <Typography variant="caption" color="text.secondary">
-                      Formula:
-                    </Typography>
-                    <Typography variant="body2" fontFamily="monospace">
+                  <div className="col-span-2">
+                    <Label className="text-xs text-muted-foreground">
+                      Formula
+                    </Label>
+                    <p className="font-mono text-xs bg-muted p-2 rounded">
                       {parameter.formula}
-                    </Typography>
-                  </Grid>
+                    </p>
+                  </div>
                 )}
-
-                {/* Dependencies */}
-                {parameter.depends_on?.length && (
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="caption" color="text.secondary">
-                      Depends On:
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
-                      {parameter.depends_on.map((dep, index) => (
-                        <Chip key={index} size="small" label={dep} variant="outlined" />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
-
-                {/* Affects */}
-                {parameter.affects?.length && (
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="caption" color="text.secondary">
-                      Affects:
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={0.5} mt={0.5}>
-                      {parameter.affects?.map((affect, index) => (
-                        <Chip key={index} size="small" label={affect} variant="outlined" />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
-
-                {/* Validation Rules */}
-                {parameter.validation_rules && (
-                  <Grid item xs={12}>
-                    <Typography variant="caption" color="text.secondary">
-                      Validation Rules:
-                    </Typography>
-                    <Typography variant="body2" fontFamily="monospace">
-                      {JSON.stringify(parameter.validation_rules, null, 2)}
-                    </Typography>
-                  </Grid>
-                )}
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        )}
-
-        {/* Validation Warnings */}
-        {validation && validation.is_valid && editValue !== parameter.current_value && (
-          <Alert severity="info" sx={{ mt: 1 }}>
-            Value change is valid. Impact will be calculated after save.
-          </Alert>
-        )}
-
-        {validation && !validation.is_valid && (
-          <Alert severity="warning" sx={{ mt: 1 }}>
-            <Typography variant="body2">
-              {validation.validation_errors.join(', ')}
-            </Typography>
-            {validation.suggested_value && (
-              <Typography variant="caption">
-                Suggested value: {formatValue(validation.suggested_value)}
-              </Typography>
-            )}
-          </Alert>
-        )}
-
-        {!parameter.is_editable && (
-          <Alert severity="info" sx={{ mt: 1 }}>
-            This parameter is calculated automatically and cannot be edited.
-          </Alert>
-        )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </CardContent>
     </Card>
   );

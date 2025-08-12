@@ -90,8 +90,17 @@ class AdvancedValidator:
 
         # Profit & Loss Statement Template
         self.pl_template = {
-            "required_columns": ["account", "current_period", "prior_period"],
-            "optional_columns": ["budget", "variance", "ytd_actual", "ytd_budget"],
+            "required_columns": [
+                "account",
+                "current_period",
+                "prior_period",
+            ],
+            "optional_columns": [
+                "budget",
+                "variance",
+                "ytd_actual",
+                "ytd_budget",
+            ],
             "required_sections": [
                 "revenue",
                 "cost_of_sales",
@@ -104,9 +113,17 @@ class AdvancedValidator:
                 "revenue": [r"revenue", r"sales", r"income", r"turnover"],
                 "cost_of_sales": [r"cost.*sales", r"cogs", r"cost.*goods"],
                 "gross_profit": [r"gross.*profit", r"gross.*margin"],
-                "operating_expenses": [r"operating.*expense", r"opex", r"sg&a"],
+                "operating_expenses": [
+                    r"operating.*expense",
+                    r"opex",
+                    r"sg&a",
+                ],
                 "operating_income": [r"operating.*income", r"ebit"],
-                "net_income": [r"net.*income", r"net.*profit", r"bottom.*line"],
+                "net_income": [
+                    r"net.*income",
+                    r"net.*profit",
+                    r"bottom.*line",
+                ],
             },
             "calculation_rules": [
                 ("gross_profit", "revenue - cost_of_sales"),
@@ -154,18 +171,32 @@ class AdvancedValidator:
                     r"non.*current.*liabilities",
                     r"long.*term.*debt",
                 ],
-                "equity": [r"equity", r"shareholders", r"retained.*earnings"],
+                "equity": [
+                    r"equity",
+                    r"shareholders",
+                    r"retained.*earnings",
+                ],
             },
             "balance_rules": [
                 ("total_assets", "current_assets + non_current_assets"),
-                ("total_liabilities", "current_liabilities + non_current_liabilities"),
-                ("balance_check", "total_assets = total_liabilities + equity"),
+                (
+                    "total_liabilities",
+                    "current_liabilities + non_current_liabilities",
+                ),
+                (
+                    "balance_check",
+                    "total_assets = total_liabilities + equity",
+                ),
             ],
         }
 
         # Cash Flow Statement Template
         self.cf_template = {
-            "required_columns": ["account", "current_period", "prior_period"],
+            "required_columns": [
+                "account",
+                "current_period",
+                "prior_period",
+            ],
             "optional_columns": ["budget", "variance", "notes"],
             "required_sections": [
                 "operating_activities",
@@ -176,13 +207,20 @@ class AdvancedValidator:
                 "ending_cash",
             ],
             "section_patterns": {
-                "operating_activities": [r"operating.*activities", r"cash.*operations"],
+                "operating_activities": [
+                    r"operating.*activities",
+                    r"cash.*operations",
+                ],
                 "investing_activities": [
                     r"investing.*activities",
                     r"capex",
                     r"investments",
                 ],
-                "financing_activities": [r"financing.*activities", r"debt", r"equity"],
+                "financing_activities": [
+                    r"financing.*activities",
+                    r"debt",
+                    r"equity",
+                ],
                 "net_cash_flow": [r"net.*cash.*flow", r"change.*cash"],
                 "beginning_cash": [r"beginning.*cash", r"opening.*cash"],
                 "ending_cash": [r"ending.*cash", r"closing.*cash"],
@@ -204,11 +242,41 @@ class AdvancedValidator:
 
         # Common account patterns
         self.account_patterns = {
-            "revenue": [r"revenue", r"sales", r"income", r"turnover", r"receipts"],
-            "expenses": [r"expense", r"cost", r"expenditure", r"outlay", r"payment"],
-            "assets": [r"asset", r"cash", r"receivable", r"inventory", r"equipment"],
-            "liabilities": [r"liability", r"payable", r"debt", r"loan", r"obligation"],
-            "equity": [r"equity", r"capital", r"retained", r"earnings", r"surplus"],
+            "revenue": [
+                r"revenue",
+                r"sales",
+                r"income",
+                r"turnover",
+                r"receipts",
+            ],
+            "expenses": [
+                r"expense",
+                r"cost",
+                r"expenditure",
+                r"outlay",
+                r"payment",
+            ],
+            "assets": [
+                r"asset",
+                r"cash",
+                r"receivable",
+                r"inventory",
+                r"equipment",
+            ],
+            "liabilities": [
+                r"liability",
+                r"payable",
+                r"debt",
+                r"loan",
+                r"obligation",
+            ],
+            "equity": [
+                r"equity",
+                r"capital",
+                r"retained",
+                r"earnings",
+                r"surplus",
+            ],
         }
 
         # Date/period patterns
@@ -233,7 +301,9 @@ class AdvancedValidator:
         ]
 
     def validate_template(
-        self, parsed_data: ParsedData, template_type: Optional[TemplateType] = None
+        self,
+        parsed_data: ParsedData,
+        template_type: Optional[TemplateType] = None,
     ) -> TemplateValidationResult:
         """
         Validate parsed Excel data against financial statement templates.
@@ -255,7 +325,8 @@ class AdvancedValidator:
                 confidence_score=0.0,
                 validation_errors=[
                     ValidationError(
-                        severity="error", message="No worksheets found to validate"
+                        severity="error",
+                        message="No worksheets found to validate",
                     )
                 ],
             )
@@ -371,7 +442,9 @@ class AdvancedValidator:
 
         template = self.templates[template_type]
         result = TemplateValidationResult(
-            template_type=template_type, is_valid=True, confidence_score=0.0
+            template_type=template_type,
+            is_valid=True,
+            confidence_score=0.0,
         )
 
         # Detect column structure
@@ -527,10 +600,22 @@ class AdvancedValidator:
 
         # Check for common synonyms
         synonyms = {
-            "account": ["account", "description", "item", "line", "activity"],
+            "account": [
+                "account",
+                "description",
+                "item",
+                "line",
+                "activity",
+            ],
             "current_period": ["current", "actual", "ytd", "2023", "2024"],
             "prior_period": ["prior", "previous", "py", "2022", "2023"],
-            "description": ["description", "account", "item", "detail", "activity"],
+            "description": [
+                "description",
+                "account",
+                "item",
+                "detail",
+                "activity",
+            ],
             "amount": ["amount", "value", "balance", "total"],
         }
 

@@ -6,6 +6,10 @@ import React, {
   useCallback,
 } from 'react';
 import { authApi } from '../services/authApi';
+import {
+  notificationsWebSocketService,
+  dashboardWebSocketService,
+} from '../services/websocket';
 
 export interface User {
   id: number;
@@ -61,9 +65,11 @@ interface AuthState {
   isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
-const TOKEN_KEY = 'auth_token';
+const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'user_data';
 
@@ -79,38 +85,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isLoading: true,
   });
 
-  // Load user data on mount
-  useEffect(() => {
-    const loadUserData = async () => {
-      const storedUser = localStorage.getItem(USER_KEY);
-      const storedToken = localStorage.getItem(TOKEN_KEY);
-
-      if (storedUser && storedToken) {
-        try {
-          const user = JSON.parse(storedUser);
-          setState(prev => ({
-            ...prev,
-            user,
-            token: storedToken,
-            isLoading: false,
-          }));
-
-          // Load permissions
-          await loadUserPermissions();
-        } catch (error) {
-          // Error loading user data - clear auth data
-          clearAuthData();
-        }
-      } else {
-        setState(prev => ({ ...prev, isLoading: false }));
-      }
-    };
-
-    loadUserData();
-  }, []);
-
-  // Clear authentication data - defined before functions that use it
-  const clearAuthData = () => {
+  // Clear authentication data - defined first to avoid hoisting issues
+  const clearAuthData = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -122,7 +98,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       roles: [],
       isLoading: false,
     });
-  };
+  }, []);
+
+  // Load user data on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      const storedToken = localStorage.getItem(TOKEN_KEY);
+
+      if (storedToken) {
+        try {
+          // Keep loading; do NOT set a temporary user before validation
+          // Validate token by getting current user from backend
+          const currentUser = await authApi.getCurrentUser();
+
+          // Token is valid, update user data and load permissions
+          setState(prev => ({
+            ...prev,
+            user: currentUser,
+            token: storedToken,
+            isLoading: false,
+          }));
+
+          localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+
+          // Load permissions inline
+          try {
+            const permissionsData = await authApi.getUserPermissions();
+            const permissions = Array.isArray(permissionsData?.permissions)
+              ? permissionsData.permissions
+              : [];
+            const roles = Array.isArray(permissionsData?.roles)
+              ? permissionsData.roles
+              : [];
+
+            setState(prev => ({
+              ...prev,
+              permissions,
+              roles,
+            }));
+          } catch (permissionsError) {
+            console.error('Error loading permissions:', permissionsError);
+            setState(prev => ({
+              ...prev,
+              permissions: [],
+              roles: [],
+            }));
+          }
+        } catch (validationError) {
+          console.error('Token validation failed:', validationError);
+          clearAuthData();
+        }
+      } else {
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    loadUserData();
+  }, [clearAuthData]);
 
   // Token refresh function - defined before useEffect that uses it
   const refreshTokenInternal = useCallback(async (): Promise<boolean> => {
@@ -139,39 +171,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }));
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       // Token refresh failed - clear auth data
       clearAuthData();
       return false;
     }
-  }, [state.refreshToken]);
+  }, [state.refreshToken, clearAuthData]);
 
   // Auto-refresh token
   useEffect(() => {
     if (state.token && state.refreshToken) {
-      const refreshInterval = setInterval(
-        async () => {
-          await refreshTokenInternal();
-        },
-        14 * 60 * 1000
-      ); // Refresh every 14 minutes
+      const refreshInterval = setInterval(async () => {
+        await refreshTokenInternal();
+      }, 14 * 60 * 1000); // Refresh every 14 minutes
 
       return () => clearInterval(refreshInterval);
     }
   }, [state.token, state.refreshToken, refreshTokenInternal]);
 
-  const loadUserPermissions = async () => {
+  const loadUserPermissions = useCallback(async () => {
     try {
       const permissionsData = await authApi.getUserPermissions();
+
+      // Safely handle the permissions data
+      const permissions = Array.isArray(permissionsData?.permissions)
+        ? permissionsData.permissions
+        : [];
+      const roles = Array.isArray(permissionsData?.roles)
+        ? permissionsData.roles
+        : [];
+
       setState(prev => ({
         ...prev,
-        permissions: permissionsData.permissions || [],
-        roles: permissionsData.roles || [],
+        permissions,
+        roles,
       }));
-    } catch (error) {
+    } catch (_error) {
+      console.error('Error loading permissions:', _error);
       // Error loading permissions - continue with empty permissions
+      setState(prev => ({
+        ...prev,
+        permissions: [],
+        roles: [],
+      }));
     }
-  };
+  }, []);
 
   const login = async (
     email: string,
@@ -179,24 +223,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     rememberMe = false
   ): Promise<boolean> => {
     try {
+      console.info('Starting login process...');
       setState(prev => ({ ...prev, isLoading: true }));
 
+      console.debug('Calling login API...');
       const response = await authApi.login({
         email,
         password,
         remember_me: rememberMe,
       });
+      console.debug('Login API response:', response);
 
       // Store tokens
       localStorage.setItem(TOKEN_KEY, response.access_token);
       if (response.refresh_token) {
         localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
       }
+      console.debug('Tokens stored');
 
       // Get user data
+      console.debug('Getting current user...');
       const userData = await authApi.getCurrentUser();
+      console.debug('User data received:', userData);
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
 
+      // Update state atomically to prevent race conditions
       setState(prev => ({
         ...prev,
         user: userData,
@@ -204,12 +255,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshToken: response.refresh_token || null,
         isLoading: false,
       }));
+      console.debug('User state updated atomically');
 
-      // Load permissions
+      // Load permissions after state is updated
+      console.debug('Loading permissions...');
       await loadUserPermissions();
+      console.info('Login process completed successfully');
+
+      // Reset WebSocket service availability for fresh connection attempts
+      notificationsWebSocketService.resetServiceAvailability();
+      dashboardWebSocketService.resetServiceAvailability();
 
       return true;
-    } catch (error) {
+    } catch (_error) {
+      console.error('Login failed:', _error);
       // Login failed
       setState(prev => ({ ...prev, isLoading: false }));
       return false;
@@ -221,7 +280,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (state.token) {
         await authApi.logout();
       }
-    } catch (error) {
+    } catch (_error) {
       // Logout error - proceed with local cleanup
     } finally {
       clearAuthData();
@@ -236,10 +295,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setState(prev => ({ ...prev, isLoading: false }));
       return true;
-    } catch (error) {
+    } catch (_error) {
       // Registration failed - re-throw for component to handle
       setState(prev => ({ ...prev, isLoading: false }));
-      throw error;
+      throw _error;
     }
   };
 
@@ -267,13 +326,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return hasRole('analyst') || isAdmin();
   };
 
+  // Calculate authentication state with debugging
+  const isAuthenticated = !!state.user && !!state.token;
+
+  // Debug authentication state changes
+  useEffect(() => {
+  console.debug('Auth state changed:', {
+      hasUser: !!state.user,
+      hasToken: !!state.token,
+      isAuthenticated,
+      isLoading: state.isLoading,
+    });
+  }, [state.user, state.token, isAuthenticated, state.isLoading]);
+
   const value: AuthContextType = {
     user: state.user,
     token: state.token,
     permissions: state.permissions,
     roles: state.roles,
     isLoading: state.isLoading,
-    isAuthenticated: !!state.user && !!state.token,
+    isAuthenticated,
     login,
     logout,
     register,
@@ -288,7 +360,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

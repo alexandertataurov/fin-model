@@ -49,7 +49,8 @@ class UploadedFile(Base):
     upload_date = Column(DateTime, default=datetime.utcnow)
 
     # Processing status
-    status = Column(String(50), default=FileStatus.UPLOADED, nullable=False)
+    # Persist the enum's string value to the database
+    status = Column(String(50), default=FileStatus.UPLOADED.value, nullable=False)
     processing_status = synonym("status")
     processing_started_at = Column(DateTime, nullable=True)
     processing_completed_at = Column(DateTime, nullable=True)
@@ -60,13 +61,15 @@ class UploadedFile(Base):
     parsed_data = Column(Text, nullable=True)  # JSON string of parsed data
 
     # Foreign Keys
-    # Connect each file to its owning user. This satisfies the User.uploaded_files
-    # back-populated relationship required in tests.
+    # Map attribute 'user_id' to legacy DB column name 'uploaded_by_id' for
+    # backward compatibility with existing migrations in production.
     user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        "uploaded_by_id",
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
     )
-    # Older parts of the codebase reference ``uploaded_by_id``. Provide a
-    # synonym so both attribute names work without affecting the ORM mapping.
+    # Provide 'uploaded_by_id' alias for older code paths
     uploaded_by_id = synonym("user_id")
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     data_source_id = Column(Integer, ForeignKey("data_sources.id"), nullable=True)
@@ -86,7 +89,10 @@ class UploadedFile(Base):
     )
 
     def __repr__(self):
-        return f"<UploadedFile(id={self.id}, filename='{self.filename}', status='{self.status}')>"
+        return (
+            f"<UploadedFile(id={self.id}, filename='{self.filename}', "
+            f"status='{self.status}')>"
+        )
 
 
 class ProcessingLog(Base):
@@ -101,7 +107,8 @@ class ProcessingLog(Base):
     step = Column(String(100), nullable=False)  # validation, parsing, extraction, etc.
     message = Column(Text, nullable=False)
     level = Column(String(20), default="info", nullable=False)  # info, warning, error
-    details = Column(Text, nullable=True)  # JSON string with additional details
+    # JSON string with additional details
+    details = Column(Text, nullable=True)
 
     # Timing
     timestamp = Column(DateTime, default=func.now(), nullable=False)
@@ -110,4 +117,7 @@ class ProcessingLog(Base):
     file = relationship("UploadedFile", backref="processing_logs")
 
     def __repr__(self):
-        return f"<ProcessingLog(id={self.id}, file_id={self.file_id}, step='{self.step}', level='{self.level}')>"
+        return (
+            f"<ProcessingLog(id={self.id}, file_id={self.file_id}, "
+            f"step='{self.step}', level='{self.level}')>"
+        )

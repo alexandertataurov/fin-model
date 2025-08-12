@@ -248,7 +248,10 @@ class AzureBlobStorageService(CloudStorageInterface):
     async def get_file_url(self, file_path: str, expiry_hours: int = 24) -> str:
         """Get SAS URL for Azure blob."""
         try:
-            from azure.storage.blob import generate_blob_sas, BlobSasPermissions
+            from azure.storage.blob import (
+                generate_blob_sas,
+                BlobSasPermissions,
+            )
 
             sas_token = generate_blob_sas(
                 account_name=self.blob_service_client.account_name,
@@ -413,13 +416,16 @@ class CloudStorageManager:
             "features": {
                 "encryption": True,
                 "versioning": isinstance(
-                    self.storage_provider, (S3StorageService, AzureBlobStorageService)
+                    self.storage_provider,
+                    (S3StorageService, AzureBlobStorageService),
                 ),
                 "cdn": isinstance(
-                    self.storage_provider, (S3StorageService, AzureBlobStorageService)
+                    self.storage_provider,
+                    (S3StorageService, AzureBlobStorageService),
                 ),
                 "backup": isinstance(
-                    self.storage_provider, (S3StorageService, AzureBlobStorageService)
+                    self.storage_provider,
+                    (S3StorageService, AzureBlobStorageService),
                 ),
             },
         }

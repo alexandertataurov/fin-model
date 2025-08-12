@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
+import React, { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card'
+import { Button } from '@/design-system/components/Button'
 import { GripVertical, Maximize2, Minimize2, X } from 'lucide-react'
 
 interface DraggableWidgetProps {

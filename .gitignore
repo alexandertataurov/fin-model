@@ -73,3 +73,12 @@ temp/
 # Coverage artifacts
 .coverage
 coverage.xml
+frontend/storybook-static/
+
+
+#Ignore vscode AI rules
+.github/copilot-instructions.md
+
+
+#Ignore cursor AI rules
+.cursor/rules/codacy.mdc

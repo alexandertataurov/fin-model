@@ -25,7 +25,7 @@ export default defineConfig({
       },
       adminUser: {
         username: 'cypress_admin',
-        email: 'cypress.admin@test.com', 
+        email: 'cypress.admin@test.com',
         password: 'CypressAdmin123!'
       },
       apiUrl: 'http://localhost:8000/api/v1'
@@ -45,7 +45,7 @@ export default defineConfig({
               }
             });
             return response.data;
-          } catch (error) {
+          } catch (_error) {
             // Removed console.log (no-console lint rule)
             return { status: 'skipped' };
           }
@@ -73,10 +73,10 @@ export default defineConfig({
         generatePerformanceReport: async (data) => {
           const { promises: fs } = await import('fs');
           const { default: path } = await import('path');
-          
+
           const reportPath = path.join('cypress', 'reports', 'performance-report.json');
           await fs.writeFile(reportPath, JSON.stringify(data, null, 2));
-          
+
           // Removed console.log (no-console lint rule)
           return null;
         }
@@ -86,7 +86,7 @@ export default defineConfig({
       return config;
     }
   },
-  
+
   component: {
     devServer: {
       framework: 'react',
@@ -95,47 +95,47 @@ export default defineConfig({
     specPattern: 'src/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/component.tsx',
   },
-  
+
   env: {
     // API URL for backend
     apiUrl: 'http://localhost:8000',
-    
+
     // Test user credentials
     testUser: {
       username: 'cypress_test_user',
       email: 'cypress@test.com',
       password: 'CypressTest123!',
     },
-    
+
     // Admin user credentials
     adminUser: {
       username: 'cypress_admin',
       email: 'admin@test.com',
       password: 'AdminTest123!',
     },
-    
+
     // File upload settings
     fileUpload: {
       timeout: 30000,
       maxFileSize: 10485760, // 10MB
     }
   },
-  
+
   // Retry settings
   retries: {
     runMode: 2,
     openMode: 0,
   },
-  
+
   // Browser settings
   chromeWebSecurity: false,
-  
+
   // Network settings
   modifyObstructiveCode: false,
-  
+
   // Test isolation
   testIsolation: true,
-  
+
   // Experimental features
   experimentalStudio: true,
   experimentalOriginDependencies: true,

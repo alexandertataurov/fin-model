@@ -80,7 +80,10 @@ class SensitivityAnalyzer:
         # Get base scenario
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -215,7 +218,10 @@ class SensitivityAnalyzer:
         # Get base scenario and target parameter
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -370,7 +376,15 @@ class SensitivityAnalyzer:
         target_parameter_id: int,
         input_parameters: List[SensitivityConfig],
         user_id: int,
-        variation_percentages: List[float] = [-30, -20, -10, 0, 10, 20, 30],
+        variation_percentages: List[float] = [
+            -30,
+            -20,
+            -10,
+            0,
+            10,
+            20,
+            30,
+        ],
     ) -> Dict[str, Any]:
         """
         Run spider chart analysis showing parameter variation effects.
@@ -378,7 +392,10 @@ class SensitivityAnalyzer:
         # Get base scenario and target parameter
         scenario = (
             self.db.query(Scenario)
-            .filter(Scenario.id == scenario_id, Scenario.created_by_id == user_id)
+            .filter(
+                Scenario.id == scenario_id,
+                Scenario.created_by_id == user_id,
+            )
             .first()
         )
 
@@ -721,7 +738,9 @@ class SensitivityAnalyzer:
         }
 
     async def _generate_spider_chart_data(
-        self, spider_results: Dict[int, Dict], variation_percentages: List[float]
+        self,
+        spider_results: Dict[int, Dict],
+        variation_percentages: List[float],
     ) -> Dict[str, Any]:
         """
         Generate chart data for spider chart visualization.

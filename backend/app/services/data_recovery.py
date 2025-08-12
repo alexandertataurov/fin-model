@@ -401,7 +401,10 @@ class DataRecoveryService:
                 )
 
     async def _execute_backup_restore(
-        self, file_record: UploadedFile, action: RecoveryAction, db: Session
+        self,
+        file_record: UploadedFile,
+        action: RecoveryAction,
+        db: Session,
     ) -> RecoveryResult:
         """Execute backup restore recovery."""
         actions_taken = []
@@ -453,7 +456,10 @@ class DataRecoveryService:
                     data_integrity_score=0.95,  # High integrity for backup restore
                     recovery_timestamp=datetime.utcnow(),
                     warnings=warnings,
-                    next_steps=["Reprocess the restored file", "Verify data integrity"],
+                    next_steps=[
+                        "Reprocess the restored file",
+                        "Verify data integrity",
+                    ],
                 )
             else:
                 warnings.append("Backup restore failed")
@@ -470,11 +476,17 @@ class DataRecoveryService:
             data_integrity_score=0.0,
             recovery_timestamp=datetime.utcnow(),
             warnings=warnings,
-            next_steps=["Try partial processing recovery", "Contact support"],
+            next_steps=[
+                "Try partial processing recovery",
+                "Contact support",
+            ],
         )
 
     async def _execute_corruption_recovery(
-        self, file_record: UploadedFile, action: RecoveryAction, db: Session
+        self,
+        file_record: UploadedFile,
+        action: RecoveryAction,
+        db: Session,
     ) -> RecoveryResult:
         """Execute file corruption recovery."""
         actions_taken = []
@@ -557,7 +569,10 @@ class DataRecoveryService:
             data_integrity_score=0.0,
             recovery_timestamp=datetime.utcnow(),
             warnings=warnings,
-            next_steps=["Try backup restore", "Contact support for manual recovery"],
+            next_steps=[
+                "Try backup restore",
+                "Contact support for manual recovery",
+            ],
         )
 
     # Additional recovery methods would be implemented here...
@@ -618,7 +633,10 @@ class DataRecoveryService:
 
     # Placeholder methods for other recovery types
     async def _execute_processing_recovery(
-        self, file_record: UploadedFile, action: RecoveryAction, db: Session
+        self,
+        file_record: UploadedFile,
+        action: RecoveryAction,
+        db: Session,
     ) -> RecoveryResult:
         """Execute processing failure recovery."""
         # Implementation would go here
@@ -635,7 +653,10 @@ class DataRecoveryService:
         )
 
     async def _execute_storage_recovery(
-        self, file_record: UploadedFile, action: RecoveryAction, db: Session
+        self,
+        file_record: UploadedFile,
+        action: RecoveryAction,
+        db: Session,
     ) -> RecoveryResult:
         """Execute storage failure recovery."""
         # Implementation would go here
@@ -652,7 +673,10 @@ class DataRecoveryService:
         )
 
     async def _execute_data_recovery(
-        self, file_record: UploadedFile, action: RecoveryAction, db: Session
+        self,
+        file_record: UploadedFile,
+        action: RecoveryAction,
+        db: Session,
     ) -> RecoveryResult:
         """Execute data loss recovery."""
         # Implementation would go here

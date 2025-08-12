@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Alert, AlertDescription } from '../ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
+import { Badge } from '@/design-system/components/Badge';
+import { Button } from '@/design-system/components/Button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
+import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -218,16 +218,16 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
                   {getConfidenceBadge(assignment)}
                   
                   <Select
-                    value={assignment.assigned_type || ''}
+                    value={assignment.assigned_type || 'NOT_ASSIGNED'}
                     onValueChange={(value: string) => 
-                      updateAssignment(assignment.sheet_name, value as StatementType || null)
+                      updateAssignment(assignment.sheet_name, value === 'NOT_ASSIGNED' ? null : value as StatementType)
                     }
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">
+                      <SelectItem value="NOT_ASSIGNED">
                         <div className="flex items-center space-x-2">
                           <X className="h-4 w-4 text-gray-400" />
                           <span>Not Assigned</span>

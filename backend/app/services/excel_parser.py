@@ -175,16 +175,19 @@ class ExcelParser:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Excel file not found: {file_path}")
         workbook = load_workbook(file_path, data_only=True)
-        sheets = []
-        for sheet_name in workbook.sheetnames:
-            sheet = workbook[sheet_name]
-            data = [list(row) for row in sheet.iter_rows(values_only=True)]
-            sheets.append({"name": sheet_name, "type": "financial", "data": data})
-        return {
-            "file_path": file_path,
-            "sheets": sheets,
-            "metadata": {"sheet_count": len(sheets)},
-        }
+        try:
+            sheets = []
+            for sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+                data = [list(row) for row in sheet.iter_rows(values_only=True)]
+                sheets.append({"name": sheet_name, "type": "financial", "data": data})
+            return {
+                "file_path": file_path,
+                "sheets": sheets,
+                "metadata": {"sheet_count": len(sheets)},
+            }
+        finally:
+            workbook.close()
 
     # The remaining complex implementation is kept for completeness but unused in tests
     def parse_excel_file(self, file_path: str) -> ParsedData:
@@ -204,9 +207,10 @@ class ExcelParser:
                 sheet = workbook[sheet_name]
                 sheet_info = self._parse_worksheet(sheet)
                 parsed_data.sheets.append(sheet_info)
-            parsed_data.formulas, parsed_data.dependencies = self._extract_formulas(
-                workbook
-            )
+            (
+                parsed_data.formulas,
+                parsed_data.dependencies,
+            ) = self._extract_formulas(workbook)
             parsed_data.time_series_data = self._extract_time_series(parsed_data.sheets)
             parsed_data.financial_metrics = self._calculate_basic_metrics(
                 parsed_data.sheets
@@ -260,7 +264,10 @@ class ExcelParser:
         sheet_info.data_range = self._find_data_range(sheet)
 
         # Detect header row and data start
-        sheet_info.header_row, sheet_info.data_start_row = self._detect_headers(sheet)
+        (
+            sheet_info.header_row,
+            sheet_info.data_start_row,
+        ) = self._detect_headers(sheet)
 
         # Parse cells
         formula_count = 0
@@ -284,7 +291,10 @@ class ExcelParser:
     def _parse_cell(self, cell: Cell) -> CellInfo:
         """Parse individual cell."""
         cell_info = CellInfo(
-            address=cell.coordinate, row=cell.row, column=cell.column, value=cell.value
+            address=cell.coordinate,
+            row=cell.row,
+            column=cell.column,
+            value=cell.value,
         )
 
         # Handle formulas
@@ -475,11 +485,20 @@ class ExcelParser:
 
                     # Look for section headers
                     if "revenue" in text or "sales" in text:
-                        sections["revenue_section"] = {"row": row, "col": col}
+                        sections["revenue_section"] = {
+                            "row": row,
+                            "col": col,
+                        }
                     elif "expense" in text or "cost" in text:
-                        sections["expense_section"] = {"row": row, "col": col}
+                        sections["expense_section"] = {
+                            "row": row,
+                            "col": col,
+                        }
                     elif "total" in text:
-                        sections["total_section"] = {"row": row, "col": col}
+                        sections["total_section"] = {
+                            "row": row,
+                            "col": col,
+                        }
 
         return sections
 
@@ -554,7 +573,11 @@ class ExcelParser:
             s
             for s in parsed_data.sheets
             if s.sheet_type
-            in [SheetType.PROFIT_LOSS, SheetType.BALANCE_SHEET, SheetType.CASH_FLOW]
+            in [
+                SheetType.PROFIT_LOSS,
+                SheetType.BALANCE_SHEET,
+                SheetType.CASH_FLOW,
+            ]
         ]
 
         if not financial_sheets:
