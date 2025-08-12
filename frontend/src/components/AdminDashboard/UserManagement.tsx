@@ -1235,7 +1235,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
       </Dialog>
     </div>
   );
-};
+});
 
 UserManagement.displayName = 'UserManagement';
 

@@ -28,7 +28,7 @@ const config: StorybookConfig = {
   stories: [
     // Design System Documentation (MDX files first)
     {
-      directory: '../src/design-system/docs',
+      directory: '../src/design-system/stories',
       files: '**/*.mdx',
       titlePrefix: 'Design System',
     },

@@ -387,7 +387,7 @@ export const FinancialDashboard: Story = {
             <div key={label} className="p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
               <div style={applyTypographyStyle('caption')} className="text-gray-500 mb-1">{label}</div>
               <div style={applyTypographyStyle('title')} className="text-gray-900">{value}</div>
-              <div style={applyTypographyStyle('caption')} style={{ color }}>{change}</div>
+              <div style={{ ...applyTypographyStyle('caption'), color }}>{change}</div>
             </div>
           ))}
         </div>
