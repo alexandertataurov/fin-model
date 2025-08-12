@@ -3,7 +3,7 @@ import { Button } from '@/design-system/components/Button';
 import { Input } from '@/design-system/components/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import { applyTextStyle } from '@/design-system/utils/typography';
 import {
     Search,
     Filter,
@@ -87,7 +87,7 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
     const hasPrevPage = skip > 0;
 
     return (
-        <div 
+        <div
             className="space-y-4"
             style={{
                 display: 'flex',
@@ -95,7 +95,7 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                 gap: applyDesignSystemSpacing(4)
             }}
         >
-            <div 
+            <div
                 className="flex flex-col sm:flex-row gap-4"
                 style={{
                     display: 'flex',
@@ -145,9 +145,9 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                         <SelectItem value="100">100</SelectItem>
                     </SelectContent>
                 </Select>
-                <Button 
-                    variant="outline" 
-                    size="sm" 
+                <Button
+                    variant="outline"
+                    size="sm"
                     onClick={onRefresh}
                     style={{
                         borderRadius: applyDesignSystemRadius('lg'),
@@ -157,11 +157,11 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                     }}
                 >
                     <RefreshCw className="h-4 w-4 mr-2" />
-                    <span style={applyTypographyStyle('subtitle')}>Refresh</span>
+                    <span style={applyTextStyle('subtitle')}>Refresh</span>
                 </Button>
             </div>
 
-            <div 
+            <div
                 className="flex flex-col sm:flex-row gap-4"
                 style={{
                     display: 'flex',
@@ -208,7 +208,7 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                 </div>
             </div>
 
-            <div 
+            <div
                 className="flex items-center justify-between"
                 style={{
                     display: 'flex',
@@ -216,10 +216,10 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                     justifyContent: 'space-between'
                 }}
             >
-                <span style={applyTypographyStyle('caption')}>
+                <span style={applyTextStyle('caption')}>
                     Showing {skip + 1}-{Math.min(skip + limit, total)} of {total} logs
                 </span>
-                <div 
+                <div
                     className="flex items-center gap-2"
                     style={{
                         display: 'flex',
@@ -227,9 +227,9 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                         gap: applyDesignSystemSpacing(2)
                     }}
                 >
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={onPrev}
                         disabled={!hasPrevPage}
                         style={{
@@ -241,12 +241,12 @@ const LogFilterForm: React.FC<LogFilterFormProps> = memo(({
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <span style={applyTypographyStyle('caption')}>
+                    <span style={applyTextStyle('caption')}>
                         Page {currentPage} of {totalPages}
                     </span>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={onNext}
                         disabled={!hasNextPage}
                         style={{

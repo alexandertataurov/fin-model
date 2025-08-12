@@ -18,7 +18,6 @@ import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
-import { Container } from '@/design-system/stories/components';
 import {
     Users,
     FileText,
@@ -284,7 +283,7 @@ const OverviewSection: React.FC = memo(() => {
 
     if (!hasAnyData) {
         return (
-            <Container className="py-16">
+            <div className="py-16">
                 <div className="text-center space-y-8">
                     <div
                         className="w-24 h-24 mx-auto rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
@@ -322,7 +321,7 @@ const OverviewSection: React.FC = memo(() => {
                         </Button>
                     </div>
                 </div>
-            </Container>
+            </div>
         );
     }
 

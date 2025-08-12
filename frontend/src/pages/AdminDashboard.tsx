@@ -10,14 +10,14 @@
 import React, { memo } from 'react';
 import { AdminDashboard } from '@/components/AdminDashboard/AdminDashboard';
 import { AdminGuard } from '@/components/auth/AuthGuard';
-import { Container } from '@/design-system/stories/components';
+import { componentStyles } from '@/design-system/utils/designSystem';
 
 const AdminDashboardPage: React.FC = memo(() => {
   return (
     <AdminGuard>
-      <Container>
+      <div className={componentStyles.container}>
         <AdminDashboard />
-      </Container>
+      </div>
     </AdminGuard>
   );
 });

@@ -10,7 +10,7 @@ import { Badge } from '@/design-system/components/Badge';
 import { Progress } from '@/design-system/components/Progress';
 import { Alert, AlertDescription } from '@/design-system/components/Alert';
 import { tokens } from '@/design-system/tokens';
-import { useAdminStore } from '@/stores/adminStore';
+import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { applyTextStyle } from '@/design-system/utils/typography';
 import {
@@ -123,7 +123,7 @@ const OverviewTab: React.FC = memo(() => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                ...applyTypographyStyle('title'),
+                ...applyTextStyle('title'),
                 color: tokens.colors.foreground
               }}
             >
@@ -183,7 +183,7 @@ const OverviewTab: React.FC = memo(() => {
                   <span
                     className="text-sm font-medium"
                     style={{
-                      ...applyTypographyStyle('caption'),
+                      ...applyTextStyle('caption'),
                       fontWeight: tokens.typography.fontWeight.medium,
                       color: tokens.colors.foreground
                     }}
@@ -194,7 +194,7 @@ const OverviewTab: React.FC = memo(() => {
                 <div
                   className="text-xs text-muted-foreground"
                   style={{
-                    ...applyTypographyStyle('caption'),
+                    ...applyTextStyle('caption'),
                     color: tokens.colors.secondary[500]
                   }}
                 >

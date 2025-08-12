@@ -479,7 +479,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 animation: 'spin 1s linear infinite'
               }}
             />
-            <span style={applyTypographyStyle('body')}>Loading system monitoring data...</span>
+            <span style={applyTextStyle('body')}>Loading system monitoring data...</span>
           </div>
         </div>
         <div className="animate-pulse">

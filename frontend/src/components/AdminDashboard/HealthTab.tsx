@@ -1,27 +1,27 @@
 import React, { memo, useMemo, useCallback } from 'react';
-import { useAdminStore } from '@/stores/adminStore';
+import { useAdminStore } from '@/stores/admin';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/utils/typography';
+import { applyTextStyle } from '@/design-system/utils/typography';
 import {
-    applyDesignSystemSpacing
+  applyDesignSystemSpacing
 } from './utils/designSystemHelpers';
 import {
-    Heart,
-    Activity,
-    Cpu,
-    HardDrive,
-    Database,
-    Wifi,
-    AlertCircle,
-    CheckCircle,
-    Clock,
-    RefreshCw
+  Heart,
+  Activity,
+  Cpu,
+  HardDrive,
+  Database,
+  Wifi,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
 } from '@/design-system/components/Card';
 
 const HealthTab: React.FC = memo(() => {
@@ -42,7 +42,7 @@ const HealthTab: React.FC = memo(() => {
   }, [fetchHealthData]);
 
   return (
-    <div 
+    <div
       className="space-y-4"
       style={{
         display: 'flex',
@@ -56,7 +56,7 @@ const HealthTab: React.FC = memo(() => {
         </CardHeader>
         <CardContent>
           {systemHealth.data ? (
-            <div 
+            <div
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
               style={{
                 display: 'grid',
@@ -67,7 +67,7 @@ const HealthTab: React.FC = memo(() => {
                 }
               }}
             >
-              <div 
+              <div
                 className="flex items-center justify-between"
                 style={{
                   display: 'flex',
@@ -75,12 +75,12 @@ const HealthTab: React.FC = memo(() => {
                   justifyContent: 'space-between'
                 }}
               >
-                <span style={applyTypographyStyle('caption')}>Status</span>
-                <span style={applyTypographyStyle('subtitle')}>
+                <span style={applyTextStyle('caption')}>Status</span>
+                <span style={applyTextStyle('subtitle')}>
                   {healthStatus}
                 </span>
               </div>
-              <div 
+              <div
                 className="flex items-center justify-between"
                 style={{
                   display: 'flex',
@@ -88,14 +88,14 @@ const HealthTab: React.FC = memo(() => {
                   justifyContent: 'space-between'
                 }}
               >
-                <span style={applyTypographyStyle('caption')}>Timestamp</span>
-                <span style={applyTypographyStyle('subtitle')}>
+                <span style={applyTextStyle('caption')}>Timestamp</span>
+                <span style={applyTextStyle('subtitle')}>
                   {new Date().toLocaleString()}
                 </span>
               </div>
             </div>
           ) : (
-            <p style={applyTypographyStyle('body')}>No system health data.</p>
+            <p style={applyTextStyle('body')}>No system health data.</p>
           )}
         </CardContent>
       </Card>
@@ -106,7 +106,7 @@ const HealthTab: React.FC = memo(() => {
         </CardHeader>
         <CardContent>
           {databaseHealth.data ? (
-            <div 
+            <div
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
               style={{
                 display: 'grid',
@@ -117,7 +117,7 @@ const HealthTab: React.FC = memo(() => {
                 }
               }}
             >
-              <div 
+              <div
                 className="flex items-center justify-between"
                 style={{
                   display: 'flex',
@@ -125,14 +125,14 @@ const HealthTab: React.FC = memo(() => {
                   justifyContent: 'space-between'
                 }}
               >
-                <span style={applyTypographyStyle('caption')}>Status</span>
-                <span style={applyTypographyStyle('subtitle')}>
+                <span style={applyTextStyle('caption')}>Status</span>
+                <span style={applyTextStyle('subtitle')}>
                   {databaseStatus}
                 </span>
               </div>
             </div>
           ) : (
-            <p style={applyTypographyStyle('body')}>No database health data.</p>
+            <p style={applyTextStyle('body')}>No database health data.</p>
           )}
         </CardContent>
       </Card>

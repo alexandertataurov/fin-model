@@ -47,7 +47,7 @@ import { Textarea } from '@/design-system/components/Textarea';
 import { tokens } from '@/design-system/tokens';
 import { toast } from 'sonner';
 import * as AdminApi from '@/services/admin';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import { applyTextStyle } from '@/design-system/utils/typography';
 
 // Maintenance operation types
 export interface MaintenanceOperation {
