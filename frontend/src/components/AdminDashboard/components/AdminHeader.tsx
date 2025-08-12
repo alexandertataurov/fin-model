@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { tokens } from '@/design-system/tokens';
-import { getSemanticSpacing } from '../utils/designSystemHelpers';
+import { getSemanticSpacing, applyDesignSystemZIndex } from '../utils/designSystemHelpers';
 import { AdminHeadline, AdminSubheadline, AdminBody } from './AdminTypography';
 
 interface AdminHeaderProps {
@@ -9,6 +9,7 @@ interface AdminHeaderProps {
     showBreadcrumb?: boolean;
     showAdminBadge?: boolean;
     className?: string;
+    zIndex?: keyof typeof tokens.zIndex;
 }
 
 export const AdminHeader: React.FC<AdminHeaderProps> = ({
@@ -16,16 +17,19 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     description,
     showBreadcrumb = false,
     showAdminBadge = false,
-    className = ''
+    className = '',
+    zIndex
 }) => {
-    const layoutSpacing = getSemanticSpacing('layout');
+    const layoutSpacing = useMemo(() => getSemanticSpacing('layout'), []);
+    const zIndexStyle = useMemo(() => zIndex ? applyDesignSystemZIndex(zIndex) : {}, [zIndex]);
 
     return (
         <div
             className={className}
             style={{
                 padding: layoutSpacing.container, // 16px - Container padding
-                marginBottom: layoutSpacing.section // 48px - Section spacing
+                marginBottom: layoutSpacing.section, // 48px - Section spacing
+                ...zIndexStyle
             }}
         >
             {showBreadcrumb && (

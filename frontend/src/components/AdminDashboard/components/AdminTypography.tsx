@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '../utils/designSystemHelpers';
 
@@ -16,18 +16,22 @@ export const AdminTitle: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <h3
-        className={`text-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('title'),
-            color: tokens.colors.secondary[800], // Following color hierarchy guidelines
-            ...style
-        }}
-    >
-        {children}
-    </h3>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('title'), []);
+    
+    return (
+        <h3
+            className={`text-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[800], // Following color hierarchy guidelines
+                ...style
+            }}
+        >
+            {children}
+        </h3>
+    );
+};
 
 /**
  * AdminSubtitle - Uses subtitle typography style following design system guidelines
@@ -37,18 +41,22 @@ export const AdminSubtitle: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <h4
-        className={`text-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('subtitle'),
-            color: tokens.colors.secondary[700], // Following color hierarchy guidelines
-            ...style
-        }}
-    >
-        {children}
-    </h4>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('subtitle'), []);
+    
+    return (
+        <h4
+            className={`text-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[700], // Following color hierarchy guidelines
+                ...style
+            }}
+        >
+            {children}
+        </h4>
+    );
+};
 
 /**
  * AdminBody - Uses body typography style following design system guidelines
@@ -58,19 +66,23 @@ export const AdminBody: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <p
-        className={`text-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('body'),
-            color: tokens.colors.secondary[600], // Following color hierarchy guidelines
-            maxWidth: '65ch', // Optimal line length for readability
-            ...style
-        }}
-    >
-        {children}
-    </p>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('body'), []);
+    
+    return (
+        <p
+            className={`text-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[600], // Following color hierarchy guidelines
+                maxWidth: '65ch', // Optimal line length for readability
+                ...style
+            }}
+        >
+            {children}
+        </p>
+    );
+};
 
 /**
  * AdminCaption - Uses caption typography style following design system guidelines
@@ -80,18 +92,22 @@ export const AdminCaption: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <span
-        className={`text-muted-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('caption'),
-            color: tokens.colors.secondary[500], // Following color hierarchy guidelines
-            ...style
-        }}
-    >
-        {children}
-    </span>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('caption'), []);
+    
+    return (
+        <span
+            className={`text-muted-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[500], // Following color hierarchy guidelines
+                ...style
+            }}
+        >
+            {children}
+        </span>
+    );
+};
 
 /**
  * AdminHeadline - Uses headline typography style following design system guidelines
@@ -101,18 +117,22 @@ export const AdminHeadline: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <h1
-        className={`text-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('headline'),
-            color: tokens.colors.secondary[900], // Following color hierarchy guidelines
-            ...style
-        }}
-    >
-        {children}
-    </h1>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('headline'), []);
+    
+    return (
+        <h1
+            className={`text-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[900], // Following color hierarchy guidelines
+                ...style
+            }}
+        >
+            {children}
+        </h1>
+    );
+};
 
 /**
  * AdminSubheadline - Uses subheadline typography style following design system guidelines
@@ -122,18 +142,22 @@ export const AdminSubheadline: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <h2
-        className={`text-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('subheadline'),
-            color: tokens.colors.secondary[800], // Following color hierarchy guidelines
-            ...style
-        }}
-    >
-        {children}
-    </h2>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('subheadline'), []);
+    
+    return (
+        <h2
+            className={`text-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[800], // Following color hierarchy guidelines
+                ...style
+            }}
+        >
+            {children}
+        </h2>
+    );
+};
 
 /**
  * AdminCode - Uses code typography style following design system guidelines
@@ -143,21 +167,25 @@ export const AdminCode: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <code
-        className={`text-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('code'),
-            color: tokens.colors.secondary[700], // Following color hierarchy guidelines
-            backgroundColor: tokens.colors.secondary[50],
-            padding: tokens.spacing[1],
-            borderRadius: tokens.borderRadius.sm,
-            ...style
-        }}
-    >
-        {children}
-    </code>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('code'), []);
+    
+    return (
+        <code
+            className={`text-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[700], // Following color hierarchy guidelines
+                backgroundColor: tokens.colors.secondary[50],
+                padding: tokens.spacing[1],
+                borderRadius: tokens.borderRadius.sm,
+                ...style
+            }}
+        >
+            {children}
+        </code>
+    );
+};
 
 /**
  * AdminElegant - Uses elegant typography style following design system guidelines
@@ -167,15 +195,19 @@ export const AdminElegant: React.FC<AdminTypographyProps> = ({
     children,
     className = '',
     style = {}
-}) => (
-    <p
-        className={`text-foreground ${className}`}
-        style={{
-            ...applyTypographyStyle('elegant'),
-            color: tokens.colors.secondary[600], // Following color hierarchy guidelines
-            ...style
-        }}
-    >
-        {children}
-    </p>
-);
+}) => {
+    const typographyStyle = useMemo(() => applyTypographyStyle('elegant'), []);
+    
+    return (
+        <p
+            className={`text-foreground ${className}`}
+            style={{
+                ...typographyStyle,
+                color: tokens.colors.secondary[600], // Following color hierarchy guidelines
+                ...style
+            }}
+        >
+            {children}
+        </p>
+    );
+};

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
 import { tokens } from '@/design-system/tokens';
 import {
@@ -18,6 +18,7 @@ interface AdminCardProps {
     contentClassName?: string;
     variant?: 'default' | 'elevated' | 'outlined';
     size?: 'sm' | 'md' | 'lg';
+    zIndex?: keyof typeof tokens.zIndex;
 }
 
 export const AdminCard: React.FC<AdminCardProps> = ({
@@ -28,13 +29,15 @@ export const AdminCard: React.FC<AdminCardProps> = ({
     headerClassName = '',
     contentClassName = '',
     variant = 'default',
-    size = 'md'
+    size = 'md',
+    zIndex
 }) => {
-    const getCardStyle = () => {
+    const getCardStyle = useMemo(() => {
         const baseStyle = {
             background: tokens.colors.background,
             border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
-            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+            ...(zIndex && { zIndex: tokens.zIndex[zIndex] })
         };
 
         switch (variant) {
@@ -57,9 +60,9 @@ export const AdminCard: React.FC<AdminCardProps> = ({
                     boxShadow: getSemanticShadow('card'), // Following shadow hierarchy
                 };
         }
-    };
+    }, [variant, zIndex]);
 
-    const getPadding = () => {
+    const padding = useMemo(() => {
         const componentSpacing = getSemanticSpacing('component');
 
         switch (size) {
@@ -79,15 +82,13 @@ export const AdminCard: React.FC<AdminCardProps> = ({
                     gap: componentSpacing.gap // 8px - Standard component gap
                 };
         }
-    };
-
-    const padding = getPadding();
+    }, [size]);
 
     return (
         <Card
             className={className}
             style={{
-                ...getCardStyle(),
+                ...getCardStyle,
                 padding: padding.padding,
                 gap: padding.gap
             }}

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { tokens } from '@/design-system/tokens';
 import {
     applyDesignSystemSpacing,
     getSemanticSpacing,
     applyDesignSystemRadius,
-    getSemanticShadow
+    getSemanticShadow,
+    applyDesignSystemZIndex
 } from '../utils/designSystemHelpers';
 import { AdminBody, AdminCaption } from './AdminTypography';
 
@@ -12,35 +13,39 @@ interface AdminLoadingProps {
     message?: string;
     size?: 'sm' | 'md' | 'lg';
     className?: string;
+    zIndex?: keyof typeof tokens.zIndex;
 }
 
 export const AdminLoadingSpinner: React.FC<AdminLoadingProps> = ({
     message = 'Loading...',
     size = 'md',
-    className = ''
+    className = '',
+    zIndex
 }) => {
-    const getSpinnerSize = () => {
+    const getSpinnerSize = useMemo(() => {
         switch (size) {
             case 'sm': return '16px';
             case 'lg': return '32px';
             default: return '24px';
         }
-    };
+    }, [size]);
 
-    const componentSpacing = getSemanticSpacing('component');
+    const componentSpacing = useMemo(() => getSemanticSpacing('component'), []);
+    const zIndexStyle = useMemo(() => zIndex ? applyDesignSystemZIndex(zIndex) : {}, [zIndex]);
 
     return (
         <div
             className={`flex items-center justify-center ${className}`}
             style={{
                 gap: componentSpacing.gap, // 8px - Standard component gap
-                padding: componentSpacing.padding // 16px - Standard component padding
+                padding: componentSpacing.padding, // 16px - Standard component padding
+                ...zIndexStyle
             }}
         >
             <div
                 style={{
-                    width: getSpinnerSize(),
-                    height: getSpinnerSize(),
+                    width: getSpinnerSize,
+                    height: getSpinnerSize,
                     border: `2px solid ${tokens.colors.secondary[200]}`,
                     borderTop: `2px solid ${tokens.colors.primary[500]}`,
                     borderRadius: '50%',
@@ -57,8 +62,10 @@ export const AdminLoadingSpinner: React.FC<AdminLoadingProps> = ({
 export const AdminLoadingSkeleton: React.FC<{
     rows?: number;
     className?: string;
-}> = ({ rows = 3, className = '' }) => {
-    const componentSpacing = getSemanticSpacing('component');
+    zIndex?: keyof typeof tokens.zIndex;
+}> = ({ rows = 3, className = '', zIndex }) => {
+    const componentSpacing = useMemo(() => getSemanticSpacing('component'), []);
+    const zIndexStyle = useMemo(() => zIndex ? applyDesignSystemZIndex(zIndex) : {}, [zIndex]);
 
     return (
         <div
@@ -67,7 +74,8 @@ export const AdminLoadingSkeleton: React.FC<{
                 display: 'flex',
                 flexDirection: 'column',
                 gap: componentSpacing.gap, // 8px - Standard component gap
-                padding: componentSpacing.padding // 16px - Standard component padding
+                padding: componentSpacing.padding, // 16px - Standard component padding
+                ...zIndexStyle
             }}
         >
             {Array.from({ length: rows }).map((_, index) => (
@@ -88,8 +96,10 @@ export const AdminLoadingSkeleton: React.FC<{
 export const AdminLoadingCard: React.FC<{
     title?: string;
     className?: string;
-}> = ({ title = 'Loading...', className = '' }) => {
-    const componentSpacing = getSemanticSpacing('component');
+    zIndex?: keyof typeof tokens.zIndex;
+}> = ({ title = 'Loading...', className = '', zIndex }) => {
+    const componentSpacing = useMemo(() => getSemanticSpacing('component'), []);
+    const zIndexStyle = useMemo(() => zIndex ? applyDesignSystemZIndex(zIndex) : {}, [zIndex]);
 
     return (
         <div
@@ -104,7 +114,8 @@ export const AdminLoadingCard: React.FC<{
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: componentSpacing.gap // 8px - Standard component gap
+                gap: componentSpacing.gap, // 8px - Standard component gap
+                ...zIndexStyle
             }}
         >
             <div

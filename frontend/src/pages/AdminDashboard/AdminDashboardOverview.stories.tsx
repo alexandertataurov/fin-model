@@ -9,6 +9,10 @@ import {
 } from '../../design-system/stories/components';
 import { BarChart3, Loader2 } from 'lucide-react';
 import { AdminSectionErrorBoundary } from '../../components/ErrorBoundary';
+import { AdminCard } from '../../components/AdminDashboard/components/AdminCard';
+import { AdminTitle, AdminCaption } from '../../components/AdminDashboard/components/AdminTypography';
+import { tokens } from '../../design-system/tokens';
+import { getSemanticSpacing } from '../../components/AdminDashboard/utils/designSystemHelpers';
 
 // Lazy load the heavy AdminDashboard component
 const AdminDashboard = lazy(() => import('../../components/AdminDashboard/AdminDashboard'));
@@ -34,19 +38,32 @@ const handleRetry = () => window.location.reload();
 // Pre-computed typography styles to prevent re-computation
 const bodyStyle = applyTypographyStyle('body');
 
+// Pre-computed spacing using design system helpers
+const layoutSpacing = getSemanticSpacing('layout');
+
 // Loading fallback component with design system spacing and typography
 const LoadingFallback = React.memo(() => (
-    <div className="flex items-center justify-center p-12">
-        <div className="flex items-center gap-3">
-            <Icon icon={Loader2} className="animate-spin" />
-            <span 
-                style={bodyStyle}
-                className="text-muted-foreground"
-            >
-                Loading Admin Dashboard...
-            </span>
+    <AdminCard
+        title="Loading Admin Dashboard"
+        subtitle="Please wait while we load the dashboard components"
+        variant="elevated"
+        size="lg"
+    >
+        <div 
+            className="flex items-center justify-center"
+            style={{ padding: layoutSpacing.section }}
+        >
+            <div className="flex items-center gap-3">
+                <Icon icon={Loader2} className="animate-spin" />
+                <span 
+                    style={bodyStyle}
+                    className="text-muted-foreground"
+                >
+                    Loading Admin Dashboard...
+                </span>
+            </div>
         </div>
-    </div>
+    </AdminCard>
 ));
 
 const meta: Meta = {
@@ -83,7 +100,7 @@ type Story = StoryObj<typeof meta>;
 
 // Memoized dashboard overview component with design system principles
 const DashboardOverviewComponent = React.memo(() => (
-    <div className="space-y-12">
+    <div style={{ gap: layoutSpacing.section }} className="space-y-12">
         <SectionHeader
             title="Admin Dashboard Overview"
             subtitle="Complete system monitoring and management interface with real-time metrics and comprehensive controls"
