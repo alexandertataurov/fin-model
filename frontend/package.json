@@ -25,6 +25,7 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006 -c .storybook",
     "storybook:build": "storybook build -o storybook-static -c .storybook",
+    "storybook:build:netlify": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" storybook build -o storybook-static -c .storybook",
     "storybook:verify": "node scripts/verify-stories.cjs",
     "storybook:create": "node scripts/create-story.js",
     "test": "vitest --config vitest.config.ts",
