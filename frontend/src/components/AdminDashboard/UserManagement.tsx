@@ -1,33 +1,5 @@
 import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import {
-  Users,
-  UserPlus,
-  Edit,
-  Trash2,
-  Shield,
-  Mail,
-  Search,
-  Filter,
-  MoreHorizontal,
-  UserCheck,
-  UserX,
-  Eye,
-  Download,
-  Calendar,
-  Clock,
-  Activity,
-  // TrendingUp,
-  AlertCircle,
-  CheckCircle,
-  X,
-  // Plus,
-  // BarChart3,
-  // Globe,
-  // MapPin,
-  // Smartphone,
-  Bell,
-} from 'lucide-react';
-import {
   Card,
   CardContent,
   CardHeader,
@@ -76,6 +48,15 @@ import type { UserWithRoles } from '@/services/admin';
 import { toast } from 'sonner';
 import { tokens } from '@/design-system/tokens';
 import { applyTypographyStyle } from '@/design-system/stories/components';
+import { getStatusBadge } from './utils/designSystemHelpers';
+import {
+  AdminCard,
+  AdminTitle,
+  AdminBody,
+  AdminCaption,
+  AdminHeadline,
+  AdminSubtitle
+} from './components';
 
 interface UserManagementProps {
   onUserUpdated?: () => void;
@@ -385,10 +366,10 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
       {/* Header with actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">User Management</h2>
-          <p className="text-muted-foreground">
+          <AdminHeadline>User Management</AdminHeadline>
+          <AdminBody>
             Manage user accounts, roles, and permissions
-          </p>
+          </AdminBody>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -409,13 +390,13 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Users className="h-4 w-4 mr-2 text-blue-500" />
-              Total Users
+              <AdminSubtitle>Total Users</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <AdminHeadline className="text-blue-600">
               {total}
-            </div>
+            </AdminHeadline>
             <div className="flex items-center mt-2">
               <div className="flex-1 bg-gray-200 rounded-full h-1.5">
                 <div
@@ -430,14 +411,14 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                   }}
                 ></div>
               </div>
-              <span className="text-xs text-muted-foreground ml-2">
+              <AdminCaption className="ml-2">
                 {total > 0
                   ? Math.round(
                     (users.filter(u => u.is_active).length / total) * 100
                   )
                   : 0}
                 % active
-              </span>
+              </AdminCaption>
             </div>
           </CardContent>
         </Card>
@@ -446,16 +427,16 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-              Active Users
+              <AdminSubtitle>Active Users</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <AdminHeadline className="text-green-600">
               {users.filter(u => u.is_active).length}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
+            </AdminHeadline>
+            <AdminCaption>
               {users.filter(u => u.is_active && u.is_verified).length} verified
-            </div>
+            </AdminCaption>
           </CardContent>
         </Card>
 
@@ -463,16 +444,16 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Mail className="h-4 w-4 mr-2 text-purple-500" />
-              Verification Status
+              <AdminSubtitle>Verification Status</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
+            <AdminHeadline className="text-purple-600">
               {users.filter(u => u.is_verified).length}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
+            </AdminHeadline>
+            <AdminCaption>
               {users.filter(u => !u.is_verified).length} pending verification
-            </div>
+            </AdminCaption>
           </CardContent>
         </Card>
 
@@ -480,16 +461,16 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Shield className="h-4 w-4 mr-2 text-orange-500" />
-              User Roles
+              <AdminSubtitle>User Roles</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
+            <AdminHeadline className="text-orange-600">
               {uniqueRoles.length}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
+            </AdminHeadline>
+            <AdminCaption>
               {users.filter(u => u.roles.length > 0).length} users with roles
-            </div>
+            </AdminCaption>
           </CardContent>
         </Card>
       </div>
@@ -497,9 +478,9 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
       {/* Enhanced Filters and Search */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <Filter className="h-5 w-5 mr-2" />
-            Search & Filter Users
+          <CardTitle className="flex items-center">
+            <Filter className="h-4 w-4 mr-2" />
+            <AdminSubtitle>Filters & Search</AdminSubtitle>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -507,7 +488,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
             {/* Search */}
             <div className="md:col-span-2">
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by name, email, or username..."
                   value={searchTerm}
@@ -515,7 +496,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                     setSearchTerm(e.target.value);
                     setPage(0);
                   }}
-                  className="pl-9"
+                  className="pl-10"
                 />
               </div>
             </div>
@@ -715,8 +696,8 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center">
-              <Users className="h-5 w-5 mr-2" />
-              User Directory
+              <Users className="h-4 w-4 mr-2" />
+              <AdminSubtitle>User Directory</AdminSubtitle>
               <Badge variant="secondary" className="ml-2">
                 {total} users
               </Badge>
