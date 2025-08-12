@@ -1,15 +1,54 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { tokens } from '../../design-system/tokens';
 import { Title, Stories } from '@storybook/blocks';
+import { tokens } from '../../design-system/tokens';
 import {
     AnimatedBanner,
     Container,
     SectionHeader,
     applyTypographyStyle,
 } from '../../design-system/stories/components';
-import { AdminDashboard } from '../../components/AdminDashboard/AdminDashboard';
+import { BarChart3, Loader2 } from 'lucide-react';
 import { AdminSectionErrorBoundary } from '../../components/ErrorBoundary';
+
+// Lazy load the heavy AdminDashboard component
+const AdminDashboard = lazy(() => import('../../components/AdminDashboard/AdminDashboard'));
+
+// Optimized icon component with design system principles
+const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
+    ({ icon: IconComponent, size = 'md', className = '' }) => {
+        const sizeClasses = {
+            sm: 'h-4 w-4',
+            md: 'h-5 w-5',
+            lg: 'h-6 w-6'
+        };
+        return <IconComponent className={`${sizeClasses[size]} ${className}`} />;
+    }
+);
+
+// Memoized banner icon
+const BannerIcon = React.memo(() => <Icon icon={BarChart3} size="lg" />);
+
+// Stable callback function
+const handleRetry = () => window.location.reload();
+
+// Loading fallback component with design system spacing and typography
+const LoadingFallback = React.memo(() => (
+    <div 
+        className="flex items-center justify-center"
+        style={{ padding: tokens.spacing[12] }}
+    >
+        <div className="flex items-center gap-3">
+            <Icon icon={Loader2} className="animate-spin" />
+            <span 
+                style={applyTypographyStyle('body')}
+                className="text-muted-foreground"
+            >
+                Loading Admin Dashboard...
+            </span>
+        </div>
+    </div>
+));
 
 const meta: Meta = {
     title: 'Pages/Admin Dashboard/Overview',
@@ -24,15 +63,7 @@ const meta: Meta = {
                     <AnimatedBanner
                         title="Admin Dashboard Overview"
                         subtitle="Complete system monitoring and management interface with real-time metrics and comprehensive controls"
-                        icon={
-                            <svg
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                        }
+                        icon={<BannerIcon />}
                     />
                     <Stories includePrimary={false} />
                 </>
@@ -51,22 +82,36 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const DashboardOverview: Story = {
-    render: () => (
-        <div className="space-y-12">
-            <SectionHeader
-                title="Admin Dashboard Overview"
-                subtitle="Complete system monitoring and management interface with real-time metrics and comprehensive controls"
-            />
+// Memoized dashboard overview component with design system principles
+const DashboardOverviewComponent = React.memo(() => (
+    <div style={{ gap: tokens.spacing[12] }} className="space-y-12">
+        <SectionHeader
+            title="Admin Dashboard Overview"
+            subtitle="Complete system monitoring and management interface with real-time metrics and comprehensive controls"
+        />
 
-            <AdminSectionErrorBoundary
-                sectionName="Admin Dashboard"
-                onRetry={() => window.location.reload()}
-            >
-                <Container>
+        <AdminSectionErrorBoundary
+            sectionName="Admin Dashboard"
+            onRetry={handleRetry}
+        >
+            <Container>
+                <Suspense fallback={<LoadingFallback />}>
                     <AdminDashboard />
-                </Container>
-            </AdminSectionErrorBoundary>
-        </div>
-    ),
+                </Suspense>
+            </Container>
+        </AdminSectionErrorBoundary>
+    </div>
+));
+
+export const DashboardOverview: Story = {
+    render: () => <DashboardOverviewComponent />,
+    parameters: {
+        // Add performance parameters to prevent freezing
+        docs: {
+            disable: true, // Disable docs for heavy components
+        },
+        controls: {
+            disable: true, // Disable controls to reduce overhead
+        },
+    },
 };

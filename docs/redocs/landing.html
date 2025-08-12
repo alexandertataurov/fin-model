@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinVision API Documentation Hub</title>
+
+    <!-- Google Fonts -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700"
+    />
+
+    <!-- Custom CSS -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f8f9fa;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 3rem;
+        font-weight: 300;
+        font-family: "Montserrat", sans-serif;
+        margin-bottom: 1rem;
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+      }
+
+      .version-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        font-size: 1rem;
+        display: inline-block;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .features {
+        padding: 4rem 0;
+        background: white;
+      }
+
+      .features h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 300;
+        font-family: "Montserrat", sans-serif;
+        margin-bottom: 3rem;
+        color: #333;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .feature-card {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #667eea;
+      }
+
+      .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+
+      .feature-card p {
+        color: #666;
+        line-height: 1.6;
+      }
+
+      .docs-section {
+        padding: 4rem 0;
+      }
+
+      .docs-section h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 300;
+        font-family: "Montserrat", sans-serif;
+        margin-bottom: 3rem;
+        color: #333;
+      }
+
+      .docs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+      }
+
+      .doc-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .doc-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .doc-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+      }
+
+      .doc-card-header h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .doc-card-header p {
+        opacity: 0.9;
+        font-size: 0.9rem;
+      }
+
+      .doc-card-body {
+        padding: 2rem;
+      }
+
+      .doc-card-body ul {
+        list-style: none;
+        margin-bottom: 2rem;
+      }
+
+      .doc-card-body li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+      }
+
+      .doc-card-body li:before {
+        content: "✓";
+        color: #28a745;
+        font-weight: bold;
+        margin-right: 0.5rem;
+      }
+
+      .doc-card-body li:last-child {
+        border-bottom: none;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+        text-align: center;
+        width: 100%;
+      }
+
+      .btn:hover {
+        background: #5a6fd8;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+      }
+
+      .btn-secondary:hover {
+        background: #5a6268;
+      }
+
+      .footer {
+        background: #333;
+        color: white;
+        text-align: center;
+        padding: 2rem 0;
+      }
+
+      .footer p {
+        margin-bottom: 1rem;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+      }
+
+      .footer-links a {
+        color: #667eea;
+        text-decoration: none;
+      }
+
+      .footer-links a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .header p {
+          font-size: 1rem;
+        }
+
+        .features h2,
+        .docs-section h2 {
+          font-size: 2rem;
+        }
+
+        .features-grid,
+        .docs-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .footer-links {
+          flex-direction: column;
+          gap: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <h1>FinVision API Documentation</h1>
+        <p>
+          Comprehensive documentation for the Financial Modeling and Analysis
+          Platform API. Choose your preferred format to explore endpoints, test
+          functionality, and integrate with your applications.
+        </p>
+        <div class="version-badge">Version 1.0.0</div>
+      </div>
+    </div>
+
+    <section class="features">
+      <div class="container">
+        <h2>API Features</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <h3>Authentication</h3>
+            <p>
+              JWT tokens, MFA, WebAuthn, and OAuth integration for secure access
+              control.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Dashboard Analytics</h3>
+            <p>
+              Comprehensive metrics, charts, and real-time analytics for
+              financial insights.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📁</div>
+            <h3>File Management</h3>
+            <p>
+              Upload, process, and manage financial documents with advanced
+              processing capabilities.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚙️</div>
+            <h3>Financial Modeling</h3>
+            <p>
+              Create and manage scenarios, parameters, and generate financial
+              statements.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔔</div>
+            <h3>Notifications</h3>
+            <p>
+              Real-time notifications and task management for workflow
+              coordination.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Lean Metrics</h3>
+            <p>
+              Advanced financial performance indicators and lean methodology
+              calculations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="docs-section">
+      <div class="container">
+        <h2>Documentation Formats</h2>
+        <div class="docs-grid">
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <h3>ReDoc</h3>
+              <p>Beautiful, responsive documentation</p>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>Clean, modern interface</li>
+                <li>Responsive design</li>
+                <li>Search functionality</li>
+                <li>Code examples</li>
+                <li>Schema documentation</li>
+              </ul>
+              <a href="index.html" class="btn">View ReDoc</a>
+            </div>
+          </div>
+
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <h3>Swagger UI</h3>
+              <p>Interactive API testing</p>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>Interactive endpoint testing</li>
+                <li>Request/response examples</li>
+                <li>Authentication support</li>
+                <li>Try-it-out functionality</li>
+                <li>Real-time validation</li>
+              </ul>
+              <a href="swagger.html" class="btn">Open Swagger UI</a>
+            </div>
+          </div>
+
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <h3>Markdown Docs</h3>
+              <p>Comprehensive reference guide</p>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>Detailed explanations</li>
+                <li>Code examples</li>
+                <li>Error handling guide</li>
+                <li>Setup instructions</li>
+                <li>Best practices</li>
+              </ul>
+              <a href="../API_DOCUMENTATION.md" class="btn">Read Full Docs</a>
+            </div>
+          </div>
+
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <h3>Postman Collection</h3>
+              <p>Ready-to-use API collection</p>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>Pre-configured requests</li>
+                <li>Environment variables</li>
+                <li>Authentication setup</li>
+                <li>Example data</li>
+                <li>Import ready</li>
+              </ul>
+              <a
+                href="../FinVision_API.postman_collection.json"
+                class="btn btn-secondary"
+                >Download Collection</a
+              >
+            </div>
+          </div>
+
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <h3>OpenAPI Spec</h3>
+              <p>Machine-readable specification</p>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>OpenAPI 3.1 compliant</li>
+                <li>Tool integration</li>
+                <li>Code generation</li>
+                <li>Schema validation</li>
+                <li>API design</li>
+              </ul>
+              <a href="../openapi.yaml" class="btn btn-secondary"
+                >Download Spec</a
+              >
+            </div>
+          </div>
+
+          <div class="doc-card">
+            <div class="doc-card-header">
+              <h3>Quick Start</h3>
+              <p>Get started quickly</p>
+            </div>
+            <div class="doc-card-body">
+              <ul>
+                <li>Setup instructions</li>
+                <li>Authentication guide</li>
+                <li>First API call</li>
+                <li>Common patterns</li>
+                <li>Troubleshooting</li>
+              </ul>
+              <a href="../API_README.md" class="btn btn-secondary"
+                >Quick Start Guide</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <p>FinVision API Documentation Hub</p>
+        <div class="footer-links">
+          <a href="https://github.com/your-repo" target="_blank"
+            >GitHub Repository</a
+          >
+          <a href="mailto:support@finvision.com">Support Email</a>
+          <a href="../API_DOCUMENTATION.md">Full Documentation</a>
+        </div>
+        <p style="margin-top: 2rem; opacity: 0.7">
+          © 2024 FinVision. All rights reserved.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

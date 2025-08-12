@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { tokens } from '../../design-system/tokens';
 import { Title, Stories } from '@storybook/blocks';
+import { tokens } from '../../design-system/tokens';
 import {
     AnimatedBanner,
     Container,
@@ -9,28 +9,42 @@ import {
     Card,
     applyTypographyStyle,
 } from '../../design-system/stories/components';
-import DataManagement from '../../components/AdminDashboard/DataManagement';
-import { DashboardCustomization } from '../../components/AdminDashboard/DashboardCustomization';
-import { MaintenanceTools } from '../../components/AdminDashboard/MaintenanceTools';
-import UserManagement from '../../components/AdminDashboard/UserManagement';
-import SystemMonitoring from '../../components/AdminDashboard/SystemMonitoring';
-import LogFilterForm from '../../components/AdminDashboard/LogFilterForm';
+import { Settings, Loader2 } from 'lucide-react';
 
-// Memoized typography styles
+// Lazy load heavy components to prevent freezing
+const DataManagement = lazy(() => import('../../components/AdminDashboard/DataManagement'));
+const DashboardCustomization = lazy(() => import('../../components/AdminDashboard/DashboardCustomization').then(module => ({ default: module.DashboardCustomization })));
+const MaintenanceTools = lazy(() => import('../../components/AdminDashboard/MaintenanceTools').then(module => ({ default: module.MaintenanceTools })));
+const UserManagement = lazy(() => import('../../components/AdminDashboard/UserManagement'));
+const SystemMonitoring = lazy(() => import('../../components/AdminDashboard/SystemMonitoring'));
+const LogFilterForm = lazy(() => import('../../components/AdminDashboard/LogFilterForm'));
+
+// Memoized typography styles using design system
 const subtitleStyle = applyTypographyStyle('subtitle');
+const bodyStyle = applyTypographyStyle('body');
 
-// Memoized icon for banner
-const ComponentsIcon = React.memo(() => (
-    <svg
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-    >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-    </svg>
-));
+// Optimized icon component with design system principles
+const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
+    ({ icon: IconComponent, size = 'md', className = '' }) => {
+        const sizeClasses = {
+            sm: 'h-4 w-4',
+            md: 'h-5 w-5',
+            lg: 'h-6 w-6'
+        };
+        return <IconComponent className={`${sizeClasses[size]} ${className}`} />;
+    }
+);
 
-// Memoized log filter form props
+// Memoized banner icon
+const BannerIcon = React.memo(() => <Icon icon={Settings} size="lg" />);
+
+// Stable callback functions (no hooks at module level)
+const noop = () => { };
+const handleConfigChange = (config: any) => {
+    console.log('Dashboard config changed:', config);
+};
+
+// Static props objects (no hooks at module level)
 const logFilterFormProps = {
     level: "all" as const,
     limit: 50,
@@ -39,19 +53,34 @@ const logFilterFormProps = {
     search: "",
     skip: 0,
     total: 0,
-    onChange: () => { },
-    onRefresh: () => { },
-    onPrev: () => { },
-    onNext: () => { }
+    onChange: noop,
+    onRefresh: noop,
+    onPrev: noop,
+    onNext: noop
 };
 
-// Memoized dashboard customization props
 const dashboardCustomizationProps = {
     userRole: "admin" as const,
-    onConfigChange: (config: any) => {
-        console.log('Dashboard config changed:', config);
-    }
+    onConfigChange: handleConfigChange
 };
+
+// Loading fallback component with design system spacing and typography
+const LoadingFallback = React.memo(() => (
+    <div
+        className="flex items-center justify-center"
+        style={{ padding: tokens.spacing[8] }}
+    >
+        <div className="flex items-center gap-3">
+            <Icon icon={Loader2} className="animate-spin" />
+            <span
+                style={bodyStyle}
+                className="text-muted-foreground"
+            >
+                Loading component...
+            </span>
+        </div>
+    </div>
+));
 
 const meta: Meta = {
     title: 'Pages/Admin Dashboard/Components',
@@ -66,7 +95,7 @@ const meta: Meta = {
                     <AnimatedBanner
                         title="Admin Dashboard Components"
                         subtitle="Individual components and tools for the admin dashboard system"
-                        icon={<ComponentsIcon />}
+                        icon={<BannerIcon />}
                     />
                     <Stories includePrimary={false} />
                 </>
@@ -85,114 +114,132 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// Memoized data management component wrapper
-const DataManagementWrapper = React.memo(() => (
-    <div className="space-y-8">
-        <SectionHeader
-            title="Data Management Component"
-            subtitle="Comprehensive data management and analytics tools"
-        />
+// Optimized component wrapper with props and lazy loading using design system
+const ComponentWrapper = React.memo<{
+    title: string;
+    subtitle: string;
+    children: React.ReactNode;
+    useCard?: boolean;
+    cardTitle?: string;
+}>(({ title, subtitle, children, useCard = false, cardTitle }) => (
+    <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
+        <SectionHeader title={title} subtitle={subtitle} />
         <Container>
-            <DataManagement />
-        </Container>
-    </div>
-));
-
-// Memoized dashboard customization component wrapper
-const DashboardCustomizationWrapper = React.memo(() => (
-    <div className="space-y-8">
-        <SectionHeader
-            title="Dashboard Customization Component"
-            subtitle="Customize dashboard layout and preferences"
-        />
-        <Container>
-            <Card>
-                <div className="p-6">
-                    <h2 style={subtitleStyle} className="mb-6">Dashboard Customization</h2>
-                    <DashboardCustomization {...dashboardCustomizationProps} />
-                </div>
-            </Card>
-        </Container>
-    </div>
-));
-
-// Memoized maintenance tools component wrapper
-const MaintenanceToolsWrapper = React.memo(() => (
-    <div className="space-y-8">
-        <SectionHeader
-            title="Maintenance Tools Component"
-            subtitle="System maintenance and administrative tools"
-        />
-        <Container>
-            <MaintenanceTools />
-        </Container>
-    </div>
-));
-
-// Memoized user management component wrapper
-const UserManagementWrapper = React.memo(() => (
-    <div className="space-y-8">
-        <SectionHeader
-            title="User Management Component"
-            subtitle="Complete user management interface"
-        />
-        <Container>
-            <UserManagement />
-        </Container>
-    </div>
-));
-
-// Memoized system monitoring component wrapper
-const SystemMonitoringWrapper = React.memo(() => (
-    <div className="space-y-8">
-        <SectionHeader
-            title="System Monitoring Component"
-            subtitle="Real-time system monitoring and metrics"
-        />
-        <Container>
-            <SystemMonitoring refreshInterval={30000} />
-        </Container>
-    </div>
-));
-
-// Memoized log filter form component wrapper
-const LogFilterFormWrapper = React.memo(() => (
-    <div className="space-y-8">
-        <SectionHeader
-            title="Log Filter Form Component"
-            subtitle="Advanced log filtering and search capabilities"
-        />
-        <Container>
-            <Card>
-                <div className="p-6">
-                    <h2 style={subtitleStyle} className="mb-6">Log Filter Form</h2>
-                    <LogFilterForm {...logFilterFormProps} />
-                </div>
-            </Card>
+            {useCard ? (
+                <Card>
+                    <div style={{ padding: tokens.spacing[6] }} className="p-6">
+                        {cardTitle && (
+                            <h2
+                                style={{ ...subtitleStyle, marginBottom: tokens.spacing[6] }}
+                                className="mb-6"
+                            >
+                                {cardTitle}
+                            </h2>
+                        )}
+                        <Suspense fallback={<LoadingFallback />}>
+                            {children}
+                        </Suspense>
+                    </div>
+                </Card>
+            ) : (
+                <Suspense fallback={<LoadingFallback />}>
+                    {children}
+                </Suspense>
+            )}
         </Container>
     </div>
 ));
 
 export const DataManagementComponent: Story = {
-    render: () => <DataManagementWrapper />
+    render: () => (
+        <ComponentWrapper
+            title="Data Management Component"
+            subtitle="Comprehensive data management and analytics tools"
+        >
+            <DataManagement />
+        </ComponentWrapper>
+    ),
+    parameters: {
+        docs: { disable: true },
+        controls: { disable: true },
+    },
 };
 
 export const DashboardCustomizationComponent: Story = {
-    render: () => <DashboardCustomizationWrapper />
+    render: () => (
+        <ComponentWrapper
+            title="Dashboard Customization Component"
+            subtitle="Customize dashboard layout and preferences"
+            useCard={true}
+            cardTitle="Dashboard Customization"
+        >
+            <DashboardCustomization {...dashboardCustomizationProps} />
+        </ComponentWrapper>
+    ),
+    parameters: {
+        docs: { disable: true },
+        controls: { disable: true },
+    },
 };
 
 export const MaintenanceToolsComponent: Story = {
-    render: () => <MaintenanceToolsWrapper />
+    render: () => (
+        <ComponentWrapper
+            title="Maintenance Tools Component"
+            subtitle="System maintenance and administrative tools"
+        >
+            <MaintenanceTools />
+        </ComponentWrapper>
+    ),
+    parameters: {
+        docs: { disable: true },
+        controls: { disable: true },
+    },
 };
 
 export const UserManagementComponent: Story = {
-    render: () => <UserManagementWrapper />
+    render: () => (
+        <ComponentWrapper
+            title="User Management Component"
+            subtitle="Complete user management interface"
+        >
+            <UserManagement />
+        </ComponentWrapper>
+    ),
+    parameters: {
+        docs: { disable: true },
+        controls: { disable: true },
+    },
 };
 
 export const SystemMonitoringComponent: Story = {
-    render: () => <SystemMonitoringWrapper />
+    render: () => (
+        <ComponentWrapper
+            title="System Monitoring Component"
+            subtitle="Real-time system monitoring and metrics"
+        >
+            <SystemMonitoring refreshInterval={30000} />
+        </ComponentWrapper>
+    ),
+    parameters: {
+        docs: { disable: true },
+        controls: { disable: true },
+    },
 };
 
 export const LogFilterFormComponent: Story = {
-    render: () => <LogFilterFormWrapper />
+    render: () => (
+        <ComponentWrapper
+            title="Log Filter Form Component"
+            subtitle="Advanced log filtering and search capabilities"
+            useCard={true}
+            cardTitle="Log Filter Form"
+        >
+            <LogFilterForm {...logFilterFormProps} />
+        </ComponentWrapper>
+    ),
+    parameters: {
+        docs: { disable: true },
+        controls: { disable: true },
+    },
 };

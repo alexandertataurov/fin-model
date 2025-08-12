@@ -13,7 +13,7 @@ import {
 import { Progress } from '../../design-system/components/Progress';
 import { Cpu, HardDrive, Clock, Zap } from 'lucide-react';
 
-// Optimized icon component with props
+// Optimized icon component with design system principles
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
     ({ icon: IconComponent, size = 'md', className = '' }) => {
         const sizeClasses = {
@@ -25,10 +25,12 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     }
 );
 
-// Memoized typography styles
+// Memoized typography styles using design system
 const subtitleStyle = applyTypographyStyle('subtitle');
+const bodyStyle = applyTypographyStyle('body');
+const captionStyle = applyTypographyStyle('caption');
 
-// Optimized metric data with stable keys
+// Optimized metric data with stable keys and design system colors
 const metricData = [
     {
         id: 'cpu',
@@ -52,7 +54,7 @@ const metricData = [
         value: "23.4%",
         status: "healthy" as const,
         icon: HardDrive,
-        color: tokens.colors.success[500]
+        color: tokens.colors.accent[500]
     },
     {
         id: 'error',
@@ -114,9 +116,12 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// Optimized metric cards component with stable keys
+// Optimized metric cards component with stable keys and design system spacing
 const MetricCards = React.memo(() => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        style={{ gap: tokens.spacing[6], marginBottom: tokens.spacing[8] }}
+    >
         {metricData.map((metric) => (
             <MetricCard
                 key={metric.id}
@@ -130,14 +135,17 @@ const MetricCards = React.memo(() => (
     </div>
 ));
 
-// Optimized progress bars component with stable keys
+// Optimized progress bars component with stable keys and design system typography
 const ProgressBars = React.memo(() => (
-    <div className="space-y-4">
+    <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
         {progressData.map((item) => (
             <div key={item.id}>
-                <div className="flex justify-between text-sm mb-1">
-                    <span>{item.label}</span>
-                    <span>{item.value}%</span>
+                <div 
+                    className="flex justify-between text-sm mb-1"
+                    style={{ marginBottom: tokens.spacing[1] }}
+                >
+                    <span style={captionStyle}>{item.label}</span>
+                    <span style={captionStyle}>{item.value}%</span>
                 </div>
                 <Progress value={item.value} className="h-2" />
             </div>
@@ -145,24 +153,29 @@ const ProgressBars = React.memo(() => (
     </div>
 ));
 
-// Optimized system info component with stable keys
+// Optimized system info component with stable keys and design system typography
 const SystemInfo = React.memo(() => (
-    <div className="space-y-3">
+    <div style={{ gap: tokens.spacing[3] }} className="space-y-3">
         {systemInfoData.map((item) => (
             <div key={item.id} className="flex justify-between">
-                <span className="text-sm text-muted-foreground">{item.label}</span>
-                <span className="text-sm font-medium">{item.value}</span>
+                <span style={captionStyle} className="text-muted-foreground">{item.label}</span>
+                <span style={captionStyle} className="font-medium">{item.value}</span>
             </div>
         ))}
     </div>
 ));
 
-// Optimized card wrapper component
+// Optimized card wrapper component with design system spacing and typography
 const CardWrapper = React.memo<{ title: string; children: React.ReactNode }>(
     ({ title, children }) => (
         <Card>
-            <div className="p-6">
-                <h3 style={subtitleStyle} className="mb-4">{title}</h3>
+            <div style={{ padding: tokens.spacing[6] }} className="p-6">
+                <h3 
+                    style={{ ...subtitleStyle, marginBottom: tokens.spacing[4] }} 
+                    className="mb-4"
+                >
+                    {title}
+                </h3>
                 {children}
             </div>
         </Card>
@@ -171,7 +184,7 @@ const CardWrapper = React.memo<{ title: string; children: React.ReactNode }>(
 
 export const SystemMetricsOverview: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
             <SectionHeader
                 title="System Performance Metrics"
                 subtitle="Real-time monitoring of CPU, memory, disk usage and system performance"
@@ -180,7 +193,10 @@ export const SystemMetricsOverview: Story = {
             <Container>
                 <MetricCards />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div 
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                    style={{ gap: tokens.spacing[6] }}
+                >
                     <CardWrapper title="Performance Trends">
                         <ProgressBars />
                     </CardWrapper>
@@ -194,66 +210,93 @@ export const SystemMetricsOverview: Story = {
     ),
 };
 
-// Optimized performance metrics component
+// Optimized performance metrics component with design system principles
 const PerformanceMetrics = React.memo(() => (
-    <div className="space-y-8">
-        <div className="space-y-4">
+    <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
+        <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-muted-foreground">
                     <Icon icon={Cpu} size="sm" />
-                    <span className="text-sm">CPU Usage</span>
+                    <span style={captionStyle}>CPU Usage</span>
                 </div>
-                <span className="font-semibold">45.2%</span>
+                <span style={subtitleStyle}>45.2%</span>
             </div>
             <Progress value={45.2} className="h-2" />
         </div>
-        <div className="space-y-4">
+        <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-muted-foreground">
                     <Icon icon={HardDrive} size="sm" />
-                    <span className="text-sm">Disk Usage</span>
+                    <span style={captionStyle}>Disk Usage</span>
                 </div>
-                <span className="font-semibold">23.4%</span>
+                <span style={subtitleStyle}>23.4%</span>
             </div>
             <Progress value={23.4} className="h-2" />
         </div>
-        <div className="pt-6 border-t border-border">
-            <div className="grid grid-cols-2 gap-6">
+        <div 
+            className="pt-6 border-t border-border"
+            style={{ 
+                paddingTop: tokens.spacing[6],
+                borderTop: `1px solid ${tokens.colors.border}`
+            }}
+        >
+            <div 
+                className="grid grid-cols-2 gap-6"
+                style={{ gap: tokens.spacing[6] }}
+            >
                 <div>
-                    <div className="flex items-center gap-3 text-muted-foreground mb-2">
+                    <div 
+                        className="flex items-center gap-3 text-muted-foreground mb-2"
+                        style={{ marginBottom: tokens.spacing[2] }}
+                    >
                         <Icon icon={Zap} size="sm" />
-                        <span className="text-sm">Requests/24h</span>
+                        <span style={captionStyle}>Requests/24h</span>
                     </div>
-                    <div className="font-semibold">15,420</div>
+                    <div style={subtitleStyle}>15,420</div>
                 </div>
                 <div>
-                    <div className="flex items-center gap-3 text-muted-foreground mb-2">
+                    <div 
+                        className="flex items-center gap-3 text-muted-foreground mb-2"
+                        style={{ marginBottom: tokens.spacing[2] }}
+                    >
                         <Icon icon={Clock} size="sm" />
-                        <span className="text-sm">Avg Response</span>
+                        <span style={captionStyle}>Avg Response</span>
                     </div>
-                    <div className="font-semibold">245 ms</div>
+                    <div style={subtitleStyle}>245 ms</div>
                 </div>
             </div>
         </div>
     </div>
 ));
 
-// Optimized header component
+// Optimized header component with design system spacing and colors
 const PerformanceHeader = React.memo(() => (
-    <div className="flex items-center mb-6">
-        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mr-4">
+    <div 
+        className="flex items-center mb-6"
+        style={{ marginBottom: tokens.spacing[6] }}
+    >
+        <div 
+            className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
+            style={{ 
+                width: tokens.spacing[12],
+                height: tokens.spacing[12],
+                marginRight: tokens.spacing[4],
+                background: `${tokens.colors.primary[500]}10`,
+                borderRadius: tokens.borderRadius.xl
+            }}
+        >
             <Icon icon={Cpu} size="lg" />
         </div>
         <div>
             <h3 style={subtitleStyle}>Performance</h3>
-            <p className="text-sm text-muted-foreground">Key metrics</p>
+            <p style={captionStyle} className="text-muted-foreground">Key metrics</p>
         </div>
     </div>
 ));
 
 export const PerformanceMonitoring: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
             <SectionHeader
                 title="Performance Monitoring"
                 subtitle="Detailed performance metrics with real-time tracking"
@@ -261,7 +304,7 @@ export const PerformanceMonitoring: Story = {
 
             <Container>
                 <Card>
-                    <div className="p-6">
+                    <div style={{ padding: tokens.spacing[6] }} className="p-6">
                         <PerformanceHeader />
                         <PerformanceMetrics />
                     </div>

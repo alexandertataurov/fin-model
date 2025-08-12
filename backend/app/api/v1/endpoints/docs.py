@@ -1,0 +1,79 @@
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from pathlib import Path
+
+router = APIRouter()
+
+# Path to documentation files
+DOCS_PATH = Path(__file__).parent.parent.parent.parent.parent / "docs" / "redocs"
+
+
+@router.get("/")
+async def docs_landing():
+    """Serve the documentation landing page."""
+    landing_file = DOCS_PATH / "landing.html"
+    if not landing_file.exists():
+        raise HTTPException(status_code=404, detail="Documentation not found")
+
+    with open(landing_file, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return HTMLResponse(content=content)
+
+
+@router.get("/landing")
+async def docs_landing_redirect():
+    """Redirect to the documentation landing page."""
+    return RedirectResponse(url="/api/v1/docs/")
+
+
+@router.get("/redoc")
+async def docs_redoc():
+    """Serve the ReDoc documentation."""
+    redoc_file = DOCS_PATH / "index.html"
+    if not redoc_file.exists():
+        raise HTTPException(status_code=404, detail="ReDoc documentation not found")
+
+    with open(redoc_file, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return HTMLResponse(content=content)
+
+
+@router.get("/swagger")
+async def docs_swagger():
+    """Serve the Swagger UI documentation."""
+    swagger_file = DOCS_PATH / "swagger.html"
+    if not swagger_file.exists():
+        raise HTTPException(status_code=404, detail="Swagger documentation not found")
+
+    with open(swagger_file, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return HTMLResponse(content=content)
+
+
+@router.get("/openapi.yaml")
+async def get_openapi_spec():
+    """Serve the OpenAPI specification."""
+    openapi_file = (
+        Path(__file__).parent.parent.parent.parent.parent / "docs" / "openapi.yaml"
+    )
+    if not openapi_file.exists():
+        raise HTTPException(status_code=404, detail="OpenAPI specification not found")
+
+    return FileResponse(openapi_file, media_type="application/x-yaml")
+
+
+@router.get("/postman")
+async def get_postman_collection():
+    """Serve the Postman collection."""
+    postman_file = (
+        Path(__file__).parent.parent.parent.parent.parent
+        / "docs"
+        / "FinVision_API.postman_collection.json"
+    )
+    if not postman_file.exists():
+        raise HTTPException(status_code=404, detail="Postman collection not found")
+
+    return FileResponse(postman_file, media_type="application/json")

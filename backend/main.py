@@ -147,6 +147,14 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(websocket_router, prefix="/ws", tags=["websocket"])
 
 
+@app.get("/docs")
+async def docs_redirect():
+    """Redirect /docs to our custom documentation."""
+    from fastapi.responses import RedirectResponse
+
+    return RedirectResponse(url="/api/v1/docs/")
+
+
 @app.get("/")
 async def root():
     return JSONResponse(

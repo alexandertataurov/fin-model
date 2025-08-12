@@ -28,6 +28,7 @@ from app.api.v1.endpoints import (
     notifications,
     tasks,
     lean_financial,
+    docs,
 )
 
 
@@ -63,6 +64,9 @@ api_router.include_router(users.router, prefix="/admin", tags=["administration"]
 api_router.include_router(system.router, prefix="/admin", tags=["administration"])
 api_router.include_router(database.router, prefix="/admin", tags=["administration"])
 api_router.include_router(logs.router, prefix="/admin", tags=["administration"])
+
+# Include documentation routes
+api_router.include_router(docs.router, prefix="/docs", tags=["documentation"])
 
 
 @api_router.get("/")

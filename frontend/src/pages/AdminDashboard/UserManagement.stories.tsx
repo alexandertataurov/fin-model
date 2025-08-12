@@ -18,7 +18,7 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     ({ icon: IconComponent, size = 'md', className = '' }) => {
         const sizeClasses = {
             sm: 'h-4 w-4',
-            md: 'h-5 w-5', 
+            md: 'h-5 w-5',
             lg: 'h-6 w-6'
         };
         return <IconComponent className={`${sizeClasses[size]} ${className}`} />;
@@ -42,7 +42,7 @@ const userActivityData = [
     {
         id: 'analyst',
         name: "analyst",
-        initial: "A", 
+        initial: "A",
         color: "green",
         lastLogin: new Date(Date.now() - 3600000),
         logins: 89,
@@ -52,7 +52,7 @@ const userActivityData = [
         id: 'manager',
         name: "manager",
         initial: "M",
-        color: "purple", 
+        color: "purple",
         lastLogin: new Date(Date.now() - 7200000),
         logins: 45,
         status: "Inactive"

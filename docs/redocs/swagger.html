@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinVision API - Swagger UI</title>
+
+    <!-- Swagger UI CSS -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css"
+    />
+
+    <!-- Custom CSS -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Roboto", sans-serif;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 0;
+        text-align: center;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 300;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      .header p {
+        margin: 0.5rem 0 0 0;
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+
+      .header .version {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: inline-block;
+      }
+
+      .nav-bar {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 0.75rem 0;
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-links a {
+        color: #495057;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: #667eea;
+      }
+
+      .nav-links a.active {
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      .quick-links {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .quick-links a {
+        background: #667eea;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background-color 0.3s ease;
+      }
+
+      .quick-links a:hover {
+        background: #5a6fd8;
+      }
+
+      .swagger-container {
+        height: calc(100vh - 140px);
+      }
+
+      /* Custom Swagger UI styling */
+      .swagger-ui .topbar {
+        display: none;
+      }
+
+      .swagger-ui .info {
+        margin: 0;
+        padding: 0;
+      }
+
+      .swagger-ui .info .title {
+        display: none;
+      }
+
+      .swagger-ui .info .description {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 1.5rem;
+        }
+
+        .nav-container {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .nav-links {
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 1rem;
+        }
+
+        .quick-links {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>FinVision API</h1>
+      <p>Interactive API Documentation & Testing</p>
+      <div class="version">Version 1.0.0</div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-container">
+        <div class="nav-links">
+          <a href="index.html">ReDoc</a>
+          <a href="swagger.html" class="active">Swagger UI</a>
+          <a href="../API_DOCUMENTATION.md" target="_blank">Full Docs</a>
+          <a href="../FinVision_API.postman_collection.json" target="_blank"
+            >Postman</a
+          >
+        </div>
+        <div class="quick-links">
+          <a href="https://github.com/your-repo" target="_blank">GitHub</a>
+          <a href="mailto:support@finvision.com">Support</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="swagger-ui" class="swagger-container"></div>
+
+    <!-- Swagger UI JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+
+    <script>
+      // Initialize Swagger UI
+      window.onload = function () {
+        const ui = SwaggerUIBundle({
+          url: "../openapi.yaml",
+          dom_id: "#swagger-ui",
+          deepLinking: true,
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+          plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+          layout: "StandaloneLayout",
+          validatorUrl: null,
+          docExpansion: "list",
+          filter: true,
+          showRequestHeaders: true,
+          showCommonExtensions: true,
+          tryItOutEnabled: true,
+          requestInterceptor: function (request) {
+            // Add default headers if needed
+            if (!request.headers) {
+              request.headers = {};
+            }
+            return request;
+          },
+          responseInterceptor: function (response) {
+            // Handle responses if needed
+            return response;
+          },
+        });
+      };
+    </script>
+  </body>
+</html>

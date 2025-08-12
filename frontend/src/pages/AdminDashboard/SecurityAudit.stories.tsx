@@ -17,7 +17,7 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     ({ icon: IconComponent, size = 'md', className = '' }) => {
         const sizeClasses = {
             sm: 'h-4 w-4',
-            md: 'h-5 w-5', 
+            md: 'h-5 w-5',
             lg: 'h-6 w-6'
         };
         return <IconComponent className={`${sizeClasses[size]} ${className}`} />;
@@ -133,9 +133,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Optimized audit card component
-const AuditCard = React.memo<{ 
-    title: string; 
-    description: string; 
+const AuditCard = React.memo<{
+    title: string;
+    description: string;
     icon: React.ComponentType<any>;
     iconBgColor: string;
     iconColor: string;
