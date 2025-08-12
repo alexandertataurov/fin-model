@@ -13,7 +13,7 @@ import { Badge } from '../../design-system/components/Badge';
 import { Button } from '../../design-system/components/Button';
 import { Users, MoreHorizontal } from 'lucide-react';
 
-// Optimized icon component with props
+// Optimized icon component with design system principles
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
     ({ icon: IconComponent, size = 'md', className = '' }) => {
         const sizeClasses = {
@@ -25,8 +25,10 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     }
 );
 
-// Memoized typography styles
+// Memoized typography styles using design system
 const subtitleStyle = applyTypographyStyle('subtitle');
+const bodyStyle = applyTypographyStyle('body');
+const captionStyle = applyTypographyStyle('caption');
 
 // Optimized user activity data with stable keys
 const userActivityData = [
@@ -110,46 +112,75 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// Optimized user activity item component
+// Optimized user activity item component with design system principles
 const UserActivityItem = React.memo<{ user: typeof userActivityData[0] }>(({ user }) => (
-    <div className="flex items-center justify-between p-6 rounded-xl hover:bg-muted/50 transition-all duration-200">
+    <div 
+        className="flex items-center justify-between p-6 rounded-xl hover:bg-muted/50 transition-all duration-200"
+        style={{ 
+            padding: tokens.spacing[6],
+            borderRadius: tokens.borderRadius.xl
+        }}
+    >
         <div className="flex items-center space-x-4">
-            <div className={`w-10 h-10 bg-gradient-to-br from-${user.color}-20 to-${user.color}-30 rounded-full flex items-center justify-center`}>
+            <div 
+                className={`w-10 h-10 bg-gradient-to-br from-${user.color}-20 to-${user.color}-30 rounded-full flex items-center justify-center`}
+                style={{ 
+                    width: tokens.spacing[10],
+                    height: tokens.spacing[10],
+                    borderRadius: tokens.borderRadius.full
+                }}
+            >
                 <span className={`text-${user.color}-700 font-semibold`}>{user.initial}</span>
             </div>
             <div>
-                <p className="font-semibold text-foreground">{user.name}</p>
-                <p className="text-sm text-muted-foreground">
+                <p style={subtitleStyle} className="text-foreground">{user.name}</p>
+                <p style={captionStyle} className="text-muted-foreground">
                     Last login: {user.lastLogin.toLocaleString()}
                 </p>
             </div>
         </div>
         <div className="text-right">
             <Badge variant={user.status === "Active" ? "default" : "secondary"}>{user.status}</Badge>
-            <p className="text-sm text-muted-foreground mt-2">{user.logins} logins</p>
+            <p 
+                style={{ ...captionStyle, marginTop: tokens.spacing[2] }} 
+                className="text-muted-foreground mt-2"
+            >
+                {user.logins} logins
+            </p>
         </div>
     </div>
 ));
 
-// Optimized user activity component
+// Optimized user activity component with design system spacing and typography
 const UserActivity = React.memo(() => (
     <Card>
-        <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
+        <div style={{ padding: tokens.spacing[6] }} className="p-6">
+            <div 
+                className="flex items-center justify-between mb-6"
+                style={{ marginBottom: tokens.spacing[6] }}
+            >
                 <div className="flex items-center">
-                    <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mr-4">
+                    <div 
+                        className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mr-4"
+                        style={{ 
+                            width: tokens.spacing[12],
+                            height: tokens.spacing[12],
+                            marginRight: tokens.spacing[4],
+                            borderRadius: tokens.borderRadius.xl
+                        }}
+                    >
                         <Icon icon={Users} size="lg" className="text-accent" />
                     </div>
                     <div>
                         <h3 style={subtitleStyle}>User Activity</h3>
-                        <p className="text-sm text-muted-foreground">Recent interactions</p>
+                        <p style={captionStyle} className="text-muted-foreground">Recent interactions</p>
                     </div>
                 </div>
                 <Button variant="ghost" size="sm">
                     <Icon icon={MoreHorizontal} size="sm" />
                 </Button>
             </div>
-            <div className="space-y-6">
+            <div style={{ gap: tokens.spacing[6] }} className="space-y-6">
                 {userActivityData.map((user) => (
                     <UserActivityItem key={user.id} user={user} />
                 ))}
@@ -158,20 +189,29 @@ const UserActivity = React.memo(() => (
     </Card>
 ));
 
-// Optimized stat item component
+// Optimized stat item component with design system spacing and colors
 const StatItem = React.memo<{ stat: typeof userStatsData[0] }>(({ stat }) => (
-    <div className={`text-center p-4 bg-${stat.color}/5 rounded-lg`}>
+    <div 
+        className={`text-center p-4 bg-${stat.color}/5 rounded-lg`}
+        style={{ 
+            padding: tokens.spacing[4],
+            borderRadius: tokens.borderRadius.lg
+        }}
+    >
         <div className={`text-2xl font-bold text-${stat.color}`}>{stat.value}</div>
-        <div className="text-sm text-muted-foreground">{stat.label}</div>
+        <div style={captionStyle} className="text-muted-foreground">{stat.label}</div>
     </div>
 ));
 
-// Optimized user statistics component
+// Optimized user statistics component with design system spacing
 const UserStatistics = React.memo(() => (
     <Card>
-        <div className="p-6">
+        <div style={{ padding: tokens.spacing[6] }} className="p-6">
             <h3 style={subtitleStyle} className="mb-4">User Statistics</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div 
+                className="grid grid-cols-1 md:grid-cols-4 gap-4"
+                style={{ gap: tokens.spacing[4] }}
+            >
                 {userStatsData.map((stat) => (
                     <StatItem key={stat.id} stat={stat} />
                 ))}
@@ -180,26 +220,39 @@ const UserStatistics = React.memo(() => (
     </Card>
 ));
 
-// Optimized role item component
+// Optimized role item component with design system spacing and colors
 const RoleItem = React.memo<{ role: typeof roleDistributionData[0] }>(({ role }) => (
-    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+    <div 
+        className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+        style={{ 
+            padding: tokens.spacing[3],
+            borderRadius: tokens.borderRadius.lg
+        }}
+    >
         <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 bg-${role.color} rounded-full`}></div>
-            <span className="font-medium">{role.role}</span>
+            <div 
+                className={`w-3 h-3 bg-${role.color} rounded-full`}
+                style={{ 
+                    width: tokens.spacing[3],
+                    height: tokens.spacing[3],
+                    borderRadius: tokens.borderRadius.full
+                }}
+            ></div>
+            <span style={bodyStyle} className="font-medium">{role.role}</span>
         </div>
         <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{role.users} users</span>
+            <span style={captionStyle} className="text-muted-foreground">{role.users} users</span>
             <Badge variant="default">{role.percentage}</Badge>
         </div>
     </div>
 ));
 
-// Optimized role distribution component
+// Optimized role distribution component with design system spacing
 const RoleDistribution = React.memo(() => (
     <Card>
-        <div className="p-6">
+        <div style={{ padding: tokens.spacing[6] }} className="p-6">
             <h3 style={subtitleStyle} className="mb-4">Role Distribution</h3>
-            <div className="space-y-4">
+            <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
                 {roleDistributionData.map((role) => (
                     <RoleItem key={role.id} role={role} />
                 ))}
@@ -210,7 +263,7 @@ const RoleDistribution = React.memo(() => (
 
 export const UserActivityOverview: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
             <SectionHeader
                 title="User Management & Activity"
                 subtitle="Monitor user activity, manage permissions, and track system access"
@@ -225,14 +278,14 @@ export const UserActivityOverview: Story = {
 
 export const UserManagementComponent: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
             <SectionHeader
                 title="User Management System"
                 subtitle="Complete user management interface with role-based access control"
             />
 
             <Container>
-                <div className="space-y-6">
+                <div style={{ gap: tokens.spacing[6] }} className="space-y-6">
                     <UserStatistics />
                     <RoleDistribution />
                 </div>

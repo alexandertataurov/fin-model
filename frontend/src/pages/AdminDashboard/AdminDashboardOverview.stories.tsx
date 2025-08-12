@@ -1,7 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Title, Stories } from '@storybook/blocks';
-import { tokens } from '../../design-system/tokens';
 import {
     AnimatedBanner,
     Container,
@@ -32,16 +31,16 @@ const BannerIcon = React.memo(() => <Icon icon={BarChart3} size="lg" />);
 // Stable callback function
 const handleRetry = () => window.location.reload();
 
+// Pre-computed typography styles to prevent re-computation
+const bodyStyle = applyTypographyStyle('body');
+
 // Loading fallback component with design system spacing and typography
 const LoadingFallback = React.memo(() => (
-    <div 
-        className="flex items-center justify-center"
-        style={{ padding: tokens.spacing[12] }}
-    >
+    <div className="flex items-center justify-center p-12">
         <div className="flex items-center gap-3">
             <Icon icon={Loader2} className="animate-spin" />
             <span 
-                style={applyTypographyStyle('body')}
+                style={bodyStyle}
                 className="text-muted-foreground"
             >
                 Loading Admin Dashboard...
@@ -84,7 +83,7 @@ type Story = StoryObj<typeof meta>;
 
 // Memoized dashboard overview component with design system principles
 const DashboardOverviewComponent = React.memo(() => (
-    <div style={{ gap: tokens.spacing[12] }} className="space-y-12">
+    <div className="space-y-12">
         <SectionHeader
             title="Admin Dashboard Overview"
             subtitle="Complete system monitoring and management interface with real-time metrics and comprehensive controls"

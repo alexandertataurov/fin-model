@@ -41,6 +41,8 @@ import {
   SelectValue,
 } from '@/design-system/components/Select';
 import { toast } from 'sonner';
+import { tokens } from '@/design-system/tokens';
+import { applyTypographyStyle } from '@/design-system/stories/components';
 
 // Dashboard widget types
 export interface DashboardWidget {
@@ -250,32 +252,143 @@ export const DashboardCustomization: React.FC<DashboardCustomizationProps> = ({
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-2" />
+          <Button 
+            variant="outline" 
+            size="sm"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: tokens.spacing[2],
+              padding: `${tokens.spacing[2]} ${tokens.spacing[4]}`,
+              borderRadius: tokens.borderRadius.lg,
+              border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+              background: 'transparent',
+              color: tokens.colors.foreground,
+              transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`,
+              fontSize: tokens.typography.fontSize.sm,
+              fontWeight: tokens.typography.fontWeight.medium
+            }}
+          >
+            <Settings 
+              className="h-4 w-4 mr-2"
+              style={{
+                height: tokens.spacing[4],
+                width: tokens.spacing[4],
+                marginRight: tokens.spacing[2]
+              }}
+            />
             Customize Dashboard
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent 
+          className="max-w-4xl max-h-[80vh] overflow-y-auto"
+          style={{
+            maxWidth: '56rem',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            borderRadius: tokens.borderRadius.xl,
+            boxShadow: tokens.shadows.xl,
+            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+            background: tokens.colors.background
+          }}
+        >
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
+            <DialogTitle 
+              className="flex items-center gap-2"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: tokens.spacing[2],
+                ...applyTypographyStyle('title'),
+                color: tokens.colors.foreground
+              }}
+            >
+              <Settings 
+                className="h-5 w-5"
+                style={{
+                  height: tokens.spacing[5],
+                  width: tokens.spacing[5],
+                  color: tokens.colors.primary[500]
+                }}
+              />
               Dashboard Customization
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription
+              style={{
+                ...applyTypographyStyle('body'),
+                color: tokens.colors.secondary[500]
+              }}
+            >
               Configure which widgets are visible on your dashboard based on your role and preferences.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div 
+            className="space-y-6"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: tokens.spacing[6]
+            }}
+          >
             {/* Role Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Role: {userRole.charAt(0).toUpperCase() + userRole.slice(1)}</CardTitle>
+            <Card
+              style={{
+                background: tokens.colors.background,
+                borderRadius: tokens.borderRadius.xl,
+                boxShadow: tokens.shadows.md,
+                border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`
+              }}
+            >
+              <CardHeader
+                style={{
+                  padding: tokens.spacing[6]
+                }}
+              >
+                <CardTitle 
+                  className="text-lg"
+                  style={{
+                    ...applyTypographyStyle('title'),
+                    color: tokens.colors.foreground
+                  }}
+                >
+                  Role: {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Badge variant="default">{userRole}</Badge>
-                  <span className="text-sm text-muted-foreground">
+              <CardContent
+                style={{
+                  padding: tokens.spacing[6]
+                }}
+              >
+                <div 
+                  className="flex items-center gap-2"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: tokens.spacing[2]
+                  }}
+                >
+                  <Badge 
+                    variant="default"
+                    style={{
+                      padding: `${tokens.spacing[1]} ${tokens.spacing[3]}`,
+                      borderRadius: tokens.borderRadius.full,
+                      background: tokens.colors.primary[500],
+                      color: tokens.colors.background,
+                      fontSize: tokens.typography.fontSize.sm,
+                      fontWeight: tokens.typography.fontWeight.medium
+                    }}
+                  >
+                    {userRole}
+                  </Badge>
+                  <span 
+                    className="text-sm text-muted-foreground"
+                    style={{
+                      ...applyTypographyStyle('caption'),
+                      color: tokens.colors.secondary[500]
+                    }}
+                  >
                     You can customize {widgets.length} available widgets
                   </span>
                 </div>

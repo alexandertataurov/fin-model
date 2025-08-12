@@ -11,44 +11,96 @@ import { AdminGuard } from '@/components/auth/AuthGuard';
 import { PageHeader } from '@/components/Layout/PageHeader';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@/design-system/components/Breadcrumb';
 import { Shield, Settings, Activity } from 'lucide-react';
+import { tokens } from '@/design-system/tokens';
 
 // Import design system components
 import {
-    applyTypographyStyle,
-    Container,
-    SectionHeader,
-    QuickActions
+  applyTypographyStyle,
+  Container,
+  SectionHeader
 } from '@/design-system/stories/components';
 
 const AdminDashboardPage: React.FC = () => {
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-background">
+      <div
+        className="min-h-screen"
+        style={{
+          background: tokens.colors.background,
+          minHeight: '100vh'
+        }}
+      >
         {/* Page Header */}
         <PageHeader>
-          <div className="flex items-center justify-between">
+          <div
+            className="flex items-center justify-between"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: tokens.spacing[4]
+            }}
+          >
             <div>
               <Breadcrumb>
                 <BreadcrumbItem>
                   <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbItem isCurrentPage>
-                  <BreadcrumbLink href="/admin/dashboard">Dashboard</BreadcrumbLink>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/admin/dashboard" aria-current="page">Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
               </Breadcrumb>
-              <div className="mt-4">
+              <div style={{ marginTop: tokens.spacing[4] }}>
                 <h1 style={applyTypographyStyle('headline')} className="text-foreground">
                   Admin Dashboard
                 </h1>
-                <p style={applyTypographyStyle('body')} className="text-muted-foreground mt-3">
+                <p
+                  style={{
+                    ...applyTypographyStyle('body'),
+                    marginTop: tokens.spacing[3],
+                    color: tokens.colors.secondary[500]
+                  }}
+                >
                   Monitor and manage system performance, user activity, and system health
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 px-4 py-3 bg-primary/10 rounded-xl border border-primary/20">
-                <Shield className="h-5 w-5 text-primary" />
-                <span style={applyTypographyStyle('caption')} className="font-medium text-primary">
+            <div
+              className="flex items-center gap-4"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: tokens.spacing[4]
+              }}
+            >
+              <div
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: tokens.spacing[3],
+                  padding: `${tokens.spacing[3]} ${tokens.spacing[4]}`,
+                  borderRadius: tokens.borderRadius.xl,
+                  border: `${tokens.borderWidth.base} solid ${tokens.colors.primary[200]}`,
+                  background: `${tokens.colors.primary[50]}`,
+                  transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.smooth}`
+                }}
+              >
+                <Shield
+                  className="h-5 w-5"
+                  style={{
+                    height: tokens.spacing[5],
+                    width: tokens.spacing[5],
+                    color: tokens.colors.primary[500]
+                  }}
+                />
+                <span
+                  style={{
+                    ...applyTypographyStyle('caption'),
+                    fontWeight: tokens.typography.fontWeight.medium,
+                    color: tokens.colors.primary[500]
+                  }}
+                >
                   Admin Access
                 </span>
               </div>

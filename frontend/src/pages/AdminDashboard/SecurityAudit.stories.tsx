@@ -12,7 +12,7 @@ import {
 import { Badge } from '../../design-system/components/Badge';
 import { Shield, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 
-// Optimized icon component with props
+// Optimized icon component with design system principles
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
     ({ icon: IconComponent, size = 'md', className = '' }) => {
         const sizeClasses = {
@@ -24,8 +24,10 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     }
 );
 
-// Memoized typography styles
+// Memoized typography styles using design system
 const subtitleStyle = applyTypographyStyle('subtitle');
+const bodyStyle = applyTypographyStyle('body');
+const captionStyle = applyTypographyStyle('caption');
 
 // Optimized security audit data with stable keys
 const securityAuditData = [
@@ -132,7 +134,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// Optimized audit card component
+// Optimized audit card component with design system principles
 const AuditCard = React.memo<{
     title: string;
     description: string;
@@ -142,14 +144,25 @@ const AuditCard = React.memo<{
     children: React.ReactNode;
 }>(({ title, description, icon, iconBgColor, iconColor, children }) => (
     <Card>
-        <div className="p-6">
-            <div className="flex items-center mb-4">
-                <div className={`w-10 h-10 ${iconBgColor} rounded-lg flex items-center justify-center mr-3`}>
+        <div style={{ padding: tokens.spacing[6] }} className="p-6">
+            <div
+                className="flex items-center mb-4"
+                style={{ marginBottom: tokens.spacing[4] }}
+            >
+                <div
+                    className={`w-10 h-10 ${iconBgColor} rounded-lg flex items-center justify-center mr-3`}
+                    style={{
+                        width: tokens.spacing[10],
+                        height: tokens.spacing[10],
+                        marginRight: tokens.spacing[3],
+                        borderRadius: tokens.borderRadius.lg
+                    }}
+                >
                     <Icon icon={icon} className={iconColor} />
                 </div>
                 <div>
                     <h3 style={subtitleStyle}>{title}</h3>
-                    <p className="text-sm text-muted-foreground">{description}</p>
+                    <p style={captionStyle} className="text-muted-foreground">{description}</p>
                 </div>
             </div>
             {children}
@@ -157,43 +170,81 @@ const AuditCard = React.memo<{
     </Card>
 ));
 
-// Optimized security audit item component
+// Optimized security audit item component with design system spacing and colors
 const SecurityAuditItem = React.memo<{ item: typeof securityAuditData[0] }>(({ item }) => (
-    <div className="flex items-center justify-between p-4 rounded-lg border border-border">
+    <div
+        className="flex items-center justify-between p-4 rounded-lg border border-border"
+        style={{
+            padding: tokens.spacing[4],
+            borderRadius: tokens.borderRadius.lg,
+            border: `1px solid ${tokens.colors.border}`
+        }}
+    >
         <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 bg-${item.status === "warning" ? "yellow" : "green"}-500 rounded-full`}></div>
+            <div
+                className={`w-3 h-3 bg-${item.status === "warning" ? "yellow" : "green"}-500 rounded-full`}
+                style={{
+                    width: tokens.spacing[3],
+                    height: tokens.spacing[3],
+                    borderRadius: tokens.borderRadius.full
+                }}
+            ></div>
             <div>
-                <p className="font-medium text-foreground">{item.type}</p>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <p style={bodyStyle} className="font-medium text-foreground">{item.type}</p>
+                <p style={captionStyle} className="text-muted-foreground">{item.description}</p>
             </div>
         </div>
         <div className="text-right">
             <Badge variant={item.severity === "medium" ? "secondary" : "default"}>{item.severity}</Badge>
-            <p className="text-xs text-muted-foreground mt-1">{item.timestamp.toLocaleString()}</p>
+            <p
+                style={{ ...captionStyle, marginTop: tokens.spacing[1] }}
+                className="text-xs text-muted-foreground mt-1"
+            >
+                {item.timestamp.toLocaleString()}
+            </p>
         </div>
     </div>
 ));
 
-// Optimized audit log item component
+// Optimized audit log item component with design system spacing and colors
 const AuditLogItem = React.memo<{ item: typeof auditLogsData[0] }>(({ item }) => (
-    <div className="flex items-center justify-between p-4 rounded-lg border border-border">
+    <div
+        className="flex items-center justify-between p-4 rounded-lg border border-border"
+        style={{
+            padding: tokens.spacing[4],
+            borderRadius: tokens.borderRadius.lg,
+            border: `1px solid ${tokens.colors.border}`
+        }}
+    >
         <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 bg-${item.color}-100 rounded-full flex items-center justify-center`}>
+            <div
+                className={`w-8 h-8 bg-${item.color}-100 rounded-full flex items-center justify-center`}
+                style={{
+                    width: tokens.spacing[8],
+                    height: tokens.spacing[8],
+                    borderRadius: tokens.borderRadius.full
+                }}
+            >
                 <span className={`text-sm font-medium text-${item.color}-700`}>{item.user}</span>
             </div>
             <div>
-                <p className="font-medium text-foreground">{item.type}</p>
-                <p className="text-sm text-muted-foreground">{item.path}</p>
+                <p style={bodyStyle} className="font-medium text-foreground">{item.type}</p>
+                <p style={captionStyle} className="text-muted-foreground">{item.path}</p>
             </div>
         </div>
         <div className="text-right">
             <Badge variant="default">{item.status}</Badge>
-            <p className="text-xs text-muted-foreground mt-1">{item.timestamp.toLocaleString()}</p>
+            <p
+                style={{ ...captionStyle, marginTop: tokens.spacing[1] }}
+                className="text-xs text-muted-foreground mt-1"
+            >
+                {item.timestamp.toLocaleString()}
+            </p>
         </div>
     </div>
 ));
 
-// Optimized security audit component
+// Optimized security audit component with design system spacing
 const SecurityAudit = React.memo(() => (
     <AuditCard
         title="Security Audit"
@@ -202,7 +253,7 @@ const SecurityAudit = React.memo(() => (
         iconBgColor="bg-red-100"
         iconColor="text-red-600"
     >
-        <div className="space-y-4">
+        <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
             {securityAuditData.map((item) => (
                 <SecurityAuditItem key={item.id} item={item} />
             ))}
@@ -210,7 +261,7 @@ const SecurityAudit = React.memo(() => (
     </AuditCard>
 ));
 
-// Optimized audit logs component
+// Optimized audit logs component with design system spacing
 const AuditLogs = React.memo(() => (
     <AuditCard
         title="Audit Logs"
@@ -219,7 +270,7 @@ const AuditLogs = React.memo(() => (
         iconBgColor="bg-orange-100"
         iconColor="text-orange-600"
     >
-        <div className="space-y-4">
+        <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
             {auditLogsData.map((item) => (
                 <AuditLogItem key={item.id} item={item} />
             ))}
@@ -229,14 +280,14 @@ const AuditLogs = React.memo(() => (
 
 export const SecurityAuditOverview: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
             <SectionHeader
                 title="Security Audit & Logs"
                 subtitle="Comprehensive security monitoring, audit trails, and event logging"
             />
 
             <Container>
-                <div className="space-y-6">
+                <div style={{ gap: tokens.spacing[6] }} className="space-y-6">
                     <SecurityAudit />
                     <AuditLogs />
                 </div>
@@ -245,10 +296,10 @@ export const SecurityAuditOverview: Story = {
     ),
 };
 
-// Optimized security alert item component
+// Optimized security alert item component with design system spacing and typography
 const SecurityAlertItem = React.memo<{ alert: typeof securityAlertsData[0] }>(({ alert }) => (
     <Card>
-        <div className="p-6">
+        <div style={{ padding: tokens.spacing[6] }} className="p-6">
             <div className="flex items-start gap-3">
                 <div className={`mt-0.5 ${alert.severity === "destructive" ? "text-destructive" : alert.severity === "warning" ? "text-warning" : "text-success"}`}>
                     <Icon icon={alert.icon} />
@@ -260,11 +311,14 @@ const SecurityAlertItem = React.memo<{ alert: typeof securityAlertsData[0] }>(({
                     <p className={`${alert.severity === "destructive" ? "text-destructive/80" : alert.severity === "warning" ? "text-warning/80" : "text-success/80"}`}>
                         {alert.description}
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
+                    <div
+                        className="flex items-center gap-2 mt-3"
+                        style={{ marginTop: tokens.spacing[3] }}
+                    >
                         <Badge variant={alert.severity === "destructive" ? "destructive" : alert.severity === "warning" ? "secondary" : "default"}>
                             {alert.badge}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">{new Date().toLocaleString()}</span>
+                        <span style={captionStyle} className="text-muted-foreground">{new Date().toLocaleString()}</span>
                     </div>
                 </div>
             </div>
@@ -274,14 +328,14 @@ const SecurityAlertItem = React.memo<{ alert: typeof securityAlertsData[0] }>(({
 
 export const SecurityAlerts: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
             <SectionHeader
                 title="Security Alerts"
                 subtitle="Real-time security notifications and threat detection"
             />
 
             <Container>
-                <div className="space-y-4">
+                <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
                     {securityAlertsData.map((alert) => (
                         <SecurityAlertItem key={alert.id} alert={alert} />
                     ))}

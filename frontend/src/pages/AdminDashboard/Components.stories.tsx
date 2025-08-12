@@ -1,7 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Title, Stories } from '@storybook/blocks';
-import { tokens } from '../../design-system/tokens';
 import {
     AnimatedBanner,
     Container,
@@ -19,7 +18,7 @@ const UserManagement = lazy(() => import('../../components/AdminDashboard/UserMa
 const SystemMonitoring = lazy(() => import('../../components/AdminDashboard/SystemMonitoring'));
 const LogFilterForm = lazy(() => import('../../components/AdminDashboard/LogFilterForm'));
 
-// Memoized typography styles using design system
+// Pre-computed typography styles to prevent re-computation
 const subtitleStyle = applyTypographyStyle('subtitle');
 const bodyStyle = applyTypographyStyle('body');
 
@@ -66,10 +65,7 @@ const dashboardCustomizationProps = {
 
 // Loading fallback component with design system spacing and typography
 const LoadingFallback = React.memo(() => (
-    <div
-        className="flex items-center justify-center"
-        style={{ padding: tokens.spacing[8] }}
-    >
+    <div className="flex items-center justify-center p-8">
         <div className="flex items-center gap-3">
             <Icon icon={Loader2} className="animate-spin" />
             <span
@@ -122,15 +118,15 @@ const ComponentWrapper = React.memo<{
     useCard?: boolean;
     cardTitle?: string;
 }>(({ title, subtitle, children, useCard = false, cardTitle }) => (
-    <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
+    <div className="space-y-8">
         <SectionHeader title={title} subtitle={subtitle} />
         <Container>
             {useCard ? (
                 <Card>
-                    <div style={{ padding: tokens.spacing[6] }} className="p-6">
+                    <div className="p-6">
                         {cardTitle && (
                             <h2
-                                style={{ ...subtitleStyle, marginBottom: tokens.spacing[6] }}
+                                style={subtitleStyle}
                                 className="mb-6"
                             >
                                 {cardTitle}

@@ -65,7 +65,7 @@ import {
     MoreHorizontal,
 } from 'lucide-react';
 
-// Helper functions
+// Helper functions with design system tokens
 const formatPercentage = (value: number | null | undefined): string => {
     if (value === null || value === undefined || Number.isNaN(value)) {
         return 'N/A';
@@ -93,6 +93,13 @@ const getHealthIndicator = (value: number | null | undefined, thresholds: { warn
     return tokens.colors.success;
 };
 
+// Design system helper functions
+const applyDesignSystemSpacing = (size: keyof typeof tokens.spacing) => tokens.spacing[size];
+const applyDesignSystemRadius = (size: keyof typeof tokens.borderRadius) => tokens.borderRadius[size];
+const applyDesignSystemShadow = (size: keyof typeof tokens.shadows) => tokens.shadows[size];
+const applyDesignSystemMotion = (type: 'duration' | 'easing', value: string) => 
+    type === 'duration' ? tokens.motion.duration[value] : tokens.motion.easing[value];
+
 // Overview Tab Component
 const OverviewTab: React.FC = () => {
     const {
@@ -115,21 +122,93 @@ const OverviewTab: React.FC = () => {
 
     if (!hasAnyData) {
         return (
-            <Container className="py-16">
-                <div className="text-center space-y-6">
-                    <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center">
-                        <BarChart3 className="h-10 w-10 text-muted-foreground" />
+            <Container 
+                className="py-16"
+                style={{
+                    padding: `${applyDesignSystemSpacing(16)} 0`,
+                    background: tokens.colors.background,
+                    borderRadius: applyDesignSystemRadius('xl'),
+                    boxShadow: applyDesignSystemShadow('md'),
+                    border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                    transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                }}
+            >
+                <div 
+                    className="text-center space-y-6"
+                    style={{
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: applyDesignSystemSpacing(6)
+                    }}
+                >
+                    <div 
+                        className="w-20 h-20 mx-auto rounded-full flex items-center justify-center"
+                        style={{
+                            width: applyDesignSystemSpacing(20),
+                            height: applyDesignSystemSpacing(20),
+                            margin: '0 auto',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: tokens.colors.muted[100]
+                        }}
+                    >
+                        <BarChart3 
+                            className="h-10 w-10"
+                            style={{
+                                height: applyDesignSystemSpacing(10),
+                                width: applyDesignSystemSpacing(10),
+                                color: tokens.colors.muted[500]
+                            }}
+                        />
                     </div>
                     <div>
-                        <h3 style={applyTypographyStyle('title')} className="text-foreground mb-2">
+                        <h3 
+                            style={{
+                                ...applyTypographyStyle('title'),
+                                color: tokens.colors.foreground,
+                                marginBottom: applyDesignSystemSpacing(2)
+                            }}
+                        >
                             No Data Available
                         </h3>
-                        <p style={applyTypographyStyle('body')} className="text-muted-foreground">
+                        <p 
+                            style={{
+                                ...applyTypographyStyle('body'),
+                                color: tokens.colors.secondary[500]
+                            }}
+                        >
                             Admin data is currently unavailable. Please try refreshing the page.
                         </p>
                     </div>
-                    <Button onClick={() => fetchOverviewData()} variant="outline" size="sm">
-                        <RefreshCw className="h-4 w-4 mr-2" />
+                    <Button 
+                        onClick={() => fetchOverviewData()} 
+                        variant="outline" 
+                        size="sm"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: applyDesignSystemSpacing(2),
+                            padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                            borderRadius: applyDesignSystemRadius('lg'),
+                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                            background: 'transparent',
+                            color: tokens.colors.foreground,
+                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                            fontSize: tokens.typography.fontSize.sm,
+                            fontWeight: tokens.typography.fontWeight.medium
+                        }}
+                    >
+                        <RefreshCw 
+                            className="h-4 w-4 mr-2"
+                            style={{
+                                height: applyDesignSystemSpacing(4),
+                                width: applyDesignSystemSpacing(4),
+                                marginRight: applyDesignSystemSpacing(2)
+                            }}
+                        />
                         Refresh Data
                     </Button>
                 </div>
@@ -138,28 +217,125 @@ const OverviewTab: React.FC = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div 
+            className="space-y-8"
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: applyDesignSystemSpacing(8)
+            }}
+        >
             {/* System Health Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div 
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(1, 1fr)',
+                    gap: applyDesignSystemSpacing(8),
+                    '@media (min-width: 1024px)': {
+                        gridTemplateColumns: 'repeat(3, 1fr)'
+                    }
+                }}
+            >
                 {/* Overall System Status */}
-                <Card className="lg:col-span-2">
-                    <CardHeader className="pb-6">
-                        <CardTitle className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center mr-4">
-                                    <CheckCircle className="h-6 w-6 text-success" />
+                <Card 
+                    className="lg:col-span-2"
+                    style={{
+                        gridColumn: 'span 1',
+                        '@media (min-width: 1024px)': {
+                            gridColumn: 'span 2'
+                        },
+                        background: tokens.colors.background,
+                        borderRadius: applyDesignSystemRadius('xl'),
+                        boxShadow: applyDesignSystemShadow('md'),
+                        border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                        transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                    }}
+                >
+                    <CardHeader 
+                        className="pb-6"
+                        style={{
+                            paddingBottom: applyDesignSystemSpacing(6)
+                        }}
+                    >
+                        <CardTitle 
+                            className="flex items-center justify-between"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <div 
+                                className="flex items-center"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <div 
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
+                                    style={{
+                                        width: applyDesignSystemSpacing(12),
+                                        height: applyDesignSystemSpacing(12),
+                                        borderRadius: applyDesignSystemRadius('xl'),
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginRight: applyDesignSystemSpacing(4),
+                                        background: `${tokens.colors.success}20`
+                                    }}
+                                >
+                                    <CheckCircle 
+                                        className="h-6 w-6"
+                                        style={{
+                                            height: applyDesignSystemSpacing(6),
+                                            width: applyDesignSystemSpacing(6),
+                                            color: tokens.colors.success
+                                        }}
+                                    />
                                 </div>
                                 <div>
-                                    <h3 style={applyTypographyStyle('title')} className="text-foreground">
+                                    <h3 
+                                        style={{
+                                            ...applyTypographyStyle('title'),
+                                            color: tokens.colors.foreground
+                                        }}
+                                    >
                                         System Status
                                     </h3>
-                                    <p style={applyTypographyStyle('caption')} className="text-muted-foreground">
+                                    <p 
+                                        style={{
+                                            ...applyTypographyStyle('caption'),
+                                            color: tokens.colors.secondary[500]
+                                        }}
+                                    >
                                         Real-time health monitoring
                                     </p>
                                 </div>
                             </div>
-                            <Button variant="ghost" size="sm" onClick={() => fetchOverviewData()}>
-                                <RefreshCw className="h-4 w-4" />
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => fetchOverviewData()}
+                                style={{
+                                    padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(3)}`,
+                                    borderRadius: applyDesignSystemRadius('lg'),
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: tokens.colors.foreground,
+                                    transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                    fontSize: tokens.typography.fontSize.sm,
+                                    fontWeight: tokens.typography.fontWeight.medium
+                                }}
+                            >
+                                <RefreshCw 
+                                    className="h-4 w-4"
+                                    style={{
+                                        height: applyDesignSystemSpacing(4),
+                                        width: applyDesignSystemSpacing(4)
+                                    }}
+                                />
                             </Button>
                         </CardTitle>
                     </CardHeader>
@@ -975,22 +1151,103 @@ export const AdminDashboard: React.FC = () => {
             sectionName="Admin Dashboard"
             onRetry={() => window.location.reload()}
         >
-            <div className="space-y-8">
+            <div 
+                className="space-y-8"
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: applyDesignSystemSpacing(8)
+                }}
+            >
                 {/* Action Bar */}
-                <div className="flex items-center justify-between">
+                <div 
+                    className="flex items-center justify-between"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: applyDesignSystemSpacing(4)
+                    }}
+                >
                     <div>
-                        <h1 style={applyTypographyStyle('headline')} className="text-foreground">
+                        <h1 
+                            style={{
+                                ...applyTypographyStyle('headline'),
+                                color: tokens.colors.foreground
+                            }}
+                        >
                             Admin Dashboard
                         </h1>
-                        <p style={applyTypographyStyle('body')} className="text-muted-foreground mt-2">
+                        <p 
+                            style={{
+                                ...applyTypographyStyle('body'),
+                                color: tokens.colors.secondary[500],
+                                marginTop: applyDesignSystemSpacing(2)
+                            }}
+                        >
                             Monitor and manage system performance, user activity, and system health
                         </p>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <Button variant="outline" size="sm" className="relative">
-                            <Bell className="h-4 w-4 mr-2" />
-                            <span style={applyTypographyStyle('caption')}>Notifications</span>
-                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full text-xs text-destructive-foreground flex items-center justify-center">
+                    <div 
+                        className="flex items-center gap-4"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: applyDesignSystemSpacing(4)
+                        }}
+                    >
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="relative"
+                            style={{
+                                position: 'relative',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(2),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                                background: 'transparent',
+                                color: tokens.colors.foreground,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                fontSize: tokens.typography.fontSize.sm,
+                                fontWeight: tokens.typography.fontWeight.medium
+                            }}
+                        >
+                            <Bell 
+                                className="h-4 w-4 mr-2"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4),
+                                    marginRight: applyDesignSystemSpacing(2)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: tokens.colors.foreground
+                                }}
+                            >
+                                Notifications
+                            </span>
+                            <span 
+                                className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-xs flex items-center justify-center"
+                                style={{
+                                    position: 'absolute',
+                                    top: `-${applyDesignSystemSpacing(1)}`,
+                                    right: `-${applyDesignSystemSpacing(1)}`,
+                                    width: applyDesignSystemSpacing(3),
+                                    height: applyDesignSystemSpacing(3),
+                                    borderRadius: '50%',
+                                    fontSize: tokens.typography.fontSize.xs,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: tokens.colors.destructive[500],
+                                    color: tokens.colors.background
+                                }}
+                            >
                                 3
                             </span>
                         </Button>
@@ -1001,85 +1258,370 @@ export const AdminDashboard: React.FC = () => {
                                 // TODO: Save configuration to backend
                             }}
                         />
-                        <Button variant="outline" size="sm">
-                            <Settings className="h-4 w-4 mr-2" />
-                            <span style={applyTypographyStyle('caption')}>Settings</span>
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(2),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                                background: 'transparent',
+                                color: tokens.colors.foreground,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                fontSize: tokens.typography.fontSize.sm,
+                                fontWeight: tokens.typography.fontWeight.medium
+                            }}
+                        >
+                            <Settings 
+                                className="h-4 w-4 mr-2"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4),
+                                    marginRight: applyDesignSystemSpacing(2)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: tokens.colors.foreground
+                                }}
+                            >
+                                Settings
+                            </span>
                         </Button>
-                        <Button size="sm">
-                            <TrendingUp className="h-4 w-4 mr-2" />
-                            <span style={applyTypographyStyle('caption')}>Export Report</span>
+                        <Button 
+                            size="sm"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(2),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                background: tokens.colors.primary[500],
+                                color: tokens.colors.background,
+                                border: 'none',
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                fontSize: tokens.typography.fontSize.sm,
+                                fontWeight: tokens.typography.fontWeight.medium
+                            }}
+                        >
+                            <TrendingUp 
+                                className="h-4 w-4 mr-2"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4),
+                                    marginRight: applyDesignSystemSpacing(2)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: tokens.colors.background
+                                }}
+                            >
+                                Export Report
+                            </span>
                         </Button>
                     </div>
                 </div>
 
                 {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-                    <TabsList className="grid w-full grid-cols-6 h-14 bg-muted/50 p-1 rounded-xl">
+                <Tabs 
+                    value={activeTab} 
+                    onValueChange={setActiveTab} 
+                    className="space-y-8"
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: applyDesignSystemSpacing(8)
+                    }}
+                >
+                    <TabsList 
+                        className="grid w-full grid-cols-6 h-14 p-1 rounded-xl"
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(6, 1fr)',
+                            width: '100%',
+                            height: applyDesignSystemSpacing(14),
+                            padding: applyDesignSystemSpacing(1),
+                            borderRadius: applyDesignSystemRadius('xl'),
+                            background: `${tokens.colors.muted[100]}`,
+                            border: `${tokens.borderWidth.base} solid ${tokens.colors.border}`,
+                            transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`
+                        }}
+                    >
                         <TabsTrigger
                             value="overview"
-                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
+                            className="flex items-center gap-3 rounded-lg"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(3),
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                '&[data-state=active]': {
+                                    background: tokens.colors.background,
+                                    boxShadow: applyDesignSystemShadow('sm'),
+                                    color: tokens.colors.foreground
+                                }
+                            }}
                         >
-                            <Activity className="h-4 w-4" />
-                            <span style={applyTypographyStyle('caption')}>Overview</span>
+                            <Activity 
+                                className="h-4 w-4"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: 'inherit'
+                                }}
+                            >
+                                Overview
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="system"
-                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
+                            className="flex items-center gap-3 rounded-lg"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(3),
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                '&[data-state=active]': {
+                                    background: tokens.colors.background,
+                                    boxShadow: applyDesignSystemShadow('sm'),
+                                    color: tokens.colors.foreground
+                                }
+                            }}
                         >
-                            <Server className="h-4 w-4" />
-                            <span style={applyTypographyStyle('caption')}>System</span>
+                            <Server 
+                                className="h-4 w-4"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: 'inherit'
+                                }}
+                            >
+                                System
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="audit"
-                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
+                            className="flex items-center gap-3 rounded-lg"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(3),
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                '&[data-state=active]': {
+                                    background: tokens.colors.background,
+                                    boxShadow: applyDesignSystemShadow('sm'),
+                                    color: tokens.colors.foreground
+                                }
+                            }}
                         >
-                            <Shield className="h-4 w-4" />
-                            <span style={applyTypographyStyle('caption')}>Audit</span>
+                            <Shield 
+                                className="h-4 w-4"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: 'inherit'
+                                }}
+                            >
+                                Audit
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="health"
-                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
+                            className="flex items-center gap-3 rounded-lg"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(3),
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                '&[data-state=active]': {
+                                    background: tokens.colors.background,
+                                    boxShadow: applyDesignSystemShadow('sm'),
+                                    color: tokens.colors.foreground
+                                }
+                            }}
                         >
-                            <CheckCircle className="h-4 w-4" />
-                            <span style={applyTypographyStyle('caption')}>Health</span>
+                            <CheckCircle 
+                                className="h-4 w-4"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: 'inherit'
+                                }}
+                            >
+                                Health
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="data"
-                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
+                            className="flex items-center gap-3 rounded-lg"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(3),
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                '&[data-state=active]': {
+                                    background: tokens.colors.background,
+                                    boxShadow: applyDesignSystemShadow('sm'),
+                                    color: tokens.colors.foreground
+                                }
+                            }}
                         >
-                            <Database className="h-4 w-4" />
-                            <span style={applyTypographyStyle('caption')}>Data</span>
+                            <Database 
+                                className="h-4 w-4"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: 'inherit'
+                                }}
+                            >
+                                Data
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="logs"
-                            className="flex items-center gap-3 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground rounded-lg"
+                            className="flex items-center gap-3 rounded-lg"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: applyDesignSystemSpacing(3),
+                                borderRadius: applyDesignSystemRadius('lg'),
+                                padding: `${applyDesignSystemSpacing(2)} ${applyDesignSystemSpacing(4)}`,
+                                transition: `all ${applyDesignSystemMotion('duration', 'normal')} ${applyDesignSystemMotion('easing', 'smooth')}`,
+                                '&[data-state=active]': {
+                                    background: tokens.colors.background,
+                                    boxShadow: applyDesignSystemShadow('sm'),
+                                    color: tokens.colors.foreground
+                                }
+                            }}
                         >
-                            <FileText className="h-4 w-4" />
-                            <span style={applyTypographyStyle('caption')}>Logs</span>
+                            <FileText 
+                                className="h-4 w-4"
+                                style={{
+                                    height: applyDesignSystemSpacing(4),
+                                    width: applyDesignSystemSpacing(4)
+                                }}
+                            />
+                            <span 
+                                style={{
+                                    ...applyTypographyStyle('caption'),
+                                    color: 'inherit'
+                                }}
+                            >
+                                Logs
+                            </span>
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="space-y-8">
+                    <TabsContent 
+                        value="overview" 
+                        className="space-y-8"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: applyDesignSystemSpacing(8)
+                        }}
+                    >
                         <OverviewTab />
                     </TabsContent>
 
-                    <TabsContent value="system" className="space-y-8">
+                    <TabsContent 
+                        value="system" 
+                        className="space-y-8"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: applyDesignSystemSpacing(8)
+                        }}
+                    >
                         <SystemTab />
                     </TabsContent>
 
-                    <TabsContent value="audit" className="space-y-8">
+                    <TabsContent 
+                        value="audit" 
+                        className="space-y-8"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: applyDesignSystemSpacing(8)
+                        }}
+                    >
                         <AuditTab />
                     </TabsContent>
 
-                    <TabsContent value="health" className="space-y-8">
+                    <TabsContent 
+                        value="health" 
+                        className="space-y-8"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: applyDesignSystemSpacing(8)
+                        }}
+                    >
                         <HealthTab />
                     </TabsContent>
 
-                    <TabsContent value="data" className="space-y-8">
+                    <TabsContent 
+                        value="data" 
+                        className="space-y-8"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: applyDesignSystemSpacing(8)
+                        }}
+                    >
                         <DataManagement />
                     </TabsContent>
 
-                    <TabsContent value="logs" className="space-y-8">
+                    <TabsContent 
+                        value="logs" 
+                        className="space-y-8"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: applyDesignSystemSpacing(8)
+                        }}
+                    >
                         <LogsTab />
                     </TabsContent>
                 </Tabs>

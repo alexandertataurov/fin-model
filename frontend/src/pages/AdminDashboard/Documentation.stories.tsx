@@ -55,7 +55,7 @@ type Story = StoryObj<typeof meta>;
 
 export const CompleteDocumentation: Story = {
     render: () => (
-        <div className="space-y-12">
+        <div style={{ gap: tokens.spacing[12] }} className="space-y-12">
             <SectionHeader
                 title="Complete Admin Dashboard Documentation"
                 subtitle="Comprehensive guide to our sophisticated admin dashboard system"
@@ -63,10 +63,18 @@ export const CompleteDocumentation: Story = {
 
             <Container>
                 <Card>
-                    <div className="p-8">
-                        <h4 style={applyTypographyStyle('title')} className="text-foreground mb-6 break-words">🌟 Design Philosophy</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
+                    <div style={{ padding: tokens.spacing[8] }} className="p-8">
+                        <h4
+                            style={{ ...applyTypographyStyle('title'), marginBottom: tokens.spacing[6] }}
+                            className="text-foreground mb-6 break-words"
+                        >
+                            🌟 Design Philosophy
+                        </h4>
+                        <div
+                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                            style={{ gap: tokens.spacing[6] }}
+                        >
+                            <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
                                 <PhilosophyItem
                                     color={tokens.colors.primary[500]}
                                     title="Enterprise-Grade Monitoring"
@@ -78,7 +86,7 @@ export const CompleteDocumentation: Story = {
                                     description="Sophisticated user management with granular permissions and audit trails"
                                 />
                             </div>
-                            <div className="space-y-4">
+                            <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
                                 <PhilosophyItem
                                     color={tokens.colors.accent[500]}
                                     title="Data-Driven Insights"
@@ -95,9 +103,17 @@ export const CompleteDocumentation: Story = {
                 </Card>
 
                 <Card>
-                    <div className="p-8">
-                        <h4 style={applyTypographyStyle('title')} className="text-foreground mb-6 break-words">🚀 Core Features</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div style={{ padding: tokens.spacing[8] }} className="p-8">
+                        <h4
+                            style={{ ...applyTypographyStyle('title'), marginBottom: tokens.spacing[6] }}
+                            className="text-foreground mb-6 break-words"
+                        >
+                            🚀 Core Features
+                        </h4>
+                        <div
+                            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                            style={{ gap: tokens.spacing[6] }}
+                        >
                             <GuidelinesSection
                                 title="System Monitoring"
                                 items={[
@@ -130,9 +146,17 @@ export const CompleteDocumentation: Story = {
                 </Card>
 
                 <Card>
-                    <div className="p-8">
-                        <h4 style={applyTypographyStyle('title')} className="text-foreground mb-6 break-words">♿ Accessibility & Security</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div style={{ padding: tokens.spacing[8] }} className="p-8">
+                        <h4
+                            style={{ ...applyTypographyStyle('title'), marginBottom: tokens.spacing[6] }}
+                            className="text-foreground mb-6 break-words"
+                        >
+                            ♿ Accessibility & Security
+                        </h4>
+                        <div
+                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                            style={{ gap: tokens.spacing[6] }}
+                        >
                             <GuidelinesSection
                                 title="Accessibility Features"
                                 items={[
@@ -161,14 +185,17 @@ export const CompleteDocumentation: Story = {
 
 export const UsageGuidelines: Story = {
     render: () => (
-        <div className="space-y-12">
+        <div style={{ gap: tokens.spacing[12] }} className="space-y-12">
             <SectionHeader
                 title="Admin Dashboard Usage Guidelines"
                 subtitle="Best practices for implementing and customizing our sophisticated admin dashboard system"
             />
             <Container>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
+                <div
+                    className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                    style={{ gap: tokens.spacing[8] }}
+                >
+                    <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
                         <GuidelinesCard
                             title="System Monitoring"
                             items={[
@@ -190,7 +217,7 @@ export const UsageGuidelines: Story = {
                         />
                     </div>
 
-                    <div className="space-y-4">
+                    <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
                         <GuidelinesCard
                             title="Data Analytics"
                             items={[
