@@ -6,12 +6,14 @@ import {
     AnimatedBanner,
     Container,
     SectionHeader,
-    Card,
     StatusIndicator,
     applyTypographyStyle,
 } from '../../design-system/stories/components';
 import { Badge } from '../../design-system/components/Badge';
 import { Server, Database, Globe, Wifi, Shield, FileText } from 'lucide-react';
+import { AdminCard } from '../../components/AdminDashboard/components/AdminCard';
+import { AdminTitle, AdminSubtitle, AdminBody, AdminCaption } from '../../components/AdminDashboard/components/AdminTypography';
+import { getSemanticSpacing, getSemanticColor, getStatusColor } from '../../components/AdminDashboard/utils/designSystemHelpers';
 
 // Optimized icon component with design system principles
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
@@ -25,10 +27,9 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     }
 );
 
-// Pre-computed typography styles to prevent re-computation
-const subtitleStyle = applyTypographyStyle('subtitle');
-const bodyStyle = applyTypographyStyle('body');
-const captionStyle = applyTypographyStyle('caption');
+// Pre-computed spacing using design system helpers
+const componentSpacing = getSemanticSpacing('component');
+const layoutSpacing = getSemanticSpacing('layout');
 
 // Optimized service data with stable keys
 const serviceData = [
@@ -148,23 +149,26 @@ const HealthCard = React.memo<{
     iconColor: string;
     children: React.ReactNode;
 }>(({ title, description, icon, iconBgColor, iconColor, children }) => (
-    <Card>
-        <div className="p-6">
-            <div className="flex items-center mb-4">
-                <div
-                    className={`w-10 h-10 ${iconBgColor} rounded-lg flex items-center justify-center mr-3`}
-                    style={{ borderRadius: tokens.borderRadius.lg }}
-                >
-                    <Icon icon={icon} className={iconColor} />
-                </div>
-                <div>
-                    <h3 style={subtitleStyle}>{title}</h3>
-                    <p style={captionStyle} className="text-muted-foreground">{description}</p>
-                </div>
+    <AdminCard
+        title={title}
+        subtitle={description}
+        variant="elevated"
+        size="md"
+    >
+        <div className="flex items-center mb-4">
+            <div
+                className={`w-10 h-10 ${iconBgColor} rounded-lg flex items-center justify-center mr-3`}
+                style={{ borderRadius: tokens.borderRadius.lg }}
+            >
+                <Icon icon={icon} className={iconColor} />
             </div>
-            {children}
+            <div>
+                <AdminSubtitle>{title}</AdminSubtitle>
+                <AdminCaption className="text-muted-foreground">{description}</AdminCaption>
+            </div>
         </div>
-    </Card>
+        {children}
+    </AdminCard>
 ));
 
 // Optimized system health component with design system spacing
@@ -176,27 +180,27 @@ const SystemHealth = React.memo(() => (
         iconBgColor="bg-emerald-100"
         iconColor="text-emerald-600"
     >
-        <div className="space-y-4">
+        <div style={{ gap: componentSpacing.gap }} className="space-y-4">
             <div
                 className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
                 style={{ borderRadius: tokens.borderRadius.lg }}
             >
-                <span style={captionStyle} className="font-medium">Status</span>
+                <AdminCaption className="font-medium">Status</AdminCaption>
                 <Badge variant="default" className="font-medium">HEALTHY</Badge>
             </div>
             <div
                 className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
                 style={{ borderRadius: tokens.borderRadius.lg }}
             >
-                <span style={captionStyle} className="font-medium">Last Check</span>
-                <span style={captionStyle} className="text-muted-foreground">{new Date().toLocaleString()}</span>
+                <AdminCaption className="font-medium">Last Check</AdminCaption>
+                <AdminCaption className="text-muted-foreground">{new Date().toLocaleString()}</AdminCaption>
             </div>
             <div
                 className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
                 style={{ borderRadius: tokens.borderRadius.lg }}
             >
-                <span style={captionStyle} className="font-medium">Uptime</span>
-                <span style={captionStyle} className="text-muted-foreground">15 days, 8 hours</span>
+                <AdminCaption className="font-medium">Uptime</AdminCaption>
+                <AdminCaption className="text-muted-foreground">15 days, 8 hours</AdminCaption>
             </div>
         </div>
     </HealthCard>
@@ -211,27 +215,27 @@ const DatabaseHealth = React.memo(() => (
         iconBgColor="bg-blue-100"
         iconColor="text-blue-600"
     >
-        <div className="space-y-4">
+        <div style={{ gap: componentSpacing.gap }} className="space-y-4">
             <div
                 className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
                 style={{ borderRadius: tokens.borderRadius.lg }}
             >
-                <span style={captionStyle} className="font-medium">Status</span>
+                <AdminCaption className="font-medium">Status</AdminCaption>
                 <Badge variant="default" className="font-medium">CONNECTED</Badge>
             </div>
             <div
                 className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
                 style={{ borderRadius: tokens.borderRadius.lg }}
             >
-                <span style={captionStyle} className="font-medium">Connection</span>
-                <span style={captionStyle} className="text-muted-foreground">45 active</span>
+                <AdminCaption className="font-medium">Connection</AdminCaption>
+                <AdminCaption className="text-muted-foreground">45 active</AdminCaption>
             </div>
             <div
                 className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
                 style={{ borderRadius: tokens.borderRadius.lg }}
             >
-                <span style={captionStyle} className="font-medium">Response Time</span>
-                <span style={captionStyle} className="text-muted-foreground">12 ms</span>
+                <AdminCaption className="font-medium">Response Time</AdminCaption>
+                <AdminCaption className="text-muted-foreground">12 ms</AdminCaption>
             </div>
         </div>
     </HealthCard>
@@ -250,7 +254,7 @@ const ServiceItem = React.memo<{ service: typeof serviceData[0] }>(({ service })
             >
                 <Icon icon={service.icon} size="sm" className="text-green-600" />
             </div>
-            <span style={captionStyle} className="font-medium">{service.name}</span>
+            <AdminCaption className="font-medium">{service.name}</AdminCaption>
         </div>
         <Badge variant="default" className="font-medium">{service.status}</Badge>
     </div>
@@ -265,7 +269,10 @@ const NetworkServices = React.memo(() => (
         iconBgColor="bg-indigo-100"
         iconColor="text-indigo-600"
     >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div 
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            style={{ gap: componentSpacing.gap }}
+        >
             {serviceData.map((service) => (
                 <ServiceItem key={service.id} service={service} />
             ))}
@@ -275,14 +282,17 @@ const NetworkServices = React.memo(() => (
 
 export const SystemHealthOverview: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: layoutSpacing.section }} className="space-y-8">
             <SectionHeader
                 title="System Health Monitoring"
                 subtitle="Real-time monitoring of system components, database connections, and network services"
             />
 
             <Container>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div 
+                    className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+                    style={{ gap: componentSpacing.padding, marginBottom: layoutSpacing.page }}
+                >
                     <SystemHealth />
                     <DatabaseHealth />
                 </div>
@@ -294,7 +304,10 @@ export const SystemHealthOverview: Story = {
 
 // Optimized status indicators component with stable keys and design system spacing
 const StatusIndicators = React.memo(() => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        style={{ gap: componentSpacing.padding }}
+    >
         {statusIndicatorData.map((item) => (
             <StatusIndicator
                 key={item.id}
@@ -310,7 +323,7 @@ const StatusIndicators = React.memo(() => (
 
 export const ServiceStatus: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: layoutSpacing.section }} className="space-y-8">
             <SectionHeader
                 title="Service Status Dashboard"
                 subtitle="Detailed status monitoring for all system services"

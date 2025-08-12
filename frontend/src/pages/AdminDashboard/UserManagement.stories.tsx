@@ -6,12 +6,14 @@ import {
     AnimatedBanner,
     Container,
     SectionHeader,
-    Card,
     applyTypographyStyle,
 } from '../../design-system/stories/components';
 import { Badge } from '../../design-system/components/Badge';
 import { Button } from '../../design-system/components/Button';
 import { Users, MoreHorizontal } from 'lucide-react';
+import { AdminCard } from '../../components/AdminDashboard/components/AdminCard';
+import { AdminTitle, AdminSubtitle, AdminBody, AdminCaption } from '../../components/AdminDashboard/components/AdminTypography';
+import { getSemanticSpacing, getSemanticColor, getStatusColor } from '../../components/AdminDashboard/utils/designSystemHelpers';
 
 // Optimized icon component with design system principles
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
@@ -25,10 +27,9 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     }
 );
 
-// Memoized typography styles using design system
-const subtitleStyle = applyTypographyStyle('subtitle');
-const bodyStyle = applyTypographyStyle('body');
-const captionStyle = applyTypographyStyle('caption');
+// Pre-computed spacing using design system helpers
+const componentSpacing = getSemanticSpacing('component');
+const layoutSpacing = getSemanticSpacing('layout');
 
 // Optimized user activity data with stable keys
 const userActivityData = [
@@ -117,7 +118,7 @@ const UserActivityItem = React.memo<{ user: typeof userActivityData[0] }>(({ use
     <div 
         className="flex items-center justify-between p-6 rounded-xl hover:bg-muted/50 transition-all duration-200"
         style={{ 
-            padding: tokens.spacing[6],
+            padding: componentSpacing.padding,
             borderRadius: tokens.borderRadius.xl
         }}
     >
@@ -133,60 +134,63 @@ const UserActivityItem = React.memo<{ user: typeof userActivityData[0] }>(({ use
                 <span className={`text-${user.color}-700 font-semibold`}>{user.initial}</span>
             </div>
             <div>
-                <p style={subtitleStyle} className="text-foreground">{user.name}</p>
-                <p style={captionStyle} className="text-muted-foreground">
+                <AdminSubtitle className="text-foreground">{user.name}</AdminSubtitle>
+                <AdminCaption className="text-muted-foreground">
                     Last login: {user.lastLogin.toLocaleString()}
-                </p>
+                </AdminCaption>
             </div>
         </div>
         <div className="text-right">
             <Badge variant={user.status === "Active" ? "default" : "secondary"}>{user.status}</Badge>
-            <p 
-                style={{ ...captionStyle, marginTop: tokens.spacing[2] }} 
+            <AdminCaption 
                 className="text-muted-foreground mt-2"
+                style={{ marginTop: componentSpacing.gap }}
             >
                 {user.logins} logins
-            </p>
+            </AdminCaption>
         </div>
     </div>
 ));
 
 // Optimized user activity component with design system spacing and typography
 const UserActivity = React.memo(() => (
-    <Card>
-        <div style={{ padding: tokens.spacing[6] }} className="p-6">
-            <div 
-                className="flex items-center justify-between mb-6"
-                style={{ marginBottom: tokens.spacing[6] }}
-            >
-                <div className="flex items-center">
-                    <div 
-                        className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mr-4"
-                        style={{ 
-                            width: tokens.spacing[12],
-                            height: tokens.spacing[12],
-                            marginRight: tokens.spacing[4],
-                            borderRadius: tokens.borderRadius.xl
-                        }}
-                    >
-                        <Icon icon={Users} size="lg" className="text-accent" />
-                    </div>
-                    <div>
-                        <h3 style={subtitleStyle}>User Activity</h3>
-                        <p style={captionStyle} className="text-muted-foreground">Recent interactions</p>
-                    </div>
+    <AdminCard
+        title="User Activity"
+        subtitle="Recent user interactions and system access"
+        variant="elevated"
+        size="lg"
+    >
+        <div 
+            className="flex items-center justify-between mb-6"
+            style={{ marginBottom: componentSpacing.padding }}
+        >
+            <div className="flex items-center">
+                <div 
+                    className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mr-4"
+                    style={{ 
+                        width: tokens.spacing[12],
+                        height: tokens.spacing[12],
+                        marginRight: componentSpacing.gap,
+                        borderRadius: tokens.borderRadius.xl
+                    }}
+                >
+                    <Icon icon={Users} size="lg" className="text-accent" />
                 </div>
-                <Button variant="ghost" size="sm">
-                    <Icon icon={MoreHorizontal} size="sm" />
-                </Button>
+                <div>
+                    <AdminSubtitle>User Activity</AdminSubtitle>
+                    <AdminCaption className="text-muted-foreground">Recent interactions</AdminCaption>
+                </div>
             </div>
-            <div style={{ gap: tokens.spacing[6] }} className="space-y-6">
-                {userActivityData.map((user) => (
-                    <UserActivityItem key={user.id} user={user} />
-                ))}
-            </div>
+            <Button variant="ghost" size="sm">
+                <Icon icon={MoreHorizontal} size="sm" />
+            </Button>
         </div>
-    </Card>
+        <div style={{ gap: componentSpacing.padding }} className="space-y-6">
+            {userActivityData.map((user) => (
+                <UserActivityItem key={user.id} user={user} />
+            ))}
+        </div>
+    </AdminCard>
 ));
 
 // Optimized stat item component with design system spacing and colors
@@ -194,30 +198,32 @@ const StatItem = React.memo<{ stat: typeof userStatsData[0] }>(({ stat }) => (
     <div 
         className={`text-center p-4 bg-${stat.color}/5 rounded-lg`}
         style={{ 
-            padding: tokens.spacing[4],
+            padding: componentSpacing.gap,
             borderRadius: tokens.borderRadius.lg
         }}
     >
         <div className={`text-2xl font-bold text-${stat.color}`}>{stat.value}</div>
-        <div style={captionStyle} className="text-muted-foreground">{stat.label}</div>
+        <AdminCaption className="text-muted-foreground">{stat.label}</AdminCaption>
     </div>
 ));
 
 // Optimized user statistics component with design system spacing
 const UserStatistics = React.memo(() => (
-    <Card>
-        <div style={{ padding: tokens.spacing[6] }} className="p-6">
-            <h3 style={subtitleStyle} className="mb-4">User Statistics</h3>
-            <div 
-                className="grid grid-cols-1 md:grid-cols-4 gap-4"
-                style={{ gap: tokens.spacing[4] }}
-            >
-                {userStatsData.map((stat) => (
-                    <StatItem key={stat.id} stat={stat} />
-                ))}
-            </div>
+    <AdminCard
+        title="User Statistics"
+        subtitle="Overview of user distribution and status"
+        variant="elevated"
+        size="md"
+    >
+        <div 
+            className="grid grid-cols-1 md:grid-cols-4 gap-4"
+            style={{ gap: componentSpacing.gap }}
+        >
+            {userStatsData.map((stat) => (
+                <StatItem key={stat.id} stat={stat} />
+            ))}
         </div>
-    </Card>
+    </AdminCard>
 ));
 
 // Optimized role item component with design system spacing and colors
@@ -225,7 +231,7 @@ const RoleItem = React.memo<{ role: typeof roleDistributionData[0] }>(({ role })
     <div 
         className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
         style={{ 
-            padding: tokens.spacing[3],
+            padding: componentSpacing.gap,
             borderRadius: tokens.borderRadius.lg
         }}
     >
@@ -238,10 +244,10 @@ const RoleItem = React.memo<{ role: typeof roleDistributionData[0] }>(({ role })
                     borderRadius: tokens.borderRadius.full
                 }}
             ></div>
-            <span style={bodyStyle} className="font-medium">{role.role}</span>
+            <AdminBody className="font-medium">{role.role}</AdminBody>
         </div>
         <div className="flex items-center gap-2">
-            <span style={captionStyle} className="text-muted-foreground">{role.users} users</span>
+            <AdminCaption className="text-muted-foreground">{role.users} users</AdminCaption>
             <Badge variant="default">{role.percentage}</Badge>
         </div>
     </div>
@@ -249,21 +255,23 @@ const RoleItem = React.memo<{ role: typeof roleDistributionData[0] }>(({ role })
 
 // Optimized role distribution component with design system spacing
 const RoleDistribution = React.memo(() => (
-    <Card>
-        <div style={{ padding: tokens.spacing[6] }} className="p-6">
-            <h3 style={subtitleStyle} className="mb-4">Role Distribution</h3>
-            <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
-                {roleDistributionData.map((role) => (
-                    <RoleItem key={role.id} role={role} />
-                ))}
-            </div>
+    <AdminCard
+        title="Role Distribution"
+        subtitle="User roles and permissions overview"
+        variant="elevated"
+        size="md"
+    >
+        <div style={{ gap: componentSpacing.gap }} className="space-y-4">
+            {roleDistributionData.map((role) => (
+                <RoleItem key={role.id} role={role} />
+            ))}
         </div>
-    </Card>
+    </AdminCard>
 ));
 
 export const UserActivityOverview: Story = {
     render: () => (
-        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
+        <div style={{ gap: layoutSpacing.section }} className="space-y-8">
             <SectionHeader
                 title="User Management & Activity"
                 subtitle="Monitor user activity, manage permissions, and track system access"
@@ -278,14 +286,14 @@ export const UserActivityOverview: Story = {
 
 export const UserManagementComponent: Story = {
     render: () => (
-        <div style={{ gap: tokens.spacing[8] }} className="space-y-8">
+        <div style={{ gap: layoutSpacing.section }} className="space-y-8">
             <SectionHeader
                 title="User Management System"
                 subtitle="Complete user management interface with role-based access control"
             />
 
             <Container>
-                <div style={{ gap: tokens.spacing[6] }} className="space-y-6">
+                <div style={{ gap: componentSpacing.padding }} className="space-y-6">
                     <UserStatistics />
                     <RoleDistribution />
                 </div>

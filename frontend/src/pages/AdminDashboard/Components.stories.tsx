@@ -5,10 +5,13 @@ import {
     AnimatedBanner,
     Container,
     SectionHeader,
-    Card,
     applyTypographyStyle,
 } from '../../design-system/stories/components';
 import { Settings, Loader2, Database, Users, Wrench, Monitor, FileText, Palette } from 'lucide-react';
+import { AdminCard } from '../../components/AdminDashboard/components/AdminCard';
+import { AdminTitle, AdminSubtitle, AdminBody, AdminCaption } from '../../components/AdminDashboard/components/AdminTypography';
+import { tokens } from '../../design-system/tokens';
+import { getSemanticSpacing, getSemanticColor, getStatusColor } from '../../components/AdminDashboard/utils/designSystemHelpers';
 
 // Performance monitoring utility
 const usePerformanceMonitor = (componentName: string) => {
@@ -49,12 +52,19 @@ class ComponentErrorBoundary extends React.Component<
     render() {
         if (this.state.hasError) {
             return this.props.fallback || (
-                <div className="p-4 border border-red-200 bg-red-50 rounded-md">
-                    <h3 className="text-red-800 font-medium">Component Error</h3>
-                    <p className="text-red-600 text-sm mt-1">
-                        {this.state.error?.message || 'An error occurred while rendering this component'}
-                    </p>
-                </div>
+                <AdminCard
+                    title="Component Error"
+                    subtitle="An error occurred while rendering this component"
+                    variant="outlined"
+                    size="md"
+                >
+                    <div className="p-4 border border-red-200 bg-red-50 rounded-md">
+                        <h3 className="text-red-800 font-medium">Component Error</h3>
+                        <p className="text-red-600 text-sm mt-1">
+                            {this.state.error?.message || 'An error occurred while rendering this component'}
+                        </p>
+                    </div>
+                </AdminCard>
             );
         }
 
@@ -69,10 +79,17 @@ const createLazyComponent = (importFn: () => Promise<any>, componentName: string
             console.error(`Failed to load ${componentName}:`, error);
             return Promise.resolve({
                 default: () => (
-                    <div className="p-4 border border-red-200 bg-red-50 rounded-md">
-                        <h3 className="text-red-800 font-medium">Failed to Load {componentName}</h3>
-                        <p className="text-red-600 text-sm mt-1">Please check the console for details</p>
-                    </div>
+                    <AdminCard
+                        title={`Failed to Load ${componentName}`}
+                        subtitle="Please check the console for details"
+                        variant="outlined"
+                        size="md"
+                    >
+                        <div className="p-4 border border-red-200 bg-red-50 rounded-md">
+                            <h3 className="text-red-800 font-medium">Failed to Load {componentName}</h3>
+                            <p className="text-red-600 text-sm mt-1">Please check the console for details</p>
+                        </div>
+                    </AdminCard>
                 )
             });
         })
@@ -173,6 +190,10 @@ const useCleanup = (cleanupFn: () => void) => {
     }, [cleanupFn]);
 };
 
+// Pre-computed spacing using design system helpers
+const componentSpacing = getSemanticSpacing('component');
+const layoutSpacing = getSemanticSpacing('layout');
+
 // Enhanced loading fallback component with performance monitoring
 const LoadingFallback = React.memo(() => {
     usePerformanceMonitor('LoadingFallback');
@@ -183,17 +204,27 @@ const LoadingFallback = React.memo(() => {
     }), []);
 
     return (
-        <div className="flex items-center justify-center p-8">
-            <div className="flex items-center gap-3">
-                <Icon icon={Loader2} className="animate-spin" />
-                <span
-                    style={styles.body}
-                    className="text-muted-foreground"
-                >
-                    Loading component...
-                </span>
+        <AdminCard
+            title="Loading Component"
+            subtitle="Please wait while we load the component"
+            variant="elevated"
+            size="md"
+        >
+            <div 
+                className="flex items-center justify-center"
+                style={{ padding: componentSpacing.padding }}
+            >
+                <div className="flex items-center gap-3">
+                    <Icon icon={Loader2} className="animate-spin" />
+                    <span
+                        style={styles.body}
+                        className="text-muted-foreground"
+                    >
+                        Loading component...
+                    </span>
+                </div>
             </div>
-        </div>
+        </AdminCard>
     );
 });
 LoadingFallback.displayName = 'LoadingFallback';
@@ -234,34 +265,27 @@ const ComponentWrapper = React.memo<{
     }, []);
 
     return (
-        <div className="space-y-8">
+        <div style={{ gap: layoutSpacing.section }} className="space-y-8">
             <SectionHeader title={title} subtitle={subtitle} />
             {description && (
                 <div className="max-w-4xl">
-                    <p style={styles.body} className="text-muted-foreground">
-                        {description}
-                    </p>
+                    <AdminBody>{description}</AdminBody>
                 </div>
             )}
             <Container>
                 {useCard ? (
-                    <Card>
-                        <div className="p-6">
-                            {cardTitle && (
-                                <h2
-                                    style={styles.subtitle}
-                                    className="mb-6"
-                                >
-                                    {cardTitle}
-                                </h2>
-                            )}
-                            <Suspense fallback={<LoadingFallback />}>
-                                <ComponentErrorBoundary>
-                                    {children}
-                                </ComponentErrorBoundary>
-                            </Suspense>
-                        </div>
-                    </Card>
+                    <AdminCard
+                        title={cardTitle}
+                        subtitle="Component demonstration"
+                        variant="elevated"
+                        size="lg"
+                    >
+                        <Suspense fallback={<LoadingFallback />}>
+                            <ComponentErrorBoundary>
+                                {children}
+                            </ComponentErrorBoundary>
+                        </Suspense>
+                    </AdminCard>
                 ) : (
                     <Suspense fallback={<LoadingFallback />}>
                         <ComponentErrorBoundary>
@@ -569,9 +593,9 @@ export const ComponentInteractions: Story = {
 
         // Memoized static data to prevent re-creation
         const systemStatusData = useMemo(() => [
-            { label: 'CPU Usage', value: '45%', color: 'text-green-600' },
-            { label: 'Memory Usage', value: '78%', color: 'text-yellow-600' },
-            { label: 'Active Users', value: '127', color: 'text-blue-600' }
+            { label: 'CPU Usage', value: '45%', color: getSemanticColor('success') },
+            { label: 'Memory Usage', value: '78%', color: getSemanticColor('warning') },
+            { label: 'Active Users', value: '127', color: getSemanticColor('info') }
         ], []);
 
         const userActivityData = useMemo(() => [
@@ -588,45 +612,40 @@ export const ComponentInteractions: Story = {
                 sharing state and communicating through events. Demonstrates best practices for component composition 
                 and data flow in complex admin interfaces."
             >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card>
-                        <div className="p-6">
-                            <h3 style={styles.subtitle} className="mb-4 flex items-center gap-2">
-                                <Icon icon={Monitor} size="sm" />
-                                System Status
-                            </h3>
-                            <p style={styles.body} className="text-muted-foreground mb-4">
-                                Real-time system monitoring with alert integration
-                            </p>
-                            <div className="space-y-2">
-                                {systemStatusData.map((item, index) => (
-                                    <div key={index} className="flex justify-between items-center">
-                                        <span>{item.label}</span>
-                                        <span className={item.color}>{item.value}</span>
-                                    </div>
-                                ))}
-                            </div>
+                <div 
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                    style={{ gap: componentSpacing.padding }}
+                >
+                    <AdminCard
+                        title="System Status"
+                        subtitle="Real-time system monitoring with alert integration"
+                        variant="elevated"
+                        size="md"
+                    >
+                        <div style={{ gap: componentSpacing.gap }} className="space-y-2">
+                            {systemStatusData.map((item, index) => (
+                                <div key={index} className="flex justify-between items-center">
+                                    <AdminBody>{item.label}</AdminBody>
+                                    <AdminSubtitle style={{ color: item.color }}>{item.value}</AdminSubtitle>
+                                </div>
+                            ))}
                         </div>
-                    </Card>
-                    <Card>
-                        <div className="p-6">
-                            <h3 style={styles.subtitle} className="mb-4 flex items-center gap-2">
-                                <Icon icon={Users} size="sm" />
-                                User Activity
-                            </h3>
-                            <p style={styles.body} className="text-muted-foreground mb-4">
-                                Recent user actions and system events
-                            </p>
-                            <div className="space-y-2">
-                                {userActivityData.map((item, index) => (
-                                    <div key={index} className="flex justify-between items-center text-sm">
-                                        <span>{item.action}</span>
-                                        <span className="text-muted-foreground">{item.time}</span>
-                                    </div>
-                                ))}
-                            </div>
+                    </AdminCard>
+                    <AdminCard
+                        title="User Activity"
+                        subtitle="Recent user actions and system events"
+                        variant="elevated"
+                        size="md"
+                    >
+                        <div style={{ gap: componentSpacing.gap }} className="space-y-2">
+                            {userActivityData.map((item, index) => (
+                                <div key={index} className="flex justify-between items-center text-sm">
+                                    <AdminBody>{item.action}</AdminBody>
+                                    <AdminCaption>{item.time}</AdminCaption>
+                                </div>
+                            ))}
                         </div>
-                    </Card>
+                    </AdminCard>
                 </div>
             </ComponentWrapper>
         );

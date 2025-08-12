@@ -47,16 +47,44 @@ import * as AdminApi from '@/services/admin';
 import type { UserWithRoles } from '@/services/admin';
 import { toast } from 'sonner';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
-import { getStatusBadge } from './utils/designSystemHelpers';
+import {
+  applyDesignSystemSpacing,
+  applyDesignSystemRadius,
+  getSemanticShadow,
+  applyDesignSystemMotion,
+  getSemanticColor,
+  getSemanticSpacing,
+  applyTypographyStyle
+} from './utils/designSystemHelpers';
 import {
   AdminCard,
-  AdminTitle,
   AdminBody,
   AdminCaption,
   AdminHeadline,
   AdminSubtitle
 } from './components';
+import {
+  Download,
+  UserPlus,
+  Users,
+  CheckCircle,
+  Mail,
+  Shield,
+  Filter,
+  Search,
+  X,
+  AlertCircle,
+  Activity,
+  UserCheck,
+  UserX,
+  Bell,
+  Calendar,
+  Clock,
+  MoreHorizontal,
+  Edit,
+  Eye,
+  Trash2
+} from 'lucide-react';
 
 interface UserManagementProps {
   onUserUpdated?: () => void;
@@ -69,6 +97,56 @@ interface EditUserData {
   last_name: string;
   is_active: boolean;
 }
+
+// Pre-computed styles using design system helpers
+const STYLES = {
+  // Typography styles following design system guidelines
+  subtitle: applyTypographyStyle('subtitle'),
+  body: applyTypographyStyle('body'),
+  caption: applyTypographyStyle('caption'),
+  title: applyTypographyStyle('title'),
+  headline: applyTypographyStyle('headline'),
+
+  // Spacing following 8px base unit
+  spacing: {
+    sm: applyDesignSystemSpacing(2), // 8px
+    md: applyDesignSystemSpacing(4), // 16px
+    lg: applyDesignSystemSpacing(6), // 24px
+    xl: applyDesignSystemSpacing(8), // 32px
+    component: getSemanticSpacing('component'),
+    layout: getSemanticSpacing('layout'),
+  },
+
+  // Semantic colors following design system guidelines
+  colors: {
+    success: getSemanticColor('success'),
+    warning: getSemanticColor('warning'),
+    destructive: getSemanticColor('danger'),
+    info: getSemanticColor('info'),
+    primary: tokens.colors.primary[500],
+    secondary: tokens.colors.secondary[500],
+    muted: tokens.colors.secondary[400],
+  },
+
+  // Motion following design system guidelines
+  motion: {
+    duration: applyDesignSystemMotion('duration', 'normal'),
+    easing: applyDesignSystemMotion('easing', 'smooth'),
+  },
+
+  // Border radius following design system guidelines
+  borderRadius: {
+    lg: applyDesignSystemRadius('lg'),
+    xl: applyDesignSystemRadius('xl'),
+  },
+
+  // Shadows following elevation hierarchy
+  shadows: {
+    sm: getSemanticShadow('card'),
+    md: getSemanticShadow('hover'),
+    lg: getSemanticShadow('modal'),
+  },
+} as const;
 
 const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) => {
 
@@ -351,20 +429,52 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
     URL.revokeObjectURL(url);
   };
 
-  // Get status badge
-  const getStatusBadge = (user: UserWithRoles) => {
+  // Memoized computed values for performance
+  const uniqueRoles = useMemo(() =>
+    Array.from(new Set(users.flatMap(user => user.roles))),
+    [users]
+  );
+
+  const activeUsersCount = useMemo(() =>
+    users.filter(u => u.is_active).length,
+    [users]
+  );
+
+  const verifiedUsersCount = useMemo(() =>
+    users.filter(u => u.is_verified).length,
+    [users]
+  );
+
+  const activePercentage = useMemo(() =>
+    total > 0 ? Math.round((activeUsersCount / total) * 100) : 0,
+    [activeUsersCount, total]
+  );
+
+  // Get status badge using design system helpers
+  const getStatusBadge = useCallback((user: UserWithRoles) => {
     if (!user.is_active) return <Badge variant="destructive">Inactive</Badge>;
     if (!user.is_verified) return <Badge variant="secondary">Unverified</Badge>;
     return <Badge variant="default">Active</Badge>;
-  };
-
-  // Get unique roles for filter
-  const uniqueRoles = Array.from(new Set(users.flatMap(user => user.roles)));
+  }, []);
 
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: STYLES.spacing.lg
+      }}
+    >
       {/* Header with actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: STYLES.spacing.md
+        }}
+      >
         <div>
           <AdminHeadline>User Management</AdminHeadline>
           <AdminBody>
@@ -372,12 +482,32 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
           </AdminBody>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Button size="sm" variant="outline" onClick={handleExportUsers}>
+        <div
+          className="flex items-center space-x-2"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: STYLES.spacing.sm
+          }}
+        >
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleExportUsers}
+            style={{
+              transition: `all ${STYLES.motion.duration} ${STYLES.motion.easing}`
+            }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
-          <Button size="sm" onClick={() => setShowAddDialog(true)}>
+          <Button
+            size="sm"
+            onClick={() => setShowAddDialog(true)}
+            style={{
+              transition: `all ${STYLES.motion.duration} ${STYLES.motion.easing}`
+            }}
+          >
             <UserPlus className="h-4 w-4 mr-2" />
             Add User
           </Button>
@@ -385,110 +515,273 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
       </div>
 
       {/* User Analytics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <Users className="h-4 w-4 mr-2 text-blue-500" />
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(1, 1fr)',
+          gap: STYLES.spacing.md
+        }}
+      >
+        <AdminCard variant="default" size="md">
+          <CardHeader
+            className="pb-2"
+            style={{
+              paddingBottom: STYLES.spacing.sm
+            }}
+          >
+            <CardTitle
+              className="text-sm font-medium flex items-center"
+              style={{
+                ...STYLES.subtitle,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Users
+                className="h-4 w-4 mr-2"
+                style={{
+                  height: STYLES.spacing.md,
+                  width: STYLES.spacing.md,
+                  marginRight: STYLES.spacing.sm,
+                  color: STYLES.colors.info
+                }}
+              />
               <AdminSubtitle>Total Users</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline className="text-blue-600">
+            <AdminHeadline
+              style={{
+                color: STYLES.colors.info
+              }}
+            >
               {total}
             </AdminHeadline>
-            <div className="flex items-center mt-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+            <div
+              className="flex items-center mt-2"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginTop: STYLES.spacing.sm
+              }}
+            >
+              <div
+                className="flex-1 rounded-full h-1.5"
+                style={{
+                  flex: 1,
+                  backgroundColor: tokens.colors.secondary[200],
+                  borderRadius: tokens.borderRadius.full,
+                  height: '6px'
+                }}
+              >
                 <div
-                  className="bg-blue-500 h-1.5 rounded-full"
+                  className="rounded-full h-1.5"
                   style={{
-                    width: `${total > 0
-                      ? (users.filter(u => u.is_active).length /
-                        total) *
-                      100
-                      : 0
-                      }%`,
+                    backgroundColor: STYLES.colors.info,
+                    borderRadius: tokens.borderRadius.full,
+                    height: '6px',
+                    width: `${activePercentage}%`,
+                    transition: `width ${STYLES.motion.duration} ${STYLES.motion.easing}`
                   }}
-                ></div>
+                />
               </div>
-              <AdminCaption className="ml-2">
-                {total > 0
-                  ? Math.round(
-                    (users.filter(u => u.is_active).length / total) * 100
-                  )
-                  : 0}
-                % active
+              <AdminCaption
+                className="ml-2"
+                style={{
+                  marginLeft: STYLES.spacing.sm
+                }}
+              >
+                {activePercentage}% active
               </AdminCaption>
             </div>
           </CardContent>
-        </Card>
+        </AdminCard>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+        <AdminCard variant="default" size="md">
+          <CardHeader
+            className="pb-2"
+            style={{
+              paddingBottom: STYLES.spacing.sm
+            }}
+          >
+            <CardTitle
+              className="text-sm font-medium flex items-center"
+              style={{
+                ...STYLES.subtitle,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <CheckCircle
+                className="h-4 w-4 mr-2"
+                style={{
+                  height: STYLES.spacing.md,
+                  width: STYLES.spacing.md,
+                  marginRight: STYLES.spacing.sm,
+                  color: STYLES.colors.success
+                }}
+              />
               <AdminSubtitle>Active Users</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline className="text-green-600">
-              {users.filter(u => u.is_active).length}
+            <AdminHeadline
+              style={{
+                color: STYLES.colors.success
+              }}
+            >
+              {activeUsersCount}
             </AdminHeadline>
             <AdminCaption>
               {users.filter(u => u.is_active && u.is_verified).length} verified
             </AdminCaption>
           </CardContent>
-        </Card>
+        </AdminCard>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <Mail className="h-4 w-4 mr-2 text-purple-500" />
+        <AdminCard variant="default" size="md">
+          <CardHeader
+            className="pb-2"
+            style={{
+              paddingBottom: STYLES.spacing.sm
+            }}
+          >
+            <CardTitle
+              className="text-sm font-medium flex items-center"
+              style={{
+                ...STYLES.subtitle,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Mail
+                className="h-4 w-4 mr-2"
+                style={{
+                  height: STYLES.spacing.md,
+                  width: STYLES.spacing.md,
+                  marginRight: STYLES.spacing.sm,
+                  color: STYLES.colors.primary
+                }}
+              />
               <AdminSubtitle>Verification Status</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline className="text-purple-600">
-              {users.filter(u => u.is_verified).length}
+            <AdminHeadline
+              style={{
+                color: STYLES.colors.primary
+              }}
+            >
+              {verifiedUsersCount}
             </AdminHeadline>
             <AdminCaption>
               {users.filter(u => !u.is_verified).length} pending verification
             </AdminCaption>
           </CardContent>
-        </Card>
+        </AdminCard>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center">
-              <Shield className="h-4 w-4 mr-2 text-orange-500" />
+        <AdminCard variant="default" size="md">
+          <CardHeader
+            className="pb-2"
+            style={{
+              paddingBottom: STYLES.spacing.sm
+            }}
+          >
+            <CardTitle
+              className="text-sm font-medium flex items-center"
+              style={{
+                ...STYLES.subtitle,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Shield
+                className="h-4 w-4 mr-2"
+                style={{
+                  height: STYLES.spacing.md,
+                  width: STYLES.spacing.md,
+                  marginRight: STYLES.spacing.sm,
+                  color: STYLES.colors.warning
+                }}
+              />
               <AdminSubtitle>User Roles</AdminSubtitle>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline className="text-orange-600">
+            <AdminHeadline
+              style={{
+                color: STYLES.colors.warning
+              }}
+            >
               {uniqueRoles.length}
             </AdminHeadline>
             <AdminCaption>
               {users.filter(u => u.roles.length > 0).length} users with roles
             </AdminCaption>
           </CardContent>
-        </Card>
+        </AdminCard>
       </div>
 
       {/* Enhanced Filters and Search */}
-      <Card>
+      <AdminCard variant="default" size="md">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Filter className="h-4 w-4 mr-2" />
+          <CardTitle
+            className="flex items-center"
+            style={{
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <Filter
+              className="h-4 w-4 mr-2"
+              style={{
+                height: STYLES.spacing.md,
+                width: STYLES.spacing.md,
+                marginRight: STYLES.spacing.sm,
+                color: STYLES.colors.secondary[500]
+              }}
+            />
             <AdminSubtitle>Filters & Search</AdminSubtitle>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <CardContent
+          className="space-y-4"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: STYLES.spacing.md
+          }}
+        >
+          <div
+            className="grid grid-cols-1 md:grid-cols-4 gap-4"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(1, 1fr)',
+              gap: STYLES.spacing.md
+            }}
+          >
             {/* Search */}
-            <div className="md:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <div
+              className="md:col-span-2"
+            >
+              <div
+                className="relative"
+                style={{
+                  position: 'relative'
+                }}
+              >
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4"
+                  style={{
+                    position: 'absolute',
+                    left: tokens.spacing[3],
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    height: STYLES.spacing.md,
+                    width: STYLES.spacing.md,
+                    color: STYLES.colors.muted
+                  }}
+                />
                 <Input
                   placeholder="Search by name, email, or username..."
                   value={searchTerm}
@@ -497,6 +790,10 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                     setPage(0);
                   }}
                   className="pl-10"
+                  style={{
+                    paddingLeft: tokens.spacing[10],
+                    transition: `all ${STYLES.motion.duration} ${STYLES.motion.easing}`
+                  }}
                 />
               </div>
             </div>
@@ -509,32 +806,92 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                 setPage(0);
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                style={{
+                  transition: `all ${STYLES.motion.duration} ${STYLES.motion.easing}`
+                }}
+              >
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                  <div
+                    className="flex items-center"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <CheckCircle
+                      className="h-4 w-4 mr-2"
+                      style={{
+                        height: STYLES.spacing.md,
+                        width: STYLES.spacing.md,
+                        marginRight: STYLES.spacing.sm,
+                        color: STYLES.colors.success
+                      }}
+                    />
                     Active
                   </div>
                 </SelectItem>
                 <SelectItem value="inactive">
-                  <div className="flex items-center">
-                    <X className="h-4 w-4 mr-2 text-red-500" />
+                  <div
+                    className="flex items-center"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <X
+                      className="h-4 w-4 mr-2"
+                      style={{
+                        height: STYLES.spacing.md,
+                        width: STYLES.spacing.md,
+                        marginRight: STYLES.spacing.sm,
+                        color: STYLES.colors.destructive
+                      }}
+                    />
                     Inactive
                   </div>
                 </SelectItem>
                 <SelectItem value="verified">
-                  <div className="flex items-center">
-                    <Mail className="h-4 w-4 mr-2 text-blue-500" />
+                  <div
+                    className="flex items-center"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Mail
+                      className="h-4 w-4 mr-2"
+                      style={{
+                        height: STYLES.spacing.md,
+                        width: STYLES.spacing.md,
+                        marginRight: STYLES.spacing.sm,
+                        color: STYLES.colors.primary
+                      }}
+                    />
                     Verified
                   </div>
                 </SelectItem>
                 <SelectItem value="unverified">
-                  <div className="flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-2 text-yellow-500" />
+                  <div
+                    className="flex items-center"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <AlertCircle
+                      className="h-4 w-4 mr-2"
+                      style={{
+                        height: STYLES.spacing.md,
+                        width: STYLES.spacing.md,
+                        marginRight: STYLES.spacing.sm,
+                        color: STYLES.colors.warning
+                      }}
+                    />
                     Unverified
                   </div>
                 </SelectItem>
@@ -549,15 +906,33 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                 setPage(0);
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                style={{
+                  transition: `all ${STYLES.motion.duration} ${STYLES.motion.easing}`
+                }}
+              >
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
                 {uniqueRoles.map(role => (
                   <SelectItem key={role} value={role}>
-                    <div className="flex items-center">
-                      <Shield className="h-4 w-4 mr-2 text-orange-500" />
+                    <div
+                      className="flex items-center"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Shield
+                        className="h-4 w-4 mr-2"
+                        style={{
+                          height: STYLES.spacing.md,
+                          width: STYLES.spacing.md,
+                          marginRight: STYLES.spacing.sm,
+                          color: STYLES.colors.warning
+                        }}
+                      />
                       {role}
                     </div>
                   </SelectItem>
@@ -606,7 +981,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
             </div>
           </div>
         </CardContent>
-      </Card>
+      </AdminCard>
 
       {/* Enhanced Bulk Actions */}
       {selectedUsers.length > 0 && (

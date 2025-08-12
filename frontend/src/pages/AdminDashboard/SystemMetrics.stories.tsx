@@ -6,12 +6,13 @@ import {
     AnimatedBanner,
     Container,
     SectionHeader,
-    Card,
-    MetricCard,
     applyTypographyStyle,
 } from '../../design-system/stories/components';
 import { Progress } from '../../design-system/components/Progress';
 import { Cpu, HardDrive, Clock, Zap } from 'lucide-react';
+import { AdminCard } from '../../components/AdminDashboard/components/AdminCard';
+import { AdminTitle, AdminSubtitle, AdminBody, AdminCaption } from '../../components/AdminDashboard/components/AdminTypography';
+import { getSemanticSpacing, getSemanticColor, getStatusColor } from '../../components/AdminDashboard/utils/designSystemHelpers';
 
 // Optimized icon component with design system principles
 const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | 'lg'; className?: string }>(
@@ -25,10 +26,9 @@ const Icon = React.memo<{ icon: React.ComponentType<any>; size?: 'sm' | 'md' | '
     }
 );
 
-// Memoized typography styles using design system
-const subtitleStyle = applyTypographyStyle('subtitle');
-const bodyStyle = applyTypographyStyle('body');
-const captionStyle = applyTypographyStyle('caption');
+// Pre-computed spacing using design system helpers
+const componentSpacing = getSemanticSpacing('component');
+const layoutSpacing = getSemanticSpacing('layout');
 
 // Optimized metric data with stable keys and design system colors
 const metricData = [
@@ -38,7 +38,7 @@ const metricData = [
         value: "45.2%",
         status: "optimal" as const,
         icon: Cpu,
-        color: tokens.colors.primary[500]
+        color: getSemanticColor('success')
     },
     {
         id: 'memory',
@@ -46,7 +46,7 @@ const metricData = [
         value: "67.8%",
         status: "warning" as const,
         icon: HardDrive,
-        color: tokens.colors.warning[500]
+        color: getSemanticColor('warning')
     },
     {
         id: 'disk',
@@ -54,7 +54,7 @@ const metricData = [
         value: "23.4%",
         status: "healthy" as const,
         icon: HardDrive,
-        color: tokens.colors.accent[500]
+        color: getSemanticColor('info')
     },
     {
         id: 'error',
@@ -62,7 +62,7 @@ const metricData = [
         value: "1.2%",
         status: "low" as const,
         icon: Cpu,
-        color: tokens.colors.danger
+        color: getSemanticColor('danger')
     }
 ] as const;
 
@@ -118,28 +118,40 @@ type Story = StoryObj<typeof meta>;
 
 // Optimized metric cards component with stable keys and design system spacing
 const MetricCards = React.memo(() => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        style={{ gap: componentSpacing.padding, marginBottom: layoutSpacing.page }}
+    >
         {metricData.map((metric) => (
-            <MetricCard
+            <AdminCard
                 key={metric.id}
                 title={metric.title}
-                value={metric.value}
-                status={metric.status}
-                icon={<Icon icon={metric.icon} />}
-                color={metric.color}
-            />
+                subtitle={metric.status}
+                variant="elevated"
+                size="md"
+            >
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Icon icon={metric.icon} />
+                        <div>
+                            <AdminTitle style={{ color: metric.color }}>{metric.value}</AdminTitle>
+                            <AdminCaption>{metric.status}</AdminCaption>
+                        </div>
+                    </div>
+                </div>
+            </AdminCard>
         ))}
     </div>
 ));
 
 // Optimized progress bars component with stable keys and design system typography
 const ProgressBars = React.memo(() => (
-    <div className="space-y-4">
+    <div style={{ gap: componentSpacing.gap }} className="space-y-4">
         {progressData.map((item) => (
             <div key={item.id}>
                 <div className="flex justify-between text-sm mb-1">
-                    <span style={captionStyle}>{item.label}</span>
-                    <span style={captionStyle}>{item.value}%</span>
+                    <AdminCaption>{item.label}</AdminCaption>
+                    <AdminCaption>{item.value}%</AdminCaption>
                 </div>
                 <Progress value={item.value} className="h-2" />
             </div>
@@ -149,36 +161,19 @@ const ProgressBars = React.memo(() => (
 
 // Optimized system info component with stable keys and design system typography
 const SystemInfo = React.memo(() => (
-    <div className="space-y-3">
+    <div style={{ gap: componentSpacing.gap }} className="space-y-3">
         {systemInfoData.map((item) => (
             <div key={item.id} className="flex justify-between">
-                <span style={captionStyle} className="text-muted-foreground">{item.label}</span>
-                <span style={captionStyle} className="font-medium">{item.value}</span>
+                <AdminCaption className="text-muted-foreground">{item.label}</AdminCaption>
+                <AdminCaption className="font-medium">{item.value}</AdminCaption>
             </div>
         ))}
     </div>
 ));
 
-// Optimized card wrapper component with design system spacing and typography
-const CardWrapper = React.memo<{ title: string; children: React.ReactNode }>(
-    ({ title, children }) => (
-        <Card>
-            <div className="p-6">
-                <h3
-                    style={subtitleStyle}
-                    className="mb-4"
-                >
-                    {title}
-                </h3>
-                {children}
-            </div>
-        </Card>
-    )
-);
-
 export const SystemMetricsOverview: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: layoutSpacing.section }} className="space-y-8">
             <SectionHeader
                 title="System Performance Metrics"
                 subtitle="Real-time monitoring of CPU, memory, disk usage and system performance"
@@ -187,14 +182,27 @@ export const SystemMetricsOverview: Story = {
             <Container>
                 <MetricCards />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <CardWrapper title="Performance Trends">
+                <div 
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                    style={{ gap: componentSpacing.padding }}
+                >
+                    <AdminCard
+                        title="Performance Trends"
+                        subtitle="System performance over time"
+                        variant="elevated"
+                        size="md"
+                    >
                         <ProgressBars />
-                    </CardWrapper>
+                    </AdminCard>
 
-                    <CardWrapper title="System Information">
+                    <AdminCard
+                        title="System Information"
+                        subtitle="Current system status and metrics"
+                        variant="elevated"
+                        size="md"
+                    >
                         <SystemInfo />
-                    </CardWrapper>
+                    </AdminCard>
                 </div>
             </Container>
         </div>
@@ -203,42 +211,45 @@ export const SystemMetricsOverview: Story = {
 
 // Optimized performance metrics component with design system principles
 const PerformanceMetrics = React.memo(() => (
-    <div className="space-y-8">
-        <div className="space-y-4">
+    <div style={{ gap: layoutSpacing.section }} className="space-y-8">
+        <div style={{ gap: componentSpacing.gap }} className="space-y-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-muted-foreground">
                     <Icon icon={Cpu} size="sm" />
-                    <span style={captionStyle}>CPU Usage</span>
+                    <AdminCaption>CPU Usage</AdminCaption>
                 </div>
-                <span style={subtitleStyle}>45.2%</span>
+                <AdminSubtitle>45.2%</AdminSubtitle>
             </div>
             <Progress value={45.2} className="h-2" />
         </div>
-        <div style={{ gap: tokens.spacing[4] }} className="space-y-4">
+        <div style={{ gap: componentSpacing.gap }} className="space-y-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-muted-foreground">
                     <Icon icon={HardDrive} size="sm" />
-                    <span style={captionStyle}>Disk Usage</span>
+                    <AdminCaption>Disk Usage</AdminCaption>
                 </div>
-                <span style={subtitleStyle}>23.4%</span>
+                <AdminSubtitle>23.4%</AdminSubtitle>
             </div>
             <Progress value={23.4} className="h-2" />
         </div>
         <div className="pt-6 border-t border-border">
-            <div className="grid grid-cols-2 gap-6">
+            <div 
+                className="grid grid-cols-2 gap-6"
+                style={{ gap: componentSpacing.padding }}
+            >
                 <div>
                     <div className="flex items-center gap-3 text-muted-foreground mb-2">
                         <Icon icon={Zap} size="sm" />
-                        <span style={captionStyle}>Requests/24h</span>
+                        <AdminCaption>Requests/24h</AdminCaption>
                     </div>
-                    <div style={subtitleStyle}>15,420</div>
+                    <AdminSubtitle>15,420</AdminSubtitle>
                 </div>
                 <div>
                     <div className="flex items-center gap-3 text-muted-foreground mb-2">
                         <Icon icon={Clock} size="sm" />
-                        <span style={captionStyle}>Avg Response</span>
+                        <AdminCaption>Avg Response</AdminCaption>
                     </div>
-                    <div style={subtitleStyle}>245 ms</div>
+                    <AdminSubtitle>245 ms</AdminSubtitle>
                 </div>
             </div>
         </div>
@@ -251,34 +262,37 @@ const PerformanceHeader = React.memo(() => (
         <div
             className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
             style={{
-                background: `${tokens.colors.primary[500]}10`,
+                background: `${getSemanticColor('info')}10`,
                 borderRadius: tokens.borderRadius.xl
             }}
         >
             <Icon icon={Cpu} size="lg" />
         </div>
         <div>
-            <h3 style={subtitleStyle}>Performance</h3>
-            <p style={captionStyle} className="text-muted-foreground">Key metrics</p>
+            <AdminSubtitle>Performance</AdminSubtitle>
+            <AdminCaption className="text-muted-foreground">Key metrics</AdminCaption>
         </div>
     </div>
 ));
 
 export const PerformanceMonitoring: Story = {
     render: () => (
-        <div className="space-y-8">
+        <div style={{ gap: layoutSpacing.section }} className="space-y-8">
             <SectionHeader
                 title="Performance Monitoring"
                 subtitle="Detailed performance metrics with real-time tracking"
             />
 
             <Container>
-                <Card>
-                    <div className="p-6">
-                        <PerformanceHeader />
-                        <PerformanceMetrics />
-                    </div>
-                </Card>
+                <AdminCard
+                    title="Performance Dashboard"
+                    subtitle="Real-time system performance monitoring"
+                    variant="elevated"
+                    size="lg"
+                >
+                    <PerformanceHeader />
+                    <PerformanceMetrics />
+                </AdminCard>
             </Container>
         </div>
     ),
