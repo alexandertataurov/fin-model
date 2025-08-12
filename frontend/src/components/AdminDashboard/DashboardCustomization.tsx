@@ -42,7 +42,7 @@ import {
 } from '@/design-system/components/Select';
 import { toast } from 'sonner';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import { applyTypographyStyle } from '@/design-system/utils/typography';
 import {
     applyDesignSystemSpacing,
     applyDesignSystemRadius,

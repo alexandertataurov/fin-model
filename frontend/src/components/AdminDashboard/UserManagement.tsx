@@ -56,13 +56,7 @@ import {
   getSemanticSpacing,
   applyTypographyStyle
 } from './utils/designSystemHelpers';
-import {
-  AdminCard,
-  AdminBody,
-  AdminCaption,
-  AdminHeadline,
-  AdminSubtitle
-} from './components';
+import { applyTextStyle } from '@/design-system/utils/typography';
 import {
   Download,
   UserPlus,
@@ -476,10 +470,10 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
         }}
       >
         <div>
-          <AdminHeadline>User Management</AdminHeadline>
-          <AdminBody>
+          <h1 style={applyTextStyle('headline')}>User Management</h1>
+          <p style={applyTextStyle('body')}>
             Manage user accounts, roles, and permissions
-          </AdminBody>
+          </p>
         </div>
 
         <div
@@ -523,7 +517,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
           gap: STYLES.spacing.md
         }}
       >
-        <AdminCard variant="default" size="md">
+        <Card>
           <CardHeader
             className="pb-2"
             style={{
@@ -547,17 +541,13 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                   color: STYLES.colors.info
                 }}
               />
-              <AdminSubtitle>Total Users</AdminSubtitle>
+              <h4 style={applyTextStyle('subtitle')}>Total Users</h4>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline
-              style={{
-                color: STYLES.colors.info
-              }}
-            >
+            <h1 style={{ ...applyTextStyle('headline'), color: STYLES.colors.info }}>
               {total}
-            </AdminHeadline>
+            </h1>
             <div
               className="flex items-center mt-2"
               style={{
@@ -586,19 +576,20 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                   }}
                 />
               </div>
-              <AdminCaption
+              <span
                 className="ml-2"
                 style={{
+                  ...applyTextStyle('caption'),
                   marginLeft: STYLES.spacing.sm
                 }}
               >
                 {activePercentage}% active
-              </AdminCaption>
+              </span>
             </div>
           </CardContent>
-        </AdminCard>
+        </Card>
 
-        <AdminCard variant="default" size="md">
+        <Card>
           <CardHeader
             className="pb-2"
             style={{
@@ -622,24 +613,20 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                   color: STYLES.colors.success
                 }}
               />
-              <AdminSubtitle>Active Users</AdminSubtitle>
+              <h4 style={applyTextStyle('subtitle')}>Active Users</h4>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline
-              style={{
-                color: STYLES.colors.success
-              }}
-            >
+            <h1 style={{ ...applyTextStyle('headline'), color: STYLES.colors.success }}>
               {activeUsersCount}
-            </AdminHeadline>
-            <AdminCaption>
+            </h1>
+            <span style={applyTextStyle('caption')}>
               {users.filter(u => u.is_active && u.is_verified).length} verified
-            </AdminCaption>
+            </span>
           </CardContent>
-        </AdminCard>
+        </Card>
 
-        <AdminCard variant="default" size="md">
+        <Card>
           <CardHeader
             className="pb-2"
             style={{
@@ -663,24 +650,20 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                   color: STYLES.colors.primary
                 }}
               />
-              <AdminSubtitle>Verification Status</AdminSubtitle>
+              <h4 style={applyTextStyle('subtitle')}>Verification Status</h4>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline
-              style={{
-                color: STYLES.colors.primary
-              }}
-            >
+            <h1 style={{ ...applyTextStyle('headline'), color: STYLES.colors.primary }}>
               {verifiedUsersCount}
-            </AdminHeadline>
-            <AdminCaption>
+            </h1>
+            <span style={applyTextStyle('caption')}>
               {users.filter(u => !u.is_verified).length} pending verification
-            </AdminCaption>
+            </span>
           </CardContent>
-        </AdminCard>
+        </Card>
 
-        <AdminCard variant="default" size="md">
+        <Card>
           <CardHeader
             className="pb-2"
             style={{
@@ -704,26 +687,22 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                   color: STYLES.colors.warning
                 }}
               />
-              <AdminSubtitle>User Roles</AdminSubtitle>
+              <h4 style={applyTextStyle('subtitle')}>User Roles</h4>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <AdminHeadline
-              style={{
-                color: STYLES.colors.warning
-              }}
-            >
+            <h1 style={{ ...applyTextStyle('headline'), color: STYLES.colors.warning }}>
               {uniqueRoles.length}
-            </AdminHeadline>
-            <AdminCaption>
+            </h1>
+            <span style={applyTextStyle('caption')}>
               {users.filter(u => u.roles.length > 0).length} users with roles
-            </AdminCaption>
+            </span>
           </CardContent>
-        </AdminCard>
+        </Card>
       </div>
 
       {/* Enhanced Filters and Search */}
-      <AdminCard variant="default" size="md">
+      <Card>
         <CardHeader>
           <CardTitle
             className="flex items-center"
@@ -741,7 +720,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
                 color: STYLES.colors.secondary[500]
               }}
             />
-            <AdminSubtitle>Filters & Search</AdminSubtitle>
+            <h4 style={applyTextStyle('subtitle')}>Filters & Search</h4>
           </CardTitle>
         </CardHeader>
         <CardContent
@@ -981,7 +960,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
             </div>
           </div>
         </CardContent>
-      </AdminCard>
+      </Card>
 
       {/* Enhanced Bulk Actions */}
       {selectedUsers.length > 0 && (
@@ -1072,7 +1051,7 @@ const UserManagement: React.FC<UserManagementProps> = memo(({ onUserUpdated }) =
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center">
               <Users className="h-4 w-4 mr-2" />
-              <AdminSubtitle>User Directory</AdminSubtitle>
+              <h4 style={applyTextStyle('subtitle')}>User Directory</h4>
               <Badge variant="secondary" className="ml-2">
                 {total} users
               </Badge>

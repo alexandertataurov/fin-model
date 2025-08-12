@@ -9,11 +9,11 @@ import {
     applyDesignSystemMotion
 } from './utils/designSystemHelpers';
 import {
-    AdminCard,
-    AdminTitle,
-    AdminBody,
-    AdminCaption
-} from './components';
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/design-system/components/Card';
 
 interface LogEntry {
   id: string;
@@ -45,11 +45,11 @@ const LogsTab: React.FC = memo(() => {
   const logCount = useMemo(() => items.length, [items.length]);
 
   return (
-    <AdminCard
-      title="System Logs"
-      variant="default"
-      size="md"
-    >
+    <Card>
+      <CardHeader>
+        <CardTitle>System Logs</CardTitle>
+      </CardHeader>
+      <CardContent>
       <LogFilterForm
         level={level}
         limit={limit}
@@ -101,13 +101,13 @@ const LogsTab: React.FC = memo(() => {
                   <span style={applyTypographyStyle('subtitle')}>
                     [{log.level}] {log.module}
                   </span>
-                  <AdminCaption>
+                  <span style={applyTypographyStyle('caption')}>
                     {new Date(log.timestamp).toLocaleString()}
-                  </AdminCaption>
+                  </span>
                 </div>
-                <AdminBody>
+                <p style={applyTypographyStyle('body')}>
                   {log.message}
-                </AdminBody>
+                </p>
               </div>
             ))
           ) : (
@@ -118,12 +118,13 @@ const LogsTab: React.FC = memo(() => {
                 textAlign: 'center'
               }}
             >
-              <AdminBody>No logs.</AdminBody>
+              <p style={applyTypographyStyle('body')}>No logs.</p>
             </div>
           )}
         </div>
       </div>
-    </AdminCard>
+      </CardContent>
+    </Card>
   );
 });
 

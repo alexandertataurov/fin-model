@@ -23,7 +23,9 @@ import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
 import { AdminSectionErrorBoundary } from '@/components/ErrorBoundary';
 import DashboardCustomization from './DashboardCustomization';
-import { AdminHeader } from './components/AdminHeader';
+
+// Import global typography utilities
+import { applyTypographyStyle } from '@/design-system/utils/typography';
 
 // Import updated design system helpers
 import {
@@ -36,15 +38,9 @@ import {
     formatPercentage,
     formatNumber,
     getStatusBadge,
-    applyTypographyStyle
 } from './utils/designSystemHelpers';
 
 // Import updated AdminDashboard components
-import {
-    AdminTitle,
-    AdminBody,
-    AdminLoadingSpinner
-} from './components';
 import {
     Users,
     FileText,
@@ -140,7 +136,7 @@ const getHealthIndicator = (value: number | null | undefined, thresholds: { warn
     return STYLES.colors.success;
 };
 
-// Memoized loading fallback component
+// Memoized loading fallback component using global Skeleton
 const LoadingFallback = memo(() => (
     <div
         style={{
@@ -150,11 +146,21 @@ const LoadingFallback = memo(() => (
             padding: STYLES.spacing.xl
         }}
     >
-        <AdminLoadingSpinner message="Loading component..." size="md" />
+        <div className="flex items-center gap-3">
+            <div
+                style={{
+                    width: '24px',
+                    height: '24px',
+                    border: `2px solid ${tokens.colors.secondary[200]}`,
+                    borderTop: `2px solid ${tokens.colors.primary[500]}`,
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                }}
+            />
+            <span style={STYLES.caption}>Loading component...</span>
+        </div>
     </div>
 ));
-
-// Memoized icon component
 
 // Memoized metric card component
 const SystemMetricCard = memo<{
@@ -599,10 +605,10 @@ const OverviewTab = memo(() => {
                         />
                     </div>
                     <div>
-                        <AdminTitle>No Data Available</AdminTitle>
-                        <AdminBody>
+                        <h1 style={STYLES.headline}>No Data Available</h1>
+                        <p style={STYLES.body}>
                             Admin data is currently unavailable. Please try refreshing the page.
-                        </AdminBody>
+                        </p>
                     </div>
                     <Button onClick={() => fetchOverviewData()} variant="outline" size="sm">
                         <RefreshCw className="h-4 w-4 mr-2" />
@@ -730,12 +736,12 @@ export const AdminDashboard: React.FC = memo(() => {
             <div className="space-y-8">
                 {/* Action Bar */}
                 <div className="flex items-center justify-between">
-                    <AdminHeader
-                        title="Admin Dashboard"
-                        description="Monitor and manage system performance, user activity, and system health"
-                        showBreadcrumb={false}
-                        showAdminBadge={false}
-                    />
+                    <div>
+                        <h1 style={STYLES.headline} className="text-foreground">Admin Dashboard</h1>
+                        <p style={STYLES.body} className="text-muted-foreground">
+                            Monitor and manage system performance, user activity, and system health
+                        </p>
+                    </div>
                     {actionBarContent}
                 </div>
 

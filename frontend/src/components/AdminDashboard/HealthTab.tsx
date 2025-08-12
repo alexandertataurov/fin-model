@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import { useAdminStore } from '@/stores/adminStore';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import { applyTypographyStyle } from '@/design-system/utils/typography';
 import {
     applyDesignSystemSpacing
 } from './utils/designSystemHelpers';
@@ -18,11 +18,11 @@ import {
     RefreshCw
 } from 'lucide-react';
 import {
-    AdminCard,
-    AdminTitle,
-    AdminBody,
-    AdminCaption
-} from './components';
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/design-system/components/Card';
 
 const HealthTab: React.FC = memo(() => {
   const { systemHealth, databaseHealth, fetchHealthData } = useAdminStore();
@@ -50,90 +50,92 @@ const HealthTab: React.FC = memo(() => {
         gap: applyDesignSystemSpacing(4)
       }}
     >
-      <AdminCard
-        title="System Health"
-        variant="default"
-        size="md"
-      >
-        {systemHealth.data ? (
-          <div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(1, 1fr)',
-              gap: applyDesignSystemSpacing(4),
-              '@media (min-width: 768px)': {
-                gridTemplateColumns: 'repeat(2, 1fr)'
-              }
-            }}
-          >
+      <Card>
+        <CardHeader>
+          <CardTitle>System Health</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {systemHealth.data ? (
             <div 
-              className="flex items-center justify-between"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
+                display: 'grid',
+                gridTemplateColumns: 'repeat(1, 1fr)',
+                gap: applyDesignSystemSpacing(4),
+                '@media (min-width: 768px)': {
+                  gridTemplateColumns: 'repeat(2, 1fr)'
+                }
               }}
             >
-              <AdminCaption>Status</AdminCaption>
-              <span style={applyTypographyStyle('subtitle')}>
-                {healthStatus}
-              </span>
+              <div 
+                className="flex items-center justify-between"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <span style={applyTypographyStyle('caption')}>Status</span>
+                <span style={applyTypographyStyle('subtitle')}>
+                  {healthStatus}
+                </span>
+              </div>
+              <div 
+                className="flex items-center justify-between"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <span style={applyTypographyStyle('caption')}>Timestamp</span>
+                <span style={applyTypographyStyle('subtitle')}>
+                  {new Date().toLocaleString()}
+                </span>
+              </div>
             </div>
-            <div 
-              className="flex items-center justify-between"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <AdminCaption>Timestamp</AdminCaption>
-              <span style={applyTypographyStyle('subtitle')}>
-                {new Date().toLocaleString()}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <AdminBody>No system health data.</AdminBody>
-        )}
-      </AdminCard>
+          ) : (
+            <p style={applyTypographyStyle('body')}>No system health data.</p>
+          )}
+        </CardContent>
+      </Card>
 
-      <AdminCard
-        title="Database Health"
-        variant="default"
-        size="md"
-      >
-        {databaseHealth.data ? (
-          <div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(1, 1fr)',
-              gap: applyDesignSystemSpacing(4),
-              '@media (min-width: 768px)': {
-                gridTemplateColumns: 'repeat(2, 1fr)'
-              }
-            }}
-          >
+      <Card>
+        <CardHeader>
+          <CardTitle>Database Health</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {databaseHealth.data ? (
             <div 
-              className="flex items-center justify-between"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
+                display: 'grid',
+                gridTemplateColumns: 'repeat(1, 1fr)',
+                gap: applyDesignSystemSpacing(4),
+                '@media (min-width: 768px)': {
+                  gridTemplateColumns: 'repeat(2, 1fr)'
+                }
               }}
             >
-              <AdminCaption>Status</AdminCaption>
-              <span style={applyTypographyStyle('subtitle')}>
-                {databaseStatus}
-              </span>
+              <div 
+                className="flex items-center justify-between"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <span style={applyTypographyStyle('caption')}>Status</span>
+                <span style={applyTypographyStyle('subtitle')}>
+                  {databaseStatus}
+                </span>
+              </div>
             </div>
-          </div>
-        ) : (
-          <AdminBody>No database health data.</AdminBody>
-        )}
-      </AdminCard>
+          ) : (
+            <p style={applyTypographyStyle('body')}>No database health data.</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 });

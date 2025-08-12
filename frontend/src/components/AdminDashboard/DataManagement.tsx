@@ -59,7 +59,7 @@ import * as AdminApi from '@/services/admin';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { tokens } from '@/design-system/tokens';
-import { applyTypographyStyle } from '@/design-system/stories/components';
+import { applyTypographyStyle } from '@/design-system/utils/typography';
 import {
   applyDesignSystemSpacing,
   applyDesignSystemRadius,

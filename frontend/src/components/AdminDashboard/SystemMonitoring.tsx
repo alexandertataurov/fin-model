@@ -201,12 +201,11 @@ import {
   formatPercentage
 } from './utils/designSystemHelpers';
 import {
-  AdminCard,
-  AdminTitle,
-  AdminBody,
-  AdminCaption,
-  AdminSubtitle
-} from './components';
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/components/Card';
 
 interface SystemMetrics {
   cpu_usage: number;
@@ -473,7 +472,21 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
   if (loading) {
     return (
       <div className="space-y-4">
-        <AdminLoadingSpinner message="Loading system monitoring data..." size="lg" />
+        <div className="flex items-center justify-center p-8">
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                border: `3px solid ${tokens.colors.secondary[200]}`,
+                borderTop: `3px solid ${tokens.colors.primary[500]}`,
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}
+            />
+            <span style={applyTypographyStyle('body')}>Loading system monitoring data...</span>
+          </div>
+        </div>
         <div className="animate-pulse">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -495,14 +508,14 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
       {/* Enhanced Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <AdminHeadline className="flex items-center">
+          <h1 style={applyTextStyle('headline')} className="flex items-center">
             <Monitor className="h-6 w-6 mr-2 text-blue-500" />
             System Monitoring & Health
-          </AdminHeadline>
-          <AdminBody>
+          </h1>
+          <p style={applyTextStyle('body')}>
             Comprehensive real-time system performance, health metrics, and
             monitoring tools
-          </AdminBody>
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -524,7 +537,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
               checked={autoRefresh}
               onCheckedChange={setAutoRefresh}
             />
-            <AdminCaption>Auto-refresh</AdminCaption>
+            <span style={applyTextStyle('caption')}>Auto-refresh</span>
           </div>
         </div>
       </div>
@@ -576,7 +589,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Cpu className="h-5 w-5 mr-2 text-blue-500" />
-                      <AdminSubtitle>CPU Usage</AdminSubtitle>
+                      <h4 style={applyTextStyle('subtitle')}>CPU Usage</h4>
                     </div>
                     {getTrendIconComponent(
                       getMetricTrendData(systemMetrics.cpu_usage, 'cpu_usage')?.trend || 'stable',
@@ -586,22 +599,22 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
-                    <AdminHeadline
+                    <h1 style={applyTextStyle('headline')}
                       className={`ml-2 ${getStatusColor(
                         systemMetrics.cpu_usage,
                         { warning: 70, critical: 90 }
                       )}`}
                     >
                       {formatPercentage(systemMetrics.cpu_usage)}
-                    </AdminHeadline>
+                    </h1>
                   </div>
                   <Progress
                     value={systemMetrics.cpu_usage}
                     className="h-2"
                   />
-                  <AdminCaption className="mt-2">
+                  <span style={applyTextStyle('caption')} className="mt-2">
                     Load: {systemMetrics.load_average_1m.toFixed(2)}
-                  </AdminCaption>
+                  </span>
                 </CardContent>
               </Card>
 
@@ -611,7 +624,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
                       <HardDrive className="h-5 w-5 mr-2 text-green-500" />
-                      <AdminSubtitle>Memory Usage</AdminSubtitle>
+                      <h4 style={applyTextStyle('subtitle')}>Memory Usage</h4>
                     </div>
                     {getTrendIconComponent(
                       getMetricTrendData(systemMetrics.memory_usage, 'memory_usage')?.trend || 'stable',
@@ -621,22 +634,22 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
-                    <AdminHeadline
+                    <h1 style={applyTextStyle('headline')}
                       className={`ml-2 ${getStatusColor(
                         systemMetrics.memory_usage,
                         { warning: 80, critical: 90 }
                       )}`}
                     >
                       {formatPercentage(systemMetrics.memory_usage)}
-                    </AdminHeadline>
+                    </h1>
                   </div>
                   <Progress
                     value={systemMetrics.memory_usage}
                     className="h-2"
                   />
-                  <AdminCaption className="mt-2">
+                  <span style={applyTextStyle('caption')} className="mt-2">
                     Swap: {formatPercentage(systemMetrics.swap_usage)}
-                  </AdminCaption>
+                  </span>
                 </CardContent>
               </Card>
 
@@ -646,7 +659,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Database className="h-5 w-5 mr-2 text-purple-500" />
-                      <AdminSubtitle>Disk Usage</AdminSubtitle>
+                      <h4 style={applyTextStyle('subtitle')}>Disk Usage</h4>
                     </div>
                     {getTrendIconComponent(
                       getMetricTrendData(systemMetrics.disk_usage, 'disk_usage')?.trend || 'stable',
@@ -656,22 +669,22 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
-                    <AdminHeadline
+                    <h1 style={applyTextStyle('headline')}
                       className={`ml-2 ${getStatusColor(
                         systemMetrics.disk_usage,
                         { warning: 85, critical: 95 }
                       )}`}
                     >
                       {formatPercentage(systemMetrics.disk_usage)}
-                    </AdminHeadline>
+                    </h1>
                   </div>
                   <Progress
                     value={systemMetrics.disk_usage}
                     className="h-2"
                   />
-                  <AdminCaption className="mt-2">
+                  <span style={applyTextStyle('caption')} className="mt-2">
                     Size: {formatNumber(systemMetrics.database_size_mb)} MB
-                  </AdminCaption>
+                  </span>
                 </CardContent>
               </Card>
 
@@ -681,7 +694,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Wifi className="h-5 w-5 mr-2 text-orange-500" />
-                      <AdminSubtitle>Network</AdminSubtitle>
+                      <h4 style={applyTextStyle('subtitle')}>Network</h4>
                     </div>
                     <Activity className="h-4 w-4 text-green-500" />
                   </CardTitle>
@@ -689,16 +702,16 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <AdminCaption>In</AdminCaption>
-                      <AdminBody>{formatNumber(systemMetrics.network_in)} MB/s</AdminBody>
+                      <span style={applyTextStyle('caption')}>In</span>
+                      <p style={applyTextStyle('body')}>{formatNumber(systemMetrics.network_in)} MB/s</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Out</AdminCaption>
-                      <AdminBody>{formatNumber(systemMetrics.network_out)} MB/s</AdminBody>
+                      <span style={applyTextStyle('caption')}>Out</span>
+                      <p style={applyTextStyle('body')}>{formatNumber(systemMetrics.network_out)} MB/s</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Latency</AdminCaption>
-                      <AdminBody>{systemMetrics.network_latency_ms} ms</AdminBody>
+                      <span style={applyTextStyle('caption')}>Latency</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.network_latency_ms} ms</p>
                     </div>
                   </div>
                 </CardContent>
@@ -716,28 +729,28 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Zap className="h-5 w-5 mr-2 text-yellow-500" />
-                    <AdminSubtitle>Performance Metrics</AdminSubtitle>
+                    <h4 style={applyTextStyle('subtitle')}>Performance Metrics</h4>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <AdminHeadline>{formatNumber(systemMetrics.request_count_24h)}</AdminHeadline>
-                      <AdminCaption>Requests (24h)</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{formatNumber(systemMetrics.request_count_24h)}</h1>
+                      <span style={applyTextStyle('caption')}>Requests (24h)</span>
                     </div>
                     <div className="text-center">
-                      <AdminHeadline>{systemMetrics.avg_response_time} ms</AdminHeadline>
-                      <AdminCaption>Avg Response</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{systemMetrics.avg_response_time} ms</h1>
+                      <span style={applyTextStyle('caption')}>Avg Response</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <AdminHeadline>{formatPercentage(systemMetrics.error_rate_24h)}</AdminHeadline>
-                      <AdminCaption>Error Rate</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{formatPercentage(systemMetrics.error_rate_24h)}</h1>
+                      <span style={applyTextStyle('caption')}>Error Rate</span>
                     </div>
                     <div className="text-center">
-                      <AdminHeadline>{systemMetrics.active_connections}</AdminHeadline>
-                      <AdminCaption>Active Connections</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{systemMetrics.active_connections}</h1>
+                      <span style={applyTextStyle('caption')}>Active Connections</span>
                     </div>
                   </div>
                 </CardContent>
@@ -748,22 +761,22 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Gauge className="h-5 w-5 mr-2 text-blue-500" />
-                    <AdminSubtitle>System Load</AdminSubtitle>
+                    <h4 style={applyTextStyle('subtitle')}>System Load</h4>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <AdminCaption>1 minute</AdminCaption>
-                      <AdminBody>{systemMetrics.load_average_1m.toFixed(2)}</AdminBody>
+                      <span style={applyTextStyle('caption')}>1 minute</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.load_average_1m.toFixed(2)}</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>5 minutes</AdminCaption>
-                      <AdminBody>{systemMetrics.load_average_5m.toFixed(2)}</AdminBody>
+                      <span style={applyTextStyle('caption')}>5 minutes</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.load_average_5m.toFixed(2)}</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>15 minutes</AdminCaption>
-                      <AdminBody>{systemMetrics.load_average_15m.toFixed(2)}</AdminBody>
+                      <span style={applyTextStyle('caption')}>15 minutes</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.load_average_15m.toFixed(2)}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -781,28 +794,28 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Shield className="h-5 w-5 mr-2 text-green-500" />
-                    <AdminSubtitle>Security Status</AdminSubtitle>
+                    <h4 style={applyTextStyle('subtitle')}>Security Status</h4>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <AdminHeadline>{systemMetrics.security_events_24h}</AdminHeadline>
-                      <AdminCaption>Security Events (24h)</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{systemMetrics.security_events_24h}</h1>
+                      <span style={applyTextStyle('caption')}>Security Events (24h)</span>
                     </div>
                     <div className="text-center">
-                      <AdminHeadline>{systemMetrics.failed_logins_24h}</AdminHeadline>
-                      <AdminCaption>Failed Logins</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{systemMetrics.failed_logins_24h}</h1>
+                      <span style={applyTextStyle('caption')}>Failed Logins</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <AdminCaption>SSL Cert Expiry</AdminCaption>
-                      <AdminBody>{systemMetrics.ssl_cert_expiry_days} days</AdminBody>
+                      <span style={applyTextStyle('caption')}>SSL Cert Expiry</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.ssl_cert_expiry_days} days</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Firewall Rules</AdminCaption>
-                      <AdminBody>{systemMetrics.firewall_rules_count}</AdminBody>
+                      <span style={applyTextStyle('caption')}>Firewall Rules</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.firewall_rules_count}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -813,22 +826,22 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <CheckCircle className="h-5 w-5 mr-2 text-blue-500" />
-                    <AdminSubtitle>Compliance</AdminSubtitle>
+                    <h4 style={applyTextStyle('subtitle')}>Compliance</h4>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Compliance Score</AdminCaption>
-                      <AdminBody>{systemMetrics.compliance_score}%</AdminBody>
+                      <span style={applyTextStyle('caption')}>Compliance Score</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.compliance_score}%</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Security Score</AdminCaption>
-                      <AdminBody>{systemMetrics.security_score}%</AdminBody>
+                      <span style={applyTextStyle('caption')}>Security Score</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.security_score}%</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Risk Level</AdminCaption>
-                      <AdminBody>{systemMetrics.risk_assessment_level}</AdminBody>
+                      <span style={applyTextStyle('caption')}>Risk Level</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.risk_assessment_level}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -846,26 +859,26 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Globe className="h-5 w-5 mr-2 text-blue-500" />
-                    <AdminSubtitle>Network Performance</AdminSubtitle>
+                    <h4 style={applyTextStyle('subtitle')}>Network Performance</h4>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Latency</AdminCaption>
-                      <AdminBody>{systemMetrics.network_latency_ms} ms</AdminBody>
+                      <span style={applyTextStyle('caption')}>Latency</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.network_latency_ms} ms</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>Packet Loss</AdminCaption>
-                      <AdminBody>{formatPercentage(systemMetrics.packet_loss_percentage)}</AdminBody>
+                      <span style={applyTextStyle('caption')}>Packet Loss</span>
+                      <p style={applyTextStyle('body')}>{formatPercentage(systemMetrics.packet_loss_percentage)}</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>DNS Resolution</AdminCaption>
-                      <AdminBody>{systemMetrics.dns_resolution_time_ms} ms</AdminBody>
+                      <span style={applyTextStyle('caption')}>DNS Resolution</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.dns_resolution_time_ms} ms</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <AdminCaption>SSL Handshake</AdminCaption>
-                      <AdminBody>{systemMetrics.ssl_handshake_time_ms} ms</AdminBody>
+                      <span style={applyTextStyle('caption')}>SSL Handshake</span>
+                      <p style={applyTextStyle('body')}>{systemMetrics.ssl_handshake_time_ms} ms</p>
                     </div>
                   </div>
                 </CardContent>
@@ -876,18 +889,18 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Activity className="h-5 w-5 mr-2 text-green-500" />
-                    <AdminSubtitle>Network Traffic</AdminSubtitle>
+                    <h4 style={applyTextStyle('subtitle')}>Network Traffic</h4>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <AdminHeadline>{formatNumber(systemMetrics.network_in)} MB/s</AdminHeadline>
-                      <AdminCaption>Inbound</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{formatNumber(systemMetrics.network_in)} MB/s</h1>
+                      <span style={applyTextStyle('caption')}>Inbound</span>
                     </div>
                     <div className="text-center">
-                      <AdminHeadline>{formatNumber(systemMetrics.network_out)} MB/s</AdminHeadline>
-                      <AdminCaption>Outbound</AdminCaption>
+                      <h1 style={applyTextStyle('headline')}>{formatNumber(systemMetrics.network_out)} MB/s</h1>
+                      <span style={applyTextStyle('caption')}>Outbound</span>
                     </div>
                   </div>
                 </CardContent>
@@ -903,7 +916,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <FileText className="h-5 w-5 mr-2 text-blue-500" />
-                  <AdminSubtitle>System Logs</AdminSubtitle>
+                                      <h4 style={applyTextStyle('subtitle')}>System Logs</h4>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm">
@@ -922,23 +935,23 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     {getLogLevelBadge('INFO')}
-                    <AdminBody>System monitoring service started</AdminBody>
+                    <p style={applyTextStyle('body')}>System monitoring service started</p>
                   </div>
-                  <AdminCaption>{formatTimestamp(new Date())}</AdminCaption>
+                  <span style={applyTextStyle('caption')}>{formatTimestamp(new Date())}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     {getLogLevelBadge('WARNING')}
-                    <AdminBody>High CPU usage detected</AdminBody>
+                    <p style={applyTextStyle('body')}>High CPU usage detected</p>
                   </div>
-                  <AdminCaption>{formatTimestamp(new Date(Date.now() - 300000))}</AdminCaption>
+                  <span style={applyTextStyle('caption')}>{formatTimestamp(new Date(Date.now() - 300000))}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     {getLogLevelBadge('ERROR')}
-                    <AdminBody>Database connection timeout</AdminBody>
+                    <p style={applyTextStyle('body')}>Database connection timeout</p>
                   </div>
-                  <AdminCaption>{formatTimestamp(new Date(Date.now() - 600000))}</AdminCaption>
+                  <span style={applyTextStyle('caption')}>{formatTimestamp(new Date(Date.now() - 600000))}</span>
                 </div>
               </div>
             </CardContent>
@@ -952,7 +965,7 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Bell className="h-5 w-5 mr-2 text-red-500" />
-                  <AdminSubtitle>Active Alerts</AdminSubtitle>
+                  <h4 style={applyTextStyle('subtitle')}>Active Alerts</h4>
                 </div>
                 <Badge variant="destructive">3 Active</Badge>
               </CardTitle>
@@ -963,8 +976,8 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">
-                      <AdminBody>High CPU usage detected</AdminBody>
-                      <AdminCaption>2 minutes ago</AdminCaption>
+                      <p style={applyTextStyle('body')}>High CPU usage detected</p>
+                      <span style={applyTextStyle('caption')}>2 minutes ago</span>
                     </div>
                   </AlertDescription>
                 </Alert>
@@ -972,8 +985,8 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">
-                      <AdminBody>SSL certificate expires in 30 days</AdminBody>
-                      <AdminCaption>1 hour ago</AdminCaption>
+                      <p style={applyTextStyle('body')}>SSL certificate expires in 30 days</p>
+                      <span style={applyTextStyle('caption')}>1 hour ago</span>
                     </div>
                   </AlertDescription>
                 </Alert>
@@ -981,8 +994,8 @@ const SystemMonitoring: React.FC<SystemMonitoringProps> = memo(({
                   <CheckCircle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">
-                      <AdminBody>System backup completed successfully</AdminBody>
-                      <AdminCaption>3 hours ago</AdminCaption>
+                      <p style={applyTextStyle('body')}>System backup completed successfully</p>
+                      <span style={applyTextStyle('caption')}>3 hours ago</span>
                     </div>
                   </AlertDescription>
                 </Alert>
