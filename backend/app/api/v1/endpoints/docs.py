@@ -5,15 +5,31 @@ from pathlib import Path
 router = APIRouter()
 
 # Path to documentation files
-DOCS_PATH = Path(__file__).parent.parent.parent.parent.parent / "docs" / "redocs"
+# In Railway deployment, the working directory is /app
+DOCS_PATH = Path("/app/docs/redocs")
 
 
 @router.get("/")
 async def docs_landing():
     """Serve the documentation landing page."""
     landing_file = DOCS_PATH / "landing.html"
+    
+    # Debug information for Railway deployment
+    import os
+    debug_info = {
+        "docs_path": str(DOCS_PATH),
+        "landing_file": str(landing_file),
+        "file_exists": landing_file.exists(),
+        "current_dir": os.getcwd(),
+        "app_dir_contents": list(Path("/app").iterdir()) if Path("/app").exists() else [],
+        "docs_dir_contents": list(DOCS_PATH.iterdir()) if DOCS_PATH.exists() else []
+    }
+    
     if not landing_file.exists():
-        raise HTTPException(status_code=404, detail="Documentation not found")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Documentation not found. Debug: {debug_info}"
+        )
 
     with open(landing_file, "r", encoding="utf-8") as f:
         content = f.read()
@@ -56,11 +72,11 @@ async def docs_swagger():
 @router.get("/openapi.yaml")
 async def get_openapi_spec():
     """Serve the OpenAPI specification."""
-    openapi_file = (
-        Path(__file__).parent.parent.parent.parent.parent / "docs" / "openapi.yaml"
-    )
+    openapi_file = Path("/app/docs/openapi.yaml")
     if not openapi_file.exists():
-        raise HTTPException(status_code=404, detail="OpenAPI specification not found")
+        raise HTTPException(
+            status_code=404, detail="OpenAPI specification not found"
+        )
 
     return FileResponse(openapi_file, media_type="application/x-yaml")
 
@@ -68,12 +84,10 @@ async def get_openapi_spec():
 @router.get("/postman")
 async def get_postman_collection():
     """Serve the Postman collection."""
-    postman_file = (
-        Path(__file__).parent.parent.parent.parent.parent
-        / "docs"
-        / "FinVision_API.postman_collection.json"
-    )
+    postman_file = Path("/app/docs/FinVision_API.postman_collection.json")
     if not postman_file.exists():
-        raise HTTPException(status_code=404, detail="Postman collection not found")
+        raise HTTPException(
+            status_code=404, detail="Postman collection not found"
+        )
 
     return FileResponse(postman_file, media_type="application/json")
