@@ -14,6 +14,7 @@ import {
 } from '@/design-system/components/Card';
 import { Badge } from '@/design-system/components/Badge';
 import { Button } from '@/design-system/components/Button';
+import { Progress } from '@/design-system/components/Progress';
 import { tokens } from '@/design-system/tokens';
 import { useAdminStore } from '@/stores/admin';
 import { StatsSkeleton } from '@/components/ui/LoadingSkeleton';
@@ -51,49 +52,27 @@ const MetricCard: React.FC<{
         label: string;
     };
     status?: 'success' | 'warning' | 'error' | 'info';
-    variant?: 'default' | 'elevated' | 'gradient';
-}> = ({ title, value, subtitle, icon, trend, status = 'info', variant = 'default' }) => {
+}> = ({ title, value, subtitle, icon, trend, status = 'info' }) => {
     const statusColors = {
-        success: { bg: tokens.colors.success[500], text: 'white', border: tokens.colors.success[500] },
-        warning: { bg: tokens.colors.warning[500], text: 'white', border: tokens.colors.warning[500] },
-        error: { bg: tokens.colors.destructive[500], text: 'white', border: tokens.colors.destructive[500] },
-        info: { bg: tokens.colors.info[500], text: 'white', border: tokens.colors.info[500] },
-    };
-
-    const variantStyles = {
-        default: {
-            background: tokens.colors.surface,
-            border: `1px solid ${tokens.colors.border}`,
-            boxShadow: tokens.shadows.sm,
-        },
-        elevated: {
-            background: tokens.colors.surface,
-            border: `1px solid ${tokens.colors.border}`,
-            boxShadow: tokens.shadows.lg,
-        },
-        gradient: {
-            background: `linear-gradient(135deg, ${tokens.colors.primary[50]} 0%, ${tokens.colors.primary[100]} 100%)`,
-            border: `1px solid ${tokens.colors.primary[200]}`,
-            boxShadow: tokens.shadows.md,
-        },
+        success: tokens.colors.success,
+        warning: tokens.colors.warning,
+        error: tokens.colors.destructive[500],
+        info: tokens.colors.info,
     };
 
     return (
-        <Card
-            className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-            style={variantStyles[variant]}
-        >
+        <Card className="group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div
                             className="p-3 rounded-xl transition-all duration-300 group-hover:scale-110"
                             style={{
-                                background: `linear-gradient(135deg, ${statusColors[status].bg}20 0%, ${statusColors[status].bg}10 100%)`,
-                                border: `1px solid ${statusColors[status].border}30`,
+                                background: `${statusColors[status]}20`,
+                                border: `1px solid ${statusColors[status]}30`,
                             }}
                         >
-                            <div style={{ color: statusColors[status].bg }}>
+                            <div style={{ color: statusColors[status] }}>
                                 {icon}
                             </div>
                         </div>
@@ -131,14 +110,8 @@ const MetricCard: React.FC<{
             <CardContent>
                 <div className="space-y-2">
                     <h1
-                        className="text-3xl font-bold"
-                        style={{
-                            background: `linear-gradient(135deg, ${tokens.colors.primary[600]} 0%, ${tokens.colors.primary[700]} 100%)`,
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text',
-                            ...applyTextStyle('headline')
-                        }}
+                        className="text-3xl font-bold text-foreground"
+                        style={applyTextStyle('headline')}
                     >
                         {value}
                     </h1>
@@ -153,111 +126,45 @@ const MetricCard: React.FC<{
     );
 };
 
-// Enhanced progress indicator
-const ProgressIndicator: React.FC<{
-    label: string;
-    value: number;
-    max?: number;
-    color?: string;
-    showValue?: boolean;
-    size?: 'sm' | 'md' | 'lg';
-}> = ({ label, value, max = 100, color, showValue = true, size = 'md' }) => {
-    const percentage = Math.min((value / max) * 100, 100);
-    const progressColor = color || (percentage > 80 ? tokens.colors.destructive[500] :
-        percentage > 60 ? tokens.colors.warning[500] :
-            tokens.colors.success[500]);
-
-    const sizeStyles = {
-        sm: { height: '6px', fontSize: tokens.typography.fontSize.sm },
-        md: { height: '8px', fontSize: tokens.typography.fontSize.base },
-        lg: { height: '12px', fontSize: tokens.typography.fontSize.lg },
-    };
-
-    return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <span style={applyTextStyle('caption')} className="font-medium">{label}</span>
-                {showValue && (
-                    <p style={{ ...applyTextStyle('body'), color: progressColor }} className="font-semibold">
-                        {formatPercentage(percentage)}
-                    </p>
-                )}
-            </div>
-            <div
-                className="relative overflow-hidden rounded-full transition-all duration-300"
-                style={{
-                    background: tokens.colors.muted[200],
-                    height: sizeStyles[size].height,
-                }}
-            >
-                <div
-                    className="h-full rounded-full transition-all duration-500 ease-out"
-                    style={{
-                        background: `linear-gradient(90deg, ${progressColor} 0%, ${progressColor}80 100%)`,
-                        width: `${percentage}%`,
-                        boxShadow: `0 0 10px ${progressColor}40`,
-                    }}
-                />
-            </div>
-        </div>
-    );
-};
-
 // Enhanced activity item
 const ActivityItem: React.FC<{
     user: any;
     index: number;
 }> = ({ user, index }) => {
-    const statusColor = user.is_active ? tokens.colors.success[500] : tokens.colors.destructive[500];
-    const statusIcon = user.is_active ? <CheckCircle className="h-4 w-4" /> : <XSquare className="h-4 w-4" />;
-
     return (
-        <div
-            className="group relative overflow-hidden rounded-xl p-4 transition-all duration-300 hover:bg-muted/50 hover:shadow-md"
-            style={{
-                border: `1px solid ${tokens.colors.border}`,
-                background: tokens.colors.surface,
-            }}
-        >
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                    <div
-                        className="relative flex h-12 w-12 items-center justify-center rounded-full text-lg font-semibold text-white transition-all duration-300 group-hover:scale-110"
-                        style={{
-                            background: `linear-gradient(135deg, ${tokens.colors.primary[500]} 0%, ${tokens.colors.primary[600]} 100%)`,
-                            boxShadow: tokens.shadows.md,
-                        }}
-                    >
-                        {user.username.charAt(0).toUpperCase()}
-                        <div
-                            className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white"
-                            style={{ background: statusColor }}
-                        >
-                            {statusIcon}
+        <Card className="group relative overflow-hidden transition-all duration-300 hover:bg-muted/50 hover:shadow-md">
+            <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <div className="relative flex h-12 w-12 items-center justify-center rounded-full text-lg font-semibold text-white bg-primary">
+                            {user.username.charAt(0).toUpperCase()}
+                            <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-success">
+                                {user.is_active ? <CheckCircle className="h-3 w-3" /> : <XSquare className="h-3 w-3" />}
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <p style={applyTextStyle('body')} className="font-semibold">{user.username}</p>
+                            <span style={applyTextStyle('caption')} className="text-muted-foreground">
+                                <Clock className="inline h-3 w-3 mr-1" />
+                                Last login: {user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}
+                            </span>
                         </div>
                     </div>
-                    <div className="space-y-1">
-                        <p style={applyTextStyle('body')} className="font-semibold">{user.username}</p>
-                        <span style={applyTextStyle('caption')} className="text-muted-foreground">
-                            <Clock className="inline h-3 w-3 mr-1" />
-                            Last login: {user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}
+                    <div className="text-right space-y-1">
+                        <Badge
+                            variant={user.is_active ? 'success' : 'destructive'}
+                            className="text-xs"
+                        >
+                            {user.is_active ? 'Active' : 'Inactive'}
+                        </Badge>
+                        <span style={applyTextStyle('caption')} className="block text-muted-foreground">
+                            <Hash className="inline h-3 w-3 mr-1" />
+                            {user.login_count} logins
                         </span>
                     </div>
                 </div>
-                <div className="text-right space-y-1">
-                    <Badge
-                        variant={user.is_active ? 'success' : 'destructive'}
-                        className="text-xs"
-                    >
-                        {user.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                    <span style={applyTextStyle('caption')} className="block text-muted-foreground">
-                        <Hash className="inline h-3 w-3 mr-1" />
-                        {user.login_count} logins
-                    </span>
-                </div>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 };
 
@@ -283,27 +190,15 @@ const OverviewSection: React.FC = memo(() => {
 
     if (!hasAnyData) {
         return (
-            <div className="py-16">
-                <div className="text-center space-y-8">
-                    <div
-                        className="w-24 h-24 mx-auto rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-                        style={{
-                            background: `linear-gradient(135deg, ${tokens.colors.primary[100]} 0%, ${tokens.colors.primary[200]} 100%)`,
-                            boxShadow: tokens.shadows.lg,
-                        }}
-                    >
-                        <Activity className="h-12 w-12" style={{ color: tokens.colors.primary[600] }} />
+            <Card className="py-16">
+                <CardContent className="text-center space-y-8">
+                    <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center bg-primary/10">
+                        <Activity className="h-12 w-12 text-primary" />
                     </div>
                     <div className="space-y-4">
                         <h1
-                            className="text-4xl font-bold"
-                            style={{
-                                background: `linear-gradient(135deg, ${tokens.colors.primary[600]} 0%, ${tokens.colors.primary[700]} 100%)`,
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
-                                ...applyTextStyle('headline')
-                            }}
+                            className="text-4xl font-bold text-foreground"
+                            style={applyTextStyle('headline')}
                         >
                             No Data Available
                         </h1>
@@ -320,8 +215,8 @@ const OverviewSection: React.FC = memo(() => {
                             Refresh Page
                         </Button>
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         );
     }
 
@@ -341,7 +236,6 @@ const OverviewSection: React.FC = memo(() => {
                             label: "new this month"
                         }}
                         status="success"
-                        variant="gradient"
                     />
 
                     <MetricCard
@@ -350,7 +244,6 @@ const OverviewSection: React.FC = memo(() => {
                         subtitle="Uploaded files"
                         icon={<FileText className="h-6 w-6" />}
                         status="info"
-                        variant="elevated"
                     />
 
                     <MetricCard
@@ -359,7 +252,6 @@ const OverviewSection: React.FC = memo(() => {
                         subtitle="Storage used"
                         icon={<Database className="h-6 w-6" />}
                         status="warning"
-                        variant="default"
                     />
 
                     <MetricCard
@@ -368,85 +260,69 @@ const OverviewSection: React.FC = memo(() => {
                         subtitle="Avg file size"
                         icon={<HardDrive className="h-6 w-6" />}
                         status="info"
-                        variant="elevated"
                     />
                 </div>
 
                 {/* Enhanced System Metrics */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <Card className="overflow-hidden" style={{ boxShadow: tokens.shadows.lg }}>
-                        <CardHeader
-                            className="pb-6"
-                            style={{
-                                background: `linear-gradient(135deg, ${tokens.colors.primary[50]} 0%, ${tokens.colors.primary[100]} 100%)`,
-                                borderBottom: `1px solid ${tokens.colors.primary[200]}`,
-                            }}
-                        >
+                    <Card>
+                        <CardHeader className="pb-6">
                             <CardTitle className="flex items-center gap-3">
-                                <div
-                                    className="p-3 rounded-xl"
-                                    style={{
-                                        background: `linear-gradient(135deg, ${tokens.colors.primary[500]} 0%, ${tokens.colors.primary[600]} 100%)`,
-                                        boxShadow: tokens.shadows.md,
-                                    }}
-                                >
-                                    <Activity className="h-6 w-6 text-white" />
+                                <div className="p-3 rounded-xl bg-primary text-white">
+                                    <Activity className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h4 style={applyTextStyle('subtitle')} className="text-primary-foreground font-semibold">
+                                    <h4 style={applyTextStyle('subtitle')} className="font-semibold">
                                         System Performance
                                     </h4>
-                                    <span style={applyTextStyle('caption')} className="text-primary-foreground/70">
+                                    <span style={applyTextStyle('caption')} className="text-muted-foreground">
                                         Real-time metrics
                                     </span>
                                 </div>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-8 pt-6">
-                            <ProgressIndicator
-                                label="CPU Usage"
-                                value={systemMetrics.data?.cpu_usage || 0}
-                                color={tokens.colors.info[500]}
-                                size="lg"
-                            />
-                            <ProgressIndicator
-                                label="Memory Usage"
-                                value={systemMetrics.data?.memory_usage || 0}
-                                color={tokens.colors.warning[500]}
-                                size="lg"
-                            />
-                            <ProgressIndicator
-                                label="Disk Usage"
-                                value={systemMetrics.data?.disk_usage || 0}
-                                color={tokens.colors.destructive[500]}
-                                size="lg"
-                            />
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span style={applyTextStyle('caption')} className="font-medium">CPU Usage</span>
+                                    <span style={applyTextStyle('body')} className="font-semibold text-info">
+                                        {formatPercentage(systemMetrics.data?.cpu_usage || 0)}
+                                    </span>
+                                </div>
+                                <Progress value={systemMetrics.data?.cpu_usage || 0} className="h-2" />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span style={applyTextStyle('caption')} className="font-medium">Memory Usage</span>
+                                    <span style={applyTextStyle('body')} className="font-semibold text-warning">
+                                        {formatPercentage(systemMetrics.data?.memory_usage || 0)}
+                                    </span>
+                                </div>
+                                <Progress value={systemMetrics.data?.memory_usage || 0} className="h-2" />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span style={applyTextStyle('caption')} className="font-medium">Disk Usage</span>
+                                    <span style={applyTextStyle('body')} className="font-semibold text-destructive">
+                                        {formatPercentage(systemMetrics.data?.disk_usage || 0)}
+                                    </span>
+                                </div>
+                                <Progress value={systemMetrics.data?.disk_usage || 0} className="h-2" />
+                            </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="overflow-hidden" style={{ boxShadow: tokens.shadows.lg }}>
-                        <CardHeader
-                            className="pb-6"
-                            style={{
-                                background: `linear-gradient(135deg, ${tokens.colors.success[50]} 0%, ${tokens.colors.success[100]} 100%)`,
-                                borderBottom: `1px solid ${tokens.colors.success[200]}`,
-                            }}
-                        >
+                    <Card>
+                        <CardHeader className="pb-6">
                             <CardTitle className="flex items-center gap-3">
-                                <div
-                                    className="p-3 rounded-xl"
-                                    style={{
-                                        background: `linear-gradient(135deg, ${tokens.colors.success[500]} 0%, ${tokens.colors.success[600]} 100%)`,
-                                        boxShadow: tokens.shadows.md,
-                                    }}
-                                >
-                                    <Users className="h-6 w-6 text-white" />
+                                <div className="p-3 rounded-xl bg-success text-white">
+                                    <Users className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h4 style={applyTextStyle('subtitle')} className="text-success-foreground font-semibold">
+                                    <h4 style={applyTextStyle('subtitle')} className="font-semibold">
                                         Recent Activity
                                     </h4>
-                                    <span style={applyTextStyle('caption')} className="text-success-foreground/70">
+                                    <span style={applyTextStyle('caption')} className="text-muted-foreground">
                                         User interactions
                                     </span>
                                 </div>

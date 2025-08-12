@@ -68,7 +68,7 @@ const LazyDataManagement = lazy(() => import('./DataManagement'));
 const LazyMaintenanceTools = lazy(() => import('./MaintenanceTools').then(module => ({ default: module.MaintenanceTools })));
 const LazyUserManagement = lazy(() => import('./UserManagement'));
 const LazySystemMonitoring = lazy(() => import('./SystemMonitoring'));
-const LazyLogFilterForm = lazy(() => import('./LogFilterForm'));
+const LazyLogsTab = lazy(() => import('./LogsTab'));
 
 // Pre-computed styles using updated design system helpers
 const STYLES = {
@@ -783,19 +783,7 @@ export const AdminDashboard: React.FC = memo(() => {
 
                     <TabsContent value="logs" className="space-y-8">
                         <Suspense fallback={<LoadingFallback />}>
-                            <LazyLogFilterForm
-                                level="INFO"
-                                limit={50}
-                                from=""
-                                to=""
-                                search=""
-                                skip={0}
-                                total={0}
-                                onChange={() => { }}
-                                onRefresh={() => { }}
-                                onPrev={() => { }}
-                                onNext={() => { }}
-                            />
+                            <LazyLogsTab />
                         </Suspense>
                     </TabsContent>
                 </Tabs>
