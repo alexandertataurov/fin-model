@@ -352,9 +352,13 @@ class AdvancedValidator:
             )
 
         # Perform validation
-        return self._validate_sheet_against_template(target_sheet, template_type)
+        return self._validate_sheet_against_template(
+            target_sheet, template_type
+        )
 
-    def _detect_template_type(self, parsed_data: ParsedData) -> TemplateType:
+    def _detect_template_type(
+        self, parsed_data: ParsedData
+    ) -> TemplateType:
         """Auto-detect the template type from sheet content."""
 
         # Score each template type
@@ -381,7 +385,9 @@ class AdvancedValidator:
                 if re.search(pattern, sheet_text, re.IGNORECASE):
                     scores[TemplateType.PROFIT_LOSS] += 2
 
-            for pattern in self.pl_template["section_patterns"]["operating_expenses"]:
+            for pattern in self.pl_template["section_patterns"][
+                "operating_expenses"
+            ]:
                 if re.search(pattern, sheet_text, re.IGNORECASE):
                     scores[TemplateType.PROFIT_LOSS] += 2
 
@@ -390,18 +396,26 @@ class AdvancedValidator:
                 if re.search(pattern, sheet_text, re.IGNORECASE):
                     scores[TemplateType.BALANCE_SHEET] += 2
 
-            for pattern in self.bs_template["section_patterns"]["liabilities"]:
+            for pattern in self.bs_template["section_patterns"][
+                "liabilities"
+            ]:
                 if re.search(pattern, sheet_text, re.IGNORECASE):
                     scores[TemplateType.BALANCE_SHEET] += 2
 
             # Cash flow patterns
-            for pattern in self.cf_template["section_patterns"]["operating_activities"]:
+            for pattern in self.cf_template["section_patterns"][
+                "operating_activities"
+            ]:
                 if re.search(pattern, sheet_text, re.IGNORECASE):
                     scores[TemplateType.CASH_FLOW] += 2
 
         # Return template with highest score
         max_template = max(scores.items(), key=lambda x: x[1])
-        return max_template[0] if max_template[1] > 0 else TemplateType.GENERAL
+        return (
+            max_template[0]
+            if max_template[1] > 0
+            else TemplateType.GENERAL
+        )
 
     def _find_primary_sheet(
         self, parsed_data: ParsedData, template_type: TemplateType
@@ -453,7 +467,9 @@ class AdvancedValidator:
 
         # Check for required columns
         required_columns = set(template["required_columns"])
-        detected_column_names = {col.expected_name for col in detected_columns}
+        detected_column_names = {
+            col.expected_name for col in detected_columns
+        }
         missing_columns = required_columns - detected_column_names
         result.missing_columns = list(missing_columns)
 
@@ -490,7 +506,9 @@ class AdvancedValidator:
                 )
 
         # Validate data quality
-        data_quality_score = self._calculate_data_quality_score(sheet, detected_columns)
+        data_quality_score = self._calculate_data_quality_score(
+            sheet, detected_columns
+        )
         result.data_quality_score = data_quality_score
 
         # Validate compliance
@@ -511,7 +529,10 @@ class AdvancedValidator:
             else 1.0
         )
         result.confidence_score = (
-            column_score + section_score + data_quality_score + compliance_score
+            column_score
+            + section_score
+            + data_quality_score
+            + compliance_score
         ) / 4
         if result.is_valid and result.confidence_score < 0.8:
             result.confidence_score = 0.8
@@ -533,7 +554,9 @@ class AdvancedValidator:
             return detected_columns
 
         # Get header row cells
-        header_cells = [cell for cell in sheet.cells if cell.row == sheet.header_row]
+        header_cells = [
+            cell for cell in sheet.cells if cell.row == sheet.header_row
+        ]
         header_cells.sort(key=lambda c: c.column)
 
         required_columns = template["required_columns"] + template.get(
@@ -560,7 +583,9 @@ class AdvancedValidator:
 
             if best_match:
                 # Get sample values from this column
-                sample_values = self._get_column_sample_values(sheet, cell.column)
+                sample_values = self._get_column_sample_values(
+                    sheet, cell.column
+                )
 
                 detected_columns.append(
                     ColumnMapping(
@@ -569,7 +594,9 @@ class AdvancedValidator:
                         expected_name=best_match,
                         detected_name=str(cell.value),
                         confidence=best_confidence,
-                        data_type=self._infer_column_data_type(sample_values),
+                        data_type=self._infer_column_data_type(
+                            sample_values
+                        ),
                         sample_values=sample_values[:5],  # First 5 samples
                     )
                 )
@@ -593,7 +620,9 @@ class AdvancedValidator:
         header_words = re.split(r"[_\s]+", header_text)
 
         matches = sum(
-            1 for word in expected_words if any(word in hw for hw in header_words)
+            1
+            for word in expected_words
+            if any(word in hw for hw in header_words)
         )
         if expected_words:
             confidence += (matches / len(expected_words)) * 0.8
@@ -627,24 +656,36 @@ class AdvancedValidator:
 
         return min(confidence, 1.0)
 
-    def _get_column_sample_values(self, sheet: SheetInfo, column: int) -> List[Any]:
+    def _get_column_sample_values(
+        self, sheet: SheetInfo, column: int
+    ) -> List[Any]:
         """Get sample values from a column."""
-        column_cells = [cell for cell in sheet.cells if cell.column == column]
+        column_cells = [
+            cell for cell in sheet.cells if cell.column == column
+        ]
         column_cells.sort(key=lambda c: c.row)
 
         # Skip header row
         data_cells = [
-            cell for cell in column_cells if cell.row > (sheet.header_row or 0)
+            cell
+            for cell in column_cells
+            if cell.row > (sheet.header_row or 0)
         ]
 
-        return [cell.value for cell in data_cells[:10] if cell.value is not None]
+        return [
+            cell.value
+            for cell in data_cells[:10]
+            if cell.value is not None
+        ]
 
     def _infer_column_data_type(self, sample_values: List[Any]) -> str:
         """Infer the data type of a column from sample values."""
         if not sample_values:
             return "unknown"
 
-        numeric_count = sum(1 for v in sample_values if isinstance(v, (int, float)))
+        numeric_count = sum(
+            1 for v in sample_values if isinstance(v, (int, float))
+        )
         text_count = sum(1 for v in sample_values if isinstance(v, str))
 
         if numeric_count > len(sample_values) * 0.8:
@@ -674,7 +715,8 @@ class AdvancedValidator:
                                 name=section_name,
                                 section_type="header",
                                 start_row=cell.row,
-                                end_row=cell.row + 10,  # Estimate section size
+                                end_row=cell.row
+                                + 10,  # Estimate section size
                             )
                             sections.append(section)
                             break
@@ -717,7 +759,9 @@ class AdvancedValidator:
                 else:
                     pass
 
-            completeness = non_empty_cells / total_cells if total_cells > 0 else 0
+            completeness = (
+                non_empty_cells / total_cells if total_cells > 0 else 0
+            )
             scores.append(completeness)
 
         score = sum(scores) / len(scores) if scores else 0.0
@@ -742,9 +786,9 @@ class AdvancedValidator:
         if not detected_sections:
             return 1.0
 
-        compliance = len(detected_sections.intersection(required_sections)) / len(
-            required_sections
-        )
+        compliance = len(
+            detected_sections.intersection(required_sections)
+        ) / len(required_sections)
         return max(compliance, 0.5)
 
     def _generate_suggestions_internal(
@@ -758,7 +802,9 @@ class AdvancedValidator:
 
         # Missing columns suggestions
         if result.missing_columns:
-            suggestions.append(f"Add columns for: {', '.join(result.missing_columns)}")
+            suggestions.append(
+                f"Add columns for: {', '.join(result.missing_columns)}"
+            )
 
         # Data quality suggestions
         if result.data_quality_score < 0.8:
@@ -784,11 +830,15 @@ class AdvancedValidator:
     # Compatibility helpers for unit tests expecting older API
     # ------------------------------------------------------------------
 
-    def _generate_suggestions(self, result: TemplateValidationResult) -> List[str]:
+    def _generate_suggestions(
+        self, result: TemplateValidationResult
+    ) -> List[str]:
         """Compatibility wrapper used in tests."""
         suggestions = []
         if result.missing_columns:
-            suggestions.append(f"Add columns for: {', '.join(result.missing_columns)}")
+            suggestions.append(
+                f"Add columns for: {', '.join(result.missing_columns)}"
+            )
         if result.data_quality_score < 0.8:
             suggestions.append(
                 "Consider filling in missing data values to improve data quality"
@@ -818,9 +868,13 @@ class AdvancedValidator:
         sheet = self._convert_sheet_dict(sheet_data)
         columns = []
         if sheet.header_row:
-            for idx, name in enumerate(sheet_data.get("headers", []), start=1):
+            for idx, name in enumerate(
+                sheet_data.get("headers", []), start=1
+            ):
                 columns.append(
-                    ColumnMapping(idx, chr(64 + idx), name.lower(), name, 1.0, "text")
+                    ColumnMapping(
+                        idx, chr(64 + idx), name.lower(), name, 1.0, "text"
+                    )
                 )
         return self._calculate_data_quality_score(sheet, columns)
 
@@ -836,9 +890,13 @@ class AdvancedValidator:
         sheet = self._convert_sheet_dict(sheet_data)
         template = self.templates[template_type]
         sections = self._detect_financial_sections(sheet, template)
-        return self._calculate_compliance_score_internal(sheet, template, sections)
+        return self._calculate_compliance_score_internal(
+            sheet, template, sections
+        )
 
-    def auto_detect_template_type(self, parsed_data: Dict[str, Any]) -> TemplateType:
+    def auto_detect_template_type(
+        self, parsed_data: Dict[str, Any]
+    ) -> TemplateType:
         parsed = self._convert_parsed_data(parsed_data)
         return self._detect_template_type(parsed)
 
@@ -891,7 +949,9 @@ class AdvancedValidator:
             name=sheet_dict.get("name", "Sheet1"),
             sheet_type=sheet_type,
             max_row=len(data) + (1 if headers else 0),
-            max_column=max(len(headers or []), max((len(r) for r in data), default=0)),
+            max_column=max(
+                len(headers or []), max((len(r) for r in data), default=0)
+            ),
             header_row=1 if headers else None,
             data_start_row=2 if headers else 1,
             has_formulas=False,
@@ -900,7 +960,9 @@ class AdvancedValidator:
         )
 
     def _convert_parsed_data(self, parsed: Dict[str, Any]) -> ParsedData:
-        sheets = [self._convert_sheet_dict(s) for s in parsed.get("sheets", [])]
+        sheets = [
+            self._convert_sheet_dict(s) for s in parsed.get("sheets", [])
+        ]
         return ParsedData(
             file_name=parsed.get("filename", ""),
             file_path="",
@@ -908,7 +970,9 @@ class AdvancedValidator:
             sheets=sheets,
         )
 
-    def get_template_requirements(self, template_type: TemplateType) -> Dict[str, Any]:
+    def get_template_requirements(
+        self, template_type: TemplateType
+    ) -> Dict[str, Any]:
         """Get requirements for a specific template type."""
         template = self.templates.get(template_type)
         if not template:
@@ -923,7 +987,9 @@ class AdvancedValidator:
             "validation_rules": template.get("calculation_rules", []),
         }
 
-    def suggest_template_improvements(self, parsed_data: ParsedData) -> Dict[str, Any]:
+    def suggest_template_improvements(
+        self, parsed_data: ParsedData
+    ) -> Dict[str, Any]:
         """Suggest improvements for better template compliance."""
 
         suggestions = {
@@ -938,14 +1004,18 @@ class AdvancedValidator:
         template = self.templates[template_type]
 
         # Analyze current structure
-        primary_sheet = self._find_primary_sheet(parsed_data, template_type)
+        primary_sheet = self._find_primary_sheet(
+            parsed_data, template_type
+        )
         if not primary_sheet:
             return suggestions
 
         # Column suggestions
         detected_columns = self._detect_columns(primary_sheet, template)
         required_columns = set(template["required_columns"])
-        detected_column_names = {col.expected_name for col in detected_columns}
+        detected_column_names = {
+            col.expected_name for col in detected_columns
+        }
         missing_columns = required_columns - detected_column_names
 
         for missing in missing_columns:

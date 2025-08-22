@@ -67,8 +67,13 @@ describe('AdminDashboard Maintenance schedules', () => {
     // Click Clear Rate Limits
     // Scope to the Security card to avoid picking Maintenance section button
     const securityHeading = await screen.findByText(/Security Overview/i);
-    const securitySection = securityHeading.closest('div')!.parentElement!.parentElement as HTMLElement;
-    const clearBtn = Array.from(securitySection.querySelectorAll('button')).find(b => /clear rate limits/i.test(b.textContent || '')) as HTMLButtonElement;
+    const securitySection = securityHeading.closest('div')!.parentElement!
+      .parentElement as HTMLElement;
+    const clearBtn = Array.from(
+      securitySection.querySelectorAll('button')
+    ).find(b =>
+      /clear rate limits/i.test(b.textContent || '')
+    ) as HTMLButtonElement;
     await userEvent.click(clearBtn);
 
     expect(mocked.clearRateLimits).toHaveBeenCalled();

@@ -18,4 +18,4 @@ export type { BarChartDataPoint, BarSeriesConfig } from './BarChart';
 export type { PieChartDataPoint } from './PieChart';
 export type { WaterfallDataPoint } from './WaterfallChart';
 export type { RealtimeChartProps, ChartUpdateData } from './RealtimeChart';
-export type { RealtimeLineChartProps } from './RealtimeLineChart'; 
+export type { RealtimeLineChartProps } from './RealtimeLineChart';

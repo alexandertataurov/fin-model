@@ -1,6 +1,10 @@
 import pytest
 
-from app.core.permissions import Permission, PermissionChecker, ROLE_PERMISSIONS
+from app.core.permissions import (
+    Permission,
+    PermissionChecker,
+    ROLE_PERMISSIONS,
+)
 from app.models.role import RoleType
 
 
@@ -13,7 +17,10 @@ def test_role_permissions_mapping_contains_admin_critical_permissions():
 
 def test_has_permission_any_all():
     roles = [RoleType.ADMIN.value]
-    assert PermissionChecker.has_permission(roles, Permission.USER_LIST) is True
+    assert (
+        PermissionChecker.has_permission(roles, Permission.USER_LIST)
+        is True
+    )
     assert (
         PermissionChecker.has_any_permission(
             roles, [Permission.USER_LIST, Permission.DATA_READ]

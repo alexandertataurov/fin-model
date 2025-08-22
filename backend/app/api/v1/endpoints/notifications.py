@@ -41,7 +41,9 @@ def get_notifications(
             filters.append(Notification.is_read.is_(False))
 
         if notification_type:
-            filters.append(Notification.notification_type == notification_type)
+            filters.append(
+                Notification.notification_type == notification_type
+            )
 
         # Get notifications with pagination
         (
@@ -56,7 +58,9 @@ def get_notifications(
         )
 
         # Get unread count
-        unread_count = notification_service.get_unread_count(current_user.id)
+        unread_count = notification_service.get_unread_count(
+            current_user.id
+        )
 
         return NotificationListResponse(
             notifications=notifications,
@@ -113,7 +117,9 @@ def get_notification_preferences(
     try:
         notification_service = NotificationService(db)
 
-        preferences = notification_service.get_user_preferences(current_user.id)
+        preferences = notification_service.get_user_preferences(
+            current_user.id
+        )
         if not preferences:
             # Create default preferences if none exist
             preferences = notification_service.create_default_preferences(
@@ -129,7 +135,10 @@ def get_notification_preferences(
         logger.error(f"Error getting notification preferences: {str(e)}")
 
         # Check if it's a database table issue
-        if "relation" in str(e).lower() and "does not exist" in str(e).lower():
+        if (
+            "relation" in str(e).lower()
+            and "does not exist" in str(e).lower()
+        ):
             logger.warning(
                 "Notification preferences table does not exist, returning defaults"
             )
@@ -266,7 +275,9 @@ def create_notification_admin(
 
     notification_service = NotificationService(db)
 
-    notification = notification_service.create_notification(notification_create)
+    notification = notification_service.create_notification(
+        notification_create
+    )
 
     return notification
 
@@ -328,7 +339,9 @@ def mark_as_read(
     """Mark a notification as read."""
     notification_service = NotificationService(db)
 
-    success = notification_service.mark_as_read(notification_id, current_user.id)
+    success = notification_service.mark_as_read(
+        notification_id, current_user.id
+    )
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { Card, CardHeader, CardContent } from '@/design-system/molecules';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Badge } from '@/design-system/components/Badge';
-import { Separator } from '@/design-system/components/Separator';
+import { Badge } from '@/design-system/atoms';
+import { Separator } from '@/design-system/atoms';
 import {
   TrendingUp,
   TrendingDown,
@@ -25,10 +25,6 @@ interface EquityTrendProps {
 }
 
 const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
-
-
-
-
   const equityIconMap = [
     {
       keywords: ['share', 'stock', 'capital'],
@@ -149,12 +145,13 @@ const EquityTrend: React.FC<EquityTrendProps> = ({ data }) => {
                         <div className="flex items-center space-x-1">
                           {getTrendIcon(equity.trend, equity.change_percentage)}
                           <span
-                            className={`text-sm ${equity.change_percentage > 0
+                            className={`text-sm ${
+                              equity.change_percentage > 0
                                 ? 'text-green-600'
                                 : equity.change_percentage < 0
                                   ? 'text-red-600'
                                   : 'text-gray-600'
-                              }`}
+                            }`}
                           >
                             {formatPercentage(equity.change_percentage)}
                           </span>

@@ -10,7 +10,9 @@ import {
 export interface AuditSlice {
   audit: AuditState & NormalizedApiResponse<AuditEntry[]>;
   fetchAuditData: () => Promise<void>;
-  updateAuditFilters: (filters: Partial<Omit<AuditState, 'items' | 'total'>>) => void;
+  updateAuditFilters: (
+    filters: Partial<Omit<AuditState, 'items' | 'total'>>
+  ) => void;
   fetchAudit: () => Promise<void>;
 }
 
@@ -32,7 +34,7 @@ export const createAuditSlice: StateCreator<AuditSlice, [], [], AuditSlice> = (
     await get().fetchAudit();
   },
 
-  updateAuditFilters: (filters) => {
+  updateAuditFilters: filters => {
     set((state: any) => ({
       audit: { ...state.audit, ...filters },
     }));
@@ -63,7 +65,10 @@ export const createAuditSlice: StateCreator<AuditSlice, [], [], AuditSlice> = (
             ...state.audit,
             data: response.items,
             items: response.items,
-            total: response.total ?? response.pagination?.total ?? response.items.length,
+            total:
+              response.total ??
+              response.pagination?.total ??
+              response.items.length,
             skip: response.skip ?? response.pagination?.page ?? 0,
             loading: false,
             lastUpdated: Date.now(),

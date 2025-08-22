@@ -90,7 +90,9 @@ class DatabaseMonitor:
         try:
             # Check pg_stat_statements availability
             try:
-                self.db.execute(text("SELECT 1 FROM pg_stat_statements LIMIT 1"))
+                self.db.execute(
+                    text("SELECT 1 FROM pg_stat_statements LIMIT 1")
+                )
                 has_pgss = True
             except Exception:
                 has_pgss = False
@@ -101,20 +103,30 @@ class DatabaseMonitor:
                     "FROM pg_stat_statements "
                     "ORDER BY mean_time DESC LIMIT :limit"
                 )
-                result = self.db.execute(text(sql), {"limit": int(limit)}).fetchall()
+                result = self.db.execute(
+                    text(sql), {"limit": int(limit)}
+                ).fetchall()
                 items: List[Dict[str, Any]] = []
                 for row in result:
-                    mean_time = float(row[1]) if row[1] is not None else None
+                    mean_time = (
+                        float(row[1]) if row[1] is not None else None
+                    )
                     calls = int(row[2]) if row[2] is not None else None
                     # p95 approximation when distribution data missing
-                    p95 = float(mean_time * 2) if mean_time is not None else None
+                    p95 = (
+                        float(mean_time * 2)
+                        if mean_time is not None
+                        else None
+                    )
                     items.append(
                         {
                             "query": row[0],
                             "avg_ms": mean_time,
                             "p95_ms": p95,
                             "calls": calls,
-                            "last_seen": datetime.now(timezone.utc).isoformat(),
+                            "last_seen": datetime.now(
+                                timezone.utc
+                            ).isoformat(),
                         }
                     )
                 return items
@@ -146,12 +158,18 @@ class DatabaseMonitor:
                             "query": row[0][:100] + "..."
                             if len(row[0]) > 100
                             else row[0],
-                            "avg_ms": float(row[1]) if row[1] is not None else 0,
-                            "p95_ms": float(row[1]) if row[1] is not None else 0,
+                            "avg_ms": float(row[1])
+                            if row[1] is not None
+                            else 0,
+                            "p95_ms": float(row[1])
+                            if row[1] is not None
+                            else 0,
                             "calls": 1,
                             "state": row[2],
                             "application": row[3],
-                            "last_seen": datetime.now(timezone.utc).isoformat(),
+                            "last_seen": datetime.now(
+                                timezone.utc
+                            ).isoformat(),
                             "note": "Active query from pg_stat_activity",
                         }
                     )
@@ -208,7 +226,9 @@ class DatabaseMonitor:
                 try:
                     # Get row count with proper error handling
                     count_sql = f'SELECT COUNT(*) FROM "{table_name}"'
-                    count_result = self.db.execute(text(count_sql)).fetchone()
+                    count_result = self.db.execute(
+                        text(count_sql)
+                    ).fetchone()
                     row_count = count_result[0] if count_result else 0
                     total_records += row_count
 
@@ -220,12 +240,20 @@ class DatabaseMonitor:
                     """
 
                     try:
-                        size_result = self.db.execute(text(size_sql)).fetchone()
-                        total_size_bytes = size_result[0] if size_result else 0
+                        size_result = self.db.execute(
+                            text(size_sql)
+                        ).fetchone()
+                        total_size_bytes = (
+                            size_result[0] if size_result else 0
+                        )
                         size_mb = total_size_bytes / (1024 * 1024)
-                        size_pretty = f"{size_mb:.2f} MB" if size_mb > 0 else "0 MB"
+                        size_pretty = (
+                            f"{size_mb:.2f} MB" if size_mb > 0 else "0 MB"
+                        )
                     except Exception as e:
-                        logger.warning(f"Size query failed for {table_name}: {e}")
+                        logger.warning(
+                            f"Size query failed for {table_name}: {e}"
+                        )
                         size_mb = 0.1
                         size_pretty = "0.1 MB"
 
@@ -242,7 +270,9 @@ class DatabaseMonitor:
                     """
 
                     try:
-                        stats_result = self.db.execute(text(stats_sql)).fetchone()
+                        stats_result = self.db.execute(
+                            text(stats_sql)
+                        ).fetchone()
                         if stats_result:
                             live_rows = stats_result[0]
                             dead_rows = stats_result[1]
@@ -256,7 +286,9 @@ class DatabaseMonitor:
                             updates = 0
                             deletes = 0
                     except Exception as e:
-                        logger.warning(f"Stats query failed for {table_name}: {e}")
+                        logger.warning(
+                            f"Stats query failed for {table_name}: {e}"
+                        )
                         live_rows = row_count
                         dead_rows = 0
                         inserts = 0
@@ -284,12 +316,16 @@ class DatabaseMonitor:
                         "deletes": deletes,
                         "size_mb": round(size_mb, 2),
                         "size_pretty": size_pretty,
-                        "last_updated": datetime.now(timezone.utc).isoformat(),
+                        "last_updated": datetime.now(
+                            timezone.utc
+                        ).isoformat(),
                         "integrity_status": integrity_status,
                     }
 
                 except Exception as e:
-                    logger.warning(f"Failed to get info for table {table_name}: {e}")
+                    logger.warning(
+                        f"Failed to get info for table {table_name}: {e}"
+                    )
                     # Add basic entry for failed table
                     table_data[table_name] = {
                         "rows": 0,
@@ -299,7 +335,9 @@ class DatabaseMonitor:
                         "deletes": 0,
                         "size_mb": 0.1,
                         "size_pretty": "0.1 MB",
-                        "last_updated": datetime.now(timezone.utc).isoformat(),
+                        "last_updated": datetime.now(
+                            timezone.utc
+                        ).isoformat(),
                         "integrity_status": "warning",
                     }
 
@@ -334,7 +372,9 @@ class DatabaseMonitor:
         try:
             # Check if pg_stat_statements is available
             try:
-                self.db.execute(text("SELECT 1 FROM pg_stat_statements LIMIT 1"))
+                self.db.execute(
+                    text("SELECT 1 FROM pg_stat_statements LIMIT 1")
+                )
                 has_pgss = True
             except Exception:
                 has_pgss = False
@@ -440,7 +480,9 @@ class DatabaseMonitor:
                 AND table_type = 'BASE TABLE'
             """
 
-            table_result = self.db.execute(text(table_count_sql)).fetchone()
+            table_result = self.db.execute(
+                text(table_count_sql)
+            ).fetchone()
             table_count = table_result[0] if table_result else 0
 
             # Get database size (simplified)
@@ -449,7 +491,9 @@ class DatabaseMonitor:
                 size_result = self.db.execute(text(size_sql)).fetchone()
                 size_bytes = size_result[0] if size_result else 0
                 size_mb = size_bytes / (1024 * 1024)
-                size_pretty = f"{size_mb:.1f} MB" if size_mb > 0 else "0 MB"
+                size_pretty = (
+                    f"{size_mb:.1f} MB" if size_mb > 0 else "0 MB"
+                )
             except Exception:
                 size_mb = 0
                 size_pretty = "0 MB"

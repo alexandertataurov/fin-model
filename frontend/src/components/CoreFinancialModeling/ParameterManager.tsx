@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
-import { Badge } from '@/design-system/components/Badge';
-import { Separator } from '@/design-system/components/Separator';
-import { 
-  Settings, 
-  DollarSign, 
-  TrendingUp, 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Separator } from '@/design-system/atoms';
+import {
+  Settings,
+  DollarSign,
+  TrendingUp,
   Calculator,
   Building,
   FileText,
   PieChart,
   Activity,
   Target,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 
 interface Parameter {
@@ -401,7 +407,7 @@ const parameterCategories = [
 
 export function ParameterManager({
   onParameterChange,
-  onSaveTemplate
+  onSaveTemplate,
 }: ParameterManagerProps) {
   const [activeCategory, setActiveCategory] = useState('economic-environment');
   const [parameters, setParameters] = useState<Parameter[]>(
@@ -416,7 +422,9 @@ export function ParameterManager({
     onParameterChange?.(updatedParameters);
   };
 
-  const activeCategoryData = parameterCategories.find(cat => cat.id === activeCategory);
+  const activeCategoryData = parameterCategories.find(
+    cat => cat.id === activeCategory
+  );
 
   return (
     <div className="space-y-6">
@@ -425,11 +433,15 @@ export function ParameterManager({
         <div>
           <h2 className="text-2xl font-bold">Parameter Management</h2>
           <p className="text-muted-foreground">
-            Manage 12 categories of modeling parameters for comprehensive financial modeling
+            Manage 12 categories of modeling parameters for comprehensive
+            financial modeling
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => onSaveTemplate?.(parameters)}>
+          <Button
+            variant="outline"
+            onClick={() => onSaveTemplate?.(parameters)}
+          >
             Save Template
           </Button>
           <Button>Apply Changes</Button>
@@ -446,7 +458,7 @@ export function ParameterManager({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {parameterCategories.map((category) => {
+            {parameterCategories.map(category => {
               const Icon = category.icon;
               return (
                 <Button
@@ -472,7 +484,9 @@ export function ParameterManager({
         <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex items-center space-x-2">
-              {activeCategoryData && <activeCategoryData.icon className="h-5 w-5" />}
+              {activeCategoryData && (
+                <activeCategoryData.icon className="h-5 w-5" />
+              )}
               <div>
                 <CardTitle>{activeCategoryData?.name}</CardTitle>
                 <CardDescription>
@@ -483,7 +497,7 @@ export function ParameterManager({
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {activeCategoryData?.parameters.map((param) => (
+              {activeCategoryData?.parameters.map(param => (
                 <div key={param.id} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor={param.id} className="font-medium">
@@ -495,7 +509,12 @@ export function ParameterManager({
                     id={param.id}
                     type="number"
                     value={param.value}
-                    onChange={(e) => handleParameterChange(param.id, parseFloat(e.target.value) || 0)}
+                    onChange={e =>
+                      handleParameterChange(
+                        param.id,
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     step={param.step || 0.1}
                     min={param.min}
                     max={param.max}
@@ -522,7 +541,7 @@ export function ParameterManager({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {parameterCategories.map((category) => (
+            {parameterCategories.map(category => (
               <div key={category.id} className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <category.icon className="h-4 w-4" />

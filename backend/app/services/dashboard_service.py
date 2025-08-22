@@ -148,14 +148,20 @@ class DashboardService:
             )
 
             # Calculate data quality
-            data_quality_score = self._calculate_data_quality_score(statements)
+            data_quality_score = self._calculate_data_quality_score(
+                statements
+            )
 
             # Period information
             period_info = self._get_period_info(period)
 
             return DashboardData(
-                statements=[self._serialize_statement(stmt) for stmt in statements],
-                active_statement=self._serialize_statement(active_statement)
+                statements=[
+                    self._serialize_statement(stmt) for stmt in statements
+                ],
+                active_statement=self._serialize_statement(
+                    active_statement
+                )
                 if active_statement
                 else None,
                 key_metrics=key_metrics,
@@ -201,11 +207,16 @@ class DashboardService:
                     period_info=self._get_period_info(period),
                 )
 
-    async def get_pl_data(self, statement_id: int, user_id: int) -> Dict[str, Any]:
+    async def get_pl_data(
+        self, statement_id: int, user_id: int
+    ) -> Dict[str, Any]:
         """Get P&L dashboard data for a specific statement."""
 
         statement = self._get_statement_by_id(statement_id, user_id)
-        if not statement or statement.statement_type != StatementType.PROFIT_LOSS:
+        if (
+            not statement
+            or statement.statement_type != StatementType.PROFIT_LOSS
+        ):
             raise ValueError("P&L statement not found")
 
         # Extract P&L specific data
@@ -230,7 +241,9 @@ class DashboardService:
                 "period_type": statement.period_type.value,
             },
             "last_updated": statement.updated_at.isoformat(),
-            "data_quality_score": self._calculate_statement_quality_score(statement),
+            "data_quality_score": self._calculate_statement_quality_score(
+                statement
+            ),
         }
 
     async def get_balance_sheet_data(
@@ -239,7 +252,10 @@ class DashboardService:
         """Get Balance Sheet dashboard data for a specific statement."""
 
         statement = self._get_statement_by_id(statement_id, user_id)
-        if not statement or statement.statement_type != StatementType.BALANCE_SHEET:
+        if (
+            not statement
+            or statement.statement_type != StatementType.BALANCE_SHEET
+        ):
             raise ValueError("Balance Sheet statement not found")
 
         # Extract Balance Sheet specific data
@@ -263,7 +279,9 @@ class DashboardService:
                 "period_type": statement.period_type.value,
             },
             "last_updated": statement.updated_at.isoformat(),
-            "data_quality_score": self._calculate_statement_quality_score(statement),
+            "data_quality_score": self._calculate_statement_quality_score(
+                statement
+            ),
         }
 
     async def get_cash_flow_data(
@@ -272,7 +290,10 @@ class DashboardService:
         """Get Cash Flow dashboard data for a specific statement."""
 
         statement = self._get_statement_by_id(statement_id, user_id)
-        if not statement or statement.statement_type != StatementType.CASH_FLOW:
+        if (
+            not statement
+            or statement.statement_type != StatementType.CASH_FLOW
+        ):
             raise ValueError("Cash Flow statement not found")
 
         # Extract Cash Flow specific data
@@ -297,7 +318,9 @@ class DashboardService:
                 "period_type": statement.period_type.value,
             },
             "last_updated": statement.updated_at.isoformat(),
-            "data_quality_score": self._calculate_statement_quality_score(statement),
+            "data_quality_score": self._calculate_statement_quality_score(
+                statement
+            ),
         }
 
     async def get_key_metrics(
@@ -307,7 +330,8 @@ class DashboardService:
 
         if statement_ids:
             statements = [
-                self._get_statement_by_id(stmt_id, user_id) for stmt_id in statement_ids
+                self._get_statement_by_id(stmt_id, user_id)
+                for stmt_id in statement_ids
             ]
             statements = [s for s in statements if s is not None]
         else:
@@ -335,9 +359,15 @@ class DashboardService:
         )
 
         if statement_type:
-            query = query.filter(FinancialStatement.statement_type == statement_type)
+            query = query.filter(
+                FinancialStatement.statement_type == statement_type
+            )
 
-        return query.order_by(desc(FinancialStatement.updated_at)).limit(limit).all()
+        return (
+            query.order_by(desc(FinancialStatement.updated_at))
+            .limit(limit)
+            .all()
+        )
 
     def _get_statement_by_id(
         self, statement_id: int, user_id: int
@@ -355,7 +385,9 @@ class DashboardService:
             .first()
         )
 
-    def _serialize_statement(self, statement: FinancialStatement) -> Dict[str, Any]:
+    def _serialize_statement(
+        self, statement: FinancialStatement
+    ) -> Dict[str, Any]:
         """Serialize a financial statement for API response."""
 
         if not statement:
@@ -386,13 +418,19 @@ class DashboardService:
 
         # Group statements by type
         pl_statements = [
-            s for s in statements if s.statement_type == StatementType.PROFIT_LOSS
+            s
+            for s in statements
+            if s.statement_type == StatementType.PROFIT_LOSS
         ]
         bs_statements = [
-            s for s in statements if s.statement_type == StatementType.BALANCE_SHEET
+            s
+            for s in statements
+            if s.statement_type == StatementType.BALANCE_SHEET
         ]
         cf_statements = [
-            s for s in statements if s.statement_type == StatementType.CASH_FLOW
+            s
+            for s in statements
+            if s.statement_type == StatementType.CASH_FLOW
         ]
 
         metrics = {}
@@ -429,7 +467,11 @@ class DashboardService:
                 pl_data, ["cogs", "cost_of_goods_sold", "cost_of_sales"]
             )
             if revenue and cogs:
-                gross_margin = ((revenue - cogs) / revenue) * 100 if revenue > 0 else 0
+                gross_margin = (
+                    ((revenue - cogs) / revenue) * 100
+                    if revenue > 0
+                    else 0
+                )
                 metrics["gross_margin"] = {
                     "name": "Gross Margin",
                     "value": gross_margin,
@@ -451,7 +493,11 @@ class DashboardService:
                 ["current_liabilities", "total_current_liabilities"],
             )
 
-            if current_assets and current_liabilities and current_liabilities > 0:
+            if (
+                current_assets
+                and current_liabilities
+                and current_liabilities > 0
+            ):
                 current_ratio = current_assets / current_liabilities
                 metrics["current_ratio"] = {
                     "name": "Current Ratio",
@@ -521,7 +567,9 @@ class DashboardService:
                         return float(value)
                     elif (
                         isinstance(value, str)
-                        and value.replace(".", "").replace("-", "").isdigit()
+                        and value.replace(".", "")
+                        .replace("-", "")
+                        .isdigit()
                     ):
                         return float(value)
 
@@ -540,31 +588,43 @@ class DashboardService:
 
         # Revenue trend (from P&L statements)
         pl_statements = [
-            s for s in statements if s.statement_type == StatementType.PROFIT_LOSS
+            s
+            for s in statements
+            if s.statement_type == StatementType.PROFIT_LOSS
         ]
         if pl_statements:
-            charts["revenue_trend"] = await self._generate_revenue_trend_chart(
-                pl_statements
-            )
-            charts["expense_breakdown"] = await self._generate_expense_breakdown_chart(
+            charts[
+                "revenue_trend"
+            ] = await self._generate_revenue_trend_chart(pl_statements)
+            charts[
+                "expense_breakdown"
+            ] = await self._generate_expense_breakdown_chart(
                 pl_statements[0]
             )
 
         # Cash flow waterfall (from Cash Flow statements)
         cf_statements = [
-            s for s in statements if s.statement_type == StatementType.CASH_FLOW
+            s
+            for s in statements
+            if s.statement_type == StatementType.CASH_FLOW
         ]
         if cf_statements:
             charts[
                 "cash_flow_waterfall"
-            ] = await self._generate_cash_flow_waterfall_chart(cf_statements[0])
+            ] = await self._generate_cash_flow_waterfall_chart(
+                cf_statements[0]
+            )
 
         # Asset composition (from Balance Sheet statements)
         bs_statements = [
-            s for s in statements if s.statement_type == StatementType.BALANCE_SHEET
+            s
+            for s in statements
+            if s.statement_type == StatementType.BALANCE_SHEET
         ]
         if bs_statements:
-            charts["asset_composition"] = await self._generate_asset_composition_chart(
+            charts[
+                "asset_composition"
+            ] = await self._generate_asset_composition_chart(
                 bs_statements[0]
             )
 
@@ -577,7 +637,9 @@ class DashboardService:
 
         chart_data = []
 
-        for statement in sorted(pl_statements, key=lambda x: x.period_start):
+        for statement in sorted(
+            pl_statements, key=lambda x: x.period_start
+        ):
             line_items = statement.line_items or {}
             revenue = self._extract_metric_value(
                 line_items, ["revenue", "total_revenue", "net_sales"]
@@ -635,7 +697,9 @@ class DashboardService:
     # P&L Specific Methods
     # ====================
 
-    def _extract_pl_data(self, statement: FinancialStatement) -> Dict[str, Any]:
+    def _extract_pl_data(
+        self, statement: FinancialStatement
+    ) -> Dict[str, Any]:
         """Extract P&L specific data structure."""
 
         line_items = statement.line_items or {}
@@ -740,15 +804,19 @@ class DashboardService:
         charts = {}
 
         # Revenue trend chart (single period for now)
-        charts["revenue_trend"] = await self._generate_revenue_trend_chart([statement])
+        charts["revenue_trend"] = await self._generate_revenue_trend_chart(
+            [statement]
+        )
 
         # Profit margins chart
-        charts["profit_margins"] = await self._generate_profit_margins_chart(statement)
+        charts[
+            "profit_margins"
+        ] = await self._generate_profit_margins_chart(statement)
 
         # Expense breakdown chart
-        charts["expense_breakdown"] = await self._generate_expense_breakdown_chart(
-            statement
-        )
+        charts[
+            "expense_breakdown"
+        ] = await self._generate_expense_breakdown_chart(statement)
 
         return charts
 
@@ -876,7 +944,11 @@ class DashboardService:
         # Current Ratio
         current_assets = bs_data["assets"]["current_assets"]
         current_liabilities = bs_data["liabilities"]["current_liabilities"]
-        if current_assets and current_liabilities and current_liabilities > 0:
+        if (
+            current_assets
+            and current_liabilities
+            and current_liabilities > 0
+        ):
             ratio = current_assets / current_liabilities
             metrics.append(
                 {
@@ -893,7 +965,11 @@ class DashboardService:
         # Debt-to-Equity Ratio
         total_liabilities = bs_data["liabilities"]["total_liabilities"]
         shareholders_equity = bs_data["equity"]["shareholders_equity"]
-        if total_liabilities and shareholders_equity and shareholders_equity > 0:
+        if (
+            total_liabilities
+            and shareholders_equity
+            and shareholders_equity > 0
+        ):
             ratio = total_liabilities / shareholders_equity
             metrics.append(
                 {
@@ -917,9 +993,9 @@ class DashboardService:
         charts = {}
 
         # Asset composition chart
-        charts["asset_composition"] = await self._generate_asset_composition_chart(
-            statement
-        )
+        charts[
+            "asset_composition"
+        ] = await self._generate_asset_composition_chart(statement)
 
         # Liability composition chart
         charts[
@@ -927,9 +1003,9 @@ class DashboardService:
         ] = await self._generate_liability_composition_chart(statement)
 
         # Liquidity ratios chart
-        charts["liquidity_ratios"] = await self._generate_liquidity_ratios_chart(
-            statement
-        )
+        charts[
+            "liquidity_ratios"
+        ] = await self._generate_liquidity_ratios_chart(statement)
 
         return charts
 
@@ -969,7 +1045,9 @@ class DashboardService:
     # Cash Flow Methods
     # ====================
 
-    def _extract_cash_flow_data(self, statement: FinancialStatement) -> Dict[str, Any]:
+    def _extract_cash_flow_data(
+        self, statement: FinancialStatement
+    ) -> Dict[str, Any]:
         """Extract Cash Flow specific data structure."""
 
         line_items = statement.line_items or {}
@@ -980,7 +1058,9 @@ class DashboardService:
                     line_items,
                     ["operating_cash_flow", "cash_from_operations"],
                 ),
-                "net_income": self._extract_metric_value(line_items, ["net_income"]),
+                "net_income": self._extract_metric_value(
+                    line_items, ["net_income"]
+                ),
                 "depreciation": self._extract_metric_value(
                     line_items,
                     ["depreciation", "depreciation_amortization"],
@@ -1039,7 +1119,9 @@ class DashboardService:
         # Free Cash Flow (OCF - CapEx)
         capex = cf_data["investing"]["capex"] or 0
         if operating_cf:
-            free_cf = operating_cf - abs(capex)  # CapEx is usually negative
+            free_cf = operating_cf - abs(
+                capex
+            )  # CapEx is usually negative
             metrics.append(
                 {
                     "name": "Free Cash Flow",
@@ -1081,14 +1163,14 @@ class DashboardService:
         charts = {}
 
         # Cash flow waterfall chart
-        charts["cash_flow_waterfall"] = await self._generate_cash_flow_waterfall_chart(
-            statement
-        )
+        charts[
+            "cash_flow_waterfall"
+        ] = await self._generate_cash_flow_waterfall_chart(statement)
 
         # Operating cash flow trend (single period for now)
-        charts["operating_cf_trend"] = await self._generate_operating_cf_trend_chart(
-            statement
-        )
+        charts[
+            "operating_cf_trend"
+        ] = await self._generate_operating_cf_trend_chart(statement)
 
         return charts
 
@@ -1117,7 +1199,9 @@ class DashboardService:
                 {
                     "period": "Operating",
                     "value": operating_cf,
-                    "type": "positive" if operating_cf >= 0 else "negative",
+                    "type": "positive"
+                    if operating_cf >= 0
+                    else "negative",
                     "category": "operating",
                 }
             )
@@ -1129,7 +1213,9 @@ class DashboardService:
                 {
                     "period": "Investing",
                     "value": investing_cf,
-                    "type": "positive" if investing_cf >= 0 else "negative",
+                    "type": "positive"
+                    if investing_cf >= 0
+                    else "negative",
                     "category": "investing",
                 }
             )
@@ -1141,13 +1227,17 @@ class DashboardService:
                 {
                     "period": "Financing",
                     "value": financing_cf,
-                    "type": "positive" if financing_cf >= 0 else "negative",
+                    "type": "positive"
+                    if financing_cf >= 0
+                    else "negative",
                     "category": "financing",
                 }
             )
 
         # Ending Cash
-        net_change = (operating_cf or 0) + (investing_cf or 0) + (financing_cf or 0)
+        net_change = (
+            (operating_cf or 0) + (investing_cf or 0) + (financing_cf or 0)
+        )
         chart_data.append(
             {
                 "period": "Closing Cash",
@@ -1192,7 +1282,8 @@ class DashboardService:
             return 0.0
 
         total_score = sum(
-            self._calculate_statement_quality_score(stmt) for stmt in statements
+            self._calculate_statement_quality_score(stmt)
+            for stmt in statements
         )
         return total_score / len(statements)
 
@@ -1211,7 +1302,9 @@ class DashboardService:
             return 0.0
 
         non_null_fields = sum(
-            1 for value in line_items.values() if value is not None and value != ""
+            1
+            for value in line_items.values()
+            if value is not None and value != ""
         )
         completeness_score = non_null_fields / total_fields
 
@@ -1236,7 +1329,9 @@ class DashboardService:
                 "end_date": now.isoformat(),
             }
         elif period == PeriodFilter.QTD:
-            quarter_start = datetime(now.year, ((now.month - 1) // 3) * 3 + 1, 1)
+            quarter_start = datetime(
+                now.year, ((now.month - 1) // 3) * 3 + 1, 1
+            )
             return {
                 "period": "Quarter to Date",
                 "start_date": quarter_start.isoformat(),
@@ -1337,13 +1432,19 @@ class DashboardService:
 
         # Group statements by type
         pl_statements = [
-            s for s in statements if s.statement_type == StatementType.PROFIT_LOSS
+            s
+            for s in statements
+            if s.statement_type == StatementType.PROFIT_LOSS
         ]
         bs_statements = [
-            s for s in statements if s.statement_type == StatementType.BALANCE_SHEET
+            s
+            for s in statements
+            if s.statement_type == StatementType.BALANCE_SHEET
         ]
         cf_statements = [
-            s for s in statements if s.statement_type == StatementType.CASH_FLOW
+            s
+            for s in statements
+            if s.statement_type == StatementType.CASH_FLOW
         ]
 
         metrics = {}
@@ -1419,7 +1520,9 @@ class DashboardService:
                 }
             )
 
-        long_term_liabilities = bs_data["liabilities"]["long_term_liabilities"]
+        long_term_liabilities = bs_data["liabilities"][
+            "long_term_liabilities"
+        ]
         if long_term_liabilities and long_term_liabilities > 0:
             chart_data.append(
                 {
@@ -1443,7 +1546,11 @@ class DashboardService:
         current_assets = bs_data["assets"]["current_assets"]
         current_liabilities = bs_data["liabilities"]["current_liabilities"]
 
-        if current_assets and current_liabilities and current_liabilities > 0:
+        if (
+            current_assets
+            and current_liabilities
+            and current_liabilities > 0
+        ):
             current_ratio = current_assets / current_liabilities
             chart_data.append(
                 {

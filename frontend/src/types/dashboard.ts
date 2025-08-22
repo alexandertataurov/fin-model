@@ -1,6 +1,6 @@
 /**
  * Unified Dashboard Types
- * 
+ *
  * Centralized TypeScript interfaces for all dashboard data
  */
 
@@ -9,10 +9,10 @@ export interface DashboardMetric {
   name: string;
   value: number;
   unit: string;
-  format_type: "currency" | "percentage" | "number";
+  format_type: 'currency' | 'percentage' | 'number';
   change?: number;
   change_percentage?: number;
-  trend?: "up" | "down" | "stable";
+  trend?: 'up' | 'down' | 'stable';
   period: string;
   last_updated: string;
   category?: string;
@@ -67,7 +67,13 @@ export interface PLDashboardData extends DashboardData {
   };
 }
 
-export type DashboardPeriod = 'mtd' | 'qtd' | 'ytd' | 'last_30_days' | 'last_90_days' | 'last_12_months';
+export type DashboardPeriod =
+  | 'mtd'
+  | 'qtd'
+  | 'ytd'
+  | 'last_30_days'
+  | 'last_90_days'
+  | 'last_12_months';
 
 export interface DashboardError {
   message: string;
@@ -108,20 +114,20 @@ export interface BalanceSheetMetric {
   name: string;
   value: number;
   unit: string;
-  format_type: "currency" | "percentage" | "number";
-  category: "assets" | "liabilities" | "equity";
+  format_type: 'currency' | 'percentage' | 'number';
+  category: 'assets' | 'liabilities' | 'equity';
   subcategory: string;
   period: string;
   last_updated: string;
   display_order: number;
   change_percentage?: number;
-  trend?: "up" | "down" | "stable";
+  trend?: 'up' | 'down' | 'stable';
 }
 
 export interface FinancialRatio {
   name: string;
   value: number;
-  category: "liquidity" | "leverage" | "efficiency" | "profitability";
+  category: 'liquidity' | 'leverage' | 'efficiency' | 'profitability';
   benchmark?: number;
   interpretation: string;
 }

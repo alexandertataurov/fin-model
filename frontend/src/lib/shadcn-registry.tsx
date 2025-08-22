@@ -9,12 +9,12 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/design-system/components/Accordion';
-import { Alert, AlertDescription, AlertTitle } from '@/design-system/components/Alert';
+} from '@/design-system/molecules';
+import { Alert, AlertDescription, AlertTitle } from '@/design-system/molecules';
 // import { AspectRatio } from '@/design-system/components/AspectRatio';
-// import { Avatar, AvatarFallback, AvatarImage } from '@/design-system/components/Avatar';
-import { Badge } from '@/design-system/components/Badge';
-import { Button } from '@/design-system/components/Button';
+// import { Avatar, AvatarFallback, AvatarImage } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Button } from '@/design-system/atoms';
 // import { Calendar } from '@/components/ui/calendar';
 import {
   Card,
@@ -24,13 +24,13 @@ import {
   CardHeader,
   CardTitle,
   // CardAction,
-} from '@/design-system/components/Card';
-import { Checkbox } from '@/design-system/components/Checkbox';
+} from '@/design-system/molecules';
+import { Checkbox } from '@/design-system/atoms';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/design-system/components/Collapsible';
+} from '@/design-system/molecules';
 // import {
 //   Command,
 //   CommandDialog,
@@ -65,7 +65,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/design-system/components/Dialog';
+} from '@/design-system/molecules';
 // Drop non-existent dropdown/hover-card imports in this build
 const DropdownMenu: any = {};
 const DropdownMenuCheckboxItem: any = {};
@@ -85,8 +85,8 @@ const DropdownMenuTrigger: any = {};
 const HoverCard: any = {};
 const HoverCardContent: any = {};
 const HoverCardTrigger: any = {};
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
 // import {
 //   Menubar,
 //   MenubarCheckboxItem,
@@ -118,9 +118,9 @@ import { Label } from '@/design-system/components/Label';
 //   PopoverContent,
 //   PopoverTrigger,
 // } from '@/components/ui/popover';
-import { Progress } from '@/design-system/components/Progress';
+import { Progress } from '@/design-system/atoms';
 // import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ScrollArea, ScrollBar } from '@/design-system/components/ScrollArea';
+import { ScrollArea, ScrollBar } from '@/design-system/molecules';
 import {
   Select,
   SelectContent,
@@ -130,8 +130,8 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from '@/design-system/components/Select';
-// import { Separator } from '@/design-system/components/Separator';
+} from '@/design-system/molecules';
+// import { Separator } from '@/design-system/atoms';
 import {
   Sheet,
   SheetClose,
@@ -141,10 +141,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/design-system/components/Sheet';
-import { Skeleton } from '@/design-system/components/Skeleton';
-import { Slider } from '@/design-system/components/Slider';
-// import { Switch } from '@/design-system/components/Switch';
+} from '@/design-system/molecules';
+import { Skeleton } from '@/design-system/atoms';
+import { Slider } from '@/design-system/atoms';
+// import { Switch } from '@/design-system/atoms';
 // import {
 //   Table,
 //   TableBody,
@@ -154,9 +154,14 @@ import { Slider } from '@/design-system/components/Slider';
 //   TableHead,
 //   TableHeader,
 //   TableRow,
-// } from '@/design-system/components/Table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
-// import { Textarea } from '@/design-system/components/Textarea';
+// } from '@/design-system/molecules';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
+// import { Textarea } from '@/design-system/atoms';
 // import {
 //   Toast,
 //   ToastAction,
@@ -166,7 +171,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/compon
 //   ToastTitle,
 //   ToastViewport,
 // } from '@/components/ui/toast';
-// import { Toaster } from '@/design-system/components/Toaster';
+// import { Toaster } from '@/design-system/molecules';
 // import { Toggle } from '@/components/ui/toggle';
 // import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 // import {
@@ -174,7 +179,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/compon
 //   TooltipContent,
 //   TooltipProvider,
 //   TooltipTrigger,
-// } from '@/design-system/components/Tooltip';
+// } from '@/design-system/molecules';
 
 // Custom Components
 // Optional components may not exist in this project; stub exports to satisfy types

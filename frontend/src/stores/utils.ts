@@ -17,34 +17,43 @@ export const createAsyncResource = <S, K extends keyof S, T>(
   transform?: (result: T, state: S) => Partial<S[K]>
 ) => {
   return async () => {
-    set(state => ({
-      [key]: {
-        ...(state as any)[key],
-        loading: true,
-        error: null,
-      },
-    }) as any);
+    set(
+      state =>
+        ({
+          [key]: {
+            ...(state as any)[key],
+            loading: true,
+            error: null,
+          },
+        }) as any
+    );
 
     try {
       const result = await fetcher(get());
-      set(state => ({
-        [key]: {
-          ...(state as any)[key],
-          loading: false,
-          error: null,
-          lastUpdated: Date.now(),
-          ...(transform ? transform(result, state as S) : { data: result }),
-        },
-      }) as any);
+      set(
+        state =>
+          ({
+            [key]: {
+              ...(state as any)[key],
+              loading: false,
+              error: null,
+              lastUpdated: Date.now(),
+              ...(transform ? transform(result, state as S) : { data: result }),
+            },
+          }) as any
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      set(state => ({
-        [key]: {
-          ...(state as any)[key],
-          loading: false,
-          error: message,
-        },
-      }) as any);
+      set(
+        state =>
+          ({
+            [key]: {
+              ...(state as any)[key],
+              loading: false,
+              error: message,
+            },
+          }) as any
+      );
     }
   };
 };

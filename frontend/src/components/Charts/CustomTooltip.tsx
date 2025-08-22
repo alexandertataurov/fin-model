@@ -2,8 +2,6 @@ import React from 'react';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
 import { Card, Separator } from '../ui';
 
-
-
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{
@@ -31,10 +29,6 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
     return null;
   }
 
-
-
-
-
   const getFormattedValue = (value: number | string, name: string): string => {
     if (formatter) {
       const [val] = formatter(value, name);
@@ -42,8 +36,14 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
     }
 
     // Auto-detect formatting based on name or value
-    if (name.toLowerCase().includes('percent') || name.toLowerCase().includes('rate') || name.toLowerCase().includes('margin')) {
-      return formatPercentage(typeof value === 'number' ? value : Number(value) || 0);
+    if (
+      name.toLowerCase().includes('percent') ||
+      name.toLowerCase().includes('rate') ||
+      name.toLowerCase().includes('margin')
+    ) {
+      return formatPercentage(
+        typeof value === 'number' ? value : Number(value) || 0
+      );
     }
 
     if (typeof value === 'number') {
@@ -55,12 +55,16 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
 
   const formattedLabel = labelFormatter ? labelFormatter(label || '') : label;
 
-  const total = showTotal && payload.length > 1
-    ? payload.reduce((sum, item) => {
-      const val = typeof item.value === 'number' ? item.value : parseFloat(String(item.value)) || 0;
-      return sum + val;
-    }, 0)
-    : null;
+  const total =
+    showTotal && payload.length > 1
+      ? payload.reduce((sum, item) => {
+          const val =
+            typeof item.value === 'number'
+              ? item.value
+              : parseFloat(String(item.value)) || 0;
+          return sum + val;
+        }, 0)
+      : null;
 
   return (
     <Card
@@ -69,18 +73,13 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
     >
       {/* Label */}
       {formattedLabel && (
-        <h4 className="font-semibold mb-2 text-foreground">
-          {formattedLabel}
-        </h4>
+        <h4 className="font-semibold mb-2 text-foreground">{formattedLabel}</h4>
       )}
 
       {/* Data Items */}
       <div className="flex flex-col gap-1">
         {payload.map((item, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between gap-2"
-          >
+          <div key={index} className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-full flex-shrink-0"
@@ -102,9 +101,7 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
         <>
           <Separator className="my-2" />
           <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold text-foreground">
-              Total
-            </span>
+            <span className="font-semibold text-foreground">Total</span>
             <span className="font-bold text-primary text-right">
               {formatCurrency(total)}
             </span>
@@ -115,4 +112,4 @@ export const CustomTooltip: React.FC<CustomTooltipProps> = ({
   );
 };
 
-export default CustomTooltip; 
+export default CustomTooltip;

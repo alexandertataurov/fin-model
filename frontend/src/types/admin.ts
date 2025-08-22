@@ -234,15 +234,22 @@ export class AdminDataTransformer {
         active: raw.users?.active || 0,
         verified: raw.users?.verified || 0,
         new24h: raw.users?.new_24h || 0,
-        activePercentage: raw.users?.total > 0 ? (raw.users.active / raw.users.total) * 100 : 0,
-        verifiedPercentage: raw.users?.total > 0 ? (raw.users.verified / raw.users.total) * 100 : 0,
+        activePercentage:
+          raw.users?.total > 0 ? (raw.users.active / raw.users.total) * 100 : 0,
+        verifiedPercentage:
+          raw.users?.total > 0
+            ? (raw.users.verified / raw.users.total) * 100
+            : 0,
       },
       files: {
         total: raw.files?.total || 0,
         completed: raw.files?.completed || 0,
         processing: raw.files?.processing || 0,
         failed: raw.files?.failed || 0,
-        completedPercentage: raw.files?.total > 0 ? (raw.files.completed / raw.files.total) * 100 : 0,
+        completedPercentage:
+          raw.files?.total > 0
+            ? (raw.files.completed / raw.files.total) * 100
+            : 0,
       },
       financial: {
         statements: raw.financial_data?.statements || 0,
@@ -251,7 +258,8 @@ export class AdminDataTransformer {
       },
       system: {
         databaseSize: raw.system?.database_size || '0 MB',
-        uptime: Date.now() - new Date(raw.system?.timestamp || Date.now()).getTime(),
+        uptime:
+          Date.now() - new Date(raw.system?.timestamp || Date.now()).getTime(),
         version: raw.system?.version || '1.0.0',
         environment: raw.system?.environment || 'development',
       },
@@ -347,23 +355,32 @@ export class AdminDataTransformer {
     };
   }
 
-  private static normalizeResourceUsage(current: number, type: string): ResourceUsage {
+  private static normalizeResourceUsage(
+    current: number,
+    type: string
+  ): ResourceUsage {
     const thresholds = {
       cpu: { warning: 70, critical: 90 },
       memory: { warning: 80, critical: 95 },
       disk: { warning: 85, critical: 95 },
     };
 
-    const threshold = thresholds[type as keyof typeof thresholds] || { warning: 80, critical: 90 };
+    const threshold = thresholds[type as keyof typeof thresholds] || {
+      warning: 80,
+      critical: 90,
+    };
 
     return {
       current: current || 0,
       average: current || 0, // Would be calculated from historical data
-      peak: current || 0,    // Would be tracked over time
+      peak: current || 0, // Would be tracked over time
       threshold,
-      status: current >= threshold.critical ? 'critical'
-             : current >= threshold.warning ? 'warning'
-             : 'healthy',
+      status:
+        current >= threshold.critical
+          ? 'critical'
+          : current >= threshold.warning
+            ? 'warning'
+            : 'healthy',
     };
   }
 

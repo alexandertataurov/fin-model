@@ -1,6 +1,6 @@
 /**
  * Resize Observer Hook
- * 
+ *
  * Efficiently monitors element size changes using ResizeObserver
  * Provides performance benefits over window resize listeners
  */
@@ -38,7 +38,7 @@ export const useResizeObserver = (
     if (!element) return;
 
     // Create observer
-    observerRef.current = new ResizeObserver((entries) => {
+    observerRef.current = new ResizeObserver(entries => {
       for (const entry of entries) {
         callbackRef.current({
           contentRect: {
@@ -81,7 +81,7 @@ export const useElementSize = <T extends Element = Element>(
 ) => {
   const [size, setSize] = useState({ width: 0, height: 0 });
 
-  useResizeObserver(ref, (entry) => {
+  useResizeObserver(ref, entry => {
     setSize({
       width: entry.contentRect.width,
       height: entry.contentRect.height,
@@ -97,7 +97,7 @@ export const useElementPosition = <T extends Element = Element>(
 ) => {
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
-  useResizeObserver(ref, (entry) => {
+  useResizeObserver(ref, entry => {
     setPosition({
       top: entry.contentRect.top,
       left: entry.contentRect.left,
@@ -119,7 +119,7 @@ export const useIntersectionObserver = (
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver((entries) => {
+    const observer = new IntersectionObserver(entries => {
       for (const entry of entries) {
         setIsIntersecting(entry.isIntersecting);
         setIntersectionRatio(entry.intersectionRatio);
@@ -149,7 +149,7 @@ export const useVisibilityObserver = (
     if (!element) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         for (const entry of entries) {
           const ratio = entry.intersectionRatio;
           setVisibilityRatio(ratio);

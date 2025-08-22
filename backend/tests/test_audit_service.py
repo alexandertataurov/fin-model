@@ -41,7 +41,9 @@ def test_log_audit_rolls_back_on_error(
     monkeypatch.setattr(db_session, "rollback", record_rollback)
 
     initial = db_session.query(AuditLog).count()
-    result = log_audit(db_session, user_id=1, action="LOGIN", resource="system")
+    result = log_audit(
+        db_session, user_id=1, action="LOGIN", resource="system"
+    )
 
     assert result is None
     assert called["rollback"] is True

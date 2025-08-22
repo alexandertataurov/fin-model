@@ -31,11 +31,15 @@ class ReportTemplate(Base):
     report_type = Column(String(50), nullable=False, index=True)
     template_config = Column(JSON, default=dict)
     branding_config = Column(JSON, default=dict)
-    created_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    created_by = Column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
     created_at = Column(DateTime, default=datetime.utcnow)
     is_system = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     schedules = relationship("ReportSchedule", back_populates="template")
@@ -50,14 +54,21 @@ class ReportSchedule(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     template_id = Column(
-        Integer, ForeignKey("report_templates.id"), nullable=False, index=True
+        Integer,
+        ForeignKey("report_templates.id"),
+        nullable=False,
+        index=True,
     )
     schedule = Column(String(100), nullable=False)  # Cron expression
     enabled = Column(Boolean, default=True)
     next_run = Column(DateTime, index=True)
-    created_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    created_by = Column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     template = relationship("ReportTemplate", back_populates="schedules")
@@ -76,14 +87,22 @@ class ReportExport(Base):
         String(20), default="pending", index=True
     )  # pending, processing, completed, failed
     template_id = Column(
-        Integer, ForeignKey("report_templates.id"), nullable=True, index=True
+        Integer,
+        ForeignKey("report_templates.id"),
+        nullable=True,
+        index=True,
     )
     schedule_id = Column(
-        Integer, ForeignKey("report_schedules.id"), nullable=True, index=True
+        Integer,
+        ForeignKey("report_schedules.id"),
+        nullable=True,
+        index=True,
     )
     file_path = Column(String(500))
     file_size = Column(Integer)
-    created_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    created_by = Column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     processing_started_at = Column(DateTime)
     processing_completed_at = Column(DateTime)

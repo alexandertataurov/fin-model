@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Badge } from '@/design-system/components/Badge';
-import { Button } from '@/design-system/components/Button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
+import { Button } from '@/design-system/atoms';
 import { cn } from '@/utils/cn';
 import {
   TrendingUp,

@@ -1,96 +1,103 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card'
-import { Button } from '@/design-system/components/Button'
-import { Badge } from '@/design-system/components/Badge'
-import { ScrollArea } from '@/design-system/components/ScrollArea'
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/design-system/components/Table'
-import { Clock, User, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react'
-import LoadingState from './LoadingState'
-import type { Parameter } from './ParameterPanel'
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { ScrollArea } from '@/design-system/molecules';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/design-system/molecules';
+import { Clock, User, TrendingUp, TrendingDown, RotateCcw } from 'lucide-react';
+import LoadingState from './LoadingState';
+import type { Parameter } from './ParameterPanel';
 
 interface ParameterHistoryProps {
-  parameter: Parameter
-  onClose: () => void
-  onRevertToValue?: (value: number) => void
+  parameter: Parameter;
+  onClose: () => void;
+  onRevertToValue?: (value: number) => void;
 }
 
 interface HistoryEntry {
-  id: string
-  parameter_id: string
-  value: number
-  original_value: number
-  change_reason: string
-  changed_at: string
+  id: string;
+  parameter_id: string;
+  value: number;
+  original_value: number;
+  change_reason: string;
+  changed_at: string;
   changed_by: {
-    id: string
-    name: string
-    email: string
-  }
-  is_valid: boolean
-  validation_errors: string[]
+    id: string;
+    name: string;
+    email: string;
+  };
+  is_valid: boolean;
+  validation_errors: string[];
 }
 
-export function ParameterHistory({ 
-  parameter, 
-  onClose, 
-  onRevertToValue 
+export function ParameterHistory({
+  parameter,
+  onClose,
+  onRevertToValue,
 }: ParameterHistoryProps) {
-  const [history, setHistory] = useState<HistoryEntry[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadHistory = useCallback(async () => {
     try {
-      const response = await fetch(`/api/v1/parameters/${parameter.id}/history?limit=50`)
+      const response = await fetch(
+        `/api/v1/parameters/${parameter.id}/history?limit=50`
+      );
       if (response.ok) {
-        const data = await response.json()
-        setHistory(data)
+        const data = await response.json();
+        setHistory(data);
       } else {
-        setError('Failed to load parameter history')
+        setError('Failed to load parameter history');
       }
-  } catch (_err) {
-      setError('Failed to connect to server')
+    } catch (_err) {
+      setError('Failed to connect to server');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [parameter.id])
+  }, [parameter.id]);
 
   useEffect(() => {
-    loadHistory()
-  }, [loadHistory])
+    loadHistory();
+  }, [loadHistory]);
 
   const formatValue = (value: number) => {
     switch (parameter.display_format) {
       case 'percentage':
-        return `${(value * 100).toFixed(2)}%`
+        return `${(value * 100).toFixed(2)}%`;
       case 'currency':
         return new Intl.NumberFormat('en-US', {
           style: 'currency',
-          currency: 'USD'
-        }).format(value)
+          currency: 'USD',
+        }).format(value);
       default:
-        return value.toFixed(4)
+        return value.toFixed(4);
     }
-  }
+  };
 
   const calculateChange = (oldValue: number, newValue: number) => {
-    if (oldValue === 0) return newValue > 0 ? 100 : 0
-    return ((newValue - oldValue) / oldValue * 100)
-  }
+    if (oldValue === 0) return newValue > 0 ? 100 : 0;
+    return ((newValue - oldValue) / oldValue) * 100;
+  };
 
   const handleRevert = (value: number) => {
     if (onRevertToValue) {
-      onRevertToValue(value)
-      onClose()
+      onRevertToValue(value);
+      onClose();
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -101,7 +108,9 @@ export function ParameterHistory({
               <Clock className="h-5 w-5" />
               Parameter History: {parameter.display_name || parameter.name}
             </CardTitle>
-            <Button variant="outline" onClick={onClose}>×</Button>
+            <Button variant="outline" onClick={onClose}>
+              ×
+            </Button>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span>Current Value: {formatValue(parameter.value)}</span>
@@ -116,9 +125,7 @@ export function ParameterHistory({
           {loading && <LoadingState message="Loading history..." />}
 
           {error && (
-            <div className="text-center py-8 text-red-500">
-              {error}
-            </div>
+            <div className="text-center py-8 text-red-500">{error}</div>
           )}
 
           {!loading && !error && (
@@ -137,14 +144,20 @@ export function ParameterHistory({
                 </TableHeader>
                 <TableBody>
                   {history.map((entry, _index) => {
-                    const change = calculateChange(entry.original_value, entry.value)
-                    const isIncrease = change > 0
-                    const isCurrentValue = Math.abs(entry.value - parameter.value) < 0.0001
+                    const change = calculateChange(
+                      entry.original_value,
+                      entry.value
+                    );
+                    const isIncrease = change > 0;
+                    const isCurrentValue =
+                      Math.abs(entry.value - parameter.value) < 0.0001;
 
                     return (
-                      <TableRow 
+                      <TableRow
                         key={entry.id}
-                        className={isCurrentValue ? 'bg-blue-50 border-blue-200' : ''}
+                        className={
+                          isCurrentValue ? 'bg-blue-50 border-blue-200' : ''
+                        }
                       >
                         <TableCell>
                           <div className="text-sm">
@@ -154,7 +167,7 @@ export function ParameterHistory({
                             {new Date(entry.changed_at).toLocaleTimeString()}
                           </div>
                         </TableCell>
-                        
+
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4" />
@@ -168,13 +181,13 @@ export function ParameterHistory({
                             </div>
                           </div>
                         </TableCell>
-                        
+
                         <TableCell>
                           <span className="font-mono text-sm">
                             {formatValue(entry.original_value)}
                           </span>
                         </TableCell>
-                        
+
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-sm">
@@ -187,7 +200,7 @@ export function ParameterHistory({
                             )}
                           </div>
                         </TableCell>
-                        
+
                         <TableCell>
                           <div className="flex items-center gap-1">
                             {isIncrease ? (
@@ -195,22 +208,27 @@ export function ParameterHistory({
                             ) : change < 0 ? (
                               <TrendingDown className="h-4 w-4 text-red-500" />
                             ) : null}
-                            <span className={`text-sm font-medium ${
-                              isIncrease ? 'text-green-600' : 
-                              change < 0 ? 'text-red-600' : 
-                              'text-gray-600'
-                            }`}>
-                              {change > 0 ? '+' : ''}{change.toFixed(1)}%
+                            <span
+                              className={`text-sm font-medium ${
+                                isIncrease
+                                  ? 'text-green-600'
+                                  : change < 0
+                                    ? 'text-red-600'
+                                    : 'text-gray-600'
+                              }`}
+                            >
+                              {change > 0 ? '+' : ''}
+                              {change.toFixed(1)}%
                             </span>
                           </div>
                         </TableCell>
-                        
+
                         <TableCell>
                           <span className="text-sm">
                             {entry.change_reason || 'No reason provided'}
                           </span>
                         </TableCell>
-                        
+
                         <TableCell>
                           {!isCurrentValue && onRevertToValue && (
                             <Button
@@ -225,7 +243,7 @@ export function ParameterHistory({
                           )}
                         </TableCell>
                       </TableRow>
-                    )
+                    );
                   })}
                 </TableBody>
               </Table>
@@ -240,5 +258,5 @@ export function ParameterHistory({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

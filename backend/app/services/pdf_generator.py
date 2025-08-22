@@ -42,7 +42,9 @@ class PDFReportGenerator:
 
     def __init__(self, output_dir: Optional[str] = None):
         self.output_dir = (
-            Path(output_dir) if output_dir else Path(settings.UPLOAD_DIR) / "reports"
+            Path(output_dir)
+            if output_dir
+            else Path(settings.UPLOAD_DIR) / "reports"
         )
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -181,7 +183,9 @@ class PDFReportGenerator:
 
         return str(output_path)
 
-    def _build_header(self, branding_config: Optional[Dict[str, Any]]) -> List:
+    def _build_header(
+        self, branding_config: Optional[Dict[str, Any]]
+    ) -> List:
         """Build report header with company branding."""
         story = []
 
@@ -208,27 +212,39 @@ class PDFReportGenerator:
 
         # Report date
         report_date = datetime.now().strftime("%B %d, %Y")
-        story.append(Paragraph(f"Generated on {report_date}", self.styles["Normal"]))
+        story.append(
+            Paragraph(f"Generated on {report_date}", self.styles["Normal"])
+        )
         story.append(Spacer(1, 30))
 
         return story
 
-    def _build_executive_summary(self, summary_data: Dict[str, Any]) -> List:
+    def _build_executive_summary(
+        self, summary_data: Dict[str, Any]
+    ) -> List:
         """Build executive summary section."""
         story = []
 
-        story.append(Paragraph("Executive Summary", self.styles["SectionHeader"]))
+        story.append(
+            Paragraph("Executive Summary", self.styles["SectionHeader"])
+        )
 
         # Summary text
         if "overview" in summary_data:
-            story.append(Paragraph(summary_data["overview"], self.styles["Normal"]))
+            story.append(
+                Paragraph(summary_data["overview"], self.styles["Normal"])
+            )
             story.append(Spacer(1, 15))
 
         # Key highlights
         if "highlights" in summary_data:
-            story.append(Paragraph("Key Highlights:", self.styles["MetricTitle"]))
+            story.append(
+                Paragraph("Key Highlights:", self.styles["MetricTitle"])
+            )
             for highlight in summary_data["highlights"]:
-                story.append(Paragraph(f"• {highlight}", self.styles["Normal"]))
+                story.append(
+                    Paragraph(f"• {highlight}", self.styles["Normal"])
+                )
             story.append(Spacer(1, 20))
 
         return story
@@ -237,7 +253,11 @@ class PDFReportGenerator:
         """Build key metrics section with KPI boxes."""
         story = []
 
-        story.append(Paragraph("Key Financial Metrics", self.styles["SectionHeader"]))
+        story.append(
+            Paragraph(
+                "Key Financial Metrics", self.styles["SectionHeader"]
+            )
+        )
 
         # Create metrics table (2 columns)
         metrics = []
@@ -246,10 +266,13 @@ class PDFReportGenerator:
                 if isinstance(value, (int, float)):
                     formatted_value = (
                         self._format_currency(value)
-                        if "revenue" in key.lower() or "profit" in key.lower()
+                        if "revenue" in key.lower()
+                        or "profit" in key.lower()
                         else f"{value:,.2f}"
                     )
-                    metrics.append([key.replace("_", " ").title(), formatted_value])
+                    metrics.append(
+                        [key.replace("_", " ").title(), formatted_value]
+                    )
 
         if metrics:
             # Create table with 2 columns, multiple rows
@@ -292,7 +315,9 @@ class PDFReportGenerator:
         """Build charts section with matplotlib-generated charts."""
         story = []
 
-        story.append(Paragraph("Financial Charts", self.styles["SectionHeader"]))
+        story.append(
+            Paragraph("Financial Charts", self.styles["SectionHeader"])
+        )
 
         for chart_name, chart_data in charts_data.items():
             if not chart_data:
@@ -321,7 +346,9 @@ class PDFReportGenerator:
             return None
 
         try:
-            fig, ax = plt.subplots(figsize=self.chart_config["figure_size"])
+            fig, ax = plt.subplots(
+                figsize=self.chart_config["figure_size"]
+            )
 
             # Convert data to pandas DataFrame for easier manipulation
             df = pd.DataFrame(data)
@@ -419,7 +446,11 @@ class PDFReportGenerator:
         """Build detailed tables section."""
         story = []
 
-        story.append(Paragraph("Detailed Financial Data", self.styles["SectionHeader"]))
+        story.append(
+            Paragraph(
+                "Detailed Financial Data", self.styles["SectionHeader"]
+            )
+        )
 
         for table_name, table_data in tables_data.items():
             if not table_data:
@@ -446,7 +477,9 @@ class PDFReportGenerator:
                     table_rows = [headers]
                     for row in table_data:
                         if isinstance(row, dict):
-                            table_rows.append([str(row.get(h, "")) for h in headers])
+                            table_rows.append(
+                                [str(row.get(h, "")) for h in headers]
+                            )
 
                     # Create ReportLab table
                     table = Table(table_rows)
@@ -502,7 +535,11 @@ class PDFReportGenerator:
 
         story.append(PageBreak())
         story.append(Spacer(1, 50))
-        story.append(Paragraph("Report generated by FinVision", self.styles["Normal"]))
+        story.append(
+            Paragraph(
+                "Report generated by FinVision", self.styles["Normal"]
+            )
+        )
         story.append(
             Paragraph(
                 f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
@@ -562,7 +599,9 @@ class PDFReportGenerator:
             fig_width = width / dpi
             fig_height = height / dpi
 
-            fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
+            fig, ax = plt.subplots(
+                figsize=(fig_width, fig_height), dpi=dpi
+            )
 
             # Generate chart
             if "data" in chart_data:

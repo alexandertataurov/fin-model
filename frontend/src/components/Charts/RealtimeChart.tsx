@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Button } from '@/design-system/components/Button';
-import { Badge } from '@/design-system/components/Badge';
+import { Button } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
 import { cn } from '@/utils/cn';
 import { Play, Pause, RotateCcw, WifiOff, Wifi } from 'lucide-react';
 import { dashboardWebSocketService as websocketService } from '../../services/websocket';
@@ -251,9 +251,9 @@ export const RealtimeChart: React.FC<RealtimeChartProps> = ({
             // Pass through any animation props for smooth updates
             animation: isLive
               ? {
-                duration: 750,
-                easing: 'ease-out',
-              }
+                  duration: 750,
+                  easing: 'ease-out',
+                }
               : false,
           } as any
         )}

@@ -92,70 +92,98 @@ export const createOverviewSlice: StateCreator<
 
   fetchSystemStats: async () => {
     set(state => ({
-      systemStats: updateNormalizedResponse(state.systemStats, { loading: true, error: null })
+      systemStats: updateNormalizedResponse(state.systemStats, {
+        loading: true,
+        error: null,
+      }),
     }));
 
     try {
       const data = await AdminApi.getSystemStats();
       set(state => ({
-        systemStats: updateNormalizedResponse(state.systemStats, { data, loading: false })
+        systemStats: updateNormalizedResponse(state.systemStats, {
+          data,
+          loading: false,
+        }),
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch system stats';
+      const message =
+        error instanceof Error ? error.message : 'Failed to fetch system stats';
       set(state => ({
         systemStats: updateNormalizedResponse(state.systemStats, {
           loading: false,
-          error: message
-        })
+          error: message,
+        }),
       }));
     }
   },
 
   fetchUserActivity: async () => {
     set(state => ({
-      userActivity: updateNormalizedResponse(state.userActivity, { loading: true, error: null })
+      userActivity: updateNormalizedResponse(state.userActivity, {
+        loading: true,
+        error: null,
+      }),
     }));
 
     try {
       const data = await AdminApi.getUserActivity(20);
       set(state => ({
-        userActivity: updateNormalizedResponse(state.userActivity, { data, loading: false })
+        userActivity: updateNormalizedResponse(state.userActivity, {
+          data,
+          loading: false,
+        }),
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch user activity';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch user activity';
       set(state => ({
         userActivity: updateNormalizedResponse(state.userActivity, {
           loading: false,
-          error: message
-        })
+          error: message,
+        }),
       }));
     }
   },
 
   fetchSystemMetrics: async () => {
     set(state => ({
-      systemMetrics: updateNormalizedResponse(state.systemMetrics, { loading: true, error: null })
+      systemMetrics: updateNormalizedResponse(state.systemMetrics, {
+        loading: true,
+        error: null,
+      }),
     }));
 
     try {
       const data = await AdminApi.getSystemMetrics();
       set(state => ({
-        systemMetrics: updateNormalizedResponse(state.systemMetrics, { data, loading: false })
+        systemMetrics: updateNormalizedResponse(state.systemMetrics, {
+          data,
+          loading: false,
+        }),
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch system metrics';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch system metrics';
       set(state => ({
         systemMetrics: updateNormalizedResponse(state.systemMetrics, {
           loading: false,
-          error: message
-        })
+          error: message,
+        }),
       }));
     }
   },
 
   fetchSecurityAudit: async () => {
     set(state => ({
-      securityAudit: updateNormalizedResponse(state.securityAudit, { loading: true, error: null })
+      securityAudit: updateNormalizedResponse(state.securityAudit, {
+        loading: true,
+        error: null,
+      }),
     }));
 
     try {
@@ -165,57 +193,81 @@ export const createOverviewSlice: StateCreator<
         to: audit?.to || undefined,
       });
       set(state => ({
-        securityAudit: updateNormalizedResponse(state.securityAudit, { data, loading: false })
+        securityAudit: updateNormalizedResponse(state.securityAudit, {
+          data,
+          loading: false,
+        }),
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch security audit';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch security audit';
       set(state => ({
         securityAudit: updateNormalizedResponse(state.securityAudit, {
           loading: false,
-          error: message
-        })
+          error: message,
+        }),
       }));
     }
   },
 
   fetchSystemHealth: async () => {
     set(state => ({
-      systemHealth: updateNormalizedResponse(state.systemHealth, { loading: true, error: null })
+      systemHealth: updateNormalizedResponse(state.systemHealth, {
+        loading: true,
+        error: null,
+      }),
     }));
 
     try {
       const data = await AdminApi.getSystemHealth();
       set(state => ({
-        systemHealth: updateNormalizedResponse(state.systemHealth, { data, loading: false })
+        systemHealth: updateNormalizedResponse(state.systemHealth, {
+          data,
+          loading: false,
+        }),
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch system health';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch system health';
       set(state => ({
         systemHealth: updateNormalizedResponse(state.systemHealth, {
           loading: false,
-          error: message
-        })
+          error: message,
+        }),
       }));
     }
   },
 
   fetchDatabaseHealth: async () => {
     set(state => ({
-      databaseHealth: updateNormalizedResponse(state.databaseHealth, { loading: true, error: null })
+      databaseHealth: updateNormalizedResponse(state.databaseHealth, {
+        loading: true,
+        error: null,
+      }),
     }));
 
     try {
       const data = await AdminApi.getDatabaseHealth();
       set(state => ({
-        databaseHealth: updateNormalizedResponse(state.databaseHealth, { data, loading: false })
+        databaseHealth: updateNormalizedResponse(state.databaseHealth, {
+          data,
+          loading: false,
+        }),
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch database health';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch database health';
       set(state => ({
         databaseHealth: updateNormalizedResponse(state.databaseHealth, {
           loading: false,
-          error: message
-        })
+          error: message,
+        }),
       }));
     }
   },

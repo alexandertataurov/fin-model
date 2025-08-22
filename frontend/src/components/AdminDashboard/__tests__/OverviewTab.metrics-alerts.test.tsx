@@ -11,8 +11,24 @@ describe('OverviewTab metrics alerts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseAdminStore.mockReturnValue({
-      systemStats: { data: { users: {}, files: {}, financial_data: {}, system: {}, performance: {} }, loading: false, error: null, lastUpdated: Date.now() },
-      userActivity: { data: [], loading: false, error: null, lastUpdated: Date.now() },
+      systemStats: {
+        data: {
+          users: {},
+          files: {},
+          financial_data: {},
+          system: {},
+          performance: {},
+        },
+        loading: false,
+        error: null,
+        lastUpdated: Date.now(),
+      },
+      userActivity: {
+        data: [],
+        loading: false,
+        error: null,
+        lastUpdated: Date.now(),
+      },
       systemMetrics: {
         data: {
           cpu_usage: 10,
@@ -27,7 +43,12 @@ describe('OverviewTab metrics alerts', () => {
         error: null,
         lastUpdated: Date.now(),
       },
-      systemHealth: { data: { status: 'ok' }, loading: false, error: null, lastUpdated: Date.now() },
+      systemHealth: {
+        data: { status: 'ok' },
+        loading: false,
+        error: null,
+        lastUpdated: Date.now(),
+      },
     } as any);
   });
 

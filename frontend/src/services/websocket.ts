@@ -93,7 +93,9 @@ class WebSocketService {
 
       // Don't connect if service is marked as unavailable
       if (!this.isServiceAvailable) {
-        console.warn('WebSocket service is marked as unavailable, skipping connection');
+        console.warn(
+          'WebSocket service is marked as unavailable, skipping connection'
+        );
         throw new Error('WebSocket service unavailable');
       }
 
@@ -116,7 +118,9 @@ class WebSocketService {
       const requiresAuth = endpoint !== '/ws/health';
 
       if (requiresAuth && !token) {
-        console.warn('WebSocket connection requires authentication but no token found');
+        console.warn(
+          'WebSocket connection requires authentication but no token found'
+        );
         this.isConnecting = false;
         this.notifyStatus('disconnected');
         throw new Error('Authentication required');
@@ -241,7 +245,6 @@ class WebSocketService {
           reject(error);
         };
       });
-
     } catch (error) {
       this.isConnecting = false;
       this.stopHeartbeat();

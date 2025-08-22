@@ -15,7 +15,6 @@ export type Breakpoint = keyof typeof breakpoints;
 // Media query utilities
 const createMediaQuery = (minWidth: number) => `(min-width: ${minWidth}px)`;
 
-
 // Custom hook for responsive breakpoints (without Material-UI dependency)
 export const useBreakpoint = () => {
   const [matches, setMatches] = useState({
@@ -80,10 +79,10 @@ export const useBreakpoint = () => {
   return {
     // Current breakpoint
     currentBreakpoint,
-    
+
     // All breakpoint matches
     ...matches,
-    
+
     // Device categories
     isMobile,
     isTablet,
@@ -95,12 +94,12 @@ export const useBreakpoint = () => {
     isMd: currentBreakpoint === 'md',
     isLg: currentBreakpoint === 'lg',
     isXl: currentBreakpoint === 'xl',
-    
+
     // Down breakpoints
     isSmDown: !matches.md,
     isMdDown: !matches.lg,
     isLgDown: !matches.xl,
-    
+
     // Up breakpoints
     isSmUp: matches.sm,
     isMdUp: matches.md,
@@ -109,22 +108,31 @@ export const useBreakpoint = () => {
 };
 
 // Responsive value utility
-export const useResponsiveValue = <T>(values: Partial<Record<Breakpoint, T>>) => {
+export const useResponsiveValue = <T>(
+  values: Partial<Record<Breakpoint, T>>
+) => {
   const { currentBreakpoint } = useBreakpoint();
-  
+
   // Return the value for current breakpoint or the nearest smaller one
   const breakpointOrder: Breakpoint[] = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
   const currentIndex = breakpointOrder.indexOf(currentBreakpoint);
-  
+
   for (let i = currentIndex; i < breakpointOrder.length; i++) {
     const bp = breakpointOrder[i];
     if (values[bp] !== undefined) {
       return values[bp];
     }
   }
-  
+
   // Fallback to the first available value
-  return values['2xl'] || values.xl || values.lg || values.md || values.sm || values.xs;
+  return (
+    values['2xl'] ||
+    values.xl ||
+    values.lg ||
+    values.md ||
+    values.sm ||
+    values.xs
+  );
 };
 
 // Touch device detection
@@ -135,14 +143,15 @@ export const useIsTouchDevice = () => {
     const checkTouchDevice = () => {
       setIsTouchDevice(
         'ontouchstart' in window ||
-        (navigator?.maxTouchPoints ?? 0) > 0 ||
-        ((navigator as Navigator & { msMaxTouchPoints?: number })?.msMaxTouchPoints ?? 0) > 0
+          (navigator?.maxTouchPoints ?? 0) > 0 ||
+          ((navigator as Navigator & { msMaxTouchPoints?: number })
+            ?.msMaxTouchPoints ?? 0) > 0
       );
     };
 
     checkTouchDevice();
     window.addEventListener('resize', checkTouchDevice);
-    
+
     return () => window.removeEventListener('resize', checkTouchDevice);
   }, []);
 
@@ -173,16 +182,20 @@ export const useViewport = () => {
 
 // Orientation detection
 export const useOrientation = () => {
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
-  
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>(
+    'portrait'
+  );
+
   useEffect(() => {
     const updateOrientation = () => {
-      setOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+      setOrientation(
+        window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'
+      );
     };
 
     updateOrientation();
     window.addEventListener('resize', updateOrientation);
-    
+
     return () => window.removeEventListener('resize', updateOrientation);
   }, []);
 
@@ -213,7 +226,9 @@ export interface SwipeHandlers {
 }
 
 export const useSwipeGestures = (handlers: SwipeHandlers, threshold = 50) => {
-  const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(
+    null
+  );
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -318,7 +333,7 @@ export const useProgressiveEnhancement = () => {
 
   useEffect(() => {
     // Check if we can use advanced features
-    const supportsAdvancedFeatures = 
+    const supportsAdvancedFeatures =
       'IntersectionObserver' in window &&
       'requestAnimationFrame' in window &&
       CSS.supports('display', 'grid');
@@ -337,14 +352,14 @@ export const responsiveUtils = {
     prefix = ''
   ): string => {
     const classes: string[] = [];
-    
+
     if (values.xs) classes.push(`${prefix}${values.xs}`);
     if (values.sm) classes.push(`sm:${prefix}${values.sm}`);
     if (values.md) classes.push(`md:${prefix}${values.md}`);
     if (values.lg) classes.push(`lg:${prefix}${values.lg}`);
     if (values.xl) classes.push(`xl:${prefix}${values.xl}`);
     if (values['2xl']) classes.push(`2xl:${prefix}${values['2xl']}`);
-    
+
     return classes.join(' ');
   },
 

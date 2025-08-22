@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
-import { Badge } from '@/design-system/components/Badge';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
 import {
   LineChart,
   Line,
@@ -80,7 +85,7 @@ export function ImpactAnalysis({ parameter, onClose }: ImpactAnalysisProps) {
       } else {
         setError('Failed to run impact analysis');
       }
-  } catch (_err) {
+    } catch (_err) {
       setError('Failed to connect to server');
     } finally {
       setLoading(false);

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import './design-system/tokens.css';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Ensure React is available globally
@@ -46,8 +46,15 @@ try {
   fallback.render(
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Error Loading Application</h1>
-      <p>There was an error loading the application. Please check the console for details.</p>
-      <pre style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>{msg}</pre>
+      <p>
+        There was an error loading the application. Please check the console for
+        details.
+      </p>
+      <pre
+        style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}
+      >
+        {msg}
+      </pre>
     </div>
   );
 }

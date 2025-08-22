@@ -86,7 +86,7 @@ export const BarChart: React.FC<BarChartProps> = ({
     if (formatYAxisTick) {
       return formatYAxisTick(value);
     }
-    
+
     // Auto-format based on value size
     if (Math.abs(value) >= 1000000) {
       return `${currency}${(value / 1000000).toFixed(1)}M`;
@@ -127,19 +127,27 @@ export const BarChart: React.FC<BarChartProps> = ({
             opacity={0.5}
           />
         )}
-        
+
         {layout === 'vertical' ? (
           <>
             <XAxis
               dataKey={xAxisKey}
               tick={{ fontSize: 12 }}
               tickFormatter={formatXAxis}
-              label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -10 } : undefined}
+              label={
+                xAxisLabel
+                  ? { value: xAxisLabel, position: 'insideBottom', offset: -10 }
+                  : undefined
+              }
             />
             <YAxis
               tick={{ fontSize: 12 }}
               tickFormatter={formatYAxis}
-              label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
+              label={
+                yAxisLabel
+                  ? { value: yAxisLabel, angle: -90, position: 'insideLeft' }
+                  : undefined
+              }
             />
           </>
         ) : (
@@ -148,29 +156,37 @@ export const BarChart: React.FC<BarChartProps> = ({
               type="number"
               tick={{ fontSize: 12 }}
               tickFormatter={formatYAxis}
-              label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -10 } : undefined}
+              label={
+                xAxisLabel
+                  ? { value: xAxisLabel, position: 'insideBottom', offset: -10 }
+                  : undefined
+              }
             />
             <YAxis
               type="category"
               dataKey={xAxisKey}
               tick={{ fontSize: 12 }}
               tickFormatter={formatXAxis}
-              label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
+              label={
+                yAxisLabel
+                  ? { value: yAxisLabel, angle: -90, position: 'insideLeft' }
+                  : undefined
+              }
             />
           </>
         )}
-        
+
         <RechartsTooltip
           data-testid="tooltip"
           content={
             <CustomTooltip
               formatter={formatTooltip}
-              labelFormatter={(label) => `Category: ${label}`}
+              labelFormatter={label => `Category: ${label}`}
               showTotal={true}
             />
           }
         />
-        
+
         {showLegend && (
           <Legend
             wrapperStyle={{
@@ -184,7 +200,9 @@ export const BarChart: React.FC<BarChartProps> = ({
         {referenceLines.map((refLine, index) => (
           <ReferenceLine
             key={index}
-            {...(layout === 'vertical' ? { y: refLine.value } : { x: refLine.value })}
+            {...(layout === 'vertical'
+              ? { y: refLine.value }
+              : { x: refLine.value })}
             stroke={refLine.color || 'var(--muted-foreground)'} // DESIGN_FIX: replace hex
             strokeDasharray="5 5"
             label={{
@@ -196,7 +214,7 @@ export const BarChart: React.FC<BarChartProps> = ({
         ))}
 
         {/* Data Bars */}
-        {enhancedSeries.map((seriesItem) => (
+        {enhancedSeries.map(seriesItem => (
           <Bar
             key={seriesItem.dataKey}
             dataKey={seriesItem.dataKey}
@@ -227,4 +245,4 @@ export const BarChart: React.FC<BarChartProps> = ({
   );
 };
 
-export default BarChart; 
+export default BarChart;

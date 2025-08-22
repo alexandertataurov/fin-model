@@ -5,11 +5,16 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Badge } from '@/design-system/components/Badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
+import { Alert, AlertDescription } from '@/design-system/molecules';
 
 import { DistributionChart } from './DistributionChart';
 import { ScatterPlot } from './ScatterPlot';

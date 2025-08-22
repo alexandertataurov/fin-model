@@ -9,16 +9,16 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/design-system/components/Select';
-// import { Badge } from '@/design-system/components/Badge';
+} from '@/design-system/molecules';
+// import { Badge } from '@/design-system/atoms';
 import {
   BarChart,
   Bar,
@@ -334,10 +334,11 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
           <button
             key={metric.key}
             onClick={() => toggleMetric(metric.key)}
-            className={`flex items-center space-x-2 p-2 rounded text-sm transition-colors ${selectedMetrics.includes(metric.key)
+            className={`flex items-center space-x-2 p-2 rounded text-sm transition-colors ${
+              selectedMetrics.includes(metric.key)
                 ? 'bg-blue-100 text-blue-800 border-blue-200'
                 : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-              }`}
+            }`}
           >
             {selectedMetrics.includes(metric.key) ? (
               <Eye className="w-3 h-3" />
@@ -418,15 +419,17 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
             const metric = metrics.find(m => m.key === metricKey);
             const latestValue =
               filteredData[filteredData.length - 1]?.[
-              metricKey as keyof FinancialData
+                metricKey as keyof FinancialData
               ] || 0;
             const previousValue =
               filteredData[filteredData.length - 2]?.[
-              metricKey as keyof FinancialData
+                metricKey as keyof FinancialData
               ] || 0;
             const change = Number(latestValue) - Number(previousValue);
             const changePercent =
-              Number(previousValue) !== 0 ? (change / Number(previousValue)) * 100 : 0;
+              Number(previousValue) !== 0
+                ? (change / Number(previousValue)) * 100
+                : 0;
 
             return (
               <Card key={metricKey} className="p-3">
@@ -435,8 +438,9 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({
                     {metric?.name}
                   </h4>
                   <div
-                    className={`text-xs ${change >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
+                    className={`text-xs ${
+                      change >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}
                   >
                     {change >= 0 ? '+' : ''}
                     {changePercent.toFixed(1)}%

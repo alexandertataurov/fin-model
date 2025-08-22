@@ -581,7 +581,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     return () => {
       disconnect();
     };
-  }, [autoConnect, connect, disconnect, showWebSocketLimitationNotification, getAuthToken]);
+  }, [
+    autoConnect,
+    connect,
+    disconnect,
+    showWebSocketLimitationNotification,
+    getAuthToken,
+  ]);
 
   // Monitor connection state
   useEffect(() => {

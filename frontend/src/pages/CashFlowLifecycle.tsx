@@ -5,12 +5,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
-import { Badge } from '@/design-system/components/Badge';
+} from '@/design-system/molecules';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
 import {
   RefreshCw,
   TrendingUp,

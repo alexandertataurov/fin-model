@@ -1,6 +1,6 @@
 /**
  * Error Boundary Component for Dashboard
- * 
+ *
  * Provides consistent error handling across dashboard components
  */
 
@@ -31,7 +31,11 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Dashboard Error Boundary caught an error:', error, errorInfo);
+    console.error(
+      'Dashboard Error Boundary caught an error:',
+      error,
+      errorInfo
+    );
   }
 
   handleRetry = () => {
@@ -56,12 +60,13 @@ class ErrorBoundary extends Component<Props, State> {
                   {this.props.title || 'Dashboard Error'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {this.state.error?.message || 'Something went wrong while loading this component.'}
+                  {this.state.error?.message ||
+                    'Something went wrong while loading this component.'}
                 </p>
               </div>
             </AlertDescription>
           </Alert>
-          
+
           <div className="flex gap-3 justify-center">
             <Button
               variant="outline"

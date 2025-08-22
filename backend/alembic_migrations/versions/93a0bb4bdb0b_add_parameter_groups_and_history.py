@@ -49,8 +49,12 @@ def upgrade() -> None:
             sa.ForeignKey("parameters.id"),
             nullable=False,
         ),
-        sa.Column("old_value", sa.Numeric(precision=15, scale=6), nullable=True),
-        sa.Column("new_value", sa.Numeric(precision=15, scale=6), nullable=False),
+        sa.Column(
+            "old_value", sa.Numeric(precision=15, scale=6), nullable=True
+        ),
+        sa.Column(
+            "new_value", sa.Numeric(precision=15, scale=6), nullable=False
+        ),
         sa.Column(
             "changed_by",
             sa.Integer,
@@ -79,15 +83,21 @@ def upgrade() -> None:
     )
     op.add_column(
         "parameters",
-        sa.Column("step_size", sa.Numeric(precision=15, scale=6), nullable=True),
+        sa.Column(
+            "step_size", sa.Numeric(precision=15, scale=6), nullable=True
+        ),
     )
     op.add_column(
         "parameters",
-        sa.Column("display_format", sa.String(length=50), default="number"),
+        sa.Column(
+            "display_format", sa.String(length=50), default="number"
+        ),
     )
 
     # Create indexes
-    op.create_index("ix_parameter_groups_model_id", "parameter_groups", ["model_id"])
+    op.create_index(
+        "ix_parameter_groups_model_id", "parameter_groups", ["model_id"]
+    )
     op.create_index(
         "ix_parameter_history_parameter_id",
         "parameter_history",

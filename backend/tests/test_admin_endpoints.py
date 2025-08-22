@@ -49,7 +49,8 @@ def test_user_crud_and_roles(client: TestClient):
 
     # List users with envelope
     r = client.get(
-        "/api/v1/admin/users", params={"envelope": True, "limit": 5, "skip": 0}
+        "/api/v1/admin/users",
+        params={"envelope": True, "limit": 5, "skip": 0},
     )
     assert r.status_code == 200
     data = r.json()
@@ -79,9 +80,9 @@ def test_user_crud_and_roles(client: TestClient):
     r_roles = client.get(f"/api/v1/admin/users/{user_id}")
     assert r_roles.status_code == 200
     roles = r_roles.json().get("roles", [])
-    assert roles.count("analyst") == 1 or roles.count("analyst") == roles.count(
+    assert roles.count("analyst") == 1 or roles.count(
         "analyst"
-    )
+    ) == roles.count("analyst")
 
     # Remove role (API may return 400 due to enum/name mismatch in legacy code)
     r = client.delete(f"/api/v1/admin/users/{user_id}/roles/analyst")
@@ -123,7 +124,9 @@ def test_database_admin_endpoints(client: TestClient):
     # Tables
     assert client.get("/api/v1/admin/database/tables").status_code == 200
     # Cleanup dry-run
-    r = client.post("/api/v1/admin/database/cleanup", params={"dry_run": True})
+    r = client.post(
+        "/api/v1/admin/database/cleanup", params={"dry_run": True}
+    )
     assert r.status_code == 200
     # Backup / Export / Reindex
     assert client.post("/api/v1/admin/database/backup").status_code == 200
@@ -166,7 +169,9 @@ def test_file_cleanup_endpoint(client: TestClient):
         db.add(f)
         db.commit()
 
-    r = client.post("/api/v1/admin/files/cleanup", params={"dry_run": True})
+    r = client.post(
+        "/api/v1/admin/files/cleanup", params={"dry_run": True}
+    )
     assert r.status_code == 200
     body = r.json()
     assert {"message", "dry_run"} <= body.keys()
@@ -205,15 +210,21 @@ def test_system_logs_filters_edge_cases(client: TestClient):
     assert r.status_code == 200
     items = r.json()
     assert isinstance(items, list)
-    assert all(item["level"] in ["WARNING", "ERROR", "CRITICAL"] for item in items)
+    assert all(
+        item["level"] in ["WARNING", "ERROR", "CRITICAL"] for item in items
+    )
 
 
 def test_reports_overview_json_csv(client: TestClient):
-    r = client.get("/api/v1/admin/reports/overview", params={"format": "json"})
+    r = client.get(
+        "/api/v1/admin/reports/overview", params={"format": "json"}
+    )
     assert r.status_code == 200
     assert isinstance(r.json(), dict)
 
-    r = client.get("/api/v1/admin/reports/overview", params={"format": "csv"})
+    r = client.get(
+        "/api/v1/admin/reports/overview", params={"format": "csv"}
+    )
     assert r.status_code == 200
     assert r.headers.get("content-type", "").startswith("text/csv")
 

@@ -10,7 +10,8 @@ This document summarizes the component streamlining changes made according to th
 
 #### Deleted Files:
 
-- `frontend/src/components/dashboard-layout.tsx` → Duplicate of DashboardLayout
+- `frontend/src/components/dashboard-layout.tsx` → Duplicate of DashboardLayout (REMOVED)
+- `frontend/src/components/layout.tsx` → Unused simplified layout (REMOVED)
 - `frontend/src/components/file-upload.tsx` → Duplicate of FileUpload
 - `frontend/src/components/DesignSystemDemo.tsx` → Redundant design system component
 - `frontend/src/components/filter-sidebar.tsx` → Duplicate of FilterSidebar

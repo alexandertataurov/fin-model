@@ -4,10 +4,21 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
 // duplicate import removed
-import { Download, Building, CreditCard, PieChart, BarChart3 } from 'lucide-react';
+import {
+  Download,
+  Building,
+  CreditCard,
+  PieChart,
+  BarChart3,
+} from 'lucide-react';
 
 interface BalanceSheetData {
   // Assets Section
@@ -278,19 +289,39 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
     isSubtotal?: boolean;
     indent?: number;
     isNegative?: boolean;
-  }> = ({ label, value, isTotal = false, isSubtotal = false, indent = 0, isNegative = false }) => (
+  }> = ({
+    label,
+    value,
+    isTotal = false,
+    isSubtotal = false,
+    indent = 0,
+    isNegative = false,
+  }) => (
     <div
-      className={`flex justify-between items-center py-2 px-4 ${isTotal ? 'font-bold bg-blue-50 border-t-2 border-b-2 border-blue-200' :
-          isSubtotal ? 'font-semibold bg-gray-50 border-t' : ''
-        }`}
+      className={`flex justify-between items-center py-2 px-4 ${
+        isTotal
+          ? 'font-bold bg-blue-50 border-t-2 border-b-2 border-blue-200'
+          : isSubtotal
+            ? 'font-semibold bg-gray-50 border-t'
+            : ''
+      }`}
       style={{ paddingLeft: `${16 + indent * 16}px` }}
     >
-      <span className={isTotal ? 'text-lg' : isSubtotal ? 'text-md font-medium' : 'text-sm'}>
+      <span
+        className={
+          isTotal ? 'text-lg' : isSubtotal ? 'text-md font-medium' : 'text-sm'
+        }
+      >
         {label}
       </span>
-      <span className={`${isTotal ? 'text-lg font-bold' : 'font-medium'} ${isNegative ? 'text-red-600' : 'text-gray-900'
-        }`}>
-        {isNegative ? `(${formatCurrency(Math.abs(value))})` : formatCurrency(value)}
+      <span
+        className={`${isTotal ? 'text-lg font-bold' : 'font-medium'} ${
+          isNegative ? 'text-red-600' : 'text-gray-900'
+        }`}
+      >
+        {isNegative
+          ? `(${formatCurrency(Math.abs(value))})`
+          : formatCurrency(value)}
       </span>
     </div>
   );
@@ -311,14 +342,13 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
           <h3 className="font-semibold text-lg">{title}</h3>
         </div>
         <BarChart3
-          className={`w-5 h-5 transition-transform ${expandedSections.has(sectionKey) ? 'rotate-90' : ''
-            }`}
+          className={`w-5 h-5 transition-transform ${
+            expandedSections.has(sectionKey) ? 'rotate-90' : ''
+          }`}
         />
       </button>
       {expandedSections.has(sectionKey) && (
-        <div className="border-t">
-          {children}
-        </div>
+        <div className="border-t">{children}</div>
       )}
     </div>
   );
@@ -358,11 +388,29 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
             >
               {/* Cash & Cash Equivalents */}
               <div className="bg-green-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Cash & Cash Equivalents</h4>
-                <LineItem label="Cash" value={data.assets.current_assets.cash} indent={2} />
-                <LineItem label="Cash Equivalents" value={data.assets.current_assets.cash_equivalents} indent={2} />
-                <LineItem label="Marketable Securities" value={data.assets.current_assets.marketable_securities} indent={2} />
-                <LineItem label="Restricted Cash" value={data.assets.current_assets.restricted_cash} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Cash & Cash Equivalents
+                </h4>
+                <LineItem
+                  label="Cash"
+                  value={data.assets.current_assets.cash}
+                  indent={2}
+                />
+                <LineItem
+                  label="Cash Equivalents"
+                  value={data.assets.current_assets.cash_equivalents}
+                  indent={2}
+                />
+                <LineItem
+                  label="Marketable Securities"
+                  value={data.assets.current_assets.marketable_securities}
+                  indent={2}
+                />
+                <LineItem
+                  label="Restricted Cash"
+                  value={data.assets.current_assets.restricted_cash}
+                  indent={2}
+                />
                 <LineItem
                   label="Total Cash & Equivalents"
                   value={data.assets.current_assets.total_cash_and_equivalents}
@@ -373,11 +421,19 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               {/* Accounts Receivable */}
               <div className="bg-blue-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Accounts Receivable</h4>
-                <LineItem label="Accounts Receivable" value={data.assets.current_assets.accounts_receivable} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Accounts Receivable
+                </h4>
+                <LineItem
+                  label="Accounts Receivable"
+                  value={data.assets.current_assets.accounts_receivable}
+                  indent={2}
+                />
                 <LineItem
                   label="Allowance for Doubtful Accounts"
-                  value={data.assets.current_assets.allowance_for_doubtful_accounts}
+                  value={
+                    data.assets.current_assets.allowance_for_doubtful_accounts
+                  }
                   indent={2}
                   isNegative={true}
                 />
@@ -392,9 +448,21 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
               {/* Inventory */}
               <div className="bg-yellow-25 p-2">
                 <h4 className="font-medium text-gray-700 mb-2">Inventory</h4>
-                <LineItem label="Raw Materials" value={data.assets.current_assets.raw_materials} indent={2} />
-                <LineItem label="Work in Progress" value={data.assets.current_assets.work_in_progress} indent={2} />
-                <LineItem label="Finished Goods" value={data.assets.current_assets.finished_goods} indent={2} />
+                <LineItem
+                  label="Raw Materials"
+                  value={data.assets.current_assets.raw_materials}
+                  indent={2}
+                />
+                <LineItem
+                  label="Work in Progress"
+                  value={data.assets.current_assets.work_in_progress}
+                  indent={2}
+                />
+                <LineItem
+                  label="Finished Goods"
+                  value={data.assets.current_assets.finished_goods}
+                  indent={2}
+                />
                 <LineItem
                   label="Total Inventory"
                   value={data.assets.current_assets.total_inventory}
@@ -404,10 +472,26 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
               </div>
 
               {/* Other Current Assets */}
-              <LineItem label="Prepaid Expenses" value={data.assets.current_assets.prepaid_expenses} indent={1} />
-              <LineItem label="Other Receivables" value={data.assets.current_assets.other_receivables} indent={1} />
-              <LineItem label="Deferred Tax Assets" value={data.assets.current_assets.deferred_tax_assets_current} indent={1} />
-              <LineItem label="Other Current Assets" value={data.assets.current_assets.other_current_assets} indent={1} />
+              <LineItem
+                label="Prepaid Expenses"
+                value={data.assets.current_assets.prepaid_expenses}
+                indent={1}
+              />
+              <LineItem
+                label="Other Receivables"
+                value={data.assets.current_assets.other_receivables}
+                indent={1}
+              />
+              <LineItem
+                label="Deferred Tax Assets"
+                value={data.assets.current_assets.deferred_tax_assets_current}
+                indent={1}
+              />
+              <LineItem
+                label="Other Current Assets"
+                value={data.assets.current_assets.other_current_assets}
+                indent={1}
+              />
 
               <LineItem
                 label="Total Current Assets"
@@ -424,62 +508,145 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
             >
               {/* Property, Plant & Equipment */}
               <div className="bg-blue-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Property, Plant & Equipment</h4>
-                <LineItem label="Land" value={data.assets.non_current_assets.property_plant_equipment.land} indent={2} />
-                <LineItem label="Buildings" value={data.assets.non_current_assets.property_plant_equipment.buildings} indent={2} />
-                <LineItem label="Machinery & Equipment" value={data.assets.non_current_assets.property_plant_equipment.machinery_and_equipment} indent={2} />
-                <LineItem label="Vehicles" value={data.assets.non_current_assets.property_plant_equipment.vehicles} indent={2} />
-                <LineItem label="Computer Equipment" value={data.assets.non_current_assets.property_plant_equipment.computer_equipment} indent={2} />
-                <LineItem label="Furniture & Fixtures" value={data.assets.non_current_assets.property_plant_equipment.furniture_and_fixtures} indent={2} />
-                <LineItem label="Leasehold Improvements" value={data.assets.non_current_assets.property_plant_equipment.leasehold_improvements} indent={2} />
-                <LineItem label="Construction in Progress" value={data.assets.non_current_assets.property_plant_equipment.construction_in_progress} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Property, Plant & Equipment
+                </h4>
+                <LineItem
+                  label="Land"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment.land
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Buildings"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .buildings
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Machinery & Equipment"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .machinery_and_equipment
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Vehicles"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .vehicles
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Computer Equipment"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .computer_equipment
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Furniture & Fixtures"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .furniture_and_fixtures
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Leasehold Improvements"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .leasehold_improvements
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Construction in Progress"
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .construction_in_progress
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total PP&E (Gross)"
-                  value={data.assets.non_current_assets.property_plant_equipment.total_pp_e}
+                  value={
+                    data.assets.non_current_assets.property_plant_equipment
+                      .total_pp_e
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
 
-                <h5 className="font-medium text-gray-600 mt-3 mb-2">Less: Accumulated Depreciation</h5>
+                <h5 className="font-medium text-gray-600 mt-3 mb-2">
+                  Less: Accumulated Depreciation
+                </h5>
                 <LineItem
                   label="Buildings Depreciation"
-                  value={data.assets.non_current_assets.accumulated_depreciation.buildings_depreciation}
+                  value={
+                    data.assets.non_current_assets.accumulated_depreciation
+                      .buildings_depreciation
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Machinery Depreciation"
-                  value={data.assets.non_current_assets.accumulated_depreciation.machinery_depreciation}
+                  value={
+                    data.assets.non_current_assets.accumulated_depreciation
+                      .machinery_depreciation
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Vehicles Depreciation"
-                  value={data.assets.non_current_assets.accumulated_depreciation.vehicles_depreciation}
+                  value={
+                    data.assets.non_current_assets.accumulated_depreciation
+                      .vehicles_depreciation
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Computer Depreciation"
-                  value={data.assets.non_current_assets.accumulated_depreciation.computer_depreciation}
+                  value={
+                    data.assets.non_current_assets.accumulated_depreciation
+                      .computer_depreciation
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Furniture Depreciation"
-                  value={data.assets.non_current_assets.accumulated_depreciation.furniture_depreciation}
+                  value={
+                    data.assets.non_current_assets.accumulated_depreciation
+                      .furniture_depreciation
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Leasehold Depreciation"
-                  value={data.assets.non_current_assets.accumulated_depreciation.leasehold_depreciation}
+                  value={
+                    data.assets.non_current_assets.accumulated_depreciation
+                      .leasehold_depreciation
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Total Accumulated Depreciation"
-                  value={data.assets.non_current_assets.accumulated_depreciation.total_accumulated_depreciation}
+                  value={
+                    data.assets.non_current_assets.accumulated_depreciation
+                      .total_accumulated_depreciation
+                  }
                   indent={1}
                   isSubtotal={true}
                   isNegative={true}
@@ -487,7 +654,9 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
                 <LineItem
                   label="Net Property, Plant & Equipment"
-                  value={data.assets.non_current_assets.net_property_plant_equipment}
+                  value={
+                    data.assets.non_current_assets.net_property_plant_equipment
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
@@ -495,61 +664,133 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               {/* Intangible Assets */}
               <div className="bg-purple-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Intangible Assets</h4>
-                <LineItem label="Goodwill" value={data.assets.non_current_assets.intangible_assets.goodwill} indent={2} />
-                <LineItem label="Patents" value={data.assets.non_current_assets.intangible_assets.patents} indent={2} />
-                <LineItem label="Trademarks" value={data.assets.non_current_assets.intangible_assets.trademarks} indent={2} />
-                <LineItem label="Software" value={data.assets.non_current_assets.intangible_assets.software} indent={2} />
-                <LineItem label="Licenses" value={data.assets.non_current_assets.intangible_assets.licenses} indent={2} />
-                <LineItem label="Customer Relationships" value={data.assets.non_current_assets.intangible_assets.customer_relationships} indent={2} />
-                <LineItem label="Other Intangibles" value={data.assets.non_current_assets.intangible_assets.other_intangibles} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Intangible Assets
+                </h4>
+                <LineItem
+                  label="Goodwill"
+                  value={
+                    data.assets.non_current_assets.intangible_assets.goodwill
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Patents"
+                  value={
+                    data.assets.non_current_assets.intangible_assets.patents
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Trademarks"
+                  value={
+                    data.assets.non_current_assets.intangible_assets.trademarks
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Software"
+                  value={
+                    data.assets.non_current_assets.intangible_assets.software
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Licenses"
+                  value={
+                    data.assets.non_current_assets.intangible_assets.licenses
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Customer Relationships"
+                  value={
+                    data.assets.non_current_assets.intangible_assets
+                      .customer_relationships
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Other Intangibles"
+                  value={
+                    data.assets.non_current_assets.intangible_assets
+                      .other_intangibles
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total Intangible Assets (Gross)"
-                  value={data.assets.non_current_assets.intangible_assets.total_intangible_assets}
+                  value={
+                    data.assets.non_current_assets.intangible_assets
+                      .total_intangible_assets
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
 
-                <h5 className="font-medium text-gray-600 mt-3 mb-2">Less: Accumulated Amortization</h5>
+                <h5 className="font-medium text-gray-600 mt-3 mb-2">
+                  Less: Accumulated Amortization
+                </h5>
                 <LineItem
                   label="Patents Amortization"
-                  value={data.assets.non_current_assets.accumulated_amortization.patents_amortization}
+                  value={
+                    data.assets.non_current_assets.accumulated_amortization
+                      .patents_amortization
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Trademarks Amortization"
-                  value={data.assets.non_current_assets.accumulated_amortization.trademarks_amortization}
+                  value={
+                    data.assets.non_current_assets.accumulated_amortization
+                      .trademarks_amortization
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Software Amortization"
-                  value={data.assets.non_current_assets.accumulated_amortization.software_amortization}
+                  value={
+                    data.assets.non_current_assets.accumulated_amortization
+                      .software_amortization
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Licenses Amortization"
-                  value={data.assets.non_current_assets.accumulated_amortization.licenses_amortization}
+                  value={
+                    data.assets.non_current_assets.accumulated_amortization
+                      .licenses_amortization
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Customer Relationships Amortization"
-                  value={data.assets.non_current_assets.accumulated_amortization.customer_relationships_amortization}
+                  value={
+                    data.assets.non_current_assets.accumulated_amortization
+                      .customer_relationships_amortization
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Other Amortization"
-                  value={data.assets.non_current_assets.accumulated_amortization.other_amortization}
+                  value={
+                    data.assets.non_current_assets.accumulated_amortization
+                      .other_amortization
+                  }
                   indent={2}
                   isNegative={true}
                 />
                 <LineItem
                   label="Total Accumulated Amortization"
-                  value={data.assets.non_current_assets.accumulated_amortization.total_accumulated_amortization}
+                  value={
+                    data.assets.non_current_assets.accumulated_amortization
+                      .total_accumulated_amortization
+                  }
                   indent={1}
                   isSubtotal={true}
                   isNegative={true}
@@ -565,13 +806,39 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               {/* Other Non-Current Assets */}
               <div className="bg-gray-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Other Non-Current Assets</h4>
-                <LineItem label="Long-term Investments" value={data.assets.non_current_assets.other_non_current_assets.long_term_investments} indent={2} />
-                <LineItem label="Deferred Tax Assets" value={data.assets.non_current_assets.other_non_current_assets.deferred_tax_assets_non_current} indent={2} />
-                <LineItem label="Other Long-term Assets" value={data.assets.non_current_assets.other_non_current_assets.other_long_term_assets} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Other Non-Current Assets
+                </h4>
+                <LineItem
+                  label="Long-term Investments"
+                  value={
+                    data.assets.non_current_assets.other_non_current_assets
+                      .long_term_investments
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Deferred Tax Assets"
+                  value={
+                    data.assets.non_current_assets.other_non_current_assets
+                      .deferred_tax_assets_non_current
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Other Long-term Assets"
+                  value={
+                    data.assets.non_current_assets.other_non_current_assets
+                      .other_long_term_assets
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total Other Non-Current Assets"
-                  value={data.assets.non_current_assets.other_non_current_assets.total_other_non_current_assets}
+                  value={
+                    data.assets.non_current_assets.other_non_current_assets
+                      .total_other_non_current_assets
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
@@ -603,18 +870,55 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
               sectionKey="current_liabilities"
               icon={<CreditCard className="w-5 h-5 text-red-600" />}
             >
-              <LineItem label="Accounts Payable" value={data.liabilities.current_liabilities.accounts_payable} indent={1} />
+              <LineItem
+                label="Accounts Payable"
+                value={data.liabilities.current_liabilities.accounts_payable}
+                indent={1}
+              />
 
               {/* Short-term Debt */}
               <div className="bg-red-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Short-term Debt</h4>
-                <LineItem label="Bank Overdrafts" value={data.liabilities.current_liabilities.short_term_debt.bank_overdrafts} indent={2} />
-                <LineItem label="Short-term Loans" value={data.liabilities.current_liabilities.short_term_debt.short_term_loans} indent={2} />
-                <LineItem label="Current Portion of Long-term Debt" value={data.liabilities.current_liabilities.short_term_debt.current_portion_long_term_debt} indent={2} />
-                <LineItem label="Credit Line Utilization" value={data.liabilities.current_liabilities.short_term_debt.credit_line_utilization} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Short-term Debt
+                </h4>
+                <LineItem
+                  label="Bank Overdrafts"
+                  value={
+                    data.liabilities.current_liabilities.short_term_debt
+                      .bank_overdrafts
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Short-term Loans"
+                  value={
+                    data.liabilities.current_liabilities.short_term_debt
+                      .short_term_loans
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Current Portion of Long-term Debt"
+                  value={
+                    data.liabilities.current_liabilities.short_term_debt
+                      .current_portion_long_term_debt
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Credit Line Utilization"
+                  value={
+                    data.liabilities.current_liabilities.short_term_debt
+                      .credit_line_utilization
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total Short-term Debt"
-                  value={data.liabilities.current_liabilities.short_term_debt.total_short_term_debt}
+                  value={
+                    data.liabilities.current_liabilities.short_term_debt
+                      .total_short_term_debt
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
@@ -622,15 +926,55 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               {/* Accrued Expenses */}
               <div className="bg-orange-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Accrued Expenses</h4>
-                <LineItem label="Accrued Salaries" value={data.liabilities.current_liabilities.accrued_expenses.accrued_salaries} indent={2} />
-                <LineItem label="Accrued Taxes" value={data.liabilities.current_liabilities.accrued_expenses.accrued_taxes} indent={2} />
-                <LineItem label="Accrued Interest" value={data.liabilities.current_liabilities.accrued_expenses.accrued_interest} indent={2} />
-                <LineItem label="Accrued Utilities" value={data.liabilities.current_liabilities.accrued_expenses.accrued_utilities} indent={2} />
-                <LineItem label="Other Accrued Expenses" value={data.liabilities.current_liabilities.accrued_expenses.other_accrued_expenses} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Accrued Expenses
+                </h4>
+                <LineItem
+                  label="Accrued Salaries"
+                  value={
+                    data.liabilities.current_liabilities.accrued_expenses
+                      .accrued_salaries
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Accrued Taxes"
+                  value={
+                    data.liabilities.current_liabilities.accrued_expenses
+                      .accrued_taxes
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Accrued Interest"
+                  value={
+                    data.liabilities.current_liabilities.accrued_expenses
+                      .accrued_interest
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Accrued Utilities"
+                  value={
+                    data.liabilities.current_liabilities.accrued_expenses
+                      .accrued_utilities
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Other Accrued Expenses"
+                  value={
+                    data.liabilities.current_liabilities.accrued_expenses
+                      .other_accrued_expenses
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total Accrued Expenses"
-                  value={data.liabilities.current_liabilities.accrued_expenses.total_accrued_expenses}
+                  value={
+                    data.liabilities.current_liabilities.accrued_expenses
+                      .total_accrued_expenses
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
@@ -638,14 +982,47 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               {/* Other Current Liabilities */}
               <div className="bg-yellow-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Other Current Liabilities</h4>
-                <LineItem label="Deferred Revenue" value={data.liabilities.current_liabilities.other_current_liabilities.deferred_revenue} indent={2} />
-                <LineItem label="Income Taxes Payable" value={data.liabilities.current_liabilities.other_current_liabilities.income_taxes_payable} indent={2} />
-                <LineItem label="Dividends Payable" value={data.liabilities.current_liabilities.other_current_liabilities.dividends_payable} indent={2} />
-                <LineItem label="Other Current Liabilities" value={data.liabilities.current_liabilities.other_current_liabilities.other_current_liabilities} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Other Current Liabilities
+                </h4>
+                <LineItem
+                  label="Deferred Revenue"
+                  value={
+                    data.liabilities.current_liabilities
+                      .other_current_liabilities.deferred_revenue
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Income Taxes Payable"
+                  value={
+                    data.liabilities.current_liabilities
+                      .other_current_liabilities.income_taxes_payable
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Dividends Payable"
+                  value={
+                    data.liabilities.current_liabilities
+                      .other_current_liabilities.dividends_payable
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Other Current Liabilities"
+                  value={
+                    data.liabilities.current_liabilities
+                      .other_current_liabilities.other_current_liabilities
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total Other Current Liabilities"
-                  value={data.liabilities.current_liabilities.other_current_liabilities.total_other_current_liabilities}
+                  value={
+                    data.liabilities.current_liabilities
+                      .other_current_liabilities.total_other_current_liabilities
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
@@ -653,7 +1030,9 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               <LineItem
                 label="Total Current Liabilities"
-                value={data.liabilities.current_liabilities.total_current_liabilities}
+                value={
+                  data.liabilities.current_liabilities.total_current_liabilities
+                }
                 isTotal={true}
               />
             </ExpandableSection>
@@ -666,32 +1045,113 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
             >
               {/* Long-term Debt */}
               <div className="bg-red-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Long-term Debt</h4>
-                <LineItem label="Term Loans" value={data.liabilities.non_current_liabilities.long_term_debt.term_loans} indent={2} />
-                <LineItem label="Bonds Payable" value={data.liabilities.non_current_liabilities.long_term_debt.bonds_payable} indent={2} />
-                <LineItem label="Mortgage Payable" value={data.liabilities.non_current_liabilities.long_term_debt.mortgage_payable} indent={2} />
-                <LineItem label="Capital Leases" value={data.liabilities.non_current_liabilities.long_term_debt.capital_leases} indent={2} />
-                <LineItem label="Other Long-term Debt" value={data.liabilities.non_current_liabilities.long_term_debt.other_long_term_debt} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Long-term Debt
+                </h4>
+                <LineItem
+                  label="Term Loans"
+                  value={
+                    data.liabilities.non_current_liabilities.long_term_debt
+                      .term_loans
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Bonds Payable"
+                  value={
+                    data.liabilities.non_current_liabilities.long_term_debt
+                      .bonds_payable
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Mortgage Payable"
+                  value={
+                    data.liabilities.non_current_liabilities.long_term_debt
+                      .mortgage_payable
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Capital Leases"
+                  value={
+                    data.liabilities.non_current_liabilities.long_term_debt
+                      .capital_leases
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Other Long-term Debt"
+                  value={
+                    data.liabilities.non_current_liabilities.long_term_debt
+                      .other_long_term_debt
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total Long-term Debt"
-                  value={data.liabilities.non_current_liabilities.long_term_debt.total_long_term_debt}
+                  value={
+                    data.liabilities.non_current_liabilities.long_term_debt
+                      .total_long_term_debt
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
               </div>
 
-              <LineItem label="Deferred Tax Liabilities" value={data.liabilities.non_current_liabilities.deferred_tax_liabilities} indent={1} />
+              <LineItem
+                label="Deferred Tax Liabilities"
+                value={
+                  data.liabilities.non_current_liabilities
+                    .deferred_tax_liabilities
+                }
+                indent={1}
+              />
 
               {/* Other Non-Current Liabilities */}
               <div className="bg-gray-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Other Non-Current Liabilities</h4>
-                <LineItem label="Pension Liabilities" value={data.liabilities.non_current_liabilities.other_non_current_liabilities.pension_liabilities} indent={2} />
-                <LineItem label="Warranty Liabilities" value={data.liabilities.non_current_liabilities.other_non_current_liabilities.warranty_liabilities} indent={2} />
-                <LineItem label="Environmental Liabilities" value={data.liabilities.non_current_liabilities.other_non_current_liabilities.environmental_liabilities} indent={2} />
-                <LineItem label="Other Long-term Liabilities" value={data.liabilities.non_current_liabilities.other_non_current_liabilities.other_long_term_liabilities} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Other Non-Current Liabilities
+                </h4>
+                <LineItem
+                  label="Pension Liabilities"
+                  value={
+                    data.liabilities.non_current_liabilities
+                      .other_non_current_liabilities.pension_liabilities
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Warranty Liabilities"
+                  value={
+                    data.liabilities.non_current_liabilities
+                      .other_non_current_liabilities.warranty_liabilities
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Environmental Liabilities"
+                  value={
+                    data.liabilities.non_current_liabilities
+                      .other_non_current_liabilities.environmental_liabilities
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Other Long-term Liabilities"
+                  value={
+                    data.liabilities.non_current_liabilities
+                      .other_non_current_liabilities.other_long_term_liabilities
+                  }
+                  indent={2}
+                />
                 <LineItem
                   label="Total Other Non-Current Liabilities"
-                  value={data.liabilities.non_current_liabilities.other_non_current_liabilities.total_other_non_current_liabilities}
+                  value={
+                    data.liabilities.non_current_liabilities
+                      .other_non_current_liabilities
+                      .total_other_non_current_liabilities
+                  }
                   indent={1}
                   isSubtotal={true}
                 />
@@ -699,7 +1159,10 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               <LineItem
                 label="Total Non-Current Liabilities"
-                value={data.liabilities.non_current_liabilities.total_non_current_liabilities}
+                value={
+                  data.liabilities.non_current_liabilities
+                    .total_non_current_liabilities
+                }
                 isTotal={true}
               />
             </ExpandableSection>
@@ -718,16 +1181,30 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
             >
               {/* Share Capital */}
               <div className="bg-green-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Share Capital</h4>
-                <LineItem label="Common Stock" value={data.equity.share_capital.common_stock} indent={2} />
-                <LineItem label="Preferred Stock" value={data.equity.share_capital.preferred_stock} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Share Capital
+                </h4>
+                <LineItem
+                  label="Common Stock"
+                  value={data.equity.share_capital.common_stock}
+                  indent={2}
+                />
+                <LineItem
+                  label="Preferred Stock"
+                  value={data.equity.share_capital.preferred_stock}
+                  indent={2}
+                />
                 <LineItem
                   label="Treasury Stock"
                   value={data.equity.share_capital.treasury_stock}
                   indent={2}
                   isNegative={true}
                 />
-                <LineItem label="Additional Paid-in Capital" value={data.equity.share_capital.additional_paid_in_capital} indent={2} />
+                <LineItem
+                  label="Additional Paid-in Capital"
+                  value={data.equity.share_capital.additional_paid_in_capital}
+                  indent={2}
+                />
                 <LineItem
                   label="Total Share Capital"
                   value={data.equity.share_capital.total_share_capital}
@@ -738,9 +1215,21 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
               {/* Retained Earnings */}
               <div className="bg-blue-25 p-2">
-                <h4 className="font-medium text-gray-700 mb-2">Retained Earnings</h4>
-                <LineItem label="Beginning Retained Earnings" value={data.equity.retained_earnings.beginning_retained_earnings} indent={2} />
-                <LineItem label="Net Income" value={data.equity.retained_earnings.net_income} indent={2} />
+                <h4 className="font-medium text-gray-700 mb-2">
+                  Retained Earnings
+                </h4>
+                <LineItem
+                  label="Beginning Retained Earnings"
+                  value={
+                    data.equity.retained_earnings.beginning_retained_earnings
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Net Income"
+                  value={data.equity.retained_earnings.net_income}
+                  indent={2}
+                />
                 <LineItem
                   label="Dividends Paid"
                   value={data.equity.retained_earnings.dividends_paid}
@@ -764,10 +1253,29 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
               {/* Other Equity */}
               <div className="bg-purple-25 p-2">
                 <h4 className="font-medium text-gray-700 mb-2">Other Equity</h4>
-                <LineItem label="Accumulated Other Comprehensive Income" value={data.equity.other_equity.accumulated_other_comprehensive_income} indent={2} />
-                <LineItem label="Foreign Currency Translation" value={data.equity.other_equity.foreign_currency_translation} indent={2} />
-                <LineItem label="Unrealized Gains/Losses" value={data.equity.other_equity.unrealized_gains_losses} indent={2} />
-                <LineItem label="Other Equity Adjustments" value={data.equity.other_equity.other_equity_adjustments} indent={2} />
+                <LineItem
+                  label="Accumulated Other Comprehensive Income"
+                  value={
+                    data.equity.other_equity
+                      .accumulated_other_comprehensive_income
+                  }
+                  indent={2}
+                />
+                <LineItem
+                  label="Foreign Currency Translation"
+                  value={data.equity.other_equity.foreign_currency_translation}
+                  indent={2}
+                />
+                <LineItem
+                  label="Unrealized Gains/Losses"
+                  value={data.equity.other_equity.unrealized_gains_losses}
+                  indent={2}
+                />
+                <LineItem
+                  label="Other Equity Adjustments"
+                  value={data.equity.other_equity.other_equity_adjustments}
+                  indent={2}
+                />
                 <LineItem
                   label="Total Other Equity"
                   value={data.equity.other_equity.total_other_equity}
@@ -776,7 +1284,11 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
                 />
               </div>
 
-              <LineItem label="Non-Controlling Interest" value={data.equity.non_controlling_interest} indent={1} />
+              <LineItem
+                label="Non-Controlling Interest"
+                value={data.equity.non_controlling_interest}
+                indent={1}
+              />
 
               <LineItem
                 label="Total Equity"
@@ -787,7 +1299,9 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
 
             <LineItem
               label="TOTAL LIABILITIES AND EQUITY"
-              value={data.liabilities.total_liabilities + data.equity.total_equity}
+              value={
+                data.liabilities.total_liabilities + data.equity.total_equity
+              }
               isTotal={true}
             />
           </div>
@@ -805,7 +1319,9 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="p-4">
-              <h4 className="text-sm font-medium text-gray-600">Current Ratio</h4>
+              <h4 className="text-sm font-medium text-gray-600">
+                Current Ratio
+              </h4>
               <p className="text-2xl font-bold text-green-600">
                 {formatRatio(data.balance_sheet_metrics.current_ratio)}
               </p>
@@ -817,31 +1333,41 @@ const BalanceSheetView: React.FC<BalanceSheetViewProps> = ({
               </p>
             </Card>
             <Card className="p-4">
-              <h4 className="text-sm font-medium text-gray-600">Debt-to-Equity</h4>
+              <h4 className="text-sm font-medium text-gray-600">
+                Debt-to-Equity
+              </h4>
               <p className="text-2xl font-bold text-red-600">
                 {formatRatio(data.balance_sheet_metrics.debt_to_equity_ratio)}
               </p>
             </Card>
             <Card className="p-4">
-              <h4 className="text-sm font-medium text-gray-600">Debt-to-Assets</h4>
+              <h4 className="text-sm font-medium text-gray-600">
+                Debt-to-Assets
+              </h4>
               <p className="text-2xl font-bold text-orange-600">
                 {formatRatio(data.balance_sheet_metrics.debt_to_assets_ratio)}
               </p>
             </Card>
             <Card className="p-4">
-              <h4 className="text-sm font-medium text-gray-600">Working Capital</h4>
+              <h4 className="text-sm font-medium text-gray-600">
+                Working Capital
+              </h4>
               <p className="text-2xl font-bold text-purple-600">
                 {formatCurrency(data.balance_sheet_metrics.working_capital)}
               </p>
             </Card>
             <Card className="p-4">
-              <h4 className="text-sm font-medium text-gray-600">Asset Turnover</h4>
+              <h4 className="text-sm font-medium text-gray-600">
+                Asset Turnover
+              </h4>
               <p className="text-2xl font-bold text-indigo-600">
                 {formatRatio(data.balance_sheet_metrics.asset_turnover)}
               </p>
             </Card>
             <Card className="p-4">
-              <h4 className="text-sm font-medium text-gray-600">Equity Multiplier</h4>
+              <h4 className="text-sm font-medium text-gray-600">
+                Equity Multiplier
+              </h4>
               <p className="text-2xl font-bold text-pink-600">
                 {formatRatio(data.balance_sheet_metrics.equity_multiplier)}
               </p>

@@ -50,7 +50,9 @@ class TestAdminExceptions:
     def test_validate_date_range_invalid(self):
         """Test validation with invalid date range."""
         with pytest.raises(AdminValidationError) as exc_info:
-            validate_date_range("2024-01-02T00:00:00Z", "2024-01-01T00:00:00Z")
+            validate_date_range(
+                "2024-01-02T00:00:00Z", "2024-01-01T00:00:00Z"
+            )
         assert "before end date" in str(exc_info.value)
 
     def test_create_pagination_response_with_envelope(self):
@@ -93,7 +95,9 @@ class TestEnhancedUserListing:
         user.created_at = datetime.now(timezone.utc)
         return user
 
-    def test_user_listing_filtering_parameters(self, client: TestClient, auth_headers):
+    def test_user_listing_filtering_parameters(
+        self, client: TestClient, auth_headers
+    ):
         """Test that user listing accepts all filtering parameters."""
         response = client.get(
             "/api/v1/admin/users",
@@ -115,7 +119,9 @@ class TestEnhancedUserListing:
 class TestEnhancedAuditLogs:
     """Test enhanced audit log filtering."""
 
-    def test_audit_logs_filtering_parameters(self, client: TestClient, auth_headers):
+    def test_audit_logs_filtering_parameters(
+        self, client: TestClient, auth_headers
+    ):
         """Test that audit logs accept all filtering parameters."""
         response = client.get(
             "/api/v1/admin/audit-logs",
@@ -157,12 +163,16 @@ class TestRealActivityMetrics:
         ]
 
         # Configure mocks
-        mock_user_query.order_by.return_value.limit.return_value.all.return_value = []
+        mock_user_query.order_by.return_value.limit.return_value.all.return_value = (
+            []
+        )
         mock_audit_query.filter.return_value.filter.return_value.filter.return_value.count.return_value = (
             5
         )
 
-        response = client.get("/api/v1/admin/users/activity-list", headers=auth_headers)
+        response = client.get(
+            "/api/v1/admin/users/activity-list", headers=auth_headers
+        )
 
         # Verify that the session's query method was invoked
         assert mock_query.called
@@ -172,14 +182,18 @@ class TestMaintenanceTasks:
     """Test async maintenance operations."""
 
     @patch("app.tasks.maintenance.backup_database")
-    def test_backup_endpoint_uses_celery(self, mock_backup_task, client, auth_headers):
+    def test_backup_endpoint_uses_celery(
+        self, mock_backup_task, client, auth_headers
+    ):
         """Test that backup endpoint uses Celery task."""
         # Mock the Celery task
         mock_task = Mock()
         mock_task.id = "test-task-id"
         mock_backup_task.delay.return_value = mock_task
 
-        response = client.post("/api/v1/admin/database/backup", headers=auth_headers)
+        response = client.post(
+            "/api/v1/admin/database/backup", headers=auth_headers
+        )
 
         # Should call the Celery task
         mock_backup_task.delay.assert_called_once()
@@ -191,7 +205,9 @@ class TestMaintenanceTasks:
             assert data["job_id"] == "test-task-id"
 
     @patch("app.tasks.maintenance.export_database")
-    def test_export_endpoint_uses_celery(self, mock_export_task, client, auth_headers):
+    def test_export_endpoint_uses_celery(
+        self, mock_export_task, client, auth_headers
+    ):
         """Test that export endpoint uses Celery task."""
         # Mock the Celery task
         mock_task = Mock()
@@ -217,7 +233,9 @@ class TestMaintenanceTasks:
         mock_task.id = "test-reindex-task-id"
         mock_reindex_task.delay.return_value = mock_task
 
-        response = client.post("/api/v1/admin/database/reindex", headers=auth_headers)
+        response = client.post(
+            "/api/v1/admin/database/reindex", headers=auth_headers
+        )
 
         # Should call the Celery task
         mock_reindex_task.delay.assert_called_once()
@@ -227,7 +245,9 @@ class TestSecurityAuditEnhancements:
     """Test enhanced security audit functionality."""
 
     @patch("sqlalchemy.orm.Session.query")
-    def test_security_audit_queries_real_data(self, mock_query, client, auth_headers):
+    def test_security_audit_queries_real_data(
+        self, mock_query, client, auth_headers
+    ):
         """Test that security audit uses real audit log data."""
         # Mock various query chains
         mock_rate_limit_query = Mock()
@@ -251,7 +271,9 @@ class TestSecurityAuditEnhancements:
         )
         mock_user_query.filter.return_value.count.return_value = 1
 
-        response = client.get("/api/v1/admin/security/audit", headers=auth_headers)
+        response = client.get(
+            "/api/v1/admin/security/audit", headers=auth_headers
+        )
 
         if response.status_code == 200:
             data = response.json()
@@ -265,7 +287,9 @@ class TestSystemMetricsEnhancements:
     """Test enhanced system metrics."""
 
     @patch("sqlalchemy.orm.Session.query")
-    def test_system_metrics_uses_real_data(self, mock_query, client, auth_headers):
+    def test_system_metrics_uses_real_data(
+        self, mock_query, client, auth_headers
+    ):
         """Test that system metrics calculate real values from audit logs."""
         # Mock audit log queries for metrics calculation
         mock_audit_query = Mock()
@@ -276,7 +300,9 @@ class TestSystemMetricsEnhancements:
             100
         )
 
-        response = client.get("/api/v1/admin/system/metrics", headers=auth_headers)
+        response = client.get(
+            "/api/v1/admin/system/metrics", headers=auth_headers
+        )
 
         if response.status_code == 200:
             data = response.json()

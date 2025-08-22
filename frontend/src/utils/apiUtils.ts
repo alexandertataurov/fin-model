@@ -1,5 +1,6 @@
 // API configuration and utilities
-export const API_BASE_URL = 'https://fin-model-production.up.railway.app/api/v1';
+export const API_BASE_URL =
+  'https://fin-model-production.up.railway.app/api/v1';
 
 // Helper function to make authenticated API calls
 export const makeApiCall = async (
@@ -7,7 +8,7 @@ export const makeApiCall = async (
   options: RequestInit = {}
 ): Promise<any> => {
   const token = localStorage.getItem('access_token');
-  
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {

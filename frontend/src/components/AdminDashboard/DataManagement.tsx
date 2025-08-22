@@ -19,10 +19,10 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Badge } from '@/design-system/components/Badge';
-import { Progress } from '@/design-system/components/Progress';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Progress } from '@/design-system/atoms';
 import {
   Table,
   TableBody,
@@ -30,16 +30,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/design-system/components/Table';
-import { Input } from '@/design-system/components/Input';
-import { Checkbox } from '@/design-system/components/Checkbox';
+} from '@/design-system/molecules';
+import { Input } from '@/design-system/atoms';
+import { Checkbox } from '@/design-system/atoms';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/design-system/components/Select';
+} from '@/design-system/molecules';
 import {
   Dialog,
   DialogContent,
@@ -47,27 +47,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/design-system/components/Dialog';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
+} from '@/design-system/molecules';
+import { Alert, AlertDescription } from '@/design-system/molecules';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/design-system/components/Tabs';
+} from '@/design-system/molecules';
 import * as AdminApi from '@/services/admin';
 import { toast } from 'sonner';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { tokens } from '@/design-system/tokens';
-import { applyTextStyle } from '@/design-system/utils/typography';
-import {
-  applyDesignSystemSpacing,
-  applyDesignSystemRadius,
-  applyDesignSystemShadow,
-  applyDesignSystemMotion,
-  formatNumber,
-  formatPercentage
-} from './utils/designSystemHelpers';
+import { ConfirmDialog } from '@/design-system/molecules';
+// Simple number formatting utility
+const formatNumber = (n?: number) => {
+  if (n === undefined || n === null) return '0';
+  return new Intl.NumberFormat().format(n);
+};
 
 interface TableInfo {
   name: string;
@@ -90,7 +85,6 @@ interface CleanupPreview {
 }
 
 const DataManagement: React.FC = memo(() => {
-
   const [loading, setLoading] = useState(true);
   // const [tableInfo, setTableInfo] = useState<Record<string, any>>({});
   const [tableData, setTableData] = useState<TableInfo[]>([]);
@@ -100,13 +94,13 @@ const DataManagement: React.FC = memo(() => {
   );
 
   // Memoized computed values
-  const totalSize = useMemo(() =>
-    tableData.reduce((sum, table) => sum + table.size_mb, 0),
+  const _totalSize = useMemo(
+    () => tableData.reduce((sum, table) => sum + table.size_mb, 0),
     [tableData]
   );
 
-  const healthyTables = useMemo(() =>
-    tableData.filter(table => table.integrity_status === 'healthy'),
+  const _healthyTables = useMemo(
+    () => tableData.filter(table => table.integrity_status === 'healthy'),
     [tableData]
   );
   const [showCleanupDialog, setShowCleanupDialog] = useState(false);
@@ -126,7 +120,7 @@ const DataManagement: React.FC = memo(() => {
   const [confirmState, setConfirmState] = useState({
     open: false,
     message: '',
-    onConfirm: async () => { },
+    onConfirm: async () => {},
   });
 
   const showConfirm = (
@@ -147,8 +141,8 @@ const DataManagement: React.FC = memo(() => {
     try {
       setLoading(true);
 
-      const [tables, health, performance, integrity, sched] = await Promise.all(
-        [
+      const [tables, health, performance, _integrity, sched] =
+        await Promise.all([
           AdminApi.getTableInformation(),
           AdminApi.getDatabaseHealth(),
           AdminApi.getDatabasePerformance(10, {
@@ -156,12 +150,10 @@ const DataManagement: React.FC = memo(() => {
           }),
           AdminApi.checkDataIntegrity(),
           AdminApi.getMaintenanceSchedules(),
-        ]
-      );
+        ]);
 
       // setTableInfo(tables);
-      console.log('Database health:', health); // Debug log
-      console.log('Performance data:', performance); // Debug log
+      // Debug logs removed for production
 
       setDatabaseHealth(health);
       setPerformanceData(performance);
@@ -169,7 +161,7 @@ const DataManagement: React.FC = memo(() => {
       setSchedulesDraft(sched);
 
       // Convert table data to TableInfo format
-      console.log('Raw tables data:', tables); // Debug log
+      // Debug logs removed for production
 
       const tableDataFromTables: TableInfo[] = Object.entries(tables || {})
         .filter(([name]) => name !== '_total_records') // Exclude total records from table list
@@ -186,13 +178,12 @@ const DataManagement: React.FC = memo(() => {
           deletes: data.deletes || 0,
         }));
 
-      console.log('Processed table data:', tableDataFromTables); // Debug log
-      console.log('Total records:', tables._total_records); // Debug log
+      // Debug logs removed for production
 
       setTableData(tableDataFromTables);
       setTables(tables || {}); // Store tables data for total records display
     } catch (_error) {
-      console.error('Failed to load data info:', _error);
+      // console.error('Failed to load data info:', _error);
       toast.error('Failed to load data management information');
       // Set default empty data to prevent undefined errors
       setTableData([]);
@@ -341,7 +332,9 @@ const DataManagement: React.FC = memo(() => {
           </CardHeader>
           <CardContent>
             <div className="text-xs font-mono">
-              <div>Database Health: {JSON.stringify(databaseHealth, null, 2)}</div>
+              <div>
+                Database Health: {JSON.stringify(databaseHealth, null, 2)}
+              </div>
               <div>Table Data Length: {tableData.length}</div>
               <div>Tables Object Keys: {Object.keys(tables).join(', ')}</div>
             </div>
@@ -376,9 +369,7 @@ const DataManagement: React.FC = memo(() => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatNumber(
-                tableData.reduce((sum, t) => sum + t.rows, 0)
-              )}
+              {formatNumber(tableData.reduce((sum, t) => sum + t.rows, 0))}
             </div>
             <div className="text-xs text-muted-foreground">
               Across all tables
@@ -417,16 +408,17 @@ const DataManagement: React.FC = memo(() => {
               const integrityPct =
                 total > 0 ? Math.round((healthy / total) * 100) : null;
               const dbHealthy = databaseHealth?.status === 'healthy';
-              const score = dbHealthy ? 100 : integrityPct ?? 0;
+              const score = dbHealthy ? 100 : (integrityPct ?? 0);
               return (
                 <>
                   <div
-                    className={`text-2xl font-bold ${score >= 80
-                      ? 'text-success'
-                      : score >= 50
-                        ? 'text-warning'
-                        : 'text-destructive'
-                      }`}
+                    className={`text-2xl font-bold ${
+                      score >= 80
+                        ? 'text-success'
+                        : score >= 50
+                          ? 'text-warning'
+                          : 'text-destructive'
+                    }`}
                   >
                     {total === 0 && !dbHealthy ? 'N/A' : `${score}%`}
                   </div>
@@ -460,7 +452,9 @@ const DataManagement: React.FC = memo(() => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Tables</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Total Tables
+                      </p>
                       <p className="text-2xl font-bold">{tableData.length}</p>
                     </div>
                     <Database className="h-8 w-8 text-blue-500" />
@@ -472,9 +466,13 @@ const DataManagement: React.FC = memo(() => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Records</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Total Records
+                      </p>
                       <p className="text-2xl font-bold">
-                        {formatNumber(tableData.reduce((sum, t) => sum + t.rows, 0))}
+                        {formatNumber(
+                          tableData.reduce((sum, t) => sum + t.rows, 0)
+                        )}
                       </p>
                     </div>
                     <FileText className="h-8 w-8 text-success" />
@@ -486,9 +484,13 @@ const DataManagement: React.FC = memo(() => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Size</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Total Size
+                      </p>
                       <p className="text-2xl font-bold">
-                        {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
+                        {formatFileSize(
+                          tableData.reduce((sum, t) => sum + t.size_mb, 0)
+                        )}
                       </p>
                     </div>
                     <HardDrive className="h-8 w-8 text-purple-500" />
@@ -500,9 +502,15 @@ const DataManagement: React.FC = memo(() => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Healthy Tables</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Healthy Tables
+                      </p>
                       <p className="text-2xl font-bold text-success">
-                        {tableData.filter(t => t.integrity_status === 'healthy').length}
+                        {
+                          tableData.filter(
+                            t => t.integrity_status === 'healthy'
+                          ).length
+                        }
                       </p>
                     </div>
                     <CheckCircle className="h-8 w-8 text-success" />
@@ -547,13 +555,15 @@ const DataManagement: React.FC = memo(() => {
                               {table.name}
                             </div>
                           </TableCell>
+                          <TableCell>{formatNumber(table.rows)}</TableCell>
                           <TableCell>
-                            {formatNumber(table.rows)}
+                            {table.size_pretty || formatFileSize(table.size_mb)}
                           </TableCell>
-                          <TableCell>{table.size_pretty || formatFileSize(table.size_mb)}</TableCell>
                           <TableCell className="text-sm">
                             {table.last_updated
-                              ? new Date(table.last_updated).toLocaleDateString()
+                              ? new Date(
+                                  table.last_updated
+                                ).toLocaleDateString()
                               : 'N/A'}
                           </TableCell>
                           <TableCell>
@@ -572,7 +582,9 @@ const DataManagement: React.FC = memo(() => {
                                     `Updates: ${formatNumber(table.updates || 0)}`,
                                     `Deletes: ${formatNumber(table.deletes || 0)}`,
                                   ].join('\n');
-                                  alert(`Table Details for ${table.name}:\n\n${details}`);
+                                  alert(
+                                    `Table Details for ${table.name}:\n\n${details}`
+                                  );
                                 }}
                               >
                                 <BarChart3 className="h-4 w-4" />
@@ -592,11 +604,10 @@ const DataManagement: React.FC = memo(() => {
                                       toast.error('Invalid format');
                                       return;
                                     }
-                                    const res =
-                                      await AdminApi.exportDatabase({
-                                        table: table.name,
-                                        format: fmt as 'json' | 'csv',
-                                      });
+                                    const res = await AdminApi.exportDatabase({
+                                      table: table.name,
+                                      format: fmt as 'json' | 'csv',
+                                    });
                                     toast.success('Table export generated');
                                     window.open(res.file_url, '_blank');
                                   } catch {
@@ -667,8 +678,9 @@ const DataManagement: React.FC = memo(() => {
 
                   <Alert variant="info">
                     <AlertDescription className="text-xs">
-                      File cleanup checks for orphaned files in the uploads directory.
-                      Zero values indicate no orphaned files were found.
+                      File cleanup checks for orphaned files in the uploads
+                      directory. Zero values indicate no orphaned files were
+                      found.
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -706,22 +718,26 @@ const DataManagement: React.FC = memo(() => {
                     className="w-full"
                     variant="outline"
                     onClick={() =>
-                      showConfirm('Generate admin overview report (CSV)?', async () => {
-                        try {
-                          const data = await AdminApi.getAdminOverviewReport('csv');
-                          const blob = new Blob([data], {
-                            type: 'text/csv',
-                          });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = 'admin_overview.csv';
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        } catch (_e) {
-                          toast.error('Failed to generate report');
+                      showConfirm(
+                        'Generate admin overview report (CSV)?',
+                        async () => {
+                          try {
+                            const data =
+                              await AdminApi.getAdminOverviewReport('csv');
+                            const blob = new Blob([data], {
+                              type: 'text/csv',
+                            });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'admin_overview.csv';
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          } catch (_e) {
+                            toast.error('Failed to generate report');
+                          }
                         }
-                      })
+                      )
                     }
                   >
                     <BarChart3 className="h-4 w-4 mr-2" />
@@ -772,7 +788,10 @@ const DataManagement: React.FC = memo(() => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-success">
-                      {tableData.filter(t => t.integrity_status === 'healthy').length}
+                      {
+                        tableData.filter(t => t.integrity_status === 'healthy')
+                          .length
+                      }
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Healthy Tables
@@ -780,7 +799,10 @@ const DataManagement: React.FC = memo(() => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-warning">
-                      {tableData.filter(t => t.integrity_status === 'warning').length}
+                      {
+                        tableData.filter(t => t.integrity_status === 'warning')
+                          .length
+                      }
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Warning Tables
@@ -788,7 +810,10 @@ const DataManagement: React.FC = memo(() => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-destructive">
-                      {tableData.filter(t => t.integrity_status === 'error').length}
+                      {
+                        tableData.filter(t => t.integrity_status === 'error')
+                          .length
+                      }
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Error Tables
@@ -823,8 +848,10 @@ const DataManagement: React.FC = memo(() => {
                   <div className="text-center">
                     <div className="text-2xl font-bold">
                       {(() => {
-                        const avgTime = databaseHealth?.performance_metrics?.avg_query_time_ms;
-                        console.log('Avg query time:', avgTime); // Debug log
+                        const avgTime =
+                          databaseHealth?.performance_metrics
+                            ?.avg_query_time_ms;
+                        // console.log('Avg query time:', avgTime); // Debug log
                         if (avgTime != null && avgTime >= 0) {
                           return `${avgTime.toFixed(1)} ms`;
                         }
@@ -854,8 +881,9 @@ const DataManagement: React.FC = memo(() => {
                   <div className="text-center">
                     <div className="text-2xl font-bold">
                       {(() => {
-                        const connections = databaseHealth?.connection_pool?.active_connections;
-                        console.log('Active connections:', connections); // Debug log
+                        const connections =
+                          databaseHealth?.connection_pool?.active_connections;
+                        // console.log('Active connections:', connections); // Debug log
                         return connections ?? 'N/A';
                       })()}
                     </div>
@@ -893,14 +921,19 @@ const DataManagement: React.FC = memo(() => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
+                      {formatFileSize(
+                        tableData.reduce((sum, t) => sum + t.size_mb, 0)
+                      )}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Database Size
                     </div>
                     <Progress
                       value={(() => {
-                        const size = tableData.reduce((sum, t) => sum + t.size_mb, 0);
+                        const size = tableData.reduce(
+                          (sum, t) => sum + t.size_mb,
+                          0
+                        );
                         if (typeof size !== 'number') return 0;
                         return Math.min((size / 1000) * 100, 100); // 1GB threshold
                       })()}
@@ -925,25 +958,37 @@ const DataManagement: React.FC = memo(() => {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                           <div>
-                            <span className="text-muted-foreground">Avg Time:</span>
+                            <span className="text-muted-foreground">
+                              Avg Time:
+                            </span>
                             <span className="ml-1 font-medium">
-                              {item.avg_ms ?? item.avg_time_ms ?? item.avg_time ?? 'N/A'} ms
+                              {item.avg_ms ??
+                                item.avg_time_ms ??
+                                item.avg_time ??
+                                'N/A'}{' '}
+                              ms
                             </span>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">Max Time:</span>
+                            <span className="text-muted-foreground">
+                              Max Time:
+                            </span>
                             <span className="ml-1 font-medium">
                               {item.p95_ms ?? item.max_time_ms ?? 'N/A'} ms
                             </span>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">Calls:</span>
+                            <span className="text-muted-foreground">
+                              Calls:
+                            </span>
                             <span className="ml-1 font-medium">
                               {item.calls ?? item.count ?? 'N/A'}
                             </span>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">Total Time:</span>
+                            <span className="text-muted-foreground">
+                              Total Time:
+                            </span>
                             <span className="ml-1 font-medium">
                               {item.total_time_seconds ?? 'N/A'}s
                             </span>
@@ -957,17 +1002,37 @@ const DataManagement: React.FC = memo(() => {
                     <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>No slow queries detected in the selected window</p>
                     <p className="text-xs">
-                      {performanceData[0]?.note || 'Queries slower than 1000ms are flagged'}
+                      {performanceData[0]?.note ||
+                        'Queries slower than 1000ms are flagged'}
                     </p>
                     <div className="mt-4 p-3 bg-blue-50 rounded text-xs">
-                      <p className="font-medium text-blue-800">Current Performance:</p>
-                      <p>Avg Query Time: {databaseHealth?.performance_metrics?.avg_query_time_ms?.toFixed(1) || 'N/A'} ms</p>
-                      <p>Max Query Time: {databaseHealth?.performance_metrics?.max_query_time_ms?.toFixed(1) || 'N/A'} ms</p>
-                      <p>Active Queries: {databaseHealth?.performance_metrics?.active_queries || 0}</p>
+                      <p className="font-medium text-blue-800">
+                        Current Performance:
+                      </p>
+                      <p>
+                        Avg Query Time:{' '}
+                        {databaseHealth?.performance_metrics?.avg_query_time_ms?.toFixed(
+                          1
+                        ) || 'N/A'}{' '}
+                        ms
+                      </p>
+                      <p>
+                        Max Query Time:{' '}
+                        {databaseHealth?.performance_metrics?.max_query_time_ms?.toFixed(
+                          1
+                        ) || 'N/A'}{' '}
+                        ms
+                      </p>
+                      <p>
+                        Active Queries:{' '}
+                        {databaseHealth?.performance_metrics?.active_queries ||
+                          0}
+                      </p>
                     </div>
                     {performanceData[0]?.note && (
                       <p className="text-xs text-warning mt-2">
-                        Consider enabling pg_stat_statements extension for detailed query analysis
+                        Consider enabling pg_stat_statements extension for
+                        detailed query analysis
                       </p>
                     )}
                   </div>
@@ -994,7 +1059,9 @@ const DataManagement: React.FC = memo(() => {
               <CardContent className="space-y-4">
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-blue-900">Last Backup</span>
+                    <span className="font-medium text-blue-900">
+                      Last Backup
+                    </span>
                     <Badge variant="outline">2 hours ago</Badge>
                   </div>
                   <p className="text-sm text-blue-700">Backup size: 2.4 GB</p>
@@ -1008,7 +1075,7 @@ const DataManagement: React.FC = memo(() => {
                       try {
                         const result = await AdminApi.backupDatabase();
                         toast.success(`Backup started: ${result.message}`);
-                      } catch (error) {
+                      } catch (_error) {
                         toast.error('Failed to start backup');
                       }
                     }}
@@ -1082,10 +1149,10 @@ const DataManagement: React.FC = memo(() => {
                       try {
                         const result = await AdminApi.exportDatabase({
                           table: 'users',
-                          format: 'csv'
+                          format: 'csv',
                         });
                         toast.success(`Export completed: ${result.message}`);
-                      } catch (error) {
+                      } catch (_error) {
                         toast.error('Failed to export data');
                       }
                     }}
@@ -1118,13 +1185,19 @@ const DataManagement: React.FC = memo(() => {
                   <div className="grid grid-cols-3 gap-4">
                     <div className="text-center p-4 bg-success/10 rounded-lg">
                       <div className="text-2xl font-bold text-success">
-                        {formatNumber(tableData.reduce((sum, t) => sum + t.rows, 0))}
+                        {formatNumber(
+                          tableData.reduce((sum, t) => sum + t.rows, 0)
+                        )}
                       </div>
-                      <div className="text-sm text-success/80">Total Records</div>
+                      <div className="text-sm text-success/80">
+                        Total Records
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
                       <div className="text-2xl font-bold text-blue-600">
-                        {formatFileSize(tableData.reduce((sum, t) => sum + t.size_mb, 0))}
+                        {formatFileSize(
+                          tableData.reduce((sum, t) => sum + t.size_mb, 0)
+                        )}
                       </div>
                       <div className="text-sm text-blue-700">Total Size</div>
                     </div>
@@ -1132,7 +1205,9 @@ const DataManagement: React.FC = memo(() => {
                       <div className="text-2xl font-bold text-purple-600">
                         {tableData.length}
                       </div>
-                      <div className="text-sm text-purple-700">Active Tables</div>
+                      <div className="text-sm text-purple-700">
+                        Active Tables
+                      </div>
                     </div>
                   </div>
 
@@ -1142,7 +1217,10 @@ const DataManagement: React.FC = memo(() => {
                       .sort((a, b) => b.size_mb - a.size_mb)
                       .slice(0, 5)
                       .map(table => (
-                        <div key={table.name} className="flex items-center justify-between p-3 border rounded">
+                        <div
+                          key={table.name}
+                          className="flex items-center justify-between p-3 border rounded"
+                        >
                           <div>
                             <div className="font-medium">{table.name}</div>
                             <div className="text-sm text-muted-foreground">
@@ -1150,9 +1228,19 @@ const DataManagement: React.FC = memo(() => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-medium">{formatFileSize(table.size_mb)}</div>
+                            <div className="font-medium">
+                              {formatFileSize(table.size_mb)}
+                            </div>
                             <div className="text-sm text-muted-foreground">
-                              {((table.size_mb / tableData.reduce((sum, t) => sum + t.size_mb, 0)) * 100).toFixed(1)}%
+                              {(
+                                (table.size_mb /
+                                  tableData.reduce(
+                                    (sum, t) => sum + t.size_mb,
+                                    0
+                                  )) *
+                                100
+                              ).toFixed(1)}
+                              %
                             </div>
                           </div>
                         </div>
@@ -1178,21 +1266,30 @@ const DataManagement: React.FC = memo(() => {
                   <div className="flex items-center justify-between p-3 bg-success/10 rounded-lg">
                     <span className="text-sm font-medium">Healthy Tables</span>
                     <Badge variant="success">
-                      {tableData.filter(t => t.integrity_status === 'healthy').length}
+                      {
+                        tableData.filter(t => t.integrity_status === 'healthy')
+                          .length
+                      }
                     </Badge>
                   </div>
 
                   <div className="flex items-center justify-between p-3 bg-warning/10 rounded-lg">
                     <span className="text-sm font-medium">Warning Tables</span>
                     <Badge variant="warning">
-                      {tableData.filter(t => t.integrity_status === 'warning').length}
+                      {
+                        tableData.filter(t => t.integrity_status === 'warning')
+                          .length
+                      }
                     </Badge>
                   </div>
 
                   <div className="flex items-center justify-between p-3 bg-destructive/10 rounded-lg">
                     <span className="text-sm font-medium">Error Tables</span>
                     <Badge variant="destructive">
-                      {tableData.filter(t => t.integrity_status === 'error').length}
+                      {
+                        tableData.filter(t => t.integrity_status === 'error')
+                          .length
+                      }
                     </Badge>
                   </div>
                 </div>
@@ -1203,19 +1300,34 @@ const DataManagement: React.FC = memo(() => {
                     <div className="flex items-center justify-between text-sm">
                       <span>Inserts</span>
                       <span className="font-medium">
-                        {formatNumber(tableData.reduce((sum, t) => sum + (t.inserts || 0), 0))}
+                        {formatNumber(
+                          tableData.reduce(
+                            (sum, t) => sum + (t.inserts || 0),
+                            0
+                          )
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span>Updates</span>
                       <span className="font-medium">
-                        {formatNumber(tableData.reduce((sum, t) => sum + (t.updates || 0), 0))}
+                        {formatNumber(
+                          tableData.reduce(
+                            (sum, t) => sum + (t.updates || 0),
+                            0
+                          )
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span>Deletes</span>
                       <span className="font-medium">
-                        {formatNumber(tableData.reduce((sum, t) => sum + (t.deletes || 0), 0))}
+                        {formatNumber(
+                          tableData.reduce(
+                            (sum, t) => sum + (t.deletes || 0),
+                            0
+                          )
+                        )}
                       </span>
                     </div>
                   </div>
@@ -1405,14 +1517,17 @@ const DataManagement: React.FC = memo(() => {
                   className="w-full"
                   variant="outline"
                   onClick={() =>
-                    showConfirm('Rebuild all database indexes now?', async () => {
-                      try {
-                        const res = await AdminApi.reindexDatabase();
-                        toast.success(`${res.message} (job ${res.job_id})`);
-                      } catch {
-                        toast.error('Reindex failed');
+                    showConfirm(
+                      'Rebuild all database indexes now?',
+                      async () => {
+                        try {
+                          const res = await AdminApi.reindexDatabase();
+                          toast.success(`${res.message} (job ${res.job_id})`);
+                        } catch {
+                          toast.error('Reindex failed');
+                        }
                       }
-                    })
+                    )
                   }
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />

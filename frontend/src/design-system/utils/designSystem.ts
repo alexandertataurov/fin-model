@@ -1,263 +1,212 @@
-import { designTokens } from './tokens';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { useDesignTokens } from '../../hooks/useDesignTokens';
 
 /**
- * Utility function to combine Tailwind classes with proper merging
- * @param inputs - Class values to combine
- * @returns Merged class string
+ * Design system utility functions for consistent styling
  */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+
+/**
+ * Generate consistent button classes based on design tokens
+ * @param variant - Button variant
+ * @param size - Button size
+ * @param disabled - Whether button is disabled
+ * @returns Tailwind class string
+ */
+export function useButtonClasses(variant: string, size: string, disabled = false): string {
+  const tokens = useDesignTokens();
+
+  const baseClasses = [
+    'inline-flex items-center justify-center',
+    'whitespace-nowrap font-medium',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    'active:scale-[0.98]',
+    'transition-all duration-300 ease-in-out',
+  ];
+
+  if (disabled) {
+    baseClasses.push('opacity-50 cursor-not-allowed pointer-events-none');
+  }
+
+  // Add variant-specific classes
+  const variantClasses = {
+    primary: [
+      'bg-primary text-primary-foreground shadow-sm',
+      'hover:bg-primary/90 hover:shadow-md',
+      'focus-visible:ring-primary/20',
+    ],
+    secondary: [
+      'bg-secondary text-secondary-foreground shadow-sm',
+      'hover:bg-secondary/80 hover:shadow-md',
+      'focus-visible:ring-secondary/20',
+    ],
+    outline: [
+      'border border-input bg-background',
+      'hover:bg-accent hover:text-accent-foreground hover:shadow-sm',
+      'focus-visible:ring-ring/20',
+    ],
+    ghost: [
+      'hover:bg-accent hover:text-accent-foreground',
+      'focus-visible:ring-ring/20',
+    ],
+    destructive: [
+      'bg-destructive text-destructive-foreground shadow-sm',
+      'hover:bg-destructive/90 hover:shadow-md',
+      'focus-visible:ring-destructive/20',
+    ],
+  };
+
+  // Add size-specific classes
+  const sizeClasses = {
+    sm: 'h-8 px-3 text-sm gap-1.5',
+    md: 'h-9 px-4 py-2 text-base gap-2',
+    lg: 'h-10 px-6 text-lg gap-2',
+    xl: 'h-12 px-8 text-xl gap-2',
+  };
+
+  return [
+    ...baseClasses,
+    ...(variantClasses[variant] || variantClasses.primary),
+    ...(sizeClasses[size] || sizeClasses.md),
+  ].join(' ');
 }
 
 /**
- * Design system utility class for consistent styling
+ * Generate consistent input classes based on design tokens
+ * @param variant - Input variant
+ * @param size - Input size
+ * @param error - Whether input has error
+ * @returns Tailwind class string
  */
-export class DesignSystem {
-  /**
-   * Generate consistent button classes based on design tokens
-   * @param variant - Button variant
-   * @param size - Button size
-   * @param disabled - Whether button is disabled
-   * @returns Tailwind class string
-   */
-  static button(
-    variant: 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost' = 'primary',
-    size: 'sm' | 'default' | 'lg' = 'default',
-    disabled = false
-  ): string {
-    const baseClasses = [
-      'inline-flex items-center justify-center',
-      'font-medium rounded-md',
-      'transition-colors duration-normal',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-      'disabled:pointer-events-none disabled:opacity-50',
-    ];
+export function useInputClasses(variant: string, size: string, error = false): string {
+  const tokens = useDesignTokens();
 
-    // Size-specific classes using design tokens
-    const sizeClasses = {
-      sm: 'h-8 px-3 text-sm',
-      default: 'h-9 px-4 text-base',
-      lg: 'h-10 px-6 text-lg',
-    };
+  const baseClasses = [
+    'flex w-full',
+    'border border-input bg-background',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+    'disabled:cursor-not-allowed disabled:opacity-50',
+    'transition-all duration-300 ease-in-out',
+  ];
 
-    // Variant-specific classes
-    const variantClasses = {
-      primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-      destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-    };
+  if (error) {
+    baseClasses.push('border-destructive focus-visible:ring-destructive');
+  }
 
-    const classes = [
-      ...baseClasses,
-      sizeClasses[size],
-      variantClasses[variant],
-    ];
+  // Add variant-specific classes
+  const variantClasses = {
+    default: 'text-foreground placeholder:text-muted-foreground',
+    filled: 'bg-muted text-foreground',
+    outline: 'border-2 text-foreground',
+  };
 
-    if (disabled) {
-      classes.push('opacity-50 cursor-not-allowed');
+  // Add size-specific classes
+  const sizeClasses = {
+    sm: 'h-8 px-3 text-sm',
+    md: 'h-9 px-4 text-base',
+    lg: 'h-10 px-6 text-lg',
+    xl: 'h-12 px-8 text-xl',
+  };
+
+  return [
+    ...baseClasses,
+    ...(variantClasses[variant] || variantClasses.default),
+    ...(sizeClasses[size] || sizeClasses.md),
+  ].join(' ');
+}
+
+/**
+ * Generate consistent spacing based on design tokens
+ * @param size - Spacing size from design tokens
+ * @returns CSS spacing value
+ */
+export function useSpacing(size: string): string {
+  const tokens = useDesignTokens();
+  return tokens.getSpacing(size as any);
+}
+
+/**
+ * Generate consistent border radius based on design tokens
+ * @param size - Border radius size from design tokens
+ * @returns CSS border radius value
+ */
+export function useBorderRadius(size: string): string {
+  const tokens = useDesignTokens();
+  return tokens.getBorderRadius(size as any);
+}
+
+/**
+ * Generate consistent font size based on design tokens
+ * @param size - Font size from design tokens
+ * @returns CSS font size value
+ */
+export function useFontSize(size: string): string {
+  const tokens = useDesignTokens();
+  return tokens.getFontSize(size as any);
+}
+
+/**
+ * Generate consistent shadow based on design tokens
+ * @param size - Shadow size from design tokens
+ * @returns CSS box shadow value
+ */
+export function useBoxShadow(size: string): string {
+  const tokens = useDesignTokens();
+  return tokens.getBoxShadow(size as any);
+}
+
+/**
+ * Generate consistent color based on design tokens
+ * @param color - Color name from design tokens
+ * @returns CSS color value
+ */
+export function useColor(color: string): string {
+  const tokens = useDesignTokens();
+  return tokens.getColor(color as any);
+}
+
+/**
+ * Generate theme-aware color based on design tokens
+ * @param color - Color name from design tokens
+ * @returns CSS color value for current theme
+ */
+export function useThemeColor(color: string): string {
+  const tokens = useDesignTokens();
+  return tokens.getThemeColor(color);
+}
+
+/**
+ * Generate consistent motion based on design tokens
+ * @param type - Motion type (easing, duration, delay)
+ * @param key - Motion key
+ * @returns CSS motion value
+ */
+export function useMotion(type: string, key: string): string {
+  const tokens = useDesignTokens();
+  return tokens.getMotion(type as any, key);
+}
+
+/**
+ * Generate CSS custom properties for a component
+ * @param component - Component name
+ * @param props - Component props
+ * @returns CSS custom properties object
+ */
+export function useCSSVariables(component: string, props: Record<string, any>): Record<string, string> {
+  const tokens = useDesignTokens();
+  const cssVars: Record<string, string> = {};
+
+  // Add component-specific variables
+  Object.entries(props).forEach(([key, value]) => {
+    if (value !== undefined) {
+      cssVars[`--${component}-${key}`] = String(value);
     }
+  });
 
-    return cn(...classes);
-  }
+  // Add theme variables
+  cssVars['--component-bg'] = tokens.getThemeColor('background');
+  cssVars['--component-color'] = tokens.getThemeColor('foreground');
+  cssVars['--component-border'] = tokens.getThemeColor('border');
 
-  /**
-   * Generate consistent input classes based on design tokens
-   * @param error - Whether input has error state
-   * @param disabled - Whether input is disabled
-   * @returns Tailwind class string
-   */
-  static input(error = false, disabled = false): string {
-    const baseClasses = [
-      'flex h-9 w-full rounded-md border px-3 py-1',
-      'text-base bg-background',
-      'transition-colors duration-normal',
-      'file:border-0 file:bg-transparent file:text-sm file:font-medium',
-      'placeholder:text-muted-foreground',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-      'disabled:cursor-not-allowed disabled:opacity-50',
-      // Autofill styling for better design system compliance
-      '[&:-webkit-autofill]:bg-background [&:-webkit-autofill]:text-foreground',
-      '[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
-      '[&:-webkit-autofill]:border-ring [&:-webkit-autofill]:ring-2 [&:-webkit-autofill]:ring-ring [&:-webkit-autofill]:ring-offset-2',
-      '[&:-webkit-autofill]:transition-all [&:-webkit-autofill]:duration-normal',
-      '[&:-webkit-autofill:focus]:border-ring [&:-webkit-autofill:focus]:ring-2 [&:-webkit-autofill:focus]:ring-ring [&:-webkit-autofill:focus]:ring-offset-2',
-      '[&:-webkit-autofill:hover]:border-ring',
-      'dark:[&:-webkit-autofill]:bg-background dark:[&:-webkit-autofill]:text-foreground',
-      'dark:[&:-webkit-autofill]:shadow-[0_0_0_30px_hsl(var(--background))_inset]',
-      'dark:[&:-webkit-autofill]:border-ring dark:[&:-webkit-autofill]:ring-2 dark:[&:-webkit-autofill]:ring-ring dark:[&:-webkit-autofill]:ring-offset-2',
-    ];
-
-    if (error) {
-      baseClasses.push(
-        'border-destructive focus-visible:ring-destructive',
-        '[&:-webkit-autofill]:border-destructive [&:-webkit-autofill]:ring-destructive',
-        '[&:-webkit-autofill:focus]:border-destructive [&:-webkit-autofill:focus]:ring-destructive'
-      );
-    } else {
-      baseClasses.push('border-input');
-    }
-
-    if (disabled) {
-      baseClasses.push('bg-muted cursor-not-allowed');
-    }
-
-    return cn(...baseClasses);
-  }
-
-  /**
-   * Generate consistent card classes based on design tokens
-   * @param variant - Card variant
-   * @returns Tailwind class string
-   */
-  static card(variant: 'default' | 'outline' | 'filled' = 'default'): string {
-    const baseClasses = [
-      'rounded-lg bg-card text-card-foreground',
-      'transition-shadow duration-normal',
-    ];
-
-    const variantClasses = {
-      default: 'border shadow-sm',
-      outline: 'border-2',
-      filled: 'shadow-md',
-    };
-
-    return cn(...baseClasses, variantClasses[variant]);
-  }
-
-  /**
-   * Generate consistent alert classes based on design tokens
-   * @param variant - Alert variant
-   * @returns Tailwind class string
-   */
-  static alert(variant: 'default' | 'destructive' | 'success' | 'warning' | 'info' = 'default'): string {
-    const baseClasses = [
-      'relative w-full rounded-lg border px-4 py-3',
-      'text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
-      '[&>svg~*]:pl-7',
-    ];
-
-    const variantClasses = {
-      default: 'bg-background text-foreground border',
-      destructive: 'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
-      success: 'border-success/50 text-success dark:border-success [&>svg]:text-success bg-success/10',
-      warning: 'border-warning/50 text-warning dark:border-warning [&>svg]:text-warning bg-warning/10',
-      info: 'border-info/50 text-info dark:border-info [&>svg]:text-info bg-info/10',
-    };
-
-    return cn(...baseClasses, variantClasses[variant]);
-  }
-
-  /**
-   * Generate consistent badge classes based on design tokens
-   * @param variant - Badge variant
-   * @returns Tailwind class string
-   */
-  static badge(variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' = 'default'): string {
-    const baseClasses = [
-      'inline-flex items-center rounded-md px-2 py-1',
-      'text-xs font-semibold',
-      'transition-colors duration-normal',
-      'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-    ];
-
-    const variantClasses = {
-      default: 'bg-primary text-primary-foreground shadow hover:bg-primary/80',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-      destructive: 'bg-destructive text-destructive-foreground shadow hover:bg-destructive/80',
-      outline: 'text-foreground border',
-      success: 'bg-success text-success-foreground shadow hover:bg-success/80',
-      warning: 'bg-warning text-warning-foreground shadow hover:bg-warning/80',
-      info: 'bg-info text-info-foreground shadow hover:bg-info/80',
-    };
-
-    return cn(...baseClasses, variantClasses[variant]);
-  }
-
-  /**
-   * Generate chart color based on index
-   * @param index - Chart data series index (0-7)
-   * @returns CSS custom property for chart color
-   */
-  static chartColor(index: number): string {
-    const colorIndex = (index % 8) + 1;
-    return `var(--chart-${colorIndex})`;
-  }
-
-  /**
-   * Generate responsive grid classes
-   * @param columns - Number of columns for different breakpoints
-   * @returns Tailwind grid class string
-   */
-  static responsiveGrid(columns: {
-    base?: number;
-    sm?: number;
-    md?: number;
-    lg?: number;
-    xl?: number;
-  }): string {
-    const classes = ['grid gap-4'];
-
-    if (columns.base) classes.push(`grid-cols-${columns.base}`);
-    if (columns.sm) classes.push(`sm:grid-cols-${columns.sm}`);
-    if (columns.md) classes.push(`md:grid-cols-${columns.md}`);
-    if (columns.lg) classes.push(`lg:grid-cols-${columns.lg}`);
-    if (columns.xl) classes.push(`xl:grid-cols-${columns.xl}`);
-
-    return cn(...classes);
-  }
-
-  /**
-   * Generate consistent spacing classes
-   * @param direction - Spacing direction
-   * @param size - Spacing size from design tokens
-   * @returns Tailwind spacing class
-   */
-  static spacing(
-    direction: 'p' | 'px' | 'py' | 'pt' | 'pr' | 'pb' | 'pl' | 'm' | 'mx' | 'my' | 'mt' | 'mr' | 'mb' | 'ml',
-    size: keyof typeof designTokens.spacing
-  ): string {
-    const sizeMap = {
-      xs: '1',
-      sm: '2',
-      md: '4',
-      lg: '6',
-      xl: '8',
-      '2xl': '12',
-      '3xl': '16',
-    };
-
-    return `${direction}-${sizeMap[size]}`;
-  }
-
-  /**
-   * Generate text size classes with proper line height
-   * @param size - Font size from design tokens
-   * @returns Tailwind text size class
-   */
-  static textSize(size: keyof typeof designTokens.fontSize): string {
-    return `text-${size}`;
-  }
-
-  /**
-   * Generate shadow classes
-   * @param size - Shadow size from design tokens
-   * @returns Tailwind shadow class
-   */
-  static shadow(size: keyof typeof designTokens.boxShadow): string {
-    const shadowMap = {
-      sm: 'shadow-sm',
-      default: 'shadow',
-      md: 'shadow-md',
-      lg: 'shadow-lg',
-      xl: 'shadow-xl',
-    };
-
-    return shadowMap[size] || 'shadow';
-  }
+  return cssVars;
 }
 
 /**
@@ -281,10 +230,14 @@ export const componentStyles = {
   // Common patterns
   flexCenter: 'flex items-center justify-center',
   flexBetween: 'flex items-center justify-between',
-  flexBetweenResponsive: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4',
-  absoluteCenter: 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
+  flexBetweenResponsive:
+    'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4',
+  absoluteCenter:
+    'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
 
   // Interactive states
-  interactive: 'transition-colors duration-normal hover:bg-accent hover:text-accent-foreground',
-  focusRing: 'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  interactive:
+    'transition-colors duration-normal hover:bg-accent hover:text-accent-foreground',
+  focusRing:
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 } as const;

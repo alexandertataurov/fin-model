@@ -4,8 +4,13 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
 // duplicate import removed
 import { Download, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 
@@ -131,7 +136,9 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
   isLoading = false,
   onRefresh,
 }) => {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['operating', 'investing', 'financing']));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['operating', 'investing', 'financing'])
+  );
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections);
@@ -180,19 +187,35 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
     isSubtotal?: boolean;
     indent?: number;
     showTrend?: boolean;
-  }> = ({ label, value, isTotal = false, isSubtotal = false, indent = 0, showTrend = true }) => (
+  }> = ({
+    label,
+    value,
+    isTotal = false,
+    isSubtotal = false,
+    indent = 0,
+    showTrend = true,
+  }) => (
     <div
-      className={`flex justify-between items-center py-2 px-4 ${isTotal ? 'font-bold bg-gray-50 border-t-2 border-b-2' :
-          isSubtotal ? 'font-semibold bg-gray-25 border-t' : ''
-        }`}
+      className={`flex justify-between items-center py-2 px-4 ${
+        isTotal
+          ? 'font-bold bg-gray-50 border-t-2 border-b-2'
+          : isSubtotal
+            ? 'font-semibold bg-gray-25 border-t'
+            : ''
+      }`}
       style={{ paddingLeft: `${16 + indent * 16}px` }}
     >
-      <span className={isTotal ? 'text-lg' : isSubtotal ? 'text-md' : 'text-sm'}>
+      <span
+        className={isTotal ? 'text-lg' : isSubtotal ? 'text-md' : 'text-sm'}
+      >
         {label}
       </span>
       <div className="flex items-center space-x-2">
-        <span className={`${isTotal ? 'text-lg font-bold' : 'font-medium'} ${value < 0 ? 'text-red-600' : 'text-gray-900'
-          }`}>
+        <span
+          className={`${isTotal ? 'text-lg font-bold' : 'font-medium'} ${
+            value < 0 ? 'text-red-600' : 'text-gray-900'
+          }`}
+        >
           {formatCurrency(value)}
         </span>
         {showTrend && value > 0 && (
@@ -217,14 +240,13 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
       >
         <h3 className="font-semibold text-lg">{title}</h3>
         <Activity
-          className={`w-5 h-5 transition-transform ${expandedSections.has(sectionKey) ? 'rotate-90' : ''
-            }`}
+          className={`w-5 h-5 transition-transform ${
+            expandedSections.has(sectionKey) ? 'rotate-90' : ''
+          }`}
         />
       </button>
       {expandedSections.has(sectionKey) && (
-        <div className="border-t">
-          {children}
-        </div>
+        <div className="border-t">{children}</div>
       )}
     </div>
   );
@@ -250,36 +272,118 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Operating Activities Section */}
-        <ExpandableSection title="Cash Flow from Operating Activities" sectionKey="operating">
-          <LineItem label="Net Income" value={data.operating_activities.net_income} indent={1} />
+        <ExpandableSection
+          title="Cash Flow from Operating Activities"
+          sectionKey="operating"
+        >
+          <LineItem
+            label="Net Income"
+            value={data.operating_activities.net_income}
+            indent={1}
+          />
 
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Non-Cash Adjustments</h4>
-            <LineItem label="Depreciation Expense" value={data.operating_activities.depreciation_expense} indent={2} />
-            <LineItem label="Amortization Expense" value={data.operating_activities.amortization_expense} indent={2} />
-            <LineItem label="Stock-Based Compensation" value={data.operating_activities.stock_based_compensation} indent={2} />
-            <LineItem label="Deferred Tax Benefit" value={data.operating_activities.deferred_tax_benefit} indent={2} />
-            <LineItem label="Asset Impairment" value={data.operating_activities.asset_impairment} indent={2} />
-            <LineItem label="Bad Debt Provision" value={data.operating_activities.bad_debt_provision} indent={2} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Non-Cash Adjustments
+            </h4>
+            <LineItem
+              label="Depreciation Expense"
+              value={data.operating_activities.depreciation_expense}
+              indent={2}
+            />
+            <LineItem
+              label="Amortization Expense"
+              value={data.operating_activities.amortization_expense}
+              indent={2}
+            />
+            <LineItem
+              label="Stock-Based Compensation"
+              value={data.operating_activities.stock_based_compensation}
+              indent={2}
+            />
+            <LineItem
+              label="Deferred Tax Benefit"
+              value={data.operating_activities.deferred_tax_benefit}
+              indent={2}
+            />
+            <LineItem
+              label="Asset Impairment"
+              value={data.operating_activities.asset_impairment}
+              indent={2}
+            />
+            <LineItem
+              label="Bad Debt Provision"
+              value={data.operating_activities.bad_debt_provision}
+              indent={2}
+            />
           </div>
 
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Changes in Working Capital</h4>
-            <LineItem label="Accounts Receivable Change" value={data.operating_activities.accounts_receivable_change} indent={2} />
-            <LineItem label="Inventory Change" value={data.operating_activities.inventory_change} indent={2} />
-            <LineItem label="Prepaid Expenses Change" value={data.operating_activities.prepaid_expenses_change} indent={2} />
-            <LineItem label="Accounts Payable Change" value={data.operating_activities.accounts_payable_change} indent={2} />
-            <LineItem label="Accrued Liabilities Change" value={data.operating_activities.accrued_liabilities_change} indent={2} />
-            <LineItem label="Deferred Revenue Change" value={data.operating_activities.deferred_revenue_change} indent={2} />
-            <LineItem label="Other Working Capital Change" value={data.operating_activities.other_working_capital_change} indent={2} />
-            <LineItem label="Total Working Capital Change" value={data.operating_activities.total_working_capital_change} indent={1} isSubtotal={true} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Changes in Working Capital
+            </h4>
+            <LineItem
+              label="Accounts Receivable Change"
+              value={data.operating_activities.accounts_receivable_change}
+              indent={2}
+            />
+            <LineItem
+              label="Inventory Change"
+              value={data.operating_activities.inventory_change}
+              indent={2}
+            />
+            <LineItem
+              label="Prepaid Expenses Change"
+              value={data.operating_activities.prepaid_expenses_change}
+              indent={2}
+            />
+            <LineItem
+              label="Accounts Payable Change"
+              value={data.operating_activities.accounts_payable_change}
+              indent={2}
+            />
+            <LineItem
+              label="Accrued Liabilities Change"
+              value={data.operating_activities.accrued_liabilities_change}
+              indent={2}
+            />
+            <LineItem
+              label="Deferred Revenue Change"
+              value={data.operating_activities.deferred_revenue_change}
+              indent={2}
+            />
+            <LineItem
+              label="Other Working Capital Change"
+              value={data.operating_activities.other_working_capital_change}
+              indent={2}
+            />
+            <LineItem
+              label="Total Working Capital Change"
+              value={data.operating_activities.total_working_capital_change}
+              indent={1}
+              isSubtotal={true}
+            />
           </div>
 
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Other Operating Activities</h4>
-            <LineItem label="Interest Paid" value={data.operating_activities.interest_paid} indent={2} />
-            <LineItem label="Taxes Paid" value={data.operating_activities.taxes_paid} indent={2} />
-            <LineItem label="Other Operating Cash Flow" value={data.operating_activities.other_operating_cash_flow} indent={2} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Other Operating Activities
+            </h4>
+            <LineItem
+              label="Interest Paid"
+              value={data.operating_activities.interest_paid}
+              indent={2}
+            />
+            <LineItem
+              label="Taxes Paid"
+              value={data.operating_activities.taxes_paid}
+              indent={2}
+            />
+            <LineItem
+              label="Other Operating Cash Flow"
+              value={data.operating_activities.other_operating_cash_flow}
+              indent={2}
+            />
           </div>
 
           <LineItem
@@ -290,29 +394,88 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
         </ExpandableSection>
 
         {/* Investing Activities Section */}
-        <ExpandableSection title="Cash Flow from Investing Activities" sectionKey="investing">
+        <ExpandableSection
+          title="Cash Flow from Investing Activities"
+          sectionKey="investing"
+        >
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Capital Expenditures</h4>
-            <LineItem label="Property, Plant & Equipment" value={data.investing_activities.property_plant_equipment_purchases} indent={2} />
-            <LineItem label="Intangible Asset Purchases" value={data.investing_activities.intangible_asset_purchases} indent={2} />
-            <LineItem label="Software Development Costs" value={data.investing_activities.software_development_costs} indent={2} />
-            <LineItem label="R&D Capital Expenditures" value={data.investing_activities.research_development_capex} indent={2} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Capital Expenditures
+            </h4>
+            <LineItem
+              label="Property, Plant & Equipment"
+              value={
+                data.investing_activities.property_plant_equipment_purchases
+              }
+              indent={2}
+            />
+            <LineItem
+              label="Intangible Asset Purchases"
+              value={data.investing_activities.intangible_asset_purchases}
+              indent={2}
+            />
+            <LineItem
+              label="Software Development Costs"
+              value={data.investing_activities.software_development_costs}
+              indent={2}
+            />
+            <LineItem
+              label="R&D Capital Expenditures"
+              value={data.investing_activities.research_development_capex}
+              indent={2}
+            />
           </div>
 
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Asset Transactions</h4>
-            <LineItem label="Asset Sales Proceeds" value={data.investing_activities.asset_sales_proceeds} indent={2} />
-            <LineItem label="Business Acquisition Cost" value={data.investing_activities.business_acquisition_cost} indent={2} />
-            <LineItem label="Business Divestiture Proceeds" value={data.investing_activities.business_divestiture_proceeds} indent={2} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Asset Transactions
+            </h4>
+            <LineItem
+              label="Asset Sales Proceeds"
+              value={data.investing_activities.asset_sales_proceeds}
+              indent={2}
+            />
+            <LineItem
+              label="Business Acquisition Cost"
+              value={data.investing_activities.business_acquisition_cost}
+              indent={2}
+            />
+            <LineItem
+              label="Business Divestiture Proceeds"
+              value={data.investing_activities.business_divestiture_proceeds}
+              indent={2}
+            />
           </div>
 
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Investment Activities</h4>
-            <LineItem label="Short-term Investments Change" value={data.investing_activities.short_term_investments_change} indent={2} />
-            <LineItem label="Long-term Investments Change" value={data.investing_activities.long_term_investments_change} indent={2} />
-            <LineItem label="Marketable Securities Change" value={data.investing_activities.marketable_securities_change} indent={2} />
-            <LineItem label="Loans to Subsidiaries" value={data.investing_activities.loans_to_subsidiaries} indent={2} />
-            <LineItem label="Other Investing Cash Flow" value={data.investing_activities.other_investing_cash_flow} indent={2} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Investment Activities
+            </h4>
+            <LineItem
+              label="Short-term Investments Change"
+              value={data.investing_activities.short_term_investments_change}
+              indent={2}
+            />
+            <LineItem
+              label="Long-term Investments Change"
+              value={data.investing_activities.long_term_investments_change}
+              indent={2}
+            />
+            <LineItem
+              label="Marketable Securities Change"
+              value={data.investing_activities.marketable_securities_change}
+              indent={2}
+            />
+            <LineItem
+              label="Loans to Subsidiaries"
+              value={data.investing_activities.loans_to_subsidiaries}
+              indent={2}
+            />
+            <LineItem
+              label="Other Investing Cash Flow"
+              value={data.investing_activities.other_investing_cash_flow}
+              indent={2}
+            />
           </div>
 
           <LineItem
@@ -323,27 +486,75 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
         </ExpandableSection>
 
         {/* Financing Activities Section */}
-        <ExpandableSection title="Cash Flow from Financing Activities" sectionKey="financing">
+        <ExpandableSection
+          title="Cash Flow from Financing Activities"
+          sectionKey="financing"
+        >
           <div className="bg-gray-50 p-2">
             <h4 className="font-medium text-gray-700 mb-2">Debt Activities</h4>
-            <LineItem label="Debt Proceeds" value={data.financing_activities.debt_proceeds} indent={2} />
-            <LineItem label="Debt Repayments" value={data.financing_activities.debt_repayments} indent={2} />
-            <LineItem label="Net Debt Change" value={data.financing_activities.net_debt_change} indent={1} isSubtotal={true} />
+            <LineItem
+              label="Debt Proceeds"
+              value={data.financing_activities.debt_proceeds}
+              indent={2}
+            />
+            <LineItem
+              label="Debt Repayments"
+              value={data.financing_activities.debt_repayments}
+              indent={2}
+            />
+            <LineItem
+              label="Net Debt Change"
+              value={data.financing_activities.net_debt_change}
+              indent={1}
+              isSubtotal={true}
+            />
           </div>
 
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Equity Activities</h4>
-            <LineItem label="Stock Issuance Proceeds" value={data.financing_activities.stock_issuance_proceeds} indent={2} />
-            <LineItem label="Stock Repurchase Cost" value={data.financing_activities.stock_repurchase_cost} indent={2} />
-            <LineItem label="Dividend Payments" value={data.financing_activities.dividend_payments} indent={2} />
-            <LineItem label="Preferred Dividend Payments" value={data.financing_activities.preferred_dividend_payments} indent={2} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Equity Activities
+            </h4>
+            <LineItem
+              label="Stock Issuance Proceeds"
+              value={data.financing_activities.stock_issuance_proceeds}
+              indent={2}
+            />
+            <LineItem
+              label="Stock Repurchase Cost"
+              value={data.financing_activities.stock_repurchase_cost}
+              indent={2}
+            />
+            <LineItem
+              label="Dividend Payments"
+              value={data.financing_activities.dividend_payments}
+              indent={2}
+            />
+            <LineItem
+              label="Preferred Dividend Payments"
+              value={data.financing_activities.preferred_dividend_payments}
+              indent={2}
+            />
           </div>
 
           <div className="bg-gray-50 p-2">
-            <h4 className="font-medium text-gray-700 mb-2">Other Financing Activities</h4>
-            <LineItem label="Capital Lease Payments" value={data.financing_activities.capital_lease_payments} indent={2} />
-            <LineItem label="Debt Issuance Costs" value={data.financing_activities.debt_issuance_costs} indent={2} />
-            <LineItem label="Other Financing Cash Flow" value={data.financing_activities.other_financing_cash_flow} indent={2} />
+            <h4 className="font-medium text-gray-700 mb-2">
+              Other Financing Activities
+            </h4>
+            <LineItem
+              label="Capital Lease Payments"
+              value={data.financing_activities.capital_lease_payments}
+              indent={2}
+            />
+            <LineItem
+              label="Debt Issuance Costs"
+              value={data.financing_activities.debt_issuance_costs}
+              indent={2}
+            />
+            <LineItem
+              label="Other Financing Cash Flow"
+              value={data.financing_activities.other_financing_cash_flow}
+              indent={2}
+            />
           </div>
 
           <LineItem
@@ -355,15 +566,30 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
 
         {/* Net Cash Flow Summary */}
         <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
-          <h3 className="font-semibold text-lg mb-3 text-blue-800">Net Cash Flow Summary</h3>
-          <LineItem label="Net Change in Cash" value={data.net_change_in_cash} isTotal={true} />
-          <LineItem label="Beginning Cash Balance" value={data.beginning_cash_balance} />
-          <LineItem label="Ending Cash Balance" value={data.ending_cash_balance} isTotal={true} />
+          <h3 className="font-semibold text-lg mb-3 text-blue-800">
+            Net Cash Flow Summary
+          </h3>
+          <LineItem
+            label="Net Change in Cash"
+            value={data.net_change_in_cash}
+            isTotal={true}
+          />
+          <LineItem
+            label="Beginning Cash Balance"
+            value={data.beginning_cash_balance}
+          />
+          <LineItem
+            label="Ending Cash Balance"
+            value={data.ending_cash_balance}
+            isTotal={true}
+          />
         </div>
 
         {/* Free Cash Flow Metrics */}
         <div className="border rounded-lg p-4 bg-green-50">
-          <h3 className="font-semibold text-lg mb-3 text-green-800">Free Cash Flow Analysis</h3>
+          <h3 className="font-semibold text-lg mb-3 text-green-800">
+            Free Cash Flow Analysis
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <p className="text-sm text-gray-600">Free Cash Flow</p>
@@ -382,7 +608,9 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
 
         {/* Working Capital Metrics */}
         <div className="border rounded-lg p-4 bg-purple-50">
-          <h3 className="font-semibold text-lg mb-3 text-purple-800">Working Capital Analysis</h3>
+          <h3 className="font-semibold text-lg mb-3 text-purple-800">
+            Working Capital Analysis
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-600">Days Sales Outstanding</p>
@@ -391,7 +619,9 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Days Inventory Outstanding</p>
+              <p className="text-sm text-gray-600">
+                Days Inventory Outstanding
+              </p>
               <p className="text-lg font-semibold text-purple-600">
                 {formatDays(data.supplemental_info.days_inventory_outstanding)}
               </p>
@@ -420,13 +650,19 @@ const CashFlowView: React.FC<CashFlowViewProps> = ({
         {/* Key Cash Flow Metrics Summary */}
         <div className="grid grid-cols-3 gap-4 mt-6">
           <Card className="p-4">
-            <h4 className="text-sm font-medium text-gray-600">Operating Cash Flow</h4>
+            <h4 className="text-sm font-medium text-gray-600">
+              Operating Cash Flow
+            </h4>
             <p className="text-2xl font-bold text-blue-600">
-              {formatCurrency(data.operating_activities.total_operating_cash_flow)}
+              {formatCurrency(
+                data.operating_activities.total_operating_cash_flow
+              )}
             </p>
           </Card>
           <Card className="p-4">
-            <h4 className="text-sm font-medium text-gray-600">Free Cash Flow</h4>
+            <h4 className="text-sm font-medium text-gray-600">
+              Free Cash Flow
+            </h4>
             <p className="text-2xl font-bold text-green-600">
               {formatCurrency(data.supplemental_info.free_cash_flow)}
             </p>

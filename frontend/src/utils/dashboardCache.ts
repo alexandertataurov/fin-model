@@ -1,6 +1,6 @@
 /**
  * Dashboard Cache Manager
- * 
+ *
  * Intelligent caching and performance optimization for dashboard data
  */
 
@@ -66,7 +66,7 @@ export class DashboardCacheManager {
     fileId?: number
   ): Promise<void> {
     const cacheKey = this.getCacheKey(type, period, fileId);
-    
+
     await queryClient.prefetchQuery({
       queryKey: cacheKey,
       queryFn,
@@ -113,13 +113,13 @@ export class DashboardCacheManager {
   ): boolean {
     const cacheKey = this.getCacheKey(type, period, fileId);
     const queryState = queryClient.getQueryState(cacheKey);
-    
+
     if (!queryState) return true;
-    
+
     const now = Date.now();
     const lastFetch = queryState.dataUpdatedAt;
-    const isStale = (now - lastFetch) > this.CACHE_TIMES.STALE_TIME;
-    
+    const isStale = now - lastFetch > this.CACHE_TIMES.STALE_TIME;
+
     return isStale;
   }
 
@@ -140,15 +140,22 @@ export class DashboardCacheManager {
       refetchOnWindowFocus: false,
       refetchOnMount: 'always' as const,
       refetchOnReconnect: true,
-      retry: (failureCount: number, error: { response?: { status?: number } }) => {
+      retry: (
+        failureCount: number,
+        error: { response?: { status?: number } }
+      ) => {
         // Don't retry on auth errors
-        if (error?.response?.status === 401 || error?.response?.status === 403) {
+        if (
+          error?.response?.status === 401 ||
+          error?.response?.status === 403
+        ) {
           return false;
         }
         // Retry up to 3 times for other errors
         return failureCount < 3;
       },
-      retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: (attemptIndex: number) =>
+        Math.min(1000 * 2 ** attemptIndex, 30000),
     };
   }
 
@@ -179,7 +186,9 @@ export class DashboardCacheManager {
       return data.map(item => {
         if (typeof item === 'object' && item !== null) {
           const compressed: Record<string, unknown> = {};
-          for (const [key, value] of Object.entries(item as Record<string, unknown>)) {
+          for (const [key, value] of Object.entries(
+            item as Record<string, unknown>
+          )) {
             if (typeof value === 'number') {
               compressed[key] = Math.round(value * 100) / 100; // 2 decimal places
             } else if (value !== null && value !== undefined) {

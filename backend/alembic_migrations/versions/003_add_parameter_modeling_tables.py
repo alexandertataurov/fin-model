@@ -26,7 +26,9 @@ def upgrade():
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("parameter_type", sa.String(length=50), nullable=False),
         sa.Column("category", sa.String(length=50), nullable=False),
-        sa.Column("sensitivity_level", sa.String(length=20), nullable=False),
+        sa.Column(
+            "sensitivity_level", sa.String(length=20), nullable=False
+        ),
         sa.Column("current_value", sa.Float(), nullable=True),
         sa.Column("default_value", sa.Float(), nullable=True),
         sa.Column("min_value", sa.Float(), nullable=True),
@@ -62,8 +64,12 @@ def upgrade():
         ["category"],
         unique=False,
     )
-    op.create_index(op.f("ix_parameters_id"), "parameters", ["id"], unique=False)
-    op.create_index(op.f("ix_parameters_name"), "parameters", ["name"], unique=False)
+    op.create_index(
+        op.f("ix_parameters_id"), "parameters", ["id"], unique=False
+    )
+    op.create_index(
+        op.f("ix_parameters_name"), "parameters", ["name"], unique=False
+    )
     op.create_index(
         op.f("ix_parameters_parameter_type"),
         "parameters",
@@ -84,7 +90,9 @@ def upgrade():
         sa.Column("parent_scenario_id", sa.Integer(), nullable=True),
         sa.Column("base_file_id", sa.Integer(), nullable=False),
         sa.Column("last_calculated_at", sa.DateTime(), nullable=True),
-        sa.Column("calculation_status", sa.String(length=50), nullable=True),
+        sa.Column(
+            "calculation_status", sa.String(length=50), nullable=True
+        ),
         sa.Column("calculation_results", sa.JSON(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
@@ -201,7 +209,9 @@ def upgrade():
         "calculation_audits",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("scenario_id", sa.Integer(), nullable=False),
-        sa.Column("calculation_type", sa.String(length=50), nullable=False),
+        sa.Column(
+            "calculation_type", sa.String(length=50), nullable=False
+        ),
         sa.Column("triggered_by", sa.String(length=50), nullable=False),
         sa.Column("trigger_details", sa.JSON(), nullable=True),
         sa.Column("start_time", sa.DateTime(), nullable=False),
@@ -243,7 +253,9 @@ def downgrade():
     op.drop_table("formula_nodes")
     op.drop_table("parameter_values")
     op.drop_table("scenarios")
-    op.drop_index(op.f("ix_parameters_parameter_type"), table_name="parameters")
+    op.drop_index(
+        op.f("ix_parameters_parameter_type"), table_name="parameters"
+    )
     op.drop_index(op.f("ix_parameters_name"), table_name="parameters")
     op.drop_index(op.f("ix_parameters_id"), table_name="parameters")
     op.drop_index(op.f("ix_parameters_category"), table_name="parameters")

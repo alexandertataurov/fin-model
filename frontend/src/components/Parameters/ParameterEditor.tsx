@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
-import { Badge } from '@/design-system/components/Badge';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { Slider } from '@/design-system/components/Slider';
-import { Textarea } from '@/design-system/components/Textarea';
+import { Card, CardContent, CardHeader } from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import { Slider } from '@/design-system/atoms';
+import { Textarea } from '@/design-system/atoms';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/design-system/components/Accordion';
+} from '@/design-system/molecules';
 import { Edit, Save, X, Info, TrendingUp, TrendingDown } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 

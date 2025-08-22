@@ -36,19 +36,33 @@ from app.api.v1.endpoints import (
 api_router = APIRouter()
 
 # Include authentication routes
-api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
-api_router.include_router(mfa.router, prefix="/auth/mfa", tags=["authentication"])
+api_router.include_router(
+    auth.router, prefix="/auth", tags=["authentication"]
+)
+api_router.include_router(
+    mfa.router, prefix="/auth/mfa", tags=["authentication"]
+)
 api_router.include_router(
     webauthn.router, prefix="/auth/webauthn", tags=["authentication"]
 )
-api_router.include_router(oauth.router, prefix="/auth/oauth", tags=["authentication"])
+api_router.include_router(
+    oauth.router, prefix="/auth/oauth", tags=["authentication"]
+)
 
 # Include core application routes
-api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(
+    dashboard.router, prefix="/dashboard", tags=["dashboard"]
+)
 api_router.include_router(files.router, prefix="/files", tags=["files"])
-api_router.include_router(parameters.router, prefix="/parameters", tags=["parameters"])
-api_router.include_router(scenarios.router, prefix="/scenarios", tags=["scenarios"])
-api_router.include_router(statements.router, prefix="/statements", tags=["statements"])
+api_router.include_router(
+    parameters.router, prefix="/parameters", tags=["parameters"]
+)
+api_router.include_router(
+    scenarios.router, prefix="/scenarios", tags=["scenarios"]
+)
+api_router.include_router(
+    statements.router, prefix="/statements", tags=["statements"]
+)
 api_router.include_router(
     notifications.router, prefix="/notifications", tags=["notifications"]
 )
@@ -56,17 +70,29 @@ api_router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 
 # Include lean financial modeling routes
 api_router.include_router(
-    lean_financial.router, prefix="/lean-financial", tags=["lean-financial"]
+    lean_financial.router,
+    prefix="/lean-financial",
+    tags=["lean-financial"],
 )
 
 # Include admin routes
-api_router.include_router(users.router, prefix="/admin", tags=["administration"])
-api_router.include_router(system.router, prefix="/admin", tags=["administration"])
-api_router.include_router(database.router, prefix="/admin", tags=["administration"])
-api_router.include_router(logs.router, prefix="/admin", tags=["administration"])
+api_router.include_router(
+    users.router, prefix="/admin", tags=["administration"]
+)
+api_router.include_router(
+    system.router, prefix="/admin", tags=["administration"]
+)
+api_router.include_router(
+    database.router, prefix="/admin", tags=["administration"]
+)
+api_router.include_router(
+    logs.router, prefix="/admin", tags=["administration"]
+)
 
 # Include documentation routes
-api_router.include_router(docs.router, prefix="/docs", tags=["documentation"])
+api_router.include_router(
+    docs.router, prefix="/docs", tags=["documentation"]
+)
 
 
 @api_router.get("/")

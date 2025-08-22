@@ -1,10 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Card,
-  CardContent,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
+import { Card, CardContent } from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
 import { componentStyles } from '@/design-system/utils/designSystem';
 import { Home, ArrowLeft } from 'lucide-react';
 

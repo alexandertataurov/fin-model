@@ -1,21 +1,26 @@
-import React, { useState, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card'
-import { Button } from '@/design-system/components/Button'
-import { Input } from '@/design-system/components/Input'
-import { Slider } from '@/design-system/components/Slider'
-import { Badge } from '@/design-system/components/Badge'
-import { Alert, AlertDescription } from '@/design-system/components/Alert'
-import { AlertTriangle, Clock, BarChart, History } from 'lucide-react'
-import type { Parameter } from './ParameterPanel'
+import React, { useState, useCallback } from 'react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Slider } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import { AlertTriangle, Clock, BarChart, History } from 'lucide-react';
+import type { Parameter } from './ParameterPanel';
 
 interface ParameterControlProps {
-  parameter: Parameter
-  value: number
-  onChange: (value: number) => void
-  error?: string
-  readOnly?: boolean
-  onShowImpact?: () => void
-  onShowHistory?: () => void
+  parameter: Parameter;
+  value: number;
+  onChange: (value: number) => void;
+  error?: string;
+  readOnly?: boolean;
+  onShowImpact?: () => void;
+  onShowHistory?: () => void;
 }
 
 export function ParameterControl({
@@ -25,78 +30,92 @@ export function ParameterControl({
   error,
   readOnly = false,
   onShowImpact,
-  onShowHistory
+  onShowHistory,
 }: ParameterControlProps) {
-  const [localValue, setLocalValue] = useState(value.toString())
-  const [isEditing, setIsEditing] = useState(false)
+  const [localValue, setLocalValue] = useState(value.toString());
+  const [isEditing, setIsEditing] = useState(false);
 
-  const formatValue = useCallback((val: number) => {
-    switch (parameter.display_format) {
-      case 'percentage':
-        return `${(val * 100).toFixed(2)}%`
-      case 'currency':
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }).format(val)
-      default:
-        return val.toFixed(parameter.step_size ? Math.log10(1 / parameter.step_size) : 2)
-    }
-  }, [parameter.display_format, parameter.step_size])
+  const formatValue = useCallback(
+    (val: number) => {
+      switch (parameter.display_format) {
+        case 'percentage':
+          return `${(val * 100).toFixed(2)}%`;
+        case 'currency':
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }).format(val);
+        default:
+          return val.toFixed(
+            parameter.step_size ? Math.log10(1 / parameter.step_size) : 2
+          );
+      }
+    },
+    [parameter.display_format, parameter.step_size]
+  );
 
-  const parseValue = useCallback((val: string) => {
-    const cleanVal = val.replace(/[^\d.-]/g, '')
-    const numVal = parseFloat(cleanVal)
-    
-    if (isNaN(numVal)) return value
-    
-    // Convert percentage back to decimal
-    if (parameter.display_format === 'percentage') {
-      return numVal / 100
-    }
-    
-    return numVal
-  }, [parameter.display_format, value])
+  const parseValue = useCallback(
+    (val: string) => {
+      const cleanVal = val.replace(/[^\d.-]/g, '');
+      const numVal = parseFloat(cleanVal);
+
+      if (isNaN(numVal)) return value;
+
+      // Convert percentage back to decimal
+      if (parameter.display_format === 'percentage') {
+        return numVal / 100;
+      }
+
+      return numVal;
+    },
+    [parameter.display_format, value]
+  );
 
   const handleInputChange = useCallback((newValue: string) => {
-    setLocalValue(newValue)
-  }, [])
+    setLocalValue(newValue);
+  }, []);
 
   const handleInputBlur = useCallback(() => {
-    const numValue = parseValue(localValue)
-    
+    const numValue = parseValue(localValue);
+
     // Validate against constraints
-    let validatedValue = numValue
+    let validatedValue = numValue;
     if (parameter.min_value !== undefined) {
-      validatedValue = Math.max(validatedValue, parameter.min_value)
+      validatedValue = Math.max(validatedValue, parameter.min_value);
     }
     if (parameter.max_value !== undefined) {
-      validatedValue = Math.min(validatedValue, parameter.max_value)
+      validatedValue = Math.min(validatedValue, parameter.max_value);
     }
-    
-    setLocalValue(formatValue(validatedValue))
-    onChange(validatedValue)
-    setIsEditing(false)
-  }, [localValue, parseValue, formatValue, onChange, parameter.min_value, parameter.max_value])
+
+    setLocalValue(formatValue(validatedValue));
+    onChange(validatedValue);
+    setIsEditing(false);
+  }, [
+    localValue,
+    parseValue,
+    formatValue,
+    onChange,
+    parameter.min_value,
+    parameter.max_value,
+  ]);
 
   const handleInputFocus = useCallback(() => {
-    setIsEditing(true)
-    setLocalValue(value.toString())
-  }, [value])
+    setIsEditing(true);
+    setLocalValue(value.toString());
+  }, [value]);
 
-  const handleSliderChange = useCallback((values: number[]) => {
-    const newValue = values[0]
-    onChange(newValue)
-    setLocalValue(formatValue(newValue))
-  }, [onChange, formatValue])
+  const handleSliderChange = useCallback(
+    (values: number[]) => {
+      const newValue = values[0];
+      onChange(newValue);
+      setLocalValue(formatValue(newValue));
+    },
+    [onChange, formatValue]
+  );
 
   const renderControl = () => {
     if (readOnly) {
-      return (
-        <div className="text-lg font-medium">
-          {formatValue(value)}
-        </div>
-      )
+      return <div className="text-lg font-medium">{formatValue(value)}</div>;
     }
 
     switch (parameter.control_type) {
@@ -117,25 +136,27 @@ export function ParameterControl({
               <span>{formatValue(parameter.max_value ?? 100)}</span>
             </div>
           </div>
-        )
-      
+        );
+
       case 'input':
       default:
         return (
           <Input
             value={isEditing ? localValue : formatValue(value)}
-            onChange={(e) => handleInputChange(e.target.value)}
+            onChange={e => handleInputChange(e.target.value)}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             className={error ? 'border-red-500' : ''}
             placeholder={formatValue(parameter.default_value)}
           />
-        )
+        );
     }
-  }
+  };
 
   return (
-    <Card className={`${error ? 'border-red-200' : ''} ${!parameter.is_editable ? 'opacity-60' : ''}`}>
+    <Card
+      className={`${error ? 'border-red-200' : ''} ${!parameter.is_editable ? 'opacity-60' : ''}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium">
@@ -158,27 +179,27 @@ export function ParameterControl({
           </p>
         )}
       </CardHeader>
-      
+
       <CardContent className="space-y-3">
         {renderControl()}
-        
+
         {error && (
           <Alert variant="destructive" className="py-2">
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="text-xs">
-              {error}
-            </AlertDescription>
+            <AlertDescription className="text-xs">{error}</AlertDescription>
           </Alert>
         )}
-        
+
         <div className="flex items-center justify-between">
           {parameter.updated_at && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="h-3 w-3" />
-              <span>Updated {new Date(parameter.updated_at).toLocaleString()}</span>
+              <span>
+                Updated {new Date(parameter.updated_at).toLocaleString()}
+              </span>
             </div>
           )}
-          
+
           {!readOnly && (
             <div className="flex gap-1">
               {onShowImpact && (
@@ -208,5 +229,5 @@ export function ParameterControl({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

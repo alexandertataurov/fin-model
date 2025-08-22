@@ -7,7 +7,7 @@ export const useWebSocketSubscription = (
   isLive: boolean,
   setupSubscription: SetupSubscription,
   deps: DependencyList = [],
-  onConnectionChange?: (connected: boolean) => void,
+  onConnectionChange?: (connected: boolean) => void
 ) => {
   const [isConnected, setIsConnected] = useState(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);

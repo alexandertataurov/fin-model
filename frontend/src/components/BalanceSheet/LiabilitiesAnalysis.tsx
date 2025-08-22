@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { Card, CardHeader, CardContent } from '@/design-system/molecules';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Badge } from '@/design-system/components/Badge';
-import { Progress } from '@/design-system/components/Progress';
-import { Separator } from '@/design-system/components/Separator';
+import { Badge } from '@/design-system/atoms';
+import { Progress } from '@/design-system/atoms';
+import { Separator } from '@/design-system/atoms';
 import {
   AlertTriangle,
   CreditCard,
@@ -26,10 +26,6 @@ interface LiabilitiesAnalysisProps {
 }
 
 const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
-
-
-
-
   const liabilityIconMap = [
     {
       keywords: ['payable', 'account'],
@@ -54,7 +50,9 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
       item.keywords.some(keyword => category.includes(keyword))
     );
     const IconComponent = match?.icon || AlertTriangle;
-    return <IconComponent className={match?.color || 'text-gray-500'} size={20} />;
+    return (
+      <IconComponent className={match?.color || 'text-gray-500'} size={20} />
+    );
   };
 
   const getTrendIcon = (trend?: string, changePercent?: number) => {
@@ -195,12 +193,13 @@ const LiabilitiesAnalysis: React.FC<LiabilitiesAnalysisProps> = ({ data }) => {
                             liability.change_percentage
                           )}
                           <span
-                            className={`text-sm ${liability.change_percentage > 0
+                            className={`text-sm ${
+                              liability.change_percentage > 0
                                 ? 'text-red-600'
                                 : liability.change_percentage < 0
                                   ? 'text-green-600'
                                   : 'text-gray-600'
-                              }`}
+                            }`}
                           >
                             {formatPercentage(liability.change_percentage)}
                           </span>

@@ -1,338 +1,538 @@
-# Unified Design System
+# Atomic Design System
 
-A comprehensive, unified design system that consolidates all components into one cohesive system for building financial applications.
-
-## 🎯 Overview
-
-This design system provides a single source of truth for all UI components, ensuring consistency, accessibility, and performance across the entire application.
-
-## ✨ Key Features
-
-- **🎨 Unified Components**: All components in one place with consistent APIs
-- **♿ Accessibility**: WCAG 2.1 AA compliant with full keyboard navigation
-- **📱 Responsive**: Mobile-first design with adaptive layouts
-- **🎯 Type Safe**: Full TypeScript support with comprehensive prop validation
-- **⚡ Performance**: Optimized for speed with minimal bundle impact
-- **🎭 Theming**: Flexible theming system with light/dark mode support
-- **🧪 Tested**: Comprehensive testing with accessibility and visual regression tests
+A comprehensive, production-ready design system built using Atomic Design methodology. This system provides a complete set of reusable components organized into Atoms, Molecules, Organisms, Templates, and Pages.
 
 ## 🏗️ Architecture
 
+The design system follows the Atomic Design methodology with five distinct levels:
+
 ```
-frontend/src/design-system/
-├── components/          # All UI components
-│   ├── Button.tsx      # Enhanced button with variants
-│   ├── Card.tsx        # Flexible card system
-│   ├── Input.tsx       # Form inputs
-│   ├── Badge.tsx       # Status indicators
-│   ├── Alert.tsx       # Feedback messages
-│   ├── Dialog.tsx      # Modal dialogs
-│   ├── Select.tsx      # Dropdown selects
-│   ├── Switch.tsx      # Toggle switches
-│   ├── Checkbox.tsx    # Checkboxes
-│   ├── Textarea.tsx    # Multi-line inputs
-│   └── ...            # Additional components
-├── stories/            # Storybook stories
-│   ├── Button.stories.tsx
-│   ├── Card.stories.tsx
-│   ├── UnifiedDesignSystem.stories.tsx
-│   └── ...
-├── provider.tsx        # Design system provider
-├── tokens.ts          # Design tokens
-├── index.ts           # Main export file
-└── README.md          # This file
+design-system/
+├── atoms/          # Basic building blocks (Button, Input, Icon, etc.)
+├── molecules/      # Simple combinations of atoms (FormField, Select, etc.)
+├── organisms/      # Complex UI sections (Header, Footer, DataTable, etc.)
+├── templates/      # Page layouts (DashboardLayout, FormLayout, etc.)
+├── pages/          # Complete pages (Dashboard, UserProfile, etc.)
+├── tokens/         # Design tokens (colors, spacing, typography, etc.)
+├── utils/          # Utility functions
+├── hooks/          # Custom React hooks
+└── providers/      # Context providers
 ```
 
 ## 🚀 Quick Start
 
 ### Installation
 
-All components are available through the main export:
-
-```tsx
-import { 
-  Button, 
-  Card, 
-  Input, 
-  Badge, 
-  Alert,
-  DesignSystemProvider 
-} from '@/design-system';
+```bash
+npm install @your-org/design-system
 ```
 
-### Setup Provider
-
-Wrap your app with the DesignSystemProvider:
+### Basic Usage
 
 ```tsx
-import { DesignSystemProvider } from '@/design-system';
+import { Button, Input, Card, DashboardLayout } from '@your-org/design-system';
 
 function App() {
   return (
-    <DesignSystemProvider>
-      <YourApp />
-    </DesignSystemProvider>
+    <DashboardLayout title="My App" subtitle="Welcome to the application">
+      <Card>
+        <Input placeholder="Enter your name" />
+        <Button variant="primary">Submit</Button>
+      </Card>
+    </DashboardLayout>
   );
 }
 ```
 
-## 🧩 Component Categories
+## 📚 Component Library
 
-### Core Components
-- **Button**: Primary interaction component with 9 variants and 5 sizes
-- **Card**: Flexible container with 5 variants and customizable padding
-- **Input**: Form input with validation states and icons
-- **Label**: Accessible form labels
-- **Badge**: Status indicators with semantic variants
+### Atoms (Basic Building Blocks)
 
-### Form Components
-- **Form**: React Hook Form integration with validation
-- **Checkbox**: Accessible checkbox with custom styling
-- **Textarea**: Multi-line text input
-- **Select**: Dropdown selection with search and grouping
-- **Switch**: Toggle component with labels
-- **RadioGroup**: Radio button groups
+The foundation of the design system - the smallest, most basic components.
 
-### Feedback Components
-- **Alert**: Status messages with semantic variants
-- **Dialog**: Modal dialogs with backdrop and focus management
-- **Toast**: Notification system for user feedback
-- **Tooltip**: Contextual information overlays
+```tsx
+import { Button, Input, Icon, Label, Badge, Text } from '@your-org/design-system';
 
-### Layout Components
-- **Separator**: Visual dividers
-- **Skeleton**: Loading state placeholders
-- **Sheet**: Slide-out panels
-- **Drawer**: Bottom sheet dialogs
+// Button with variants
+<Button variant="primary" size="md">Click me</Button>
+<Button variant="outline" size="sm">Secondary</Button>
 
-### Navigation Components
-- **Tabs**: Tabbed interface
-- **Breadcrumb**: Navigation hierarchy
-- **Pagination**: Page navigation
-- **Command**: Command palette interface
+// Input with states
+<Input placeholder="Enter text" />
+<Input variant="error" error="This field is required" />
 
-### Data Display
-- **Table**: Data tables with sorting and selection
-- **Chart**: Data visualization components
-- **Progress**: Progress indicators
-- **Avatar**: User profile images
+// Icon with sizes
+<Icon name="user" size="sm" />
+<Icon name="settings" size="lg" />
+
+// Label with required state
+<Label required>Email Address</Label>
+
+// Badge with variants
+<Badge variant="success">Active</Badge>
+<Badge variant="warning">Pending</Badge>
+
+// Text with typography variants
+<Text variant="h1">Heading 1</Text>
+<Text variant="body" size="lg">Large body text</Text>
+```
+
+### Molecules (Simple Combinations)
+
+Components that combine atoms to create more complex, reusable pieces.
+
+```tsx
+import { FormField, SearchInput, Select, Accordion, Tooltip, Calendar, DatePicker, InputOTP } from '@your-org/design-system';
+
+// FormField combines Label + Input + validation
+<FormField
+  label="Email"
+  required
+  error="Invalid email address"
+>
+  <Input type="email" placeholder="Enter email" />
+</FormField>
+
+// SearchInput with search functionality
+<SearchInput
+  placeholder="Search..."
+  onSearch={(query) => console.log(query)}
+/>
+
+// Select with options
+<Select
+  options={[
+    { value: 'option1', label: 'Option 1' },
+    { value: 'option2', label: 'Option 2' }
+  ]}
+  placeholder="Choose an option"
+/>
+
+// Accordion with collapsible content
+<Accordion>
+  <Accordion.Item title="Section 1">
+    <p>Content for section 1</p>
+  </Accordion.Item>
+  <Accordion.Item title="Section 2">
+    <p>Content for section 2</p>
+  </Accordion.Item>
+</Accordion>
+
+// Tooltip with positioning
+<Tooltip content="Helpful information" position="top">
+  <Button>Hover me</Button>
+</Tooltip>
+
+// Calendar with date selection
+<Calendar
+  mode="single"
+  onSelect={(date) => console.log(date)}
+/>
+
+// DatePicker with input field
+<DatePicker
+  placeholder="Select date"
+  onSelect={(date) => console.log(date)}
+/>
+
+// InputOTP for verification codes
+<InputOTP
+  length={6}
+  onComplete={(code) => console.log(code)}
+/>
+```
+
+### Organisms (Complex UI Sections)
+
+Large, complex components that combine molecules and atoms.
+
+```tsx
+import {
+  Header,
+  Footer,
+  SearchBar,
+  DataTable,
+  Form,
+  Wizard,
+  Dashboard,
+  FilterPanel,
+  ActionBar,
+  StatusBar,
+  NotificationCenter,
+  UserMenu,
+  BreadcrumbNav,
+  PaginationControls
+} from '@your-org/design-system';
+
+// Header with navigation and user menu
+<Header
+  logo="logo.svg"
+  logoText="My App"
+  navigationItems={[
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Users', href: '/users' }
+  ]}
+  user={userData}
+/>
+
+// DataTable with sorting and pagination
+<DataTable
+  data={tableData}
+  columns={[
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'email', label: 'Email', sortable: true },
+    { key: 'status', label: 'Status' }
+  ]}
+  selectable
+  onSort={(key, direction) => console.log(key, direction)}
+/>
+
+// Form with dynamic fields
+<Form
+  fields={[
+    { name: 'firstName', label: 'First Name', type: 'text', required: true },
+    { name: 'email', label: 'Email', type: 'email', required: true },
+    { name: 'role', label: 'Role', type: 'select', options: roleOptions }
+  ]}
+  onSubmit={(data) => console.log(data)}
+/>
+
+// Wizard with multi-step flow
+<Wizard
+  steps={[
+    { title: 'Step 1', content: <Step1Content /> },
+    { title: 'Step 2', content: <Step2Content /> },
+    { title: 'Step 3', content: <Step3Content /> }
+  ]}
+  onComplete={(data) => console.log(data)}
+/>
+
+// SearchBar with filters
+<SearchBar
+  placeholder="Search..."
+  filters={[
+    { id: 'status', label: 'Status', type: 'select', options: statusOptions },
+    { id: 'date', label: 'Date', type: 'date-range' }
+  ]}
+  onSearch={(query) => console.log(query)}
+  onFilterChange={(filters) => console.log(filters)}
+/>
+
+// NotificationCenter with notifications
+<NotificationCenter
+  notifications={[
+    { id: '1', title: 'Success', message: 'Operation completed', type: 'success' },
+    { id: '2', title: 'Warning', message: 'Please review', type: 'warning' }
+  ]}
+  onNotificationClick={(notification) => console.log(notification)}
+/>
+
+// PaginationControls with navigation
+<PaginationControls
+  currentPage={1}
+  totalPages={10}
+  totalItems={100}
+  onPageChange={(page) => console.log(page)}
+/>
+```
+
+### Templates (Page Layouts)
+
+Complete page layouts that combine organisms and molecules.
+
+```tsx
+import {
+  DashboardLayout,
+  FormLayout,
+  ListLayout,
+  DetailLayout,
+  AuthLayout,
+  AdminLayout,
+  ReportLayout
+} from '@your-org/design-system';
+
+// DashboardLayout for dashboard pages
+<DashboardLayout
+  title="Dashboard"
+  subtitle="Overview of your application"
+  navigationItems={navigationItems}
+  user={userData}
+  notifications={notifications}
+  statusItems={statusItems}
+  actions={actions}
+  breadcrumbItems={breadcrumbItems}
+>
+  {/* Dashboard content */}
+</DashboardLayout>
+
+// FormLayout for form pages
+<FormLayout
+  title="Create User"
+  subtitle="Add a new user to the system"
+  breadcrumbItems={breadcrumbItems}
+  actions={actions}
+>
+  <Form fields={formFields} onSubmit={handleSubmit} />
+</FormLayout>
+
+// ListLayout for list pages
+<ListLayout
+  title="Users"
+  subtitle="Manage system users"
+  breadcrumbItems={breadcrumbItems}
+  actions={actions}
+>
+  <DataTable data={users} columns={columns} />
+</ListLayout>
+
+// DetailLayout for detail pages
+<DetailLayout
+  title="User Profile"
+  subtitle="View and edit user information"
+  breadcrumbItems={breadcrumbItems}
+  actions={actions}
+>
+  {/* User profile content */}
+</DetailLayout>
+
+// AuthLayout for authentication pages
+<AuthLayout
+  title="Sign In"
+  subtitle="Welcome back! Please sign in to your account"
+  logo="logo.svg"
+  logoText="My App"
+>
+  <Form fields={loginFields} onSubmit={handleLogin} />
+</AuthLayout>
+
+// AdminLayout for admin interfaces
+<AdminLayout
+  title="Admin Dashboard"
+  navigationItems={adminNavigation}
+  user={adminUser}
+  notifications={adminNotifications}
+  statusItems={statusItems}
+  actions={adminActions}
+>
+  {/* Admin content */}
+</AdminLayout>
+
+// ReportLayout for reports and analytics
+<ReportLayout
+  title="Sales Report"
+  subtitle="Monthly sales performance"
+  breadcrumbItems={breadcrumbItems}
+  filterItems={filterItems}
+  actions={reportActions}
+  pagination={paginationData}
+>
+  {/* Report content */}
+</ReportLayout>
+```
+
+### Pages (Complete Pages)
+
+Fully functional pages that demonstrate the complete system.
+
+```tsx
+import { Dashboard, UserProfile } from '@your-org/design-system';
+
+// Complete Dashboard page
+<Dashboard
+  title="Dashboard"
+  subtitle="Overview of your application"
+/>
+
+// Complete User Profile page
+<UserProfile
+  userId="123"
+  title="User Profile"
+  subtitle="Manage user information and settings"
+/>
+```
 
 ## 🎨 Design Tokens
 
-### Colors
-- **Primary**: Brand colors for main actions
-- **Secondary**: Supporting colors for secondary actions
-- **Semantic**: Success, warning, error, info colors
-- **Neutral**: Grayscale palette for text and backgrounds
-
-### Typography
-- **Font Families**: Inter (sans), JetBrains Mono (mono), Georgia (serif)
-- **Font Sizes**: XS to 6XL with optimized line heights
-- **Font Weights**: Light to Extra Bold
-
-### Spacing
-- **Consistent Scale**: 4px base unit with logical progression
-- **Responsive**: Adapts to different screen sizes
-- **Flexible**: Supports custom spacing when needed
-
-### Border Radius
-- **Multiple Options**: None, SM, MD, LG, XL, Full
-- **Consistent**: Applied consistently across components
-- **Accessible**: Meets contrast and touch target requirements
-
-## 📝 Usage Examples
-
-### Button Variants
+The design system uses a comprehensive token system for consistent theming:
 
 ```tsx
-import { Button } from '@/design-system';
+import { getToken } from '@your-org/design-system/tokens';
 
-// Basic usage
-<Button>Click me</Button>
+// Colors
+getToken('colors.primary'); // Primary brand color
+getToken('colors.primary.foreground'); // Primary text color
+getToken('colors.muted'); // Muted background color
+getToken('colors.muted.foreground'); // Muted text color
 
-// Variants
+// Spacing
+getToken('spacing.1'); // 4px
+getToken('spacing.2'); // 8px
+getToken('spacing.4'); // 16px
+getToken('spacing.8'); // 32px
+
+// Typography
+getToken('typography.fontSize.sm'); // Small font size
+getToken('typography.fontSize.base'); // Base font size
+getToken('typography.fontSize.lg'); // Large font size
+
+// Border radius
+getToken('borderRadius.sm'); // Small border radius
+getToken('borderRadius.md'); // Medium border radius
+getToken('borderRadius.lg'); // Large border radius
+
+// Shadows
+getToken('shadows.sm'); // Small shadow
+getToken('shadows.md'); // Medium shadow
+getToken('shadows.lg'); // Large shadow
+```
+
+## 🔧 Customization
+
+### Theme Customization
+
+```tsx
+import { ThemeProvider } from '@your-org/design-system/providers';
+
+const customTheme = {
+  colors: {
+    primary: '#007bff',
+    secondary: '#6c757d',
+    // ... other colors
+  },
+  spacing: {
+    1: '4px',
+    2: '8px',
+    // ... other spacing values
+  },
+};
+
+<ThemeProvider theme={customTheme}>
+  <App />
+</ThemeProvider>;
+```
+
+### Component Variants
+
+Most components support multiple variants:
+
+```tsx
+// Button variants
 <Button variant="primary">Primary</Button>
 <Button variant="secondary">Secondary</Button>
 <Button variant="outline">Outline</Button>
 <Button variant="ghost">Ghost</Button>
-<Button variant="destructive">Delete</Button>
+<Button variant="destructive">Destructive</Button>
 
-// Sizes
+// Size variants
 <Button size="sm">Small</Button>
 <Button size="md">Medium</Button>
 <Button size="lg">Large</Button>
-
-// With icons
-<Button leftIcon={<Plus />}>Add Item</Button>
-<Button rightIcon={<ArrowRight />}>Continue</Button>
-
-// Loading state
-<Button loading>Processing...</Button>
 ```
-
-### Card System
-
-```tsx
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/design-system';
-
-<Card variant="elevated" padding="lg">
-  <CardHeader>
-    <CardTitle>Card Title</CardTitle>
-  </CardHeader>
-  <CardContent>
-    <p>Card content goes here</p>
-  </CardContent>
-  <CardFooter>
-    <Button>Action</Button>
-  </CardFooter>
-</Card>
-```
-
-### Form Components
-
-```tsx
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/design-system';
-
-const form = useForm({
-  defaultValues: {
-    email: '',
-    password: '',
-  },
-});
-
-<Form {...form}>
-  <form onSubmit={form.handleSubmit(onSubmit)}>
-    <FormField
-      control={form.control}
-      name="email"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Email</FormLabel>
-          <FormControl>
-            <Input placeholder="Enter your email" {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  </form>
-</Form>
-```
-
-### Alert System
-
-```tsx
-import { Alert, AlertTitle, AlertDescription } from '@/design-system';
-
-<Alert variant="success">
-  <CheckCircle className="h-4 w-4" />
-  <AlertTitle>Success!</AlertTitle>
-  <AlertDescription>
-    Your changes have been saved successfully.
-  </AlertDescription>
-</Alert>
-```
-
-## 🎭 Theming
-
-The design system supports comprehensive theming:
-
-```tsx
-import { DesignSystemProvider } from '@/design-system';
-
-<DesignSystemProvider
-  defaultTheme="light"
-  defaultDensity="comfortable"
-  defaultRadius="md"
->
-  <YourApp />
-</DesignSystemProvider>
-```
-
-### Theme Options
-- **Theme**: `light`, `dark`, `system`
-- **Density**: `compact`, `comfortable`, `spacious`
-- **Radius**: `none`, `sm`, `md`, `lg`, `xl`
 
 ## ♿ Accessibility
 
 All components are built with accessibility in mind:
 
-- **Keyboard Navigation**: Full keyboard support for all interactive elements
-- **Screen Readers**: Proper ARIA labels and roles
-- **Focus Management**: Visible focus indicators and logical tab order
-- **Color Contrast**: WCAG 2.1 AA compliant color ratios
-- **Touch Targets**: Minimum 44px touch targets for mobile
+- Proper ARIA attributes
+- Keyboard navigation support
+- Screen reader compatibility
+- Focus management
+- Color contrast compliance
+
+## 📱 Responsive Design
+
+Components are responsive by default and work across all device sizes:
+
+```tsx
+// Responsive grid layout
+<DashboardLayout>
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: getToken('spacing.4'),
+    }}
+  >
+    <Card>Content 1</Card>
+    <Card>Content 2</Card>
+    <Card>Content 3</Card>
+  </div>
+</DashboardLayout>
+```
 
 ## 🧪 Testing
 
-### Storybook
-Run Storybook to explore components:
+The design system includes comprehensive testing:
+
+```bash
+# Run unit tests
+npm test
+
+# Run visual regression tests
+npm run test:visual
+
+# Run accessibility tests
+npm run test:a11y
+
+# Run performance tests
+npm run test:performance
+```
+
+## 📖 Storybook
+
+View all components in Storybook:
 
 ```bash
 npm run storybook
 ```
 
-### Component Testing
-Each component includes comprehensive tests:
+Visit `http://localhost:6006` to explore:
 
-```bash
-npm test
-```
-
-### Accessibility Testing
-Automated accessibility testing with axe-core:
-
-```bash
-npm run test:a11y
-```
-
-## 📚 Documentation
-
-- **Component Stories**: Interactive examples in Storybook
-- **API Reference**: TypeScript definitions for all props
-- **Design Tokens**: Complete token system documentation
-- **Migration Guide**: Upgrading from legacy components
+- Component documentation
+- Interactive examples
+- Design tokens
+- Accessibility guidelines
+- Usage patterns
 
 ## 🤝 Contributing
 
-1. **Component Development**: Create new components in `components/`
-2. **Story Creation**: Add stories in `stories/`
-3. **Testing**: Include unit and accessibility tests
-4. **Documentation**: Update README and component docs
+### Adding New Components
 
-## 📦 Bundle Size
+1. Create the component in the appropriate atomic level
+2. Add TypeScript types
+3. Create Storybook stories
+4. Add unit tests
+5. Update documentation
 
-The design system is optimized for minimal bundle impact:
+### Component Structure
 
-- **Tree Shaking**: Only import what you use
-- **Code Splitting**: Components are individually importable
-- **CSS Optimization**: Tailwind CSS with PurgeCSS
-- **Type Safety**: Zero runtime overhead for TypeScript
-
-## 🔄 Migration
-
-### From Legacy Components
-
-```tsx
-// Old
-import { Button } from '@/components/ui/button';
-
-// New
-import { Button } from '@/design-system';
+```
+atoms/Button/
+├── Button.tsx           # Main component
+├── Button.types.ts      # TypeScript types
+├── Button.variants.ts   # Styling variants
+├── Button.stories.tsx   # Storybook stories
+└── index.ts            # Exports
 ```
 
-### From Multiple Providers
+### Development Guidelines
 
-```tsx
-// Old
-import { ThemeProvider } from 'next-themes';
-import { DesignSystemProvider } from '@/components/ui/DesignSystemProvider';
-
-// New
-import { DesignSystemProvider } from '@/design-system';
-```
+- Use design tokens for all styling
+- Follow the established naming conventions
+- Ensure accessibility compliance
+- Write comprehensive tests
+- Document with JSDoc comments
+- Create Storybook stories
 
 ## 📄 License
 
-This design system is part of the FinVision project and follows the same licensing terms.
+MIT License - see LICENSE file for details.
+
+## 🆘 Support
+
+For questions and support:
+
+- 📧 Email: design-system@your-org.com
+- 💬 Slack: #design-system
+- 📖 Documentation: https://design-system.your-org.com
+- 🐛 Issues: https://github.com/your-org/design-system/issues

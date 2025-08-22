@@ -30,18 +30,23 @@ class ReportService:
             logger.error(f"Failed to get report templates: {e}")
             return []
 
-    def get_template_by_id(self, template_id: int) -> Optional[ReportTemplate]:
+    def get_template_by_id(
+        self, template_id: int
+    ) -> Optional[ReportTemplate]:
         """Get a specific report template by ID."""
         try:
             return (
                 self.db.query(ReportTemplate)
                 .filter(
-                    ReportTemplate.id == template_id, ReportTemplate.is_active == True
+                    ReportTemplate.id == template_id,
+                    ReportTemplate.is_active == True,
                 )
                 .first()
             )
         except Exception as e:
-            logger.error(f"Failed to get report template {template_id}: {e}")
+            logger.error(
+                f"Failed to get report template {template_id}: {e}"
+            )
             return None
 
     def create_template(
@@ -83,18 +88,23 @@ class ReportService:
             logger.error(f"Failed to get report schedules: {e}")
             return []
 
-    def get_schedule_by_id(self, schedule_id: int) -> Optional[ReportSchedule]:
+    def get_schedule_by_id(
+        self, schedule_id: int
+    ) -> Optional[ReportSchedule]:
         """Get a specific report schedule by ID."""
         try:
             return (
                 self.db.query(ReportSchedule)
                 .filter(
-                    ReportSchedule.id == schedule_id, ReportSchedule.enabled == True
+                    ReportSchedule.id == schedule_id,
+                    ReportSchedule.enabled == True,
                 )
                 .first()
             )
         except Exception as e:
-            logger.error(f"Failed to get report schedule {schedule_id}: {e}")
+            logger.error(
+                f"Failed to get report schedule {schedule_id}: {e}"
+            )
             return None
 
     def create_schedule(
@@ -177,7 +187,9 @@ class ReportService:
         """Update the status of a report export."""
         try:
             export = (
-                self.db.query(ReportExport).filter(ReportExport.id == export_id).first()
+                self.db.query(ReportExport)
+                .filter(ReportExport.id == export_id)
+                .first()
             )
             if not export:
                 return None
@@ -196,14 +208,17 @@ class ReportService:
                 export.processing_completed_at = datetime.utcnow()
                 if export.processing_started_at:
                     duration = (
-                        export.processing_completed_at - export.processing_started_at
+                        export.processing_completed_at
+                        - export.processing_started_at
                     ).total_seconds()
                     export.processing_duration_seconds = int(duration)
 
             self.db.commit()
             return export
         except Exception as e:
-            logger.error(f"Failed to update export status {export_id}: {e}")
+            logger.error(
+                f"Failed to update export status {export_id}: {e}"
+            )
             self.db.rollback()
             return None
 
@@ -211,7 +226,9 @@ class ReportService:
         """Get a specific report export by ID."""
         try:
             return (
-                self.db.query(ReportExport).filter(ReportExport.id == export_id).first()
+                self.db.query(ReportExport)
+                .filter(ReportExport.id == export_id)
+                .first()
             )
         except Exception as e:
             logger.error(f"Failed to get report export {export_id}: {e}")

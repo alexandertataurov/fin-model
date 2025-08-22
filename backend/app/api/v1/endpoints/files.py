@@ -51,7 +51,9 @@ async def upload_file(
     Upload a new file.
     """
     try:
-        uploaded_file = await file_service.save_uploaded_file(file, current_user)
+        uploaded_file = await file_service.save_uploaded_file(
+            file, current_user
+        )
         # Audit upload
         try:
             auth = AuthService(file_service.db)
@@ -79,7 +81,9 @@ async def upload_file(
 @router.get("/", response_model=List[FileInfo])
 def list_files(
     skip: int = Query(0, ge=0, description="Number of files to skip"),
-    limit: int = Query(100, ge=1, le=1000, description="Number of files to return"),
+    limit: int = Query(
+        100, ge=1, le=1000, description="Number of files to return"
+    ),
     status_filter: Optional[FileStatus] = Query(
         None, description="Filter by file status"
     ),
@@ -405,7 +409,11 @@ def get_file_preview(
 
         for sheet_name, df in sheets_data.items():
             # Get preview rows
-            preview_data = df.head(max_rows).to_dict("records") if not df.empty else []
+            preview_data = (
+                df.head(max_rows).to_dict("records")
+                if not df.empty
+                else []
+            )
 
             sheet_info = {
                 "name": sheet_name,
@@ -449,7 +457,8 @@ def get_file_preview(
                         }
                     )
                 elif any(
-                    keyword in sheet_name_lower for keyword in ["cash", "flow", "cf"]
+                    keyword in sheet_name_lower
+                    for keyword in ["cash", "flow", "cf"]
                 ):
                     detected_statements.append(
                         {

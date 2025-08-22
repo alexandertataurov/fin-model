@@ -112,9 +112,15 @@ def backup_database(self, db: Session) -> Dict[str, Any]:
         )
 
         # Get file size
-        file_size = os.path.getsize(backup_file) if os.path.exists(backup_file) else 0
+        file_size = (
+            os.path.getsize(backup_file)
+            if os.path.exists(backup_file)
+            else 0
+        )
 
-        logger.info(f"Database backup completed: {backup_file} ({file_size} bytes)")
+        logger.info(
+            f"Database backup completed: {backup_file} ({file_size} bytes)"
+        )
 
         return {
             "backup_file": backup_file,
@@ -126,7 +132,9 @@ def backup_database(self, db: Session) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Database backup failed: {str(e)}")
-        self.update_state(state="FAILURE", meta={"error": str(e), "status": "failed"})
+        self.update_state(
+            state="FAILURE", meta={"error": str(e), "status": "failed"}
+        )
         raise
 
 
@@ -164,7 +172,9 @@ def export_database(
 
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         table_name = table or "full_database"
-        export_file = f"{export_dir}/{table_name}_export_{timestamp}.{format}"
+        export_file = (
+            f"{export_dir}/{table_name}_export_{timestamp}.{format}"
+        )
 
         self.update_state(
             state="PROGRESS",
@@ -180,7 +190,9 @@ def export_database(
                 # Export specific table to CSV
                 query = f"COPY {table} TO STDOUT WITH CSV HEADER"
                 with open(export_file, "w") as f:
-                    stmt = text("COPY :tbl TO :path WITH CSV HEADER").bindparams(
+                    stmt = text(
+                        "COPY :tbl TO :path WITH CSV HEADER"
+                    ).bindparams(
                         bindparam("tbl", table, literal_execute=True),
                         bindparam("path", export_file),
                     )
@@ -204,7 +216,9 @@ def export_database(
                         },
                     )
                     tbl_file = f"{export_dir}/{tbl}_export_{timestamp}.csv"
-                    stmt = text("COPY :tbl TO :path WITH CSV HEADER").bindparams(
+                    stmt = text(
+                        "COPY :tbl TO :path WITH CSV HEADER"
+                    ).bindparams(
                         bindparam("tbl", tbl, literal_execute=True),
                         bindparam("path", tbl_file),
                     )
@@ -243,9 +257,15 @@ def export_database(
             },
         )
 
-        file_size = os.path.getsize(export_file) if os.path.exists(export_file) else 0
+        file_size = (
+            os.path.getsize(export_file)
+            if os.path.exists(export_file)
+            else 0
+        )
 
-        logger.info(f"Database export completed: {export_file} ({file_size} bytes)")
+        logger.info(
+            f"Database export completed: {export_file} ({file_size} bytes)"
+        )
 
         return {
             "export_file": export_file,
@@ -259,7 +279,9 @@ def export_database(
 
     except Exception as e:
         logger.error(f"Database export failed: {str(e)}")
-        self.update_state(state="FAILURE", meta={"error": str(e), "status": "failed"})
+        self.update_state(
+            state="FAILURE", meta={"error": str(e), "status": "failed"}
+        )
         raise
 
 
@@ -318,7 +340,9 @@ def reindex_database(self, db: Session) -> Dict[str, Any]:
                 reindexed_tables.append(table_name)
                 logger.info(f"Reindexed table: {table_name}")
             except Exception as table_error:
-                logger.warning(f"Failed to reindex table {table_name}: {table_error}")
+                logger.warning(
+                    f"Failed to reindex table {table_name}: {table_error}"
+                )
 
         # Update statistics for better query planning
         self.update_state(
@@ -345,7 +369,9 @@ def reindex_database(self, db: Session) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Database reindex failed: {str(e)}")
-        self.update_state(state="FAILURE", meta={"error": str(e), "status": "failed"})
+        self.update_state(
+            state="FAILURE", meta={"error": str(e), "status": "failed"}
+        )
         raise
 
 

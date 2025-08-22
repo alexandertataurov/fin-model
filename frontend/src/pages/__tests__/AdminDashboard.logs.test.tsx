@@ -15,7 +15,7 @@ describe('AdminDashboard Logs pagination', () => {
     vi.resetAllMocks();
 
     // Minimal stubs for initial loadAdminData()
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
     Object.assign(mocked, {
       getSystemStats: vi.fn().mockResolvedValue({
         users: {},
@@ -40,8 +40,20 @@ describe('AdminDashboard Logs pagination', () => {
         .fn()
         .mockResolvedValueOnce({
           items: [
-            { timestamp: now, level: 'ERROR', message: 'A', module: 'db', user_id: null },
-            { timestamp: now, level: 'ERROR', message: 'B', module: 'db', user_id: null },
+            {
+              timestamp: now,
+              level: 'ERROR',
+              message: 'A',
+              module: 'db',
+              user_id: null,
+            },
+            {
+              timestamp: now,
+              level: 'ERROR',
+              message: 'B',
+              module: 'db',
+              user_id: null,
+            },
           ],
           skip: 0,
           limit: 2,
@@ -49,8 +61,20 @@ describe('AdminDashboard Logs pagination', () => {
         })
         .mockResolvedValueOnce({
           items: [
-            { timestamp: now, level: 'ERROR', message: 'C', module: 'db', user_id: null },
-            { timestamp: now, level: 'ERROR', message: 'D', module: 'db', user_id: null },
+            {
+              timestamp: now,
+              level: 'ERROR',
+              message: 'C',
+              module: 'db',
+              user_id: null,
+            },
+            {
+              timestamp: now,
+              level: 'ERROR',
+              message: 'D',
+              module: 'db',
+              user_id: null,
+            },
           ],
           skip: 2,
           limit: 2,
@@ -70,8 +94,20 @@ describe('AdminDashboard Logs pagination', () => {
     const now = new Date().toISOString();
     mocked.getSystemLogs = vi.fn().mockResolvedValue({
       items: [
-        { timestamp: now, level: 'ERROR', message: 'A', module: 'db', user_id: null },
-        { timestamp: now, level: 'ERROR', message: 'B', module: 'db', user_id: null },
+        {
+          timestamp: now,
+          level: 'ERROR',
+          message: 'A',
+          module: 'db',
+          user_id: null,
+        },
+        {
+          timestamp: now,
+          level: 'ERROR',
+          message: 'B',
+          module: 'db',
+          user_id: null,
+        },
       ],
       skip: 0,
       limit: 2,
@@ -85,7 +121,9 @@ describe('AdminDashboard Logs pagination', () => {
     await userEvent.click(logsTab);
 
     // Force refresh to ensure the mocked getSystemLogs is used after switching tab
-    const refreshBtn = await screen.findByRole('button', { name: /refresh logs/i });
+    const refreshBtn = await screen.findByRole('button', {
+      name: /refresh logs/i,
+    });
     await userEvent.click(refreshBtn);
 
     // Wait for logs content to populate
@@ -96,18 +134,23 @@ describe('AdminDashboard Logs pagination', () => {
 
     // Prev/Next buttons should exist in Logs tab area
     // Scope to Logs card to avoid matching Audit controls
-    const logsCardTitle = await screen.findByText(/System Logs/i)
-    const logsSection = logsCardTitle.closest('div')!.parentElement!.parentElement as HTMLElement
-    const prevBtn = Array.from(logsSection.querySelectorAll('button')).find(b => /prev/i.test(b.textContent || '')) as HTMLButtonElement
-    const nextBtn = Array.from(logsSection.querySelectorAll('button')).find(b => /next/i.test(b.textContent || '')) as HTMLButtonElement
+    const logsCardTitle = await screen.findByText(/System Logs/i);
+    const logsSection = logsCardTitle.closest('div')!.parentElement!
+      .parentElement as HTMLElement;
+    const prevBtn = Array.from(logsSection.querySelectorAll('button')).find(b =>
+      /prev/i.test(b.textContent || '')
+    ) as HTMLButtonElement;
+    const nextBtn = Array.from(logsSection.querySelectorAll('button')).find(b =>
+      /next/i.test(b.textContent || '')
+    ) as HTMLButtonElement;
     expect(nextBtn).toBeInTheDocument();
 
     // Shows range text and Prev disabled initially (range can be full if limit=100 default)
-    const range = await screen.findByText((content) => /of 4/i.test(content));
+    const range = await screen.findByText(content => /of 4/i.test(content));
     expect(range.textContent).toMatch(/of 4/);
-    expect(prevBtn.disabled).toBe(true)
+    expect(prevBtn.disabled).toBe(true);
 
     // With default limit=100 and total=4, Next remains disabled and range shows full set
-    expect(nextBtn.disabled).toBe(true)
+    expect(nextBtn.disabled).toBe(true);
   });
 });

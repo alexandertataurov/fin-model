@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Badge } from '@/design-system/components/Badge';
+import { Card, CardContent, CardHeader } from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/design-system/components/Select';
+} from '@/design-system/molecules';
 import {
   Dialog,
   DialogContent,
@@ -17,8 +17,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/design-system/components/Dialog';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
+} from '@/design-system/molecules';
+import { Alert, AlertDescription } from '@/design-system/molecules';
 import {
   Table,
   TableBody,
@@ -26,16 +26,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/design-system/components/Table';
+} from '@/design-system/molecules';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/design-system/components/Tooltip';
+} from '@/components/ui';
 import { Edit, Trash2, RefreshCw, History } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { ConfirmDialog } from '@/design-system/molecules';
 
 // Types
 interface Parameter {
@@ -96,7 +96,9 @@ const ParameterList: React.FC<ParameterListProps> = ({
   );
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [parameterToDelete, setParameterToDelete] = useState<number | null>(null);
+  const [parameterToDelete, setParameterToDelete] = useState<number | null>(
+    null
+  );
 
   const queryClient = useQueryClient();
 

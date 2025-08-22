@@ -32,7 +32,9 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("last_used", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
 
@@ -61,7 +63,9 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
 
@@ -82,7 +86,9 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("last_used", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("credential_id"),
     )
@@ -101,13 +107,17 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
 
     # Create indexes for better performance
     op.create_index("ix_mfa_tokens_user_id", "mfa_tokens", ["user_id"])
-    op.create_index("ix_oauth_accounts_user_id", "oauth_accounts", ["user_id"])
+    op.create_index(
+        "ix_oauth_accounts_user_id", "oauth_accounts", ["user_id"]
+    )
     op.create_index(
         "ix_oauth_accounts_provider",
         "oauth_accounts",
@@ -118,19 +128,27 @@ def upgrade() -> None:
         "webauthn_credentials",
         ["user_id"],
     )
-    op.create_index("ix_mfa_challenges_user_id", "mfa_challenges", ["user_id"])
-    op.create_index("ix_mfa_challenges_expires_at", "mfa_challenges", ["expires_at"])
+    op.create_index(
+        "ix_mfa_challenges_user_id", "mfa_challenges", ["user_id"]
+    )
+    op.create_index(
+        "ix_mfa_challenges_expires_at", "mfa_challenges", ["expires_at"]
+    )
 
 
 def downgrade() -> None:
     # Drop indexes
-    op.drop_index("ix_mfa_challenges_expires_at", table_name="mfa_challenges")
+    op.drop_index(
+        "ix_mfa_challenges_expires_at", table_name="mfa_challenges"
+    )
     op.drop_index("ix_mfa_challenges_user_id", table_name="mfa_challenges")
     op.drop_index(
         "ix_webauthn_credentials_user_id",
         table_name="webauthn_credentials",
     )
-    op.drop_index("ix_oauth_accounts_provider", table_name="oauth_accounts")
+    op.drop_index(
+        "ix_oauth_accounts_provider", table_name="oauth_accounts"
+    )
     op.drop_index("ix_oauth_accounts_user_id", table_name="oauth_accounts")
     op.drop_index("ix_mfa_tokens_user_id", table_name="mfa_tokens")
 

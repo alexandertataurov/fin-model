@@ -1,48 +1,40 @@
-// Core Components
+// Story components for design system documentation
+export { AnimatedBanner } from './AnimatedBanner';
+export { SectionHeader } from './SectionHeader';
+export { GuidelinesCard } from './GuidelinesCard';
+export { GuidelinesSection } from './GuidelinesSection';
+export { ColorPalette } from './ColorPalette';
 export {
-    applyTypographyStyle,
-    Container,
-    Card,
-    SectionHeader,
-    Button
-} from './CoreComponents';
-
-// Color Components
-export {
-    Swatch,
-    ColorPalette,
-    ColorScale,
-    InteractiveState,
-    SemanticColor,
-    SurfaceColor
+  ColorScale,
+  InteractiveState,
+  SemanticColor,
+  SurfaceColor,
+  Swatch,
 } from './ColorComponents';
-
-// UI Components
 export {
-    FormField,
-    StatusIndicator,
-    Notification,
-    DashboardHeader,
-    MetricCard,
-    ChartArea,
-    QuickActions
+  FormField,
+  StatusIndicator,
+  Notification,
+  DashboardHeader,
+  MetricCard,
+  ChartArea,
+  QuickActions,
 } from './UIComponents';
-
-// Documentation Components
 export {
-    AnimatedBanner,
-    ColorWheel,
-    CharacteristicCard,
-    PhilosophyItem,
-    GuidelinesSection,
-    GuidelinesCard
+  ColorWheel,
+  PhilosophyItem,
+  CharacteristicCard,
 } from './DocumentationComponents';
-
-// Border Width Components
 export {
-    BorderWidthScale,
-    BorderStyleShowcase,
-    InteractiveBorderStates,
-    PracticalExamples,
-    BorderRadiusCombinations
+  applyTypographyStyle,
+  Container,
+  Card,
+  Button,
+} from './CoreComponents';
+export {
+  BorderRadiusCombinations,
+  BorderWidthScale,
+  BorderStyleShowcase,
+  InteractiveBorderStates,
+  PracticalExamples,
 } from './BorderWidthComponents';

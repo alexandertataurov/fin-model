@@ -120,13 +120,17 @@ class FileProcessingRequest(BaseModel):
 
     file_id: int
     processing_options: Optional[Dict[str, Any]] = None
-    priority: Optional[str] = Field("normal", pattern="^(low|normal|high|urgent)$")
+    priority: Optional[str] = Field(
+        "normal", pattern="^(low|normal|high|urgent)$"
+    )
 
 
 class TemplateValidationConfig(BaseModel):
     """Schema for template validation configuration."""
 
-    template_type: str = Field(..., pattern="^(pnl|balance_sheet|cash_flow|custom)$")
+    template_type: str = Field(
+        ..., pattern="^(pnl|balance_sheet|cash_flow|custom)$"
+    )
     required_columns: List[str] = []
     optional_columns: List[str] = []
     validation_rules: Dict[str, Any] = {}

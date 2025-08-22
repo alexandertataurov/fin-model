@@ -35,7 +35,9 @@ def upgrade() -> None:
 
     if result.fetchone():
         # Rename the 'type' column to 'notification_type' in notifications table
-        op.alter_column("notifications", "type", new_column_name="notification_type")
+        op.alter_column(
+            "notifications", "type", new_column_name="notification_type"
+        )
 
     # Check if notification_templates table exists and has 'type' column
     result = connection.execute(
@@ -76,7 +78,9 @@ def downgrade() -> None:
 
     if result.fetchone():
         # Rename back to 'type' in notifications table
-        op.alter_column("notifications", "notification_type", new_column_name="type")
+        op.alter_column(
+            "notifications", "notification_type", new_column_name="type"
+        )
 
     # Check if notification_templates table exists and has 'notification_type' column
     result = connection.execute(

@@ -25,14 +25,28 @@ def get_audit_logs(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     user_id: Optional[int] = Query(None, description="Filter by user ID"),
-    action: Optional[str] = Query(None, description="Filter by action type"),
-    resource: Optional[str] = Query(None, description="Filter by resource type"),
-    success: Optional[bool] = Query(None, description="Filter by success status"),
-    search: Optional[str] = Query(None, description="Search in details/message"),
-    from_ts: Optional[datetime] = Query(None, description="Start date filter"),
+    action: Optional[str] = Query(
+        None, description="Filter by action type"
+    ),
+    resource: Optional[str] = Query(
+        None, description="Filter by resource type"
+    ),
+    success: Optional[bool] = Query(
+        None, description="Filter by success status"
+    ),
+    search: Optional[str] = Query(
+        None, description="Search in details/message"
+    ),
+    from_ts: Optional[datetime] = Query(
+        None, description="Start date filter"
+    ),
     to_ts: Optional[datetime] = Query(None, description="End date filter"),
-    envelope: bool = Query(False, description="Return pagination envelope"),
-    current_user: User = Depends(require_permissions(Permission.AUDIT_LOGS)),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.AUDIT_LOGS)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get audit logs with advanced filtering (Admin only)."""
@@ -73,7 +87,12 @@ def get_audit_logs(
             query = query.filter(AuditLog.created_at <= to_ts)
 
         total = query.count()
-        rows = query.order_by(desc(AuditLog.created_at)).offset(skip).limit(limit).all()
+        rows = (
+            query.order_by(desc(AuditLog.created_at))
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
         items = []
         for r in rows:
@@ -104,7 +123,12 @@ def get_audit_logs(
                 envelope=True,
             )
         else:
-            return {"logs": items, "skip": skip, "limit": limit, "total": total}
+            return {
+                "logs": items,
+                "skip": skip,
+                "limit": limit,
+                "total": total,
+            }
 
     except Exception as e:
         raise handle_admin_error(e, "get audit logs", current_user.id)
@@ -112,14 +136,24 @@ def get_audit_logs(
 
 @router.get("/system/logs")
 async def get_system_logs(
-    level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
+    level: str = Query(
+        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+    ),
     limit: int = Query(100, ge=1, le=1000),
     skip: int = Query(0, ge=0),
-    from_ts: Optional[datetime] = Query(None, description="From timestamp"),
+    from_ts: Optional[datetime] = Query(
+        None, description="From timestamp"
+    ),
     to_ts: Optional[datetime] = Query(None, description="To timestamp"),
-    search: Optional[str] = Query(None, description="Search message/module"),
-    envelope: bool = Query(False, description="Return pagination envelope"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    search: Optional[str] = Query(
+        None, description="Search message/module"
+    ),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get system logs from DB with filters and optional envelope."""
@@ -136,7 +170,12 @@ async def get_system_logs(
 
         if envelope:
             total = log_service.get_log_count(level)
-            return {"items": items, "skip": skip, "limit": limit, "total": total}
+            return {
+                "items": items,
+                "skip": skip,
+                "limit": limit,
+                "total": total,
+            }
         return items
     except Exception:
         empty = {"items": [], "skip": skip, "limit": limit, "total": 0}
@@ -145,18 +184,24 @@ async def get_system_logs(
 
 @router.get("/system/logs/stream")
 async def stream_system_logs(
-    level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
+    level: str = Query(
+        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+    ),
     from_ts: Optional[datetime] = Query(None),
     search: Optional[str] = Query(None),
     interval_ms: int = Query(1000, ge=250, le=5000),
     timeout_s: int = Query(30, ge=5, le=300),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Server-Sent Events stream of system logs (polling-based)."""
 
     async def event_generator():
-        end_time = datetime.now(timezone.utc) + timedelta(seconds=timeout_s)
+        end_time = datetime.now(timezone.utc) + timedelta(
+            seconds=timeout_s
+        )
         last_id: int | None = None
         level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
         min_level = 1 if level == "DEBUG" else level_order.get(level, 1)
@@ -168,11 +213,16 @@ async def stream_system_logs(
                 if search:
                     like = f"%{search}%"
                     q = q.filter(
-                        (SystemLog.message.ilike(like)) | (SystemLog.module.ilike(like))
+                        (SystemLog.message.ilike(like))
+                        | (SystemLog.module.ilike(like))
                     )
                 q = q.filter(
                     SystemLog.level.in_(
-                        [lvl for lvl, v in level_order.items() if v >= min_level]
+                        [
+                            lvl
+                            for lvl, v in level_order.items()
+                            if v >= min_level
+                        ]
                     )
                 )
                 if last_id is not None:
@@ -184,7 +234,9 @@ async def stream_system_logs(
                         payload = {
                             "id": r.id,
                             "timestamp": (
-                                r.timestamp.isoformat() if r.timestamp else None
+                                r.timestamp.isoformat()
+                                if r.timestamp
+                                else None
                             ),
                             "level": r.level,
                             "module": r.module,
@@ -196,4 +248,6 @@ async def stream_system_logs(
                 logger.exception("Error streaming system logs")
             await asyncio.sleep(interval_ms / 1000)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(), media_type="text/event-stream"
+    )

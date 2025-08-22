@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
-import { Checkbox } from '@/design-system/components/Checkbox';
-import { Badge } from '@/design-system/components/Badge';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
+import { Checkbox } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +24,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/design-system/components/Dialog';
+} from '@/design-system/molecules';
 import {
   Download,
   Upload,
@@ -99,7 +109,7 @@ export function ParameterExport({
       }
 
       setSuccess('Parameters exported successfully!');
-  } catch (_err) {
+    } catch (_err) {
       setError('Failed to export parameters');
     } finally {
       setExporting(false);
@@ -208,7 +218,7 @@ export function ParameterExport({
         }
 
         setImportPreview(parsed);
-  } catch (_err) {
+      } catch (_err) {
         setError('Failed to parse file. Please check the format.');
       }
     };
@@ -239,7 +249,7 @@ export function ParameterExport({
       } else {
         setError('Failed to import parameters');
       }
-  } catch (_err) {
+    } catch (_err) {
       setError('Failed to import parameters');
     } finally {
       setImporting(false);

@@ -25,7 +25,9 @@ class MFAToken(Base):
     secret_key = Column(String(255), nullable=False)  # TOTP secret
     backup_codes = Column(JSON)  # Recovery codes array
     is_verified = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     last_used = Column(DateTime, nullable=True)
 
     # Relationships
@@ -44,15 +46,25 @@ class OAuthAccount(Base):
     user_id = Column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    provider = Column(String(50), nullable=False)  # google, microsoft, etc.
+    provider = Column(
+        String(50), nullable=False
+    )  # google, microsoft, etc.
     provider_id = Column(String(255), nullable=False)  # Provider's user ID
     email = Column(String(255), nullable=True)  # Email from provider
-    display_name = Column(String(255), nullable=True)  # Display name from provider
-    profile_picture = Column(String(500), nullable=True)  # Profile picture URL
-    access_token = Column(String(500), nullable=True)  # For API calls if needed
+    display_name = Column(
+        String(255), nullable=True
+    )  # Display name from provider
+    profile_picture = Column(
+        String(500), nullable=True
+    )  # Profile picture URL
+    access_token = Column(
+        String(500), nullable=True
+    )  # For API calls if needed
     refresh_token = Column(String(500), nullable=True)  # For token refresh
     token_expires_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     updated_at = Column(
         DateTime,
         server_default=func.now(),
@@ -79,11 +91,19 @@ class WebAuthnCredential(Base):
     credential_id = Column(
         String(500), nullable=False, unique=True
     )  # Base64-encoded credential ID
-    public_key = Column(String(1000), nullable=False)  # Base64-encoded public key
+    public_key = Column(
+        String(1000), nullable=False
+    )  # Base64-encoded public key
     sign_count = Column(Integer, default=0, nullable=False)
-    device_name = Column(String(255), nullable=True)  # User-friendly device name
-    device_type = Column(String(50), nullable=True)  # platform, cross-platform
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    device_name = Column(
+        String(255), nullable=True
+    )  # User-friendly device name
+    device_type = Column(
+        String(50), nullable=True
+    )  # platform, cross-platform
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     last_used = Column(DateTime, nullable=True)
 
     # Relationships
@@ -105,7 +125,9 @@ class MFAChallenge(Base):
     challenge_type = Column(String(50), nullable=False)  # totp, webauthn
     challenge_data = Column(JSON, nullable=True)  # WebAuthn challenge data
     expires_at = Column(DateTime, nullable=False)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
 
     # Relationships
     user = relationship("User")

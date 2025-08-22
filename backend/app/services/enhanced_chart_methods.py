@@ -38,9 +38,9 @@ class EnhancedChartMethods:
             revenue_chart = self.chart_service.create_revenue_trend_chart(
                 statements, TimeGranularity.MONTHLY
             )
-            chart_data["revenue_trend"] = self.chart_service.to_recharts_format(
-                revenue_chart
-            )
+            chart_data[
+                "revenue_trend"
+            ] = self.chart_service.to_recharts_format(revenue_chart)
         except Exception as e:
             print(f"Error generating revenue trend chart: {e}")
             chart_data["revenue_trend"] = None
@@ -48,15 +48,17 @@ class EnhancedChartMethods:
         # Cash Flow Trend Chart
         try:
             cf_statements = [
-                s for s in statements if s.statement_type == StatementType.CASH_FLOW
+                s
+                for s in statements
+                if s.statement_type == StatementType.CASH_FLOW
             ]
             if cf_statements:
                 cf_chart = self.chart_service.create_cash_flow_trend_chart(
                     cf_statements
                 )
-                chart_data["cash_flow_trend"] = self.chart_service.to_recharts_format(
-                    cf_chart
-                )
+                chart_data[
+                    "cash_flow_trend"
+                ] = self.chart_service.to_recharts_format(cf_chart)
         except Exception as e:
             print(f"Error generating cash flow trend chart: {e}")
             chart_data["cash_flow_trend"] = None
@@ -64,16 +66,22 @@ class EnhancedChartMethods:
         # Expense Breakdown Chart (from most recent P&L)
         try:
             pl_statements = [
-                s for s in statements if s.statement_type == StatementType.PROFIT_LOSS
+                s
+                for s in statements
+                if s.statement_type == StatementType.PROFIT_LOSS
             ]
             if pl_statements:
-                latest_pl = pl_statements[0]  # Assuming sorted by date desc
-                expense_chart = self.chart_service.create_expense_breakdown_chart(
-                    latest_pl
+                latest_pl = pl_statements[
+                    0
+                ]  # Assuming sorted by date desc
+                expense_chart = (
+                    self.chart_service.create_expense_breakdown_chart(
+                        latest_pl
+                    )
                 )
-                chart_data["expense_breakdown"] = self.chart_service.to_recharts_format(
-                    expense_chart
-                )
+                chart_data[
+                    "expense_breakdown"
+                ] = self.chart_service.to_recharts_format(expense_chart)
         except Exception as e:
             print(f"Error generating expense breakdown chart: {e}")
             chart_data["expense_breakdown"] = None
@@ -81,16 +89,22 @@ class EnhancedChartMethods:
         # Asset Composition Chart (from most recent Balance Sheet)
         try:
             bs_statements = [
-                s for s in statements if s.statement_type == StatementType.BALANCE_SHEET
+                s
+                for s in statements
+                if s.statement_type == StatementType.BALANCE_SHEET
             ]
             if bs_statements:
-                latest_bs = bs_statements[0]  # Assuming sorted by date desc
-                asset_chart = self.chart_service.create_asset_composition_chart(
-                    latest_bs
+                latest_bs = bs_statements[
+                    0
+                ]  # Assuming sorted by date desc
+                asset_chart = (
+                    self.chart_service.create_asset_composition_chart(
+                        latest_bs
+                    )
                 )
-                chart_data["asset_composition"] = self.chart_service.to_recharts_format(
-                    asset_chart
-                )
+                chart_data[
+                    "asset_composition"
+                ] = self.chart_service.to_recharts_format(asset_chart)
         except Exception as e:
             print(f"Error generating asset composition chart: {e}")
             chart_data["asset_composition"] = None
@@ -98,12 +112,18 @@ class EnhancedChartMethods:
         # Cash Flow Waterfall Chart (from most recent Cash Flow statement)
         try:
             cf_statements = [
-                s for s in statements if s.statement_type == StatementType.CASH_FLOW
+                s
+                for s in statements
+                if s.statement_type == StatementType.CASH_FLOW
             ]
             if cf_statements:
-                latest_cf = cf_statements[0]  # Assuming sorted by date desc
-                waterfall_chart = self.chart_service.create_cash_flow_waterfall_chart(
-                    latest_cf
+                latest_cf = cf_statements[
+                    0
+                ]  # Assuming sorted by date desc
+                waterfall_chart = (
+                    self.chart_service.create_cash_flow_waterfall_chart(
+                        latest_cf
+                    )
                 )
                 chart_data[
                     "cash_flow_waterfall"
@@ -115,15 +135,21 @@ class EnhancedChartMethods:
         # Margin Analysis Chart
         try:
             pl_statements = [
-                s for s in statements if s.statement_type == StatementType.PROFIT_LOSS
+                s
+                for s in statements
+                if s.statement_type == StatementType.PROFIT_LOSS
             ]
-            if len(pl_statements) >= 2:  # Need at least 2 periods for trend
-                margin_chart = self.chart_service.create_margin_analysis_chart(
-                    pl_statements
+            if (
+                len(pl_statements) >= 2
+            ):  # Need at least 2 periods for trend
+                margin_chart = (
+                    self.chart_service.create_margin_analysis_chart(
+                        pl_statements
+                    )
                 )
-                chart_data["margin_analysis"] = self.chart_service.to_recharts_format(
-                    margin_chart
-                )
+                chart_data[
+                    "margin_analysis"
+                ] = self.chart_service.to_recharts_format(margin_chart)
         except Exception as e:
             print(f"Error generating margin analysis chart: {e}")
             chart_data["margin_analysis"] = None
@@ -131,29 +157,39 @@ class EnhancedChartMethods:
         # Liquidity Ratios Chart
         try:
             bs_statements = [
-                s for s in statements if s.statement_type == StatementType.BALANCE_SHEET
+                s
+                for s in statements
+                if s.statement_type == StatementType.BALANCE_SHEET
             ]
-            if len(bs_statements) >= 2:  # Need at least 2 periods for trend
-                liquidity_chart = self.chart_service.create_liquidity_ratios_chart(
-                    bs_statements
+            if (
+                len(bs_statements) >= 2
+            ):  # Need at least 2 periods for trend
+                liquidity_chart = (
+                    self.chart_service.create_liquidity_ratios_chart(
+                        bs_statements
+                    )
                 )
-                chart_data["liquidity_ratios"] = self.chart_service.to_recharts_format(
-                    liquidity_chart
-                )
+                chart_data[
+                    "liquidity_ratios"
+                ] = self.chart_service.to_recharts_format(liquidity_chart)
         except Exception as e:
             print(f"Error generating liquidity ratios chart: {e}")
             chart_data["liquidity_ratios"] = None
 
         # Period Comparison Chart
         try:
-            if len(statements) >= 2:  # Need at least 2 statements for comparison
-                comparison_chart = self.chart_service.create_period_comparison_chart(
-                    statements,
-                    ["revenue", "net_income", "total_assets"],
+            if (
+                len(statements) >= 2
+            ):  # Need at least 2 statements for comparison
+                comparison_chart = (
+                    self.chart_service.create_period_comparison_chart(
+                        statements,
+                        ["revenue", "net_income", "total_assets"],
+                    )
                 )
-                chart_data["period_comparison"] = self.chart_service.to_recharts_format(
-                    comparison_chart
-                )
+                chart_data[
+                    "period_comparison"
+                ] = self.chart_service.to_recharts_format(comparison_chart)
         except Exception as e:
             print(f"Error generating period comparison chart: {e}")
             chart_data["period_comparison"] = None
@@ -172,42 +208,52 @@ class EnhancedChartMethods:
         try:
             # Revenue Trend
             if len(user_statements) > 1:
-                revenue_chart = self.chart_service.create_revenue_trend_chart(
-                    user_statements, TimeGranularity.QUARTERLY
+                revenue_chart = (
+                    self.chart_service.create_revenue_trend_chart(
+                        user_statements, TimeGranularity.QUARTERLY
+                    )
                 )
-                charts["revenue_trend"] = self.chart_service.to_recharts_format(
-                    revenue_chart
-                )
+                charts[
+                    "revenue_trend"
+                ] = self.chart_service.to_recharts_format(revenue_chart)
 
             # Expense Breakdown
-            expense_chart = self.chart_service.create_expense_breakdown_chart(statement)
-            charts["expense_breakdown"] = self.chart_service.to_recharts_format(
-                expense_chart
+            expense_chart = (
+                self.chart_service.create_expense_breakdown_chart(
+                    statement
+                )
             )
+            charts[
+                "expense_breakdown"
+            ] = self.chart_service.to_recharts_format(expense_chart)
 
             # Margin Analysis
             if len(user_statements) > 1:
-                margin_chart = self.chart_service.create_margin_analysis_chart(
-                    user_statements
+                margin_chart = (
+                    self.chart_service.create_margin_analysis_chart(
+                        user_statements
+                    )
                 )
-                charts["margin_analysis"] = self.chart_service.to_recharts_format(
-                    margin_chart
-                )
+                charts[
+                    "margin_analysis"
+                ] = self.chart_service.to_recharts_format(margin_chart)
 
             # Period Comparison
             if len(user_statements) >= 2:
-                comparison_chart = self.chart_service.create_period_comparison_chart(
-                    user_statements[:4],  # Last 4 periods
-                    [
-                        "revenue",
-                        "gross_profit",
-                        "net_income",
-                        "operating_income",
-                    ],
+                comparison_chart = (
+                    self.chart_service.create_period_comparison_chart(
+                        user_statements[:4],  # Last 4 periods
+                        [
+                            "revenue",
+                            "gross_profit",
+                            "net_income",
+                            "operating_income",
+                        ],
+                    )
                 )
-                charts["period_comparison"] = self.chart_service.to_recharts_format(
-                    comparison_chart
-                )
+                charts[
+                    "period_comparison"
+                ] = self.chart_service.to_recharts_format(comparison_chart)
 
         except Exception as e:
             print(f"Error generating enhanced P&L charts: {e}")
@@ -225,29 +271,37 @@ class EnhancedChartMethods:
 
         try:
             # Asset Composition
-            asset_chart = self.chart_service.create_asset_composition_chart(statement)
-            charts["asset_composition"] = self.chart_service.to_recharts_format(
-                asset_chart
+            asset_chart = (
+                self.chart_service.create_asset_composition_chart(
+                    statement
+                )
             )
+            charts[
+                "asset_composition"
+            ] = self.chart_service.to_recharts_format(asset_chart)
 
             # Liquidity Ratios Trend
             if len(user_statements) > 1:
-                liquidity_chart = self.chart_service.create_liquidity_ratios_chart(
-                    user_statements
+                liquidity_chart = (
+                    self.chart_service.create_liquidity_ratios_chart(
+                        user_statements
+                    )
                 )
-                charts["liquidity_ratios"] = self.chart_service.to_recharts_format(
-                    liquidity_chart
-                )
+                charts[
+                    "liquidity_ratios"
+                ] = self.chart_service.to_recharts_format(liquidity_chart)
 
             # Balance Sheet Period Comparison
             if len(user_statements) >= 2:
-                comparison_chart = self.chart_service.create_period_comparison_chart(
-                    user_statements[:4],  # Last 4 periods
-                    [
-                        "total_assets",
-                        "total_liabilities",
-                        "shareholders_equity",
-                    ],
+                comparison_chart = (
+                    self.chart_service.create_period_comparison_chart(
+                        user_statements[:4],  # Last 4 periods
+                        [
+                            "total_assets",
+                            "total_liabilities",
+                            "shareholders_equity",
+                        ],
+                    )
                 )
                 charts[
                     "balance_sheet_comparison"
@@ -269,35 +323,41 @@ class EnhancedChartMethods:
 
         try:
             # Cash Flow Waterfall
-            waterfall_chart = self.chart_service.create_cash_flow_waterfall_chart(
-                statement
+            waterfall_chart = (
+                self.chart_service.create_cash_flow_waterfall_chart(
+                    statement
+                )
             )
-            charts["cash_flow_waterfall"] = self.chart_service.to_recharts_format(
-                waterfall_chart
-            )
+            charts[
+                "cash_flow_waterfall"
+            ] = self.chart_service.to_recharts_format(waterfall_chart)
 
             # Cash Flow Trends
             if len(user_statements) > 1:
-                trend_chart = self.chart_service.create_cash_flow_trend_chart(
-                    user_statements
+                trend_chart = (
+                    self.chart_service.create_cash_flow_trend_chart(
+                        user_statements
+                    )
                 )
-                charts["cash_flow_trend"] = self.chart_service.to_recharts_format(
-                    trend_chart
-                )
+                charts[
+                    "cash_flow_trend"
+                ] = self.chart_service.to_recharts_format(trend_chart)
 
             # Cash Flow Period Comparison
             if len(user_statements) >= 2:
-                comparison_chart = self.chart_service.create_period_comparison_chart(
-                    user_statements[:4],  # Last 4 periods
-                    [
-                        "operating_cash_flow",
-                        "investing_cash_flow",
-                        "financing_cash_flow",
-                    ],
+                comparison_chart = (
+                    self.chart_service.create_period_comparison_chart(
+                        user_statements[:4],  # Last 4 periods
+                        [
+                            "operating_cash_flow",
+                            "investing_cash_flow",
+                            "financing_cash_flow",
+                        ],
+                    )
                 )
-                charts["cash_flow_comparison"] = self.chart_service.to_recharts_format(
-                    comparison_chart
-                )
+                charts[
+                    "cash_flow_comparison"
+                ] = self.chart_service.to_recharts_format(comparison_chart)
 
         except Exception as e:
             print(f"Error generating enhanced Cash Flow charts: {e}")
@@ -311,8 +371,8 @@ class EnhancedChartMethods:
 
         try:
             # Calculate comprehensive financial ratios
-            financial_ratios = self.metrics_service.calculate_financial_ratios(
-                statements
+            financial_ratios = (
+                self.metrics_service.calculate_financial_ratios(statements)
             )
 
             # Get latest statements by type
@@ -333,7 +393,11 @@ class EnhancedChartMethods:
                 None,
             )
             latest_cf = next(
-                (s for s in statements if s.statement_type == StatementType.CASH_FLOW),
+                (
+                    s
+                    for s in statements
+                    if s.statement_type == StatementType.CASH_FLOW
+                ),
                 None,
             )
 
@@ -431,7 +495,9 @@ class EnhancedChartMethods:
             )
 
             # Calculate statistics
-            statistics = self.metrics_service.calculate_trend_statistics(time_series)
+            statistics = self.metrics_service.calculate_trend_statistics(
+                time_series
+            )
 
             # Generate forecast
             forecast = self.metrics_service.generate_simple_forecast(

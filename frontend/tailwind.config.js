@@ -65,27 +65,36 @@ export default {
     },
     extend: {
       spacing: {
-        0: '0',
-        1: '0.25rem',
-        2: '0.5rem',
-        3: '0.75rem',
-        4: '1rem',
-        5: '1.25rem',
-        6: '1.5rem',
-        8: '2rem',
-        10: '2.5rem',
-        12: '3rem',
-        16: '4rem',
-        20: '5rem',
-        24: '6rem',
-        32: '8rem',
-        40: '10rem',
-        48: '12rem',
-        56: '14rem',
-        64: '16rem',
+        0: '0px',
+        1: '0.25rem', // 4px - Minimal spacing
+        2: '0.5rem', // 8px - Base unit
+        3: '0.75rem', // 12px - Small spacing
+        4: '1rem', // 16px - Standard spacing
+        5: '1.25rem', // 20px - Medium spacing
+        6: '1.5rem', // 24px - Large spacing
+        8: '2rem', // 32px - Extra large spacing
+        10: '2.5rem', // 40px - Section spacing
+        12: '3rem', // 48px - Major spacing
+        16: '4rem', // 64px - Hero spacing
+        20: '5rem', // 80px - Page spacing
+        24: '6rem', // 96px - Large page spacing
+        32: '8rem', // 128px - Maximum spacing
+        // Component spacing
+        'component-padding': '1rem', // 16px - Standard component padding
+        'component-margin': '1.5rem', // 24px - Standard component margin
+        'component-gap': '0.5rem', // 8px - Standard component gap
+        // Layout spacing
+        'layout-section': '3rem', // 48px - Section spacing
+        'layout-page': '2rem', // 32px - Page spacing
+        'layout-container': '1rem', // 16px - Container padding
+        // Form spacing
+        'form-field': '1rem', // 16px - Form field spacing
+        'form-group': '1.5rem', // 24px - Form group spacing
+        'form-section': '2rem', // 32px - Form section spacing
       },
       colors: {
         primary: {
+          DEFAULT: '#6366f1',
           50: '#f0f4ff',
           100: '#e0e7ff',
           200: '#c7d2fe',
@@ -99,6 +108,7 @@ export default {
           950: '#1e1b4b',
         },
         secondary: {
+          DEFAULT: '#737373',
           50: '#fafafa',
           100: '#f5f5f5',
           200: '#e5e5e5',
@@ -112,6 +122,7 @@ export default {
           950: '#0a0a0a',
         },
         accent: {
+          DEFAULT: '#14b8a6',
           50: '#f0fdfa',
           100: '#ccfbf1',
           200: '#99f6e4',
@@ -125,6 +136,7 @@ export default {
           950: '#042f2e',
         },
         destructive: {
+          DEFAULT: '#ef4444',
           50: '#fef2f2',
           100: '#fee2e2',
           200: '#fecaca',
@@ -137,10 +149,47 @@ export default {
           900: '#7f1d1d',
           950: '#450a0a',
         },
-        success: '#10b981',
-        warning: '#f59e0b',
-        info: '#3b82f6',
+        success: {
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+          950: '#052e16',
+        },
+        warning: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+          950: '#451a03',
+        },
+        info: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+          950: '#172554',
+        },
         muted: {
+          DEFAULT: '#f5f5f5',
           50: '#fafafa',
           100: '#f5f5f5',
           200: '#e5e5e5',
@@ -193,35 +242,34 @@ export default {
         'card-foreground': 'hsl(var(--card-foreground))',
         popover: 'hsl(var(--popover))',
         'popover-foreground': 'hsl(var(--popover-foreground))',
-        muted: 'hsl(var(--muted))',
+        // Keep only the foreground alias; preserve the numeric muted scale above
+        // muted: 'hsl(var(--muted))',
         'muted-foreground': 'hsl(var(--muted-foreground))',
-        accent: 'hsl(var(--accent))',
+        'primary-foreground': 'hsl(var(--primary-foreground))',
+        'secondary-foreground': 'hsl(var(--secondary-foreground))',
+        // Keep only the foreground alias; preserve the numeric accent scale above
+        // accent: 'hsl(var(--accent))',
         'accent-foreground': 'hsl(var(--accent-foreground))',
-        destructive: 'hsl(var(--destructive))',
+        // Keep only the foreground alias; preserve the numeric destructive scale above
+        // destructive: 'hsl(var(--destructive))',
         'destructive-foreground': 'hsl(var(--destructive-foreground))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
+        // Preserve numeric scales for primary/secondary; avoid overwriting
+        // primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
+        // secondary: { DEFAULT: 'hsl(var(--secondary))', foreground: 'hsl(var(--secondary-foreground))' },
       },
       borderRadius: {
-        none: '0',
-        sm: '0.125rem',
-        base: '0.25rem',
-        md: '0.375rem',
-        lg: '0.5rem',
-        xl: '0.75rem',
-        '2xl': '1rem',
-        '3xl': '1.5rem',
+        none: '0px',
+        sm: '2px',
+        md: '6px',
+        lg: '12px',
+        xl: '16px',
+        '2xl': '24px',
+        '3xl': '32px',
         full: '9999px',
       },
       fontSize: {
@@ -259,6 +307,7 @@ export default {
         modern: ['Inter', 'system-ui', 'sans-serif'],
       },
       lineHeight: {
+        none: '1',
         tight: '1.25',
         snug: '1.375',
         normal: '1.5',
@@ -275,13 +324,42 @@ export default {
         widest: '0.1em',
         'extra-wide': '0.15em',
       },
+      borderWidth: {
+        0: '0px',
+        1: '1px',
+        2: '2px',
+        4: '4px',
+        8: '8px',
+        thin: '1px',
+        base: '2px',
+        thick: '4px',
+        extra: '8px',
+      },
       boxShadow: {
+        none: 'none',
         sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
         base: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
         md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
         lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
         xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
         '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+        inner: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
+        // Component shadows
+        card: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        button: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        modal:
+          '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+        dropdown:
+          '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+        // Interactive shadows
+        hover:
+          '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        active: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        focus: '0 0 0 3px rgb(99 102 241 / 0.1)',
+        // Special shadows
+        glow: '0 0 20px rgb(99 102 241 / 0.15)',
+        error: '0 0 0 3px rgb(239 68 68 / 0.1)',
+        success: '0 0 0 3px rgb(16 185 129 / 0.1)',
       },
       zIndex: {
         0: '0',
@@ -297,6 +375,45 @@ export default {
         modal: '1040',
         popover: '1050',
         tooltip: '1060',
+      },
+      transitionDuration: {
+        fast: '150ms',
+        normal: '250ms',
+        slow: '350ms',
+        slower: '500ms',
+      },
+      transitionTimingFunction: {
+        linear: 'linear',
+        ease: 'ease',
+        easeIn: 'ease-in',
+        easeOut: 'ease-out',
+        easeInOut: 'ease-in-out',
+        smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+      },
+      transitionProperty: {
+        all: 'all',
+        colors: 'color, background-color, border-color',
+        transform: 'transform',
+        opacity: 'opacity',
+        shadow: 'box-shadow',
+        size: 'width, height, padding, margin',
+      },
+      gridTemplateColumns: {
+        1: 'repeat(1, minmax(0, 1fr))',
+        2: 'repeat(2, minmax(0, 1fr))',
+        3: 'repeat(3, minmax(0, 1fr))',
+        4: 'repeat(4, minmax(0, 1fr))',
+        5: 'repeat(5, minmax(0, 1fr))',
+        6: 'repeat(6, minmax(0, 1fr))',
+        12: 'repeat(12, minmax(0, 1fr))',
+      },
+      gap: {
+        'grid-none': '0px',
+        'grid-sm': '0.5rem', // 8px
+        'grid-md': '1rem', // 16px
+        'grid-lg': '1.5rem', // 24px
+        'grid-xl': '2rem', // 32px
       },
     },
   },

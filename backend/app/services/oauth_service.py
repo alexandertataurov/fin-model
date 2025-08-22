@@ -62,7 +62,9 @@ class OAuthService:
             return oauth_account.user
 
         # Check if user exists with same email
-        existing_user = self.db.query(User).filter(User.email == email).first()
+        existing_user = (
+            self.db.query(User).filter(User.email == email).first()
+        )
 
         if existing_user:
             # Link OAuth account to existing user
@@ -120,7 +122,11 @@ class OAuthService:
         # Assign default role
         from app.models.role import Role, UserRole, RoleType
 
-        default_role = self.db.query(Role).filter(Role.name == RoleType.VIEWER).first()
+        default_role = (
+            self.db.query(Role)
+            .filter(Role.name == RoleType.VIEWER)
+            .first()
+        )
         if default_role:
             user_role = UserRole(
                 user_id=new_user.id,
@@ -195,7 +201,9 @@ class OAuthService:
 
         # Check if username exists
         existing_user = (
-            self.db.query(User).filter(User.username == base_username).first()
+            self.db.query(User)
+            .filter(User.username == base_username)
+            .first()
         )
         if not existing_user:
             return base_username
@@ -205,7 +213,9 @@ class OAuthService:
         while True:
             candidate = f"{base_username}{counter}"
             existing_user = (
-                self.db.query(User).filter(User.username == candidate).first()
+                self.db.query(User)
+                .filter(User.username == candidate)
+                .first()
             )
             if not existing_user:
                 return candidate
@@ -213,7 +223,11 @@ class OAuthService:
 
     def get_oauth_accounts(self, user: User) -> list[OAuthAccount]:
         """Get all OAuth accounts for a user."""
-        return self.db.query(OAuthAccount).filter(OAuthAccount.user_id == user.id).all()
+        return (
+            self.db.query(OAuthAccount)
+            .filter(OAuthAccount.user_id == user.id)
+            .all()
+        )
 
     def unlink_oauth_account(self, user: User, provider: str) -> bool:
         """

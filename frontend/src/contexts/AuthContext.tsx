@@ -181,9 +181,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Auto-refresh token
   useEffect(() => {
     if (state.token && state.refreshToken) {
-      const refreshInterval = setInterval(async () => {
-        await refreshTokenInternal();
-      }, 14 * 60 * 1000); // Refresh every 14 minutes
+      const refreshInterval = setInterval(
+        async () => {
+          await refreshTokenInternal();
+        },
+        14 * 60 * 1000
+      ); // Refresh every 14 minutes
 
       return () => clearInterval(refreshInterval);
     }
@@ -331,7 +334,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Debug authentication state changes
   useEffect(() => {
-  console.debug('Auth state changed:', {
+    console.debug('Auth state changed:', {
       hasUser: !!state.user,
       hasToken: !!state.token,
       isAuthenticated,

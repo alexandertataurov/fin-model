@@ -18,8 +18,20 @@ describe('LogsTab', () => {
     mockUseAdminStore.mockReturnValue({
       logs: {
         items: [
-          { timestamp: now, level: 'ERROR', message: 'A', module: 'db', user_id: null },
-          { timestamp: now, level: 'ERROR', message: 'B', module: 'db', user_id: null },
+          {
+            timestamp: now,
+            level: 'ERROR',
+            message: 'A',
+            module: 'db',
+            user_id: null,
+          },
+          {
+            timestamp: now,
+            level: 'ERROR',
+            message: 'B',
+            module: 'db',
+            user_id: null,
+          },
         ],
         total: 4,
         skip: 0,

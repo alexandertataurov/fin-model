@@ -1,16 +1,22 @@
 import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Badge } from '@/design-system/components/Badge';
-import { Progress } from '@/design-system/components/Progress';
-import { 
-  Upload, 
-  FileSpreadsheet, 
-  CheckCircle, 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Progress } from '@/design-system/atoms';
+import {
+  Upload,
+  FileSpreadsheet,
+  CheckCircle,
   AlertCircle,
   Download,
   Eye,
-  Trash2
+  Trash2,
 } from 'lucide-react';
 
 interface FileUploadProps {
@@ -33,60 +39,70 @@ interface UploadedFile {
 export function FileUpload({
   onFileUpload,
   onFileProcess: _onFileProcess,
-  onFileDelete
+  onFileDelete,
 }: FileUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [_isUploading, setIsUploading] = useState(false);
 
-  const handleFileSelect = useCallback((files: FileList | null) => {
-    if (!files) return;
+  const handleFileSelect = useCallback(
+    (files: FileList | null) => {
+      if (!files) return;
 
-    Array.from(files).forEach(file => {
-      if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
-          file.type === 'application/vnd.ms-excel') {
-        
-        const fileId = Math.random().toString(36).substr(2, 9);
-        const newFile: UploadedFile = {
-          id: fileId,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          status: 'uploading',
-          progress: 0,
-          uploadedAt: new Date()
-        };
+      Array.from(files).forEach(file => {
+        if (
+          file.type ===
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+          file.type === 'application/vnd.ms-excel'
+        ) {
+          const fileId = Math.random().toString(36).substr(2, 9);
+          const newFile: UploadedFile = {
+            id: fileId,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            status: 'uploading',
+            progress: 0,
+            uploadedAt: new Date(),
+          };
 
-        setUploadedFiles(prev => [...prev, newFile]);
-        setIsUploading(true);
+          setUploadedFiles(prev => [...prev, newFile]);
+          setIsUploading(true);
 
-        // Simulate file upload
-        const interval = setInterval(() => {
-          setUploadedFiles(prev => prev.map(f => {
-            if (f.id === fileId) {
-              const newProgress = Math.min(f.progress + 10, 100);
-              const newStatus = newProgress === 100 ? 'processing' : 'uploading';
-              return { ...f, progress: newProgress, status: newStatus };
-            }
-            return f;
-          }));
-        }, 200);
+          // Simulate file upload
+          const interval = setInterval(() => {
+            setUploadedFiles(prev =>
+              prev.map(f => {
+                if (f.id === fileId) {
+                  const newProgress = Math.min(f.progress + 10, 100);
+                  const newStatus =
+                    newProgress === 100 ? 'processing' : 'uploading';
+                  return { ...f, progress: newProgress, status: newStatus };
+                }
+                return f;
+              })
+            );
+          }, 200);
 
-        // Simulate processing completion
-        setTimeout(() => {
-          setUploadedFiles(prev => prev.map(f => {
-            if (f.id === fileId) {
-              return { ...f, status: 'complete', progress: 100 };
-            }
-            return f;
-          }));
-          setIsUploading(false);
-          clearInterval(interval);
-          onFileUpload?.(file);
-        }, 3000);
-      }
-    });
-  }, [onFileUpload]);
+          // Simulate processing completion
+          setTimeout(() => {
+            setUploadedFiles(prev =>
+              prev.map(f => {
+                if (f.id === fileId) {
+                  return { ...f, status: 'complete', progress: 100 };
+                }
+                return f;
+              })
+            );
+            setIsUploading(false);
+            clearInterval(interval);
+            onFileUpload?.(file);
+          }, 3000);
+        }
+      });
+    },
+    [onFileUpload]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -98,16 +114,22 @@ export function FileUpload({
     setIsDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    handleFileSelect(e.dataTransfer.files);
-  }, [handleFileSelect]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      handleFileSelect(e.dataTransfer.files);
+    },
+    [handleFileSelect]
+  );
 
-  const handleFileDelete = useCallback((fileId: string) => {
-    setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
-    onFileDelete?.(fileId);
-  }, [onFileDelete]);
+  const handleFileDelete = useCallback(
+    (fileId: string) => {
+      setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+      onFileDelete?.(fileId);
+    },
+    [onFileDelete]
+  );
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -170,14 +192,15 @@ export function FileUpload({
         <CardHeader>
           <CardTitle>Upload Excel Files</CardTitle>
           <CardDescription>
-            Drag and drop Excel files here or click to browse. Supported formats: .xlsx, .xls
+            Drag and drop Excel files here or click to browse. Supported
+            formats: .xlsx, .xls
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragOver 
-                ? 'border-blue-500 bg-blue-50' 
+              isDragOver
+                ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-300 hover:border-gray-400'
             }`}
             onDragOver={handleDragOver}
@@ -195,7 +218,7 @@ export function FileUpload({
               type="file"
               multiple
               accept=".xlsx,.xls"
-              onChange={(e) => handleFileSelect(e.target.files)}
+              onChange={e => handleFileSelect(e.target.files)}
               className="hidden"
               id="file-upload"
             />
@@ -214,35 +237,41 @@ export function FileUpload({
           <CardHeader>
             <CardTitle>Uploaded Files</CardTitle>
             <CardDescription>
-              {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} uploaded
+              {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''}{' '}
+              uploaded
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {uploadedFiles.map((file) => (
-                <div key={file.id} className="flex items-center justify-between p-4 border rounded-lg">
+              {uploadedFiles.map(file => (
+                <div
+                  key={file.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex items-center space-x-4">
                     <FileSpreadsheet className="h-8 w-8 text-blue-500" />
                     <div>
                       <p className="font-medium">{file.name}</p>
                       <p className="text-sm text-gray-500">
-                        {formatFileSize(file.size)} • {file.uploadedAt.toLocaleTimeString()}
+                        {formatFileSize(file.size)} •{' '}
+                        {file.uploadedAt.toLocaleTimeString()}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-4">
                     <Badge className={getStatusColor(file.status)}>
                       {getStatusIcon(file.status)}
                       <span className="ml-1 capitalize">{file.status}</span>
                     </Badge>
-                    
-                    {file.status === 'uploading' || file.status === 'processing' ? (
+
+                    {file.status === 'uploading' ||
+                    file.status === 'processing' ? (
                       <div className="w-24">
                         <Progress value={file.progress} className="h-2" />
                       </div>
                     ) : null}
-                    
+
                     {file.status === 'complete' && (
                       <div className="flex space-x-2">
                         <Button variant="outline" size="sm">
@@ -255,7 +284,7 @@ export function FileUpload({
                         </Button>
                       </div>
                     )}
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -303,7 +332,7 @@ export function FileUpload({
                 </li>
               </ul>
             </div>
-            
+
             <div className="space-y-4">
               <h3 className="font-semibold">Recommended Structure</h3>
               <ul className="space-y-2 text-sm">

@@ -6,10 +6,10 @@
 
 import React, { useState } from 'react';
 import { DraggableWidget } from '../draggable-widget';
-import { Button } from '@/design-system/components/Button';
-import { Card, CardContent, CardHeader } from '@/design-system/components/Card';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { Skeleton } from '@/design-system/components/Skeleton';
+import { Button } from '@/design-system/atoms';
+import { Card, CardContent, CardHeader } from '@/design-system/molecules';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import { Skeleton } from '@/design-system/atoms';
 import {
   Line,
   Bar,

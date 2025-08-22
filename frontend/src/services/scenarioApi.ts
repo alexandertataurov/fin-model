@@ -93,7 +93,12 @@ export interface MonteCarloSetup {
   scenario_id: number;
   parameters: Array<{
     parameter_id: number;
-    distribution_type: 'normal' | 'uniform' | 'triangular' | 'lognormal' | 'beta';
+    distribution_type:
+      | 'normal'
+      | 'uniform'
+      | 'triangular'
+      | 'lognormal'
+      | 'beta';
     distribution_params: Record<string, number>;
     correlation_matrix?: number[][];
   }>;
@@ -119,14 +124,17 @@ export interface MonteCarloSimulation {
 
 export interface MonteCarloResults {
   simulation_id: number;
-  summary_statistics: Record<string, {
-    mean: number;
-    median: number;
-    std_dev: number;
-    min: number;
-    max: number;
-    percentiles: Record<string, number>;
-  }>;
+  summary_statistics: Record<
+    string,
+    {
+      mean: number;
+      median: number;
+      std_dev: number;
+      min: number;
+      max: number;
+      percentiles: Record<string, number>;
+    }
+  >;
   scenario_outcomes: Array<{
     iteration: number;
     parameters: Record<string, number>;
@@ -141,11 +149,14 @@ export interface MonteCarloResults {
 
 export interface MonteCarloStatistics {
   simulation_id: number;
-  parameter_statistics: Record<string, {
-    distribution_fit: string;
-    goodness_of_fit: number;
-    outliers_count: number;
-  }>;
+  parameter_statistics: Record<
+    string,
+    {
+      distribution_fit: string;
+      goodness_of_fit: number;
+      outliers_count: number;
+    }
+  >;
   correlation_analysis: Record<string, Record<string, number>>;
   tail_analysis: {
     var_95: number;
@@ -200,7 +211,9 @@ export const scenarioApi = {
   /**
    * Simple scenario analysis (quick calculation)
    */
-  async analyzeScenario(data: SimpleAnalysisRequest): Promise<{ results: Record<string, any>; insights: string[] }> {
+  async analyzeScenario(
+    data: SimpleAnalysisRequest
+  ): Promise<{ results: Record<string, any>; insights: string[] }> {
     const response = await apiClient.post('/scenarios/analyze', data);
     return response.data;
   },
@@ -239,7 +252,10 @@ export const scenarioApi = {
   /**
    * Update scenario
    */
-  async updateScenario(id: number, data: Partial<ScenarioUpdateRequest>): Promise<Scenario> {
+  async updateScenario(
+    id: number,
+    data: Partial<ScenarioUpdateRequest>
+  ): Promise<Scenario> {
     const response = await apiClient.put(`/scenarios/${id}`, data);
     return response.data;
   },
@@ -256,7 +272,9 @@ export const scenarioApi = {
    * Clone scenario
    */
   async cloneScenario(id: number, newName?: string): Promise<Scenario> {
-    const response = await apiClient.post(`/scenarios/${id}/clone`, { name: newName });
+    const response = await apiClient.post(`/scenarios/${id}/clone`, {
+      name: newName,
+    });
     return response.data;
   },
 
@@ -271,19 +289,28 @@ export const scenarioApi = {
   /**
    * Update scenario parameter
    */
-  async updateScenarioParameter(scenarioId: number, paramId: number, data: {
-    value: any;
-    override_type?: 'absolute' | 'percentage' | 'formula';
-    notes?: string;
-  }): Promise<ScenarioParameter> {
-    const response = await apiClient.put(`/scenarios/${scenarioId}/parameters/${paramId}`, data);
+  async updateScenarioParameter(
+    scenarioId: number,
+    paramId: number,
+    data: {
+      value: any;
+      override_type?: 'absolute' | 'percentage' | 'formula';
+      notes?: string;
+    }
+  ): Promise<ScenarioParameter> {
+    const response = await apiClient.put(
+      `/scenarios/${scenarioId}/parameters/${paramId}`,
+      data
+    );
     return response.data;
   },
 
   /**
    * Calculate scenario
    */
-  async calculateScenario(id: number): Promise<{ calculation_id: string; status: string }> {
+  async calculateScenario(
+    id: number
+  ): Promise<{ calculation_id: string; status: string }> {
     const response = await apiClient.post(`/scenarios/${id}/calculate`);
     return response.data;
   },
@@ -292,7 +319,9 @@ export const scenarioApi = {
    * Compare multiple scenarios
    */
   async compareScenarios(scenarioIds: number[]): Promise<ScenarioComparison> {
-    const response = await apiClient.post('/scenarios/compare', { scenario_ids: scenarioIds });
+    const response = await apiClient.post('/scenarios/compare', {
+      scenario_ids: scenarioIds,
+    });
     return response.data;
   },
 
@@ -308,7 +337,9 @@ export const scenarioApi = {
    * Get sensitivity analysis
    */
   async getSensitivityAnalysis(id: number): Promise<SensitivityAnalysis> {
-    const response = await apiClient.get(`/scenarios/${id}/sensitivity-analysis`);
+    const response = await apiClient.get(
+      `/scenarios/${id}/sensitivity-analysis`
+    );
     return response.data;
   },
 
@@ -324,8 +355,14 @@ export const scenarioApi = {
   /**
    * Save scenario as template
    */
-  async saveAsTemplate(id: number, data: { name: string; description?: string; category: string }): Promise<ScenarioTemplate> {
-    const response = await apiClient.post(`/scenarios/${id}/save-as-template`, data);
+  async saveAsTemplate(
+    id: number,
+    data: { name: string; description?: string; category: string }
+  ): Promise<ScenarioTemplate> {
+    const response = await apiClient.post(
+      `/scenarios/${id}/save-as-template`,
+      data
+    );
     return response.data;
   },
 
@@ -333,15 +370,23 @@ export const scenarioApi = {
   /**
    * Setup Monte Carlo simulation
    */
-  async setupMonteCarloSimulation(id: number, setup: MonteCarloSetup): Promise<MonteCarloSimulation> {
-    const response = await apiClient.post(`/scenarios/${id}/monte-carlo/setup`, setup);
+  async setupMonteCarloSimulation(
+    id: number,
+    setup: MonteCarloSetup
+  ): Promise<MonteCarloSimulation> {
+    const response = await apiClient.post(
+      `/scenarios/${id}/monte-carlo/setup`,
+      setup
+    );
     return response.data;
   },
 
   /**
    * Run Monte Carlo simulation
    */
-  async runMonteCarloSimulation(id: number): Promise<{ simulation_id: number; status: string }> {
+  async runMonteCarloSimulation(
+    id: number
+  ): Promise<{ simulation_id: number; status: string }> {
     const response = await apiClient.post(`/scenarios/${id}/monte-carlo/run`);
     return response.data;
   },
@@ -350,15 +395,21 @@ export const scenarioApi = {
    * Get Monte Carlo results
    */
   async getMonteCarloResults(simulationId: number): Promise<MonteCarloResults> {
-    const response = await apiClient.get(`/scenarios/monte-carlo/${simulationId}/results`);
+    const response = await apiClient.get(
+      `/scenarios/monte-carlo/${simulationId}/results`
+    );
     return response.data;
   },
 
   /**
    * Get Monte Carlo statistics
    */
-  async getMonteCarloStatistics(simulationId: number): Promise<MonteCarloStatistics> {
-    const response = await apiClient.get(`/scenarios/monte-carlo/${simulationId}/statistics`);
+  async getMonteCarloStatistics(
+    simulationId: number
+  ): Promise<MonteCarloStatistics> {
+    const response = await apiClient.get(
+      `/scenarios/monte-carlo/${simulationId}/statistics`
+    );
     return response.data;
   },
 
@@ -366,7 +417,9 @@ export const scenarioApi = {
    * Calculate risk metrics
    */
   async calculateRiskMetrics(simulationId: number): Promise<RiskMetrics> {
-    const response = await apiClient.post(`/scenarios/monte-carlo/${simulationId}/risk-metrics`);
+    const response = await apiClient.post(
+      `/scenarios/monte-carlo/${simulationId}/risk-metrics`
+    );
     return response.data;
   },
 };
@@ -380,11 +433,11 @@ export const scenarioUtils = {
    */
   getScenarioTypeColor(type: string): string {
     const colors: Record<string, string> = {
-      'base': '#6B7280',
-      'stress': '#EF4444',
-      'optimistic': '#10B981',
-      'pessimistic': '#F59E0B',
-      'custom': '#8B5CF6',
+      base: '#6B7280',
+      stress: '#EF4444',
+      optimistic: '#10B981',
+      pessimistic: '#F59E0B',
+      custom: '#8B5CF6',
     };
     return colors[type] || '#9CA3AF';
   },
@@ -394,10 +447,10 @@ export const scenarioUtils = {
    */
   getStatusBadge(status: string): { color: string; icon: string } {
     const badges: Record<string, { color: string; icon: string }> = {
-      'draft': { color: '#6B7280', icon: '📝' },
-      'active': { color: '#3B82F6', icon: '🔄' },
-      'calculated': { color: '#10B981', icon: '✅' },
-      'archived': { color: '#9CA3AF', icon: '📦' },
+      draft: { color: '#6B7280', icon: '📝' },
+      active: { color: '#3B82F6', icon: '🔄' },
+      calculated: { color: '#10B981', icon: '✅' },
+      archived: { color: '#9CA3AF', icon: '📦' },
     };
     return badges[status] || { color: '#9CA3AF', icon: '❓' };
   },
@@ -417,57 +470,67 @@ export const scenarioUtils = {
     const values = scenarios
       .map(s => s.results?.financial_metrics[metricName])
       .filter(v => v !== undefined) as number[];
-    
+
     if (values.length < 2) return 0;
 
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-    
+    const variance =
+      values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      values.length;
+
     return Math.sqrt(variance);
   },
 
   /**
    * Get distribution parameters for Monte Carlo
    */
-  getDistributionParams(distributionType: string): Record<string, { label: string; type: 'number'; default?: number }> {
-    const params: Record<string, Record<string, { label: string; type: 'number'; default?: number }>> = {
-      'normal': {
-        'mean': { label: 'Mean', type: 'number', default: 0 },
-        'std': { label: 'Standard Deviation', type: 'number', default: 1 },
+  getDistributionParams(
+    distributionType: string
+  ): Record<string, { label: string; type: 'number'; default?: number }> {
+    const params: Record<
+      string,
+      Record<string, { label: string; type: 'number'; default?: number }>
+    > = {
+      normal: {
+        mean: { label: 'Mean', type: 'number', default: 0 },
+        std: { label: 'Standard Deviation', type: 'number', default: 1 },
       },
-      'uniform': {
-        'min': { label: 'Minimum', type: 'number', default: 0 },
-        'max': { label: 'Maximum', type: 'number', default: 1 },
+      uniform: {
+        min: { label: 'Minimum', type: 'number', default: 0 },
+        max: { label: 'Maximum', type: 'number', default: 1 },
       },
-      'triangular': {
-        'min': { label: 'Minimum', type: 'number', default: 0 },
-        'mode': { label: 'Mode', type: 'number', default: 0.5 },
-        'max': { label: 'Maximum', type: 'number', default: 1 },
+      triangular: {
+        min: { label: 'Minimum', type: 'number', default: 0 },
+        mode: { label: 'Mode', type: 'number', default: 0.5 },
+        max: { label: 'Maximum', type: 'number', default: 1 },
       },
-      'lognormal': {
-        'mu': { label: 'Mu (log scale)', type: 'number', default: 0 },
-        'sigma': { label: 'Sigma (log scale)', type: 'number', default: 1 },
+      lognormal: {
+        mu: { label: 'Mu (log scale)', type: 'number', default: 0 },
+        sigma: { label: 'Sigma (log scale)', type: 'number', default: 1 },
       },
-      'beta': {
-        'alpha': { label: 'Alpha', type: 'number', default: 1 },
-        'beta': { label: 'Beta', type: 'number', default: 1 },
+      beta: {
+        alpha: { label: 'Alpha', type: 'number', default: 1 },
+        beta: { label: 'Beta', type: 'number', default: 1 },
       },
     };
-    
+
     return params[distributionType] || {};
   },
 
   /**
    * Calculate confidence intervals
    */
-  calculateConfidenceInterval(data: number[], confidence: number): { lower: number; upper: number } {
+  calculateConfidenceInterval(
+    data: number[],
+    confidence: number
+  ): { lower: number; upper: number } {
     const sorted = [...data].sort((a, b) => a - b);
     const n = sorted.length;
     const alpha = 1 - confidence;
-    
+
     const lowerIndex = Math.floor((alpha / 2) * n);
     const upperIndex = Math.ceil((1 - alpha / 2) * n) - 1;
-    
+
     return {
       lower: sorted[lowerIndex],
       upper: sorted[upperIndex],
@@ -482,7 +545,10 @@ export const scenarioUtils = {
       case 'probability':
         return `${(value * 100).toFixed(2)}%`;
       case 'currency':
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        return value.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        });
       case 'percentage':
         return `${value.toFixed(2)}%`;
       case 'ratio':
@@ -495,7 +561,10 @@ export const scenarioUtils = {
   /**
    * Generate scenario insights
    */
-  generateScenarioInsights(scenario: Scenario, comparison?: ScenarioComparison): string[] {
+  generateScenarioInsights(
+    scenario: Scenario,
+    comparison?: ScenarioComparison
+  ): string[] {
     const insights: string[] = [];
 
     if (!scenario.results) {
@@ -507,11 +576,11 @@ export const scenarioUtils = {
     // Financial performance insights
     const revenue = results.financial_metrics['revenue'];
     const profit = results.financial_metrics['net_profit'];
-    
+
     if (revenue && profit) {
       const margin = (profit / revenue) * 100;
       insights.push(`Profit margin: ${margin.toFixed(2)}%`);
-      
+
       if (margin > 20) {
         insights.push('Strong profitability performance');
       } else if (margin < 5) {
@@ -523,7 +592,9 @@ export const scenarioUtils = {
     const riskScore = results.risk_metrics['risk_score'];
     if (riskScore) {
       if (riskScore > 0.8) {
-        insights.push('High risk scenario - implement risk mitigation strategies');
+        insights.push(
+          'High risk scenario - implement risk mitigation strategies'
+        );
       } else if (riskScore < 0.3) {
         insights.push('Low risk scenario - stable performance expected');
       }
@@ -531,20 +602,24 @@ export const scenarioUtils = {
 
     // Comparison insights
     if (comparison && comparison.scenarios.length > 1) {
-      const currentScenarioMetrics = comparison.comparison_metrics.find(m => 
-        m.values[scenario.id] !== undefined
+      const currentScenarioMetrics = comparison.comparison_metrics.find(
+        m => m.values[scenario.id] !== undefined
       );
-      
+
       if (currentScenarioMetrics) {
         const currentValue = currentScenarioMetrics.values[scenario.id];
         const allValues = Object.values(currentScenarioMetrics.values);
         const maxValue = Math.max(...allValues);
         const minValue = Math.min(...allValues);
-        
+
         if (currentValue === maxValue) {
-          insights.push(`Best performing scenario for ${currentScenarioMetrics.metric_name}`);
+          insights.push(
+            `Best performing scenario for ${currentScenarioMetrics.metric_name}`
+          );
         } else if (currentValue === minValue) {
-          insights.push(`Lowest performing scenario for ${currentScenarioMetrics.metric_name}`);
+          insights.push(
+            `Lowest performing scenario for ${currentScenarioMetrics.metric_name}`
+          );
         }
       }
     }

@@ -16,7 +16,14 @@ from app.models.user import User
 from app.schemas.user import AdminUserCreate, AdminUserUpdate
 from app.schemas.user import User as UserSchema
 from app.services.auth_service import AuthService
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    status,
+)
 from pydantic import BaseModel
 from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
@@ -39,12 +46,16 @@ class BulkUserActionRequest(BaseModel):
     action: str
 
 
-@router.get("/users/activity-list", response_model=List[UserActivityResponse])
+@router.get(
+    "/users/activity-list", response_model=List[UserActivityResponse]
+)
 async def get_user_activity(
     request: Request,
     limit: int = Query(50, ge=1, le=1000),
     active_only: bool = Query(False),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get user activity statistics."""
@@ -96,9 +107,15 @@ async def get_user_activity(
                 User.username,
                 User.last_login,
                 User.is_active,
-                func.coalesce(file_counts.c.files_uploaded, 0).label("files_uploaded"),
-                func.coalesce(model_counts.c.models_created, 0).label("models_created"),
-                func.coalesce(login_counts.c.login_count, 0).label("login_count"),
+                func.coalesce(file_counts.c.files_uploaded, 0).label(
+                    "files_uploaded"
+                ),
+                func.coalesce(model_counts.c.models_created, 0).label(
+                    "models_created"
+                ),
+                func.coalesce(login_counts.c.login_count, 0).label(
+                    "login_count"
+                ),
             )
             .outerjoin(file_counts, User.id == file_counts.c.user_id)
             .outerjoin(model_counts, User.id == model_counts.c.user_id)
@@ -108,7 +125,9 @@ async def get_user_activity(
         if active_only_bool:
             query = query.filter(User.is_active.is_(True))
 
-        results = query.order_by(desc(User.created_at)).limit(limit_val).all()
+        results = (
+            query.order_by(desc(User.created_at)).limit(limit_val).all()
+        )
 
         return [
             UserActivityResponse(
@@ -134,14 +153,26 @@ async def get_user_activity(
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    envelope: bool = Query(False, description="Return pagination envelope"),
-    is_active: Optional[bool] = Query(None, description="Filter by active"),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
+    is_active: Optional[bool] = Query(
+        None, description="Filter by active"
+    ),
     is_admin: Optional[bool] = Query(None, description="Filter by admin"),
-    is_verified: Optional[bool] = Query(None, description="Filter verified"),
+    is_verified: Optional[bool] = Query(
+        None, description="Filter verified"
+    ),
     search: Optional[str] = Query(None, description="Search users"),
-    created_after: Optional[datetime] = Query(None, description="Created after"),
-    created_before: Optional[datetime] = Query(None, description="Created before"),
-    current_user: User = Depends(require_permissions(Permission.USER_LIST)),
+    created_after: Optional[datetime] = Query(
+        None, description="Created after"
+    ),
+    created_before: Optional[datetime] = Query(
+        None, description="Created before"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_LIST)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """List all users with advanced filtering (Admin only)."""
@@ -170,13 +201,20 @@ def list_users(
                 | (User.full_name.ilike(search_term))
             )
         if created_after:
-            base_query = base_query.filter(User.created_at >= created_after)
+            base_query = base_query.filter(
+                User.created_at >= created_after
+            )
         if created_before:
-            base_query = base_query.filter(User.created_at <= created_before)
+            base_query = base_query.filter(
+                User.created_at <= created_before
+            )
 
         total = base_query.count()
         users = (
-            base_query.order_by(desc(User.created_at)).offset(skip).limit(limit).all()
+            base_query.order_by(desc(User.created_at))
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
 
         users_with_roles = []
@@ -201,7 +239,9 @@ def list_users(
 @router.get("/users/{user_id}", response_model=Any)
 def get_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get user by ID."""
@@ -220,10 +260,14 @@ def get_user(
     return user_dict
 
 
-@router.post("/users", response_model=Any, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/users", response_model=Any, status_code=status.HTTP_201_CREATED
+)
 def create_user(
     user_create: AdminUserCreate,
-    current_user: User = Depends(require_permissions(Permission.USER_CREATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_CREATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Create a new user (Admin only)."""
@@ -258,7 +302,9 @@ def create_user(
 def update_user(
     user_id: int,
     user_update: AdminUserUpdate,
-    current_user: User = Depends(require_permissions(Permission.USER_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Update user information."""
@@ -298,7 +344,9 @@ def update_user(
 @router.delete("/users/{user_id}")
 def delete_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_DELETE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_DELETE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Delete user (Admin only)."""
@@ -341,7 +389,9 @@ def delete_user(
 def assign_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_ASSIGN)),
+    current_user: User = Depends(
+        require_permissions(Permission.ROLE_ASSIGN)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Assign role to user."""
@@ -389,7 +439,9 @@ def assign_role(
 def remove_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_REMOVE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ROLE_REMOVE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Remove role from user."""
@@ -451,7 +503,9 @@ def remove_role(
 
 @router.get("/permissions")
 def get_user_permissions(
-    user_with_perms: UserWithPermissions = Depends(get_current_user_with_permissions),
+    user_with_perms: UserWithPermissions = Depends(
+        get_current_user_with_permissions
+    ),
 ) -> Any:
     """Get current user's permissions."""
     return {
@@ -466,7 +520,9 @@ def get_user_permissions(
 @router.post("/users/bulk-action", response_model=Dict[str, Any])
 async def bulk_user_action(
     request: BulkUserActionRequest,
-    current_user: User = Depends(require_permissions(Permission.ADMIN_WRITE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_WRITE)
+    ),
     db: Session = Depends(get_db),
 ):
     """Perform bulk actions on users."""
@@ -482,7 +538,9 @@ async def bulk_user_action(
                 detail="Invalid action",
             )
 
-        affected_users = db.query(User).filter(User.id.in_(request.user_ids)).all()
+        affected_users = (
+            db.query(User).filter(User.id.in_(request.user_ids)).all()
+        )
 
         if not affected_users:
             raise HTTPException(
@@ -499,7 +557,10 @@ async def bulk_user_action(
                 elif request.action == "deactivate":
                     if user.id == current_user.id:
                         results["failed"] += 1
-                        msg = "Cannot deactivate your own account " f"(user {user.id})"
+                        msg = (
+                            "Cannot deactivate your own account "
+                            f"(user {user.id})"
+                        )
                         results["errors"].append(msg)
                         continue
                     user.is_active = False

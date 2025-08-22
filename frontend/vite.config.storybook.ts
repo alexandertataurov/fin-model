@@ -9,6 +9,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
       '@/design-system': resolve(__dirname, './src/design-system'),
       '@design-system': resolve(__dirname, './src/design-system'),
+      '@stories': resolve(__dirname, './src/design-system/stories'),
       '@/components': resolve(__dirname, './src/components'),
       '@components': resolve(__dirname, './src/components'),
     },

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
+import { Card, CardHeader, CardContent } from '@/design-system/molecules';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Badge } from '@/design-system/components/Badge';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
+import { Badge } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
 import {
   CheckCircle,
   AlertTriangle,
@@ -34,10 +34,6 @@ const MetricDisplay: React.FC<MetricDisplayProps> = ({
   trend,
   category,
 }) => {
-
-
-
-
   const getTrendIcon = () => {
     if (!trend && !change) return <Minus className="text-gray-400" size={16} />;
 
@@ -100,8 +96,6 @@ const BalanceValidation: React.FC<BalanceValidationProps> = ({
   assets,
   liabilitiesEquity,
 }) => {
-
-
   const difference = assets - liabilitiesEquity;
   const isBalanced = Math.abs(difference) < 1000; // Tolerance of $1,000
 

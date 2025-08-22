@@ -51,7 +51,9 @@ def test_window_reset_allows_again():
         rl.check_rate_limit(req, "login", max_attempts=1, window_minutes=0)
         # Simulate old window by moving window_start back
         rec = db.query(RateLimit).first()
-        rec.window_start = datetime.now(timezone.utc) - timedelta(minutes=20)
+        rec.window_start = datetime.now(timezone.utc) - timedelta(
+            minutes=20
+        )
         db.commit()
         # After window reset, one attempt should be allowed
         assert rl.check_rate_limit(req, "login", max_attempts=1) is True

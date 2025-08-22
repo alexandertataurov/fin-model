@@ -68,7 +68,10 @@ from .financial import (  # noqa: E402
 )
 from .maintenance import MaintenanceSchedule  # noqa: E402
 from .mfa import MFAToken  # noqa: E402
-from .notification import Notification, NotificationPreferences  # noqa: E402
+from .notification import (
+    Notification,
+    NotificationPreferences,
+)  # noqa: E402
 from .parameter import (  # noqa: E402
     CalculationAudit,
     FormulaNode,

@@ -6,19 +6,24 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/design-system/components/Select';
-import { Badge } from '@/design-system/components/Badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+} from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
 import {
   Dialog,
   DialogContent,
@@ -27,11 +32,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/design-system/components/Dialog';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+} from '@/design-system/molecules';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import { ConfirmDialog } from '@/design-system/molecules';
 
-import { ScrollArea } from '@/design-system/components/ScrollArea';
+import { ScrollArea } from '@/design-system/molecules';
 import {
   Copy,
   Trash2,
@@ -76,7 +81,9 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
   const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
   const [scenarioToClone, setScenarioToClone] = useState<Scenario | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [scenarioToDelete, setScenarioToDelete] = useState<Scenario | null>(null);
+  const [scenarioToDelete, setScenarioToDelete] = useState<Scenario | null>(
+    null
+  );
 
   // Form states
   const [newScenario, setNewScenario] = useState({

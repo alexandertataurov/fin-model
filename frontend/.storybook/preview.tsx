@@ -1,11 +1,11 @@
 import type { Preview } from '@storybook/react';
 import React from 'react';
-import { DesignSystemProvider } from '../src/design-system';
+import { DesignSystemProvider } from '../src/design-system/utils/provider';
 import { withThemeByClassName } from '@storybook/addon-themes';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 
 // Import design system tokens and base styles
-import '../src/design-system/tokens.css';
+import '../src/design-system/styles/tokens.css';
 import '../src/index.css';
 
 // Initialize MSW once
@@ -160,6 +160,17 @@ const preview: Preview = {
         </div>
       </DesignSystemProvider>
     ),
+    (Story, context) => {
+      const title = (context as any).title as string | undefined;
+      const isAtoms = typeof title === 'string' && (title.startsWith('Atoms/') || title.includes('/Atoms/'));
+      const isMolecules = typeof title === 'string' && (title.startsWith('Molecules/') || title.includes('/Molecules/'));
+      if (!isAtoms && !isMolecules) return <Story />;
+      return (
+        <div className="p-6 rounded-md border border-border bg-background text-foreground shadow-sm">
+          <Story />
+        </div>
+      );
+    },
   ],
   loaders: [mswLoader],
   globalTypes: {

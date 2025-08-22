@@ -1,19 +1,23 @@
 /**
  * Custom hooks for dashboard data fetching
- * 
+ *
  * Provides consistent data fetching patterns with error handling and caching
  */
 
-import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import {
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import { DashboardApiService } from '../services/dashboardApi';
-import { 
-  CashFlowDashboardData, 
-  PLDashboardData, 
+import {
+  CashFlowDashboardData,
+  PLDashboardData,
   DashboardData,
   DashboardPeriod,
   DashboardError,
   BalanceSheetDashboardData,
-  FinancialRatio 
+  FinancialRatio,
 } from '../types/dashboard';
 import DashboardCacheManager from '../utils/dashboardCache';
 
@@ -39,18 +43,21 @@ export const useCashFlowDashboard = (
   options: DashboardQueryOptions = {}
 ): UseQueryResult<CashFlowDashboardData, DashboardError> => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  
+
   return useQuery({
     queryKey: DashboardCacheManager.getCacheKey('CASH_FLOW', period, fileId),
     queryFn: async () => {
       try {
-        const data = await DashboardApiService.getCashFlowMetrics(period, fileId);
+        const data = await DashboardApiService.getCashFlowMetrics(
+          period,
+          fileId
+        );
         // Optimize chart data for better performance
         if (data.charts) {
           Object.keys(data.charts).forEach(chartKey => {
-            data.charts[chartKey as keyof typeof data.charts] = 
+            data.charts[chartKey as keyof typeof data.charts] =
               DashboardCacheManager.optimizeChartData(
-                data.charts[chartKey as keyof typeof data.charts], 
+                data.charts[chartKey as keyof typeof data.charts],
                 100
               );
           });
@@ -58,9 +65,11 @@ export const useCashFlowDashboard = (
         return data;
       } catch (error: any) {
         const dashboardError: DashboardError = {
-          message: error.response?.data?.message || 'Failed to fetch cash flow dashboard data',
+          message:
+            error.response?.data?.message ||
+            'Failed to fetch cash flow dashboard data',
           code: error.response?.status?.toString(),
-          details: error.response?.data
+          details: error.response?.data,
         };
         throw dashboardError;
       }
@@ -78,7 +87,7 @@ export const usePLDashboard = (
   options: DashboardQueryOptions = {}
 ): UseQueryResult<PLDashboardData, DashboardError> => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  
+
   return useQuery({
     queryKey: DashboardCacheManager.getCacheKey('PL', period, fileId),
     queryFn: async () => {
@@ -87,9 +96,9 @@ export const usePLDashboard = (
         // Optimize chart data for better performance
         if (data.charts) {
           Object.keys(data.charts).forEach(chartKey => {
-            data.charts[chartKey as keyof typeof data.charts] = 
+            data.charts[chartKey as keyof typeof data.charts] =
               DashboardCacheManager.optimizeChartData(
-                data.charts[chartKey as keyof typeof data.charts], 
+                data.charts[chartKey as keyof typeof data.charts],
                 100
               );
           });
@@ -97,9 +106,11 @@ export const usePLDashboard = (
         return data;
       } catch (error: any) {
         const dashboardError: DashboardError = {
-          message: error.response?.data?.message || 'Failed to fetch P&L dashboard data',
+          message:
+            error.response?.data?.message ||
+            'Failed to fetch P&L dashboard data',
           code: error.response?.status?.toString(),
-          details: error.response?.data
+          details: error.response?.data,
         };
         throw dashboardError;
       }
@@ -117,7 +128,7 @@ export const useRatioMetrics = (
   options: DashboardQueryOptions = {}
 ): UseQueryResult<DashboardData, DashboardError> => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  
+
   return useQuery({
     queryKey: ['ratio-metrics', period, fileId],
     queryFn: async () => {
@@ -125,9 +136,10 @@ export const useRatioMetrics = (
         return await DashboardApiService.getRatioMetrics(period, fileId);
       } catch (error: any) {
         const dashboardError: DashboardError = {
-          message: error.response?.data?.message || 'Failed to fetch ratio metrics',
+          message:
+            error.response?.data?.message || 'Failed to fetch ratio metrics',
           code: error.response?.status?.toString(),
-          details: error.response?.data
+          details: error.response?.data,
         };
         throw dashboardError;
       }
@@ -145,18 +157,25 @@ export const useBalanceSheetDashboard = (
   options: DashboardQueryOptions = {}
 ): UseQueryResult<BalanceSheetDashboardData, DashboardError> => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  
+
   return useQuery({
-    queryKey: DashboardCacheManager.getCacheKey('BALANCE_SHEET', period, fileId),
+    queryKey: DashboardCacheManager.getCacheKey(
+      'BALANCE_SHEET',
+      period,
+      fileId
+    ),
     queryFn: async () => {
       try {
-        const data = await DashboardApiService.getBalanceSheetMetrics(period, fileId);
+        const data = await DashboardApiService.getBalanceSheetMetrics(
+          period,
+          fileId
+        );
         // Optimize chart data for better performance
         if (data.charts) {
           Object.keys(data.charts).forEach(chartKey => {
-            data.charts[chartKey as keyof typeof data.charts] = 
+            data.charts[chartKey as keyof typeof data.charts] =
               DashboardCacheManager.optimizeChartData(
-                data.charts[chartKey as keyof typeof data.charts], 
+                data.charts[chartKey as keyof typeof data.charts],
                 100
               );
           });
@@ -164,9 +183,11 @@ export const useBalanceSheetDashboard = (
         return data;
       } catch (error: any) {
         const dashboardError: DashboardError = {
-          message: error.response?.data?.message || 'Failed to fetch balance sheet dashboard data',
+          message:
+            error.response?.data?.message ||
+            'Failed to fetch balance sheet dashboard data',
           code: error.response?.status?.toString(),
-          details: error.response?.data
+          details: error.response?.data,
         };
         throw dashboardError;
       }
@@ -185,17 +206,22 @@ export const useFinancialRatios = (
   options: DashboardQueryOptions = {}
 ): UseQueryResult<FinancialRatio[], DashboardError> => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  
+
   return useQuery({
     queryKey: ['financial-ratios', period, category, fileId],
     queryFn: async () => {
       try {
-        return await DashboardApiService.getFinancialRatios(period, category, fileId);
+        return await DashboardApiService.getFinancialRatios(
+          period,
+          category,
+          fileId
+        );
       } catch (error: any) {
         const dashboardError: DashboardError = {
-          message: error.response?.data?.message || 'Failed to fetch financial ratios',
+          message:
+            error.response?.data?.message || 'Failed to fetch financial ratios',
           code: error.response?.status?.toString(),
-          details: error.response?.data
+          details: error.response?.data,
         };
         throw dashboardError;
       }
@@ -210,7 +236,9 @@ export const useFinancialRatios = (
 export const useDashboardRefresh = () => {
   const queryClient = useQueryClient();
 
-  const refreshDashboard = async (dashboardType?: 'cash-flow' | 'pl' | 'balance-sheet' | 'all') => {
+  const refreshDashboard = async (
+    dashboardType?: 'cash-flow' | 'pl' | 'balance-sheet' | 'all'
+  ) => {
     if (dashboardType === 'cash-flow') {
       await DashboardCacheManager.invalidateCache(queryClient, 'CASH_FLOW');
     } else if (dashboardType === 'pl') {
@@ -269,7 +297,10 @@ export const useDashboardPrefetch = () => {
     );
   };
 
-  const prefetchBalanceSheet = async (period: DashboardPeriod, fileId?: number) => {
+  const prefetchBalanceSheet = async (
+    period: DashboardPeriod,
+    fileId?: number
+  ) => {
     await DashboardCacheManager.prefetchDashboard(
       queryClient,
       'BALANCE_SHEET',
@@ -279,11 +310,24 @@ export const useDashboardPrefetch = () => {
     );
   };
 
-  const getCachedData = <T>(type: 'CASH_FLOW' | 'PL' | 'BALANCE_SHEET', period: DashboardPeriod, fileId?: number): T | undefined => {
-    return DashboardCacheManager.getCachedData<T>(queryClient, type, period, fileId);
+  const getCachedData = <T>(
+    type: 'CASH_FLOW' | 'PL' | 'BALANCE_SHEET',
+    period: DashboardPeriod,
+    fileId?: number
+  ): T | undefined => {
+    return DashboardCacheManager.getCachedData<T>(
+      queryClient,
+      type,
+      period,
+      fileId
+    );
   };
 
-  const isDataStale = (type: 'CASH_FLOW' | 'PL' | 'BALANCE_SHEET', period: DashboardPeriod, fileId?: number): boolean => {
+  const isDataStale = (
+    type: 'CASH_FLOW' | 'PL' | 'BALANCE_SHEET',
+    period: DashboardPeriod,
+    fileId?: number
+  ): boolean => {
     return DashboardCacheManager.isDataStale(queryClient, type, period, fileId);
   };
 

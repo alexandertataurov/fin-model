@@ -1,87 +1,36 @@
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card'
-import { Button } from '@/design-system/components/Button'
-import { GripVertical, Maximize2, Minimize2, X } from 'lucide-react'
+import React from 'react';
 
 interface DraggableWidgetProps {
-  title: string
-  children: React.ReactNode
-  id: string
-  onRemove?: (id: string) => void
-  className?: string
+  id: string;
+  title?: string;
+  onRemove?: (id: string) => void;
+  children?: React.ReactNode;
+  className?: string;
 }
 
-export function DraggableWidget({
-  title,
-  children,
+export const DraggableWidget: React.FC<DraggableWidgetProps> = ({
   id,
+  title,
   onRemove,
-  className = ""
-}: DraggableWidgetProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [isDragging, setIsDragging] = useState(false)
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target instanceof HTMLElement && e.target.closest('.widget-controls')) {
-      return
-    }
-    // Simplified drag handling for now - just show visual feedback
-    setIsDragging(true)
-  }
-
-  const handleMouseMove = (_e: React.MouseEvent) => {
-    // Simplified - just maintain visual state
-  }
-
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
+  children,
+  className = '',
+}) => {
   return (
-    <Card
-      className={`group transition-all duration-200 ${
-        isDragging ? 'shadow-lg scale-105' : 'hover:shadow-md'
-      } ${isExpanded ? 'col-span-2 row-span-2' : ''} ${className}`}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-            {title}
-          </CardTitle>
-          <div className="widget-controls flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="h-6 w-6 p-0"
+    <div className={`relative ${className}`}>
+      {title && (
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium">{title}</h3>
+          {onRemove && (
+            <button
+              onClick={() => onRemove(id)}
+              className="text-muted-foreground hover:text-foreground"
             >
-              {isExpanded ? (
-                <Minimize2 className="h-3 w-3" />
-              ) : (
-                <Maximize2 className="h-3 w-3" />
-              )}
-            </Button>
-            {onRemove && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemove(id)}
-                className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
+              ×
+            </button>
+          )}
         </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        {children}
-      </CardContent>
-    </Card>
-  )
-}
+      )}
+      {children}
+    </div>
+  );
+};

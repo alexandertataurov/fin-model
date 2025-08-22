@@ -38,8 +38,12 @@ def calculate_comprehensive_model_task(
     if not is_valid:
         return {"success": False, "errors": errors}
 
-    core_parameters = param_manager.create_core_parameters_from_dict(parameters)
-    result = engine.calculate_comprehensive_model(core_parameters, base_revenue)
+    core_parameters = param_manager.create_core_parameters_from_dict(
+        parameters
+    )
+    result = engine.calculate_comprehensive_model(
+        core_parameters, base_revenue
+    )
 
     return {
         "success": True,

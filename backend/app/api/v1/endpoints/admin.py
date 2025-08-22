@@ -28,8 +28,19 @@ from app.services.file_service import FileService
 from app.services.maintenance_service import MaintenanceService
 from app.services.system_log_service import SystemLogService
 from app.services import rate_limit_service
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    status,
+)
+from fastapi.responses import (
+    JSONResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from pydantic import BaseModel
 from app.schemas.admin import (
     SystemStatsResponse,
@@ -70,12 +81,16 @@ class UserPermissionsResponse(BaseModel):
     is_analyst: bool
 
 
-@router.get("/users/activity-list", response_model=List[UserActivityResponse])
+@router.get(
+    "/users/activity-list", response_model=List[UserActivityResponse]
+)
 async def get_user_activity(
     request: Request,
     limit: int = Query(50, ge=1, le=1000),
     active_only: bool = Query(False),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get user activity statistics.
@@ -130,9 +145,15 @@ async def get_user_activity(
                 User.username,
                 User.last_login,
                 User.is_active,
-                func.coalesce(file_counts.c.files_uploaded, 0).label("files_uploaded"),
-                func.coalesce(model_counts.c.models_created, 0).label("models_created"),
-                func.coalesce(login_counts.c.login_count, 0).label("login_count"),
+                func.coalesce(file_counts.c.files_uploaded, 0).label(
+                    "files_uploaded"
+                ),
+                func.coalesce(model_counts.c.models_created, 0).label(
+                    "models_created"
+                ),
+                func.coalesce(login_counts.c.login_count, 0).label(
+                    "login_count"
+                ),
             )
             .outerjoin(file_counts, User.id == file_counts.c.user_id)
             .outerjoin(model_counts, User.id == model_counts.c.user_id)
@@ -142,7 +163,9 @@ async def get_user_activity(
         if active_only_bool:
             query = query.filter(User.is_active.is_(True))
 
-        results = query.order_by(desc(User.created_at)).limit(limit_val).all()
+        results = (
+            query.order_by(desc(User.created_at)).limit(limit_val).all()
+        )
 
         return [
             UserActivityResponse(
@@ -171,14 +194,26 @@ async def get_user_activity(
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    envelope: bool = Query(False, description="Return pagination envelope"),
-    is_active: Optional[bool] = Query(None, description="Filter by active"),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
+    is_active: Optional[bool] = Query(
+        None, description="Filter by active"
+    ),
     is_admin: Optional[bool] = Query(None, description="Filter by admin"),
-    is_verified: Optional[bool] = Query(None, description="Filter verified"),
+    is_verified: Optional[bool] = Query(
+        None, description="Filter verified"
+    ),
     search: Optional[str] = Query(None, description="Search users"),
-    created_after: Optional[datetime] = Query(None, description="Created after"),
-    created_before: Optional[datetime] = Query(None, description="Created before"),
-    current_user: User = Depends(require_permissions(Permission.USER_LIST)),
+    created_after: Optional[datetime] = Query(
+        None, description="Created after"
+    ),
+    created_before: Optional[datetime] = Query(
+        None, description="Created before"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_LIST)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """List all users with advanced filtering (Admin only)."""
@@ -216,17 +251,24 @@ def list_users(
             )
 
         if created_after:
-            base_query = base_query.filter(User.created_at >= created_after)
+            base_query = base_query.filter(
+                User.created_at >= created_after
+            )
 
         if created_before:
-            base_query = base_query.filter(User.created_at <= created_before)
+            base_query = base_query.filter(
+                User.created_at <= created_before
+            )
 
         # Get total count before pagination
         total = base_query.count()
 
         # Apply pagination and ordering
         users = (
-            base_query.order_by(desc(User.created_at)).offset(skip).limit(limit).all()
+            base_query.order_by(desc(User.created_at))
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
 
         # Add roles to each user
@@ -234,7 +276,9 @@ def list_users(
         for user in users:
             user_roles = auth_service.get_user_roles(user.id)
             user_dict = UserSchema.model_validate(user).model_dump()
-            users_with_roles.append(UserWithRoles(**user_dict, roles=user_roles))
+            users_with_roles.append(
+                UserWithRoles(**user_dict, roles=user_roles)
+            )
 
         # Return paginated response
         return create_pagination_response(
@@ -252,7 +296,9 @@ def list_users(
 @router.get("/users/{user_id}", response_model=UserWithRoles)
 def get_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_READ)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get user by ID."""
@@ -277,7 +323,9 @@ def get_user(
 )
 def create_user(
     user_create: AdminUserCreate,
-    current_user: User = Depends(require_permissions(Permission.USER_CREATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_CREATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Create a new user (Admin only)."""
@@ -306,7 +354,9 @@ def create_user(
 def update_user(
     user_id: int,
     user_update: AdminUserUpdate,
-    current_user: User = Depends(require_permissions(Permission.USER_UPDATE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_UPDATE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Update user information."""
@@ -342,7 +392,9 @@ def update_user(
 @router.delete("/users/{user_id}", response_model=Dict[str, str])
 def delete_user(
     user_id: int,
-    current_user: User = Depends(require_permissions(Permission.USER_DELETE)),
+    current_user: User = Depends(
+        require_permissions(Permission.USER_DELETE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Delete user (Admin only)."""
@@ -378,11 +430,15 @@ def delete_user(
     return {"message": "User deactivated successfully"}
 
 
-@router.post("/users/{user_id}/roles/{role}", response_model=Dict[str, str])
+@router.post(
+    "/users/{user_id}/roles/{role}", response_model=Dict[str, str]
+)
 def assign_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_ASSIGN)),
+    current_user: User = Depends(
+        require_permissions(Permission.ROLE_ASSIGN)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Assign role to user."""
@@ -423,11 +479,15 @@ def assign_role(
     return {"message": f"Role {role.value} assigned successfully"}
 
 
-@router.delete("/users/{user_id}/roles/{role}", response_model=Dict[str, str])
+@router.delete(
+    "/users/{user_id}/roles/{role}", response_model=Dict[str, str]
+)
 def remove_role(
     user_id: int,
     role: RoleType,
-    current_user: User = Depends(require_permissions(Permission.ROLE_REMOVE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ROLE_REMOVE)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Remove role from user."""
@@ -488,14 +548,28 @@ def get_audit_logs(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     user_id: Optional[int] = Query(None, description="Filter by user ID"),
-    action: Optional[str] = Query(None, description="Filter by action type"),
-    resource: Optional[str] = Query(None, description="Filter by resource type"),
-    success: Optional[bool] = Query(None, description="Filter by success status"),
-    search: Optional[str] = Query(None, description="Search in details/message"),
-    from_ts: Optional[datetime] = Query(None, description="Start date filter"),
+    action: Optional[str] = Query(
+        None, description="Filter by action type"
+    ),
+    resource: Optional[str] = Query(
+        None, description="Filter by resource type"
+    ),
+    success: Optional[bool] = Query(
+        None, description="Filter by success status"
+    ),
+    search: Optional[str] = Query(
+        None, description="Search in details/message"
+    ),
+    from_ts: Optional[datetime] = Query(
+        None, description="Start date filter"
+    ),
     to_ts: Optional[datetime] = Query(None, description="End date filter"),
-    envelope: bool = Query(False, description="Return pagination envelope"),
-    current_user: User = Depends(require_permissions(Permission.AUDIT_LOGS)),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.AUDIT_LOGS)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get audit logs with advanced filtering (Admin only)."""
@@ -540,7 +614,12 @@ def get_audit_logs(
 
         # Get total count and apply pagination
         total = query.count()
-        rows = query.order_by(desc(AuditLog.created_at)).offset(skip).limit(limit).all()
+        rows = (
+            query.order_by(desc(AuditLog.created_at))
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
         # Format audit log entries
         items = []
@@ -566,11 +645,20 @@ def get_audit_logs(
         # Return paginated response
         if envelope:
             return create_pagination_response(
-                items=items, total=total, skip=skip, limit=limit, envelope=True
+                items=items,
+                total=total,
+                skip=skip,
+                limit=limit,
+                envelope=True,
             )
         else:
             # Maintain backward compatibility
-            return {"logs": items, "skip": skip, "limit": limit, "total": total}
+            return {
+                "logs": items,
+                "skip": skip,
+                "limit": limit,
+                "total": total,
+            }
 
     except Exception as e:
         raise handle_admin_error(e, "get audit logs", current_user.id)
@@ -578,7 +666,9 @@ def get_audit_logs(
 
 @router.get("/system/health", response_model=Dict[str, Any])
 def system_health(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get system health information."""
@@ -587,7 +677,9 @@ def system_health(
     # Get basic statistics
     total_users = db.query(User).count()
     active_users = db.query(User).filter(User.is_active.is_(True)).count()
-    verified_users = db.query(User).filter(User.is_verified.is_(True)).count()
+    verified_users = (
+        db.query(User).filter(User.is_verified.is_(True)).count()
+    )
 
     # Note: Audit logging removed in lean version
     recent_failed_logins = 0
@@ -610,7 +702,9 @@ def system_health(
 
 @router.get("/permissions", response_model=UserPermissionsResponse)
 def get_user_permissions(
-    user_with_perms: UserWithPermissions = Depends(get_current_user_with_permissions),
+    user_with_perms: UserWithPermissions = Depends(
+        get_current_user_with_permissions
+    ),
 ) -> UserPermissionsResponse:
     """Get current user's permissions."""
     return UserPermissionsResponse(
@@ -625,7 +719,9 @@ def get_user_permissions(
 @router.get("/database/health", response_model=Dict[str, Any])
 @router.get("/maintenance/schedules", response_model=MaintenanceSchedules)
 async def get_maintenance_schedules(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     try:
@@ -645,23 +741,30 @@ async def get_maintenance_schedules(
     except Exception as e:
         logger.error(f"Failed to get maintenance schedules: {e}")
         raise HTTPException(
-            status_code=500, detail="Failed to retrieve maintenance schedules"
+            status_code=500,
+            detail="Failed to retrieve maintenance schedules",
         )
 
 
 @router.put("/maintenance/schedules", response_model=MaintenanceSchedules)
 async def update_maintenance_schedules(
     schedules: MaintenanceSchedules,
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ):
     # Simple validation
     for item in schedules.items:
         allowed = {"cleanup", "vacuum", "archive", "reindex", "backup"}
         if item.task not in allowed:
-            raise HTTPException(status_code=400, detail=f"Invalid task: {item.task}")
+            raise HTTPException(
+                status_code=400, detail=f"Invalid task: {item.task}"
+            )
         if not item.schedule:
-            raise HTTPException(status_code=400, detail="Schedule required")
+            raise HTTPException(
+                status_code=400, detail="Schedule required"
+            )
     # Upsert schedules
     existing = {r.id: r for r in db.query(MaintenanceSchedule).all()}
     for item in schedules.items:
@@ -686,13 +789,17 @@ async def update_maintenance_schedules(
         if row.id not in keep_ids:
             db.delete(row)
     db.commit()
-    return await get_maintenance_schedules(current_user=current_user, db=db)
+    return await get_maintenance_schedules(
+        current_user=current_user, db=db
+    )
 
 
 @router.get("/maintenance/tasks/{task_id}", response_model=Dict[str, Any])
 async def get_maintenance_task_status(
     task_id: str,
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
 ):
     """Get the status of a maintenance task."""
     from app.tasks.maintenance import get_task_status
@@ -709,7 +816,9 @@ async def get_maintenance_task_status(
 
 @router.post("/rate-limits/clear", response_model=Dict[str, Any])
 def clear_rate_limits(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """Clear all rate limiting records to restore access."""
@@ -719,7 +828,9 @@ def clear_rate_limits(
 @router.get("/reports/overview", response_model=Dict[str, Any])
 async def get_admin_overview_report(
     format: str = Query("json", pattern="^(json|csv)$"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Generate an admin overview report in JSON or CSV.
@@ -729,8 +840,12 @@ async def get_admin_overview_report(
     try:
         # Users
         total_users = db.query(User).count()
-        active_users = db.query(User).filter(User.is_active.is_(True)).count()
-        verified_users = db.query(User).filter(User.is_verified.is_(True)).count()
+        active_users = (
+            db.query(User).filter(User.is_active.is_(True)).count()
+        )
+        verified_users = (
+            db.query(User).filter(User.is_verified.is_(True)).count()
+        )
 
         # Files
         total_files = db.query(UploadedFile).count()
@@ -781,7 +896,9 @@ async def get_admin_overview_report(
             content=csv_text,
             media_type="text/csv",
             headers={
-                "Content-Disposition": ("attachment; filename=admin_overview.csv")
+                "Content-Disposition": (
+                    "attachment; filename=admin_overview.csv"
+                )
             },
         )
 
@@ -794,7 +911,9 @@ async def get_admin_overview_report(
 
 @router.get("/stats", response_model=SystemStatsResponse)
 async def get_system_statistics(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get comprehensive system statistics."""
@@ -811,11 +930,16 @@ async def get_system_statistics(
             lambda: db.query(User).filter(User.is_active.is_(True)).count()
         )
         verified_users = safe_count(
-            lambda: db.query(User).filter(User.is_verified.is_(True)).count()
+            lambda: db.query(User)
+            .filter(User.is_verified.is_(True))
+            .count()
         )
         new_users_24h = safe_count(
             lambda: db.query(User)
-            .filter(User.created_at >= datetime.now(timezone.utc) - timedelta(hours=24))
+            .filter(
+                User.created_at
+                >= datetime.now(timezone.utc) - timedelta(hours=24)
+            )
             .count()
         )
 
@@ -838,13 +962,16 @@ async def get_system_statistics(
         )
 
         # Financial data statistics
-        total_statements = safe_count(lambda: db.query(FinancialStatement).count())
+        total_statements = safe_count(
+            lambda: db.query(FinancialStatement).count()
+        )
         total_parameters = safe_count(lambda: db.query(Parameter).count())
 
         # Database size info
         try:
             db_size_query = (
-                "SELECT pg_size_pretty(" "pg_database_size(current_database()))"
+                "SELECT pg_size_pretty("
+                "pg_database_size(current_database()))"
             )
             db_size_result = db.execute(text(db_size_query)).scalar()
             db_size = db_size_result if db_size_result else "Unknown"
@@ -877,7 +1004,9 @@ async def get_system_statistics(
                 "timestamp": datetime.now(timezone.utc),
             },
             performance={
-                "avg_file_size_mb": round((avg_file_size or 0) / (1024 * 1024), 2)
+                "avg_file_size_mb": round(
+                    (avg_file_size or 0) / (1024 * 1024), 2
+                )
             },
         )
 
@@ -902,7 +1031,9 @@ async def get_system_statistics(
 
 @router.get("/system/metrics", response_model=SystemMetricsResponse)
 async def get_system_metrics(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get real-time system performance metrics."""
@@ -919,9 +1050,12 @@ async def get_system_metrics(
         # Database connections (simplified)
         try:
             active_sql = (
-                "SELECT count(*) FROM pg_stat_activity " "WHERE state = 'active'"
+                "SELECT count(*) FROM pg_stat_activity "
+                "WHERE state = 'active'"
             )
-            active_connections_result = db.execute(text(active_sql)).scalar()
+            active_connections_result = db.execute(
+                text(active_sql)
+            ).scalar()
             active_connections = int(active_connections_result or 0)
         except Exception:
             active_connections = 0
@@ -929,13 +1063,16 @@ async def get_system_metrics(
         # Calculate real metrics from audit logs (last 24 hours)
         from datetime import datetime, timedelta, timezone
 
-        twenty_four_hours_ago = datetime.now(timezone.utc) - timedelta(hours=24)
+        twenty_four_hours_ago = datetime.now(timezone.utc) - timedelta(
+            hours=24
+        )
 
         # Count successful requests (logins, etc.) in last 24h
         request_count_24h = (
             db.query(AuditLog)
             .filter(
-                AuditLog.created_at >= twenty_four_hours_ago, AuditLog.success == "true"
+                AuditLog.created_at >= twenty_four_hours_ago,
+                AuditLog.success == "true",
             )
             .count()
         )
@@ -957,7 +1094,9 @@ async def get_system_metrics(
         )
 
         error_rate_24h = (
-            (failed_requests / total_requests * 100) if total_requests > 0 else 0.0
+            (failed_requests / total_requests * 100)
+            if total_requests > 0
+            else 0.0
         )
 
         # Estimate avg response time (simplified - could be)
@@ -994,7 +1133,9 @@ async def get_system_metrics(
 
 @router.get("/data/integrity", response_model=List[DataIntegrityResponse])
 async def check_data_integrity(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Check data integrity across all tables."""
@@ -1014,8 +1155,12 @@ async def check_data_integrity(
         user_issues = []
         user_recommendations = []
         if orphaned_files > 0:
-            user_issues.append(f"{orphaned_files} files with invalid user references")
-            user_recommendations.append("Run cleanup to remove orphaned file records")
+            user_issues.append(
+                f"{orphaned_files} files with invalid user references"
+            )
+            user_recommendations.append(
+                "Run cleanup to remove orphaned file records"
+            )
 
         integrity_checks.append(
             DataIntegrityResponse(
@@ -1111,7 +1256,9 @@ async def check_data_integrity(
 async def get_security_audit(
     from_ts: Optional[datetime] = Query(None),
     to_ts: Optional[datetime] = Query(None),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get security audit information."""
@@ -1120,7 +1267,9 @@ async def get_security_audit(
 
         # Check for rate limit violations (last 24h)
         start_time = (
-            from_ts if from_ts else datetime.now(timezone.utc) - timedelta(hours=24)
+            from_ts
+            if from_ts
+            else datetime.now(timezone.utc) - timedelta(hours=24)
         )
         end_time = to_ts if to_ts else datetime.now(timezone.utc)
         rate_limit_violations = (
@@ -1146,7 +1295,10 @@ async def get_security_audit(
 
         # Find users with multiple failed login attempts
         failed_login_users = (
-            db.query(AuditLog.user_id, func.count(AuditLog.id).label("fail_count"))
+            db.query(
+                AuditLog.user_id,
+                func.count(AuditLog.id).label("fail_count"),
+            )
             .filter(
                 AuditLog.action == "FAILED_LOGIN",
                 AuditLog.created_at >= start_time,
@@ -1175,7 +1327,9 @@ async def get_security_audit(
         suspicious_ips = (
             db.query(
                 AuditLog.ip_address,
-                func.count(func.distinct(AuditLog.user_id)).label("user_count"),
+                func.count(func.distinct(AuditLog.user_id)).label(
+                    "user_count"
+                ),
             )
             .filter(
                 AuditLog.created_at >= start_time,
@@ -1200,11 +1354,16 @@ async def get_security_audit(
             )
 
         # Password policy violations (users without email verification)
-        password_violations = db.query(User).filter(User.is_verified.is_(False)).count()
+        password_violations = (
+            db.query(User).filter(User.is_verified.is_(False)).count()
+        )
 
         recommendations = []
         if rate_limit_violations > 10:
-            msg = "High number of rate limit violations - consider " "tightening limits"
+            msg = (
+                "High number of rate limit violations - consider "
+                "tightening limits"
+            )
             recommendations.append(msg)
         if password_violations > 0:
             recommendations.append(
@@ -1229,7 +1388,9 @@ async def get_security_audit(
 @router.post("/files/cleanup", response_model=Dict[str, Any])
 async def cleanup_orphaned_files(
     dry_run: bool = Query(True),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_WRITE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_WRITE)
+    ),
     db: Session = Depends(get_db),
 ):
     """Clean up orphaned or invalid files."""
@@ -1291,7 +1452,9 @@ async def cleanup_orphaned_files(
 @router.post("/users/bulk-action", response_model=Dict[str, Any])
 async def bulk_user_action(
     request: BulkUserActionRequest,
-    current_user: User = Depends(require_permissions(Permission.ADMIN_WRITE)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_WRITE)
+    ),
     db: Session = Depends(get_db),
 ):
     """Perform bulk actions on users."""
@@ -1307,7 +1470,9 @@ async def bulk_user_action(
                 detail="Invalid action",
             )
 
-        affected_users = db.query(User).filter(User.id.in_(request.user_ids)).all()
+        affected_users = (
+            db.query(User).filter(User.id.in_(request.user_ids)).all()
+        )
 
         if not affected_users:
             raise HTTPException(
@@ -1324,7 +1489,10 @@ async def bulk_user_action(
                 elif request.action == "deactivate":
                     if user.id == current_user.id:
                         results["failed"] += 1
-                        msg = "Cannot deactivate your own account " f"(user {user.id})"
+                        msg = (
+                            "Cannot deactivate your own account "
+                            f"(user {user.id})"
+                        )
                         results["errors"].append(msg)
                         continue
                     user.is_active = False
@@ -1365,14 +1533,24 @@ async def bulk_user_action(
     response_model=Union[List[Dict[str, Any]], Dict[str, Any]],
 )
 async def get_system_logs(
-    level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
+    level: str = Query(
+        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+    ),
     limit: int = Query(100, ge=1, le=1000),
     skip: int = Query(0, ge=0),
-    from_ts: Optional[datetime] = Query(None, description="From timestamp"),
+    from_ts: Optional[datetime] = Query(
+        None, description="From timestamp"
+    ),
     to_ts: Optional[datetime] = Query(None, description="To timestamp"),
-    search: Optional[str] = Query(None, description="Search message/module"),
-    envelope: bool = Query(False, description="Return pagination envelope"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    search: Optional[str] = Query(
+        None, description="Search message/module"
+    ),
+    envelope: bool = Query(
+        False, description="Return pagination envelope"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get system logs from DB with filters and optional envelope."""
@@ -1404,18 +1582,24 @@ async def get_system_logs(
 
 @router.get("/system/logs/stream")
 async def stream_system_logs(
-    level: str = Query("ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"),
+    level: str = Query(
+        "ERROR", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+    ),
     from_ts: Optional[datetime] = Query(None),
     search: Optional[str] = Query(None),
     interval_ms: int = Query(1000, ge=250, le=5000),
     timeout_s: int = Query(30, ge=5, le=300),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_READ)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_READ)
+    ),
     db: Session = Depends(get_db),
 ):
     """Server-Sent Events stream of system logs (polling-based)."""
 
     async def event_generator():
-        end_time = datetime.now(timezone.utc) + timedelta(seconds=timeout_s)
+        end_time = datetime.now(timezone.utc) + timedelta(
+            seconds=timeout_s
+        )
         last_id: int | None = None
         level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
         min_level = 1 if level == "DEBUG" else level_order.get(level, 1)
@@ -1427,11 +1611,16 @@ async def stream_system_logs(
                 if search:
                     like = f"%{search}%"
                     q = q.filter(
-                        (SystemLog.message.ilike(like)) | (SystemLog.module.ilike(like))
+                        (SystemLog.message.ilike(like))
+                        | (SystemLog.module.ilike(like))
                     )
                 q = q.filter(
                     SystemLog.level.in_(
-                        [lvl for lvl, v in level_order.items() if v >= min_level]
+                        [
+                            lvl
+                            for lvl, v in level_order.items()
+                            if v >= min_level
+                        ]
                     )
                 )
                 if last_id is not None:
@@ -1443,7 +1632,9 @@ async def stream_system_logs(
                         payload = {
                             "id": r.id,
                             "timestamp": (
-                                r.timestamp.isoformat() if r.timestamp else None
+                                r.timestamp.isoformat()
+                                if r.timestamp
+                                else None
                             ),
                             "level": r.level,
                             "module": r.module,
@@ -1456,4 +1647,6 @@ async def stream_system_logs(
                 pass
             await asyncio.sleep(interval_ms / 1000)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(), media_type="text/event-stream"
+    )

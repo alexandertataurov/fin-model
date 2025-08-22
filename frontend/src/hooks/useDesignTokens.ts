@@ -1,11 +1,14 @@
 import { useTheme } from 'next-themes';
-import { tokens } from '@/design-system/tokens';
+import { tokens, getToken as baseGetToken } from '@/design-system/tokens/tokens';
+import lightTheme from '@/design-system/tokens/themes/light.json';
+import darkTheme from '@/design-system/tokens/themes/dark.json';
+
 const componentTokens: Record<string, any> = {};
 
 /**
- * Hook for accessing design tokens with theme-aware color resolution
+ * Enhanced hook for accessing design tokens with theme-aware color resolution
  * Provides easy access to all design system tokens including colors, spacing, typography, etc.
- * 
+ *
  * @returns Design token utilities and values
  */
 export function useDesignTokens() {
@@ -15,7 +18,8 @@ export function useDesignTokens() {
   const currentTheme = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   // Get theme-specific colors
-  const colors = (tokens.colors as any);
+  const themeColors = currentTheme === 'dark' ? darkTheme.colors : lightTheme.colors;
+  const colors = { ...tokens.colors, ...themeColors };
 
   /**
    * Get a CSS custom property value
@@ -32,7 +36,20 @@ export function useDesignTokens() {
    * @returns The color value for the current theme
    */
   const getColor = (colorName: keyof typeof colors): string => {
-    return colors[colorName];
+    const color = colors[colorName];
+    return typeof color === 'object' && color?.value ? color.value : color;
+  };
+
+  /**
+   * Get theme-aware color value
+   * @param colorName - The color name
+   * @param theme - Optional theme override
+   * @returns The color value for the specified theme
+   */
+  const getThemeColor = (colorName: string, theme?: 'light' | 'dark'): string => {
+    const targetTheme = theme || currentTheme;
+    const themeData = targetTheme === 'dark' ? darkTheme.colors : lightTheme.colors;
+    return themeData[colorName]?.value || colors[colorName];
   };
 
   /**
@@ -41,7 +58,7 @@ export function useDesignTokens() {
    * @returns The spacing value
    */
   const getSpacing = (size: keyof typeof tokens.spacing): string => {
-    return tokens.spacing[size] as string;
+    return tokens.spacing[size] ?? '';
   };
 
   /**
@@ -50,7 +67,7 @@ export function useDesignTokens() {
    * @returns The border radius value
    */
   const getBorderRadius = (size: keyof typeof tokens.borderRadius): string => {
-    return tokens.borderRadius[size] as string;
+    return tokens.borderRadius[size] ?? '';
   };
 
   /**
@@ -61,8 +78,9 @@ export function useDesignTokens() {
   const getFontSize = (
     size: keyof typeof tokens.typography.fontSize
   ): [string, { lineHeight: string }] => {
-    const token = tokens.typography.fontSize[size] as any;
-    return [token.value, { lineHeight: token.lineHeight ?? '1.5' }];
+    const token = tokens.typography.fontSize[size];
+    if (!token) return ['', { lineHeight: '1.5' }];
+    return [token.value ?? '', { lineHeight: token.lineHeight ?? '1.5' }];
   };
 
   /**
@@ -70,8 +88,8 @@ export function useDesignTokens() {
    * @param weight - The font weight key
    * @returns The font weight value
    */
-  const getFontWeight = (_weight: any): string => {
-    return '400';
+  const getFontWeight = (weight: keyof typeof tokens.typography.fontWeight): string => {
+    return tokens.typography.fontWeight[weight] ?? '';
   };
 
   /**
@@ -80,7 +98,7 @@ export function useDesignTokens() {
    * @returns The box shadow value
    */
   const getBoxShadow = (size: keyof typeof tokens.shadows): string => {
-    return tokens.shadows[size] as string;
+    return tokens.shadows[size] ?? '';
   };
 
   /**
@@ -89,7 +107,17 @@ export function useDesignTokens() {
    * @returns The z-index value
    */
   const getZIndex = (layer: keyof typeof tokens.zIndex): string => {
-    return String(tokens.zIndex[layer]);
+    return tokens.zIndex[layer] !== undefined ? String(tokens.zIndex[layer]) : '';
+  };
+
+  /**
+   * Get motion configuration
+   * @param type - The motion type (easing, duration, delay)
+   * @param key - The specific key
+   * @returns The motion value
+   */
+  const getMotion = (type: keyof typeof tokens.motion, key: string): string => {
+    return tokens.motion[type]?.[key] ?? '';
   };
 
   /**
@@ -101,17 +129,36 @@ export function useDesignTokens() {
    */
   const getComponentToken = <T extends keyof typeof componentTokens>(
     component: T,
-    property: keyof typeof componentTokens[T],
+    property: keyof (typeof componentTokens)[T],
     variant?: string
   ): any => {
     const componentConfig = componentTokens[component];
     const propertyConfig = componentConfig[property];
 
-    if (variant && typeof propertyConfig === 'object' && propertyConfig !== null) {
+    if (
+      variant &&
+      typeof propertyConfig === 'object' &&
+      propertyConfig !== null
+    ) {
       return (propertyConfig as any)[variant];
     }
 
     return propertyConfig;
+  };
+
+  /**
+   * Generate CSS custom properties for the current theme
+   * @returns Object with CSS custom properties
+   */
+  const generateCSSVariables = () => {
+    const themeData = currentTheme === 'dark' ? darkTheme.colors : lightTheme.colors;
+    const cssVars: Record<string, string> = {};
+
+    Object.entries(themeData).forEach(([key, value]) => {
+      cssVars[`--${key}`] = value.value;
+    });
+
+    return cssVars;
   };
 
   return {
@@ -123,37 +170,33 @@ export function useDesignTokens() {
     // Raw token objects
     tokens,
     colors,
+    themeColors,
 
     // Utility functions
     getCSSVar,
     getColor,
+    getThemeColor,
     getSpacing,
     getBorderRadius,
     getFontSize,
     getFontWeight,
     getBoxShadow,
     getZIndex,
+    getMotion,
     getComponentToken,
+    generateCSSVariables,
+    getToken: baseGetToken, // <-- Add this line
 
     // Quick access to common values
     spacing: tokens.spacing,
     borderRadius: tokens.borderRadius,
-    fontSize: tokens.typography.fontSize as any,
-    fontWeight: {} as any,
-    boxShadow: tokens.shadows,
-    zIndex: tokens.zIndex as any,
+    fontSize: tokens.typography.fontSize,
+    fontWeight: tokens.typography.fontWeight,
+    shadows: tokens.shadows,
+    zIndex: tokens.zIndex,
+    motion: tokens.motion,
+    breakpoints: tokens.breakpoints,
   };
 }
 
-/**
- * Type-safe design token selectors
- */
 export type DesignTokens = ReturnType<typeof useDesignTokens>;
-export type SpacingKey = keyof typeof tokens.spacing;
-export type BorderRadiusKey = keyof typeof tokens.borderRadius;
-export type FontSizeKey = keyof typeof tokens.typography.fontSize;
-export type FontWeightKey = string;
-export type BoxShadowKey = keyof typeof tokens.shadows;
-export type ZIndexKey = keyof typeof tokens.zIndex;
-export type ColorKey = keyof typeof tokens.colors;
-export type ComponentKey = string;

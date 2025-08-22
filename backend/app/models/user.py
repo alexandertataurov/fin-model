@@ -29,7 +29,9 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     failed_login_attempts = Column(Integer, default=0, nullable=False)
     account_locked_until = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     updated_at = Column(
         DateTime,
         server_default=func.now(),

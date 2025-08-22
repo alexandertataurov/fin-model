@@ -1,41 +1,22 @@
-// Unified Design System Entry Point
-// This file serves as the single source of truth for all design system components
+// Atoms - Basic building blocks
+export * from './atoms';
 
-// Core Design System Components
-export * from './components/Button';
-export * from './components/Card';
-export * from './components/Input';
-export * from './components/Label';
-export * from './components/Badge';
-export * from './components/Dialog';
-export * from './components/Select';
-export * from './components/Separator';
-export * from './components/Skeleton';
-export * from './components/Switch';
-export * from './components/Form';
-export * from './components/Alert';
-export * from './components/Checkbox';
-export * from './components/Textarea';
-export * from './components/Tabs';
-export * from './components/Avatar';
-export * from './components/Table';
-export * from './components/Tooltip';
-export * from './components/Progress';
+// Molecules - Simple combinations of atoms
+export * from './molecules';
 
-// Theme and Utilities
-export * from './components/ThemeProvider';
-export * from '../utils/cn';
+// Organisms - Complex UI sections
+export * from './organisms';
+
+// Templates - Page layouts
+export * from './templates';
+
+// Pages - Complete pages (optional)
+export * from './pages';
+
+// Design tokens and utilities
 export * from './tokens';
+export * from './utils';
+export * from './hooks';
 
-// Design System Provider
-export { DesignSystemProvider, useDesignSystem } from './provider';
-
-// Types
-export type { ButtonProps } from './components/Button';
-export type { CardProps } from './components/Card';
-export type { InputProps } from './components/Input';
-export type { BadgeProps } from './components/Badge';
-// Omit props re-exports not present in components
-export type { AlertProps } from './components/Alert';
-// Omit checkbox prop type re-export
-export type { TextareaProps } from './components/Textarea';
+// Providers - Context providers
+export * from './providers';

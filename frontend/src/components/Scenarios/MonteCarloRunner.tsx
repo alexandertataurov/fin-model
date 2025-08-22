@@ -5,23 +5,28 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/design-system/components/Select';
-import { Badge } from '@/design-system/components/Badge';
-import { Progress } from '@/design-system/components/Progress';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { ScrollArea } from '@/design-system/components/ScrollArea';
+} from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
+import { Progress } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import { ScrollArea } from '@/design-system/molecules';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
 import {
   Play,
   Settings,

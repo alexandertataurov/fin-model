@@ -28,13 +28,17 @@ try:
     logger.info("fastapi_cache2 is available and will be used for caching")
 except ImportError as e:
     CACHE_AVAILABLE = False
-    logger.info(f"fastapi_cache2 not available: {e}. Using Redis caching instead.")
+    logger.info(
+        f"fastapi_cache2 not available: {e}. Using Redis caching instead."
+    )
     # Create dummy classes for fallback
 
     class FastAPICache:
         @staticmethod
         def init(*args, **kwargs):
-            logger.warning("Cache initialization skipped - fastapi_cache not available")
+            logger.warning(
+                "Cache initialization skipped - fastapi_cache not available"
+            )
 
     class InMemoryBackend:
         pass
@@ -251,16 +255,25 @@ async def schema_check():
             # Check uploaded_files table
             try:
                 result = conn.execute(
-                    text("SELECT stored_filename FROM uploaded_files LIMIT 1")
+                    text(
+                        "SELECT stored_filename FROM uploaded_files LIMIT 1"
+                    )
                 )
                 result.fetchone()
             except Exception as e:
-                if "column" in str(e).lower() and "does not exist" in str(e).lower():
-                    issues.append("uploaded_files.stored_filename column missing")
+                if (
+                    "column" in str(e).lower()
+                    and "does not exist" in str(e).lower()
+                ):
+                    issues.append(
+                        "uploaded_files.stored_filename column missing"
+                    )
 
             # Check other potential issues
             try:
-                result = conn.execute(text("SELECT COUNT(*) FROM uploaded_files"))
+                result = conn.execute(
+                    text("SELECT COUNT(*) FROM uploaded_files")
+                )
                 result.fetchone()
             except Exception as e:
                 issues.append(f"uploaded_files table issue: {str(e)}")

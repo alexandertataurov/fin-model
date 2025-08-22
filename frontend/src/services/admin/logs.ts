@@ -29,8 +29,7 @@ export async function getSystemLogs(
     envelope?: boolean;
   }
 ): Promise<
-  | LogEntry[]
-  | { items: LogEntry[]; skip: number; limit: number; total: number }
+  LogEntry[] | { items: LogEntry[]; skip: number; limit: number; total: number }
 > {
   const response = await api.get('/admin/system/logs', {
     params: {

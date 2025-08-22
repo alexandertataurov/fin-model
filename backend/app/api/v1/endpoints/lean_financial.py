@@ -9,7 +9,10 @@ from typing import Any, Dict, List, Optional
 from app.core.dependencies import get_current_user, get_db
 from app.models.user import User
 from app.services.lean_financial_engine import LeanFinancialEngine
-from app.services.lean_parameter_manager import LeanParameterManager, ParameterCategory
+from app.services.lean_parameter_manager import (
+    LeanParameterManager,
+    ParameterCategory,
+)
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -38,7 +41,9 @@ class ScenarioCreateRequest(BaseModel):
 
 
 class SensitivityAnalysisRequest(BaseModel):
-    base_parameters: Dict[str, float] = Field(..., description="Base parameter values")
+    base_parameters: Dict[str, float] = Field(
+        ..., description="Base parameter values"
+    )
     sensitivity_parameters: Optional[List[str]] = Field(
         None, description="Parameters to analyze"
     )
@@ -51,7 +56,9 @@ class ParameterImpactRequest(BaseModel):
     parameter_key: str = Field(..., description="Parameter to analyze")
     old_value: float = Field(..., description="Current parameter value")
     new_value: float = Field(..., description="New parameter value")
-    base_parameters: Dict[str, float] = Field(..., description="Base parameter values")
+    base_parameters: Dict[str, float] = Field(
+        ..., description="Base parameter values"
+    )
 
 
 class FinancialModelResponse(BaseModel):
@@ -203,14 +210,18 @@ async def calculate_comprehensive_model(
         param_manager = LeanParameterManager(db)
 
         # Validate parameters before queuing task
-        is_valid, errors = param_manager.validate_parameters(request.parameters)
+        is_valid, errors = param_manager.validate_parameters(
+            request.parameters
+        )
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Parameter validation failed: {errors}",
             )
 
-        from app.tasks.lean_financial import calculate_comprehensive_model_task
+        from app.tasks.lean_financial import (
+            calculate_comprehensive_model_task,
+        )
 
         task = calculate_comprehensive_model_task.delay(
             request.parameters, request.base_revenue
@@ -253,7 +264,9 @@ async def calculate_individual_statement(
             )
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(request.parameters)
+        is_valid, errors = param_manager.validate_parameters(
+            request.parameters
+        )
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -267,12 +280,16 @@ async def calculate_individual_statement(
 
         # Calculate specific statement
         if statement_type == "profit_loss":
-            result = engine.calculate_profit_loss(core_parameters, request.base_revenue)
+            result = engine.calculate_profit_loss(
+                core_parameters, request.base_revenue
+            )
         elif statement_type == "balance_sheet":
             pl_statement = engine.calculate_profit_loss(
                 core_parameters, request.base_revenue
             )
-            result = engine.calculate_balance_sheet(core_parameters, pl_statement)
+            result = engine.calculate_balance_sheet(
+                core_parameters, pl_statement
+            )
         elif statement_type == "cash_flow":
             pl_statement = engine.calculate_profit_loss(
                 core_parameters, request.base_revenue
@@ -316,7 +333,9 @@ async def create_scenario(
         engine = LeanFinancialEngine(db)
 
         # Validate parameters
-        is_valid, errors = param_manager.validate_parameters(request.parameters)
+        is_valid, errors = param_manager.validate_parameters(
+            request.parameters
+        )
         if not is_valid:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -393,9 +412,13 @@ async def create_sensitivity_analysis(
         param_manager = LeanParameterManager(db)
 
         # Validate base parameters before queuing task
-        _ = param_manager.create_core_parameters_from_dict(request.base_parameters)
+        _ = param_manager.create_core_parameters_from_dict(
+            request.base_parameters
+        )
 
-        from app.tasks.lean_financial import create_sensitivity_analysis_task
+        from app.tasks.lean_financial import (
+            create_sensitivity_analysis_task,
+        )
 
         task = create_sensitivity_analysis_task.delay(
             request.base_parameters,
@@ -499,7 +522,9 @@ async def export_parameters(
         )
 
         # Export parameters
-        exported_data = param_manager.export_parameters(core_parameters, format)
+        exported_data = param_manager.export_parameters(
+            core_parameters, format
+        )
 
         return {
             "success": True,
@@ -527,7 +552,9 @@ async def health_check():
             CoreParameters,
             LeanFinancialEngine,
         )
-        from app.services.lean_parameter_manager import LeanParameterManager
+        from app.services.lean_parameter_manager import (
+            LeanParameterManager,
+        )
 
         _ = CoreParameters, LeanFinancialEngine, LeanParameterManager
 

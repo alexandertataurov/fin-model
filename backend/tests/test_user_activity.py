@@ -73,7 +73,9 @@ def _seed_data():
         db.commit()
         db.refresh(f1)
 
-        scenario = Scenario(name="s1", base_file_id=f1.id, created_by_id=u1.id)
+        scenario = Scenario(
+            name="s1", base_file_id=f1.id, created_by_id=u1.id
+        )
         db.add(scenario)
         db.commit()
         db.refresh(scenario)
@@ -117,7 +119,9 @@ def test_user_activity_counts_and_query_efficiency():
     try:
         resp = client.get("/api/v1/admin/users/activity-list")
     finally:
-        event.remove(engine, "before_cursor_execute", before_cursor_execute)
+        event.remove(
+            engine, "before_cursor_execute", before_cursor_execute
+        )
 
     assert resp.status_code == 200
     data = {row["user_id"]: row for row in resp.json()}
@@ -129,5 +133,7 @@ def test_user_activity_counts_and_query_efficiency():
     assert data[u2_id]["models_created"] == 0
     assert data[u2_id]["login_count"] == 1
 
-    selects = [s for s in statements if s.lstrip().lower().startswith("select")]
+    selects = [
+        s for s in statements if s.lstrip().lower().startswith("select")
+    ]
     assert len(selects) == 1

@@ -26,5 +26,6 @@ class SystemLog(Base):
 
     def __repr__(self) -> str:  # pragma: no cover
         return (
-            f"<SystemLog(id={self.id}, level={self.level}, " f"module={self.module})>"
+            f"<SystemLog(id={self.id}, level={self.level}, "
+            f"module={self.module})>"
         )

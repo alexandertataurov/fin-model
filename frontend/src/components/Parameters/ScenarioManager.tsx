@@ -4,19 +4,36 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Button } from '@/design-system/components/Button';
+import { Button } from '@/design-system/atoms';
 // duplicate import removed
-import { Input } from '@/design-system/components/Input';
+import { Input } from '@/design-system/atoms';
 // duplicate import removed
-import { Label } from '@/design-system/components/Label';
+import { Label } from '@/design-system/atoms';
 // duplicate import removed
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/design-system/components/Dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/design-system/molecules';
 // duplicate import removed
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/design-system/components/Select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/molecules';
 // duplicate imports removed
-import { Badge } from '@/design-system/components/Badge';
+import { Badge } from '@/design-system/atoms';
 // duplicate imports removed
 import {
   Play,
@@ -31,7 +48,7 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Zap
+  Zap,
 } from 'lucide-react';
 
 export interface Scenario {
@@ -80,16 +97,14 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
   isLoading = false,
 }) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [_editingScenario, _setEditingScenario] = useState<Scenario | null>(null);
+  const [_editingScenario, _setEditingScenario] = useState<Scenario | null>(
+    null
+  );
   const [newScenarioData, setNewScenarioData] = useState({
     name: '',
     description: '',
     type: 'custom' as const,
   });
-
-
-
-
 
   const getScenarioTypeIcon = (type: string) => {
     switch (type) {
@@ -168,8 +183,9 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
 
     return (
       <Card
-        className={`cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'
-          }`}
+        className={`cursor-pointer transition-all ${
+          isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'
+        }`}
         onClick={() => onScenarioSelect?.(scenario)}
       >
         <CardContent className="p-4">
@@ -185,7 +201,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   handleCalculateScenario(scenario.id);
                 }}
@@ -196,7 +212,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   handleDuplicateScenario(scenario);
                 }}
@@ -206,7 +222,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   _setEditingScenario(scenario);
                 }}
@@ -216,7 +232,7 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onScenarioDelete?.(scenario.id);
                 }}
@@ -237,30 +253,42 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <p className="text-gray-500">Revenue</p>
-                  <p className="font-semibold">{formatCurrency(scenario.results.revenue)}</p>
+                  <p className="font-semibold">
+                    {formatCurrency(scenario.results.revenue)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Net Income</p>
-                  <p className="font-semibold">{formatCurrency(scenario.results.net_income)}</p>
+                  <p className="font-semibold">
+                    {formatCurrency(scenario.results.net_income)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Free Cash Flow</p>
-                  <p className="font-semibold">{formatCurrency(scenario.results.free_cash_flow)}</p>
+                  <p className="font-semibold">
+                    {formatCurrency(scenario.results.free_cash_flow)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Value/Share</p>
-                  <p className="font-semibold">{formatCurrency(scenario.results.value_per_share)}</p>
+                  <p className="font-semibold">
+                    {formatCurrency(scenario.results.value_per_share)}
+                  </p>
                 </div>
               </div>
 
               <div className="flex justify-between items-center pt-2 border-t">
                 <div>
                   <p className="text-xs text-gray-500">ROI</p>
-                  <p className="font-semibold text-sm">{formatPercentage(scenario.results.roi)}</p>
+                  <p className="font-semibold text-sm">
+                    {formatPercentage(scenario.results.roi)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Payback</p>
-                  <p className="font-semibold text-sm">{scenario.results.payback_period.toFixed(1)}y</p>
+                  <p className="font-semibold text-sm">
+                    {scenario.results.payback_period.toFixed(1)}y
+                  </p>
                 </div>
               </div>
             </div>
@@ -292,7 +320,9 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <Input
               id="scenario-name"
               value={newScenarioData.name}
-              onChange={(e) => setNewScenarioData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={e =>
+                setNewScenarioData(prev => ({ ...prev, name: e.target.value }))
+              }
               placeholder="Enter scenario name"
             />
           </div>
@@ -301,7 +331,12 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <Input
               id="scenario-description"
               value={newScenarioData.description}
-              onChange={(e) => setNewScenarioData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={e =>
+                setNewScenarioData(prev => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="Describe this scenario"
             />
           </div>
@@ -309,7 +344,9 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             <Label htmlFor="scenario-type">Scenario Type</Label>
             <Select
               value={newScenarioData.type}
-              onValueChange={(value) => setNewScenarioData(prev => ({ ...prev, type: value as any }))}
+              onValueChange={value =>
+                setNewScenarioData(prev => ({ ...prev, type: value as any }))
+              }
             >
               <SelectTrigger>
                 <SelectValue />
@@ -323,7 +360,10 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             </Select>
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsCreateDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -357,13 +397,18 @@ const ScenarioManager: React.FC<ScenarioManagerProps> = ({
         {scenarios.length === 0 ? (
           <div className="text-center py-8">
             <Zap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No scenarios yet</h3>
-            <p className="text-gray-500 mb-4">Create your first scenario to start modeling different business cases.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No scenarios yet
+            </h3>
+            <p className="text-gray-500 mb-4">
+              Create your first scenario to start modeling different business
+              cases.
+            </p>
             <CreateScenarioDialog />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {scenarios.map((scenario) => (
+            {scenarios.map(scenario => (
               <ScenarioCard key={scenario.id} scenario={scenario} />
             ))}
           </div>

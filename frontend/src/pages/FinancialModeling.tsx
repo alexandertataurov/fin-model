@@ -4,7 +4,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
+} from '@/design-system/molecules';
 import { CoreFinancialModeling } from '@/components/CoreFinancialModeling';
 import { toast } from 'sonner';
 

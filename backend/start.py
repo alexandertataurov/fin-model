@@ -10,7 +10,9 @@ from pathlib import Path
 
 # Ensure we're not in a numpy source directory
 current_dir = Path.cwd()
-if (current_dir / "numpy").exists() and (current_dir / "setup.py").exists():
+if (current_dir / "numpy").exists() and (
+    current_dir / "setup.py"
+).exists():
     print("⚠️ Detected numpy source directory, changing to /app")
     os.chdir("/app")
 
@@ -52,7 +54,8 @@ def fix_migration_state():
         current_dir = Path(__file__).parent
         alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
         alembic_cfg.set_main_option(
-            "script_location", os.path.join(current_dir, "alembic_migrations")
+            "script_location",
+            os.path.join(current_dir, "alembic_migrations"),
         )
 
         with engine.connect() as conn:
@@ -120,7 +123,8 @@ def run_migrations():
         current_dir = Path(__file__).parent
         alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
         alembic_cfg.set_main_option(
-            "script_location", os.path.join(current_dir, "alembic_migrations")
+            "script_location",
+            os.path.join(current_dir, "alembic_migrations"),
         )
 
         # Check current revision
@@ -162,7 +166,8 @@ def ensure_system_logs_and_maintenance():
         current_dir = Path(__file__).parent
         alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
         alembic_cfg.set_main_option(
-            "script_location", os.path.join(current_dir, "alembic_migrations")
+            "script_location",
+            os.path.join(current_dir, "alembic_migrations"),
         )
 
         with engine.connect() as conn:
@@ -232,10 +237,16 @@ def ensure_system_logs_and_maintenance():
 
             # Stamp the historical migration if present in script
             try:
-                command.stamp(alembic_cfg, "004_add_system_logs_and_maintenance")
-                print("✅ Stamped revision 004_add_system_logs_and_maintenance")
+                command.stamp(
+                    alembic_cfg, "004_add_system_logs_and_maintenance"
+                )
+                print(
+                    "✅ Stamped revision 004_add_system_logs_and_maintenance"
+                )
             except Exception as e:
-                print(f"⚠️ Could not stamp 004_add_system_logs_and_maintenance: {e}")
+                print(
+                    f"⚠️ Could not stamp 004_add_system_logs_and_maintenance: {e}"
+                )
 
         return True
     except Exception as e:
@@ -366,7 +377,8 @@ def create_notifications_table():
             # Create indexes
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_user_id " "ON notifications(user_id)"
+                    "CREATE INDEX ix_notifications_user_id "
+                    "ON notifications(user_id)"
                 )
             )
             conn.execute(
@@ -382,11 +394,15 @@ def create_notifications_table():
                 )
             )
             conn.execute(
-                text("CREATE INDEX ix_notifications_status " "ON notifications(status)")
+                text(
+                    "CREATE INDEX ix_notifications_status "
+                    "ON notifications(status)"
+                )
             )
             conn.execute(
                 text(
-                    "CREATE INDEX ix_notifications_is_read " "ON notifications(is_read)"
+                    "CREATE INDEX ix_notifications_is_read "
+                    "ON notifications(is_read)"
                 )
             )
             conn.execute(
@@ -443,7 +459,9 @@ def fix_database_schema():
                 )
 
                 if not result.fetchone():
-                    print("🔄 Adding stored_filename column to uploaded_files...")
+                    print(
+                        "🔄 Adding stored_filename column to uploaded_files..."
+                    )
                     conn.execute(
                         text(
                             """
@@ -453,9 +471,13 @@ def fix_database_schema():
                         )
                     )
                     conn.commit()
-                    print("✅ Added stored_filename column to uploaded_files")
+                    print(
+                        "✅ Added stored_filename column to uploaded_files"
+                    )
                 else:
-                    print("✅ stored_filename column already exists in uploaded_files")
+                    print(
+                        "✅ stored_filename column already exists in uploaded_files"
+                    )
 
             except Exception as e:
                 print(f"⚠️ uploaded_files schema fix warning: {e}")
@@ -500,12 +522,24 @@ def fix_database_schema():
             try:
                 # Check for common missing columns and add them
                 missing_columns = [
-                    ("uploaded_files", "processing_started_at", "TIMESTAMP"),
-                    ("uploaded_files", "processing_completed_at", "TIMESTAMP"),
+                    (
+                        "uploaded_files",
+                        "processing_started_at",
+                        "TIMESTAMP",
+                    ),
+                    (
+                        "uploaded_files",
+                        "processing_completed_at",
+                        "TIMESTAMP",
+                    ),
                     ("uploaded_files", "is_valid", "BOOLEAN DEFAULT TRUE"),
                     ("uploaded_files", "validation_errors", "TEXT"),
                     ("uploaded_files", "parsed_data", "JSON"),
-                    ("uploaded_files", "upload_date", "TIMESTAMP DEFAULT NOW()"),
+                    (
+                        "uploaded_files",
+                        "upload_date",
+                        "TIMESTAMP DEFAULT NOW()",
+                    ),
                 ]
 
                 for table, column, column_type in missing_columns:

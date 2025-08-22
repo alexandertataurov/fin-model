@@ -23,7 +23,9 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         """Add CORS headers for local development."""
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header(
+            "Access-Control-Allow-Methods", "GET, POST, OPTIONS"
+        )
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         super().end_headers()
 
@@ -42,20 +44,30 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 def main():
     """Main function to start the server."""
     try:
-        with socketserver.TCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
+        with socketserver.TCPServer(
+            ("", PORT), CustomHTTPRequestHandler
+        ) as httpd:
             print(f"🚀 FinVision API Documentation Server")
             print(f"📍 Serving at: http://localhost:{PORT}")
             print(f"📁 Directory: {DIRECTORY}")
             print(f"📄 Files available:")
-            print(f"   • Landing page: http://localhost:{PORT}/landing.html")
+            print(
+                f"   • Landing page: http://localhost:{PORT}/landing.html"
+            )
             print(f"   • ReDoc: http://localhost:{PORT}/index.html")
             print(f"   • Swagger UI: http://localhost:{PORT}/swagger.html")
-            print(f"   • OpenAPI Spec: http://localhost:{PORT}/../openapi.yaml")
+            print(
+                f"   • OpenAPI Spec: http://localhost:{PORT}/../openapi.yaml"
+            )
             print(
                 f"   • Postman Collection: http://localhost:{PORT}/../FinVision_API.postman_collection.json"
             )
-            print(f"   • Full Docs: http://localhost:{PORT}/../API_DOCUMENTATION.md")
-            print(f"   • Quick Start: http://localhost:{PORT}/../API_README.md")
+            print(
+                f"   • Full Docs: http://localhost:{PORT}/../API_DOCUMENTATION.md"
+            )
+            print(
+                f"   • Quick Start: http://localhost:{PORT}/../API_README.md"
+            )
             print(f"\n🛑 Press Ctrl+C to stop the server")
             print(f"=" * 60)
 
@@ -65,7 +77,9 @@ def main():
         print(f"\n🛑 Server stopped by user")
     except OSError as e:
         if e.errno == 48:  # Address already in use
-            print(f"❌ Port {PORT} is already in use. Try a different port:")
+            print(
+                f"❌ Port {PORT} is already in use. Try a different port:"
+            )
             print(f"   python server.py --port {PORT + 1}")
         else:
             print(f"❌ Error starting server: {e}")

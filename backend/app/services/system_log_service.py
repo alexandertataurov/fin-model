@@ -60,11 +60,20 @@ class SystemLogService:
 
             # Apply level filter
             if level != "DEBUG":
-                level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
+                level_order = {
+                    "INFO": 1,
+                    "WARNING": 2,
+                    "ERROR": 3,
+                    "CRITICAL": 4,
+                }
                 min_level = level_order.get(level, 1)
                 query = query.filter(
                     SystemLog.level.in_(
-                        [lvl for lvl, v in level_order.items() if v >= min_level]
+                        [
+                            lvl
+                            for lvl, v in level_order.items()
+                            if v >= min_level
+                        ]
                     )
                 )
 
@@ -78,7 +87,8 @@ class SystemLogService:
             if search:
                 like = f"%{search}%"
                 query = query.filter(
-                    (SystemLog.message.ilike(like)) | (SystemLog.module.ilike(like))
+                    (SystemLog.message.ilike(like))
+                    | (SystemLog.module.ilike(like))
                 )
 
             # Apply pagination and ordering
@@ -113,11 +123,20 @@ class SystemLogService:
         try:
             query = self.db.query(SystemLog)
             if level != "DEBUG":
-                level_order = {"INFO": 1, "WARNING": 2, "ERROR": 3, "CRITICAL": 4}
+                level_order = {
+                    "INFO": 1,
+                    "WARNING": 2,
+                    "ERROR": 3,
+                    "CRITICAL": 4,
+                }
                 min_level = level_order.get(level, 1)
                 query = query.filter(
                     SystemLog.level.in_(
-                        [lvl for lvl, v in level_order.items() if v >= min_level]
+                        [
+                            lvl
+                            for lvl, v in level_order.items()
+                            if v >= min_level
+                        ]
                     )
                 )
             return query.count()

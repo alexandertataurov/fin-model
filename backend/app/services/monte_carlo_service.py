@@ -100,7 +100,11 @@ class MonteCarloService:
             Simulation ID
         """
         # Validate scenario exists
-        scenario = self.db.query(Scenario).filter(Scenario.id == scenario_id).first()
+        scenario = (
+            self.db.query(Scenario)
+            .filter(Scenario.id == scenario_id)
+            .first()
+        )
 
         if not scenario:
             raise ValueError(f"Scenario {scenario_id} not found")
@@ -108,7 +112,9 @@ class MonteCarloService:
         # Validate parameters exist
         param_ids = list(distributions.keys())
         existing_params = (
-            self.db.query(Parameter.id).filter(Parameter.id.in_(param_ids)).all()
+            self.db.query(Parameter.id)
+            .filter(Parameter.id.in_(param_ids))
+            .all()
         )
         existing_param_ids = {p.id for p in existing_params}
 
@@ -126,7 +132,9 @@ class MonteCarloService:
             for key, value in correlations.items():
                 if "," in str(key):
                     param1_id, param2_id = key.split(",")
-                    correlation_dict[f"{param1_id},{param2_id}"] = float(value)
+                    correlation_dict[f"{param1_id},{param2_id}"] = float(
+                        value
+                    )
                 else:
                     correlation_dict[str(key)] = float(value)
 
@@ -182,14 +190,20 @@ class MonteCarloService:
 
             # Load scenario data
             scenario = simulation.scenario
-            self.formula_engine.load_workbook_data(scenario.base_file.file_path)
+            self.formula_engine.load_workbook_data(
+                scenario.base_file.file_path
+            )
             await self._apply_scenario_values(simulation.scenario_id)
 
             # Generate parameter samples
-            parameter_samples = await self._generate_sample_matrix(simulation)
+            parameter_samples = await self._generate_sample_matrix(
+                simulation
+            )
 
             # Run simulation iterations
-            results = await self._execute_simulation(simulation, parameter_samples)
+            results = await self._execute_simulation(
+                simulation, parameter_samples
+            )
 
             # Calculate statistics
             statistics = self._calculate_statistics(results)
@@ -294,9 +308,15 @@ class MonteCarloService:
             enhanced_stats[metric] = {
                 **stats,
                 "confidence_intervals": {
-                    "90%": self._calculate_confidence_interval(stats, 0.90),
-                    "95%": self._calculate_confidence_interval(stats, 0.95),
-                    "99%": self._calculate_confidence_interval(stats, 0.99),
+                    "90%": self._calculate_confidence_interval(
+                        stats, 0.90
+                    ),
+                    "95%": self._calculate_confidence_interval(
+                        stats, 0.95
+                    ),
+                    "99%": self._calculate_confidence_interval(
+                        stats, 0.99
+                    ),
                 },
                 "distribution_moments": {
                     "skewness": stats.get("skewness", 0),
@@ -355,7 +375,9 @@ class MonteCarloService:
 
                 # Conditional Value at Risk (Expected Shortfall)
                 tail_values = values_array[values_array <= var_threshold]
-                cvar = np.mean(tail_values) if len(tail_values) > 0 else var
+                cvar = (
+                    np.mean(tail_values) if len(tail_values) > 0 else var
+                )
 
                 metric_risk[f"VaR_{int(confidence*100)}"] = float(var)
                 metric_risk[f"CVaR_{int(confidence*100)}"] = float(cvar)
@@ -366,8 +388,12 @@ class MonteCarloService:
 
             metric_risk.update(
                 {
-                    "probability_of_loss": float(np.mean(values_array < 0)),
-                    "probability_below_mean": float(np.mean(values_array < mean_value)),
+                    "probability_of_loss": float(
+                        np.mean(values_array < 0)
+                    ),
+                    "probability_below_mean": float(
+                        np.mean(values_array < mean_value)
+                    ),
                     "expected_shortfall": float(
                         np.mean(values_array[values_array < median_value])
                     ),
@@ -402,7 +428,10 @@ class MonteCarloService:
         """
         if simulation.correlations and len(simulation.correlations) > 0:
             # Use random seed if specified
-            if hasattr(simulation, "random_seed") and simulation.random_seed:
+            if (
+                hasattr(simulation, "random_seed")
+                and simulation.random_seed
+            ):
                 np.random.seed(simulation.random_seed)
 
             return await self._generate_correlated_samples(simulation)
@@ -425,7 +454,9 @@ class MonteCarloService:
             if dist_type == "normal":
                 mean = dist_config.get("mean", 0)
                 std = dist_config.get("std_dev", 1)
-                samples[param_id] = np.random.normal(mean, std, simulation.iterations)
+                samples[param_id] = np.random.normal(
+                    mean, std, simulation.iterations
+                )
             elif dist_type == "uniform":
                 min_val = dist_config.get("min", 0)
                 max_val = dist_config.get("max", 1)
@@ -447,7 +478,9 @@ class MonteCarloService:
                 )
             else:
                 # Default to normal distribution
-                samples[param_id] = np.random.normal(0, 1, simulation.iterations)
+                samples[param_id] = np.random.normal(
+                    0, 1, simulation.iterations
+                )
 
         return samples
 
@@ -493,7 +526,9 @@ class MonteCarloService:
             if dist_type == "normal":
                 mean = dist_config.get("mean", 0)
                 std = dist_config.get("std_dev", 1)
-                samples[param_id] = stats.norm.ppf(uniform_samples, mean, std)
+                samples[param_id] = stats.norm.ppf(
+                    uniform_samples, mean, std
+                )
             elif dist_type == "uniform":
                 min_val = dist_config.get("min", 0)
                 max_val = dist_config.get("max", 1)
@@ -525,7 +560,11 @@ class MonteCarloService:
         # Get parameter objects for cell reference mapping
         param_objects = {}
         for param_id in parameter_samples.keys():
-            param = self.db.query(Parameter).filter(Parameter.id == param_id).first()
+            param = (
+                self.db.query(Parameter)
+                .filter(Parameter.id == param_id)
+                .first()
+            )
             if param:
                 param_objects[param_id] = param
 
@@ -536,13 +575,19 @@ class MonteCarloService:
                 for param_id, samples in parameter_samples.items():
                     param = param_objects.get(param_id)
                     if param and param.source_cell and param.source_sheet:
-                        cell_ref = f"{param.source_sheet}!{param.source_cell}"
-                        self.formula_engine.update_cell_value(cell_ref, samples[i])
+                        cell_ref = (
+                            f"{param.source_sheet}!{param.source_cell}"
+                        )
+                        self.formula_engine.update_cell_value(
+                            cell_ref, samples[i]
+                        )
 
                 # Calculate output metric values
                 for metric in simulation.output_metrics:
                     try:
-                        calc_result = self.formula_engine.calculate_cell(metric)
+                        calc_result = self.formula_engine.calculate_cell(
+                            metric
+                        )
                         if calc_result.error is None:
                             results[metric].append(calc_result.value)
                         else:
@@ -560,8 +605,12 @@ class MonteCarloService:
             values = np.array(results[metric])
             nan_count = np.isnan(values).sum()
 
-            if nan_count > simulation.iterations * 0.1:  # More than 10% NaN
-                raise ValueError(f"Too many calculation errors for metric {metric}")
+            if (
+                nan_count > simulation.iterations * 0.1
+            ):  # More than 10% NaN
+                raise ValueError(
+                    f"Too many calculation errors for metric {metric}"
+                )
 
             # Replace NaN with median of valid values
             if nan_count > 0:
@@ -592,13 +641,17 @@ class MonteCarloService:
                 "variance": float(np.var(values_array)),
                 "min": float(np.min(values_array)),
                 "max": float(np.max(values_array)),
-                "range": float(np.max(values_array) - np.min(values_array)),
+                "range": float(
+                    np.max(values_array) - np.min(values_array)
+                ),
             }
 
             # Percentiles
             percentiles = [1, 5, 10, 25, 50, 75, 90, 95, 99]
             for p in percentiles:
-                stats_dict[f"percentile_{p}"] = float(np.percentile(values_array, p))
+                stats_dict[f"percentile_{p}"] = float(
+                    np.percentile(values_array, p)
+                )
 
             # Distribution moments
             stats_dict["skewness"] = float(stats.skew(values_array))
@@ -606,7 +659,9 @@ class MonteCarloService:
 
             # Coefficient of variation
             if stats_dict["mean"] != 0:
-                stats_dict["cv"] = stats_dict["std_dev"] / abs(stats_dict["mean"])
+                stats_dict["cv"] = stats_dict["std_dev"] / abs(
+                    stats_dict["mean"]
+                )
             else:
                 stats_dict["cv"] = 0
 
@@ -630,16 +685,23 @@ class MonteCarloService:
 
             risk_metrics.update(
                 {
-                    "portfolio_var_95": float(np.percentile(all_values_array, 5)),
-                    "portfolio_var_99": float(np.percentile(all_values_array, 1)),
+                    "portfolio_var_95": float(
+                        np.percentile(all_values_array, 5)
+                    ),
+                    "portfolio_var_99": float(
+                        np.percentile(all_values_array, 1)
+                    ),
                     "portfolio_expected_shortfall": float(
                         np.mean(
                             all_values_array[
-                                all_values_array <= np.percentile(all_values_array, 5)
+                                all_values_array
+                                <= np.percentile(all_values_array, 5)
                             ]
                         )
                     ),
-                    "probability_of_loss": float(np.mean(all_values_array < 0)),
+                    "probability_of_loss": float(
+                        np.mean(all_values_array < 0)
+                    ),
                 }
             )
 
@@ -662,9 +724,13 @@ class MonteCarloService:
             for param_id, param_samples in parameter_samples.items():
                 try:
                     # Calculate correlation with first output metric
-                    corr_coef = np.corrcoef(param_samples, output_values)[0, 1]
+                    corr_coef = np.corrcoef(param_samples, output_values)[
+                        0, 1
+                    ]
                     correlations[param_id] = (
-                        float(corr_coef) if not np.isnan(corr_coef) else 0.0
+                        float(corr_coef)
+                        if not np.isnan(corr_coef)
+                        else 0.0
                     )
                 except Exception:
                     correlations[param_id] = 0.0
@@ -695,5 +761,9 @@ class MonteCarloService:
         for param_value in scenario_values:
             parameter = param_value.parameter
             if parameter and parameter.source_cell:
-                cell_ref = f"{parameter.source_sheet}!{parameter.source_cell}"
-                self.formula_engine.update_cell_value(cell_ref, param_value.value)
+                cell_ref = (
+                    f"{parameter.source_sheet}!{parameter.source_cell}"
+                )
+                self.formula_engine.update_cell_value(
+                    cell_ref, param_value.value
+                )

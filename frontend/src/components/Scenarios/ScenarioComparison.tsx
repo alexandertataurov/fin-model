@@ -5,16 +5,16 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/design-system/components/Select';
-import { Badge } from '@/design-system/components/Badge';
+} from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
 import {
   Table,
   TableBody,
@@ -22,10 +22,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/design-system/components/Table';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { ScrollArea } from '@/design-system/components/ScrollArea';
-import { Separator } from '@/design-system/components/Separator';
+} from '@/design-system/molecules';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import { ScrollArea } from '@/design-system/molecules';
+import { Separator } from '@/design-system/atoms';
 import {
   TrendingUp,
   TrendingDown,

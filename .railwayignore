@@ -1,5 +1,0 @@
-package.json
-package-lock.json
-frontend/
-node_modules/
-*.log

@@ -63,7 +63,11 @@ class ParameterService:
 
     def detect_parameters(self, model_id: str) -> List[Parameter]:
         """Detect potential parameters from a financial model."""
-        model = self.db.query(UploadedFile).filter(UploadedFile.id == model_id).first()
+        model = (
+            self.db.query(UploadedFile)
+            .filter(UploadedFile.id == model_id)
+            .first()
+        )
         if not model:
             raise ValueError(f"Model {model_id} not found")
 
@@ -73,9 +77,15 @@ class ParameterService:
         parameters = []
         for param_data in detected_params:
             parameter = Parameter(
-                name=param_data.get("name", f"Parameter_{len(parameters) + 1}"),
-                parameter_type=param_data.get("type", ParameterType.CONSTANT),
-                category=param_data.get("category", ParameterCategory.ASSUMPTIONS),
+                name=param_data.get(
+                    "name", f"Parameter_{len(parameters) + 1}"
+                ),
+                parameter_type=param_data.get(
+                    "type", ParameterType.CONSTANT
+                ),
+                category=param_data.get(
+                    "category", ParameterCategory.ASSUMPTIONS
+                ),
                 value=param_data.get("value", 0.0),
                 default_value=param_data.get("value", 0.0),
                 current_value=param_data.get("value", 0.0),
@@ -101,7 +111,9 @@ class ParameterService:
             name=config["name"],
             display_name=config.get("display_name"),
             description=config.get("description"),
-            parameter_type=config.get("parameter_type", ParameterType.CONSTANT),
+            parameter_type=config.get(
+                "parameter_type", ParameterType.CONSTANT
+            ),
             category=config.get("category", ParameterCategory.ASSUMPTIONS),
             value=config["value"],
             default_value=config["value"],
@@ -127,7 +139,11 @@ class ParameterService:
         self, param_id: str, value: float, user_id: int, reason: str = None
     ) -> RecalculationResult:
         """Update parameter value and trigger recalculation."""
-        parameter = self.db.query(Parameter).filter(Parameter.id == param_id).first()
+        parameter = (
+            self.db.query(Parameter)
+            .filter(Parameter.id == param_id)
+            .first()
+        )
         if not parameter:
             raise ValueError(f"Parameter {param_id} not found")
 
@@ -158,7 +174,9 @@ class ParameterService:
         self.db.commit()
 
         # Trigger recalculation
-        return self.recalculate_model(parameter.source_file_id, {param_id: value})
+        return self.recalculate_model(
+            parameter.source_file_id, {param_id: value}
+        )
 
     def batch_update_parameters(
         self, updates: List[Dict[str, Any]], user_id: int
@@ -173,7 +191,9 @@ class ParameterService:
             reason = update.get("reason")
 
             parameter = (
-                self.db.query(Parameter).filter(Parameter.id == param_id).first()
+                self.db.query(Parameter)
+                .filter(Parameter.id == param_id)
+                .first()
             )
             if not parameter:
                 continue
@@ -217,17 +237,23 @@ class ParameterService:
 
             # Get model file
             model = (
-                self.db.query(UploadedFile).filter(UploadedFile.id == model_id).first()
+                self.db.query(UploadedFile)
+                .filter(UploadedFile.id == model_id)
+                .first()
             )
             if not model:
-                return RecalculationResult(success=False, error="Model not found")
+                return RecalculationResult(
+                    success=False, error="Model not found"
+                )
 
             # Use formula engine for recalculation
             result = self.formula_engine.recalculate_affected_cells(
                 model.file_path, changed_params
             )
 
-            calculation_time = (datetime.utcnow() - start_time).total_seconds()
+            calculation_time = (
+                datetime.utcnow() - start_time
+            ).total_seconds()
 
             return RecalculationResult(
                 success=True,
@@ -248,10 +274,14 @@ class ParameterService:
 
         # Range validation
         if parameter.min_value is not None and value < parameter.min_value:
-            errors.append(f"Value {value} is below minimum {parameter.min_value}")
+            errors.append(
+                f"Value {value} is below minimum {parameter.min_value}"
+            )
 
         if parameter.max_value is not None and value > parameter.max_value:
-            errors.append(f"Value {value} is above maximum {parameter.max_value}")
+            errors.append(
+                f"Value {value} is above maximum {parameter.max_value}"
+            )
 
         # Type-specific validation
         if parameter.parameter_type == ParameterType.PERCENTAGE:
@@ -262,7 +292,9 @@ class ParameterService:
         if parameter.validation_rules:
             for rule in parameter.validation_rules:
                 if not self._apply_validation_rule(rule, value):
-                    errors.append(rule.get("error_message", "Validation rule failed"))
+                    errors.append(
+                        rule.get("error_message", "Validation rule failed")
+                    )
 
         return ParameterValidationResult(
             valid=len(errors) == 0, errors=errors, warnings=warnings
@@ -270,7 +302,11 @@ class ParameterService:
 
     def get_parameter_dependencies(self, param_id: str) -> Dict[str, Any]:
         """Get parameter dependency tree."""
-        parameter = self.db.query(Parameter).filter(Parameter.id == param_id).first()
+        parameter = (
+            self.db.query(Parameter)
+            .filter(Parameter.id == param_id)
+            .first()
+        )
         if not parameter:
             return {}
 
@@ -346,11 +382,17 @@ class ParameterService:
     ) -> Dict[str, Any]:
         """Get all parameters for a model, optionally grouped."""
         parameters = (
-            self.db.query(Parameter).filter(Parameter.source_file_id == model_id).all()
+            self.db.query(Parameter)
+            .filter(Parameter.source_file_id == model_id)
+            .all()
         )
 
         if not grouped:
-            return {"parameters": [self._parameter_to_dict(p) for p in parameters]}
+            return {
+                "parameters": [
+                    self._parameter_to_dict(p) for p in parameters
+                ]
+            }
 
         # Group parameters
         groups = (
@@ -364,10 +406,14 @@ class ParameterService:
         ungrouped_params = []
 
         for group in groups:
-            group_params = [p for p in parameters if p.group_id == group.id]
+            group_params = [
+                p for p in parameters if p.group_id == group.id
+            ]
             grouped_params[group.id] = {
                 "group": self._group_to_dict(group),
-                "parameters": [self._parameter_to_dict(p) for p in group_params],
+                "parameters": [
+                    self._parameter_to_dict(p) for p in group_params
+                ],
             }
 
         # Add ungrouped parameters
@@ -405,7 +451,9 @@ class ParameterService:
         else:
             return "number"
 
-    def _infer_step_size(self, param_data: Dict[str, Any]) -> Optional[float]:
+    def _infer_step_size(
+        self, param_data: Dict[str, Any]
+    ) -> Optional[float]:
         """Infer step size for parameter controls."""
         param_type = param_data.get("type")
 
@@ -419,7 +467,9 @@ class ParameterService:
         else:
             return None
 
-    def _apply_validation_rule(self, rule: Dict[str, Any], value: float) -> bool:
+    def _apply_validation_rule(
+        self, rule: Dict[str, Any], value: float
+    ) -> bool:
         """Apply custom validation rule."""
         rule_type = rule.get("type")
 
@@ -432,7 +482,9 @@ class ParameterService:
 
         return True
 
-    def _build_dependency_tree(self, parameter: Parameter) -> Dict[str, Any]:
+    def _build_dependency_tree(
+        self, parameter: Parameter
+    ) -> Dict[str, Any]:
         """Build dependency tree for parameter."""
         # Simplified implementation - would need more complex logic
         # for full dependency tracking
@@ -499,13 +551,17 @@ class ParameterService:
             .first()
         )
         if not scenario:
-            raise ValueError(f"Scenario {scenario_id} not found or access denied")
+            raise ValueError(
+                f"Scenario {scenario_id} not found or access denied"
+            )
         return scenario
 
     def _get_parameter(self, parameter_id: int) -> Parameter:
         """Retrieve parameter by id."""
         parameter = (
-            self.db.query(Parameter).filter(Parameter.id == parameter_id).first()
+            self.db.query(Parameter)
+            .filter(Parameter.id == parameter_id)
+            .first()
         )
         if not parameter:
             raise ValueError(f"Parameter {parameter_id} not found")
@@ -526,7 +582,9 @@ class ParameterService:
 
         validation = self.validate_parameter_value(parameter, value)
         if not validation.valid:
-            raise ValueError(f"Parameter validation failed: {validation.errors}")
+            raise ValueError(
+                f"Parameter validation failed: {validation.errors}"
+            )
 
         # Check if override already exists
         existing_override = (
@@ -565,7 +623,9 @@ class ParameterService:
 
         if param_value:
             param_value.value = value
-            param_value.change_reason = reason or "Scenario parameter override"
+            param_value.change_reason = (
+                reason or "Scenario parameter override"
+            )
             param_value.changed_at = datetime.utcnow()
             param_value.changed_by_id = user_id
         else:
@@ -636,7 +696,8 @@ class ParameterService:
             else:
                 param_dict.update(
                     {
-                        "scenario_value": param.current_value or param.value,
+                        "scenario_value": param.current_value
+                        or param.value,
                         "has_override": False,
                         "override_default": False,
                     }
@@ -671,7 +732,9 @@ class ParameterService:
         )
 
         if not scenario:
-            raise ValueError(f"Scenario {scenario_id} not found or access denied")
+            raise ValueError(
+                f"Scenario {scenario_id} not found or access denied"
+            )
 
         updated_parameters = []
         validation_errors = []
@@ -733,7 +796,9 @@ class ParameterService:
         )
 
         if not scenario:
-            raise ValueError(f"Scenario {scenario_id} not found or access denied")
+            raise ValueError(
+                f"Scenario {scenario_id} not found or access denied"
+            )
 
         # Remove scenario parameter override
         scenario_override = (
@@ -761,10 +826,14 @@ class ParameterService:
         if param_value:
             # Get original parameter for default value
             parameter = (
-                self.db.query(Parameter).filter(Parameter.id == parameter_id).first()
+                self.db.query(Parameter)
+                .filter(Parameter.id == parameter_id)
+                .first()
             )
             if parameter:
-                param_value.value = parameter.current_value or parameter.value
+                param_value.value = (
+                    parameter.current_value or parameter.value
+                )
                 param_value.change_reason = "Removed scenario override"
                 param_value.changed_at = datetime.utcnow()
                 param_value.changed_by_id = user_id
@@ -792,7 +861,9 @@ class ParameterService:
         )
 
         if len(scenarios) != 2:
-            raise ValueError("One or both scenarios not found or access denied")
+            raise ValueError(
+                "One or both scenarios not found or access denied"
+            )
 
         # Get source scenario parameter overrides
         source_overrides = self.db.query(ScenarioParameter).filter(
@@ -839,8 +910,12 @@ class ParameterService:
             "source_scenario_id": source_scenario_id,
             "target_scenario_id": target_scenario_id,
             "copied_parameters": copied_parameters,
-            "total_copied": len([p for p in copied_parameters if p["success"]]),
-            "total_failed": len([p for p in copied_parameters if not p["success"]]),
+            "total_copied": len(
+                [p for p in copied_parameters if p["success"]]
+            ),
+            "total_failed": len(
+                [p for p in copied_parameters if not p["success"]]
+            ),
         }
 
     def get_scenario_parameter_differences(
@@ -859,15 +934,17 @@ class ParameterService:
         )
 
         if len(scenarios) != 2:
-            raise ValueError("One or both scenarios not found or access denied")
+            raise ValueError(
+                "One or both scenarios not found or access denied"
+            )
 
         # Get parameter values for both scenarios
-        scenario_1_params = self.get_scenario_parameters(scenario_id_1, user_id)[
-            "parameters"
-        ]
-        scenario_2_params = self.get_scenario_parameters(scenario_id_2, user_id)[
-            "parameters"
-        ]
+        scenario_1_params = self.get_scenario_parameters(
+            scenario_id_1, user_id
+        )["parameters"]
+        scenario_2_params = self.get_scenario_parameters(
+            scenario_id_2, user_id
+        )["parameters"]
 
         # Create parameter maps
         params_1_map = {p["id"]: p for p in scenario_1_params}
@@ -891,7 +968,9 @@ class ParameterService:
             if value_1 != value_2:
                 difference = value_2 - value_1
                 percent_change = (
-                    (difference / value_1 * 100) if value_1 != 0 else float("inf")
+                    (difference / value_1 * 100)
+                    if value_1 != 0
+                    else float("inf")
                 )
 
                 differences.append(
@@ -902,8 +981,12 @@ class ParameterService:
                         "scenario_2_value": value_2,
                         "absolute_difference": difference,
                         "percent_change": percent_change,
-                        "scenario_1_has_override": param_1.get("has_override", False),
-                        "scenario_2_has_override": param_2.get("has_override", False),
+                        "scenario_1_has_override": param_1.get(
+                            "has_override", False
+                        ),
+                        "scenario_2_has_override": param_2.get(
+                            "has_override", False
+                        ),
                     }
                 )
 

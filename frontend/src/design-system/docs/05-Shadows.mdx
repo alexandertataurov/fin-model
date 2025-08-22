@@ -1,0 +1,607 @@
+---
+title: 'Shadows'
+description: 'Complete shadow system for depth, hierarchy, and visual feedback'
+parameters:
+  docs:
+    description:
+      component: 'Our shadow system provides consistent elevation levels and visual feedback that create depth, hierarchy, and interactive states across all components.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import { tokens } from '../tokens';
+
+<Meta
+  title="* - Documentation/Foundations/Shadows"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Shadows
+
+Our shadow system provides a comprehensive set of elevation levels that create depth, hierarchy, and visual feedback in our interfaces. Each shadow is carefully crafted to enhance usability while maintaining accessibility and performance.
+
+## Overview
+
+The shadow system consists of:
+
+- **Elevation Levels**: Multiple shadow depths for different UI layers
+- **Interactive States**: Shadows for hover, active, and focus states
+- **Semantic Shadows**: Purpose-specific shadows for common patterns
+- **Performance Optimized**: Efficient shadow implementations
+- **Accessibility Compliant**: Shadows that don't interfere with usability
+
+## Shadow Tokens
+
+### Base Shadow Scale
+
+```typescript
+tokens.shadows = {
+  none: 'none', // No shadow
+  sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)', // Subtle elevation
+  base: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)', // Default elevation
+  md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', // Medium elevation
+  lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', // Large elevation
+  xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)', // Extra large elevation
+  '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)', // Maximum elevation
+  inner: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)', // Inset shadow
+};
+```
+
+### Semantic Shadows
+
+```typescript
+tokens.shadows = {
+  // Component shadows
+  card: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+  button: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  modal: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+  dropdown:
+    '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+
+  // Interactive shadows
+  hover: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  active: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  focus: '0 0 0 3px rgb(99 102 241 / 0.1)', // Primary color focus ring
+
+  // Special shadows
+  glow: '0 0 20px rgb(99 102 241 / 0.15)', // Primary color glow
+  error: '0 0 0 3px rgb(239 68 68 / 0.1)', // Error state focus
+  success: '0 0 0 3px rgb(16 185 129 / 0.1)', // Success state focus
+};
+```
+
+## Usage Rules
+
+### 1. **Elevation Hierarchy**
+
+- **none**: No elevation, flat surfaces
+- **sm**: Subtle elevation, small components
+- **base**: Default elevation, cards, buttons
+- **md**: Medium elevation, dropdowns, tooltips
+- **lg**: Large elevation, modals, overlays
+- **xl**: Extra large elevation, floating elements
+- **2xl**: Maximum elevation, hero elements
+
+### 2. **Interactive States**
+
+- **Default**: Use base shadow for static elements
+- **Hover**: Increase shadow depth for interactive feedback
+- **Active**: Reduce shadow depth for pressed state
+- **Focus**: Use colored focus ring for accessibility
+
+### 3. **Component-Specific Shadows**
+
+- **Cards**: Use base shadow for content containers
+- **Buttons**: Use sm shadow with hover elevation
+- **Modals**: Use lg or xl shadow for overlay depth
+- **Dropdowns**: Use md shadow for floating menus
+
+### 4. **Performance Considerations**
+
+- Use `box-shadow` for most cases
+- Avoid multiple shadows on the same element
+- Consider `filter: drop-shadow()` for complex shapes
+- Use `will-change: box-shadow` for animated shadows
+
+## Best Practices
+
+### 1. **Consistent Elevation**
+
+```tsx
+// ✅ Good - Consistent shadow usage
+<div style={{ boxShadow: tokens.shadows.base }}>
+  <button style={{ boxShadow: tokens.shadows.sm }}>
+    Click me
+  </button>
+</div>
+
+// ❌ Bad - Inconsistent shadows
+<div style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+  <button style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>
+    Click me
+  </button>
+</div>
+```
+
+### 2. **Interactive Feedback**
+
+```tsx
+// ✅ Good - Clear interactive states
+<button
+  style={{
+    boxShadow: tokens.shadows.sm,
+    transition: 'box-shadow 0.2s ease',
+  }}
+  onMouseEnter={e => {
+    e.target.style.boxShadow = tokens.shadows.hover;
+  }}
+  onMouseLeave={e => {
+    e.target.style.boxShadow = tokens.shadows.sm;
+  }}
+  onMouseDown={e => {
+    e.target.style.boxShadow = tokens.shadows.active;
+  }}
+>
+  Interactive Button
+</button>
+```
+
+### 3. **Accessibility Compliance**
+
+```tsx
+// ✅ Good - Accessible focus indicator
+<button
+  style={{
+    boxShadow: tokens.shadows.sm,
+    outline: 'none',
+  }}
+  onFocus={e => {
+    e.target.style.boxShadow = tokens.shadows.focus;
+  }}
+  onBlur={e => {
+    e.target.style.boxShadow = tokens.shadows.sm;
+  }}
+>
+  Accessible Button
+</button>
+```
+
+### 4. **Performance Optimization**
+
+```tsx
+// ✅ Good - Optimized shadow animation
+<div
+  style={{
+    boxShadow: tokens.shadows.base,
+    willChange: 'box-shadow',
+    transition: 'box-shadow 0.2s ease',
+  }}
+>
+  Optimized content
+</div>
+```
+
+## How-To Guides
+
+### Creating a Shadow Utility System
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+const shadows = {
+  // Basic shadows
+  none: { boxShadow: tokens.shadows.none },
+  sm: { boxShadow: tokens.shadows.sm },
+  base: { boxShadow: tokens.shadows.base },
+  md: { boxShadow: tokens.shadows.md },
+  lg: { boxShadow: tokens.shadows.lg },
+  xl: { boxShadow: tokens.shadows.xl },
+  '2xl': { boxShadow: tokens.shadows['2xl'] },
+
+  // Interactive shadows
+  hover: { boxShadow: tokens.shadows.hover },
+  active: { boxShadow: tokens.shadows.active },
+  focus: { boxShadow: tokens.shadows.focus },
+
+  // Component shadows
+  card: { boxShadow: tokens.shadows.card },
+  button: { boxShadow: tokens.shadows.button },
+  modal: { boxShadow: tokens.shadows.modal },
+  dropdown: { boxShadow: tokens.shadows.dropdown },
+
+  // Special shadows
+  glow: { boxShadow: tokens.shadows.glow },
+  error: { boxShadow: tokens.shadows.error },
+  success: { boxShadow: tokens.shadows.success },
+};
+
+// Usage example
+const Card = ({
+  children,
+  elevation = 'base',
+}: {
+  children: React.ReactNode;
+  elevation?: keyof typeof shadows;
+}) => (
+  <div
+    style={{
+      ...shadows[elevation],
+      padding: tokens.spacing[4],
+      borderRadius: '8px',
+      backgroundColor: 'white',
+    }}
+  >
+    {children}
+  </div>
+);
+```
+
+### Creating an Interactive Button Component
+
+```tsx
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary';
+  size?: 'small' | 'medium' | 'large';
+  disabled?: boolean;
+}
+
+const Button = ({
+  children,
+  variant = 'primary',
+  size = 'medium',
+  disabled,
+}: ButtonProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const getShadow = () => {
+    if (disabled) return tokens.shadows.none;
+    if (isPressed) return tokens.shadows.active;
+    if (isHovered) return tokens.shadows.hover;
+    if (isFocused) return tokens.shadows.focus;
+    return tokens.shadows.sm;
+  };
+
+  const getStyles = () => {
+    const baseStyles = {
+      border: 'none',
+      borderRadius: '6px',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      transition: 'all 0.2s ease',
+      boxShadow: getShadow(),
+      opacity: disabled ? 0.6 : 1,
+    };
+
+    const sizeStyles = {
+      small: { padding: '8px 16px', fontSize: '14px' },
+      medium: { padding: '12px 24px', fontSize: '16px' },
+      large: { padding: '16px 32px', fontSize: '18px' },
+    };
+
+    const variantStyles = {
+      primary: {
+        backgroundColor: tokens.colors.primary[500],
+        color: tokens.colors.white,
+      },
+      secondary: {
+        backgroundColor: tokens.colors.white,
+        color: tokens.colors.secondary[700],
+        border: `1px solid ${tokens.colors.secondary[300]}`,
+      },
+    };
+
+    return {
+      ...baseStyles,
+      ...sizeStyles[size],
+      ...variantStyles[variant],
+    };
+  };
+
+  return (
+    <button
+      style={getStyles()}
+      disabled={disabled}
+      onMouseEnter={() => !disabled && setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onMouseDown={() => !disabled && setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
+      onFocus={() => !disabled && setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+### Creating a Modal Component
+
+```tsx
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}
+
+const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: tokens.zIndex.modal,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: tokens.spacing[6],
+          maxWidth: '500px',
+          width: '90%',
+          maxHeight: '80vh',
+          overflow: 'auto',
+          boxShadow: tokens.shadows.modal,
+          position: 'relative',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: tokens.spacing[4],
+          }}
+        >
+          <h2
+            style={{
+              fontSize: tokens.typography.fontSize.xl,
+              fontWeight: tokens.typography.fontWeight.semibold,
+              margin: 0,
+            }}
+          >
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: tokens.spacing[2],
+              borderRadius: '4px',
+              boxShadow: tokens.shadows.none,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              e.target.style.boxShadow = tokens.shadows.sm;
+            }}
+            onMouseLeave={e => {
+              e.target.style.boxShadow = tokens.shadows.none;
+            }}
+          >
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};
+```
+
+## Common Patterns
+
+### Card with Hover Effect
+
+```tsx
+const HoverCard = ({ title, content }: { title: string; content: string }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      style={{
+        padding: tokens.spacing[4],
+        borderRadius: '8px',
+        backgroundColor: 'white',
+        border: `1px solid ${tokens.colors.secondary[200]}`,
+        boxShadow: isHovered ? tokens.shadows.hover : tokens.shadows.base,
+        transition: 'all 0.2s ease',
+        cursor: 'pointer',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <h3
+        style={{
+          fontSize: tokens.typography.fontSize.lg,
+          fontWeight: tokens.typography.fontWeight.semibold,
+          marginBottom: tokens.spacing[3],
+          margin: 0,
+        }}
+      >
+        {title}
+      </h3>
+      <p
+        style={{
+          color: tokens.colors.secondary[600],
+          margin: 0,
+          lineHeight: tokens.typography.lineHeight.relaxed,
+        }}
+      >
+        {content}
+      </p>
+    </div>
+  );
+};
+```
+
+### Floating Action Button
+
+```tsx
+const FloatingActionButton = ({
+  icon,
+  onClick,
+}: {
+  icon: string;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    style={{
+      position: 'fixed',
+      bottom: tokens.spacing[6],
+      right: tokens.spacing[6],
+      width: '56px',
+      height: '56px',
+      borderRadius: '50%',
+      backgroundColor: tokens.colors.primary[500],
+      color: tokens.colors.white,
+      border: 'none',
+      cursor: 'pointer',
+      boxShadow: tokens.shadows.lg,
+      transition: 'all 0.2s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '24px',
+    }}
+    onMouseEnter={e => {
+      e.target.style.boxShadow = tokens.shadows.xl;
+      e.target.style.transform = 'scale(1.05)';
+    }}
+    onMouseLeave={e => {
+      e.target.style.boxShadow = tokens.shadows.lg;
+      e.target.style.transform = 'scale(1)';
+    }}
+  >
+    {icon}
+  </button>
+);
+```
+
+### Dropdown Menu
+
+```tsx
+const DropdownMenu = ({
+  trigger,
+  items,
+  isOpen,
+  onToggle,
+}: {
+  trigger: React.ReactNode;
+  items: Array<{ label: string; onClick: () => void }>;
+  isOpen: boolean;
+  onToggle: () => void;
+}) => (
+  <div style={{ position: 'relative' }}>
+    <div onClick={onToggle}>{trigger}</div>
+
+    {isOpen && (
+      <div
+        style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          border: `1px solid ${tokens.colors.secondary[200]}`,
+          boxShadow: tokens.shadows.dropdown,
+          zIndex: tokens.zIndex.dropdown,
+          marginTop: tokens.spacing[1],
+        }}
+      >
+        {items.map((item, index) => (
+          <button
+            key={index}
+            onClick={item.onClick}
+            style={{
+              width: '100%',
+              padding: `${tokens.spacing[2]} ${tokens.spacing[3]}`,
+              border: 'none',
+              background: 'none',
+              textAlign: 'left',
+              cursor: 'pointer',
+              fontSize: tokens.typography.fontSize.base,
+              color: tokens.colors.secondary[700],
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              e.target.style.backgroundColor = tokens.colors.secondary[50];
+            }}
+            onMouseLeave={e => {
+              e.target.style.backgroundColor = 'transparent';
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+);
+```
+
+## Accessibility Guidelines
+
+### 1. **Focus Indicators**
+
+- Always provide visible focus indicators
+- Use colored focus rings for better visibility
+- Ensure focus indicators don't rely solely on shadows
+
+### 2. **Reduced Motion**
+
+- Respect `prefers-reduced-motion` media query
+- Provide alternative visual feedback
+- Test with motion reduction enabled
+
+### 3. **High Contrast Mode**
+
+- Ensure shadows work in high contrast mode
+- Test with system high contrast settings
+- Provide alternative visual cues
+
+### 4. **Screen Reader Support**
+
+- Don't rely on shadows for information
+- Use semantic HTML for proper interpretation
+- Test with screen readers
+
+## Testing Checklist
+
+- [ ] Shadows provide clear visual hierarchy
+- [ ] Interactive states are clearly distinguishable
+- [ ] Focus indicators are visible and accessible
+- [ ] Shadows work in high contrast mode
+- [ ] Performance is acceptable on all devices
+- [ ] Reduced motion preferences are respected
+- [ ] Shadows don't interfere with content readability
+- [ ] Shadow animations are smooth and performant
+
+## Resources
+
+- [Material Design Elevation](https://material.io/design/environment/elevation.html)
+- [CSS Box Shadow](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow)
+- [Accessible Focus Indicators](https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html)
+- [Performance Best Practices](https://web.dev/animations-guide/)

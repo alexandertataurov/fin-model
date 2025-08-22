@@ -55,10 +55,14 @@ def upgrade() -> None:
             sa.Column("user_id", sa.Integer(), nullable=False),
             sa.Column(
                 "permission",
-                sa.Enum("VIEW", "EDIT", "ADMIN", name="collaborationpermission"),
+                sa.Enum(
+                    "VIEW", "EDIT", "ADMIN", name="collaborationpermission"
+                ),
                 nullable=False,
             ),
-            sa.Column("invited_by", sa.Integer(), nullable=False),  # UUID->Integer
+            sa.Column(
+                "invited_by", sa.Integer(), nullable=False
+            ),  # UUID->Integer
             sa.Column("invited_at", sa.DateTime(), nullable=True),
             sa.Column("accepted_at", sa.DateTime(), nullable=True),
             sa.Column("is_active", sa.Boolean(), nullable=True),
@@ -234,7 +238,9 @@ def upgrade() -> None:
         idx["name"] == "ix_report_edits_timestamp"
         for idx in inspector.get_indexes("report_edits")
     ):
-        op.create_index("ix_report_edits_timestamp", "report_edits", ["timestamp"])
+        op.create_index(
+            "ix_report_edits_timestamp", "report_edits", ["timestamp"]
+        )
 
     if table_exists("ai_insights") and not any(
         idx["name"] == "ix_ai_insights_template_id"
@@ -250,7 +256,9 @@ def upgrade() -> None:
         idx["name"] == "ix_ai_insights_created_at"
         for idx in inspector.get_indexes("ai_insights")
     ):
-        op.create_index("ix_ai_insights_created_at", "ai_insights", ["created_at"])
+        op.create_index(
+            "ix_ai_insights_created_at", "ai_insights", ["created_at"]
+        )
 
     if table_exists("collaboration_sessions") and not any(
         idx["name"] == "ix_collaboration_sessions_template_id"
@@ -281,7 +289,9 @@ def downgrade() -> None:
         "ix_report_collaborations_template_id",
         table_name="report_collaborations",
     )
-    op.drop_index("ix_report_templates_created_by", table_name="report_templates")
+    op.drop_index(
+        "ix_report_templates_created_by", table_name="report_templates"
+    )
 
     # Drop tables
     op.drop_table("collaboration_sessions")

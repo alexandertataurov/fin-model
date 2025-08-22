@@ -1,23 +1,19 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/design-system/components/Button';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/design-system/components/Avatar';
+import { Button } from '@/design-system/atoms';
+import { Avatar, AvatarFallback, AvatarImage } from '@/design-system/atoms';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/design-system/components/DropdownMenu';
-import { Separator } from '@/design-system/components/Separator';
+} from '@/design-system/molecules';
+import { Separator } from '@/design-system/atoms';
 import { Menu, LogOut, Home, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Caption, textStyles } from '@/design-system/utils/typography';
 // import { HelpButton } from '../ui';
-import { ThemeToggle } from '../theme-toggle';
+
 import Sidebar from './Sidebar';
 
 const Layout = () => {
@@ -127,9 +123,15 @@ const Layout = () => {
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.avatar || undefined} alt={fullName} />
+                    <AvatarImage
+                      src={user?.avatar || undefined}
+                      alt={fullName}
+                    />
                     <AvatarFallback>{userInitial}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -150,8 +152,6 @@ const Layout = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <ThemeToggle />
           </div>
         </header>
 

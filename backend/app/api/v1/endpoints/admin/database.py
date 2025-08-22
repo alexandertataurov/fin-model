@@ -37,7 +37,9 @@ class ReindexResponse(BaseModel):
 
 @router.get("/database/health", response_model=Dict[str, Any])
 async def get_database_health(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get comprehensive database health check."""
@@ -78,8 +80,12 @@ async def get_database_health(
                 )
             ).fetchone()
 
-            avg_query_time_ms = query_time[0] if query_time and query_time[0] else 0
-            max_query_time_ms = query_time[1] if query_time and query_time[1] else 0
+            avg_query_time_ms = (
+                query_time[0] if query_time and query_time[0] else 0
+            )
+            max_query_time_ms = (
+                query_time[1] if query_time and query_time[1] else 0
+            )
 
             # If no active queries, provide a default value
             if avg_query_time_ms == 0 and max_query_time_ms == 0:
@@ -124,7 +130,9 @@ async def get_database_performance(
     ),
     from_ts: Optional[datetime] = Query(None),
     to_ts: Optional[datetime] = Query(None),
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get database query performance analysis."""
@@ -160,7 +168,9 @@ async def get_database_performance(
                         "query": query[0][:100] + "..."
                         if len(query[0]) > 100
                         else query[0],
-                        "runtime_ms": round(query[1], 2) if query[1] else 0,
+                        "runtime_ms": round(query[1], 2)
+                        if query[1]
+                        else 0,
                         "state": query[2],
                         "application_name": query[3] or "unknown",
                     }
@@ -188,7 +198,9 @@ async def get_database_performance(
 
 @router.get("/database/tables", response_model=Dict[str, Dict[str, Any]])
 async def get_table_information(
-    current_user: User = Depends(require_permissions(Permission.SYSTEM_HEALTH)),
+    current_user: User = Depends(
+        require_permissions(Permission.SYSTEM_HEALTH)
+    ),
     db: Session = Depends(get_db),
 ):
     """Get detailed table size and usage information."""
@@ -232,7 +244,9 @@ async def get_table_information(
                     size_result = db.execute(text(size_sql)).fetchone()
                     total_size_bytes = size_result[0] if size_result else 0
                     size_mb = total_size_bytes / (1024 * 1024)
-                    size_pretty = f"{size_mb:.2f} MB" if size_mb > 0 else "0 MB"
+                    size_pretty = (
+                        f"{size_mb:.2f} MB" if size_mb > 0 else "0 MB"
+                    )
                 except Exception:
                     size_mb = 0.1
                     size_pretty = "0.1 MB"
@@ -267,7 +281,9 @@ async def get_table_information(
                     "size_pretty": "0.1 MB",
                     "last_updated": datetime.now(timezone.utc).isoformat(),
                     "integrity_status": "error",
-                    "error_message": str(e)[:100],  # Truncate error message
+                    "error_message": str(e)[
+                        :100
+                    ],  # Truncate error message
                 }
 
         # Add total records as a dictionary
@@ -284,8 +300,12 @@ async def get_table_information(
 
 @router.post("/database/cleanup", response_model=Dict[str, Any])
 async def cleanup_database(
-    dry_run: bool = Query(True, description="Whether to perform a dry run"),
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    dry_run: bool = Query(
+        True, description="Whether to perform a dry run"
+    ),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ):
     """Clean up stale database records based on retention policies."""
@@ -302,7 +322,9 @@ async def cleanup_database(
 
 @router.post("/database/backup", response_model=BackupResponse)
 async def backup_database(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ):
     """Trigger a database backup job."""
@@ -326,7 +348,9 @@ async def backup_database(
 @router.post("/database/export", response_model=ExportResponse)
 async def export_database(
     payload: ExportRequest,
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ):
     """Export data (full or table). Returns file URL."""
@@ -351,7 +375,9 @@ async def export_database(
 
 @router.post("/database/reindex", response_model=ReindexResponse)
 async def reindex_database(
-    current_user: User = Depends(require_permissions(Permission.ADMIN_ACCESS)),
+    current_user: User = Depends(
+        require_permissions(Permission.ADMIN_ACCESS)
+    ),
     db: Session = Depends(get_db),
 ):
     """Rebuild indexes."""

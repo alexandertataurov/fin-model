@@ -1,6 +1,6 @@
 export interface ReportElement {
   id: string;
-  type: "chart" | "table" | "metric" | "text" | "image";
+  type: 'chart' | 'table' | 'metric' | 'text' | 'image';
   position: { x: number; y: number };
   size: { width: number; height: number };
   config: ReportElementConfig;
@@ -13,8 +13,8 @@ export interface ReportTemplate {
   description: string;
   elements: ReportElement[];
   layout: {
-    pageSize: "A4" | "Letter" | "Legal";
-    orientation: "portrait" | "landscape";
+    pageSize: 'A4' | 'Letter' | 'Legal';
+    orientation: 'portrait' | 'landscape';
     margins: { top: number; right: number; bottom: number; left: number };
   };
   metadata: {
@@ -34,7 +34,7 @@ export interface ReportElementConfig {
 }
 
 export interface ChartConfig {
-  chartType: "line" | "bar" | "pie" | "waterfall" | "scatter";
+  chartType: 'line' | 'bar' | 'pie' | 'waterfall' | 'scatter';
   dataSource: string;
   xAxis?: string;
   yAxis?: string[];
@@ -55,31 +55,31 @@ export interface TableColumn {
   key: string;
   title: string;
   width?: number;
-  format?: "currency" | "percentage" | "number" | "text";
+  format?: 'currency' | 'percentage' | 'number' | 'text';
 }
 
 export interface MetricConfig {
   value: string | number;
   label: string;
-  format: "currency" | "percentage" | "number";
+  format: 'currency' | 'percentage' | 'number';
   comparison?: {
     value: string | number;
-    type: "previous_period" | "target" | "benchmark";
+    type: 'previous_period' | 'target' | 'benchmark';
   };
 }
 
 export interface TextConfig {
   content: string;
   fontSize?: number;
-  fontWeight?: "normal" | "bold";
-  textAlign?: "left" | "center" | "right";
+  fontWeight?: 'normal' | 'bold';
+  textAlign?: 'left' | 'center' | 'right';
   color?: string;
 }
 
 export interface ImageConfig {
   src: string;
   alt?: string;
-  fit?: "cover" | "contain" | "fill";
+  fit?: 'cover' | 'contain' | 'fill';
 }
 
 export interface ElementStyle {
@@ -94,7 +94,7 @@ export interface ElementStyle {
 
 export interface DragItem {
   type: string;
-  elementType: ReportElement["type"];
+  elementType: ReportElement['type'];
   id?: string;
 }
 
@@ -120,7 +120,7 @@ export interface PropertiesPanelProps {
 }
 
 export interface ElementPaletteProps {
-  onElementDrag: (elementType: ReportElement["type"]) => void;
+  onElementDrag: (elementType: ReportElement['type']) => void;
 }
 
 // Collaboration types
@@ -136,9 +136,9 @@ export interface Collaborator {
 }
 
 export enum CollaborationPermission {
-  VIEW = "view",
-  EDIT = "edit",
-  ADMIN = "admin"
+  VIEW = 'view',
+  EDIT = 'edit',
+  ADMIN = 'admin',
 }
 
 export interface ReportCollaboration {
@@ -155,14 +155,18 @@ export interface ReportEdit {
   id: string;
   report_template_id: string;
   user_id: string;
-  edit_type: "element_add" | "element_update" | "element_delete" | "template_update";
+  edit_type:
+    | 'element_add'
+    | 'element_update'
+    | 'element_delete'
+    | 'template_update';
   element_id?: string;
   changes: Record<string, any>;
   timestamp: string;
 }
 
 export interface CollaborationMessage {
-  type: "template_edit" | "user_presence" | "cursor_move";
+  type: 'template_edit' | 'user_presence' | 'cursor_move';
   data: any;
   sender_id: string;
   timestamp: string;
@@ -173,7 +177,11 @@ export interface AIInsight {
   id: string;
   report_id: string;
   user_id: string;
-  insight_type: "trend_analysis" | "ratio_analysis" | "risk_assessment" | "comprehensive";
+  insight_type:
+    | 'trend_analysis'
+    | 'ratio_analysis'
+    | 'risk_assessment'
+    | 'comprehensive';
   input_data: Record<string, any>;
   ai_response: {
     summary: string;
@@ -188,7 +196,7 @@ export interface AIInsight {
 
 export interface ReportElementSuggestion {
   id: string;
-  type: ReportElement["type"];
+  type: ReportElement['type'];
   subtype?: string;
   title: string;
   description: string;

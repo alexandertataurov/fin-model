@@ -152,9 +152,7 @@ export async function devClearRateLimits(): Promise<{
   return response.data;
 }
 
-export async function cleanupFiles(
-  dryRun = true
-): Promise<{
+export async function cleanupFiles(dryRun = true): Promise<{
   message: string;
   orphaned_files: number;
   failed_files: number;
@@ -166,7 +164,10 @@ export async function cleanupFiles(
   return response.data;
 }
 
-export async function backupDatabase(): Promise<{ job_id: string; message: string }> {
+export async function backupDatabase(): Promise<{
+  job_id: string;
+  message: string;
+}> {
   const response = await api.post('/admin/database/backup');
   return response.data;
 }
@@ -179,7 +180,10 @@ export async function exportDatabase(payload: {
   return response.data;
 }
 
-export async function reindexDatabase(): Promise<{ job_id: string; message: string }> {
+export async function reindexDatabase(): Promise<{
+  job_id: string;
+  message: string;
+}> {
   const response = await api.post('/admin/database/reindex');
   return response.data;
 }

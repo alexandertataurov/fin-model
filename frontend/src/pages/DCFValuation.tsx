@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
-import { Button } from '@/design-system/components/Button';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
-import { Badge } from '@/design-system/components/Badge';
-import { 
-  Target, 
-  TrendingUp, 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import {
+  Target,
+  TrendingUp,
   Calculator,
   BarChart3,
   DollarSign,
   Save,
-  Play
+  Play,
 } from 'lucide-react';
 
 const DCFValuation: React.FC = () => {
@@ -23,38 +34,38 @@ const DCFValuation: React.FC = () => {
       id: 'fcf-projection',
       label: 'FCF Projection',
       icon: <TrendingUp className="h-4 w-4" />,
-      description: 'Free Cash Flow projections for 5-10 years'
+      description: 'Free Cash Flow projections for 5-10 years',
     },
     {
       id: 'terminal-value',
       label: 'Terminal Value',
       icon: <Target className="h-4 w-4" />,
-      description: 'Terminal value calculation methods'
+      description: 'Terminal value calculation methods',
     },
     {
       id: 'cost-of-capital',
       label: 'Cost of Capital',
       icon: <Calculator className="h-4 w-4" />,
-      description: 'WACC calculation and components'
+      description: 'WACC calculation and components',
     },
     {
       id: 'sensitivity',
       label: 'Sensitivity Analysis',
       icon: <BarChart3 className="h-4 w-4" />,
-      description: 'Key value drivers and scenario analysis'
+      description: 'Key value drivers and scenario analysis',
     },
     {
       id: 'comparable',
       label: 'Comparable Analysis',
       icon: <DollarSign className="h-4 w-4" />,
-      description: 'Trading multiples and peer comparison'
+      description: 'Trading multiples and peer comparison',
     },
     {
       id: 'results',
       label: 'Valuation Results',
       icon: <Target className="h-4 w-4" />,
-      description: 'Final valuation and per-share metrics'
-    }
+      description: 'Final valuation and per-share metrics',
+    },
   ];
 
   return (
@@ -88,17 +99,25 @@ const DCFValuation: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-              {dcfSections.map((section) => (
-                <TabsTrigger key={section.id} value={section.id} className="flex items-center gap-2">
+              {dcfSections.map(section => (
+                <TabsTrigger
+                  key={section.id}
+                  value={section.id}
+                  className="flex items-center gap-2"
+                >
                   {section.icon}
                   <span className="hidden lg:inline">{section.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {dcfSections.map((section) => (
+            {dcfSections.map(section => (
               <TabsContent key={section.id} value={section.id} className="mt-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
@@ -106,7 +125,7 @@ const DCFValuation: React.FC = () => {
                     <h3 className="text-lg font-semibold">{section.label}</h3>
                     <Badge variant="secondary">{section.description}</Badge>
                   </div>
-                  
+
                   {/* Section-specific content */}
                   {section.id === 'fcf-projection' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -214,7 +233,9 @@ const DCFValuation: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Enterprise Value</CardTitle>
+                            <CardTitle className="text-sm">
+                              Enterprise Value
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="text-2xl font-bold">$1,250M</div>
@@ -222,7 +243,9 @@ const DCFValuation: React.FC = () => {
                         </Card>
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Equity Value</CardTitle>
+                            <CardTitle className="text-sm">
+                              Equity Value
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="text-2xl font-bold">$1,180M</div>
@@ -230,7 +253,9 @@ const DCFValuation: React.FC = () => {
                         </Card>
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Per Share Value</CardTitle>
+                            <CardTitle className="text-sm">
+                              Per Share Value
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="text-2xl font-bold">$45.20</div>

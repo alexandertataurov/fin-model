@@ -47,7 +47,9 @@ class VirusScannerInterface:
         """Scan a file for viruses."""
         raise NotImplementedError
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data for viruses."""
         raise NotImplementedError
 
@@ -68,12 +70,16 @@ class ClamAVScanner(VirusScannerInterface):
             self.clamd_client = (
                 clamd.ClamdUnixSocket()
                 if self.clamd_host == "unix"
-                else clamd.ClamdNetworkSocket(self.clamd_host, self.clamd_port)
+                else clamd.ClamdNetworkSocket(
+                    self.clamd_host, self.clamd_port
+                )
             )
             # Test connection
             self.clamd_client.ping()
         except Exception as e:
-            raise ConnectionError(f"Failed to connect to ClamAV daemon: {str(e)}")
+            raise ConnectionError(
+                f"Failed to connect to ClamAV daemon: {str(e)}"
+            )
 
     async def scan_file(self, file_path: str) -> ScanResult:
         """Scan file using ClamAV."""
@@ -130,7 +136,9 @@ class ClamAVScanner(VirusScannerInterface):
                 details={"error": str(e)},
             )
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data using ClamAV."""
         # Write to temporary file and scan
         with tempfile.NamedTemporaryFile(
@@ -184,7 +192,9 @@ class VirusTotalScanner(VirusScannerInterface):
 
             if report and report.get("response_code") == 1:
                 # We have existing results
-                scan_time = (datetime.utcnow() - start_time).total_seconds()
+                scan_time = (
+                    datetime.utcnow() - start_time
+                ).total_seconds()
                 return self._parse_virustotal_result(
                     report, file_hash, scan_time, start_time
                 )
@@ -202,7 +212,9 @@ class VirusTotalScanner(VirusScannerInterface):
                 await asyncio.sleep(15)  # Wait for scan to complete
 
                 report = await self._get_file_report(file_hash)
-                scan_time = (datetime.utcnow() - start_time).total_seconds()
+                scan_time = (
+                    datetime.utcnow() - start_time
+                ).total_seconds()
 
                 if report and report.get("response_code") == 1:
                     return self._parse_virustotal_result(
@@ -224,7 +236,9 @@ class VirusTotalScanner(VirusScannerInterface):
                         },
                     )
             else:
-                raise Exception(f"Failed to upload file to VirusTotal: {upload_result}")
+                raise Exception(
+                    f"Failed to upload file to VirusTotal: {upload_result}"
+                )
 
         except Exception as e:
             return ScanResult(
@@ -238,7 +252,9 @@ class VirusTotalScanner(VirusScannerInterface):
                 details={"error": str(e)},
             )
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data using VirusTotal."""
         # Write to temporary file and scan
         with tempfile.NamedTemporaryFile(
@@ -255,11 +271,15 @@ class VirusTotalScanner(VirusScannerInterface):
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
 
-    async def _get_file_report(self, file_hash: str) -> Optional[Dict[str, Any]]:
+    async def _get_file_report(
+        self, file_hash: str
+    ) -> Optional[Dict[str, Any]]:
         """Get file report from VirusTotal."""
         params = {"apikey": self.api_key, "resource": file_hash}
 
-        response = requests.get(f"{self.api_url}/file/report", params=params)
+        response = requests.get(
+            f"{self.api_url}/file/report", params=params
+        )
         if response.status_code == 200:
             return response.json()
         return None
@@ -364,7 +384,9 @@ class BasicFileScanner(VirusScannerInterface):
             # Check file extension
             file_ext = Path(file_path).suffix.lower()
             if file_ext in self.dangerous_extensions:
-                threats.append(f"Potentially dangerous file type: {file_ext}")
+                threats.append(
+                    f"Potentially dangerous file type: {file_ext}"
+                )
 
             # Check file size (unusually large files)
             file_size = os.path.getsize(file_path)
@@ -376,7 +398,9 @@ class BasicFileScanner(VirusScannerInterface):
                 content = f.read(1024)  # Read first 1KB
                 for signature in self.malicious_signatures:
                     if signature in content:
-                        threats.append("Known test virus signature detected")
+                        threats.append(
+                            "Known test virus signature detected"
+                        )
 
             # Check MIME type consistency
             guessed_type, _ = mimetypes.guess_type(file_path)
@@ -411,7 +435,9 @@ class BasicFileScanner(VirusScannerInterface):
                 details={"error": str(e)},
             )
 
-    async def scan_file_data(self, file_data: BinaryIO, filename: str) -> ScanResult:
+    async def scan_file_data(
+        self, file_data: BinaryIO, filename: str
+    ) -> ScanResult:
         """Scan file data using basic heuristics."""
         # Write to temporary file and scan
         with tempfile.NamedTemporaryFile(
@@ -446,13 +472,18 @@ class VirusScanManager:
 
     def _initialize_scanners(self):
         """Initialize available virus scanners."""
-        scanner_types = getattr(settings, "VIRUS_SCANNERS", ["basic"]).copy()
+        scanner_types = getattr(
+            settings, "VIRUS_SCANNERS", ["basic"]
+        ).copy()
 
         for scanner_type in scanner_types:
             try:
                 if scanner_type.lower() == "clamav" and CLAMD_AVAILABLE:
                     self.scanners.append(ClamAVScanner())
-                elif scanner_type.lower() == "virustotal" and VIRUSTOTAL_AVAILABLE:
+                elif (
+                    scanner_type.lower() == "virustotal"
+                    and VIRUSTOTAL_AVAILABLE
+                ):
                     self.scanners.append(VirusTotalScanner())
                 elif scanner_type.lower() == "basic":
                     self.scanners.append(BasicFileScanner())
@@ -495,9 +526,13 @@ class VirusScanManager:
 
         # Calculate overall confidence
         confidences = [
-            r.get("confidence", 0) for r in results if r.get("confidence", 0) > 0
+            r.get("confidence", 0)
+            for r in results
+            if r.get("confidence", 0) > 0
         ]
-        overall_confidence = sum(confidences) / len(confidences) if confidences else 0
+        overall_confidence = (
+            sum(confidences) / len(confidences) if confidences else 0
+        )
 
         return {
             "is_clean": overall_clean,
@@ -507,7 +542,9 @@ class VirusScanManager:
             "scanners_used": [r.get("scan_engine") for r in results],
             "scan_summary": {
                 "total_scanners": len(results),
-                "clean_results": sum(1 for r in results if r.get("is_clean", False)),
+                "clean_results": sum(
+                    1 for r in results if r.get("is_clean", False)
+                ),
                 "threat_results": sum(
                     1 for r in results if not r.get("is_clean", True)
                 ),
@@ -537,7 +574,9 @@ class VirusScanManager:
     def get_scanner_status(self) -> Dict[str, Any]:
         """Get status of all configured scanners."""
         return {
-            "available_scanners": [type(scanner).__name__ for scanner in self.scanners],
+            "available_scanners": [
+                type(scanner).__name__ for scanner in self.scanners
+            ],
             "total_scanners": len(self.scanners),
             "clamav_available": CLAMD_AVAILABLE,
             "virustotal_available": VIRUSTOTAL_AVAILABLE

@@ -10,7 +10,9 @@ import {
 export interface LogsSlice {
   logs: LogsState & NormalizedApiResponse<LogEntry[]>;
   fetchLogsData: () => Promise<void>;
-  updateLogsFilters: (filters: Partial<Omit<LogsState, 'items' | 'total'>>) => void;
+  updateLogsFilters: (
+    filters: Partial<Omit<LogsState, 'items' | 'total'>>
+  ) => void;
   fetchLogs: () => Promise<void>;
 }
 
@@ -34,7 +36,7 @@ export const createLogsSlice: StateCreator<LogsSlice, [], [], LogsSlice> = (
     await get().fetchLogs();
   },
 
-  updateLogsFilters: (filters) => {
+  updateLogsFilters: filters => {
     set((state: any) => ({
       logs: { ...state.logs, ...filters },
     }));
@@ -47,13 +49,17 @@ export const createLogsSlice: StateCreator<LogsSlice, [], [], LogsSlice> = (
 
     try {
       const { logs } = get() as any;
-      const response: any = await AdminApi.getSystemLogs(logs.level, logs.limit, {
-        from: logs.from || undefined,
-        to: logs.to || undefined,
-        search: logs.search || undefined,
-        skip: logs.skip,
-        envelope: true,
-      });
+      const response: any = await AdminApi.getSystemLogs(
+        logs.level,
+        logs.limit,
+        {
+          from: logs.from || undefined,
+          to: logs.to || undefined,
+          search: logs.search || undefined,
+          skip: logs.skip,
+          envelope: true,
+        }
+      );
 
       if ('items' in response) {
         set((state: any) => ({
@@ -61,7 +67,10 @@ export const createLogsSlice: StateCreator<LogsSlice, [], [], LogsSlice> = (
             ...state.logs,
             data: response.items,
             items: response.items,
-            total: response.total ?? response.pagination?.total ?? response.items.length,
+            total:
+              response.total ??
+              response.pagination?.total ??
+              response.items.length,
             skip: response.skip ?? response.pagination?.page ?? 0,
             loading: false,
             lastUpdated: Date.now(),

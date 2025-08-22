@@ -41,7 +41,9 @@ def upgrade() -> None:
                 print(f"✅ Added column {column_name} to {table_name}")
                 return True
             else:
-                print(f"⚠️ Column {column_name} already exists in {table_name}")
+                print(
+                    f"⚠️ Column {column_name} already exists in {table_name}"
+                )
                 return False
         except Exception as e:
             print(f"⚠️ Could not add column {column_name}: {e}")

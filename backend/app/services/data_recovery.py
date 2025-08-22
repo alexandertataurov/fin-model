@@ -78,8 +78,12 @@ class DataRecoveryService:
     def __init__(self):
         self.storage_manager = CloudStorageManager()
         self.partial_processor = PartialProcessor()
-        self.backup_retention_days = getattr(settings, "BACKUP_RETENTION_DAYS", 30)
-        self.recovery_temp_dir = Path(tempfile.gettempdir()) / "finvision_recovery"
+        self.backup_retention_days = getattr(
+            settings, "BACKUP_RETENTION_DAYS", 30
+        )
+        self.recovery_temp_dir = (
+            Path(tempfile.gettempdir()) / "finvision_recovery"
+        )
         self.recovery_temp_dir.mkdir(exist_ok=True)
 
     def analyze_recovery_options(
@@ -124,13 +128,17 @@ class DataRecoveryService:
 
             # Check partial processing options
             if file_record.validation_errors:
-                partial_actions = self._analyze_partial_processing_recovery(
-                    file_record, db
+                partial_actions = (
+                    self._analyze_partial_processing_recovery(
+                        file_record, db
+                    )
                 )
                 recovery_actions.extend(partial_actions)
 
             # Check storage recovery options
-            storage_actions = self._analyze_storage_recovery(file_record, db)
+            storage_actions = self._analyze_storage_recovery(
+                file_record, db
+            )
             recovery_actions.extend(storage_actions)
 
             # Sort by priority (lower number = higher priority)
@@ -288,7 +296,9 @@ class DataRecoveryService:
 
         # Check if file exists in storage
         file_exists = (
-            os.path.exists(file_record.file_path) if file_record.file_path else False
+            os.path.exists(file_record.file_path)
+            if file_record.file_path
+            else False
         )
 
         if not file_exists:
@@ -369,15 +379,22 @@ class DataRecoveryService:
                 return await self._execute_backup_restore(
                     file_record, recovery_action, db
                 )
-            elif recovery_action.action_type == RecoveryType.FILE_CORRUPTION:
+            elif (
+                recovery_action.action_type == RecoveryType.FILE_CORRUPTION
+            ):
                 return await self._execute_corruption_recovery(
                     file_record, recovery_action, db
                 )
-            elif recovery_action.action_type == RecoveryType.PROCESSING_FAILURE:
+            elif (
+                recovery_action.action_type
+                == RecoveryType.PROCESSING_FAILURE
+            ):
                 return await self._execute_processing_recovery(
                     file_record, recovery_action, db
                 )
-            elif recovery_action.action_type == RecoveryType.STORAGE_FAILURE:
+            elif (
+                recovery_action.action_type == RecoveryType.STORAGE_FAILURE
+            ):
                 return await self._execute_storage_recovery(
                     file_record, recovery_action, db
                 )
@@ -430,10 +447,14 @@ class DataRecoveryService:
 
             # Use the most recent backup
             latest_backup = max(backup_files, key=lambda x: x["timestamp"])
-            actions_taken.append(f"Selected backup from {latest_backup['timestamp']}")
+            actions_taken.append(
+                f"Selected backup from {latest_backup['timestamp']}"
+            )
 
             # Restore the backup
-            restored_path = await self._restore_backup_file(latest_backup, file_record)
+            restored_path = await self._restore_backup_file(
+                latest_backup, file_record
+            )
 
             if restored_path:
                 actions_taken.append("Backup file restored successfully")
@@ -517,9 +538,13 @@ class DataRecoveryService:
 
             if partial_result.success and partial_result.extracted_data:
                 # Update file record with partial data
-                file_record.parsed_data = json.dumps(partial_result.extracted_data)
+                file_record.parsed_data = json.dumps(
+                    partial_result.extracted_data
+                )
                 file_record.status = FileStatus.COMPLETED
-                file_record.is_valid = partial_result.completion_percentage > 50
+                file_record.is_valid = (
+                    partial_result.completion_percentage > 50
+                )
 
                 # Store recovery information
                 recovery_info = {
@@ -532,14 +557,18 @@ class DataRecoveryService:
                 file_record.validation_errors = json.dumps(
                     {
                         "recovery_info": recovery_info,
-                        "original_errors": json.loads(file_record.validation_errors)
+                        "original_errors": json.loads(
+                            file_record.validation_errors
+                        )
                         if file_record.validation_errors
                         else [],
                     }
                 )
 
                 db.commit()
-                actions_taken.append("File record updated with recovered data")
+                actions_taken.append(
+                    "File record updated with recovered data"
+                )
 
                 return RecoveryResult(
                     success=True,
@@ -547,14 +576,20 @@ class DataRecoveryService:
                     recovered_data=partial_result.extracted_data,
                     actions_taken=actions_taken,
                     files_recovered=[file_record.file_path],
-                    data_integrity_score=partial_result.completion_percentage / 100,
+                    data_integrity_score=partial_result.completion_percentage
+                    / 100,
                     recovery_timestamp=datetime.utcnow(),
                     warnings=warnings
-                    + [i.description for i in partial_result.issues_encountered],
+                    + [
+                        i.description
+                        for i in partial_result.issues_encountered
+                    ],
                     next_steps=partial_result.recommendations,
                 )
             else:
-                warnings.append("Partial processing failed to extract meaningful data")
+                warnings.append(
+                    "Partial processing failed to extract meaningful data"
+                )
 
         except Exception as e:
             warnings.append(f"Corruption recovery error: {str(e)}")
@@ -577,7 +612,9 @@ class DataRecoveryService:
 
     # Additional recovery methods would be implemented here...
 
-    def _find_file_backups(self, file_record: UploadedFile) -> List[Dict[str, Any]]:
+    def _find_file_backups(
+        self, file_record: UploadedFile
+    ) -> List[Dict[str, Any]]:
         """Find backup files for the given file record."""
         backups = []
 

@@ -4,10 +4,21 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
 // duplicate import removed
-import { Download, TrendingUp, TrendingDown, Target, Calculator } from 'lucide-react';
+import {
+  Download,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Calculator,
+} from 'lucide-react';
 
 interface DCFData {
   // Projection Parameters
@@ -123,7 +134,9 @@ const DCFView: React.FC<DCFViewProps> = ({
   isLoading = false,
   onRefresh,
 }) => {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['projections', 'valuation']));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['projections', 'valuation'])
+  );
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections);
@@ -177,14 +190,13 @@ const DCFView: React.FC<DCFViewProps> = ({
       >
         <h3 className="font-semibold text-lg">{title}</h3>
         <Calculator
-          className={`w-5 h-5 transition-transform ${expandedSections.has(sectionKey) ? 'rotate-90' : ''
-            }`}
+          className={`w-5 h-5 transition-transform ${
+            expandedSections.has(sectionKey) ? 'rotate-90' : ''
+          }`}
         />
       </button>
       {expandedSections.has(sectionKey) && (
-        <div className="border-t">
-          {children}
-        </div>
+        <div className="border-t">{children}</div>
       )}
     </div>
   );
@@ -211,7 +223,9 @@ const DCFView: React.FC<DCFViewProps> = ({
       <CardContent className="space-y-6">
         {/* Valuation Summary - Top Priority */}
         <div className="border-2 border-blue-200 rounded-lg p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
-          <h3 className="font-semibold text-xl mb-4 text-blue-800">Valuation Summary</h3>
+          <h3 className="font-semibold text-xl mb-4 text-blue-800">
+            Valuation Summary
+          </h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div className="text-center">
               <p className="text-sm text-gray-600">Enterprise Value</p>
@@ -234,9 +248,16 @@ const DCFView: React.FC<DCFViewProps> = ({
             <div className="text-center">
               <p className="text-sm text-gray-600">Upside/Downside</p>
               <div className="flex items-center justify-center space-x-2">
-                <p className={`text-2xl font-bold ${data.key_metrics.upside_downside >= 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                  {formatPercentage(data.key_metrics.upside_downside_percentage)}
+                <p
+                  className={`text-2xl font-bold ${
+                    data.key_metrics.upside_downside >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {formatPercentage(
+                    data.key_metrics.upside_downside_percentage
+                  )}
                 </p>
                 {data.key_metrics.upside_downside >= 0 ? (
                   <TrendingUp className="w-6 h-6 text-green-500" />
@@ -247,15 +268,22 @@ const DCFView: React.FC<DCFViewProps> = ({
             </div>
           </div>
           <div className="text-center pt-4 border-t">
-            <p className="text-sm text-gray-600">Current Share Price: {formatCurrency(data.key_metrics.current_share_price)}</p>
             <p className="text-sm text-gray-600">
-              Upside/Downside: {formatCurrency(data.key_metrics.upside_downside)}
+              Current Share Price:{' '}
+              {formatCurrency(data.key_metrics.current_share_price)}
+            </p>
+            <p className="text-sm text-gray-600">
+              Upside/Downside:{' '}
+              {formatCurrency(data.key_metrics.upside_downside)}
             </p>
           </div>
         </div>
 
         {/* Free Cash Flow Projections */}
-        <ExpandableSection title="Free Cash Flow Projections" sectionKey="projections">
+        <ExpandableSection
+          title="Free Cash Flow Projections"
+          sectionKey="projections"
+        >
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
@@ -272,15 +300,34 @@ const DCFView: React.FC<DCFViewProps> = ({
               </thead>
               <tbody>
                 {data.fcf_projections.map((projection, index) => (
-                  <tr key={projection.year} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}>
-                    <td className="px-4 py-2 font-medium">Year {projection.year}</td>
-                    <td className="px-4 py-2 text-right">{formatCurrency(projection.revenue)}</td>
-                    <td className="px-4 py-2 text-right">{formatCurrency(projection.ebitda)}</td>
-                    <td className="px-4 py-2 text-right">{formatCurrency(projection.ebit)}</td>
-                    <td className="px-4 py-2 text-right">{formatCurrency(projection.nopat)}</td>
-                    <td className="px-4 py-2 text-right font-semibold">{formatCurrency(projection.unlevered_fcf)}</td>
-                    <td className="px-4 py-2 text-right">{projection.discount_factor.toFixed(3)}</td>
-                    <td className="px-4 py-2 text-right font-semibold text-blue-600">{formatCurrency(projection.present_value_fcf)}</td>
+                  <tr
+                    key={projection.year}
+                    className={index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}
+                  >
+                    <td className="px-4 py-2 font-medium">
+                      Year {projection.year}
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {formatCurrency(projection.revenue)}
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {formatCurrency(projection.ebitda)}
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {formatCurrency(projection.ebit)}
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {formatCurrency(projection.nopat)}
+                    </td>
+                    <td className="px-4 py-2 text-right font-semibold">
+                      {formatCurrency(projection.unlevered_fcf)}
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {projection.discount_factor.toFixed(3)}
+                    </td>
+                    <td className="px-4 py-2 text-right font-semibold text-blue-600">
+                      {formatCurrency(projection.present_value_fcf)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -289,35 +336,52 @@ const DCFView: React.FC<DCFViewProps> = ({
         </ExpandableSection>
 
         {/* Terminal Value Calculation */}
-        <ExpandableSection title="Terminal Value Calculation" sectionKey="terminal">
+        <ExpandableSection
+          title="Terminal Value Calculation"
+          sectionKey="terminal"
+        >
           <div className="bg-gray-50 p-4 space-y-3">
             <div className="flex justify-between">
               <span>Final Year FCF:</span>
-              <span className="font-semibold">{formatCurrency(data.terminal_value.final_year_fcf)}</span>
+              <span className="font-semibold">
+                {formatCurrency(data.terminal_value.final_year_fcf)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>Terminal Growth Rate:</span>
-              <span className="font-semibold">{formatPercentage(data.terminal_value.terminal_growth_rate)}</span>
+              <span className="font-semibold">
+                {formatPercentage(data.terminal_value.terminal_growth_rate)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>Terminal FCF:</span>
-              <span className="font-semibold">{formatCurrency(data.terminal_value.terminal_fcf)}</span>
+              <span className="font-semibold">
+                {formatCurrency(data.terminal_value.terminal_fcf)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>WACC Discount Rate:</span>
-              <span className="font-semibold">{formatPercentage(data.discount_rate_wacc)}</span>
+              <span className="font-semibold">
+                {formatPercentage(data.discount_rate_wacc)}
+              </span>
             </div>
             <div className="flex justify-between border-t pt-2">
               <span>Terminal Value:</span>
-              <span className="font-bold">{formatCurrency(data.terminal_value.terminal_value)}</span>
+              <span className="font-bold">
+                {formatCurrency(data.terminal_value.terminal_value)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span>Terminal Discount Factor:</span>
-              <span className="font-semibold">{data.terminal_value.terminal_discount_factor.toFixed(3)}</span>
+              <span className="font-semibold">
+                {data.terminal_value.terminal_discount_factor.toFixed(3)}
+              </span>
             </div>
             <div className="flex justify-between border-t pt-2">
               <span className="font-semibold">PV of Terminal Value:</span>
-              <span className="font-bold text-green-600">{formatCurrency(data.terminal_value.present_value_terminal)}</span>
+              <span className="font-bold text-green-600">
+                {formatCurrency(data.terminal_value.present_value_terminal)}
+              </span>
             </div>
           </div>
         </ExpandableSection>
@@ -327,19 +391,29 @@ const DCFView: React.FC<DCFViewProps> = ({
           <div className="space-y-4 p-4">
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold mb-3">Enterprise Value Components</h4>
+                <h4 className="font-semibold mb-3">
+                  Enterprise Value Components
+                </h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Sum of PV of FCF:</span>
-                    <span className="font-semibold">{formatCurrency(data.valuation_summary.sum_pv_fcf)}</span>
+                    <span className="font-semibold">
+                      {formatCurrency(data.valuation_summary.sum_pv_fcf)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>PV of Terminal Value:</span>
-                    <span className="font-semibold">{formatCurrency(data.valuation_summary.present_value_terminal)}</span>
+                    <span className="font-semibold">
+                      {formatCurrency(
+                        data.valuation_summary.present_value_terminal
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="font-bold">Enterprise Value:</span>
-                    <span className="font-bold text-blue-600">{formatCurrency(data.valuation_summary.enterprise_value)}</span>
+                    <span className="font-bold text-blue-600">
+                      {formatCurrency(data.valuation_summary.enterprise_value)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -349,23 +423,37 @@ const DCFView: React.FC<DCFViewProps> = ({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Enterprise Value:</span>
-                    <span className="font-semibold">{formatCurrency(data.valuation_summary.enterprise_value)}</span>
+                    <span className="font-semibold">
+                      {formatCurrency(data.valuation_summary.enterprise_value)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Less: Net Debt:</span>
-                    <span className="font-semibold">({formatCurrency(Math.abs(data.valuation_summary.net_debt))})</span>
+                    <span className="font-semibold">
+                      (
+                      {formatCurrency(
+                        Math.abs(data.valuation_summary.net_debt)
+                      )}
+                      )
+                    </span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="font-bold">Equity Value:</span>
-                    <span className="font-bold text-green-600">{formatCurrency(data.valuation_summary.equity_value)}</span>
+                    <span className="font-bold text-green-600">
+                      {formatCurrency(data.valuation_summary.equity_value)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shares Outstanding:</span>
-                    <span className="font-semibold">{data.valuation_summary.shares_outstanding.toLocaleString()}</span>
+                    <span className="font-semibold">
+                      {data.valuation_summary.shares_outstanding.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="font-bold">Value Per Share:</span>
-                    <span className="font-bold text-purple-600">{formatCurrency(data.valuation_summary.value_per_share)}</span>
+                    <span className="font-bold text-purple-600">
+                      {formatCurrency(data.valuation_summary.value_per_share)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -374,7 +462,10 @@ const DCFView: React.FC<DCFViewProps> = ({
         </ExpandableSection>
 
         {/* Sensitivity Analysis */}
-        <ExpandableSection title="Sensitivity Analysis" sectionKey="sensitivity">
+        <ExpandableSection
+          title="Sensitivity Analysis"
+          sectionKey="sensitivity"
+        >
           <div className="p-4">
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="text-center">
@@ -398,27 +489,42 @@ const DCFView: React.FC<DCFViewProps> = ({
             </div>
 
             <div className="overflow-x-auto">
-              <p className="text-sm font-medium mb-2">Sensitivity Matrix (WACC vs Terminal Growth Rate)</p>
+              <p className="text-sm font-medium mb-2">
+                Sensitivity Matrix (WACC vs Terminal Growth Rate)
+              </p>
               <table className="w-full text-xs">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="px-2 py-1">WACC / Terminal Growth</th>
-                    {data.sensitivity_analysis.terminal_growth_range.map((rate, index) => (
-                      <th key={index} className="px-2 py-1">{formatPercentage(rate)}</th>
-                    ))}
+                    {data.sensitivity_analysis.terminal_growth_range.map(
+                      (rate, index) => (
+                        <th key={index} className="px-2 py-1">
+                          {formatPercentage(rate)}
+                        </th>
+                      )
+                    )}
                   </tr>
                 </thead>
                 <tbody>
-                  {data.sensitivity_analysis.discount_rate_range.map((wacc, i) => (
-                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                      <td className="px-2 py-1 font-medium">{formatPercentage(wacc)}</td>
-                      {data.sensitivity_analysis.valuation_matrix[i]?.map((value, j) => (
-                        <td key={j} className="px-2 py-1 text-center">
-                          {formatCurrency(value)}
+                  {data.sensitivity_analysis.discount_rate_range.map(
+                    (wacc, i) => (
+                      <tr
+                        key={i}
+                        className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                      >
+                        <td className="px-2 py-1 font-medium">
+                          {formatPercentage(wacc)}
                         </td>
-                      ))}
-                    </tr>
-                  ))}
+                        {data.sensitivity_analysis.valuation_matrix[i]?.map(
+                          (value, j) => (
+                            <td key={j} className="px-2 py-1 text-center">
+                              {formatCurrency(value)}
+                            </td>
+                          )
+                        )}
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
@@ -458,34 +564,48 @@ const DCFView: React.FC<DCFViewProps> = ({
           <div className="p-4 grid grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600">Beta</p>
-              <p className="text-lg font-semibold">{data.risk_analysis.beta.toFixed(2)}</p>
+              <p className="text-lg font-semibold">
+                {data.risk_analysis.beta.toFixed(2)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Cost of Equity</p>
-              <p className="text-lg font-semibold">{formatPercentage(data.risk_analysis.cost_of_equity)}</p>
+              <p className="text-lg font-semibold">
+                {formatPercentage(data.risk_analysis.cost_of_equity)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Cost of Debt</p>
-              <p className="text-lg font-semibold">{formatPercentage(data.risk_analysis.cost_of_debt)}</p>
+              <p className="text-lg font-semibold">
+                {formatPercentage(data.risk_analysis.cost_of_debt)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">D/E Ratio</p>
-              <p className="text-lg font-semibold">{data.risk_analysis.debt_to_equity_ratio.toFixed(2)}</p>
+              <p className="text-lg font-semibold">
+                {data.risk_analysis.debt_to_equity_ratio.toFixed(2)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Interest Coverage</p>
-              <p className="text-lg font-semibold">{formatMultiple(data.risk_analysis.interest_coverage_ratio)}</p>
+              <p className="text-lg font-semibold">
+                {formatMultiple(data.risk_analysis.interest_coverage_ratio)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Credit Rating</p>
-              <p className="text-lg font-semibold">{data.risk_analysis.credit_rating}</p>
+              <p className="text-lg font-semibold">
+                {data.risk_analysis.credit_rating}
+              </p>
             </div>
           </div>
         </ExpandableSection>
 
         {/* Economic Value Analysis */}
         <div className="border rounded-lg p-4 bg-orange-50">
-          <h3 className="font-semibold text-lg mb-3 text-orange-800">Economic Value Creation</h3>
+          <h3 className="font-semibold text-lg mb-3 text-orange-800">
+            Economic Value Creation
+          </h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <p className="text-sm text-gray-600">ROIC</p>
@@ -508,8 +628,12 @@ const DCFView: React.FC<DCFViewProps> = ({
           </div>
           <div className="mt-3 text-center">
             <p className="text-sm text-gray-600">
-              Value Creation: {data.key_metrics.roic > data.key_metrics.wacc ? 'Positive' : 'Negative'}
-              (ROIC {data.key_metrics.roic > data.key_metrics.wacc ? '>' : '<'} WACC)
+              Value Creation:{' '}
+              {data.key_metrics.roic > data.key_metrics.wacc
+                ? 'Positive'
+                : 'Negative'}
+              (ROIC {data.key_metrics.roic > data.key_metrics.wacc ? '>' : '<'}{' '}
+              WACC)
             </p>
           </div>
         </div>

@@ -95,7 +95,9 @@ class WebAuthnService:
         Verify WebAuthn registration response and store credential.
         """
         # Get and verify challenge
-        challenge_record = self.get_webauthn_challenge(challenge_id, "registration")
+        challenge_record = self.get_webauthn_challenge(
+            challenge_id, "registration"
+        )
         if not challenge_record or challenge_record.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -105,7 +107,9 @@ class WebAuthnService:
         try:
             verification = verify_registration_response(
                 credential=credential,
-                expected_challenge=challenge_record.challenge_data["challenge"],
+                expected_challenge=challenge_record.challenge_data[
+                    "challenge"
+                ],
                 expected_origin=settings.WEBAUTHN_ORIGIN,
                 expected_rp_id=settings.WEBAUTHN_RP_ID,
             )
@@ -119,8 +123,12 @@ class WebAuthnService:
             # Store credential
             webauthn_credential = WebAuthnCredential(
                 user_id=user.id,
-                credential_id=bytes_to_base64url(verification.credential_id),
-                public_key=bytes_to_base64url(verification.credential_public_key),
+                credential_id=bytes_to_base64url(
+                    verification.credential_id
+                ),
+                public_key=bytes_to_base64url(
+                    verification.credential_public_key
+                ),
                 sign_count=verification.sign_count,
                 device_name=device_name or "Unknown Device",
                 device_type="platform",  # Since we're using platform authenticator
@@ -142,7 +150,9 @@ class WebAuthnService:
                 detail=f"Registration failed: {str(e)}",
             )
 
-    def generate_authentication_options(self, user: User) -> Dict[str, Any]:
+    def generate_authentication_options(
+        self, user: User
+    ) -> Dict[str, Any]:
         """
         Generate WebAuthn authentication options for a user.
         """
@@ -195,7 +205,9 @@ class WebAuthnService:
         Verify WebAuthn authentication response.
         """
         # Get and verify challenge
-        challenge_record = self.get_webauthn_challenge(challenge_id, "authentication")
+        challenge_record = self.get_webauthn_challenge(
+            challenge_id, "authentication"
+        )
         if not challenge_record or challenge_record.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -228,10 +240,14 @@ class WebAuthnService:
         try:
             verification = verify_authentication_response(
                 credential=credential,
-                expected_challenge=challenge_record.challenge_data["challenge"],
+                expected_challenge=challenge_record.challenge_data[
+                    "challenge"
+                ],
                 expected_origin=settings.WEBAUTHN_ORIGIN,
                 expected_rp_id=settings.WEBAUTHN_RP_ID,
-                credential_public_key=base64url_to_bytes(stored_credential.public_key),
+                credential_public_key=base64url_to_bytes(
+                    stored_credential.public_key
+                ),
                 credential_current_sign_count=stored_credential.sign_count,
                 require_user_verification=True,
             )
@@ -335,7 +351,8 @@ class WebAuthnService:
             self.db.query(MFAChallenge)
             .filter(
                 MFAChallenge.id == challenge_id,
-                MFAChallenge.challenge_type == f"webauthn_{challenge_type}",
+                MFAChallenge.challenge_type
+                == f"webauthn_{challenge_type}",
                 MFAChallenge.expires_at > datetime.utcnow(),
             )
             .first()

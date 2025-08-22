@@ -37,22 +37,30 @@ class AdminPermissionError(AdminError):
 class AdminValidationError(AdminError):
     """Raised when validation fails."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, message: str, details: Optional[Dict[str, Any]] = None
+    ):
         super().__init__(message, status.HTTP_400_BAD_REQUEST, details)
 
 
 class AdminNotFoundError(AdminError):
     """Raised when resource is not found."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, message: str, details: Optional[Dict[str, Any]] = None
+    ):
         super().__init__(message, status.HTTP_404_NOT_FOUND, details)
 
 
 class AdminSystemError(AdminError):
     """Raised when system operation fails."""
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
-        super().__init__(message, status.HTTP_500_INTERNAL_SERVER_ERROR, details)
+    def __init__(
+        self, message: str, details: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(
+            message, status.HTTP_500_INTERNAL_SERVER_ERROR, details
+        )
 
 
 def handle_admin_error(
@@ -126,7 +134,9 @@ def validate_pagination_params(skip: int, limit: int) -> None:
         )
 
     if limit <= 0:
-        raise AdminValidationError("Limit parameter must be positive", {"limit": limit})
+        raise AdminValidationError(
+            "Limit parameter must be positive", {"limit": limit}
+        )
 
     if limit > 1000:
         raise AdminValidationError(
@@ -134,7 +144,9 @@ def validate_pagination_params(skip: int, limit: int) -> None:
         )
 
 
-def validate_date_range(from_date: Optional[str], to_date: Optional[str]) -> None:
+def validate_date_range(
+    from_date: Optional[str], to_date: Optional[str]
+) -> None:
     """
     Validate date range parameters.
 
@@ -149,7 +161,9 @@ def validate_date_range(from_date: Optional[str], to_date: Optional[str]) -> Non
         try:
             from datetime import datetime
 
-            start = datetime.fromisoformat(from_date.replace("Z", "+00:00"))
+            start = datetime.fromisoformat(
+                from_date.replace("Z", "+00:00")
+            )
             end = datetime.fromisoformat(to_date.replace("Z", "+00:00"))
 
             if start >= end:
@@ -189,7 +203,9 @@ def create_pagination_response(
                 "total": total,
                 "has_more": skip + len(items) < total,
                 "page": (skip // limit) + 1 if limit > 0 else 1,
-                "total_pages": (total + limit - 1) // limit if limit > 0 else 1,
+                "total_pages": (total + limit - 1) // limit
+                if limit > 0
+                else 1,
             },
         }
     else:

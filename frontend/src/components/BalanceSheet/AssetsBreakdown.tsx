@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@/design-system/components/Card';
-import { Badge } from '@/design-system/components/Badge';
+import { Card, CardHeader, CardContent } from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Separator } from '@/design-system/components/Separator';
+import { Separator } from '@/design-system/atoms';
 import {
   Banknote,
   DollarSign,
@@ -25,8 +25,6 @@ interface AssetsBreakdownProps {
 }
 
 const AssetsBreakdown: React.FC<AssetsBreakdownProps> = ({ data }) => {
-
-
   const getAssetIcon = (subcategory: string) => {
     const category = subcategory.toLowerCase();
     if (category.includes('cash') || category.includes('bank')) {

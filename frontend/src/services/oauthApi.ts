@@ -33,7 +33,10 @@ export const oauthApi = {
    * Handle Google OAuth callback
    * Note: This is typically handled by the backend redirect, but included for completeness
    */
-  async handleGoogleCallback(code: string, state: string): Promise<{ success: boolean; access_token?: string }> {
+  async handleGoogleCallback(
+    code: string,
+    state: string
+  ): Promise<{ success: boolean; access_token?: string }> {
     const response = await apiClient.get('/oauth/google/callback', {
       params: { code, state },
     });
@@ -52,7 +55,10 @@ export const oauthApi = {
    * Handle Microsoft OAuth callback
    * Note: This is typically handled by the backend redirect, but included for completeness
    */
-  async handleMicrosoftCallback(code: string, state: string): Promise<{ success: boolean; access_token?: string }> {
+  async handleMicrosoftCallback(
+    code: string,
+    state: string
+  ): Promise<{ success: boolean; access_token?: string }> {
     const response = await apiClient.get('/oauth/microsoft/callback', {
       params: { code, state },
     });
@@ -62,7 +68,10 @@ export const oauthApi = {
   /**
    * Link an OAuth account to current user
    */
-  async linkAccount(provider: 'google' | 'microsoft', data: OAuthLinkRequest): Promise<{ success: boolean }> {
+  async linkAccount(
+    provider: 'google' | 'microsoft',
+    data: OAuthLinkRequest
+  ): Promise<{ success: boolean }> {
     const response = await apiClient.post(`/oauth/link/${provider}`, data);
     return response.data;
   },
@@ -70,7 +79,9 @@ export const oauthApi = {
   /**
    * Unlink an OAuth account from current user
    */
-  async unlinkAccount(provider: 'google' | 'microsoft'): Promise<{ success: boolean }> {
+  async unlinkAccount(
+    provider: 'google' | 'microsoft'
+  ): Promise<{ success: boolean }> {
     const response = await apiClient.delete(`/oauth/unlink/${provider}`);
     return response.data;
   },
@@ -94,7 +105,9 @@ export const oauthUtils = {
   generateState(): string {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join(
+      ''
+    );
   },
 
   /**
@@ -116,7 +129,11 @@ export const oauthUtils = {
   /**
    * Parse OAuth callback URL parameters
    */
-  parseCallbackParams(url: string): { code?: string; state?: string; error?: string } {
+  parseCallbackParams(url: string): {
+    code?: string;
+    state?: string;
+    error?: string;
+  } {
     const urlObj = new URL(url);
     return {
       code: urlObj.searchParams.get('code') || undefined,
@@ -139,7 +156,10 @@ export const oauthUtils = {
   /**
    * Open OAuth provider in popup window
    */
-  openProviderPopup(loginUrl: string, provider: string): Promise<{ code: string; state: string }> {
+  openProviderPopup(
+    loginUrl: string,
+    provider: string
+  ): Promise<{ code: string; state: string }> {
     return new Promise((resolve, reject) => {
       const popup = window.open(
         loginUrl,
@@ -185,14 +205,17 @@ export const oauthUtils = {
       window.addEventListener('message', handleMessage);
 
       // Cleanup after 10 minutes
-      setTimeout(() => {
-        clearInterval(checkClosed);
-        window.removeEventListener('message', handleMessage);
-        if (!popup.closed) {
-          popup.close();
-        }
-        reject(new Error('OAuth timeout'));
-      }, 10 * 60 * 1000);
+      setTimeout(
+        () => {
+          clearInterval(checkClosed);
+          window.removeEventListener('message', handleMessage);
+          if (!popup.closed) {
+            popup.close();
+          }
+          reject(new Error('OAuth timeout'));
+        },
+        10 * 60 * 1000
+      );
     });
   },
 
@@ -210,7 +233,10 @@ export const oauthUtils = {
   /**
    * Get provider icon/color
    */
-  getProviderInfo(provider: 'google' | 'microsoft'): { color: string; icon: string } {
+  getProviderInfo(provider: 'google' | 'microsoft'): {
+    color: string;
+    icon: string;
+  } {
     const info = {
       google: { color: '#4285f4', icon: '🔵' },
       microsoft: { color: '#00a4ef', icon: '🟦' },

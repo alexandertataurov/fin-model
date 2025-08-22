@@ -16,7 +16,12 @@ describe('createAsyncResource', () => {
   };
 
   it('updates state on success', async () => {
-    const { set, get, getState } = createStore({ data: null, loading: false, error: null, lastUpdated: null });
+    const { set, get, getState } = createStore({
+      data: null,
+      loading: false,
+      error: null,
+      lastUpdated: null,
+    });
     const run = createAsyncResource<State, 'resource', string>(
       set,
       get,
@@ -32,7 +37,12 @@ describe('createAsyncResource', () => {
   });
 
   it('handles errors', async () => {
-    const { set, get, getState } = createStore({ data: null, loading: false, error: null, lastUpdated: null });
+    const { set, get, getState } = createStore({
+      data: null,
+      loading: false,
+      error: null,
+      lastUpdated: null,
+    });
     const run = createAsyncResource<State, 'resource', string>(
       set,
       get,

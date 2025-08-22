@@ -1,20 +1,38 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/design-system/components/Card';
-import { Badge } from '@/design-system/components/Badge';
-import { Button } from '@/design-system/components/Button';
-import { Alert, AlertDescription } from '@/design-system/components/Alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/design-system/components/Tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/design-system/components/Table';
-import { 
-  FileSpreadsheet, 
-  Eye, 
-  EyeOff, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
+import { Button } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/design-system/molecules';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/design-system/molecules';
+import {
+  FileSpreadsheet,
+  Eye,
+  EyeOff,
+  TrendingUp,
+  TrendingDown,
   DollarSign,
   RefreshCw,
   AlertTriangle,
-  Info
+  Info,
 } from 'lucide-react';
 import { fileApi } from '../../services/fileApi';
 
@@ -55,7 +73,7 @@ interface FilePreviewProps {
 
 const FilePreview: React.FC<FilePreviewProps> = ({
   fileId,
-  onStatementSelect
+  onStatementSelect,
 }) => {
   const [previewData, setPreviewData] = useState<FilePreviewData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -65,7 +83,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   const loadPreview = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const data = await fileApi.getFilePreview(fileId);
       setPreviewData(data);
@@ -119,8 +137,14 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   };
 
   const getConfidenceBadge = (confidence: number) => {
-    const variant = confidence >= 0.8 ? 'default' : confidence >= 0.6 ? 'secondary' : 'outline';
-    const label = confidence >= 0.8 ? 'High' : confidence >= 0.6 ? 'Medium' : 'Low';
+    const variant =
+      confidence >= 0.8
+        ? 'default'
+        : confidence >= 0.6
+          ? 'secondary'
+          : 'outline';
+    const label =
+      confidence >= 0.8 ? 'High' : confidence >= 0.6 ? 'Medium' : 'Low';
     return (
       <Badge variant={variant} className="text-xs">
         {label} ({Math.round(confidence * 100)}%)
@@ -141,7 +165,9 @@ const FilePreview: React.FC<FilePreviewProps> = ({
       return (
         <Alert>
           <Info className="h-4 w-4" />
-          <AlertDescription>No data to preview for this sheet.</AlertDescription>
+          <AlertDescription>
+            No data to preview for this sheet.
+          </AlertDescription>
         </Alert>
       );
     }
@@ -180,8 +206,13 @@ const FilePreview: React.FC<FilePreviewProps> = ({
             ))}
             {sheet.preview_data.length > 10 && (
               <TableRow>
-                <TableCell colSpan={Math.min(sheet.columns.length, 10) + (sheet.columns.length > 10 ? 1 : 0)} 
-                          className="text-center text-muted-foreground">
+                <TableCell
+                  colSpan={
+                    Math.min(sheet.columns.length, 10) +
+                    (sheet.columns.length > 10 ? 1 : 0)
+                  }
+                  className="text-center text-muted-foreground"
+                >
                   ... {sheet.preview_data.length - 10} more rows
                 </TableCell>
               </TableRow>
@@ -233,7 +264,9 @@ const FilePreview: React.FC<FilePreviewProps> = ({
             <div className="flex items-center space-x-2">
               <FileSpreadsheet className="h-5 w-5 text-green-600" />
               <div>
-                <CardTitle className="text-lg">{previewData.file_name}</CardTitle>
+                <CardTitle className="text-lg">
+                  {previewData.file_name}
+                </CardTitle>
                 <CardDescription>Excel File Preview</CardDescription>
               </div>
             </div>
@@ -246,23 +279,31 @@ const FilePreview: React.FC<FilePreviewProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <span className="text-muted-foreground">File Size:</span>
-              <div className="font-medium">{formatFileSize(previewData.metadata.file_size)}</div>
+              <div className="font-medium">
+                {formatFileSize(previewData.metadata.file_size)}
+              </div>
             </div>
             <div>
               <span className="text-muted-foreground">Total Sheets:</span>
-              <div className="font-medium">{previewData.metadata.total_sheets}</div>
+              <div className="font-medium">
+                {previewData.metadata.total_sheets}
+              </div>
             </div>
             <div>
               <span className="text-muted-foreground">Upload Date:</span>
               <div className="font-medium">
                 {previewData.metadata.upload_date
-                  ? new Date(previewData.metadata.upload_date).toLocaleDateString()
+                  ? new Date(
+                      previewData.metadata.upload_date
+                    ).toLocaleDateString()
                   : 'Unknown'}
               </div>
             </div>
             <div>
               <span className="text-muted-foreground">Preview Rows:</span>
-              <div className="font-medium">{previewData.preview_data.max_rows_per_sheet}</div>
+              <div className="font-medium">
+                {previewData.preview_data.max_rows_per_sheet}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -272,7 +313,9 @@ const FilePreview: React.FC<FilePreviewProps> = ({
       {previewData.detected_statements.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Detected Financial Statements</CardTitle>
+            <CardTitle className="text-lg">
+              Detected Financial Statements
+            </CardTitle>
             <CardDescription>
               Automatically detected statement types based on sheet content
             </CardDescription>
@@ -313,8 +356,12 @@ const FilePreview: React.FC<FilePreviewProps> = ({
         <CardContent>
           <Tabs defaultValue={previewData.sheets[0]?.name} className="w-full">
             <TabsList className="grid w-full grid-cols-auto overflow-x-auto">
-              {previewData.sheets.map((sheet) => (
-                <TabsTrigger key={sheet.name} value={sheet.name} className="text-xs">
+              {previewData.sheets.map(sheet => (
+                <TabsTrigger
+                  key={sheet.name}
+                  value={sheet.name}
+                  className="text-xs"
+                >
                   {sheet.name}
                   <Badge variant="outline" className="ml-2 text-xs">
                     {sheet.row_count}
@@ -323,7 +370,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
               ))}
             </TabsList>
 
-            {previewData.sheets.map((sheet) => (
+            {previewData.sheets.map(sheet => (
               <TabsContent key={sheet.name} value={sheet.name} className="mt-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -349,9 +396,9 @@ const FilePreview: React.FC<FilePreviewProps> = ({
                     </Button>
                   </div>
 
-                  {(expandedSheets.has(sheet.name) || previewData.sheets.length === 1) && (
-                    renderPreviewTable(sheet)
-                  )}
+                  {(expandedSheets.has(sheet.name) ||
+                    previewData.sheets.length === 1) &&
+                    renderPreviewTable(sheet)}
                 </div>
               </TabsContent>
             ))}

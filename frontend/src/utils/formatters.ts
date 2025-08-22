@@ -6,10 +6,7 @@
 /**
  * Format currency values with consistent styling
  */
-export const formatCurrency = (
-  value: number,
-  currency = '$'
-): string => {
+export const formatCurrency = (value: number, currency = '$'): string => {
   if (isNaN(value) || !isFinite(value)) {
     return `${currency}0.00`;
   }
@@ -25,10 +22,7 @@ export const formatCurrency = (
 /**
  * Format percentage values with consistent styling
  */
-export const formatPercentage = (
-  value: number,
-  decimals = 2
-): string => {
+export const formatPercentage = (value: number, decimals = 2): string => {
   if (isNaN(value) || !isFinite(value)) {
     return '0.00%';
   }

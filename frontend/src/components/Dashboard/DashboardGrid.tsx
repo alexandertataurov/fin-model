@@ -1,12 +1,11 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Button } from '@/design-system/components/Button';
-// duplicate import removed
+import { Button } from '@/design-system/atoms';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
+} from '@/design-system/molecules';
 import { componentStyles } from '@/design-system/utils/designSystem';
 import {
   DropdownMenu,
@@ -154,7 +153,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
           className={cn(
             'h-full flex flex-col',
             isFullscreenWidget &&
-            'z-50 fixed inset-4 bg-background border-2 border-primary'
+              'z-50 fixed inset-4 bg-background border-2 border-primary'
           )}
         >
           <CardHeader>

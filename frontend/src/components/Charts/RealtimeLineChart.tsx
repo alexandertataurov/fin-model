@@ -61,28 +61,36 @@ export const RealtimeLineChart: React.FC<RealtimeLineChartProps> = ({
   formatTooltip,
   formatXAxisTick,
   formatYAxisTick,
-  className
+  className,
 }) => {
   const [chartData, setChartData] = useState<LineChartDataPoint[]>(data);
   const [isConnected, setIsConnected] = useState(false);
 
   // Handle data updates from RealtimeChart
-  const handleDataUpdate = useCallback((newData: LineChartDataPoint[]) => {
-    setChartData(newData);
-    onDataUpdate?.(newData);
-  }, [onDataUpdate]);
+  const handleDataUpdate = useCallback(
+    (newData: LineChartDataPoint[]) => {
+      setChartData(newData);
+      onDataUpdate?.(newData);
+    },
+    [onDataUpdate]
+  );
 
   // Handle connection changes
-  const handleConnectionChange = useCallback((connected: boolean) => {
-    setIsConnected(connected);
-    onConnectionChange?.(connected);
-  }, [onConnectionChange]);
+  const handleConnectionChange = useCallback(
+    (connected: boolean) => {
+      setIsConnected(connected);
+      onConnectionChange?.(connected);
+    },
+    [onConnectionChange]
+  );
 
   // Enhance subtitle with connection status
   const enhancedSubtitle = [
     subtitle,
-    isConnected ? '🟢 Live Data' : '🔴 Offline'
-  ].filter(Boolean).join(' • ');
+    isConnected ? '🟢 Live Data' : '🔴 Offline',
+  ]
+    .filter(Boolean)
+    .join(' • ');
 
   return (
     <RealtimeChart

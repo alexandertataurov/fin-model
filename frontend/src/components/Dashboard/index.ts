@@ -11,4 +11,4 @@ export {
   getTemplateLayout,
   getAvailableTemplates,
   type DashboardTemplateKey,
-} from './dashboardConstants'; 
+} from './dashboardConstants';

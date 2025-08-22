@@ -9,14 +9,14 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/design-system/components/Tabs';
+} from '@/design-system/molecules';
 import {
   formatCurrency,
   formatPercentage,
@@ -133,8 +133,8 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                 trend === 'up'
                   ? 'text-green-600'
                   : trend === 'down'
-                  ? 'text-red-600'
-                  : 'text-gray-600'
+                    ? 'text-red-600'
+                    : 'text-gray-600'
               }`}
             >
               {change > 0 ? '+' : ''}

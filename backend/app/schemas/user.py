@@ -45,7 +45,9 @@ class UserCreate(UserBase):
     @classmethod
     def validate_password(cls, v):
         if len(v) < 12:
-            raise ValueError("Password must be at least 12 characters long")
+            raise ValueError(
+                "Password must be at least 12 characters long"
+            )
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
@@ -56,7 +58,9 @@ class UserCreate(UserBase):
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
         if not any(c.islower() for c in v):
-            raise ValueError("Password must contain at least one lowercase letter")
+            raise ValueError(
+                "Password must contain at least one lowercase letter"
+            )
 
         # Special case used in tests: passwords containing the phrase
         # "nonumbers" should be rejected as weak.
@@ -109,7 +113,9 @@ class UserUpdate(BaseModel):
             if len(v) < 1:
                 raise ValueError("Name fields cannot be empty")
             if len(v) > 50:
-                raise ValueError("Name fields must be less than 50 characters")
+                raise ValueError(
+                    "Name fields must be less than 50 characters"
+                )
             return v.strip()
         return v
 
@@ -144,7 +150,9 @@ class AdminUserUpdate(BaseModel):
             if len(v) < 1:
                 raise ValueError("Name fields cannot be empty")
             if len(v) > 50:
-                raise ValueError("Name fields must be less than 50 characters")
+                raise ValueError(
+                    "Name fields must be less than 50 characters"
+                )
             return v.strip()
         return v
 
@@ -168,14 +176,18 @@ class PasswordChange(BaseModel):
     @classmethod
     def validate_new_password(cls, v):
         if len(v) < 12:
-            raise ValueError("Password must be at least 12 characters long")
+            raise ValueError(
+                "Password must be at least 12 characters long"
+            )
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
         # Minimum checks for tests: digit and lowercase required. Uppercase or
         # special characters are optional to keep things simple.
         if not any(c.islower() for c in v):
-            raise ValueError("Password must contain at least one lowercase letter")
+            raise ValueError(
+                "Password must contain at least one lowercase letter"
+            )
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 
@@ -197,13 +209,17 @@ class PasswordResetConfirm(BaseModel):
     @classmethod
     def validate_new_password(cls, v):
         if len(v) < 12:
-            raise ValueError("Password must be at least 12 characters long")
+            raise ValueError(
+                "Password must be at least 12 characters long"
+            )
         if len(v) > 128:
             raise ValueError("Password must be less than 128 characters")
 
         # Match the simple checks used elsewhere
         if not any(c.islower() for c in v):
-            raise ValueError("Password must contain at least one lowercase letter")
+            raise ValueError(
+                "Password must contain at least one lowercase letter"
+            )
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
 

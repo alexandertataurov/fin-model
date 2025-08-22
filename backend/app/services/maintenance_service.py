@@ -31,7 +31,9 @@ class MaintenanceService:
             logger.error(f"Failed to get maintenance schedules: {e}")
             return []
 
-    def get_schedule_by_id(self, schedule_id: int) -> Optional[MaintenanceSchedule]:
+    def get_schedule_by_id(
+        self, schedule_id: int
+    ) -> Optional[MaintenanceSchedule]:
         """Get a specific maintenance schedule by ID."""
         try:
             return (
@@ -40,7 +42,9 @@ class MaintenanceService:
                 .first()
             )
         except Exception as e:
-            logger.error(f"Failed to get maintenance schedule {schedule_id}: {e}")
+            logger.error(
+                f"Failed to get maintenance schedule {schedule_id}: {e}"
+            )
             return None
 
     def create_schedule(
@@ -97,7 +101,9 @@ class MaintenanceService:
             self.db.commit()
             return schedule_obj
         except Exception as e:
-            logger.error(f"Failed to update maintenance schedule {schedule_id}: {e}")
+            logger.error(
+                f"Failed to update maintenance schedule {schedule_id}: {e}"
+            )
             self.db.rollback()
             return None
 
@@ -112,7 +118,9 @@ class MaintenanceService:
             self.db.commit()
             return True
         except Exception as e:
-            logger.error(f"Failed to delete maintenance schedule {schedule_id}: {e}")
+            logger.error(
+                f"Failed to delete maintenance schedule {schedule_id}: {e}"
+            )
             self.db.rollback()
             return False
 
@@ -125,12 +133,20 @@ class MaintenanceService:
                 .all()
             )
         except Exception as e:
-            logger.error(f"Failed to get enabled maintenance schedules: {e}")
+            logger.error(
+                f"Failed to get enabled maintenance schedules: {e}"
+            )
             return []
 
     def validate_task(self, task: str) -> bool:
         """Validate that a task is allowed."""
-        allowed_tasks = {"cleanup", "vacuum", "archive", "reindex", "backup"}
+        allowed_tasks = {
+            "cleanup",
+            "vacuum",
+            "archive",
+            "reindex",
+            "backup",
+        }
         return task in allowed_tasks
 
     def upsert_schedule(
@@ -166,7 +182,9 @@ class MaintenanceService:
             self.db.commit()
             return schedule_obj
         except Exception as e:
-            logger.error(f"Failed to upsert maintenance schedule {id}: {e}")
+            logger.error(
+                f"Failed to upsert maintenance schedule {id}: {e}"
+            )
             self.db.rollback()
             raise
 
@@ -180,5 +198,7 @@ class MaintenanceService:
             )
             self.db.commit()
         except Exception as e:
-            logger.error(f"Failed to remove missing maintenance schedules: {e}")
+            logger.error(
+                f"Failed to remove missing maintenance schedules: {e}"
+            )
             self.db.rollback()

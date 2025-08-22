@@ -3,10 +3,7 @@
 /**
  * Format currency values for display
  */
-export const formatCurrency = (
-  value: number,
-  currency = 'USD'
-): string => {
+export const formatCurrency = (value: number, currency = 'USD'): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -18,10 +15,7 @@ export const formatCurrency = (
 /**
  * Format percentage values for display
  */
-export const formatPercentage = (
-  value: number,
-  decimals = 1
-): string => {
+export const formatPercentage = (value: number, decimals = 1): string => {
   return `${(value * 100).toFixed(decimals)}%`;
 };
 

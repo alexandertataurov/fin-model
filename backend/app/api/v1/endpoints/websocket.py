@@ -83,7 +83,9 @@ async def notifications_websocket(
         # Then authenticate
         if not token:
             logger.warning("WebSocket connection attempt without token")
-            await websocket.close(code=4001, reason="Authentication required")
+            await websocket.close(
+                code=4001, reason="Authentication required"
+            )
             return
 
         try:
@@ -94,7 +96,9 @@ async def notifications_websocket(
             return
 
         if not user_id:
-            logger.warning("WebSocket connection attempt with invalid token")
+            logger.warning(
+                "WebSocket connection attempt with invalid token"
+            )
             await websocket.close(code=4001, reason="Invalid token")
             return
 
@@ -110,19 +114,27 @@ async def notifications_websocket(
                 logger.warning(
                     f"WebSocket connection attempt for inactive user {user_id}"
                 )
-                await websocket.close(code=4001, reason="User not found or inactive")
+                await websocket.close(
+                    code=4001, reason="User not found or inactive"
+                )
                 return
 
-            logger.info(f"WebSocket authentication successful for user {user.id}")
+            logger.info(
+                f"WebSocket authentication successful for user {user.id}"
+            )
         except Exception as e:
-            logger.error(f"Database error during WebSocket authentication: {e}")
+            logger.error(
+                f"Database error during WebSocket authentication: {e}"
+            )
             await websocket.close(code=4001, reason="Database error")
             return
         finally:
             try:
                 db.close()
             except Exception:
-                logger.exception("Error closing DB session in WebSocket auth")
+                logger.exception(
+                    "Error closing DB session in WebSocket auth"
+                )
 
         logger.info(f"WebSocket connection accepted for user {user.id}")
 
@@ -177,7 +189,9 @@ async def notifications_websocket(
                     )
 
             except WebSocketDisconnect:
-                logger.info(f"User {user.id} disconnected from notifications WebSocket")
+                logger.info(
+                    f"User {user.id} disconnected from notifications WebSocket"
+                )
                 break
             except Exception as e:
                 logger.error(

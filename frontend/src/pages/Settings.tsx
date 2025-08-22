@@ -17,13 +17,13 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-} from '@/design-system/components/Card';
-import { Input } from '@/design-system/components/Input';
-import { Button } from '@/design-system/components/Button';
-import { Label } from '@/design-system/components/Label';
-import { Switch } from '@/design-system/components/Switch';
-import { Separator } from '@/design-system/components/Separator';
-import { Textarea } from '@/design-system/components/Textarea';
+} from '@/design-system/molecules';
+import { Input } from '@/design-system/atoms';
+import { Button } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
+import { Switch } from '@/design-system/atoms';
+import { Separator } from '@/design-system/atoms';
+import { Textarea } from '@/design-system/atoms';
 import { toast } from 'sonner';
 
 const Settings: React.FC = () => {
@@ -492,7 +492,9 @@ const Settings: React.FC = () => {
                     className="flex justify-between items-center border rounded-md p-3"
                   >
                     <div>
-                      <p className="font-medium">{(c as any).name || 'Security Key'}</p>
+                      <p className="font-medium">
+                        {(c as any).name || 'Security Key'}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         Added {new Date(c.created_at).toLocaleString()}
                       </p>

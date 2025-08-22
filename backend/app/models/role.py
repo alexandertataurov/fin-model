@@ -29,7 +29,9 @@ class Role(Base):
     display_name = Column(String(50), nullable=True)
     description = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     updated_at = Column(
         DateTime,
         server_default=func.now(),
@@ -54,7 +56,9 @@ class UserRole(Base):
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
     assigned_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     updated_at = Column(
         DateTime,
         server_default=func.now(),
@@ -63,9 +67,13 @@ class UserRole(Base):
     )
 
     # Relationships
-    user = relationship("User", back_populates="user_roles", foreign_keys=[user_id])
+    user = relationship(
+        "User", back_populates="user_roles", foreign_keys=[user_id]
+    )
     role = relationship("Role", back_populates="user_roles")
     assigned_by_user = relationship("User", foreign_keys=[assigned_by])
 
     def __repr__(self):
-        return f"<UserRole(user_id={self.user_id}, role_id={self.role_id})>"
+        return (
+            f"<UserRole(user_id={self.user_id}, role_id={self.role_id})>"
+        )

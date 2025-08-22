@@ -28,13 +28,13 @@ const config: StorybookConfig = {
   stories: [
     // Design System Documentation (MDX files first)
     {
-      directory: '../src/design-system/stories',
+      directory: '../src/design-system/',
       files: '**/*.mdx',
       titlePrefix: 'Design System',
     },
     // Design System Component Stories
     {
-      directory: '../src/design-system/stories',
+      directory: '../src/design-system/',
       files: '**/*.stories.@(js|jsx|ts|tsx)',
       titlePrefix: 'Design System',
     },
@@ -78,6 +78,7 @@ const config: StorybookConfig = {
       '@': resolve(__dirname, '../src'),
       '@/design-system': resolve(__dirname, '../src/design-system'),
       '@design-system': resolve(__dirname, '../src/design-system'),
+      '@stories': resolve(__dirname, '../src/design-system/stories'),
       '@/components': resolve(__dirname, '../src/components'),
       '@components': resolve(__dirname, '../src/components'),
     } as Record<string, string>;

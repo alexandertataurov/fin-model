@@ -46,12 +46,16 @@ async def docs_landing():
 
     # Only add directory contents if directories exist to avoid errors
     if Path("/app").exists():
-        debug_info["app_dir_contents"] = [str(p) for p in Path("/app").iterdir()][
+        debug_info["app_dir_contents"] = [
+            str(p) for p in Path("/app").iterdir()
+        ][
             :10
         ]  # Limit to first 10
 
     if DOCS_PATH.exists():
-        debug_info["docs_dir_contents"] = [str(p) for p in DOCS_PATH.iterdir()]
+        debug_info["docs_dir_contents"] = [
+            str(p) for p in DOCS_PATH.iterdir()
+        ]
 
     if not landing_file.exists():
         # Try alternative locations
@@ -69,7 +73,8 @@ async def docs_landing():
                 break
         else:
             raise HTTPException(
-                status_code=404, detail=f"Documentation not found. Debug: {debug_info}"
+                status_code=404,
+                detail=f"Documentation not found. Debug: {debug_info}",
             )
 
     try:
@@ -78,7 +83,8 @@ async def docs_landing():
         return HTMLResponse(content=content)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error reading documentation file: {str(e)}"
+            status_code=500,
+            detail=f"Error reading documentation file: {str(e)}",
         )
 
 
@@ -108,7 +114,9 @@ async def docs_redoc():
                 redoc_file = alt_path
                 break
         else:
-            raise HTTPException(status_code=404, detail="ReDoc documentation not found")
+            raise HTTPException(
+                status_code=404, detail="ReDoc documentation not found"
+            )
 
     try:
         with open(redoc_file, "r", encoding="utf-8") as f:
@@ -174,7 +182,9 @@ async def get_openapi_spec():
             break
 
     if not openapi_file:
-        raise HTTPException(status_code=404, detail="OpenAPI specification not found")
+        raise HTTPException(
+            status_code=404, detail="OpenAPI specification not found"
+        )
 
     return FileResponse(openapi_file, media_type="application/x-yaml")
 
@@ -184,7 +194,9 @@ async def get_postman_collection():
     """Serve the Postman collection."""
     # Try multiple possible locations for the Postman collection
     possible_paths = [
-        Path("/app/backend/app/docs/FinVision_API.postman_collection.json"),
+        Path(
+            "/app/backend/app/docs/FinVision_API.postman_collection.json"
+        ),
         Path("backend/app/docs/FinVision_API.postman_collection.json"),
         Path("app/docs/FinVision_API.postman_collection.json"),
         Path("docs/FinVision_API.postman_collection.json"),
@@ -199,7 +211,9 @@ async def get_postman_collection():
             break
 
     if not postman_file:
-        raise HTTPException(status_code=404, detail="Postman collection not found")
+        raise HTTPException(
+            status_code=404, detail="Postman collection not found"
+        )
 
     return FileResponse(postman_file, media_type="application/json")
 
@@ -224,7 +238,9 @@ async def get_markdown_docs():
             break
 
     if not markdown_file:
-        raise HTTPException(status_code=404, detail="Markdown documentation not found")
+        raise HTTPException(
+            status_code=404, detail="Markdown documentation not found"
+        )
 
     return FileResponse(markdown_file, media_type="text/markdown")
 
@@ -249,7 +265,9 @@ async def get_readme_docs():
             break
 
     if not readme_file:
-        raise HTTPException(status_code=404, detail="README documentation not found")
+        raise HTTPException(
+            status_code=404, detail="README documentation not found"
+        )
 
     return FileResponse(readme_file, media_type="text/markdown")
 
@@ -275,7 +293,8 @@ async def docs_comprehensive():
                 break
         else:
             raise HTTPException(
-                status_code=404, detail="Comprehensive documentation not found"
+                status_code=404,
+                detail="Comprehensive documentation not found",
             )
 
     try:
@@ -284,5 +303,6 @@ async def docs_comprehensive():
         return HTMLResponse(content=content)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error reading comprehensive docs: {str(e)}"
+            status_code=500,
+            detail=f"Error reading comprehensive docs: {str(e)}",
         )

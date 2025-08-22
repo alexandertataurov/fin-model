@@ -41,7 +41,11 @@ class BaseRepository(Generic[ModelType], ABC):
             Model instance or None if not found
         """
         try:
-            return self.db.query(self.model).filter(self.model.id == id).first()
+            return (
+                self.db.query(self.model)
+                .filter(self.model.id == id)
+                .first()
+            )
         except SQLAlchemyError as e:
             self.db.rollback()
             raise e
@@ -108,7 +112,9 @@ class BaseRepository(Generic[ModelType], ABC):
             self.db.rollback()
             raise e
 
-    def update(self, id: int, obj_in: Dict[str, Any]) -> Optional[ModelType]:
+    def update(
+        self, id: int, obj_in: Dict[str, Any]
+    ) -> Optional[ModelType]:
         """
         Update an existing record.
 
@@ -191,14 +197,18 @@ class BaseRepository(Generic[ModelType], ABC):
         """
         try:
             return (
-                self.db.query(self.model.id).filter(self.model.id == id).first()
+                self.db.query(self.model.id)
+                .filter(self.model.id == id)
+                .first()
                 is not None
             )
         except SQLAlchemyError as e:
             self.db.rollback()
             raise e
 
-    def bulk_create(self, objs_in: List[Dict[str, Any]]) -> List[ModelType]:
+    def bulk_create(
+        self, objs_in: List[Dict[str, Any]]
+    ) -> List[ModelType]:
         """
         Create multiple records in a single transaction.
 
@@ -279,7 +289,9 @@ class BaseRepository(Generic[ModelType], ABC):
             for field_name in search_fields:
                 if hasattr(self.model, field_name):
                     field = getattr(self.model, field_name)
-                    search_conditions.append(field.ilike(f"%{search_term}%"))
+                    search_conditions.append(
+                        field.ilike(f"%{search_term}%")
+                    )
 
             if search_conditions:
                 query = query.filter(or_(*search_conditions))
@@ -289,7 +301,9 @@ class BaseRepository(Generic[ModelType], ABC):
             self.db.rollback()
             raise e
 
-    def _apply_filters(self, query: Query, filters: Dict[str, Any]) -> Query:
+    def _apply_filters(
+        self, query: Query, filters: Dict[str, Any]
+    ) -> Query:
         """
         Apply filters to a query.
 
@@ -320,9 +334,13 @@ class BaseRepository(Generic[ModelType], ABC):
                         elif operator == "not_in":
                             query = query.filter(~field.in_(filter_value))
                         elif operator == "like":
-                            query = query.filter(field.ilike(f"%{filter_value}%"))
+                            query = query.filter(
+                                field.ilike(f"%{filter_value}%")
+                            )
                         elif operator == "not_like":
-                            query = query.filter(~field.ilike(f"%{filter_value}%"))
+                            query = query.filter(
+                                ~field.ilike(f"%{filter_value}%")
+                            )
                 elif isinstance(value, list):
                     # Handle list of values (IN operator)
                     query = query.filter(field.in_(value))
@@ -333,7 +351,9 @@ class BaseRepository(Generic[ModelType], ABC):
         return query
 
     @abstractmethod
-    def get_by_unique_field(self, field_name: str, value: Any) -> Optional[ModelType]:
+    def get_by_unique_field(
+        self, field_name: str, value: Any
+    ) -> Optional[ModelType]:
         """
         Get a record by a unique field value.
         Must be implemented by concrete repositories.

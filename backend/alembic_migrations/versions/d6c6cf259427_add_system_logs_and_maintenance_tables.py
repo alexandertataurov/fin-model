@@ -32,7 +32,9 @@ def upgrade() -> None:
         # system_logs table
         op.create_table(
             "system_logs",
-            sa.Column("id", sa.Integer(), primary_key=True, nullable=False),
+            sa.Column(
+                "id", sa.Integer(), primary_key=True, nullable=False
+            ),
             sa.Column(
                 "timestamp",
                 sa.DateTime(),
@@ -45,7 +47,9 @@ def upgrade() -> None:
             sa.Column("user_id", sa.Integer(), nullable=True),
             sa.ForeignKeyConstraint(["user_id"], ["users.id"]),
         )
-        op.create_index(op.f("ix_system_logs_id"), "system_logs", ["id"], unique=False)
+        op.create_index(
+            op.f("ix_system_logs_id"), "system_logs", ["id"], unique=False
+        )
 
     # Check if maintenance_schedules table exists
     result = bind.execute(
@@ -58,7 +62,12 @@ def upgrade() -> None:
         # maintenance_schedules table
         op.create_table(
             "maintenance_schedules",
-            sa.Column("id", sa.String(length=64), primary_key=True, nullable=False),
+            sa.Column(
+                "id",
+                sa.String(length=64),
+                primary_key=True,
+                nullable=False,
+            ),
             sa.Column("name", sa.String(length=128), nullable=False),
             sa.Column("task", sa.String(length=32), nullable=False),
             sa.Column("schedule", sa.String(length=128), nullable=False),

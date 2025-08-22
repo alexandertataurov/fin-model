@@ -5,11 +5,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Button } from '@/design-system/components/Button';
-import { Badge } from '@/design-system/components/Badge';
-import { Input } from '@/design-system/components/Input';
-import { Label } from '@/design-system/components/Label';
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Input } from '@/design-system/atoms';
+import { Label } from '@/design-system/atoms';
 
 // Shared Types
 export type ModelStatus = 'idle' | 'processing' | 'complete' | 'error';

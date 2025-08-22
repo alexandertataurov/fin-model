@@ -38,14 +38,18 @@ class AuditLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    action = Column(SAEnum(*AUDIT_ACTIONS, name="auditaction"), nullable=False)
+    action = Column(
+        SAEnum(*AUDIT_ACTIONS, name="auditaction"), nullable=False
+    )
     resource = Column(String(100), nullable=True)
     resource_id = Column(String(100), nullable=True)
     ip_address = Column(String(45), nullable=True)
     user_agent = Column(Text, nullable=True)
     details = Column(Text, nullable=True)
     success = Column(String(10), nullable=False, default="true")
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
 
     # Relationships
     user = relationship("User")

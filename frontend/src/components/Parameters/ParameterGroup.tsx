@@ -1,14 +1,14 @@
-import { ParameterControl } from './ParameterControl'
-import type { Parameter } from './ParameterPanel'
+import { ParameterControl } from './ParameterControl';
+import type { Parameter } from './ParameterPanel';
 
 interface ParameterGroupProps {
-  parameters: Parameter[]
-  onParameterChange: (parameterId: string, value: number) => void
-  validationErrors: Record<string, string>
-  pendingChanges: Record<string, number>
-  readOnly?: boolean
-  onShowImpact?: (parameter: Parameter) => void
-  onShowHistory?: (parameter: Parameter) => void
+  parameters: Parameter[];
+  onParameterChange: (parameterId: string, value: number) => void;
+  validationErrors: Record<string, string>;
+  pendingChanges: Record<string, number>;
+  readOnly?: boolean;
+  onShowImpact?: (parameter: Parameter) => void;
+  onShowHistory?: (parameter: Parameter) => void;
 }
 
 export function ParameterGroup({
@@ -18,14 +18,14 @@ export function ParameterGroup({
   pendingChanges,
   readOnly = false,
   onShowImpact,
-  onShowHistory
+  onShowHistory,
 }: ParameterGroupProps) {
   if (parameters.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-8">
         No parameters found
       </div>
-    )
+    );
   }
 
   return (
@@ -35,7 +35,7 @@ export function ParameterGroup({
           key={parameter.id}
           parameter={parameter}
           value={pendingChanges[parameter.id] ?? parameter.value}
-          onChange={(value) => onParameterChange(parameter.id, value)}
+          onChange={value => onParameterChange(parameter.id, value)}
           error={validationErrors[parameter.id]}
           readOnly={readOnly}
           onShowImpact={() => onShowImpact?.(parameter)}
@@ -43,5 +43,5 @@ export function ParameterGroup({
         />
       ))}
     </div>
-  )
+  );
 }

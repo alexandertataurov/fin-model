@@ -1,21 +1,21 @@
-import { Input } from '@/design-system/components/Input'
-import { Button } from '@/design-system/components/Button'
-import { Badge } from '@/design-system/components/Badge'
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/design-system/components/Select'
-import { Search, X } from 'lucide-react'
+import { Input } from '@/design-system/atoms';
+import { Button } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/molecules';
+import { Search, X } from 'lucide-react';
 
 interface ParameterSearchProps {
-  searchTerm: string
-  onSearchChange: (term: string) => void
-  selectedCategory: string
-  onCategoryChange: (category: string) => void
-  categories: string[]
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
+  categories: string[];
 }
 
 export function ParameterSearch({
@@ -23,14 +23,14 @@ export function ParameterSearch({
   onSearchChange,
   selectedCategory,
   onCategoryChange,
-  categories
+  categories,
 }: ParameterSearchProps) {
   const clearSearch = () => {
-    onSearchChange('')
-    onCategoryChange('all')
-  }
+    onSearchChange('');
+    onCategoryChange('all');
+  };
 
-  const hasActiveFilters = searchTerm || selectedCategory !== 'all'
+  const hasActiveFilters = searchTerm || selectedCategory !== 'all';
 
   return (
     <div className="space-y-4">
@@ -40,7 +40,7 @@ export function ParameterSearch({
         <Input
           placeholder="Search parameters by name or description..."
           value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={e => onSearchChange(e.target.value)}
           className="pl-10 pr-10"
         />
         {searchTerm && (
@@ -65,13 +65,14 @@ export function ParameterSearch({
           <SelectContent>
             {categories.map(category => (
               <SelectItem key={category} value={category}>
-                {category === 'all' ? 'All Categories' : 
-                 category.charAt(0).toUpperCase() + category.slice(1)}
+                {category === 'all'
+                  ? 'All Categories'
+                  : category.charAt(0).toUpperCase() + category.slice(1)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        
+
         {hasActiveFilters && (
           <Button
             variant="outline"
@@ -104,7 +105,9 @@ export function ParameterSearch({
           )}
           {selectedCategory !== 'all' && (
             <Badge variant="secondary" className="gap-1">
-              Category: {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
+              Category:{' '}
+              {selectedCategory.charAt(0).toUpperCase() +
+                selectedCategory.slice(1)}
               <Button
                 variant="ghost"
                 size="sm"
@@ -118,5 +121,5 @@ export function ParameterSearch({
         </div>
       )}
     </div>
-  )
+  );
 }

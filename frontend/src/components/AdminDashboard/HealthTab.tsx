@@ -5,8 +5,8 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
-import { Badge } from '@/design-system/components/Badge';
+} from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
 
 const HealthTab: React.FC = memo(() => {
   const { systemHealth, databaseHealth, fetchHealthData } = useAdminStore();
@@ -21,34 +21,34 @@ const HealthTab: React.FC = memo(() => {
     return databaseHealth.data.status === 'healthy' ? 'Healthy' : 'Unhealthy';
   }, [databaseHealth.data]);
 
-  const handleRefresh = useCallback(() => {
+  const _handleRefresh = useCallback(() => {
     fetchHealthData();
   }, [fetchHealthData]);
 
   return (
-    <div
-      className="space-y-4"
-    >
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>System Health</CardTitle>
         </CardHeader>
         <CardContent>
           {systemHealth.data ? (
-            <div
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
-              <div
-                className="flex items-center justify-between"
-              >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                <Badge variant={healthStatus === 'Healthy' ? 'success' : 'destructive'}>
+                <Badge
+                  variant={
+                    healthStatus === 'Healthy' ? 'success' : 'destructive'
+                  }
+                >
                   {healthStatus}
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Timestamp</span>
-                <span className="text-sm font-medium text-foreground">{new Date().toLocaleString()}</span>
+                <span className="text-sm font-medium text-foreground">
+                  {new Date().toLocaleString()}
+                </span>
               </div>
             </div>
           ) : (
@@ -63,12 +63,14 @@ const HealthTab: React.FC = memo(() => {
         </CardHeader>
         <CardContent>
           {databaseHealth.data ? (
-            <div
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                <Badge variant={databaseStatus === 'Healthy' ? 'success' : 'destructive'}>
+                <Badge
+                  variant={
+                    databaseStatus === 'Healthy' ? 'success' : 'destructive'
+                  }
+                >
                   {databaseStatus}
                 </Badge>
               </div>

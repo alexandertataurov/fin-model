@@ -134,7 +134,7 @@ class FileApiService {
           ...this.getAuthHeaders(),
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent) => {
+        onUploadProgress: progressEvent => {
           if (onProgress && progressEvent.total) {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
@@ -253,7 +253,10 @@ class FileApiService {
   /**
    * Get file preview
    */
-  async getFilePreview(fileId: number, maxRows = 10): Promise<FilePreviewResponse> {
+  async getFilePreview(
+    fileId: number,
+    maxRows = 10
+  ): Promise<FilePreviewResponse> {
     const response = await axios.get<FilePreviewResponse>(
       `${this.baseURL}/files/${fileId}/preview`,
       {
@@ -353,7 +356,16 @@ class FileApiService {
   /**
    * Get status color for Material-UI components
    */
-  getStatusColor(status: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' {
+  getStatusColor(
+    status: string
+  ):
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'error'
+    | 'info'
+    | 'success'
+    | 'warning' {
     switch (status.toLowerCase()) {
       case 'uploaded':
         return 'info';
@@ -391,4 +403,4 @@ class FileApiService {
   }
 }
 
-export const fileApi = new FileApiService(); 
+export const fileApi = new FileApiService();

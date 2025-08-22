@@ -14,8 +14,18 @@ describe('HealthTab', () => {
 
   it('shows system and database health when present', () => {
     mockUseAdminStore.mockReturnValue({
-      systemHealth: { data: { status: 'healthy' }, loading: false, error: null, lastUpdated: Date.now() },
-      databaseHealth: { data: { status: 'ok' }, loading: false, error: null, lastUpdated: Date.now() },
+      systemHealth: {
+        data: { status: 'healthy' },
+        loading: false,
+        error: null,
+        lastUpdated: Date.now(),
+      },
+      databaseHealth: {
+        data: { status: 'ok' },
+        loading: false,
+        error: null,
+        lastUpdated: Date.now(),
+      },
     } as any);
 
     render(<HealthTab />);
@@ -25,8 +35,18 @@ describe('HealthTab', () => {
 
   it('shows absent messages when health not available', () => {
     mockUseAdminStore.mockReturnValue({
-      systemHealth: { data: null, loading: false, error: null, lastUpdated: null },
-      databaseHealth: { data: null, loading: false, error: null, lastUpdated: null },
+      systemHealth: {
+        data: null,
+        loading: false,
+        error: null,
+        lastUpdated: null,
+      },
+      databaseHealth: {
+        data: null,
+        loading: false,
+        error: null,
+        lastUpdated: null,
+      },
     } as any);
 
     render(<HealthTab />);

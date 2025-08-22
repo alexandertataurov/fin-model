@@ -9,9 +9,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
+} from '@/design-system/molecules';
 import { formatCurrency, formatPercentage } from '@/utils/formatters';
-import { Button } from '@/design-system/components/Button';
+import { Button } from '@/design-system/atoms';
 import {
   Download,
   TrendingUp,
@@ -190,8 +190,8 @@ const ProfitLossView: React.FC<ProfitLossViewProps> = ({
         isTotal
           ? 'font-bold bg-gray-50 border-t-2 border-b-2'
           : isSubtotal
-          ? 'font-semibold bg-gray-25 border-t'
-          : ''
+            ? 'font-semibold bg-gray-25 border-t'
+            : ''
       }`}
       style={{ paddingLeft: `${16 + indent * 16}px` }}
     >

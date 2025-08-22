@@ -6,7 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/design-system/components/Card';
+} from '@/design-system/molecules';
 
 interface LogEntry {
   id: string;
@@ -18,22 +18,23 @@ interface LogEntry {
 }
 
 const LogsTab: React.FC = memo(() => {
-  const {
-    logs,
-    handleFilterChange,
-    handleRefresh,
-    handlePrev,
-    handleNext
-  } = useLogFilters();
+  const { logs, handleFilterChange, handleRefresh, handlePrev, handleNext } =
+    useLogFilters();
 
   // Memoized computed values
   const hasLogs = useMemo(() => logs.items?.length > 0, [logs.items?.length]);
-  const logCount = useMemo(() => logs.items?.length || 0, [logs.items?.length]);
+  const _logCount = useMemo(
+    () => logs.items?.length || 0,
+    [logs.items?.length]
+  );
 
   // Wrapper function to handle type conversion
-  const handleFormChange = useCallback((updates: any) => {
-    handleFilterChange(updates);
-  }, [handleFilterChange]);
+  const handleFormChange = useCallback(
+    (updates: any) => {
+      handleFilterChange(updates);
+    },
+    [handleFilterChange]
+  );
 
   return (
     <Card>
@@ -70,9 +71,7 @@ const LogsTab: React.FC = memo(() => {
                       {new Date(log.timestamp).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm text-foreground">
-                    {log.message}
-                  </p>
+                  <p className="text-sm text-foreground">{log.message}</p>
                 </div>
               ))
             ) : (

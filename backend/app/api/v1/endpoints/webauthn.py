@@ -23,7 +23,9 @@ from datetime import timedelta
 router = APIRouter()
 
 
-@router.post("/register/begin", response_model=WebAuthnRegistrationOptionsResponse)
+@router.post(
+    "/register/begin", response_model=WebAuthnRegistrationOptionsResponse
+)
 def begin_webauthn_registration(
     request: Request,
     current_user: User = Depends(get_current_active_user),
@@ -46,7 +48,9 @@ def begin_webauthn_registration(
     webauthn_service = WebAuthnService(db)
 
     try:
-        options = webauthn_service.generate_registration_options(current_user)
+        options = webauthn_service.generate_registration_options(
+            current_user
+        )
         return WebAuthnRegistrationOptionsResponse(**options)
     except Exception as e:
         raise HTTPException(
@@ -55,7 +59,9 @@ def begin_webauthn_registration(
         )
 
 
-@router.post("/register/complete", response_model=WebAuthnCredentialResponse)
+@router.post(
+    "/register/complete", response_model=WebAuthnCredentialResponse
+)
 def complete_webauthn_registration(
     registration_request: WebAuthnRegistrationRequest,
     request: Request,
@@ -157,7 +163,9 @@ def begin_webauthn_authentication(
         )
 
 
-@router.post("/authenticate/complete", response_model=AuthenticationFlowResponse)
+@router.post(
+    "/authenticate/complete", response_model=AuthenticationFlowResponse
+)
 def complete_webauthn_authentication(
     auth_request: WebAuthnAuthenticationRequest,
     request: Request,
@@ -244,7 +252,9 @@ def complete_webauthn_authentication(
         )
 
 
-@router.get("/credentials", response_model=List[WebAuthnCredentialResponse])
+@router.get(
+    "/credentials", response_model=List[WebAuthnCredentialResponse]
+)
 def get_webauthn_credentials(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -290,7 +300,9 @@ def delete_webauthn_credential(
 
     webauthn_service = WebAuthnService(db)
 
-    success = webauthn_service.delete_credential(current_user, credential_id)
+    success = webauthn_service.delete_credential(
+        current_user, credential_id
+    )
 
     if success:
         return {"message": "WebAuthn credential deleted successfully"}

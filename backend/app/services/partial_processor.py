@@ -109,7 +109,9 @@ class PartialProcessor:
                         extracted_data["partial_financial_statements"][
                             sheet_name
                         ] = sheet_result["data"]
-                        recovery_actions.extend(sheet_result["recovery_actions"])
+                        recovery_actions.extend(
+                            sheet_result["recovery_actions"]
+                        )
                     else:
                         sheets_failed.append(sheet_name)
                         issues.extend(sheet_result["issues"])
@@ -131,12 +133,16 @@ class PartialProcessor:
                 metrics_result = self._extract_partial_metrics(
                     workbook, sheets_processed, issues
                 )
-                extracted_data["recoverable_metrics"] = metrics_result["metrics"]
+                extracted_data["recoverable_metrics"] = metrics_result[
+                    "metrics"
+                ]
                 recovery_actions.extend(metrics_result["recovery_actions"])
 
             # Calculate completion percentage
             completion_percentage = (
-                (len(sheets_processed) / total_sheets) * 100 if total_sheets > 0 else 0
+                (len(sheets_processed) / total_sheets) * 100
+                if total_sheets > 0
+                else 0
             )
 
             # Adjust completion based on data quality
@@ -179,7 +185,9 @@ class PartialProcessor:
                 extracted_data=None,
                 issues_encountered=issues,
                 sheets_processed=[],
-                sheets_failed=workbook.sheetnames if "workbook" in locals() else [],
+                sheets_failed=workbook.sheetnames
+                if "workbook" in locals()
+                else [],
                 recovery_actions_taken=[],
                 recommendations=[
                     "File may be corrupted",
@@ -222,21 +230,27 @@ class PartialProcessor:
                     sheet, result["issues"]
                 )
                 sheet_data["extracted_values"] = numeric_data["values"]
-                result["recovery_actions"].extend(numeric_data["recovery_actions"])
+                result["recovery_actions"].extend(
+                    numeric_data["recovery_actions"]
+                )
 
                 # Extract text data and labels
                 text_data = self._extract_text_data_with_recovery(
                     sheet, result["issues"]
                 )
                 sheet_data["labels"] = text_data["labels"]
-                result["recovery_actions"].extend(text_data["recovery_actions"])
+                result["recovery_actions"].extend(
+                    text_data["recovery_actions"]
+                )
 
                 # Extract formulas (if accessible)
                 formula_data = self._extract_formulas_with_recovery(
                     sheet, result["issues"]
                 )
                 sheet_data["formulas_found"] = formula_data["formulas"]
-                result["recovery_actions"].extend(formula_data["recovery_actions"])
+                result["recovery_actions"].extend(
+                    formula_data["recovery_actions"]
+                )
 
                 result["data"] = sheet_data
                 result["success"] = True
@@ -254,7 +268,9 @@ class PartialProcessor:
                 )
 
                 # Attempt basic cell-by-cell recovery
-                basic_data = self._basic_cell_recovery(sheet, result["issues"])
+                basic_data = self._basic_cell_recovery(
+                    sheet, result["issues"]
+                )
                 if basic_data:
                     result["data"] = basic_data
                     result["success"] = True
@@ -288,7 +304,9 @@ class PartialProcessor:
             for col_idx, cell_value in enumerate(row):
                 if isinstance(cell_value, (int, float)):
                     col_letter = chr(65 + col_idx)  # A, B, C, etc.
-                    numeric_values[f"{col_letter}{sheet.max_row}"] = cell_value
+                    numeric_values[
+                        f"{col_letter}{sheet.max_row}"
+                    ] = cell_value
                 elif isinstance(cell_value, str):
                     # Try to convert string to number
                     try:
@@ -298,9 +316,13 @@ class PartialProcessor:
                             .replace(",", "")
                             .isdigit()
                         ):
-                            numeric_val = float(cell_value.replace(",", ""))
+                            numeric_val = float(
+                                cell_value.replace(",", "")
+                            )
                             col_letter = chr(65 + col_idx)
-                            numeric_values[f"{col_letter}{sheet.max_row}"] = numeric_val
+                            numeric_values[
+                                f"{col_letter}{sheet.max_row}"
+                            ] = numeric_val
                             recovery_count += 1
                     except:
                         continue
@@ -340,7 +362,9 @@ class PartialProcessor:
         result["labels"] = labels
 
         if labels:
-            result["recovery_actions"].append(f"Extracted {len(labels)} text labels")
+            result["recovery_actions"].append(
+                f"Extracted {len(labels)} text labels"
+            )
 
         return result
 
@@ -392,7 +416,9 @@ class PartialProcessor:
         result["formulas"] = formulas
 
         if formulas:
-            result["recovery_actions"].append(f"Extracted {len(formulas)} formulas")
+            result["recovery_actions"].append(
+                f"Extracted {len(formulas)} formulas"
+            )
 
         return result
 
@@ -451,17 +477,23 @@ class PartialProcessor:
 
         try:
             # Use financial extractor on available sheets
-            partial_extraction = self.financial_extractor.extract_comprehensive_data(
-                workbook.path
+            partial_extraction = (
+                self.financial_extractor.extract_comprehensive_data(
+                    workbook.path
+                )
             )
 
             if partial_extraction and not partial_extraction.get("error"):
                 # Filter metrics to only include data from processed sheets
                 filtered_metrics = []
 
-                for metric in partial_extraction.get("financial_metrics", []):
+                for metric in partial_extraction.get(
+                    "financial_metrics", []
+                ):
                     # Check if metric comes from a processed sheet
-                    metric_sheet = self._identify_metric_sheet(metric, processed_sheets)
+                    metric_sheet = self._identify_metric_sheet(
+                        metric, processed_sheets
+                    )
                     if metric_sheet:
                         filtered_metrics.append(metric)
 
@@ -469,7 +501,9 @@ class PartialProcessor:
                     "financial_metrics": filtered_metrics,
                     "extraction_confidence": len(filtered_metrics)
                     / max(
-                        len(partial_extraction.get("financial_metrics", [])),
+                        len(
+                            partial_extraction.get("financial_metrics", [])
+                        ),
                         1,
                     ),
                     "sheets_contributing": processed_sheets,
@@ -517,7 +551,9 @@ class PartialProcessor:
         critical_issues = [
             i for i in issues if i.severity == ProcessingSeverity.CRITICAL
         ]
-        high_issues = [i for i in issues if i.severity == ProcessingSeverity.HIGH]
+        high_issues = [
+            i for i in issues if i.severity == ProcessingSeverity.HIGH
+        ]
 
         if critical_issues:
             recommendations.append(
@@ -532,7 +568,9 @@ class PartialProcessor:
                 f"Could not process {len(failed_sheets)} sheets: {', '.join(failed_sheets[:3])}"
             )
             if len(failed_sheets) > 3:
-                recommendations.append(f"...and {len(failed_sheets) - 3} more sheets")
+                recommendations.append(
+                    f"...and {len(failed_sheets) - 3} more sheets"
+                )
 
         # Issue-specific recommendations
         issue_types = [i.issue_type for i in issues]
@@ -578,7 +616,10 @@ class PartialProcessor:
         try:
             # Remove common formatting
             cleaned = (
-                cell_value.replace(",", "").replace("$", "").replace("%", "").strip()
+                cell_value.replace(",", "")
+                .replace("$", "")
+                .replace("%", "")
+                .strip()
             )
             if cleaned.replace(".", "").replace("-", "").isdigit():
                 return float(cleaned)

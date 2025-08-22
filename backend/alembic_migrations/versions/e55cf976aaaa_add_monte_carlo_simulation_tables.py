@@ -51,7 +51,9 @@ def upgrade() -> None:
         )
         print("✅ Created monte_carlo_simulations table")
     except Exception as e:
-        print(f"⚠️ monte_carlo_simulations table already exists or error: {e}")
+        print(
+            f"⚠️ monte_carlo_simulations table already exists or error: {e}"
+        )
 
     # Create scenario_parameters table for scenario-specific parameter overrides
     try:
@@ -92,7 +94,9 @@ def upgrade() -> None:
     try:
         op.add_column(
             "scenarios",
-            sa.Column("scenario_type", sa.String(length=50), default="custom"),
+            sa.Column(
+                "scenario_type", sa.String(length=50), default="custom"
+            ),
         )
         print("✅ Added scenario_type column to scenarios table")
     except Exception as e:
@@ -176,10 +180,18 @@ def downgrade() -> None:
     op.drop_constraint("uq_scenario_parameter", "scenario_parameters")
 
     # Remove indexes
-    op.drop_index("ix_scenario_parameters_parameter_id", "scenario_parameters")
-    op.drop_index("ix_scenario_parameters_scenario_id", "scenario_parameters")
-    op.drop_index("ix_monte_carlo_simulations_created_at", "monte_carlo_simulations")
-    op.drop_index("ix_monte_carlo_simulations_scenario_id", "monte_carlo_simulations")
+    op.drop_index(
+        "ix_scenario_parameters_parameter_id", "scenario_parameters"
+    )
+    op.drop_index(
+        "ix_scenario_parameters_scenario_id", "scenario_parameters"
+    )
+    op.drop_index(
+        "ix_monte_carlo_simulations_created_at", "monte_carlo_simulations"
+    )
+    op.drop_index(
+        "ix_monte_carlo_simulations_scenario_id", "monte_carlo_simulations"
+    )
 
     # Remove columns from scenarios
     op.drop_column("scenarios", "is_base_case")
