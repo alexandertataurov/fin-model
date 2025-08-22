@@ -1,44 +1,32 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  IconButton,
-  Box,
-  Typography,
-  Collapse,
-  Tooltip,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  CloudUpload as UploadIcon,
-  Analytics as AnalyticsIcon,
-  Assessment as ReportsIcon,
-  AccountBalance as PLIcon,
-  TrendingUp as CashFlowIcon,
-  BarChart as BalanceSheetIcon,
+import { Button } from '@/design-system/atoms';
+import { ScrollArea } from '@/design-system/molecules';
 
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  ExpandLess,
-  ExpandMore,
-  AdminPanelSettings as AdminIcon,
-  ModelTraining as ModelsIcon,
-} from '@mui/icons-material';
+import {
+  LayoutDashboard,
+  Upload,
+  BarChart3,
+  TrendingUp,
+  PieChart,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  Brain,
+  Calculator,
+  Target,
+  Building,
+  RefreshCw,
+  Settings,
+  Activity,
+  Users,
+} from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { textStyles } from '@/design-system/utils/typography';
 
 interface SidebarProps {
   open: boolean;
   onToggle: () => void;
-  width?: number;
-  collapsedWidth?: number;
 }
 
 interface NavItem {
@@ -47,306 +35,259 @@ interface NavItem {
   icon: React.ReactNode;
   path?: string;
   children?: NavItem[];
-  roles?: string[];
-  badge?: string | number;
 }
 
-const navigationItems: NavItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: <DashboardIcon />,
-    path: '/dashboard',
-  },
-  {
-    id: 'financial-dashboards',
-    label: 'Financial Dashboards',
-    icon: <AnalyticsIcon />,
-    children: [
-      {
-        id: 'pl-dashboard',
-        label: 'P&L Dashboard',
-        icon: <PLIcon />,
-        path: '/dashboards/pl',
-      },
-      {
-        id: 'cashflow-dashboard',
-        label: 'Cash Flow',
-        icon: <CashFlowIcon />,
-        path: '/dashboards/cashflow',
-      },
-      {
-        id: 'balance-sheet',
-        label: 'Balance Sheet',
-        icon: <BalanceSheetIcon />,
-        path: '/dashboards/balance-sheet',
-      },
-    ],
-  },
-  {
-    id: 'files',
-    label: 'File Upload',
-    icon: <UploadIcon />,
-    path: '/files',
-  },
-  {
-    id: 'reports',
-    label: 'Reports',
-    icon: <ReportsIcon />,
-    path: '/reports',
-  },
-  {
-    id: 'scenario-modeling',
-    label: 'Scenario Modeling',
-    icon: <ModelsIcon />,
-    path: '/scenarios',
-    roles: ['analyst', 'admin'],
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: <AnalyticsIcon />,
-    path: '/analytics',
-  },
-  {
-    id: 'admin',
-    label: 'Admin Panel',
-    icon: <AdminIcon />,
-    path: '/admin',
-    roles: ['admin'],
-    badge: 'Admin',
-  },
-];
-
-export const Sidebar: React.FC<SidebarProps> = ({
-  open,
-  onToggle,
-  width = 280,
-  collapsedWidth = 64,
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const { user } = useAuth();
-  
-  const [expandedItems, setExpandedItems] = useState<string[]>(['financial-dashboards']);
+  const { user, isAdmin } = useAuth();
+  const [expandedItems, setExpandedItems] = useState<string[]>(['dashboard']);
 
-  const drawerWidth = open ? width : collapsedWidth;
+  const baseNavigationItems: NavItem[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: <LayoutDashboard className="h-4 w-4" />,
+      path: '/',
+    },
+    {
+      id: 'financial-modeling',
+      label: 'Financial Modeling',
+      icon: <Activity className="h-4 w-4" />,
+      path: '/financial-modeling',
+    },
+    {
+      id: 'financial-dashboards',
+      label: 'Financial Statements',
+      icon: <BarChart3 className="h-4 w-4" />,
+      children: [
+        {
+          id: 'pl-dashboard',
+          label: 'P&L Statement',
+          icon: <TrendingUp className="h-4 w-4" />,
+          path: '/dashboards/pl',
+        },
+        {
+          id: 'cashflow-dashboard',
+          label: 'Cash Flow Statement',
+          icon: <TrendingUp className="h-4 w-4" />,
+          path: '/dashboards/cashflow',
+        },
+        {
+          id: 'balance-sheet',
+          label: 'Balance Sheet',
+          icon: <PieChart className="h-4 w-4" />,
+          path: '/dashboards/balance',
+        },
+      ],
+    },
+    {
+      id: 'modeling-tools',
+      label: 'Modeling Tools',
+      icon: <Calculator className="h-4 w-4" />,
+      children: [
+        {
+          id: 'dcf-valuation',
+          label: 'DCF Valuation',
+          icon: <Target className="h-4 w-4" />,
+          path: '/dcf-valuation',
+        },
+        {
+          id: 'scenario-modeling',
+          label: 'Scenario Modeling',
+          icon: <Brain className="h-4 w-4" />,
+          path: '/scenarios',
+        },
+        {
+          id: 'asset-lifecycle',
+          label: 'Asset Lifecycle',
+          icon: <Building className="h-4 w-4" />,
+          path: '/asset-lifecycle',
+        },
+        {
+          id: 'cash-flow-lifecycle',
+          label: 'Cash Flow Lifecycle',
+          icon: <RefreshCw className="h-4 w-4" />,
+          path: '/cash-flow-lifecycle',
+        },
+      ],
+    },
+    {
+      id: 'parameters',
+      label: 'Parameters',
+      icon: <Settings className="h-4 w-4" />,
+      path: '/parameters',
+    },
+    {
+      id: 'files',
+      label: 'File Upload',
+      icon: <Upload className="h-4 w-4" />,
+      path: '/upload',
+    },
+  ];
 
-  const handleItemClick = (item: NavItem) => {
-    if (item.children) {
-      // Toggle expansion for parent items
-      setExpandedItems(prev =>
-        prev.includes(item.id)
-          ? prev.filter(id => id !== item.id)
-          : [...prev, item.id]
-      );
-    } else if (item.path) {
-      // Navigate to the path
-      navigate(item.path);
-      
-      // Close sidebar on mobile after navigation
-      if (isMobile && open) {
-        onToggle();
-      }
+  // Add admin navigation item only for admin users
+  const _navigationItems: NavItem[] = isAdmin()
+    ? [
+        ...baseNavigationItems,
+        {
+          id: 'admin',
+          label: 'Administration',
+          icon: <Users className="h-4 w-4" />,
+          path: '/admin',
+        },
+        {
+          id: 'settings',
+          label: 'Settings',
+          icon: <Settings className="h-4 w-4" />,
+          path: '/settings',
+        },
+      ]
+    : [
+        ...baseNavigationItems,
+        {
+          id: 'settings',
+          label: 'Settings',
+          icon: <Settings className="h-4 w-4" />,
+          path: '/settings',
+        },
+      ];
+
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItems(prev =>
+      prev.includes(itemId)
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (!open) {
+      onToggle();
     }
   };
 
-  const isItemActive = (item: NavItem): boolean => {
-    if (item.path) {
-      return location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
-    }
-    
-    if (item.children) {
-      return item.children.some(child => isItemActive(child));
-    }
-    
-    return false;
+  const isActive = (path?: string) => {
+    if (!path) return false;
+    return location.pathname === path;
   };
 
-  const hasPermission = (item: NavItem): boolean => {
-    if (!item.roles || !user?.roles) return true;
-    return item.roles.some(role => user.roles?.includes(role) ?? false);
-  };
-
-  const renderNavItem = (item: NavItem, level = 0) => {
-    if (!hasPermission(item)) return null;
-
-    const isActive = isItemActive(item);
-    const isExpanded = expandedItems.includes(item.id);
+  const renderNavItem = (item: NavItem) => {
+    const isItemActive = isActive(item.path);
     const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedItems.includes(item.id);
+
+    if (hasChildren) {
+      return (
+        <Button
+          key={item.id}
+          variant="ghost"
+          className={`w-full justify-between p-2 h-auto ${
+            isItemActive ? 'bg-accent text-accent-foreground' : ''
+          }`}
+          onClick={() =>
+            item.children && handleNavigation(item.children[0].path!)
+          }
+        >
+          <div className="flex items-center space-x-2">
+            {item.icon}
+            <span style={textStyles.nav}>{item.label}</span>
+          </div>
+          {isExpanded ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </Button>
+      );
+    }
 
     return (
-      <React.Fragment key={item.id}>
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <Tooltip title={!open ? item.label : ''} placement="right">
-            <ListItemButton
-              onClick={() => handleItemClick(item)}
-              selected={isActive && !hasChildren}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-                pl: level > 0 ? 4 : 2.5,
-                color: isActive ? 'primary.main' : 'inherit',
-                backgroundColor: isActive && !hasChildren ? 'action.selected' : 'transparent',
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                },
-                '&.Mui-selected': {
-                  backgroundColor: 'action.selected',
-                  '&:hover': {
-                    backgroundColor: 'action.selected',
-                  },
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center',
-                  color: isActive ? 'primary.main' : 'inherit',
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
-              
-              <ListItemText
-                primary={item.label}
-                sx={{
-                  opacity: open ? 1 : 0,
-                  '& .MuiListItemText-primary': {
-                    fontSize: '0.875rem',
-                    fontWeight: isActive ? 600 : 400,
-                  },
-                }}
-              />
-              
-              {item.badge && open && (
-                <Box
-                  sx={{
-                    fontSize: '0.75rem',
-                    px: 1,
-                    py: 0.25,
-                    borderRadius: 1,
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
-                  }}
-                >
-                  {item.badge}
-                </Box>
-              )}
-              
-              {hasChildren && open && (
-                isExpanded ? <ExpandLess /> : <ExpandMore />
-              )}
-            </ListItemButton>
-          </Tooltip>
-        </ListItem>
-
-        {hasChildren && (
-          <Collapse in={isExpanded && open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {item.children?.map(child => renderNavItem(child, level + 1))}
-            </List>
-          </Collapse>
-        )}
-      </React.Fragment>
+      <Button
+        key={item.id}
+        variant="ghost"
+        className={`w-full justify-start p-2 h-auto ${
+          isItemActive ? 'bg-accent text-accent-foreground' : ''
+        }`}
+        onClick={() => item.path && handleNavigation(item.path)}
+      >
+        <div className="flex items-center space-x-2">
+          {item.icon}
+          <span style={textStyles.nav}>{item.label}</span>
+        </div>
+      </Button>
     );
   };
-
-  const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: open ? 'space-between' : 'center',
-          px: 2,
-          py: 1.5,
-          minHeight: 64,
-        }}
-      >
-        {open && (
-          <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-            FinVision
-          </Typography>
-        )}
-        
-        {!isMobile && (
-          <IconButton onClick={onToggle} size="small">
-            {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        )}
-      </Box>
-
-      <Divider />
-
-      {/* Navigation */}
-      <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-        <List sx={{ pt: 1 }}>
-          {navigationItems.map(item => renderNavItem(item))}
-        </List>
-      </Box>
-
-      {/* Footer */}
-      {open && (
-        <>
-          <Divider />
-          <Box sx={{ p: 2 }}>
-            <Typography variant="caption" color="text.secondary">
-              Version 1.0.0
-            </Typography>
-          </Box>
-        </>
-      )}
-    </Box>
-  );
-
-  if (isMobile) {
-    return (
-      <Drawer
-        variant="temporary"
-        open={open}
-        onClose={onToggle}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: width,
-            boxSizing: 'border-box',
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    );
-  }
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        whiteSpace: 'nowrap',
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          overflowX: 'hidden',
-        },
-      }}
+    <div
+      className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-background border-r transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+        open ? 'translate-x-0' : '-translate-x-full'
+      }`}
     >
-      {drawerContent}
-    </Drawer>
+      {/* Header */}
+      <div className="flex h-16 items-center justify-between border-b px-4">
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <span
+              style={textStyles.h3}
+              className="text-primary-foreground font-bold"
+            >
+              FM
+            </span>
+          </div>
+          <span style={textStyles.h3} className="font-semibold">
+            FinVision
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggle}
+          className="lg:hidden"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Navigation */}
+      <ScrollArea className="flex-1 px-2 py-4">
+        <nav className="space-y-1">
+          {baseNavigationItems.map(renderNavItem)}
+        </nav>
+      </ScrollArea>
+
+      {/* Footer */}
+      <div className="border-t p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+              <span
+                style={textStyles.caption}
+                className="text-primary-foreground font-medium text-xs"
+              >
+                {user?.first_name?.charAt(0) ||
+                  user?.username?.charAt(0) ||
+                  'U'}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span style={textStyles.nav} className="font-medium">
+                {user?.first_name || user?.username || 'User'}
+              </span>
+              <span
+                style={textStyles.caption}
+                className="text-muted-foreground"
+              >
+                {user?.roles?.[0] || 'User'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

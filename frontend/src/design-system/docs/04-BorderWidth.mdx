@@ -1,0 +1,459 @@
+---
+title: 'Border Width'
+description: 'Comprehensive border width system for various UI components. Supports different border styles, states, and use cases with accessibility compliance.'
+parameters:
+  docs:
+    description:
+      component: 'Our border width system provides a consistent approach to defining element boundaries and visual hierarchy through carefully crafted border thickness values.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import { tokens } from '../tokens';
+
+<Meta
+  title="* - Documentation/Foundations/Border Width"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Border Width
+
+Our border width system provides a consistent approach to defining element boundaries and visual hierarchy through carefully crafted border thickness values.
+
+## Overview
+
+The border width system is designed to create clear visual hierarchy and improve user experience through consistent border thickness across all components. Each border width serves a specific purpose in the interface, from subtle separators to strong emphasis.
+
+## Token Definitions
+
+### Border Width Scale
+
+```typescript
+tokens.borderWidth = {
+  0: '0px', // No border
+  1: '1px', // Thin border for subtle separation
+  2: '2px', // Medium border for emphasis
+  3: '3px', // Thick border for strong emphasis
+  4: '4px', // Extra thick for special cases
+  8: '8px', // Very thick for decorative elements
+};
+```
+
+## Usage Rules
+
+### 1. **Thin Borders (1px)**
+
+- **Cards**: Subtle separation between content areas
+- **Inputs**: Default state borders for form elements
+- **Dividers**: Content separation within components
+- **Tables**: Cell boundaries and row separators
+
+### 2. **Medium Borders (2px)**
+
+- **Focus States**: Active input focus indicators
+- **Emphasis**: Important elements that need attention
+- **Interactive**: Button hover states and active elements
+- **Selection**: Selected items and current states
+
+### 3. **Thick Borders (3px+)**
+
+- **Strong Focus**: Critical elements requiring immediate attention
+- **Error States**: Validation errors and warning indicators
+- **Success States**: Confirmation feedback and positive actions
+- **Brand Elements**: Logo containers and primary brand elements
+
+## Best Practices
+
+### 1. **Consistent Application**
+
+```tsx
+// ✅ Good - Consistent border width for similar elements
+<div style={{ borderWidth: tokens.borderWidth[1] }}>
+  Card content
+</div>
+
+<div style={{ borderWidth: tokens.borderWidth[1] }}>
+  Another card
+</div>
+
+// ❌ Bad - Inconsistent border widths
+<div style={{ borderWidth: '1px' }}>
+  Card content
+</div>
+
+<div style={{ borderWidth: '3px' }}>
+  Another card
+</div>
+```
+
+### 2. **Semantic Usage**
+
+```tsx
+// ✅ Good - Semantic border width usage
+<input
+  style={{
+    borderWidth: tokens.borderWidth[1],
+    borderColor: tokens.colors.secondary[300]
+  }}
+  placeholder="Enter text"
+/>
+
+<input
+  style={{
+    borderWidth: tokens.borderWidth[2],
+    borderColor: tokens.colors.primary[500]
+  }}
+  placeholder="Focused input"
+/>
+
+// ❌ Bad - Non-semantic usage
+<input
+  style={{
+    borderWidth: tokens.borderWidth[4],
+    borderColor: tokens.colors.secondary[300]
+  }}
+  placeholder="Over-emphasized input"
+/>
+```
+
+### 3. **Interactive States**
+
+```tsx
+// ✅ Good - Progressive border width for states
+<button
+  style={{
+    borderWidth: tokens.borderWidth[1],
+    borderColor: tokens.colors.secondary[300],
+  }}
+  onMouseEnter={e => {
+    e.target.style.borderWidth = tokens.borderWidth[2];
+    e.target.style.borderColor = tokens.colors.primary[500];
+  }}
+  onMouseLeave={e => {
+    e.target.style.borderWidth = tokens.borderWidth[1];
+    e.target.style.borderColor = tokens.colors.secondary[300];
+  }}
+>
+  Interactive Button
+</button>
+```
+
+### 4. **Accessibility Considerations**
+
+```tsx
+// ✅ Good - High contrast borders
+<div style={{
+  borderWidth: tokens.borderWidth[2],
+  borderColor: tokens.colors.primary[600],
+  backgroundColor: tokens.colors.white
+}}>
+  High contrast element
+</div>
+
+// ❌ Bad - Low contrast borders
+<div style={{
+  borderWidth: tokens.borderWidth[1],
+  borderColor: tokens.colors.secondary[200],
+  backgroundColor: tokens.colors.secondary[100]
+}}>
+  Low contrast element
+</div>
+```
+
+## How-To Guides
+
+### Creating a Card Component
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+interface CardProps {
+  variant?: 'default' | 'elevated' | 'outlined';
+  children: React.ReactNode;
+}
+
+const Card = ({ variant = 'default', children }: CardProps) => {
+  const getBorderStyle = () => {
+    switch (variant) {
+      case 'default':
+        return {
+          borderWidth: tokens.borderWidth[1],
+          borderColor: tokens.colors.secondary[200],
+          backgroundColor: tokens.colors.white,
+        };
+      case 'elevated':
+        return {
+          borderWidth: tokens.borderWidth[0],
+          borderColor: 'transparent',
+          backgroundColor: tokens.colors.white,
+          boxShadow: tokens.shadows.md,
+        };
+      case 'outlined':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.primary[500],
+          backgroundColor: tokens.colors.white,
+        };
+    }
+  };
+
+  const styles = getBorderStyle();
+
+  return (
+    <div
+      style={{
+        ...styles,
+        borderRadius: tokens.borderRadius.lg,
+        padding: tokens.spacing[6],
+        transition: 'all 0.2s ease',
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+```
+
+### Creating a Form Input Component
+
+```tsx
+interface InputProps {
+  state?: 'default' | 'focused' | 'error' | 'success';
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+}
+
+const Input = ({
+  state = 'default',
+  placeholder,
+  value,
+  onChange,
+}: InputProps) => {
+  const getBorderStyle = () => {
+    switch (state) {
+      case 'default':
+        return {
+          borderWidth: tokens.borderWidth[1],
+          borderColor: tokens.colors.secondary[300],
+        };
+      case 'focused':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.primary[500],
+        };
+      case 'error':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.destructive[500],
+        };
+      case 'success':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.success,
+        };
+    }
+  };
+
+  const styles = getBorderStyle();
+
+  return (
+    <input
+      style={{
+        ...styles,
+        borderRadius: tokens.borderRadius.md,
+        padding: tokens.spacing[3],
+        fontSize: tokens.typography.fontSize.base,
+        outline: 'none',
+        transition: 'all 0.2s ease',
+      }}
+      placeholder={placeholder}
+      value={value}
+      onChange={e => onChange?.(e.target.value)}
+    />
+  );
+};
+```
+
+### Creating a Status Indicator
+
+```tsx
+interface StatusIndicatorProps {
+  status: 'success' | 'warning' | 'error' | 'info';
+  label: string;
+}
+
+const StatusIndicator = ({ status, label }: StatusIndicatorProps) => {
+  const getBorderStyle = () => {
+    switch (status) {
+      case 'success':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.success,
+          backgroundColor: tokens.colors.success + '10',
+        };
+      case 'warning':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.warning,
+          backgroundColor: tokens.colors.warning + '10',
+        };
+      case 'error':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.destructive[500],
+          backgroundColor: tokens.colors.destructive[500] + '10',
+        };
+      case 'info':
+        return {
+          borderWidth: tokens.borderWidth[2],
+          borderColor: tokens.colors.info,
+          backgroundColor: tokens.colors.info + '10',
+        };
+    }
+  };
+
+  const styles = getBorderStyle();
+
+  return (
+    <div
+      style={{
+        ...styles,
+        borderRadius: tokens.borderRadius.full,
+        padding: `${tokens.spacing[2]} ${tokens.spacing[4]}`,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: tokens.spacing[2],
+        fontSize: tokens.typography.fontSize.sm,
+        fontWeight: tokens.typography.fontWeight.medium,
+      }}
+    >
+      <div
+        style={{
+          width: '8px',
+          height: '8px',
+          borderRadius: '50%',
+          backgroundColor: styles.borderColor,
+        }}
+      />
+      {label}
+    </div>
+  );
+};
+```
+
+## Common Patterns
+
+### Border Width with Border Radius
+
+```tsx
+const BorderRadiusCombination = () => {
+  const combinations = [
+    { width: tokens.borderWidth[1], radius: tokens.borderRadius.sm },
+    { width: tokens.borderWidth[2], radius: tokens.borderRadius.md },
+    { width: tokens.borderWidth[3], radius: tokens.borderRadius.lg },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {combinations.map((combo, index) => (
+        <div
+          key={index}
+          style={{
+            borderWidth: combo.width,
+            borderColor: tokens.colors.primary[500],
+            borderRadius: combo.radius,
+            padding: tokens.spacing[4],
+            backgroundColor: tokens.colors.white,
+          }}
+        >
+          Border Width: {combo.width}, Radius: {combo.radius}
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### Progressive Border Emphasis
+
+```tsx
+const ProgressiveEmphasis = () => {
+  const levels = [
+    { width: tokens.borderWidth[1], description: 'Subtle separation' },
+    { width: tokens.borderWidth[2], description: 'Moderate emphasis' },
+    { width: tokens.borderWidth[3], description: 'Strong emphasis' },
+    { width: tokens.borderWidth[4], description: 'Maximum emphasis' },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {levels.map((level, index) => (
+        <div
+          key={index}
+          style={{
+            borderWidth: level.width,
+            borderColor: tokens.colors.primary[500],
+            borderRadius: tokens.borderRadius.md,
+            padding: tokens.spacing[4],
+            backgroundColor: tokens.colors.white,
+          }}
+        >
+          <div style={{ fontWeight: tokens.typography.fontWeight.semibold }}>
+            Level {index + 1}
+          </div>
+          <div style={{ color: tokens.colors.secondary[600] }}>
+            {level.description}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+## Accessibility Guidelines
+
+### 1. **Contrast Requirements**
+
+- Ensure sufficient contrast between border and background colors
+- Test border visibility in high contrast mode
+- Consider color blindness when using colored borders
+
+### 2. **Focus Indicators**
+
+- Use appropriate border width for focus states (typically 2px)
+- Ensure focus borders meet WCAG contrast requirements
+- Provide alternative focus indicators for users with visual impairments
+
+### 3. **Screen Reader Support**
+
+- Don't rely solely on border width to convey information
+- Use semantic HTML elements with proper ARIA attributes
+- Provide text alternatives for visual border indicators
+
+### 4. **High Contrast Mode**
+
+- Test border visibility in system high contrast mode
+- Ensure borders remain visible and functional
+- Provide alternative visual cues when borders are not sufficient
+
+## Testing Checklist
+
+- [ ] All border width combinations meet contrast requirements
+- [ ] Borders work correctly in high contrast mode
+- [ ] Focus indicators are clearly visible
+- [ ] Border width changes provide clear visual feedback
+- [ ] Consistent border width usage across similar elements
+- [ ] Border width scales appropriately with component size
+
+## Resources
+
+- [WCAG Border and Outline Guidelines](https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html)
+- [Material Design Border System](https://material.io/design/components/cards.html#specs)

@@ -1,5 +1,13 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Query
+from fastapi import (
+    APIRouter,
+    Depends,
+    UploadFile,
+    File,
+    HTTPException,
+    status,
+    Query,
+)
 from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
@@ -9,16 +17,17 @@ from app.models.file import FileStatus
 from app.schemas.file import (
     FileUploadResponse,
     FileInfo,
-    FileListResponse,
     FileWithLogs,
     ProcessingLogEntry,
     FileProcessingRequest,
 )
 from app.schemas.financial import FilePreviewResponse
 from app.services.file_service import FileService
+from app.services.auth_service import AuthService
 from app.api.v1.endpoints.auth import get_current_active_user
-from app.core.dependencies import require_permissions
-from app.core.permissions import Permission
+
+# from app.core.dependencies import require_permissions
+# from app.core.permissions import Permission
 
 router = APIRouter()
 
@@ -29,7 +38,9 @@ def get_file_service(db: Session = Depends(get_db)) -> FileService:
 
 
 @router.post(
-    "/upload", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED
+    "/upload",
+    response_model=FileUploadResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 async def upload_file(
     file: UploadFile = File(...),
@@ -40,7 +51,23 @@ async def upload_file(
     Upload a new file.
     """
     try:
-        uploaded_file = await file_service.save_uploaded_file(file, current_user)
+        uploaded_file = await file_service.save_uploaded_file(
+            file, current_user
+        )
+        # Audit upload
+        try:
+            auth = AuthService(file_service.db)
+            auth.log_audit_action(
+                user_id=current_user.id,
+                action="PROFILE_UPDATED",
+                resource="file",
+                resource_id=str(uploaded_file.id),
+                details=f"Uploaded file {uploaded_file.original_filename}",
+                success="success",
+            )
+            file_service.db.commit()
+        except Exception:
+            file_service.db.rollback()
         return FileUploadResponse.from_orm(uploaded_file)
     except HTTPException:
         raise
@@ -54,7 +81,9 @@ async def upload_file(
 @router.get("/", response_model=List[FileInfo])
 def list_files(
     skip: int = Query(0, ge=0, description="Number of files to skip"),
-    limit: int = Query(100, ge=1, le=1000, description="Number of files to return"),
+    limit: int = Query(
+        100, ge=1, le=1000, description="Number of files to return"
+    ),
     status_filter: Optional[FileStatus] = Query(
         None, description="Filter by file status"
     ),
@@ -65,7 +94,10 @@ def list_files(
     Get list of uploaded files for the current user.
     """
     result = file_service.get_user_files(
-        user=current_user, skip=skip, limit=limit, status_filter=status_filter
+        user=current_user,
+        skip=skip,
+        limit=limit,
+        status_filter=status_filter,
     )
 
     return [FileInfo.from_orm(f) for f in result["files"]]
@@ -82,7 +114,8 @@ def get_file_info(
     """
     if not file_id.isdigit():
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file id"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file id",
         )
     file_record = file_service.get_file_by_id(int(file_id), current_user)
 
@@ -194,7 +227,8 @@ def download_file(
 
     if not file_path:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found on disk",
         )
 
     return FileResponse(
@@ -283,7 +317,7 @@ def cancel_file_processing(
     """
     Cancel processing for a specific file.
     """
-    from app.core.celery_app import celery_app
+    # from app.core.celery_app import celery_app
 
     file_record = file_service.get_file_by_id(file_id, current_user)
 
@@ -299,7 +333,7 @@ def cancel_file_processing(
         )
 
     # Try to revoke the Celery task
-    # Note: This requires finding the task ID, which we should store in the database
+    # Note: Requires finding the task ID; should be stored in the database
     # For now, just update the status
 
     # Update status to cancelled
@@ -375,7 +409,11 @@ def get_file_preview(
 
         for sheet_name, df in sheets_data.items():
             # Get preview rows
-            preview_data = df.head(max_rows).to_dict("records") if not df.empty else []
+            preview_data = (
+                df.head(max_rows).to_dict("records")
+                if not df.empty
+                else []
+            )
 
             sheet_info = {
                 "name": sheet_name,
@@ -392,7 +430,13 @@ def get_file_preview(
                 sheet_name_lower = sheet_name.lower()
                 if any(
                     keyword in sheet_name_lower
-                    for keyword in ["profit", "loss", "income", "p&l", "pnl"]
+                    for keyword in [
+                        "profit",
+                        "loss",
+                        "income",
+                        "p&l",
+                        "pnl",
+                    ]
                 ):
                     detected_statements.append(
                         {
@@ -413,7 +457,8 @@ def get_file_preview(
                         }
                     )
                 elif any(
-                    keyword in sheet_name_lower for keyword in ["cash", "flow", "cf"]
+                    keyword in sheet_name_lower
+                    for keyword in ["cash", "flow", "cf"]
                 ):
                     detected_statements.append(
                         {

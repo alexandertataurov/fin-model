@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthGuard from './auth/AuthGuard';
+import AuthGuard from './Authentification/AuthGuard';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,7 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireVerification = true,
 }) => {
   return (
-    <AuthGuard 
+    <AuthGuard
       requiredRole={requiredRole}
       requireVerification={requireVerification}
     >

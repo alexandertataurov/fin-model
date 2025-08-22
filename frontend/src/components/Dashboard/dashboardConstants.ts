@@ -9,7 +9,8 @@ export const DASHBOARD_TEMPLATES = {
   OVERVIEW_DASHBOARD: 'overview_dashboard',
 } as const;
 
-export type DashboardTemplateKey = typeof DASHBOARD_TEMPLATES[keyof typeof DASHBOARD_TEMPLATES];
+export type DashboardTemplateKey =
+  (typeof DASHBOARD_TEMPLATES)[keyof typeof DASHBOARD_TEMPLATES];
 
 // P&L Dashboard Template
 export const PLDashboardLayout: { [key: string]: LayoutItem[] } = {
@@ -173,24 +174,25 @@ export const OverviewDashboardLayout: { [key: string]: LayoutItem[] } = {
 };
 
 // Template definitions
-export const dashboardTemplates: Record<DashboardTemplateKey, DashboardLayout> = {
-  [DASHBOARD_TEMPLATES.PL_DASHBOARD]: {
-    layouts: PLDashboardLayout,
-    widgets: [], // Will be populated with actual widget instances
-  },
-  [DASHBOARD_TEMPLATES.CASH_FLOW_DASHBOARD]: {
-    layouts: CashFlowDashboardLayout,
-    widgets: [],
-  },
-  [DASHBOARD_TEMPLATES.BALANCE_SHEET_DASHBOARD]: {
-    layouts: BalanceSheetDashboardLayout,
-    widgets: [],
-  },
-  [DASHBOARD_TEMPLATES.OVERVIEW_DASHBOARD]: {
-    layouts: OverviewDashboardLayout,
-    widgets: [],
-  },
-};
+export const dashboardTemplates: Record<DashboardTemplateKey, DashboardLayout> =
+  {
+    [DASHBOARD_TEMPLATES.PL_DASHBOARD]: {
+      layouts: PLDashboardLayout,
+      widgets: [], // Will be populated with actual widget instances
+    },
+    [DASHBOARD_TEMPLATES.CASH_FLOW_DASHBOARD]: {
+      layouts: CashFlowDashboardLayout,
+      widgets: [],
+    },
+    [DASHBOARD_TEMPLATES.BALANCE_SHEET_DASHBOARD]: {
+      layouts: BalanceSheetDashboardLayout,
+      widgets: [],
+    },
+    [DASHBOARD_TEMPLATES.OVERVIEW_DASHBOARD]: {
+      layouts: OverviewDashboardLayout,
+      widgets: [],
+    },
+  };
 
 // Template metadata
 export const templateMetadata = {
@@ -231,4 +233,4 @@ export const getAvailableTemplates = () => {
     key: key as DashboardTemplateKey,
     ...metadata,
   }));
-}; 
+};

@@ -25,10 +25,15 @@ class DatabaseTask(Task):
 
 
 @celery_app.task(
-    bind=True, base=DatabaseTask, name="app.tasks.file_processing.process_uploaded_file"
+    bind=True,
+    base=DatabaseTask,
+    name="app.tasks.file_processing.process_uploaded_file",
 )
 def process_uploaded_file(
-    self, db: Session, file_id: int, processing_options: Optional[Dict[str, Any]] = None
+    self,
+    db: Session,
+    file_id: int,
+    processing_options: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Process an uploaded file in the background.
@@ -51,18 +56,28 @@ def process_uploaded_file(
             "processing_started",
             "Background processing started",
             "info",
-            json.dumps({"task_id": self.request.id, "options": processing_options}),
+            json.dumps(
+                {"task_id": self.request.id, "options": processing_options}
+            ),
         )
 
         # Get file record
-        file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        file_record = (
+            db.query(UploadedFile)
+            .filter(UploadedFile.id == file_id)
+            .first()
+        )
         if not file_record:
             raise ValueError(f"File with ID {file_id} not found")
 
         # Update progress
         self.update_state(
             state="PROGRESS",
-            meta={"current": 10, "total": 100, "status": "Validating file..."},
+            meta={
+                "current": 10,
+                "total": 100,
+                "status": "Validating file...",
+            },
         )
 
         # Parse and validate the Excel file
@@ -78,15 +93,21 @@ def process_uploaded_file(
         # Update progress
         self.update_state(
             state="PROGRESS",
-            meta={"current": 40, "total": 100, "status": "Extracting data..."},
+            meta={
+                "current": 40,
+                "total": 100,
+                "status": "Extracting data...",
+            },
         )
 
         # Store validation results
         is_valid = (
-            parsed_data.validation_summary.is_valid and validation_result.is_valid
+            parsed_data.validation_summary.is_valid
+            and validation_result.is_valid
         )
         validation_errors = (
-            parsed_data.validation_summary.errors + validation_result.validation_errors
+            parsed_data.validation_summary.errors
+            + validation_result.validation_errors
         )
 
         if not is_valid:
@@ -105,7 +126,10 @@ def process_uploaded_file(
             )
         else:
             file_service.log_processing_step(
-                file_id, "validation", "File validation passed successfully", "info"
+                file_id,
+                "validation",
+                "File validation passed successfully",
+                "info",
             )
 
         # Update progress
@@ -137,7 +161,9 @@ def process_uploaded_file(
 
             val_summary = getattr(parsed_data, "validation_summary", None)
             if val_summary is not None:
-                val_summary = getattr(val_summary, "dict", lambda: val_summary)()
+                val_summary = getattr(
+                    val_summary, "dict", lambda: val_summary
+                )()
                 val_summary = _safe(val_summary)
             parsed_data_json = json.dumps(
                 {
@@ -145,8 +171,12 @@ def process_uploaded_file(
                     "financial_statements": _safe(
                         getattr(parsed_data, "financial_statements", None)
                     ),
-                    "key_metrics": _safe(getattr(parsed_data, "key_metrics", None)),
-                    "assumptions": _safe(getattr(parsed_data, "assumptions", None)),
+                    "key_metrics": _safe(
+                        getattr(parsed_data, "key_metrics", None)
+                    ),
+                    "assumptions": _safe(
+                        getattr(parsed_data, "assumptions", None)
+                    ),
                     "validation_summary": val_summary,
                 }
             )
@@ -166,7 +196,9 @@ def process_uploaded_file(
         )
 
         # Update file record with results
-        final_status = FileStatus.COMPLETED if is_valid else FileStatus.FAILED
+        final_status = (
+            FileStatus.COMPLETED if is_valid else FileStatus.FAILED
+        )
         file_service.update_file_status(
             file_id,
             final_status,
@@ -189,20 +221,31 @@ def process_uploaded_file(
 
         # Send notification without celery in tests
         send_processing_notification.__wrapped__(
-            self, db, file_id, final_status.value, file_record.uploaded_by_id, None
+            self,
+            db,
+            file_id,
+            final_status.value,
+            file_record.uploaded_by_id,
+            None,
         )
 
         # Final progress update
         self.update_state(
             state="SUCCESS",
-            meta={"current": 100, "total": 100, "status": "Processing complete"},
+            meta={
+                "current": 100,
+                "total": 100,
+                "status": "Processing complete",
+            },
         )
 
         return {
             "file_id": file_id,
             "status": final_status.value,
             "is_valid": is_valid,
-            "errors": parsed_data.validation_summary.errors if not is_valid else [],
+            "errors": parsed_data.validation_summary.errors
+            if not is_valid
+            else [],
             "sheets_processed": len(parsed_data.sheets),
             "task_id": self.request.id,
         }
@@ -231,26 +274,44 @@ def process_uploaded_file(
         )
 
         # Send error notification
-        file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        file_record = (
+            db.query(UploadedFile)
+            .filter(UploadedFile.id == file_id)
+            .first()
+        )
         if file_record:
             send_processing_notification.__wrapped__(
-                self, db, file_id, "failed", file_record.uploaded_by_id, error_message
+                self,
+                db,
+                file_id,
+                "failed",
+                file_record.uploaded_by_id,
+                error_message,
             )
 
         # Update task state
         self.update_state(
             state="FAILURE",
-            meta={"current": 0, "total": 100, "status": f"Failed: {error_message}"},
+            meta={
+                "current": 0,
+                "total": 100,
+                "status": f"Failed: {error_message}",
+            },
         )
 
         raise
 
 
 @celery_app.task(
-    bind=True, base=DatabaseTask, name="app.tasks.file_processing.reprocess_file"
+    bind=True,
+    base=DatabaseTask,
+    name="app.tasks.file_processing.reprocess_file",
 )
 def reprocess_file(
-    self, db: Session, file_id: int, processing_options: Optional[Dict[str, Any]] = None
+    self,
+    db: Session,
+    file_id: int,
+    processing_options: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Reprocess a failed or completed file.
@@ -265,7 +326,9 @@ def reprocess_file(
     file_service = FileService(db)
 
     # Check if file exists and can be reprocessed
-    file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+    file_record = (
+        db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+    )
     if not file_record:
         raise ValueError(f"File with ID {file_id} not found")
 
@@ -278,7 +341,9 @@ def reprocess_file(
         "reprocessing_started",
         "File reprocessing initiated",
         "info",
-        json.dumps({"task_id": self.request.id, "options": processing_options}),
+        json.dumps(
+            {"task_id": self.request.id, "options": processing_options}
+        ),
     )
 
     # Call the main processing task
@@ -286,9 +351,13 @@ def reprocess_file(
 
 
 @celery_app.task(
-    bind=True, base=DatabaseTask, name="app.tasks.file_processing.cleanup_old_files"
+    bind=True,
+    base=DatabaseTask,
+    name="app.tasks.file_processing.cleanup_old_files",
 )
-def cleanup_old_files(self, db: Session, days_old: int = 30) -> Dict[str, Any]:
+def cleanup_old_files(
+    self, db: Session, days_old: int = 30
+) -> Dict[str, Any]:
     """
     Clean up old uploaded files and their data.
 
@@ -310,7 +379,11 @@ def cleanup_old_files(self, db: Session, days_old: int = 30) -> Dict[str, Any]:
         .filter(
             UploadedFile.created_at < cutoff_date,
             UploadedFile.status.in_(
-                [FileStatus.COMPLETED, FileStatus.FAILED, FileStatus.CANCELLED]
+                [
+                    FileStatus.COMPLETED,
+                    FileStatus.FAILED,
+                    FileStatus.CANCELLED,
+                ]
             ),
         )
         .all()
@@ -330,7 +403,9 @@ def cleanup_old_files(self, db: Session, days_old: int = 30) -> Dict[str, Any]:
             cleaned_count += 1
 
         except Exception as e:
-            errors.append(f"Failed to delete file {file_record.id}: {str(e)}")
+            errors.append(
+                f"Failed to delete file {file_record.id}: {str(e)}"
+            )
 
     if cleaned_count > 0:
         db.commit()
@@ -390,4 +465,6 @@ def get_processing_status(task_id: str) -> Dict[str, Any]:
 
 
 # Expose raw function for unit tests
-process_uploaded_file.__wrapped__ = process_uploaded_file.__wrapped__.__func__
+process_uploaded_file.__wrapped__ = (
+    process_uploaded_file.__wrapped__.__func__
+)

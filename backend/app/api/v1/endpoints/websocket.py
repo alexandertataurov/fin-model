@@ -1,124 +1,515 @@
 import json
-from typing import Any
-from fastapi import (
-    APIRouter,
-    WebSocket,
-    WebSocketDisconnect,
-    Depends,
-    HTTPException,
-    status,
-)
-from sqlalchemy.orm import Session
+import logging
+from datetime import datetime
+from typing import Optional
 
-from app.models.base import get_db
-from app.models.user import User
-from app.core.websocket import manager, handle_websocket_message
 from app.core.security import verify_token
+from app.models.base import get_db
+from app.services.auth_service import AuthService
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-async def get_current_user_websocket(websocket: WebSocket, token: str = None) -> User:
-    """
-    Get current user for WebSocket connections.
-    Token should be passed as a query parameter.
-    """
-    if not token:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        raise HTTPException(status_code=401, detail="Token required")
-
-    user_id = verify_token(token)
-    if user_id is None:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    # Get user from database
-    db = next(get_db())
-    user = db.query(User).filter(User.id == int(user_id)).first()
-
-    if not user or not user.is_active:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        raise HTTPException(status_code=401, detail="User not found or inactive")
-
-    return user
-
-
-@router.websocket("/ws/files")
-async def websocket_files_endpoint(websocket: WebSocket, token: str = None):
-    """
-    WebSocket endpoint for real-time file processing updates.
-
-    Query parameters:
-    - token: JWT authentication token
-
-    Messages sent by client:
-    - {"type": "subscribe_file", "file_id": 123}
-    - {"type": "unsubscribe_file", "file_id": 123}
-    - {"type": "subscribe_task", "task_id": "abc123"}
-    - {"type": "unsubscribe_task", "task_id": "abc123"}
-    - {"type": "ping", "timestamp": 1234567890}
-
-    Messages sent by server:
-    - {"type": "connection_established", "user_id": 123}
-    - {"type": "file_status_update", "file_id": 123, "data": {...}}
-    - {"type": "task_progress_update", "task_id": "abc123", "data": {...}}
-    - {"type": "notification", "data": {...}}
-    - {"type": "error", "message": "..."}
-    """
+@router.websocket("/health")
+async def health_websocket(websocket: WebSocket):
+    """WebSocket health check endpoint - no authentication required."""
     try:
-        # Authenticate user
-        user = await get_current_user_websocket(websocket, token)
+        await websocket.accept()
+        logger.info("Health check WebSocket connected")
 
-        # Connect to manager
-        await manager.connect(websocket, user.id)
+        # Send connection confirmation
+        await websocket.send_text(
+            json.dumps(
+                {
+                    "type": "health_check",
+                    "message": "WebSocket health check successful",
+                    "status": "connected",
+                }
+            )
+        )
 
-        # Handle messages
+        # Keep connection alive for a short time
         while True:
             try:
-                # Receive message from client
                 data = await websocket.receive_text()
                 message = json.loads(data)
 
-                # Handle the message
-                await handle_websocket_message(websocket, user.id, message)
+                if message.get("type") == "ping":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
+                        )
+                    )
+                else:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "error",
+                                "message": "Only ping messages supported",
+                            }
+                        )
+                    )
 
             except WebSocketDisconnect:
+                logger.info("Health check WebSocket disconnected")
                 break
-            except json.JSONDecodeError:
-                await manager.send_to_user(
-                    user.id, {"type": "error", "message": "Invalid JSON format"}
-                )
             except Exception as e:
-                await manager.send_to_user(
-                    user.id,
-                    {"type": "error", "message": f"Message processing error: {str(e)}"},
+                logger.error(f"Error in health check WebSocket: {e}")
+                break
+
+    except Exception as e:
+        logger.error(f"Error establishing health check WebSocket: {e}")
+        if websocket.client_state.name == "CONNECTED":
+            try:
+                await websocket.close()
+            except Exception:
+                logger.exception("Error closing WebSocket connection")
+
+
+@router.websocket("/notifications")
+async def notifications_websocket(
+    websocket: WebSocket, token: Optional[str] = Query(None)
+):
+    """WebSocket endpoint for real-time notifications."""
+    try:
+        # Accept the connection first
+        await websocket.accept()
+
+        # Then authenticate
+        if not token:
+            logger.warning("WebSocket connection attempt without token")
+            await websocket.close(
+                code=4001, reason="Authentication required"
+            )
+            return
+
+        try:
+            user_id = verify_token(token)
+        except Exception as e:
+            logger.error(f"Token verification error: {e}")
+            await websocket.close(code=4001, reason="Invalid token")
+            return
+
+        if not user_id:
+            logger.warning(
+                "WebSocket connection attempt with invalid token"
+            )
+            await websocket.close(code=4001, reason="Invalid token")
+            return
+
+        # Get database session
+        db_gen = get_db()
+        db = next(db_gen)
+
+        try:
+            auth_service = AuthService(db)
+            user = auth_service.get_user_by_id(int(user_id))
+
+            if not user or not user.is_active:
+                logger.warning(
+                    f"WebSocket connection attempt for inactive user {user_id}"
+                )
+                await websocket.close(
+                    code=4001, reason="User not found or inactive"
+                )
+                return
+
+            logger.info(
+                f"WebSocket authentication successful for user {user.id}"
+            )
+        except Exception as e:
+            logger.error(
+                f"Database error during WebSocket authentication: {e}"
+            )
+            await websocket.close(code=4001, reason="Database error")
+            return
+        finally:
+            try:
+                db.close()
+            except Exception:
+                logger.exception(
+                    "Error closing DB session in WebSocket auth"
                 )
 
-    except HTTPException:
-        # Authentication failed - connection will be closed
-        return
+        logger.info(f"WebSocket connection accepted for user {user.id}")
+
+        # Send connection confirmation
+        await websocket.send_text(
+            json.dumps(
+                {
+                    "type": "connection_established",
+                    "message": "Notifications WebSocket connected",
+                    "user_id": user.id,
+                }
+            )
+        )
+
+        # Keep connection alive
+        while True:
+            try:
+                # Wait for messages from client
+                data = await websocket.receive_text()
+                message = json.loads(data)
+
+                # Handle different message types
+                if message.get("type") == "ping":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                                "user_id": user.id,
+                            }
+                        )
+                    )
+                elif message.get("type") == "heartbeat":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "heartbeat_ack",
+                                "timestamp": message.get("timestamp"),
+                            }
+                        )
+                    )
+                else:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "error",
+                                "message": (
+                                    f"Unknown message type: {message.get('type')}"
+                                ),
+                            }
+                        )
+                    )
+
+            except WebSocketDisconnect:
+                logger.info(
+                    f"User {user.id} disconnected from notifications WebSocket"
+                )
+                break
+            except Exception as e:
+                logger.error(
+                    f"Error in notifications WebSocket for user {user.id}: {e}"
+                )
+                await websocket.send_text(
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
+                )
+
     except Exception as e:
-        # Handle any other errors
-        try:
-            await websocket.close(code=status.WS_1011_INTERNAL_ERROR)
-        except:
-            pass
+        logger.error(f"Error establishing notifications WebSocket: {e}")
+        # Don't try to close if we never accepted the connection
+        if websocket.client_state.name == "CONNECTED":
+            try:
+                await websocket.close()
+            except Exception:
+                logger.exception("Error closing WebSocket after failure")
+
+
+@router.websocket("/collaboration/ws/template/{template_id}")
+async def collaboration_websocket(websocket: WebSocket, template_id: str):
+    """WebSocket endpoint for real-time collaboration."""
+    await websocket.accept()
+
+    try:
+        # Send connection confirmation
+        await websocket.send_text(
+            json.dumps(
+                {
+                    "type": "connection_established",
+                    "message": "Collaboration WebSocket connected",
+                    "template_id": template_id,
+                }
+            )
+        )
+
+        # Keep connection alive
+        while True:
+            try:
+                # Wait for messages from client
+                data = await websocket.receive_text()
+                message = json.loads(data)
+
+                # Handle different message types
+                if message.get("type") == "ping":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
+                        )
+                    )
+                elif message.get("type") == "user_presence":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "user_presence_ack",
+                                "data": {"status": "received"},
+                            }
+                        )
+                    )
+                else:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "error",
+                                "message": (
+                                    f"Unknown message type: {message.get('type')}"
+                                ),
+                            }
+                        )
+                    )
+
+            except WebSocketDisconnect:
+                logger.info(
+                    "Client disconnected from collaboration WebSocket for "
+                    f"template {template_id}"
+                )
+                break
+            except Exception as e:
+                logger.error(f"Error in collaboration WebSocket: {e}")
+                await websocket.send_text(
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
+                )
+
+    except Exception as e:
+        logger.error(f"Error establishing collaboration WebSocket: {e}")
     finally:
-        # Clean up connection
         try:
-            if "user" in locals():
-                manager.disconnect(websocket, user.id)
-        except:
-            pass
+            await websocket.close()
+        except Exception:
+            logger.exception("Error closing collaboration WebSocket")
 
 
-@router.get("/ws/stats")
-def get_websocket_stats() -> Any:
-    """
-    Get WebSocket connection statistics.
-    """
-    return {
-        "connected_users": manager.get_connected_users(),
-        "total_connections": manager.get_connection_count(),
-        "user_count": len(manager.get_connected_users()),
-    }
+@router.websocket("/dashboard/{file_id}")
+async def dashboard_websocket(websocket: WebSocket, file_id: str):
+    """WebSocket endpoint for real-time dashboard updates."""
+    await websocket.accept()
+
+    try:
+        # Send connection confirmation
+        await websocket.send_text(
+            json.dumps(
+                {
+                    "type": "connection_established",
+                    "message": "Dashboard WebSocket connected",
+                    "file_id": file_id,
+                }
+            )
+        )
+
+        # Keep connection alive
+        while True:
+            try:
+                # Wait for messages from client
+                data = await websocket.receive_text()
+                message = json.loads(data)
+
+                # Handle different message types
+                if message.get("type") == "ping":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
+                        )
+                    )
+                else:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "error",
+                                "message": (
+                                    f"Unknown message type: {message.get('type')}"
+                                ),
+                            }
+                        )
+                    )
+
+            except WebSocketDisconnect:
+                logger.info(
+                    "Client disconnected from dashboard WebSocket for file "
+                    f"{file_id}"
+                )
+                break
+            except Exception as e:
+                logger.error(f"Error in dashboard WebSocket: {e}")
+                await websocket.send_text(
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
+                )
+
+    except Exception as e:
+        logger.error(f"Error establishing dashboard WebSocket: {e}")
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            logger.exception("Error closing dashboard WebSocket")
+
+
+@router.websocket("/")
+async def root_websocket(websocket: WebSocket):
+    """Root WebSocket endpoint for basic connections."""
+    await websocket.accept()
+    logger.info("Root WebSocket connection accepted")
+
+    try:
+        # Send connection confirmation
+        await websocket.send_text(
+            json.dumps(
+                {
+                    "type": "connection_established",
+                    "message": "Root WebSocket connected",
+                    "info": (
+                        "Use specific endpoints like /ws/notifications for full "
+                        "functionality"
+                    ),
+                }
+            )
+        )
+
+        # Keep connection alive
+        while True:
+            try:
+                # Wait for messages from client
+                data = await websocket.receive_text()
+                message = json.loads(data)
+
+                # Handle different message types
+                if message.get("type") == "ping":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                            }
+                        )
+                    )
+                else:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "info",
+                                "message": (
+                                    "This is a basic WebSocket endpoint. "
+                                    "For authenticated features, use /ws/notifications"
+                                ),
+                            }
+                        )
+                    )
+
+            except WebSocketDisconnect:
+                logger.info("Client disconnected from root WebSocket")
+                break
+            except Exception as e:
+                logger.error(f"Error in root WebSocket: {e}")
+                await websocket.send_text(
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Internal server error",
+                        }
+                    )
+                )
+
+    except Exception as e:
+        logger.error(f"Error establishing root WebSocket: {e}")
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            logger.exception("Error closing root WebSocket")
+
+
+@router.websocket("/test")
+async def test_websocket(websocket: WebSocket):
+    """Test WebSocket endpoint - no authentication required."""
+    try:
+        await websocket.accept()
+        logger.info("Test WebSocket connected")
+
+        # Send connection confirmation
+        await websocket.send_text(
+            json.dumps(
+                {
+                    "type": "test_connection",
+                    "message": "Test WebSocket connected successfully",
+                    "status": "connected",
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
+        )
+
+        # Keep connection alive for a short time
+        while True:
+            try:
+                data = await websocket.receive_text()
+                message = json.loads(data)
+
+                if message.get("type") == "ping":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "pong",
+                                "timestamp": message.get("timestamp"),
+                                "echo": "pong",
+                            }
+                        )
+                    )
+                elif message.get("type") == "echo":
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "echo_response",
+                                "message": message.get("message", ""),
+                                "timestamp": datetime.utcnow().isoformat(),
+                            }
+                        )
+                    )
+                else:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "error",
+                                "message": "Unknown message type",
+                                "received": message.get("type"),
+                            }
+                        )
+                    )
+
+            except WebSocketDisconnect:
+                logger.info("Test WebSocket disconnected")
+                break
+            except Exception as e:
+                logger.error(f"Error in test WebSocket: {e}")
+                break
+
+    except Exception as e:
+        logger.error(f"Error establishing test WebSocket: {e}")
+        if websocket.client_state.name == "CONNECTED":
+            try:
+                await websocket.close()
+            except Exception:
+                logger.exception("Error closing test WebSocket")

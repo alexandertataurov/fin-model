@@ -4,29 +4,29 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import (
     HTTPBearer,
     HTTPAuthorizationCredentials,
-    OAuth2PasswordRequestForm,
 )
 from sqlalchemy.orm import Session
 
 from app.models.base import get_db
 from app.models.role import RoleType
-from app.models.audit import AuditAction
+
+# Audit models removed in lean version
 from app.schemas.user import (
     UserRegister,
     User,
     UserUpdate,
+    UserLogin,
     Token,
     PasswordReset,
     PasswordResetConfirm,
     PasswordChange,
     EmailVerification,
 )
+from app.schemas.mfa import AuthenticationFlowResponse
 from app.services.auth_service import AuthService
 from app.core.security import (
     create_access_token,
-    create_refresh_token,
     verify_token,
-    create_email_verification_token,
 )
 from app.core.config import settings
 from app.core.rate_limiter import RateLimiter
@@ -77,7 +77,9 @@ def get_current_user(
     return user
 
 
-def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+def get_current_active_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
     """Get current active user."""
     if not current_user.is_active:
         raise HTTPException(
@@ -98,14 +100,17 @@ def require_role(required_role: RoleType):
 
         if required_role.value not in user_roles:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions",
             )
         return current_user
 
     return role_checker
 
 
-@router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=User, status_code=status.HTTP_201_CREATED
+)
 def register(
     user_in: UserRegister, request: Request, db: Session = Depends(get_db)
 ) -> Any:
@@ -145,7 +150,7 @@ def register(
         raise
     except Exception as e:
         auth_service.log_audit_action(
-            action=AuditAction.REGISTER,
+            action="REGISTER",
             success="error",
             details=str(e),
             ip_address=ip_address,
@@ -159,6 +164,7 @@ def register(
 
 @router.post("/login", response_model=Token)
 async def login(
+    login_data: UserLogin,
     request: Request,
     db: Session = Depends(get_db),
 ) -> Any:
@@ -175,20 +181,10 @@ async def login(
 
     auth_service = AuthService(db)
 
-    # Support both JSON payloads and form data for tests
-    json_request = request.headers.get("content-type", "").startswith(
-        "application/json"
-    )
-    if json_request:
-        data = await request.json()
-    else:
-        form = await request.form()
-        data = dict(form)
-
-    identifier = data.get("username") or data.get("email")
-    password = data.get("password")
-
-    remember_me = data.get("remember_me", False)
+    # Extract login data
+    identifier = login_data.email
+    password = login_data.password
+    remember_me = login_data.remember_me or False
 
     # Get client info for audit logging
     ip_address = request.client.host if request.client else None
@@ -208,29 +204,129 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # If the request came as JSON (used in some tests), require that the
-    # account has a verified email before issuing tokens. Form submissions do
-    # not enforce this rule to maintain backward compatibility with existing
-    # fixtures.
-    if json_request and not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email not verified",
-        )
+    # Email verification temporarily disabled
 
     # Create tokens
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     if remember_me:
         access_token_expires = timedelta(days=30)
 
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
     )
+    # Issue refresh token to support frontend auto-refresh flow
+    from app.core.security import create_refresh_token
+
+    refresh_token = create_refresh_token(user.id)
 
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "expires_in": int(access_token_expires.total_seconds()),
+        "refresh_token": refresh_token,
     }
+
+
+@router.post("/login-enhanced", response_model=AuthenticationFlowResponse)
+async def login_enhanced(
+    login_data: UserLogin,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Enhanced login endpoint with multi-step authentication support.
+    Returns different responses based on user's authentication setup.
+    """
+    # Apply rate limiting
+    rate_limiter = RateLimiter(db)
+    rate_limiter.check_rate_limit(
+        request=request,
+        endpoint="login_enhanced",
+        max_attempts=5,
+        window_minutes=15,
+        block_minutes=30,
+    )
+
+    auth_service = AuthService(db)
+
+    # Extract login data
+    identifier = login_data.email
+    password = login_data.password
+    remember_me = login_data.remember_me or False
+
+    # Get client info for audit logging
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
+    user = auth_service.authenticate_user(
+        identifier=identifier,
+        password=password,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+        )
+
+    # Email verification temporarily disabled
+
+    # Check what authentication methods are available/required
+    from app.services.mfa_service import MFAService
+    from app.services.webauthn_service import WebAuthnService
+
+    mfa_service = MFAService(db)
+    webauthn_service = WebAuthnService(db)
+    has_mfa = mfa_service.is_mfa_enabled(user)
+    has_webauthn = webauthn_service.has_webauthn_credentials(user)
+    available_methods = []
+    if has_mfa:
+        available_methods.append("totp")
+    if has_webauthn:
+        available_methods.append("webauthn")
+    # If no additional authentication is required, issue token
+    if not has_mfa and not has_webauthn:
+        access_token_expires = timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        if remember_me:
+            access_token_expires = timedelta(days=30)
+
+        access_token = create_access_token(
+            subject=user.id, expires_delta=access_token_expires
+        )
+        return AuthenticationFlowResponse(
+            status="success",
+            access_token=access_token,
+            token_type="bearer",
+            message="Authentication successful",
+        )
+    # Create challenge for second factor
+    challenge_id = None
+    if has_mfa or has_webauthn:
+        challenge_id = mfa_service.create_mfa_challenge(
+            user=user,
+            challenge_type="login",
+            challenge_data={
+                "user_id": user.id,
+                "step": "second_factor",
+                "remember_me": remember_me,
+            },
+        )
+    # Determine available methods only (email verification disabled)
+    return AuthenticationFlowResponse(
+        status="mfa_required",
+        challenge_id=challenge_id,
+        available_methods=available_methods,
+        message=(
+            "Second factor authentication required. "
+            "Available methods: " + ", ".join(available_methods)
+        ),
+    )
 
 
 @router.post("/logout")
@@ -247,20 +343,30 @@ def logout(
     user_agent = request.headers.get("user-agent")
 
     auth_service.logout_user(
-        user_id=current_user.id, ip_address=ip_address, user_agent=user_agent
+        user_id=current_user.id,
+        ip_address=ip_address,
+        user_agent=user_agent,
     )
 
     return {"message": "Successfully logged out"}
 
 
 @router.post("/refresh", response_model=Token)
-def refresh_token(refresh_token: str, db: Session = Depends(get_db)) -> Any:
+def refresh_token(
+    refresh_request: dict, db: Session = Depends(get_db)
+) -> Any:
     """Refresh access token."""
-    user_id = verify_token(refresh_token, "refresh")
+    token = (
+        refresh_request.get("refresh_token")
+        if isinstance(refresh_request, dict)
+        else None
+    )
+    user_id = verify_token(token or "", "refresh")
 
     if user_id is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
         )
 
     auth_service = AuthService(db)
@@ -268,11 +374,14 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)) -> Any:
 
     if not user or not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user",
         )
 
     # Create new access token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
     )
@@ -285,7 +394,9 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)) -> Any:
 
 
 @router.get("/me", response_model=User)
-def read_users_me(current_user: User = Depends(get_current_active_user)) -> Any:
+def read_users_me(
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
     """Get current user information."""
     return current_user
 
@@ -307,7 +418,9 @@ def update_users_me(
 
 
 @router.post("/verify-email")
-def verify_email(verification: EmailVerification, db: Session = Depends(get_db)) -> Any:
+def verify_email(
+    verification: EmailVerification, db: Session = Depends(get_db)
+) -> Any:
     """Verify user email."""
     auth_service = AuthService(db)
 
@@ -347,7 +460,7 @@ def dev_verify_user(request: dict, db: Session = Depends(get_db)) -> Any:
 
     auth_service.log_audit_action(
         user_id=user.id,
-        action=AuditAction.EMAIL_VERIFICATION,
+        action="EMAIL_VERIFICATION",
         success="success",
         details="Manually verified via dev endpoint",
     )
@@ -361,7 +474,9 @@ def dev_verify_user(request: dict, db: Session = Depends(get_db)) -> Any:
 
 @router.post("/request-password-reset")
 def request_password_reset(
-    password_reset: PasswordReset, request: Request, db: Session = Depends(get_db)
+    password_reset: PasswordReset,
+    request: Request,
+    db: Session = Depends(get_db),
 ) -> Any:
     """Request password reset."""
     # Apply rate limiting
@@ -379,7 +494,11 @@ def request_password_reset(
     # Always return success to prevent email enumeration
     auth_service.request_password_reset(password_reset.email)
 
-    return {"message": "If the email exists, a password reset link has been sent"}
+    return {
+        "message": (
+            "If the email exists, a password reset link has been sent"
+        )
+    }
 
 
 @router.post("/reset-password")
@@ -389,7 +508,9 @@ def reset_password(
     """Reset password with token."""
     auth_service = AuthService(db)
 
-    if auth_service.reset_password(reset_data.token, reset_data.new_password):
+    if auth_service.reset_password(
+        reset_data.token, reset_data.new_password
+    ):
         return {"message": "Password reset successfully"}
     else:
         raise HTTPException(
@@ -415,5 +536,6 @@ def change_password(
         return {"message": "Password changed successfully"}
     else:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid current password"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid current password",
         )

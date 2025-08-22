@@ -185,7 +185,9 @@ class ExcelFunction:
         return rate
 
     @staticmethod
-    def VLOOKUP(lookup_value, table_array, col_index_num, range_lookup=False):
+    def VLOOKUP(
+        lookup_value, table_array, col_index_num, range_lookup=False
+    ):
         """Excel VLOOKUP function (simplified)."""
         # This is a simplified implementation
         # In a full implementation, you'd handle the table_array properly
@@ -237,7 +239,9 @@ class FormulaEngine:
         Load workbook data for formula calculation.
         """
         workbook = openpyxl.load_workbook(workbook_path, data_only=False)
-        data_workbook = openpyxl.load_workbook(workbook_path, data_only=True)
+        data_workbook = openpyxl.load_workbook(
+            workbook_path, data_only=True
+        )
 
         for sheet_name in workbook.sheetnames:
             formula_sheet = workbook[sheet_name]
@@ -286,7 +290,9 @@ class FormulaEngine:
 
         return self.dependency_graph
 
-    def evaluate(self, formula: str, context: Dict[str, Any] = None) -> Any:
+    def evaluate(
+        self, formula: str, context: Dict[str, Any] = None
+    ) -> Any:
         """Evaluate a formula expression for backward compatibility."""
         if context:
             # Update cell values with provided context
@@ -294,7 +300,9 @@ class FormulaEngine:
 
         # Security validation - check for dangerous patterns
         if self._is_dangerous_expression(formula):
-            raise Exception("Security validation failed: Dangerous expression detected")
+            raise Exception(
+                "Security validation failed: Dangerous expression detected"
+            )
 
         # If it's a simple cell reference, return its value
         if re.match(r"^[A-Z]+\d+$", formula):
@@ -354,7 +362,9 @@ class FormulaEngine:
                 value=result,
                 error=None,
                 data_type=type(result).__name__,
-                calculation_time=(datetime.utcnow() - start_time).total_seconds(),
+                calculation_time=(
+                    datetime.utcnow() - start_time
+                ).total_seconds(),
                 dependencies_used=list(dependencies),
             )
 
@@ -363,7 +373,9 @@ class FormulaEngine:
                 value=None,
                 error=str(e),
                 data_type="error",
-                calculation_time=(datetime.utcnow() - start_time).total_seconds(),
+                calculation_time=(
+                    datetime.utcnow() - start_time
+                ).total_seconds(),
                 dependencies_used=[],
             )
 
@@ -392,7 +404,9 @@ class FormulaEngine:
 
         return results
 
-    def _extract_cell_references(self, formula: str, current_cell: str) -> Set[str]:
+    def _extract_cell_references(
+        self, formula: str, current_cell: str
+    ) -> Set[str]:
         """
         Extract cell references from a formula.
         """
@@ -401,17 +415,26 @@ class FormulaEngine:
         try:
             # Parse formula with openpyxl tokenizer
             tokens = Tokenizer(formula).items
-            sheet_name = current_cell.split("!")[0] if "!" in current_cell else "Sheet1"
+            sheet_name = (
+                current_cell.split("!")[0]
+                if "!" in current_cell
+                else "Sheet1"
+            )
 
             for token in tokens:
-                if token.type == Token.OPERAND and token.subtype == Token.RANGE:
+                if (
+                    token.type == Token.OPERAND
+                    and token.subtype == Token.RANGE
+                ):
                     ref = token.value
 
                     # Handle different reference formats
                     if ":" in ref:
                         # Range reference (e.g., A1:B5)
                         start_ref, end_ref = ref.split(":")
-                        cell_refs = self._expand_range(start_ref, end_ref, sheet_name)
+                        cell_refs = self._expand_range(
+                            start_ref, end_ref, sheet_name
+                        )
                         references.update(cell_refs)
                     else:
                         # Single cell reference
@@ -423,14 +446,20 @@ class FormulaEngine:
             # Fallback to regex parsing
             cell_pattern = r"[A-Z]+\d+"
             matches = re.findall(cell_pattern, formula.upper())
-            sheet_name = current_cell.split("!")[0] if "!" in current_cell else "Sheet1"
+            sheet_name = (
+                current_cell.split("!")[0]
+                if "!" in current_cell
+                else "Sheet1"
+            )
 
             for match in matches:
                 references.add(match)
 
         return references
 
-    def _expand_range(self, start_ref: str, end_ref: str, sheet_name: str) -> List[str]:
+    def _expand_range(
+        self, start_ref: str, end_ref: str, sheet_name: str
+    ) -> List[str]:
         """
         Expand a cell range to individual cell references.
         """
@@ -494,11 +523,15 @@ class FormulaEngine:
 
         # Detect circular references
         circular_refs = []
-        remaining_nodes = [node for node in all_nodes if in_degree[node] > 0]
+        remaining_nodes = [
+            node for node in all_nodes if in_degree[node] > 0
+        ]
 
         if remaining_nodes:
             # Find strongly connected components for circular references
-            circular_refs = self._find_circular_references(nodes, remaining_nodes)
+            circular_refs = self._find_circular_references(
+                nodes, remaining_nodes
+            )
 
         return calculation_order, circular_refs
 
@@ -516,7 +549,9 @@ class FormulaEngine:
         for node in remaining_nodes:
             if node not in visited:
                 path = []
-                cycle = self._dfs_cycle_detection(node, nodes, visited, path, set())
+                cycle = self._dfs_cycle_detection(
+                    node, nodes, visited, path, set()
+                )
                 if cycle:
                     circular_refs.append(cycle)
 
@@ -546,7 +581,9 @@ class FormulaEngine:
         path_set.add(node)
 
         for neighbor in nodes.get(node, []):
-            cycle = self._dfs_cycle_detection(neighbor, nodes, visited, path, path_set)
+            cycle = self._dfs_cycle_detection(
+                neighbor, nodes, visited, path, path_set
+            )
             if cycle:
                 return cycle
 
@@ -566,7 +603,9 @@ class FormulaEngine:
 
         while queue:
             current = queue.popleft()
-            dependents = self.dependency_graph.reverse_nodes.get(current, set())
+            dependents = self.dependency_graph.reverse_nodes.get(
+                current, set()
+            )
 
             for dependent in dependents:
                 if dependent not in affected:
@@ -590,10 +629,14 @@ class FormulaEngine:
             formula = formula[1:]
 
         # Replace cell references with values
-        processed_formula = self._replace_cell_references(formula, cell_ref)
+        processed_formula = self._replace_cell_references(
+            formula, cell_ref
+        )
 
         # Replace Excel functions with Python equivalents
-        processed_formula = self._replace_excel_functions(processed_formula)
+        processed_formula = self._replace_excel_functions(
+            processed_formula
+        )
 
         # Evaluate the expression
         try:
@@ -603,11 +646,15 @@ class FormulaEngine:
         except Exception as e:
             raise Exception(f"Formula evaluation error: {str(e)}")
 
-    def _replace_cell_references(self, formula: str, current_cell: str) -> str:
+    def _replace_cell_references(
+        self, formula: str, current_cell: str
+    ) -> str:
         """
         Replace cell references with their values.
         """
-        sheet_name = current_cell.split("!")[0] if "!" in current_cell else "Sheet1"
+        sheet_name = (
+            current_cell.split("!")[0] if "!" in current_cell else "Sheet1"
+        )
 
         # Pattern to match ranges like A1:B5
         range_pattern = r"([A-Z]+\d+):([A-Z]+\d+)"
@@ -617,7 +664,9 @@ class FormulaEngine:
             start_ref, end_ref = match.groups()
             cells = self._expand_range(start_ref, end_ref, sheet_name)
             values = [
-                self.cell_values.get(c, self.cell_values.get(f"{sheet_name}!{c}", 0))
+                self.cell_values.get(
+                    c, self.cell_values.get(f"{sheet_name}!{c}", 0)
+                )
                 for c in cells
             ]
             return str(values)
@@ -628,7 +677,9 @@ class FormulaEngine:
             ref = match.group(1)
             full_ref = f"{sheet_name}!{ref}"
 
-            value = self.cell_values.get(ref, self.cell_values.get(full_ref, 0))
+            value = self.cell_values.get(
+                ref, self.cell_values.get(full_ref, 0)
+            )
 
             # Handle different data types
             if isinstance(value, str):
@@ -681,7 +732,9 @@ class FormulaEngine:
             return result
         except ZeroDivisionError:
             # Re-raise division by zero to be handled by caller
-            raise ZeroDivisionError("Division by zero in formula evaluation")
+            raise ZeroDivisionError(
+                "Division by zero in formula evaluation"
+            )
         except Exception as e:
             raise Exception(f"Expression evaluation failed: {str(e)}")
 
@@ -690,7 +743,9 @@ class FormulaEngine:
         Handle unknown Excel functions.
         """
         # Unknown function should raise an error for strict evaluation
-        print(f"Warning: Unknown function {func_name} called with args {args}")
+        print(
+            f"Warning: Unknown function {func_name} called with args {args}"
+        )
         raise Exception(f"Unknown function {func_name}")
 
     def update_cell_value(
@@ -750,7 +805,9 @@ class FormulaEngine:
             return []
         return list(self._extract_cell_references(formula, cell_ref))
 
-    async def calculate_scenario(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    async def calculate_scenario(
+        self, parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Dummy scenario calculation used in tests."""
         # In real implementation this would trigger workbook evaluation.
         return {"result": sum(parameters.values()) if parameters else 0}
@@ -763,14 +820,18 @@ class FormulaEngine:
             self.build_dependency_graph()
 
         return {
-            "dependencies": list(self.dependency_graph.nodes.get(cell_ref, set())),
+            "dependencies": list(
+                self.dependency_graph.nodes.get(cell_ref, set())
+            ),
             "dependents": list(
                 self.dependency_graph.reverse_nodes.get(cell_ref, set())
             ),
             "has_formula": cell_ref in self.formulas,
             "formula": self.formulas.get(cell_ref),
             "current_value": self.cell_values.get(cell_ref),
-            "calculation_order": self.dependency_graph.calculation_order.index(cell_ref)
+            "calculation_order": self.dependency_graph.calculation_order.index(
+                cell_ref
+            )
             if cell_ref in self.dependency_graph.calculation_order
             else -1,
         }
@@ -820,8 +881,12 @@ class FormulaEngine:
             "dependency_count": sum(
                 len(deps) for deps in self.dependency_graph.nodes.values()
             ),
-            "circular_references": len(self.dependency_graph.circular_references),
-            "calculation_order_length": len(self.dependency_graph.calculation_order),
+            "circular_references": len(
+                self.dependency_graph.circular_references
+            ),
+            "calculation_order_length": len(
+                self.dependency_graph.calculation_order
+            ),
             "max_dependency_depth": self._calculate_max_dependency_depth(),
         }
 
@@ -848,7 +913,10 @@ class FormulaEngine:
             return depths[cell]
 
         return (
-            max(calculate_depth(cell) for cell in self.dependency_graph.nodes.keys())
+            max(
+                calculate_depth(cell)
+                for cell in self.dependency_graph.nodes.keys()
+            )
             if self.dependency_graph.nodes
             else 0
         )
@@ -879,11 +947,20 @@ class FormulaEngine:
 
         for pattern in dangerous_patterns:
             # Use word boundaries to match complete words only
-            if re.search(r"\b" + re.escape(pattern) + r"\b", expression_lower):
+            if re.search(
+                r"\b" + re.escape(pattern) + r"\b", expression_lower
+            ):
                 return True
 
         # Check for suspicious characters/patterns
-        suspicious_chars = ["__", "{{", "}}", "system", "shell", "subprocess"]
+        suspicious_chars = [
+            "__",
+            "{{",
+            "}}",
+            "system",
+            "shell",
+            "subprocess",
+        ]
         for char in suspicious_chars:
             if char in expression_lower:
                 return True

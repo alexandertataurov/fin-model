@@ -1,0 +1,525 @@
+---
+title: 'Spacing'
+description: 'Complete spacing system for consistent layout and visual rhythm'
+parameters:
+  docs:
+    description:
+      component: 'Our spacing system provides consistent, predictable spacing values that create visual hierarchy, improve readability, and ensure proper component relationships across the interface.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import { tokens } from '../tokens';
+
+<Meta
+  title="* - Documentation/Foundations/Spacing"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Spacing
+
+Our spacing system provides consistent, predictable spacing values that create visual hierarchy, improve readability, and ensure proper component relationships across the interface.
+
+## Overview
+
+The spacing system is built on an 8px base unit with semantic naming conventions. This creates a harmonious rhythm throughout the interface while maintaining flexibility for different use cases.
+
+## Token Definitions
+
+### Base Scale
+
+```typescript
+tokens.spacing = {
+  0: '0px', // No spacing
+  1: '0.25rem', // 4px - Minimal spacing
+  2: '0.5rem', // 8px - Base unit
+  3: '0.75rem', // 12px - Small spacing
+  4: '1rem', // 16px - Standard spacing
+  5: '1.25rem', // 20px - Medium spacing
+  6: '1.5rem', // 24px - Large spacing
+  8: '2rem', // 32px - Extra large spacing
+  10: '2.5rem', // 40px - Section spacing
+  12: '3rem', // 48px - Major spacing
+  16: '4rem', // 64px - Hero spacing
+  20: '5rem', // 80px - Page spacing
+  24: '6rem', // 96px - Large page spacing
+  32: '8rem', // 128px - Maximum spacing
+};
+```
+
+### Semantic Spacing
+
+```typescript
+tokens.spacing = {
+  // Component spacing
+  component: {
+    padding: '1rem', // 16px - Standard component padding
+    margin: '1.5rem', // 24px - Standard component margin
+    gap: '0.5rem', // 8px - Standard component gap
+  },
+
+  // Layout spacing
+  layout: {
+    section: '3rem', // 48px - Section spacing
+    page: '2rem', // 32px - Page spacing
+    container: '1rem', // 16px - Container padding
+  },
+
+  // Form spacing
+  form: {
+    field: '1rem', // 16px - Form field spacing
+    group: '1.5rem', // 24px - Form group spacing
+    section: '2rem', // 32px - Form section spacing
+  },
+};
+```
+
+## Usage Rules
+
+### 1. **Spacing Scale Usage**
+
+- **0-2**: Minimal spacing, tight layouts
+- **3-4**: Standard spacing, general use
+- **5-6**: Medium spacing, component separation
+- **8-12**: Large spacing, section separation
+- **16+**: Hero spacing, major page divisions
+
+### 2. **Component Spacing**
+
+- **Padding**: Use 4 (16px) for standard components
+- **Margin**: Use 6 (24px) for component separation
+- **Gap**: Use 2 (8px) for inline element spacing
+
+### 3. **Layout Spacing**
+
+- **Sections**: Use 12 (48px) for major sections
+- **Pages**: Use 8 (32px) for page-level spacing
+- **Containers**: Use 4 (16px) for container padding
+
+### 4. **Responsive Spacing**
+
+- **Mobile**: Use smaller spacing values
+- **Tablet**: Use medium spacing values
+- **Desktop**: Use larger spacing values
+
+## Best Practices
+
+### 1. **Consistent Spacing**
+
+```tsx
+// ✅ Good - Consistent spacing
+<div style={{ padding: tokens.spacing[4] }}>
+  <h2 style={{ marginBottom: tokens.spacing[4] }}>Title</h2>
+  <p style={{ marginBottom: tokens.spacing[4] }}>Content</p>
+</div>
+
+// ❌ Bad - Inconsistent spacing
+<div style={{ padding: '16px' }}>
+  <h2 style={{ marginBottom: '20px' }}>Title</h2>
+  <p style={{ marginBottom: '12px' }}>Content</p>
+</div>
+```
+
+### 2. **Semantic Spacing**
+
+```tsx
+// ✅ Good - Semantic spacing
+<div style={{ padding: tokens.spacing.component.padding }}>
+  <div style={{ marginBottom: tokens.spacing.component.margin }}>
+    Component content
+  </div>
+</div>
+```
+
+### 3. **Responsive Spacing**
+
+```tsx
+// ✅ Good - Responsive spacing
+<div
+  style={{
+    padding: tokens.spacing[4],
+    '@media (min-width: 768px)': {
+      padding: tokens.spacing[6],
+    },
+    '@media (min-width: 1024px)': {
+      padding: tokens.spacing[8],
+    },
+  }}
+>
+  Responsive content
+</div>
+```
+
+### 4. **Spacing Hierarchy**
+
+```tsx
+// ✅ Good - Clear hierarchy
+<section style={{ marginBottom: tokens.spacing[12] }}>
+  <h1 style={{ marginBottom: tokens.spacing[6] }}>Section Title</h1>
+  <div style={{ marginBottom: tokens.spacing[4] }}>
+    <h2 style={{ marginBottom: tokens.spacing[3] }}>Subsection</h2>
+    <p style={{ marginBottom: tokens.spacing[2] }}>Content</p>
+  </div>
+</section>
+```
+
+## How-To Guides
+
+### Creating a Spacing Utility System
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+const spacing = {
+  // Margin utilities
+  m: (value: keyof typeof tokens.spacing) => ({
+    margin: tokens.spacing[value],
+  }),
+  mt: (value: keyof typeof tokens.spacing) => ({
+    marginTop: tokens.spacing[value],
+  }),
+  mr: (value: keyof typeof tokens.spacing) => ({
+    marginRight: tokens.spacing[value],
+  }),
+  mb: (value: keyof typeof tokens.spacing) => ({
+    marginBottom: tokens.spacing[value],
+  }),
+  ml: (value: keyof typeof tokens.spacing) => ({
+    marginLeft: tokens.spacing[value],
+  }),
+  mx: (value: keyof typeof tokens.spacing) => ({
+    marginLeft: tokens.spacing[value],
+    marginRight: tokens.spacing[value],
+  }),
+  my: (value: keyof typeof tokens.spacing) => ({
+    marginTop: tokens.spacing[value],
+    marginBottom: tokens.spacing[value],
+  }),
+
+  // Padding utilities
+  p: (value: keyof typeof tokens.spacing) => ({
+    padding: tokens.spacing[value],
+  }),
+  pt: (value: keyof typeof tokens.spacing) => ({
+    paddingTop: tokens.spacing[value],
+  }),
+  pr: (value: keyof typeof tokens.spacing) => ({
+    paddingRight: tokens.spacing[value],
+  }),
+  pb: (value: keyof typeof tokens.spacing) => ({
+    paddingBottom: tokens.spacing[value],
+  }),
+  pl: (value: keyof typeof tokens.spacing) => ({
+    paddingLeft: tokens.spacing[value],
+  }),
+  px: (value: keyof typeof tokens.spacing) => ({
+    paddingLeft: tokens.spacing[value],
+    paddingRight: tokens.spacing[value],
+  }),
+  py: (value: keyof typeof tokens.spacing) => ({
+    paddingTop: tokens.spacing[value],
+    paddingBottom: tokens.spacing[value],
+  }),
+
+  // Gap utilities
+  gap: (value: keyof typeof tokens.spacing) => ({ gap: tokens.spacing[value] }),
+  gapX: (value: keyof typeof tokens.spacing) => ({
+    columnGap: tokens.spacing[value],
+  }),
+  gapY: (value: keyof typeof tokens.spacing) => ({
+    rowGap: tokens.spacing[value],
+  }),
+};
+
+// Usage example
+const Card = ({ children }: { children: React.ReactNode }) => (
+  <div
+    style={{
+      ...spacing.p(4),
+      ...spacing.mb(6),
+      border: '1px solid #e5e5e5',
+      borderRadius: '8px',
+    }}
+  >
+    {children}
+  </div>
+);
+```
+
+### Creating a Layout Component
+
+```tsx
+interface LayoutProps {
+  children: React.ReactNode;
+  spacing?: 'small' | 'medium' | 'large';
+  padding?: boolean;
+}
+
+const Layout = ({
+  children,
+  spacing = 'medium',
+  padding = true,
+}: LayoutProps) => {
+  const getSpacing = () => {
+    switch (spacing) {
+      case 'small':
+        return {
+          section: tokens.spacing[4],
+          component: tokens.spacing[2],
+        };
+      case 'medium':
+        return {
+          section: tokens.spacing[6],
+          component: tokens.spacing[4],
+        };
+      case 'large':
+        return {
+          section: tokens.spacing[8],
+          component: tokens.spacing[6],
+        };
+    }
+  };
+
+  const spacingValues = getSpacing();
+
+  return (
+    <div
+      style={{
+        padding: padding ? tokens.spacing[4] : 0,
+        '& > * + *': {
+          marginTop: spacingValues.section,
+        },
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+```
+
+### Creating a Grid System
+
+```tsx
+interface GridProps {
+  children: React.ReactNode;
+  columns?: number;
+  gap?: keyof typeof tokens.spacing;
+  responsive?: boolean;
+}
+
+const Grid = ({
+  children,
+  columns = 3,
+  gap = 4,
+  responsive = true,
+}: GridProps) => {
+  const getGridTemplate = () => {
+    if (responsive) {
+      return {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(1, 1fr)',
+        gap: tokens.spacing[gap],
+        '@media (min-width: 768px)': {
+          gridTemplateColumns: `repeat(${Math.min(columns, 2)}, 1fr)`,
+        },
+        '@media (min-width: 1024px)': {
+          gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        },
+      };
+    }
+
+    return {
+      display: 'grid',
+      gridTemplateColumns: `repeat(${columns}, 1fr)`,
+      gap: tokens.spacing[gap],
+    };
+  };
+
+  return <div style={getGridTemplate()}>{children}</div>;
+};
+```
+
+## Common Patterns
+
+### Card Layout
+
+```tsx
+const Card = ({
+  title,
+  content,
+  actions,
+}: {
+  title: string;
+  content: string;
+  actions?: React.ReactNode;
+}) => (
+  <div
+    style={{
+      padding: tokens.spacing[4],
+      border: '1px solid #e5e5e5',
+      borderRadius: '8px',
+      backgroundColor: 'white',
+    }}
+  >
+    <h3
+      style={{
+        marginBottom: tokens.spacing[3],
+        fontSize: tokens.typography.fontSize.lg,
+        fontWeight: tokens.typography.fontWeight.semibold,
+      }}
+    >
+      {title}
+    </h3>
+
+    <p
+      style={{
+        marginBottom: actions ? tokens.spacing[4] : 0,
+        color: tokens.colors.secondary[600],
+        lineHeight: tokens.typography.lineHeight.relaxed,
+      }}
+    >
+      {content}
+    </p>
+
+    {actions && (
+      <div
+        style={{
+          display: 'flex',
+          gap: tokens.spacing[2],
+          justifyContent: 'flex-end',
+        }}
+      >
+        {actions}
+      </div>
+    )}
+  </div>
+);
+```
+
+### Form Layout
+
+```tsx
+const FormField = ({
+  label,
+  children,
+  required,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) => (
+  <div style={{ marginBottom: tokens.spacing.form.field }}>
+    <label
+      style={{
+        display: 'block',
+        marginBottom: tokens.spacing[2],
+        fontSize: tokens.typography.fontSize.sm,
+        fontWeight: tokens.typography.fontWeight.medium,
+        color: tokens.colors.secondary[700],
+      }}
+    >
+      {label}
+      {required && (
+        <span
+          style={{ color: tokens.colors.destructive[500], marginLeft: '4px' }}
+        >
+          *
+        </span>
+      )}
+    </label>
+    {children}
+  </div>
+);
+```
+
+### Navigation Layout
+
+```tsx
+const Navigation = ({
+  items,
+}: {
+  items: Array<{ label: string; href: string }>;
+}) => (
+  <nav
+    style={{
+      padding: tokens.spacing[4],
+      borderBottom: '1px solid #e5e5e5',
+    }}
+  >
+    <ul
+      style={{
+        display: 'flex',
+        gap: tokens.spacing[6],
+        listStyle: 'none',
+        margin: 0,
+        padding: 0,
+      }}
+    >
+      {items.map((item, index) => (
+        <li key={index}>
+          <a
+            href={item.href}
+            style={{
+              textDecoration: 'none',
+              color: tokens.colors.secondary[600],
+              fontWeight: tokens.typography.fontWeight.medium,
+              padding: `${tokens.spacing[2]} ${tokens.spacing[3]}`,
+              borderRadius: '6px',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+);
+```
+
+## Accessibility Guidelines
+
+### 1. **Touch Target Sizing**
+
+- Minimum touch target size: 44px × 44px
+- Use appropriate spacing for touch interactions
+- Ensure sufficient space between interactive elements
+
+### 2. **Visual Hierarchy**
+
+- Use spacing to create clear visual hierarchy
+- Ensure content is logically grouped
+- Provide adequate breathing room between sections
+
+### 3. **Focus Indicators**
+
+- Ensure focus indicators don't overlap with content
+- Provide sufficient space around focusable elements
+- Test spacing with keyboard navigation
+
+### 4. **Screen Reader Support**
+
+- Use semantic HTML for proper spacing interpretation
+- Ensure spacing doesn't interfere with screen reader navigation
+- Test with different screen reader settings
+
+## Testing Checklist
+
+- [ ] Spacing is consistent across components
+- [ ] Touch targets meet minimum size requirements
+- [ ] Visual hierarchy is clear and logical
+- [ ] Focus indicators have adequate space
+- [ ] Spacing works on all screen sizes
+- [ ] Content is properly grouped and separated
+
+## Resources
+
+- [Spacing in Design Systems](https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62)
+- [Responsive Spacing](https://www.smashingmagazine.com/2017/12/building-maintainable-accessible-spacing-system/)
+- [Touch Target Guidelines](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html)

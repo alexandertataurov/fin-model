@@ -1,0 +1,19 @@
+{
+  "colors": {
+    "background": { "value": "#ffffff" },
+    "foreground": { "value": "#0f172a" },
+    "primary": { "value": "#2563eb" },
+    "primary-foreground": { "value": "#ffffff" },
+    "secondary": { "value": "#94a3b8" },
+    "secondary-foreground": { "value": "#1e293b" },
+    "muted": { "value": "#f1f5f9" },
+    "muted-foreground": { "value": "#475569" },
+    "destructive": { "value": "#b91c1c" },
+    "destructive-foreground": { "value": "#ffffff" },
+    "accent": { "value": "#22c55e" },
+    "accent-foreground": { "value": "#052e16" },
+    "border": { "value": "#e2e8f0" },
+    "input": { "value": "#ffffff" },
+    "ring": { "value": "#3b82f6" }
+  }
+}

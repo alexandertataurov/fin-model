@@ -5,72 +5,38 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { ThemeProvider } from './components/ThemeProvider';
 import { AuthProvider } from './contexts/AuthContext';
-import { Toaster } from './components/ui/sonner';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { Toaster } from 'sonner';
 
 // Authentication Components
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPasswordForm from './components/auth/ForgotPasswordForm';
-import ResetPasswordForm from './components/auth/ResetPasswordForm';
-import EmailVerification from './components/auth/EmailVerification';
+import Login from './pages/AuthPage/Login';
+import Register from './pages/AuthPage/Register';
+import ForgotPasswordForm from './components/Authentification/ForgotPasswordForm';
+import ResetPasswordForm from './components/Authentification/ResetPasswordForm';
+import EmailVerification from './components/Authentification/EmailVerification';
 import {
   AdminGuard,
   AnalystGuard,
   VerifiedUserGuard,
-} from './components/auth/AuthGuard';
+} from './components/Authentification/AuthGuard';
 
 // Main Application Components
-import Dashboard from './pages/Dashboard';
-import Analytics from './pages/Analytics';
+import Dashboard from './pages/Dashboards/Dashboard';
 import FileUpload from './pages/FileUpload';
-import Reports from './pages/Reports';
-import ScenarioModeling from './pages/ScenarioModeling';
-
-// Error Boundary Component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Auth Error Boundary caught an error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold text-destructive">
-              Authentication Error
-            </h1>
-            <p className="text-muted-foreground">
-              Something went wrong with authentication. Please refresh the page.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
+import Scenarios from './pages/Scenarios';
+import AdminDashboard from './pages/Dashboards/AdminDashboard';
+import FinancialModeling from './pages/FinancialModeling';
+import PnLDashboard from './pages/Dashboards/PnLDashboard';
+import CashFlowDashboard from './pages/Dashboards/CashFlowDashboard';
+import BalanceSheetDashboard from './pages/Dashboards/BalanceSheetDashboard';
+import DCFValuation from './pages/DCFValuation';
+import AssetLifecycle from './pages/AssetLifecycle';
+import CashFlowLifecycle from './pages/CashFlowLifecycle';
+import Parameters from './pages/Parameters';
+import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
+import Layout from './components/Layout/Layout';
 
 // Protected Layout Component
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({
@@ -79,126 +45,76 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider>
-        <Router>
-          <AuthProvider>
-            <div className="min-h-screen bg-background text-foreground">
-              <Routes>
-                {/* Public Authentication Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route
-                  path="/forgot-password"
-                  element={<ForgotPasswordForm />}
-                />
-                <Route path="/reset-password" element={<ResetPasswordForm />} />
-                <Route path="/verify-email" element={<EmailVerification />} />
+    <div className="min-h-screen bg-background">
+      <AuthProvider>
+        <NotificationProvider autoConnect={true}>
+          <Router>
+            <Routes>
+              {/* Public Authentication Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+              <Route path="/reset-password" element={<ResetPasswordForm />} />
+              <Route path="/verify-email" element={<EmailVerification />} />
 
-                {/* Protected Application Routes */}
+              {/* Protected Application Routes with Sidebar Layout */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedLayout>
+                    <Layout />
+                  </ProtectedLayout>
+                }
+              >
+                <Route path="dashboard" element={<Dashboard />} />
                 <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedLayout>
-                      <Dashboard />
-                    </ProtectedLayout>
-                  }
+                  path="financial-modeling"
+                  element={<FinancialModeling />}
                 />
-
+                <Route path="dashboards/pl" element={<PnLDashboard />} />
                 <Route
-                  path="/analytics"
-                  element={
-                    <ProtectedLayout>
-                      <Analytics />
-                    </ProtectedLayout>
-                  }
+                  path="dashboards/cashflow"
+                  element={<CashFlowDashboard />}
                 />
-
                 <Route
-                  path="/upload"
-                  element={
-                    <ProtectedLayout>
-                      <FileUpload />
-                    </ProtectedLayout>
-                  }
+                  path="dashboards/balance"
+                  element={<BalanceSheetDashboard />}
                 />
-
+                <Route path="dcf-valuation" element={<DCFValuation />} />
                 <Route
-                  path="/reports"
+                  path="scenarios"
                   element={
                     <AnalystGuard>
-                      <ProtectedLayout>
-                        <Reports />
-                      </ProtectedLayout>
+                      <Scenarios />
                     </AnalystGuard>
                   }
                 />
-
+                <Route path="asset-lifecycle" element={<AssetLifecycle />} />
                 <Route
-                  path="/scenarios"
-                  element={
-                    <AnalystGuard>
-                      <ProtectedLayout>
-                        <ScenarioModeling />
-                      </ProtectedLayout>
-                    </AnalystGuard>
-                  }
+                  path="cash-flow-lifecycle"
+                  element={<CashFlowLifecycle />}
                 />
-
-                {/* Admin Only Routes - placeholder for future admin panel */}
+                <Route path="parameters" element={<Parameters />} />
+                <Route path="upload" element={<FileUpload />} />
+                <Route path="settings" element={<Settings />} />
                 <Route
-                  path="/admin/*"
+                  path="admin"
                   element={
                     <AdminGuard>
-                      <ProtectedLayout>
-                        <div className="p-6">
-                          <h1 className="text-2xl font-bold mb-4">
-                            Admin Panel
-                          </h1>
-                          <p className="text-muted-foreground">
-                            Admin features coming soon...
-                          </p>
-                        </div>
-                      </ProtectedLayout>
+                      <AdminDashboard />
                     </AdminGuard>
                   }
                 />
+                <Route index element={<Navigate to="/dashboard" replace />} />
+              </Route>
 
-                {/* Default redirects */}
-                <Route
-                  path="/"
-                  element={<Navigate to="/dashboard" replace />}
-                />
-
-                {/* 404 Fallback */}
-                <Route
-                  path="*"
-                  element={
-                    <div className="min-h-screen flex items-center justify-center bg-background">
-                      <div className="text-center space-y-4">
-                        <h1 className="text-4xl font-bold text-muted-foreground">
-                          404
-                        </h1>
-                        <p className="text-xl text-muted-foreground">
-                          Page not found
-                        </p>
-                        <button
-                          onClick={() => window.history.back()}
-                          className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
-                        >
-                          Go Back
-                        </button>
-                      </div>
-                    </div>
-                  }
-                />
-              </Routes>
-
-              <Toaster />
-            </div>
-          </AuthProvider>
-        </Router>
-      </ThemeProvider>
-    </ErrorBoundary>
+              {/* 404 Fallback */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Router>
+          <Toaster />
+        </NotificationProvider>
+      </AuthProvider>
+    </div>
   );
 }

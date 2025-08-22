@@ -1,0 +1,577 @@
+---
+title: 'Layout'
+description: 'Comprehensive layout system for page structure and content organization. Includes container patterns, responsive layouts, and semantic structure tokens.'
+parameters:
+  docs:
+    description:
+      component: 'Our layout system provides a consistent approach to organizing page content and creating structured interfaces through carefully crafted container and layout patterns.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import { tokens } from '../tokens';
+import { Layout } from '@/design-system/atoms';
+
+<Meta
+  title="* - Documentation/Foundations/Layout"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Layout
+
+Our layout system provides a consistent approach to organizing page content and creating structured interfaces through carefully crafted container and layout patterns.
+
+## Overview
+
+The layout system is designed to create consistent, accessible, and responsive page structures that work seamlessly across all devices and screen sizes. It provides semantic containers and layout patterns that maintain visual hierarchy and improve user experience.
+
+## Token Definitions
+
+### Container Sizes
+
+```typescript
+tokens.layout = {
+  containers: {
+    sm: '640px', // Small content areas
+    md: '768px', // Standard content
+    lg: '1024px', // Large content areas
+    xl: '1280px', // Extra large content
+    '2xl': '1536px', // Maximum content width
+    full: '100%', // Full width
+  },
+  padding: {
+    none: '0px',
+    sm: tokens.spacing[4],
+    md: tokens.spacing[6],
+    lg: tokens.spacing[8],
+    xl: tokens.spacing[12],
+  },
+  maxWidth: {
+    prose: '65ch', // Optimal reading width
+    content: '1200px', // Standard content width
+    wide: '1400px', // Wide content width
+    full: '100%', // Full width
+  },
+};
+```
+
+### Layout Patterns
+
+```typescript
+tokens.layout.patterns = {
+  centered: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stacked: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: tokens.spacing[4],
+  },
+  sidebar: {
+    display: 'grid',
+    gridTemplateColumns: '250px 1fr',
+    gap: tokens.spacing[6],
+  },
+  split: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: tokens.spacing[8],
+  },
+};
+```
+
+## Usage Rules
+
+### 1. **Container Sizing**
+
+- **Small (640px)**: Compact content, forms, cards
+- **Medium (768px)**: Standard content, articles
+- **Large (1024px)**: Wide content, dashboards
+- **Extra Large (1280px+)**: Full-width layouts, hero sections
+
+### 2. **Responsive Behavior**
+
+- **Mobile**: Full width with padding
+- **Tablet**: Medium containers with margins
+- **Desktop**: Large containers with auto margins
+- **Large screens**: Extra large containers
+
+### 3. **Content Width**
+
+- **Prose (65ch)**: Optimal reading width for text
+- **Content (1200px)**: Standard content areas
+- **Wide (1400px)**: Wide content layouts
+- **Full (100%)**: Full viewport width
+
+## Best Practices
+
+### 1. **Consistent Container Usage**
+
+```tsx
+// ✅ Good - Consistent container sizing via Layout
+import { Layout } from '@/design-system/atoms';
+
+<Layout container="lg" padding="md" centered>
+  <h1>Page Title</h1>
+  <p>Page content goes here...</p>
+</Layout>
+
+// ❌ Bad - Inconsistent container usage
+<div style={{
+  maxWidth: '900px',
+  margin: '0 auto',
+  padding: '20px',
+}}>
+  <h1>Page Title</h1>
+  <p>Page content goes here...</p>
+</div>
+```
+
+### 2. **Responsive Layout Patterns**
+
+```tsx
+// ✅ Good - Responsive layout using Layout + utilities
+import { Layout } from '@/design-system/atoms';
+
+<Layout layout="grid" gap={6} className="grid-cols-1 md:grid-cols-[250px_1fr]">
+  <aside>Sidebar content</aside>
+  <main>Main content</main>
+</Layout>
+
+// ❌ Bad - Fixed layout without responsiveness
+<Layout layout="grid" gap={6} className="grid-cols-[250px_1fr]">
+  <aside>Sidebar content</aside>
+  <main>Main content</main>
+</Layout>
+```
+
+### 3. **Semantic Structure**
+
+```tsx
+// ✅ Good - Semantic HTML structure
+import { Layout } from '@/design-system/atoms';
+
+<main>
+  <Layout container="lg" padding="md" centered>
+    <article>
+      <header>
+        <h1>Article Title</h1>
+      </header>
+      <section>
+        <p>Article content...</p>
+      </section>
+    </article>
+  </Layout>
+</main>
+
+// ❌ Bad - Non-semantic structure
+<div style={{
+  maxWidth: tokens.layout.containers.lg,
+  margin: '0 auto',
+  padding: tokens.layout.padding.md,
+}}>
+  <div>
+    <div>
+      <h1>Article Title</h1>
+    </div>
+    <div>
+      <p>Article content...</p>
+    </div>
+  </div>
+</div>
+```
+
+### 4. **Accessibility Considerations**
+
+```tsx
+// ✅ Good - Accessible layout structure
+<div style={{
+  display: 'grid',
+  gridTemplateAreas: `
+    "header"
+    "main"
+    "footer"
+  `,
+  minHeight: '100vh',
+}}>
+  <header style={{ gridArea: 'header' }} role="banner">
+    <nav role="navigation">Navigation</nav>
+  </header>
+  <main style={{ gridArea: 'main' }} role="main">
+    <h1>Page Content</h1>
+  </main>
+  <footer style={{ gridArea: 'footer' }} role="contentinfo">
+    Footer content
+  </footer>
+</div>
+
+// ❌ Bad - Layout without semantic structure
+<div style={{
+  display: 'grid',
+  gridTemplateAreas: `
+    "header"
+    "main"
+    "footer"
+  `,
+  minHeight: '100vh',
+}}>
+  <div style={{ gridArea: 'header' }}>Navigation</div>
+  <div style={{ gridArea: 'main' }}>Page Content</div>
+  <div style={{ gridArea: 'footer' }}>Footer content</div>
+</div>
+```
+
+## How-To Guides
+
+### Creating a Page Layout Component
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+interface PageLayoutProps {
+  header?: React.ReactNode;
+  sidebar?: React.ReactNode;
+  main: React.ReactNode;
+  footer?: React.ReactNode;
+  container?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+}
+
+const PageLayout = ({
+  header,
+  sidebar,
+  main,
+  footer,
+  container = 'lg',
+}: PageLayoutProps) => {
+  const getContainerStyle = () => ({
+    maxWidth: tokens.layout.containers[container],
+    margin: '0 auto',
+    padding: tokens.layout.padding.md,
+  });
+
+  const getLayoutStyle = () => {
+    if (sidebar) {
+      return {
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gap: tokens.spacing[6],
+        '@media (min-width: 768px)': {
+          gridTemplateColumns: '250px 1fr',
+        },
+      };
+    }
+    return {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: tokens.spacing[6],
+    };
+  };
+
+  return (
+    <div
+      style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+    >
+      {header && (
+        <header
+          style={{
+            backgroundColor: tokens.colors.surface,
+            borderBottom: `1px solid ${tokens.colors.secondary[200]}`,
+          }}
+        >
+          <div style={getContainerStyle()}>{header}</div>
+        </header>
+      )}
+
+      <div style={getContainerStyle()}>
+        <div style={getLayoutStyle()}>
+          {sidebar && <aside>{sidebar}</aside>}
+          <main style={{ flex: 1 }}>{main}</main>
+        </div>
+      </div>
+
+      {footer && (
+        <footer
+          style={{
+            marginTop: 'auto',
+            backgroundColor: tokens.colors.secondary[50],
+            borderTop: `1px solid ${tokens.colors.secondary[200]}`,
+          }}
+        >
+          <div style={getContainerStyle()}>{footer}</div>
+        </footer>
+      )}
+    </div>
+  );
+};
+```
+
+### Creating a Content Container
+
+```tsx
+interface ContentContainerProps {
+  children: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  centered?: boolean;
+}
+
+const ContentContainer = ({
+  children,
+  size = 'lg',
+  padding = 'md',
+  centered = true,
+}: ContentContainerProps) => {
+  return (
+    <div
+      style={{
+        maxWidth: tokens.layout.containers[size],
+        margin: centered ? '0 auto' : '0',
+        padding: tokens.layout.padding[padding],
+        width: '100%',
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+```
+
+### Creating a Hero Section
+
+```tsx
+interface HeroSectionProps {
+  title: string;
+  subtitle?: string;
+  children?: React.ReactNode;
+  background?: string;
+}
+
+const HeroSection = ({
+  title,
+  subtitle,
+  children,
+  background,
+}: HeroSectionProps) => {
+  return (
+    <section
+      style={{
+        backgroundColor: background || tokens.colors.primary[50],
+        padding: `${tokens.spacing[16]} 0`,
+        textAlign: 'center',
+      }}
+    >
+      <ContentContainer size="lg">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: tokens.spacing[6],
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                fontSize: tokens.typography.fontSize['4xl'],
+                fontWeight: tokens.typography.fontWeight.bold,
+                color: tokens.colors.secondary[900],
+                marginBottom: tokens.spacing[4],
+              }}
+            >
+              {title}
+            </h1>
+            {subtitle && (
+              <p
+                style={{
+                  fontSize: tokens.typography.fontSize.xl,
+                  color: tokens.colors.secondary[700],
+                  maxWidth: tokens.layout.maxWidth.prose,
+                  margin: '0 auto',
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
+          {children && (
+            <div
+              style={{
+                display: 'flex',
+                gap: tokens.spacing[4],
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              {children}
+            </div>
+          )}
+        </div>
+      </ContentContainer>
+    </section>
+  );
+};
+```
+
+## Common Patterns
+
+### Two-Column Layout
+
+```tsx
+const TwoColumnLayout = () => {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gap: tokens.spacing[8],
+        '@media (min-width: 768px)': {
+          gridTemplateColumns: '1fr 1fr',
+        },
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: tokens.colors.surface,
+          padding: tokens.spacing[6],
+          borderRadius: tokens.borderRadius.lg,
+          border: `1px solid ${tokens.colors.secondary[200]}`,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: tokens.typography.fontSize.xl,
+            fontWeight: tokens.typography.fontWeight.semibold,
+            marginBottom: tokens.spacing[4],
+          }}
+        >
+          Left Column
+        </h2>
+        <p style={{ color: tokens.colors.secondary[700] }}>
+          This is the left column content with some example text to demonstrate
+          the layout.
+        </p>
+      </div>
+
+      <div
+        style={{
+          backgroundColor: tokens.colors.surface,
+          padding: tokens.spacing[6],
+          borderRadius: tokens.borderRadius.lg,
+          border: `1px solid ${tokens.colors.secondary[200]}`,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: tokens.typography.fontSize.xl,
+            fontWeight: tokens.typography.fontWeight.semibold,
+            marginBottom: tokens.spacing[4],
+          }}
+        >
+          Right Column
+        </h2>
+        <p style={{ color: tokens.colors.secondary[700] }}>
+          This is the right column content with some example text to demonstrate
+          the layout.
+        </p>
+      </div>
+    </div>
+  );
+};
+```
+
+### Card Grid Layout
+
+```tsx
+const CardGridLayout = () => {
+  const cards = [
+    { title: 'Card 1', content: 'Content for card 1' },
+    { title: 'Card 2', content: 'Content for card 2' },
+    { title: 'Card 3', content: 'Content for card 3' },
+    { title: 'Card 4', content: 'Content for card 4' },
+  ];
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: tokens.spacing[6],
+      }}
+    >
+      {cards.map((card, index) => (
+        <div
+          key={index}
+          style={{
+            backgroundColor: tokens.colors.surface,
+            padding: tokens.spacing[6],
+            borderRadius: tokens.borderRadius.lg,
+            border: `1px solid ${tokens.colors.secondary[200]}`,
+            boxShadow: tokens.shadows.sm,
+          }}
+        >
+          <h3
+            style={{
+              fontSize: tokens.typography.fontSize.lg,
+              fontWeight: tokens.typography.fontWeight.semibold,
+              marginBottom: tokens.spacing[3],
+            }}
+          >
+            {card.title}
+          </h3>
+          <p style={{ color: tokens.colors.secondary[700] }}>{card.content}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+## Accessibility Guidelines
+
+### 1. **Semantic Structure**
+
+- Use appropriate HTML elements for layout sections
+- Provide proper heading hierarchy
+- Use landmarks (header, main, aside, footer) correctly
+
+### 2. **Navigation**
+
+- Ensure logical tab order in layout
+- Provide skip links for main content
+- Test keyboard navigation through layout
+
+### 3. **Screen Reader Support**
+
+- Use semantic HTML elements
+- Provide ARIA labels for complex layouts
+- Ensure content is properly structured
+
+### 4. **Responsive Accessibility**
+
+- Test layouts with screen readers on mobile
+- Ensure content reflows properly
+- Maintain accessibility across breakpoints
+
+## Testing Checklist
+
+- [ ] Layouts work correctly across all screen sizes
+- [ ] Container sizing is consistent and appropriate
+- [ ] Responsive breakpoints function properly
+- [ ] Semantic HTML structure is maintained
+- [ ] Layout navigation is keyboard accessible
+- [ ] Screen readers can navigate layouts
+- [ ] Content reflows appropriately on mobile
+
+## Resources
+
+- [CSS Layout Techniques](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout)
+- [Semantic HTML](https://developer.mozilla.org/en-US/docs/Glossary/Semantics)
+- [Layout Accessibility](https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html)

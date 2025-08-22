@@ -1,0 +1,99 @@
+# Project Overview & Deployment Guide
+
+## Project Structure
+
+This is a comprehensive financial modeling application with:
+
+- **Frontend**: React-based Georgian B2B application with trilingual support (Georgian, English, Russian)
+- **Backend**: FastAPI Python backend
+- **Database**: PostgreSQL with Railway hosting
+- **Frontend Deployment**: Netlify
+- **Backend Deployment**: Railway
+
+## Deployment Architecture
+
+### Frontend (Netlify)
+
+- **Build Command**: `npm run build`
+- **Publish Directory**: `dist`
+- **Environment Variables**: Configured in Netlify dashboard
+- **Domain**: Custom domain with SSL certificate
+- **Branch Deployments**: Automatic deployments from main branch
+- **Preview Deployments**: Automatic for pull requests
+
+### Backend (Railway)
+
+- **Runtime**: Python 3.11+
+- **Framework**: FastAPI
+- **Database**: PostgreSQL (Railway managed)
+- **Environment Variables**: Configured in Railway dashboard
+- **Auto-deploy**: Enabled for main branch
+- **Health Checks**: `/health` endpoint
+
+## Key Configuration Files
+
+### Frontend (Netlify)
+
+- [netlify.toml](mdc:netlify.toml) - Netlify deployment configuration
+- [vite.config.ts](mdc:vite.config.ts) - Vite build configuration
+- [package.json](mdc:package.json) - Dependencies and scripts
+- [index.html](mdc:index.html) - Main HTML entry point
+
+### Backend (Railway)
+
+- [railway.json](mdc:railway.json) - Railway deployment configuration
+- [requirements.txt](mdc:requirements.txt) - Python dependencies
+- [main.py](mdc:main.py) - FastAPI application entry point
+- [backend/app/](mdc:backend/app/) - Backend application code
+
+## Deployment Guidelines
+
+### Frontend Deployment (Netlify)
+
+1. **Build Optimization**: Use Vite for fast builds and optimal bundle splitting
+2. **Environment Variables**: Set production API endpoints in Netlify dashboard
+3. **Redirects**: Configure SPA redirects in `netlify.toml`
+4. **Headers**: Set security headers for production
+5. **Forms**: Enable form handling for lead generation
+
+### Backend Deployment (Railway)
+
+1. **Database**: Use Railway PostgreSQL service
+2. **Environment Variables**: Configure database URLs and API keys
+3. **Health Checks**: Implement `/health` endpoint for monitoring
+4. **CORS**: Configure CORS for Netlify domain
+5. **Logging**: Use structured logging for production monitoring
+
+## Development Workflow
+
+1. **Local Development**: Use `npm run dev` for frontend, `uvicorn main:app --reload` for backend
+2. **Testing**: Run tests before deployment
+3. **Staging**: Use Railway preview deployments for backend testing
+4. **Production**: Deploy to main branch triggers automatic deployment
+5. **Monitoring**: Monitor both Netlify and Railway dashboards
+
+## Environment Variables
+
+### Frontend (Netlify)
+
+- `VITE_API_URL` - Backend API endpoint
+- `VITE_GA_TRACKING_ID` - Google Analytics ID
+- `VITE_SENTRY_DSN` - Sentry error tracking
+
+### Backend (Railway)
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `SECRET_KEY` - Application secret key
+- `CORS_ORIGINS` - Allowed frontend origins
+- `ENVIRONMENT` - Production/development environment
+
+## Important Notes
+
+- **Database Migrations**: Run migrations before deployment
+- **Static Assets**: Optimize images and assets for Netlify CDN
+- **API Endpoints**: Ensure backend URLs are correctly configured in frontend
+- **SSL Certificates**: Both platforms provide automatic SSL
+- **Monitoring**: Set up alerts for both platforms
+  alwaysApply: true
+
+---

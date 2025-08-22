@@ -1,0 +1,155 @@
+# Netlify Configuration for FinVision Frontend - Ultra Optimized Build
+
+[build]
+  base = "frontend"
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
+  publish = "dist"
+
+  [build.environment]
+    NODE_VERSION = "20"
+    # Aggressive memory and performance optimizations
+    NODE_OPTIONS = "--max-old-space-size=8192 --max-semi-space-size=512"
+    # Run in development mode to get non-minified output
+    NODE_ENV = "development"
+    # Enable sourcemaps for better stack traces
+    VITE_DEV_SOURCEMAP = "true"
+    VITE_SOURCEMAP = "true"
+    # Skip all npm operations that slow down builds
+    NPM_CONFIG_AUDIT = "false"
+    NPM_CONFIG_FUND = "false"
+    NPM_CONFIG_OPTIONAL = "true"
+    NPM_CONFIG_PROGRESS = "false"
+    NPM_CONFIG_UPDATE_NOTIFIER = "false"
+    NPM_CONFIG_LOGLEVEL = "error"
+    # Optimize npm performance
+    NPM_CONFIG_MAXSOCKETS = "50"
+    NPM_CONFIG_PREFER_ONLINE = "true"
+    NPM_CONFIG_INSTALL_STRATEGY = "shallow"
+    NPM_CONFIG_CACHE = ".npm-cache"
+    # Build optimizations
+    VITE_BUILD_ANALYZE = "false"
+    VITE_LEGACY_BUILD = "false"
+    # Skip unnecessary operations
+    SKIP_PREFLIGHT_CHECK = "true"
+    CI = "true"
+
+# Build optimizations - disable all processing
+[build.processing]
+  skip_processing = true
+
+[build.processing.css]
+  bundle = false
+  minify = false
+
+[build.processing.js]
+  bundle = false
+  minify = false
+
+[build.processing.html]
+  pretty_urls = false
+
+# API proxy - must come BEFORE SPA routing
+[[redirects]]
+  from = "/api/*"
+  to = "https://fin-model-production.up.railway.app/api/:splat"
+  status = 200
+  force = true
+  headers = { X-From = "Netlify" }
+
+# Health check proxy
+[[redirects]]
+  from = "/health"
+  to = "https://fin-model-production.up.railway.app/health"
+  status = 200
+  force = true
+
+# SPA routing - must come LAST
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers with optimizations
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://*.railway.app wss://*.railway.app https://*.netlify.app wss://*.netlify.app; frame-src 'self' https://app.netlify.com;"
+
+# Optimized caching for build assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Environment-specific configs with dev build
+[context.production]
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
+  [context.production.environment]
+    NODE_ENV = "development"
+    VITE_API_URL = "https://fin-model-production.up.railway.app"
+    VITE_BUILD_ANALYZE = "false"
+    VITE_LEGACY_BUILD = "false"
+    VITE_SOURCEMAP = "true"
+    VITE_DEV_SOURCEMAP = "true"
+
+[context.deploy-preview]
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
+  [context.deploy-preview.environment]
+    NODE_ENV = "development"
+    VITE_API_URL = "https://fin-model-production.up.railway.app"
+    VITE_DEV_SOURCEMAP = "true"
+    VITE_SOURCEMAP = "true"
+
+[context.branch-deploy]
+  command = "pnpm install --frozen-lockfile && pnpm run build:netlify:preview && pnpm run verify-build"
+  [context.branch-deploy.environment]
+    NODE_ENV = "development"
+    VITE_API_URL = "https://fin-model-production.up.railway.app"
+    VITE_DEV_SOURCEMAP = "true"
+    VITE_SOURCEMAP = "true"
+
+# Netlify Functions config
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Local dev config
+[dev]
+  command = "npm run dev"
+  port = 3000
+  targetPort = 3000
+  autoLaunch = false

@@ -8,7 +8,12 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import UploadFile, HTTPException, status
 
-from app.models.file import UploadedFile, ProcessingLog, FileStatus, FileType
+from app.models.file import (
+    UploadedFile,
+    ProcessingLog,
+    FileStatus,
+    FileType,
+)
 from app.models.user import User
 from app.core.config import settings
 
@@ -28,7 +33,11 @@ class FileService:
     def validate_file(self, file: UploadFile) -> None:
         """Validate uploaded file."""
         # Check file size
-        if hasattr(file, "size") and file.size and file.size > self.max_file_size:
+        if (
+            hasattr(file, "size")
+            and file.size
+            and file.size > self.max_file_size
+        ):
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=f"File size {file.size} exceeds maximum allowed size {self.max_file_size} bytes",
@@ -44,7 +53,8 @@ class FileService:
                 )
         else:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Filename is required"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Filename is required",
             )
 
     def get_file_type(self, filename: str) -> FileType:
@@ -63,7 +73,9 @@ class FileService:
         unique_id = str(uuid.uuid4())
         return f"{unique_id}{ext}"
 
-    async def save_uploaded_file(self, file: UploadFile, user: User) -> UploadedFile:
+    async def save_uploaded_file(
+        self, file: UploadFile, user: User
+    ) -> UploadedFile:
         """Save uploaded file to disk and create database record."""
         self.validate_file(file)
 
@@ -115,10 +127,14 @@ class FileService:
                 detail=f"Failed to save file: {str(e)}",
             )
 
-    def get_file_by_id(self, file_id: int, user: User) -> Optional[UploadedFile]:
+    def get_file_by_id(
+        self, file_id: int, user: User
+    ) -> Optional[UploadedFile]:
         """Get file by ID, enforcing ownership unless admin."""
         file_record = (
-            self.db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+            self.db.query(UploadedFile)
+            .filter(UploadedFile.id == file_id)
+            .first()
         )
 
         if not file_record:
@@ -143,7 +159,9 @@ class FileService:
         status_filter: Optional[FileStatus] = None,
     ) -> Dict[str, Any]:
         """Get files uploaded by user with pagination."""
-        query = self.db.query(UploadedFile).filter(UploadedFile.user_id == user.id)
+        query = self.db.query(UploadedFile).filter(
+            UploadedFile.user_id == user.id
+        )
 
         if status_filter:
             query = query.filter(UploadedFile.status == status_filter)
@@ -177,7 +195,9 @@ class FileService:
     ) -> Optional[UploadedFile]:
         """Update file processing status."""
         file_record = (
-            self.db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+            self.db.query(UploadedFile)
+            .filter(UploadedFile.id == file_id)
+            .first()
         )
 
         if not file_record:
@@ -193,7 +213,11 @@ class FileService:
 
         if status == FileStatus.PROCESSING:
             file_record.processing_started_at = datetime.utcnow()
-        elif status in [FileStatus.COMPLETED, FileStatus.FAILED, FileStatus.CANCELLED]:
+        elif status in [
+            FileStatus.COMPLETED,
+            FileStatus.FAILED,
+            FileStatus.CANCELLED,
+        ]:
             file_record.processing_completed_at = datetime.utcnow()
 
         self.db.commit()
@@ -211,7 +235,11 @@ class FileService:
     ) -> ProcessingLog:
         """Log a processing step for a file."""
         log_entry = ProcessingLog(
-            file_id=file_id, step=step, message=message, level=level, details=details
+            file_id=file_id,
+            step=step,
+            message=message,
+            level=level,
+            details=details,
         )
 
         self.db.add(log_entry)
@@ -220,13 +248,16 @@ class FileService:
 
         return log_entry
 
-    def get_file_logs(self, file_id: int, user: User) -> List[ProcessingLog]:
+    def get_file_logs(
+        self, file_id: int, user: User
+    ) -> List[ProcessingLog]:
         """Get processing logs for a file."""
         # First check if user has access to this file
         file_record = self.get_file_by_id(file_id, user)
         if not file_record:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found",
             )
 
         return (
@@ -275,7 +306,8 @@ class FileService:
         file_path = Path(file_record.file_path)
         if not file_path.exists():
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Physical file not found"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Physical file not found",
             )
 
         return str(file_path)
@@ -285,4 +317,6 @@ class FileService:
         from app.services.file_cleanup import FileCleanupService
 
         cleanup_service = FileCleanupService(self.db, self)
-        return asyncio.run(cleanup_service.cleanup_expired_files(dry_run=False))
+        return asyncio.run(
+            cleanup_service.cleanup_expired_files(dry_run=False)
+        )

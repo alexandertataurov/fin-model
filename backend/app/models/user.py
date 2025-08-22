@@ -1,4 +1,10 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .base import Base
@@ -23,9 +29,14 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     failed_login_attempts = Column(Integer, default=0, nullable=False)
     account_locked_until = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     updated_at = Column(
-        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     # Relationships
@@ -34,9 +45,6 @@ class User(Base):
         back_populates="user",
         foreign_keys="UserRole.user_id",
         cascade="all, delete-orphan",
-    )
-    audit_logs = relationship(
-        "AuditLog", back_populates="user", cascade="all, delete-orphan"
     )
     # Files uploaded by this user
     uploaded_files = relationship(
@@ -47,9 +55,33 @@ class User(Base):
     )
     parameters = relationship("Parameter", back_populates="created_by")
     scenarios = relationship("Scenario", back_populates="created_by")
-    report_templates = relationship("ReportTemplate", back_populates="creator")
-    report_schedules = relationship("ReportSchedule", back_populates="creator")
-    report_exports = relationship("ReportExport", back_populates="creator")
+
+    # Enhanced authentication relationships
+    mfa_token = relationship(
+        "MFAToken",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    oauth_accounts = relationship(
+        "OAuthAccount", back_populates="user", cascade="all, delete-orphan"
+    )
+    webauthn_credentials = relationship(
+        "WebAuthnCredential",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    # Notification relationships
+    notifications = relationship(
+        "Notification", back_populates="user", cascade="all, delete-orphan"
+    )
+    notification_preferences = relationship(
+        "NotificationPreferences",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', username='{self.username}')>"
@@ -58,6 +90,6 @@ class User(Base):
     def is_locked(self):
         if self.account_locked_until is None:
             return False
-        from datetime import datetime
+        from datetime import datetime, timezone
 
-        return datetime.utcnow() < self.account_locked_until
+        return datetime.now(timezone.utc) < self.account_locked_until

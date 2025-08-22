@@ -1,318 +1,160 @@
-# FinVision - Financial Modeling and Analysis Platform
+# Financial Model Project
 
-FinVision is a comprehensive web-based financial modeling and analysis platform that transforms static Excel financial models into dynamic, interactive dashboards with real-time parameter adjustment capabilities.
+A comprehensive financial modeling platform with AI-powered analysis and MCP orchestration.
 
-## 🚀 Features
+## 🚀 Quick Start
 
-- **Excel Integration**: Upload and parse Excel-based financial models
-- **Interactive Dashboards**: Real-time visualization of financial metrics
-- **Scenario Modeling**: Create and compare different business scenarios
-- **Parameter Management**: Modify assumptions with real-time recalculation
-- **Professional Reporting**: Generate publication-ready reports and presentations
-- **Role-Based Access Control**: Secure access with Admin/Analyst/Viewer roles
+### MCP Orchestrator Server
 
-## 🏗️ Architecture
+The enhanced MCP Orchestrator Server provides enterprise-grade AI agent coordination with monitoring, security, and reliability.
 
-### Frontend
+#### Run the Server
 
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **UI Library**: Material-UI (MUI)
-- **Charts**: Recharts
-- **State Management**: Zustand + React Query
-- **Testing**: Vitest + React Testing Library
+```bash
+# Production mode
+python run-mcp-server.py
 
-### Backend
+# Development mode
+python run-mcp-dev.py
 
-- **Framework**: FastAPI (Python)
-- **Database**: PostgreSQL
-- **ORM**: SQLAlchemy
-- **Authentication**: JWT tokens
-- **Unauthorized Responses**: Standard endpoints return **401 Unauthorized** when
-  no token is provided, while admin endpoints return **403 Forbidden** for missing
-  credentials
-- **Background Tasks**: Celery + Redis
-- **Excel Processing**: Pandas + openpyxl
+# Run tests
+python run-mcp-test.py
 
-### Infrastructure
+# Deploy to production
+python run-mcp-deploy.py
+```
 
-- **Containerization**: Docker + Docker Compose
-- **CI/CD**: GitHub Actions
-- **Database**: PostgreSQL 15
-- **Cache/Queue**: Redis 7
+#### Access Monitoring
 
-## 🛠️ Development Setup
+- **Health Check**: `http://localhost:8000/health_check`
+- **Metrics**: `http://localhost:8000/get_metrics`
+- **Prometheus**: `http://localhost:9090`
+- **Grafana**: `http://localhost:3000` (admin/admin)
 
-### Prerequisites
-
-- Node.js 18+
-- Python 3.11+
-- Docker & Docker Compose
-- Git
-
-### Quick Start with Docker
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd fin-model
-   ```
-
-2. **Start all services**
-
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Documentation: http://localhost:8000/docs
-   - pgAdmin: http://localhost:5050
-
-### Local Development Setup
-
-#### Frontend Setup
+### Frontend Application
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm start
 ```
 
-#### Backend Setup
+### Backend API
 
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-#### Database Setup
-
-```bash
-# Start PostgreSQL and Redis
-docker-compose up -d db redis
-
-# Run database migrations (when implemented)
-cd backend
-alembic upgrade head
+python main.py
 ```
 
 ## 📁 Project Structure
 
 ```
-fin-model/
-├── frontend/                 # React TypeScript frontend
-│   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/          # Page components
-│   │   ├── test/           # Test utilities
-│   │   └── main.tsx        # Application entry point
-│   ├── _redirects          # Netlify redirects configuration
-│   ├── _headers            # Netlify headers configuration
-│   ├── package.json
-│   └── vite.config.ts
-├── backend/                 # FastAPI Python backend
-│   ├── app/
-│   │   ├── api/            # API routes
-│   │   ├── core/           # Core configuration
-│   │   ├── models/         # SQLAlchemy models
-│   │   └── services/       # Business logic
-│   ├── requirements.txt
-│   └── main.py
-├── netlify.toml            # Netlify deployment configuration
-├── tasks/                   # Project task documentation
-├── docker-compose.yml       # Local development setup
-└── .github/workflows/       # CI/CD pipelines
+├── .mcp-server/           # Enhanced MCP Orchestrator Server
+│   ├── production.py      # Production entry point
+│   ├── server.py          # Development server
+│   ├── deploy.sh          # Deployment script
+│   ├── Dockerfile         # Production container
+│   ├── docker-compose.yml # Monitoring stack
+│   └── docs/              # Documentation
+├── frontend/              # React frontend application
+├── backend/               # Python backend API
+├── src/                   # Shared source code
+├── docs/                  # Project documentation
+├── run-mcp-server.py      # Production server runner
+├── run-mcp-dev.py         # Development server runner
+├── run-mcp-test.py        # Test runner
+└── run-mcp-deploy.py      # Deployment runner
 ```
 
-## 🧪 Testing
+## 🔧 MCP Server Features
 
-### Frontend Tests
+- **Enhanced Error Handling** - Specific exception types and structured responses
+- **Comprehensive Metrics** - Performance, error, and system monitoring
+- **Health Monitoring** - Real-time system health checks
+- **Production Ready** - Docker deployment with security best practices
+- **Monitoring Stack** - Prometheus + Grafana integration
+- **Automated Deployment** - Scripts for deployment and rollback
+
+## 📚 Documentation
+
+- [MCP Server Documentation](.mcp-server/README.md)
+- [Production Deployment Guide](.mcp-server/README-PRODUCTION.md)
+- [Enhanced Features Guide](.mcp-server/docs/enhanced-features.md)
+- [Production Checklist](.mcp-server/PRODUCTION-CHECKLIST.md)
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Python 3.11+
+- Node.js 18+
+- Docker 20.10+
+- Docker Compose 2.0+
+
+### Setup
 
 ```bash
-cd frontend
-npm run test                 # Run tests
-npm run test:coverage       # Run with coverage
-npm run test:ui             # Run with UI
-```
+# Install Python dependencies
+pip install -r requirements.txt
 
-### Backend Tests
+# Install Node.js dependencies
+npm install
 
-```bash
-cd backend
-pytest                      # Run tests
-pytest --cov               # Run with coverage
-```
-
-### E2E Tests
-
-```bash
-# Coming soon - Cypress integration
+# Run tests
+python run-mcp-test.py
 ```
 
 ## 🚀 Deployment
 
-### Netlify Deployment (Frontend)
-
-The frontend is configured for easy deployment on Netlify with automatic builds from your Git repository.
-
-#### Quick Deploy
-
-1. **Connect Repository to Netlify**
-
-   - Log in to [Netlify](https://netlify.com)
-   - Click "New site from Git"
-   - Connect your repository
-   - Netlify will automatically detect the `netlify.toml` configuration
-
-2. **Environment Variables**
-   Set these environment variables in Netlify dashboard:
-
-   ```
-   NODE_ENV=production
-   VITE_API_URL=https://your-backend-api.com
-   VITE_APP_NAME=FinVision
-   VITE_APP_VERSION=1.0.0
-   ```
-
-3. **Deploy**
-   - Push to your main branch
-   - Netlify will automatically build and deploy
-
-#### Manual Deploy
+### Production Deployment
 
 ```bash
-cd frontend
-npm run build
-# Upload the dist/ folder to Netlify
+# Deploy MCP server to production
+python run-mcp-deploy.py
+
+# Or use the deployment script directly
+cd .mcp-server
+./deploy.sh deploy
 ```
 
-#### Configuration Files
-
-- **`netlify.toml`**: Main configuration with build settings, redirects, and headers
-- **`frontend/_redirects`**: SPA routing and API proxy configuration
-- **`frontend/_headers`**: Security and caching headers
-
-#### Features Configured
-
-- ✅ **SPA Routing**: All routes redirect to `index.html` for client-side routing
-- ✅ **Security Headers**: CSP, XSS protection, frame options
-- ✅ **Asset Optimization**: CSS/JS bundling and minification
-- ✅ **Caching**: Optimized cache headers for static assets
-- ✅ **Environment Variables**: Context-specific configuration
-- ✅ **Build Optimization**: Node.js 18, asset compression
-
-### Backend Deployment
-
-The backend can be deployed to various platforms:
-
-#### Option 1: Railway/Render/Heroku
-
-- Deploy the `backend/` directory
-- Set environment variables from `backend/env.example`
-- Configure PostgreSQL and Redis add-ons
-
-#### Option 2: Docker Container
+### Development
 
 ```bash
-cd backend
-docker build -f Dockerfile.prod -t finvision-backend .
-docker run -p 8000:8000 finvision-backend
+# Start development server
+python run-mcp-dev.py
+
+# Start production server
+python run-mcp-server.py
 ```
 
-#### Option 3: Cloud Services
+## 📊 Monitoring
 
-- **AWS**: ECS/Fargate with RDS PostgreSQL
-- **Google Cloud**: Cloud Run with Cloud SQL
-- **Azure**: Container Instances with PostgreSQL
+The MCP server includes comprehensive monitoring:
 
-### Environment Variables
+- **Health Checks** - System resource monitoring
+- **Performance Metrics** - Tool call durations and error rates
+- **Structured Logging** - JSON-formatted logs with rotation
+- **Alerting** - Proactive issue detection
+- **Dashboards** - Visual monitoring with Grafana
 
-#### Frontend (Netlify)
+## 🔒 Security
 
-Copy `frontend/.env.example` and configure:
+- Non-root container execution
+- Resource limits and constraints
+- Secure configuration management
+- Comprehensive error handling
+- Audit logging
 
-```bash
-VITE_API_URL=https://your-backend-api.com
-NODE_ENV=production
-VITE_APP_NAME=FinVision
-VITE_APP_VERSION=1.0.0
-```
+## 📞 Support
 
-#### Backend
+For MCP server issues:
 
-Copy `backend/env.example` and configure:
+- Check logs in `.mcp-server/logs/`
+- Access monitoring dashboards
+- Review documentation in `.mcp-server/docs/`
+- Use health check endpoints
 
-```bash
-SECRET_KEY=your-secret-key-change-in-production
-POSTGRES_SERVER=your-postgres-host
-POSTGRES_USER=your-db-user
-POSTGRES_PASSWORD=your-db-password
-POSTGRES_DB=finvision
-REDIS_URL=redis://your-redis-host:6379
-BACKEND_CORS_ORIGINS=https://your-netlify-site.netlify.app
-```
+---
 
-### Production Checklist
-
-- [ ] Update `VITE_API_URL` to your production backend
-- [ ] Set secure `SECRET_KEY` for backend
-- [ ] Configure production database
-- [ ] Set up Redis instance
-- [ ] Update CORS origins
-- [ ] Configure SSL certificates
-- [ ] Set up monitoring and logging
-- [ ] Configure backup strategy
-
-## 📊 Development Progress
-
-This project follows a structured development approach with detailed task breakdowns:
-
-- ✅ **Project Setup** - Development environment and infrastructure
-- 🔄 **Authentication** - User management and security (Next)
-- ⏳ **File Processing** - Excel upload and parsing
-- ⏳ **Dashboard** - Interactive visualizations
-- ⏳ **Financial Modeling** - Parameter management and calculations
-- ⏳ **Reporting** - PDF/Excel export functionality
-- ⏳ **Database** - Schema design and optimization
-- ⏳ **UI/UX** - Frontend implementation
-- ⏳ **Testing** - Comprehensive test coverage
-- ⏳ **Deployment** - Production-ready infrastructure
-
-See `/tasks/README.md` for detailed task breakdowns and progress tracking.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Quality
-
-- Frontend: ESLint + Prettier
-- Backend: Flake8 + Black + isort
-- Pre-commit hooks enforce code quality
-- All PRs require passing tests
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙋‍♂️ Support
-
-For questions and support:
-
-- Check the `/tasks/` directory for detailed documentation
-- Review API documentation at `/docs` when running
-
-## 🌐 Live Demo
-
-- **Frontend**: [Deploy to Netlify](https://app.netlify.com/start/deploy?repository=https://github.com/your-username/fin-model)
-- **Backend**: Deploy to Railway, Render, or your preferred platform
+**Ready for production!** The enhanced MCP Orchestrator Server provides enterprise-grade reliability, security, and monitoring for AI agent coordination.

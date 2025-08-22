@@ -1,0 +1,339 @@
+---
+title: 'Foundations'
+description: 'Core design system foundations including colors, typography, spacing, shadows, and more'
+parameters:
+  docs:
+    description:
+      component: 'Foundations are the core building blocks of our design system. They provide consistent, accessible, and maintainable design tokens that form the foundation for all UI components.'
+    canvas:
+      sourceState: 'hidden'
+---
+
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import { tokens } from '../tokens';
+
+<Meta
+  title="* - Documentation/Foundations"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: {
+      canvas: { hidden: true },
+    },
+  }}
+/>
+
+# Foundations
+
+Foundations are the core building blocks of our design system. They provide consistent, accessible, and maintainable design tokens that form the foundation for all UI components.
+
+## Overview
+
+Our Foundations system is built on four core principles:
+
+1. **Semantic Naming** - Tokens describe purpose, not appearance
+2. **Consistent Scales** - Predictable value systems across all foundations
+3. **Accessibility First** - WCAG 2.1 AA compliance built-in
+4. **Responsive Design** - Mobile-first approach with breakpoint support
+
+## Foundation Categories
+
+### 1. [Colors](./01-Colors.mdx)
+
+Complete color system with primary, secondary, accent, and semantic palettes. Includes interactive states, accessibility compliance, and real-world examples.
+
+### 2. [Typography](./02-Typography.mdx)
+
+Comprehensive typography system with font families, sizes, weights, and text styles. Includes interactive examples, accessibility compliance, and real-world applications.
+
+### 3. [Z-Index](./03-ZIndex.mdx)
+
+Comprehensive z-index system for managing element stacking order. Includes semantic tokens for common UI patterns, accessibility considerations, and responsive design scenarios.
+
+### 4. [Border Width](./04-BorderWidth.mdx)
+
+Comprehensive border width system for various UI components. Supports different border styles, states, and use cases with accessibility compliance.
+
+### 5. [Shadows](./05-Shadows.mdx)
+
+Complete shadow system for depth, hierarchy, and visual feedback. Includes elevation levels, interactive states, and accessibility considerations.
+
+### 6. [Border Radius](./06-Radius.mdx)
+
+Comprehensive border radius system for consistent corner rounding. Includes semantic tokens, accessibility guidelines, and practical applications.
+
+### 7. [Spacing](./07-Spacing.mdx)
+
+Complete spacing system for consistent layout and visual rhythm. Includes margin, padding, gap, and responsive spacing patterns.
+
+### 8. [Motion](./08-Motion.mdx)
+
+Comprehensive motion system for smooth interactions and feedback. Includes easing curves, duration scales, and accessibility considerations.
+
+### 9. [Transitions](./09-Transitions.mdx)
+
+Complete transition system for state changes and interactions. Includes timing functions, duration scales, and best practices.
+
+### 10. [Grid](./10-Grid.mdx)
+
+Comprehensive grid system for layout and alignment. Includes responsive grids, flexbox patterns, and accessibility guidelines.
+
+### 11. [Layout](./11-Layout.mdx)
+
+Complete layout system for page structure and component organization. Includes containers, patterns, and responsive behavior.
+
+### 12. [Breakpoints](./12-Breakpoints.mdx)
+
+Comprehensive breakpoint system for responsive design. Includes device-specific patterns and accessibility considerations.
+
+### 13. [Sizing](./13-Sizing.mdx)
+
+Complete sizing system for consistent dimensions and proportions. Includes aspect ratios, viewport units, and responsive sizing.
+
+### 14. [Position](./14-Position.mdx)
+
+Comprehensive positioning system for element placement and stacking. Includes absolute, relative, fixed positioning and z-index management.
+
+### 15. [Display](./15-Display.mdx)
+
+Complete display system for element visibility and layout behavior. Includes block, inline, flex, grid, and responsive display patterns.
+
+### 16. [Border](./16-Border.mdx)
+
+Comprehensive border system for element boundaries and visual separation. Includes border styles, colors, and accessibility guidelines.
+
+## Core Principles
+
+### 1. **Semantic Naming**
+
+All tokens use semantic names that describe their purpose, not their appearance:
+
+- `primary` instead of `blue`
+- `success` instead of `green`
+- `large` instead of `24px`
+
+### 2. **Consistent Scales**
+
+Each foundation uses consistent, predictable scales:
+
+- Colors: 50-950 scale with semantic stops
+- Spacing: 8px base unit with multipliers
+- Typography: Modular scale with clear hierarchy
+
+### 3. **Accessibility First**
+
+All foundations prioritize accessibility:
+
+- WCAG 2.1 AA compliance
+- High contrast ratios
+- Screen reader support
+- Keyboard navigation
+
+### 4. **Responsive Design**
+
+Foundations support responsive behavior:
+
+- Mobile-first approach
+- Breakpoint-specific tokens
+- Flexible scaling systems
+
+## Usage Guidelines
+
+### Token Access
+
+Access tokens through the centralized tokens object:
+
+```tsx
+import { tokens } from '@/design-system/tokens';
+
+// Access color tokens
+const primaryColor = tokens.colors.primary[500];
+
+// Access spacing tokens
+const standardPadding = tokens.spacing[4];
+
+// Access typography tokens
+const headingFont = tokens.typography.fontFamily.display;
+```
+
+### CSS Custom Properties
+
+Tokens are also available as CSS custom properties:
+
+```css
+.my-component {
+  background-color: var(--color-primary-500);
+  padding: var(--spacing-4);
+  font-family: var(--font-family-display);
+}
+```
+
+### Component Integration
+
+Use tokens in React components:
+
+```tsx
+const Button = ({ children, variant = 'primary' }) => (
+  <button
+    style={{
+      backgroundColor: tokens.colors[variant][500],
+      color: tokens.colors.surface,
+      padding: tokens.spacing[4],
+      borderRadius: tokens.borderRadius.md,
+      fontFamily: tokens.typography.fontFamily.sans.join(', '),
+      fontSize: tokens.typography.fontSize.base,
+      fontWeight: tokens.typography.fontWeight.medium,
+    }}
+  >
+    {children}
+  </button>
+);
+```
+
+## Best Practices
+
+### 1. **Use Semantic Tokens**
+
+Always use semantic tokens instead of hardcoded values:
+
+```tsx
+// ✅ Good - Semantic token usage
+<div style={{ padding: tokens.spacing[4] }}>
+
+// ❌ Bad - Hardcoded values
+<div style={{ padding: '16px' }}>
+```
+
+### 2. **Maintain Consistency**
+
+Use the same token across similar elements:
+
+```tsx
+// ✅ Good - Consistent spacing
+<div style={{ marginBottom: tokens.spacing[6] }}>
+  <h1>Title</h1>
+</div>
+<div style={{ marginBottom: tokens.spacing[6] }}>
+  <h2>Subtitle</h2>
+</div>
+```
+
+### 3. **Consider Accessibility**
+
+Always test for accessibility compliance:
+
+```tsx
+// ✅ Good - High contrast
+<div style={{
+  backgroundColor: tokens.colors.primary[500],
+  color: tokens.colors.white
+}}>
+
+// ❌ Bad - Low contrast
+<div style={{
+  backgroundColor: tokens.colors.primary[100],
+  color: tokens.colors.primary[200]
+}}>
+```
+
+### 4. **Plan for Responsiveness**
+
+Use responsive tokens when appropriate:
+
+```tsx
+// ✅ Good - Responsive spacing
+<div style={{
+  padding: tokens.spacing[4],
+  '@media (min-width: 768px)': {
+    padding: tokens.spacing[6]
+  },
+  '@media (min-width: 1024px)': {
+    padding: tokens.spacing[8]
+  }
+}}>
+```
+
+## Common Patterns
+
+### Color Usage
+
+```tsx
+// Primary actions
+<button style={{ backgroundColor: tokens.colors.primary[500] }}>
+  Primary Action
+</button>
+
+// Success states
+<div style={{ color: tokens.colors.success }}>
+  Success Message
+</div>
+
+// Error states
+<div style={{ color: tokens.colors.destructive[500] }}>
+  Error Message
+</div>
+```
+
+### Typography Hierarchy
+
+```tsx
+// Main headings
+<h1 style={{
+  fontFamily: tokens.typography.fontFamily.display.join(', '),
+  fontSize: tokens.typography.fontSize['4xl'],
+  fontWeight: tokens.typography.fontWeight.bold
+}}>
+
+// Body text
+<p style={{
+  fontFamily: tokens.typography.fontFamily.sans.join(', '),
+  fontSize: tokens.typography.fontSize.base,
+  lineHeight: tokens.typography.lineHeight.relaxed
+}}>
+```
+
+### Spacing Patterns
+
+```tsx
+// Component spacing
+<div style={{ padding: tokens.spacing[4] }}>
+
+// Layout spacing
+<section style={{ marginBottom: tokens.spacing[12] }}>
+
+// Form spacing
+<div style={{ gap: tokens.spacing[3] }}>
+```
+
+## Troubleshooting
+
+### Token Not Found
+
+If a token doesn't exist, check:
+
+1. Token name spelling
+2. Available token categories
+3. Token file imports
+
+### Inconsistent Appearance
+
+If elements look inconsistent:
+
+1. Verify token usage
+2. Check for hardcoded values
+3. Ensure proper token imports
+
+### Accessibility Issues
+
+If accessibility problems arise:
+
+1. Test contrast ratios
+2. Verify keyboard navigation
+3. Check screen reader compatibility
+
+## Resources
+
+- [Design Tokens Specification](https://design-tokens.github.io/community-group/format/)
+- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [CSS Custom Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties)
+
+Remember: Foundations are the bedrock of our design system. Changes here affect the entire application, so careful consideration and thorough testing are essential.

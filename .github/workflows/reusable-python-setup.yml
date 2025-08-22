@@ -1,0 +1,47 @@
+name: Python Setup with Dependencies
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "Python version to use"
+        required: false
+        type: string
+        default: "3.11"
+      requirements-file:
+        description: "Path to requirements file"
+        required: false
+        type: string
+        default: "requirements.txt"
+      install-deps:
+        description: "Whether to install dependencies"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Setup Python
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Cache pip dependencies
+        if: ${{ inputs.install-deps }}
+        uses: actions/cache@2f8e54208210a422b2efd51efaa6bd6d7ca8920f # v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        if: ${{ inputs.install-deps }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ${{ inputs.requirements-file }} --cache-dir ~/.cache/pip

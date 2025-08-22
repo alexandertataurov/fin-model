@@ -65,7 +65,9 @@ class ConnectionManager:
             try:
                 await websocket.send_text(message)
             except Exception as e:
-                logger.warning(f"Failed to send message to user {user_id}: {e}")
+                logger.warning(
+                    f"Failed to send message to user {user_id}: {e}"
+                )
                 disconnected_websockets.append(websocket)
 
         # Clean up disconnected websockets
@@ -135,7 +137,11 @@ class ConnectionManager:
         ):
             await self.send_to_user(
                 user_id,
-                {"type": "file_status_update", "file_id": file_id, "data": status_data},
+                {
+                    "type": "file_status_update",
+                    "file_id": file_id,
+                    "data": status_data,
+                },
             )
 
     async def broadcast_task_progress(
@@ -155,11 +161,17 @@ class ConnectionManager:
                 },
             )
 
-    async def send_notification(self, user_id: int, notification: Dict[str, Any]):
+    async def send_notification(
+        self, user_id: int, notification: Dict[str, Any]
+    ):
         """Send a notification to a specific user."""
-        await self.send_to_user(user_id, {"type": "notification", "data": notification})
+        await self.send_to_user(
+            user_id, {"type": "notification", "data": notification}
+        )
 
-    async def broadcast_system_message(self, message: str, message_type: str = "info"):
+    async def broadcast_system_message(
+        self, message: str, message_type: str = "info"
+    ):
         """Broadcast a system message to all connected users."""
         data = {
             "type": "system_message",
@@ -176,7 +188,10 @@ class ConnectionManager:
 
     def get_connection_count(self) -> int:
         """Get total number of active connections."""
-        return sum(len(connections) for connections in self.active_connections.values())
+        return sum(
+            len(connections)
+            for connections in self.active_connections.values()
+        )
 
 
 # Global connection manager instance
@@ -212,18 +227,25 @@ async def handle_websocket_message(
 
         elif message_type == "ping":
             await manager.send_to_user(
-                user_id, {"type": "pong", "timestamp": message.get("timestamp")}
+                user_id,
+                {"type": "pong", "timestamp": message.get("timestamp")},
             )
 
         else:
             await manager.send_to_user(
                 user_id,
-                {"type": "error", "message": f"Unknown message type: {message_type}"},
+                {
+                    "type": "error",
+                    "message": f"Unknown message type: {message_type}",
+                },
             )
 
     except Exception as e:
         logger.error(f"Error handling WebSocket message: {e}")
         await manager.send_to_user(
             user_id,
-            {"type": "error", "message": f"Failed to process message: {str(e)}"},
+            {
+                "type": "error",
+                "message": f"Failed to process message: {str(e)}",
+            },
         )

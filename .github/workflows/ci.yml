@@ -2,43 +2,58 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, pre-production]
   pull_request:
-    branches: [main, dev]
+    branches: [main, dev, pre-production]
 
 jobs:
   frontend-test:
+    uses: ./.github/workflows/reusable-frontend-quality.yml
+    with:
+      test-command: "test:ci"
+
+  frontend-build:
     runs-on: ubuntu-latest
+    needs: frontend-test
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@eae0cfeb286e66ffb5155f1a79b90583a127a68b # v2
+        with:
+          version: 10
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@2f8e54208210a422b2efd51efaa6bd6d7ca8920f # v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      - name: Run linting
+      - name: Build (optimized)
         working-directory: ./frontend
-        run: npm run lint:ci
-
-      - name: Run type checking
-        working-directory: ./frontend
-        run: npm run type-check
-
-      - name: Run tests
-        working-directory: ./frontend
-        run: npm run test
-
-      - name: Build
-        working-directory: ./frontend
-        run: npm run build
+        run: pnpm run build:netlify:prod
+        env:
+          NODE_ENV: production
+          NODE_OPTIONS: "--max-old-space-size=8192"
 
   backend-test:
     runs-on: ubuntu-latest
@@ -69,17 +84,26 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@0ae58361cdfd39e2950bed97a1e26aa20c3d8955 # v4
         with:
           python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@2f8e54208210a422b2efd51efaa6bd6d7ca8920f # v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt --cache-dir ~/.cache/pip
 
       - name: Run linting
         working-directory: ./backend
@@ -99,11 +123,11 @@ jobs:
 
   docker-build:
     runs-on: ubuntu-latest
-    needs: [frontend-test, backend-test]
+    needs: [frontend-build, backend-test]
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Build Docker images
         run: |

@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
-import { Box, Paper, Typography, IconButton, Tooltip, Menu, MenuItem } from '@mui/material';
-import { Download as DownloadIcon, Fullscreen as FullscreenIcon } from '@mui/icons-material';
+import React from 'react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Button } from '@/design-system/atoms';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui';
+import { cn } from '@/utils/cn';
+import { Download, Maximize, Loader2, AlertCircle } from 'lucide-react';
 
 interface BaseChartProps {
   title?: string;
@@ -12,6 +25,9 @@ interface BaseChartProps {
   onExport?: (format?: 'PNG' | 'SVG' | 'PDF') => void;
   onFullscreen?: () => void;
   actions?: React.ReactNode;
+  className?: string;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
 }
 
 export const BaseChart: React.FC<BaseChartProps> = ({
@@ -24,151 +40,116 @@ export const BaseChart: React.FC<BaseChartProps> = ({
   onExport,
   onFullscreen,
   actions,
+  className,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedby,
 }) => {
-  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
+  const chartId = React.useId();
+  const titleId = title ? `${chartId}-title` : undefined;
+  const subtitleId = subtitle ? `${chartId}-subtitle` : undefined;
+
   return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 2,
-        height: 'fit-content',
-        position: 'relative',
-        '&:hover .chart-actions': {
-          opacity: 1,
-        },
-      }}
+    <Card
+      className={cn('relative group', className)}
+      aria-label={ariaLabel || title}
+      aria-describedby={ariaDescribedby || subtitleId}
+      role="region"
     >
       {/* Header */}
-      {(title || subtitle || onExport || onFullscreen || actions) && (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            mb: 2,
-          }}
+      {title && (
+        <CardHeader
+          // @ts-expect-error actions prop is supported in our CardHeader impl
+          actions={
+            <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+              {actions}
+              {onExport && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onExport('PNG')}>
+                      Export as PNG
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onExport('SVG')}>
+                      Export as SVG
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onExport('PDF')}>
+                      Export as PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              {onFullscreen && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onFullscreen}
+                  className="h-8 w-8 p-0"
+                >
+                  <Maximize className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          }
         >
-          <Box>
+          <div className="space-y-1">
             {title && (
-              <Typography variant="h6" component="h3" gutterBottom>
+              <CardTitle
+                id={titleId}
+                className="text-base font-medium"
+                data-testid="chart-title"
+              >
                 {title}
-              </Typography>
+              </CardTitle>
             )}
             {subtitle && (
-              <Typography variant="body2" color="text.secondary">
+              <p
+                id={subtitleId}
+                className="text-sm text-muted-foreground"
+                data-testid="chart-subtitle"
+              >
                 {subtitle}
-              </Typography>
+              </p>
             )}
-          </Box>
-          
-          <Box
-            className="chart-actions"
-            sx={{
-              display: 'flex',
-              gap: 1,
-              opacity: 0.7,
-              transition: 'opacity 0.2s ease-in-out',
-            }}
-          >
-            {actions}
-            {onExport && (
-              <>
-                <Tooltip title="Export Chart">
-                  <IconButton 
-                    size="small" 
-                    onClick={(e) => setExportMenuAnchor(e.currentTarget)}
-                  >
-                    <DownloadIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  anchorEl={exportMenuAnchor}
-                  open={Boolean(exportMenuAnchor)}
-                  onClose={() => setExportMenuAnchor(null)}
-                >
-                  <MenuItem onClick={() => {
-                    onExport('PNG');
-                    setExportMenuAnchor(null);
-                  }}>
-                    Export as PNG
-                  </MenuItem>
-                  <MenuItem onClick={() => {
-                    onExport('SVG');
-                    setExportMenuAnchor(null);
-                  }}>
-                    Export as SVG
-                  </MenuItem>
-                  <MenuItem onClick={() => {
-                    onExport('PDF');
-                    setExportMenuAnchor(null);
-                  }}>
-                    Export as PDF
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
-            {onFullscreen && (
-              <Tooltip title="Fullscreen">
-                <IconButton size="small" onClick={onFullscreen}>
-                  <FullscreenIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
-          </Box>
-        </Box>
+          </div>
+        </CardHeader>
       )}
 
       {/* Chart Content */}
-      <Box
-        sx={{
-          height,
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {loading && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.8)',
-              zIndex: 1,
-            }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Loading chart data...
-            </Typography>
-          </Box>
-        )}
-        
-        {error && (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              color: 'error.main',
-            }}
-          >
-            <Typography variant="body2">
-              Error loading chart: {error}
-            </Typography>
-          </Box>
-        )}
-        
-        {!loading && !error && children}
-      </Box>
-    </Paper>
+      <CardContent className="pb-6">
+        <div
+          className="relative flex items-center justify-center"
+          style={{ height }}
+          role="img"
+          aria-labelledby={titleId}
+          aria-describedby={subtitleId}
+        >
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Loading chart data...</span>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="flex items-center justify-center h-full text-destructive">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                <span className="text-sm">Error loading chart: {error}</span>
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && children}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
-export default BaseChart; 
+export default BaseChart;

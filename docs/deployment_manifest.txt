@@ -1,0 +1,80 @@
+FinVision API Documentation Deployment Manifest
+Generated: Tue Aug 12 04:12:00 +04 2025
+Version: 1.0.0
+
+Files included:
+docs/ADMIN_DASHBOARD_DESIGN_SYSTEM_REVIEW.md
+docs/AGENTS.md
+docs/API_DOCUMENTATION.md
+docs/API_QUICK_START.md
+docs/API_README.md
+docs/COLOR_PALETTE_AUDIT_REPORT.md
+docs/COLOR_PALETTE_FIXES.md
+docs/COMPONENTS_AND_PAGES_DOCUMENTATION.md
+docs/CSS_AND_TOKENS_AUDIT_REPORT.md
+docs/DESIGN_SYSTEM_STYLES_REVIEW.md
+docs/FinVision_API.postman_collection.json
+docs/RAILWAY_DEPLOYMENT.md
+docs/README.md
+docs/architecture/README.md
+docs/architecture/backend-frontend-comparison.md
+docs/architecture/core-financial-modeling-deduplication-summary.md
+docs/architecture/lean-financial-app-documentation.md
+docs/design-system/README.md
+docs/design-system/build.md
+docs/design-system/components-state-audit.md
+docs/design-system/tailwind.md
+docs/design-system/themes.md
+docs/design-system/tokens.md
+docs/development/contributing.md
+docs/development/rfc.md
+docs/implementation/backend/database-schema.md
+docs/implementation/backend/deploy-health-check-fix.md
+docs/implementation/backend/deploy-websocket-fix.md
+docs/implementation/backend/qa-procedures.md
+docs/implementation/backend/security-audit.md
+docs/implementation/backend/testing.md
+docs/implementation/frontend/README.md
+docs/implementation/frontend/attributions.md
+docs/implementation/frontend/build-optimization.md
+docs/implementation/frontend/color-migration-guide.md
+docs/implementation/frontend/component-streamlining-summary.md
+docs/implementation/frontend/debug-deployment.md
+docs/implementation/frontend/design-audit-report.md
+docs/implementation/frontend/design-system-improvements.md
+docs/implementation/frontend/design-system-integration-guide.md
+docs/implementation/frontend/design-tokens-implementation.md
+docs/implementation/frontend/migration-summary.md
+docs/implementation/frontend/netlify-jsx-fix.md
+docs/implementation/frontend/netlify-optimization-summary.md
+docs/implementation/frontend/optimization-results.md
+docs/implementation/frontend/pages-functional-improvement-prd.md
+docs/implementation/frontend/pnpm-migration.md
+docs/implementation/frontend/storybook-config.md
+docs/implementation/frontend/storybook-improvements.md
+docs/implementation/frontend/storybook-troubleshooting.md
+docs/implementation/root-level/README.md
+docs/implementation/root-level/agents.md
+docs/implementation/root-level/storybook-prd.md
+docs/openapi.yaml
+docs/product-requirements/README.md
+docs/product-requirements/lean_financial_modeling_plan.md
+docs/product-requirements/prd-login-reports-components.md
+docs/product-requirements/prd-v1.md
+docs/product-requirements/prd-v2.md
+docs/project-management/admin-backlog.md
+docs/project-management/storybook-styles-analysis.md
+docs/project-management/storybook-tasks.md
+docs/redocs/README.md
+docs/redocs/index.html
+docs/redocs/landing.html
+docs/redocs/swagger.html
+
+Endpoints configured:
+- /docs/ - Documentation landing page
+- /docs/redoc - ReDoc interface
+- /docs/swagger - Swagger UI interface
+- /docs/openapi.yaml - OpenAPI specification
+- /docs/postman - Postman collection
+
+Railway deployment ready!

@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Progress } from '../ui/progress';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Alert, AlertDescription } from '../ui/alert';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle, 
-  Clock, 
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Progress } from '@/design-system/atoms';
+import { Badge } from '@/design-system/atoms';
+import { Button } from '@/design-system/atoms';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Clock,
   FileText,
   Loader2,
   Play,
-  Square
+  Square,
 } from 'lucide-react';
 import { fileApi } from '../../services/fileApi';
 
@@ -45,7 +51,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
   onComplete,
   onError,
   autoRefresh = true,
-  refreshInterval = 2000
+  refreshInterval = 2000,
 }) => {
   const [job, setJob] = useState<ProcessingJob>({
     id: taskId || '',
@@ -53,7 +59,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
     fileSize: 0,
     progress: 0,
     status: 'idle',
-    startTime: new Date()
+    startTime: new Date(),
   });
   const [isPolling, setIsPolling] = useState(false);
 
@@ -64,7 +70,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
     { id: 'detection', label: 'Detecting financial statements', progress: 50 },
     { id: 'extraction', label: 'Extracting data', progress: 70 },
     { id: 'validation_final', label: 'Final validation', progress: 90 },
-    { id: 'completion', label: 'Processing complete', progress: 100 }
+    { id: 'completion', label: 'Processing complete', progress: 100 },
   ];
 
   const getCurrentStep = (progress: number) => {
@@ -76,19 +82,23 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
     return processingSteps[0];
   };
 
-  const pollTaskStatus = async () => {
+  const pollTaskStatus = useCallback(async () => {
     if (!taskId || !isPolling) return;
 
     try {
       const status = await fileApi.getTaskStatus(taskId);
-      
+
       setJob(prev => ({
         ...prev,
         progress: status.current || 0,
-        status: status.state === 'SUCCESS' ? 'completed' : 
-                status.state === 'FAILURE' ? 'error' : 'processing',
+        status:
+          status.state === 'SUCCESS'
+            ? 'completed'
+            : status.state === 'FAILURE'
+              ? 'error'
+              : 'processing',
         currentStep: status.status || 'Processing...',
-        errorMessage: status.error
+        errorMessage: status.error,
       }));
 
       if (status.state === 'SUCCESS') {
@@ -102,7 +112,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       console.error('Failed to poll task status:', error);
       // Continue polling on error, might be temporary
     }
-  };
+  }, [taskId, isPolling, onComplete, onError]);
 
   useEffect(() => {
     if (autoRefresh && taskId && job.status === 'processing') {
@@ -110,23 +120,30 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       const interval = setInterval(pollTaskStatus, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [taskId, autoRefresh, refreshInterval, job.status, isPolling]);
+  }, [
+    taskId,
+    autoRefresh,
+    refreshInterval,
+    job.status,
+    isPolling,
+    pollTaskStatus,
+  ]);
 
   const startProcessing = async () => {
     try {
       setJob(prev => ({ ...prev, status: 'processing', progress: 0 }));
-      
+
       const result = await fileApi.startProcessing(fileId, {
         auto_detect_statements: true,
         preserve_formulas: true,
         validate_data: true,
-        extract_metadata: true
+        extract_metadata: true,
       });
 
       setJob(prev => ({
         ...prev,
         id: result.task_id,
-        status: 'processing'
+        status: 'processing',
       }));
 
       if (autoRefresh) {
@@ -136,7 +153,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       setJob(prev => ({
         ...prev,
         status: 'error',
-        errorMessage: error.message || 'Failed to start processing'
+        errorMessage: error.message || 'Failed to start processing',
       }));
       onError?.(error.message || 'Failed to start processing');
     }
@@ -144,7 +161,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
 
   const cancelProcessing = async () => {
     if (!taskId) return;
-    
+
     try {
       await fileApi.cancelProcessing(fileId);
       setJob(prev => ({ ...prev, status: 'idle', progress: 0 }));
@@ -175,7 +192,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       uploading: 'default',
       processing: 'default',
       completed: 'default',
-      error: 'destructive'
+      error: 'destructive',
     } as const;
 
     const labels = {
@@ -183,7 +200,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
       uploading: 'Uploading',
       processing: 'Processing',
       completed: 'Completed',
-      error: 'Failed'
+      error: 'Failed',
     };
 
     return (
@@ -233,7 +250,9 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
         {/* Processing Steps */}
         {job.status === 'processing' && (
           <div className="space-y-2">
-            <div className="text-sm font-medium text-muted-foreground">Processing Steps:</div>
+            <div className="text-sm font-medium text-muted-foreground">
+              Processing Steps:
+            </div>
             <div className="grid grid-cols-1 gap-1">
               {processingSteps.map((step, index) => (
                 <div
@@ -241,14 +260,16 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
                   className={`flex items-center space-x-2 text-sm ${
                     job.progress >= step.progress
                       ? 'text-green-600'
-                      : job.progress >= (processingSteps[index - 1]?.progress || 0)
-                      ? 'text-blue-600 font-medium'
-                      : 'text-gray-400'
+                      : job.progress >=
+                          (processingSteps[index - 1]?.progress || 0)
+                        ? 'text-blue-600 font-medium'
+                        : 'text-gray-400'
                   }`}
                 >
                   {job.progress >= step.progress ? (
                     <CheckCircle className="h-4 w-4" />
-                  ) : job.progress >= (processingSteps[index - 1]?.progress || 0) ? (
+                  ) : job.progress >=
+                    (processingSteps[index - 1]?.progress || 0) ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <div className="h-4 w-4 rounded-full border border-gray-300" />
@@ -273,7 +294,8 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              Processing completed successfully! Your Excel file has been analyzed and financial statements have been detected.
+              Processing completed successfully! Your Excel file has been
+              analyzed and financial statements have been detected.
             </AlertDescription>
           </Alert>
         )}
@@ -283,9 +305,7 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>Duration: {formatDuration(job.startTime)}</span>
             {job.estimatedCompletion && job.status === 'processing' && (
-              <span>
-                ETA: {job.estimatedCompletion.toLocaleTimeString()}
-              </span>
+              <span>ETA: {job.estimatedCompletion.toLocaleTimeString()}</span>
             )}
           </div>
         )}
@@ -293,7 +313,10 @@ const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
         {/* Action Buttons */}
         <div className="flex space-x-2">
           {job.status === 'idle' && (
-            <Button onClick={startProcessing} className="flex items-center space-x-2">
+            <Button
+              onClick={startProcessing}
+              className="flex items-center space-x-2"
+            >
               <Play className="h-4 w-4" />
               <span>Start Processing</span>
             </Button>

@@ -1,18 +1,30 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Alert, AlertDescription } from '../ui/alert';
-import { 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/design-system/molecules';
+import { Badge } from '@/design-system/atoms';
+import { Button } from '@/design-system/atoms';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/design-system/molecules';
+import { Alert, AlertDescription } from '@/design-system/molecules';
+import {
+  TrendingUp,
+  TrendingDown,
   DollarSign,
   FileSpreadsheet,
   Check,
   X,
   AlertCircle,
-  Info
+  Info,
 } from 'lucide-react';
 
 interface DetectedStatement {
@@ -50,31 +62,36 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
   detectedStatements,
   onAssignmentsChange,
   onConfirm,
-  className
+  className,
 }) => {
   const [assignments, setAssignments] = useState<StatementAssignment[]>(() => {
     return sheets.map(sheet => {
-      const detected = detectedStatements.find(d => d.sheet_name === sheet.name);
+      const detected = detectedStatements.find(
+        d => d.sheet_name === sheet.name
+      );
       return {
         sheet_name: sheet.name,
         assigned_type: detected?.statement_type || null,
         confidence: detected?.confidence || 0,
-        is_manual: false
+        is_manual: false,
       };
     });
   });
 
-  const updateAssignment = (sheetName: string, statementType: StatementType | null) => {
-    const newAssignments = assignments.map(assignment => 
+  const updateAssignment = (
+    sheetName: string,
+    statementType: StatementType | null
+  ) => {
+    const newAssignments = assignments.map(assignment =>
       assignment.sheet_name === sheetName
-        ? { 
-            ...assignment, 
+        ? {
+            ...assignment,
             assigned_type: statementType,
-            is_manual: true
+            is_manual: true,
           }
         : assignment
     );
-    
+
     setAssignments(newAssignments);
     onAssignmentsChange?.(newAssignments);
   };
@@ -94,7 +111,6 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
     }
   };
 
-
   const getConfidenceBadge = (assignment: StatementAssignment) => {
     if (assignment.is_manual) {
       return (
@@ -112,11 +128,19 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
       );
     }
 
-    const variant = assignment.confidence >= 0.8 ? 'default' : 
-                   assignment.confidence >= 0.6 ? 'secondary' : 'outline';
-    const label = assignment.confidence >= 0.8 ? 'High' : 
-                  assignment.confidence >= 0.6 ? 'Medium' : 'Low';
-    
+    const variant =
+      assignment.confidence >= 0.8
+        ? 'default'
+        : assignment.confidence >= 0.6
+          ? 'secondary'
+          : 'outline';
+    const label =
+      assignment.confidence >= 0.8
+        ? 'High'
+        : assignment.confidence >= 0.6
+          ? 'Medium'
+          : 'Low';
+
     return (
       <Badge variant={variant} className="text-xs">
         {label} ({Math.round(assignment.confidence * 100)}%)
@@ -125,18 +149,20 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
   };
 
   const getValidationStatus = () => {
-    const assignedStatements = assignments.filter(a => a.assigned_type && a.assigned_type !== 'OTHER');
+    const assignedStatements = assignments.filter(
+      a => a.assigned_type && a.assigned_type !== 'OTHER'
+    );
     const statementTypes = assignedStatements.map(a => a.assigned_type);
-    
-    const duplicates = statementTypes.filter((type, index) => 
-      statementTypes.indexOf(type) !== index
+
+    const duplicates = statementTypes.filter(
+      (type, index) => statementTypes.indexOf(type) !== index
     );
 
     return {
       hasAssignments: assignedStatements.length > 0,
       hasDuplicates: duplicates.length > 0,
       duplicateTypes: [...new Set(duplicates)],
-      assignedCount: assignedStatements.length
+      assignedCount: assignedStatements.length,
     };
   };
 
@@ -150,15 +176,17 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
 
   const resetToDetected = () => {
     const resetAssignments = sheets.map(sheet => {
-      const detected = detectedStatements.find(d => d.sheet_name === sheet.name);
+      const detected = detectedStatements.find(
+        d => d.sheet_name === sheet.name
+      );
       return {
         sheet_name: sheet.name,
         assigned_type: detected?.statement_type || null,
         confidence: detected?.confidence || 0,
-        is_manual: false
+        is_manual: false,
       };
     });
-    
+
     setAssignments(resetAssignments);
     onAssignmentsChange?.(resetAssignments);
   };
@@ -171,7 +199,8 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
           <span>Statement Type Assignment</span>
         </CardTitle>
         <CardDescription>
-          Review and adjust the detected financial statement types for each sheet
+          Review and adjust the detected financial statement types for each
+          sheet
         </CardDescription>
       </CardHeader>
 
@@ -181,8 +210,9 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Multiple sheets are assigned the same statement type: {validation.duplicateTypes.join(', ')}. 
-              Each statement type should only be assigned to one sheet.
+              Multiple sheets are assigned the same statement type:{' '}
+              {validation.duplicateTypes.join(', ')}. Each statement type should
+              only be assigned to one sheet.
             </AlertDescription>
           </Alert>
         )}
@@ -191,19 +221,23 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              No financial statements have been assigned. Assign at least one sheet to continue with processing.
+              No financial statements have been assigned. Assign at least one
+              sheet to continue with processing.
             </AlertDescription>
           </Alert>
         )}
 
         {/* Sheet Assignments */}
         <div className="space-y-4">
-          {assignments.map((assignment) => {
+          {assignments.map(assignment => {
             const sheet = sheets.find(s => s.name === assignment.sheet_name);
             if (!sheet) return null;
 
             return (
-              <div key={assignment.sheet_name} className="flex items-center justify-between p-4 border rounded-lg">
+              <div
+                key={assignment.sheet_name}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
                 <div className="flex items-center space-x-3 flex-1">
                   {getStatementTypeIcon(assignment.assigned_type)}
                   <div className="flex-1">
@@ -216,18 +250,23 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
 
                 <div className="flex items-center space-x-3">
                   {getConfidenceBadge(assignment)}
-                  
+
                   <Select
-                    value={assignment.assigned_type || ''}
-                    onValueChange={(value: string) => 
-                      updateAssignment(assignment.sheet_name, value as StatementType || null)
+                    value={assignment.assigned_type || 'NOT_ASSIGNED'}
+                    onValueChange={(value: string) =>
+                      updateAssignment(
+                        assignment.sheet_name,
+                        value === 'NOT_ASSIGNED'
+                          ? null
+                          : (value as StatementType)
+                      )
                     }
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">
+                      <SelectItem value="NOT_ASSIGNED">
                         <div className="flex items-center space-x-2">
                           <X className="h-4 w-4 text-gray-400" />
                           <span>Not Assigned</span>
@@ -295,7 +334,7 @@ const StatementSelector: React.FC<StatementSelectorProps> = ({
           <Button variant="outline" onClick={resetToDetected}>
             Reset to Detected
           </Button>
-          
+
           <div className="space-x-2">
             <Button
               onClick={handleConfirm}

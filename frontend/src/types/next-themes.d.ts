@@ -9,7 +9,10 @@ declare module 'next-themes' {
   }
 
   export const ThemeProvider: React.FC<ThemeProviderProps>;
-  export const useTheme: () => { theme: string; setTheme: (theme: string) => void };
+  export const useTheme: () => {
+    theme: string;
+    setTheme: (theme: string) => void;
+  };
 }
 
 declare module 'next-themes/dist/types' {

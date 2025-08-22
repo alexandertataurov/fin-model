@@ -1,5 +1,6 @@
 from enum import Enum as PyEnum
-from typing import List, Set, Dict, Any
+from typing import Dict, List, Set
+
 from app.models.role import RoleType
 
 
@@ -47,6 +48,8 @@ class Permission(PyEnum):
     AUDIT_LOGS = "audit:logs"
     SYSTEM_HEALTH = "system:health"
     ADMIN_ACCESS = "admin:access"
+    ADMIN_READ = "admin:read"
+    ADMIN_WRITE = "admin:write"
 
 
 # Role-based permission mapping
@@ -83,6 +86,8 @@ ROLE_PERMISSIONS: Dict[RoleType, Set[Permission]] = {
         Permission.AUDIT_LOGS,
         Permission.SYSTEM_HEALTH,
         Permission.ADMIN_ACCESS,
+        Permission.ADMIN_READ,
+        Permission.ADMIN_WRITE,
     },
     RoleType.ANALYST: {
         # Can work with models, data, and reports but limited user management
@@ -126,12 +131,16 @@ class PermissionChecker:
     """Helper class for checking permissions."""
 
     @staticmethod
-    def has_permission(user_roles: List[str], required_permission: Permission) -> bool:
+    def has_permission(
+        user_roles: List[str], required_permission: Permission
+    ) -> bool:
         """Check if user roles have the required permission."""
         for role_str in user_roles:
             try:
                 role = RoleType(role_str)
-                if required_permission in ROLE_PERMISSIONS.get(role, set()):
+                if required_permission in ROLE_PERMISSIONS.get(
+                    role, set()
+                ):
                     return True
             except ValueError:
                 continue
@@ -185,7 +194,9 @@ class PermissionChecker:
 
         # Users can access their own resources
         if resource_owner_id == current_user_id:
-            return PermissionChecker.has_permission(user_roles, required_permission)
+            return PermissionChecker.has_permission(
+                user_roles, required_permission
+            )
 
         # For other users' resources, need explicit permission
         # Analysts can read others' work, but viewers cannot
@@ -194,7 +205,9 @@ class PermissionChecker:
             Permission.REPORT_READ,
             Permission.DATA_READ,
         ]:
-            return PermissionChecker.has_permission(user_roles, required_permission)
+            return PermissionChecker.has_permission(
+                user_roles, required_permission
+            )
 
         return False
 
@@ -232,5 +245,7 @@ def get_permission_description(permission: Permission) -> str:
         Permission.AUDIT_LOGS: "View system audit logs",
         Permission.SYSTEM_HEALTH: "View system health and metrics",
         Permission.ADMIN_ACCESS: "Access administrative functions",
+        Permission.ADMIN_READ: "View administrative metrics and data",
+        Permission.ADMIN_WRITE: "Modify administrative settings",
     }
     return descriptions.get(permission, "Unknown permission")
